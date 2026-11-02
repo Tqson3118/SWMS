@@ -69,11 +69,13 @@ interface WorkspaceState {
   // Persistent drafts across mode switches (Decision G & ADR-007)
   notebookDraftTextBySource: Record<string, string>;
   practiceQuizDraftAnswers: Record<string, string>;
+  currentDocumentPage: number;
 
   setActiveMode: (mode: WorkspaceMode) => void;
   setActiveReviewSubTab: (tab: "fsrs" | "quiz") => void;
   setActiveLesson: (lessonId: string) => void;
-  setActiveDocument: (documentId: string) => void;
+  setActiveDocument: (documentId: string, initialPage?: number) => void;
+  setCurrentDocumentPage: (page: number) => void;
   setSelectedTagFilterId: (tagId: string | null) => void;
   toggleSidebar: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
@@ -112,13 +114,15 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       dismissedOrphanBanner: false,
       notebookDraftTextBySource: {},
       practiceQuizDraftAnswers: {},
+      currentDocumentPage: 1,
 
       setActiveMode: (mode) => set({ activeMode: mode }),
       setActiveReviewSubTab: (tab) => set({ activeReviewSubTab: tab }),
       setActiveLesson: (lessonId) =>
         set({ activeLessonId: lessonId, sourceType: "lesson", activeDocumentId: null }),
-      setActiveDocument: (documentId) =>
-        set({ activeDocumentId: documentId, sourceType: "document" }),
+      setActiveDocument: (documentId, initialPage = 1) =>
+        set({ activeDocumentId: documentId, sourceType: "document", currentDocumentPage: Math.max(1, initialPage) }),
+      setCurrentDocumentPage: (page) => set({ currentDocumentPage: Math.max(1, page) }),
       setSelectedTagFilterId: (tagId) => set({ selectedTagFilterId: tagId }),
       toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
       setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),

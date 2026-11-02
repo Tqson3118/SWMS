@@ -24,6 +24,7 @@ interface DueFlashcardItem {
   id: string;
   lessonId?: string;
   documentId?: string;
+  pageNumber?: number;
   annotationId?: string;
   cardType: string;
   sourceTitleSnapshot?: string;
@@ -574,12 +575,16 @@ export function ReviewAndPracticeView({
                           </span>
                           <button
                             type="button"
+                            data-testid="jump-to-source-btn"
                             onClick={(e) => {
                               e.stopPropagation();
                               if (currentCard.lessonId) {
                                 setActiveLesson(currentCard.lessonId);
                               } else if (currentCard.documentId) {
-                                setActiveDocument(currentCard.documentId);
+                                setActiveDocument(
+                                  currentCard.documentId,
+                                  currentCard.pageNumber ?? 1
+                                );
                               }
                               setActiveMode("split");
                             }}

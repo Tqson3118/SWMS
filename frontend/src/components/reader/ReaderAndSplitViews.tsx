@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import * as pdfjsLib from "pdfjs-dist";
 import {
   Lightbulb,
   Code2,
@@ -13,6 +14,8 @@ import {
   FileText,
   ChevronsRight,
   ChevronsLeft,
+  ChevronRight,
+  ChevronLeft,
   Maximize2,
   Columns2,
   ArrowUpRight,
@@ -31,6 +34,11 @@ import {
 import { useSynchronizedScroll } from "@/hooks/useSynchronizedScroll";
 import { useNotebookAutoSave } from "@/hooks/useNotebookAutoSave";
 import { scrollToAndPulseHighlight } from "@/lib/animations";
+
+// Configure PDF.js offline worker without external CDN
+if (typeof window !== "undefined") {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+}
 
 function renderSemanticHighlightIcon(iconName: string, className = "w-3 h-3 inline-block") {
   switch (iconName) {
@@ -51,8 +59,10 @@ function renderSemanticHighlightIcon(iconName: string, className = "w-3 h-3 inli
 
 export interface AnnotationItem {
   id: string;
-  lessonId?: string;
-  blockId?: string;
+  lessonId?: string | null;
+  documentId?: string | null;
+  blockId?: string | null;
+  pageNumber?: number | null;
   exactQuote: string;
   originalExactQuote: string;
   prefixQuote?: string;
@@ -68,19 +78,33 @@ export interface AnnotationItem {
   createdAt: string;
 }
 
+export interface DocumentPageDto {
+  id?: string;
+  documentId: string;
+  pageNumber: number;
+  plainText: string;
+  hasTextLayer: boolean;
+  charCount?: number;
+  characterCount?: number;
+  wordCount?: number;
+}
+
 export interface AstNode {
   type: string;
-  attrs?: Record<string, string | number | undefined>;
+  attrs?: Record<string, string | number | null | undefined>;
   content?: Array<{ type: string; text?: string }>;
 }
 
 export interface LessonDetail {
   id: string;
   title: string;
-  slug: string;
+  slug?: string;
   currentVersion: number;
-  plainText: string;
-  contentAst: {
+  plainText?: string;
+  totalPages?: number;
+  fileSizeBytes?: number;
+  ocrStatus?: string;
+  contentAst?: {
     type: string;
     content: AstNode[];
   };
@@ -98,16 +122,57 @@ export interface NotebookDetail {
   activeAnnotationIds?: string[];
 }
 
+export interface DocumentSummary {
+  id: string;
+  title: string;
+  totalPages: number;
+  fileSizeBytes: number;
+  ocrStatus: string;
+  updatedAt?: string;
+}
+
+export interface LessonSummary {
+  id: string;
+  title: string;
+  slug: string;
+  currentVersion: number;
+  updatedAt?: string;
+}
+
 interface ReaderAndSplitViewsProps {
   mode: "reading" | "split";
   onDataMutated: () => void;
+  documents?: DocumentSummary[];
+  lessons?: LessonSummary[];
 }
 
-export function ReaderAndSplitViews({ mode, onDataMutated }: ReaderAndSplitViewsProps) {
+function generatePageJumps(totalPages: number, currentPage: number): number[] {
+  if (totalPages <= 15) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  const step = totalPages > 200 ? 50 : totalPages > 100 ? 25 : 10;
+  const jumps = new Set<number>([1, totalPages]);
+  for (let p = step; p < totalPages; p += step) {
+    jumps.add(p);
+  }
+  jumps.add(currentPage);
+  if (currentPage > 1) jumps.add(currentPage - 1);
+  if (currentPage < totalPages) jumps.add(currentPage + 1);
+  return Array.from(jumps).sort((a, b) => a - b);
+}
+
+export function ReaderAndSplitViews({
+  mode,
+  onDataMutated,
+  documents,
+  lessons
+}: ReaderAndSplitViewsProps) {
   const {
     activeLessonId,
     activeDocumentId,
     sourceType,
+    currentDocumentPage,
+    setCurrentDocumentPage,
     setActiveMode,
     setActiveLesson,
     setActiveDocument,
@@ -133,11 +198,44 @@ export function ReaderAndSplitViews({ mode, onDataMutated }: ReaderAndSplitViews
     setNotebookDraftText
   } = useWorkspaceStore();
 
+  const effectiveLessons = (lessons && lessons.length > 0)
+    ? lessons
+    : [
+        { id: "44444444-4444-4444-8444-444444444444", title: "3.2 Bộ nhớ ảo & TLB", slug: "3-2-bo-nho-ao-tlb", currentVersion: 1 },
+        { id: "55555555-5555-5555-8555-555555555555", title: "3.3 Thay thế trang LRU", slug: "3-3-thay-the-trang-lru", currentVersion: 1 }
+      ];
+
+  const docList = [...(documents || [])];
+  if (
+    activeDocumentId === "66666666-6666-6666-8666-666666666666" &&
+    !docList.some((d) => d.id === "66666666-6666-6666-8666-666666666666")
+  ) {
+    docList.push({
+      id: "66666666-6666-6666-8666-666666666666",
+      title: "OSTEP Paging.pdf",
+      totalPages: 18,
+      fileSizeBytes: 1240000,
+      ocrStatus: "completed"
+    });
+  }
+
+  const activeDoc = docList.find((d) => d.id === activeDocumentId);
+
   const [lesson, setLesson] = useState<LessonDetail | null>(null);
   const [notebook, setNotebook] = useState<NotebookDetail | null>(null);
   const [selectedText, setSelectedText] = useState<string>("");
   const [selectedBlockId, setSelectedBlockId] = useState<string>("");
   const [selectedColorKey, setSelectedColorKey] = useState<SemanticHighlightConfig["key"]>("yellow");
+
+  // PDF Viewer & Dual-Layer Reader states
+  const [currentPageData, setCurrentPageData] = useState<DocumentPageDto | null>(null);
+  const [pageLoading, setPageLoading] = useState(false);
+  const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+  const [pdfTotalPages, setPdfTotalPages] = useState<number>(1);
+  const [jumpPageInput, setJumpPageInput] = useState<string>("1");
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const currentRenderTaskRef = useRef<pdfjsLib.RenderTask | null>(null);
+  const pageCacheRef = useRef<Map<number, DocumentPageDto>>(new Map());
 
   // Draft Flashcard Confirmation Popover state (Section 5.9 & Decision 5)
   const [draftPopoverOpen, setDraftPopoverOpen] = useState(false);
@@ -294,9 +392,19 @@ export function ReaderAndSplitViews({ mode, onDataMutated }: ReaderAndSplitViews
       const data: LessonDetail = {
         ...rawData,
         currentVersion: rawData.currentVersion ?? 1,
+        totalPages: rawData.totalPages,
         annotations: rawData.annotations ?? []
       };
       setLesson(data);
+      if (isDocMode && data.totalPages) {
+        setPdfTotalPages(data.totalPages);
+      }
+      if (isDocMode && rawData.initialPage) {
+        pageCacheRef.current.set(1, rawData.initialPage);
+        if (currentDocumentPage === 1) {
+          setCurrentPageData(rawData.initialPage);
+        }
+      }
 
       // Auto-provision or fetch linked Freeform Notebook (Decision 3)
       const nbRes = await fetch("/api/v1/notebooks/by-source", {
@@ -319,6 +427,204 @@ export function ReaderAndSplitViews({ mode, onDataMutated }: ReaderAndSplitViews
     loadLessonAndNotebook();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLessonId, activeDocumentId, sourceType]);
+
+  // Load PDF Document Proxy when activeDocumentId changes in document mode
+  useEffect(() => {
+    const isDocMode = sourceType === "document" && Boolean(activeDocumentId);
+    if (!isDocMode || !activeDocumentId) {
+      setPdfDoc(null);
+      return;
+    }
+
+    let isMounted = true;
+    pageCacheRef.current.clear();
+
+    const loadPdf = async () => {
+      try {
+        const loadingTask = pdfjsLib.getDocument({
+          url: `/api/v1/documents/${activeDocumentId}/file`,
+          cMapPacked: true
+        });
+        const doc = await loadingTask.promise;
+        if (isMounted) {
+          setPdfDoc(doc);
+          setPdfTotalPages(doc.numPages);
+        }
+      } catch (err) {
+        console.error("Failed to load PDF binary via pdfjs:", err);
+      }
+    };
+
+    loadPdf();
+
+    return () => {
+      isMounted = false;
+      if (currentRenderTaskRef.current) {
+        try {
+          currentRenderTaskRef.current.cancel();
+        } catch {}
+        currentRenderTaskRef.current = null;
+      }
+    };
+  }, [activeDocumentId, sourceType]);
+
+  // Render active PDF page on visual canvas
+  useEffect(() => {
+    const isDocMode = sourceType === "document" && Boolean(activeDocumentId);
+    if (!isDocMode || !pdfDoc || !canvasRef.current) return;
+
+    let isCancelled = false;
+
+    const renderPage = async () => {
+      if (currentRenderTaskRef.current) {
+        try {
+          currentRenderTaskRef.current.cancel();
+        } catch {}
+        currentRenderTaskRef.current = null;
+      }
+
+      try {
+        const pageNum = Math.max(1, Math.min(pdfDoc.numPages, currentDocumentPage));
+        const page = await pdfDoc.getPage(pageNum);
+        if (isCancelled || !canvasRef.current) return;
+
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = canvasRef.current;
+        const context = canvas.getContext("2d", { willReadFrequently: true });
+        if (!context) return;
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+
+        const renderTask = page.render(renderContext);
+        currentRenderTaskRef.current = renderTask;
+
+        await renderTask.promise;
+        currentRenderTaskRef.current = null;
+      } catch (err: any) {
+        if (err?.name !== "RenderingCancelledException") {
+          console.error("PDF page render error:", err);
+        }
+      }
+    };
+
+    renderPage();
+
+    return () => {
+      isCancelled = true;
+      if (currentRenderTaskRef.current) {
+        try {
+          currentRenderTaskRef.current.cancel();
+        } catch {}
+        currentRenderTaskRef.current = null;
+      }
+    };
+  }, [pdfDoc, currentDocumentPage, activeDocumentId, sourceType, mode]);
+
+  // Fetch page text data for currentDocumentPage
+  useEffect(() => {
+    const isDocMode = sourceType === "document" && Boolean(activeDocumentId);
+    if (!isDocMode || !activeDocumentId) {
+      setCurrentPageData(null);
+      return;
+    }
+
+    const pageNum = currentDocumentPage;
+    setJumpPageInput(String(pageNum));
+
+    const cached = pageCacheRef.current.get(pageNum);
+    if (cached) {
+      setCurrentPageData(cached);
+      return;
+    }
+
+    let isMounted = true;
+    setPageLoading(true);
+
+    const fetchPage = async () => {
+      try {
+        const res = await fetch(`/api/v1/documents/${activeDocumentId}/pages/${pageNum}`);
+        if (res.ok) {
+          const data: DocumentPageDto = await res.json();
+          pageCacheRef.current.set(pageNum, data);
+          if (isMounted) {
+            setCurrentPageData(data);
+          }
+        } else if (res.status === 404) {
+          const emptyPage: DocumentPageDto = {
+            documentId: activeDocumentId,
+            pageNumber: pageNum,
+            plainText: "",
+            hasTextLayer: false
+          };
+          pageCacheRef.current.set(pageNum, emptyPage);
+          if (isMounted) {
+            setCurrentPageData(emptyPage);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching page text:", err);
+      } finally {
+        if (isMounted) {
+          setPageLoading(false);
+        }
+      }
+    };
+
+    fetchPage();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeDocumentId, currentDocumentPage, sourceType]);
+
+  // Keyboard navigation for PDF pages (ArrowLeft/ArrowRight, PageUp/PageDown)
+  useEffect(() => {
+    const isDocMode = sourceType === "document" && Boolean(activeDocumentId);
+    if (!isDocMode) return;
+
+    const totalPages = pdfTotalPages || lesson?.totalPages || 1;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault();
+        setCurrentDocumentPage(Math.max(1, currentDocumentPage - 1));
+      } else if (e.key === "ArrowRight" || e.key === "PageDown") {
+        e.preventDefault();
+        setCurrentDocumentPage(Math.min(totalPages, currentDocumentPage + 1));
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeDocumentId, currentDocumentPage, pdfTotalPages, lesson?.totalPages, setCurrentDocumentPage, sourceType]);
+
+  const handleJumpPage = (e: React.FormEvent | React.KeyboardEvent) => {
+    if ("key" in e && e.key !== "Enter") return;
+    e.preventDefault();
+    const pageNum = parseInt(jumpPageInput, 10);
+    const totalPages = pdfTotalPages || lesson?.totalPages || 1;
+    if (!isNaN(pageNum)) {
+      const clamped = Math.max(1, Math.min(totalPages, pageNum));
+      setCurrentDocumentPage(clamped);
+      setJumpPageInput(String(clamped));
+    }
+  };
 
   // Keyboard shortcut Ctrl+\ to toggle sidebar
   useEffect(() => {
@@ -355,16 +661,31 @@ export function ReaderAndSplitViews({ mode, onDataMutated }: ReaderAndSplitViews
 
   const handleCreateHighlight = async (colorKey: SemanticHighlightConfig["key"]) => {
     if (!lesson) return;
-    const quoteToSave = selectedText.trim();
+    let quoteToSave = selectedText.trim();
+    if (!quoteToSave && typeof window !== "undefined") {
+      const liveSel = window.getSelection()?.toString().trim();
+      if (liveSel && liveSel.length >= 3) {
+        quoteToSave = liveSel;
+        setSelectedText(liveSel);
+      }
+    }
     if (!quoteToSave) {
       showToast("Vui lòng bôi đen một đoạn văn bản trong bài đọc trước khi đánh dấu hoặc tạo thẻ!");
       return;
     }
+
+    const isDocMode = sourceType === "document" && Boolean(activeDocumentId);
+    const fullText = isDocMode ? (currentPageData?.plainText || "") : (lesson.plainText || "");
+    const startIdx = fullText.indexOf(quoteToSave);
+    const startOffset = startIdx >= 0 ? startIdx : 0;
+    const endOffset = startOffset + quoteToSave.length;
+    const prefixQuote = fullText.slice(Math.max(0, startOffset - 32), startOffset);
+    const suffixQuote = fullText.slice(endOffset, Math.min(fullText.length, endOffset + 32));
+
     const firstParagraphBlock = lesson.contentAst?.content?.find((b) => b.type === "paragraph");
     const defaultBlockId =
       firstParagraphBlock?.attrs?.block_id || "aaaaaaa4-4444-4444-8444-444444444444";
-    const blockIdToUse = selectedBlockId || defaultBlockId;
-    const isDocMode = sourceType === "document" && Boolean(activeDocumentId);
+    const blockIdToUse = isDocMode ? null : (selectedBlockId || defaultBlockId);
 
     setSelectedColorKey(colorKey);
     const cfg = SEMANTIC_HIGHLIGHT_KEYS.find((c) => c.key === colorKey)!;
@@ -374,13 +695,15 @@ export function ReaderAndSplitViews({ mode, onDataMutated }: ReaderAndSplitViews
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         lessonId: isDocMode ? null : lesson.id,
-        documentId: isDocMode ? lesson.id : null,
-        blockId: blockIdToUse,
+        documentId: isDocMode ? (activeDocumentId || lesson.id) : null,
+        blockId: isDocMode ? null : blockIdToUse,
+        pageNumber: isDocMode ? currentDocumentPage : null,
         exactQuote: quoteToSave,
-        prefixQuote: "Phần cứng phân trang dựa trên ",
-        suffixQuote: " nằm trong MMU",
-        startOffset: 0,
-        endOffset: quoteToSave.length,
+        originalExactQuote: quoteToSave,
+        prefixQuote,
+        suffixQuote,
+        startOffset,
+        endOffset,
         colorKey,
         semanticLabel: cfg.label,
         noteComment: `Đánh dấu [${cfg.icon} ${cfg.label}]`
@@ -440,17 +763,23 @@ export function ReaderAndSplitViews({ mode, onDataMutated }: ReaderAndSplitViews
   };
 
   const handleCommitDraftFlashcard = async () => {
-    if (!lesson) return;
     const isDocMode = sourceType === "document" && Boolean(activeDocumentId);
+    if (!lesson && !activeDocumentId) return;
+    const targetAnn =
+      anchoredAnnotations.find((a) => a.exactQuote === (selectedText || draftFront)) ??
+      anchoredAnnotations[0] ??
+      null;
     const resp = await fetch("/api/v1/flashcards", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        lessonId: isDocMode ? null : lesson.id,
-        documentId: isDocMode ? lesson.id : null,
-        annotationId: anchoredAnnotations[0]?.id ?? null,
+        lessonId: isDocMode ? null : lesson?.id,
+        documentId: isDocMode ? (activeDocumentId || lesson?.id) : null,
+        annotationId: targetAnn?.id ?? null,
         cardType: draftMode === "cloze" ? "cloze" : "ai_generated",
-        sourceTitleSnapshot: lesson.title,
+        sourceTitleSnapshot: isDocMode
+          ? (activeDoc?.title || lesson?.title || "Tài liệu PDF")
+          : (lesson?.title || "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp"),
         sourceQuoteSnapshot: selectedText || draftFront,
         frontText: draftFront,
         backText: draftBack,
@@ -653,9 +982,73 @@ export function ReaderAndSplitViews({ mode, onDataMutated }: ReaderAndSplitViews
     return <>{segments}</>;
   };
 
+  // Render PDF text layer with page-aware annotations
+  const renderPdfTextWithHighlights = (text: string) => {
+    const pageAnns = anchoredAnnotations.filter(
+      (a) => a.documentId === activeDocumentId && (a.pageNumber ?? 1) === currentDocumentPage
+    );
+    if (pageAnns.length === 0) {
+      return text;
+    }
+
+    const located = pageAnns
+      .map((ann) => {
+        const idx = text.indexOf(ann.exactQuote);
+        return { ann, start: idx, end: idx + ann.exactQuote.length };
+      })
+      .filter((x) => x.start >= 0 && x.end > x.start)
+      .sort((a, b) => a.start - b.start);
+
+    if (located.length === 0) {
+      return text;
+    }
+
+    const segments: React.ReactNode[] = [];
+    let cursor = 0;
+
+    for (const item of located) {
+      if (item.start < cursor) continue; // skip overlapping range
+      if (item.start > cursor) {
+        segments.push(text.slice(cursor, item.start));
+      }
+      const match = text.slice(item.start, item.end);
+      const colorCfg =
+        SEMANTIC_HIGHLIGHT_KEYS.find((c) => c.key === item.ann.colorKey) ??
+        SEMANTIC_HIGHLIGHT_KEYS[0];
+
+      segments.push(
+        <mark
+          key={`mark-${item.ann.id}`}
+          id={`reader-highlight-${item.ann.id}`}
+          data-annotation-id={item.ann.id}
+          data-page={item.ann.pageNumber ?? currentDocumentPage}
+          className={`${colorCfg.cssClass} px-1 py-0.5 rounded-xs font-medium cursor-pointer transition`}
+          title={colorCfg.label}
+          onClick={() => handleOpenDraftFlashcardPopover(item.ann.exactQuote)}
+        >
+          <span className="inline-block mr-1 select-none align-text-bottom">
+            {renderSemanticHighlightIcon(colorCfg.icon, "w-3 h-3 inline-block")}
+          </span>
+          {match}
+        </mark>
+      );
+      cursor = item.end;
+    }
+
+    if (cursor < text.length) {
+      segments.push(text.slice(cursor));
+    }
+
+    return <>{segments}</>;
+  };
+
   // Reader Column Component shared between Mode 1 and Mode 2
-  const renderReaderColumn = () => (
-    <div className="space-y-5">
+  const renderReaderColumn = () => {
+    const isDocMode = sourceType === "document" && Boolean(activeDocumentId);
+    const totalPages = pdfTotalPages || lesson?.totalPages || activeDoc?.totalPages || 1;
+
+    return (
+      <div className="space-y-5">
       {/* Orphaned Highlight Non-Blocking Top Banner (Section 5.10 & Decision 14) */}
       {orphanedAnnotations.length > 0 && !dismissedOrphanBanner && (
         <div
@@ -904,69 +1297,199 @@ export function ReaderAndSplitViews({ mode, onDataMutated }: ReaderAndSplitViews
         <div className="flex items-center justify-between gap-2 pb-4 mb-6 border-b border-slate-100 dark:border-slate-800 font-sans">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-              Chương 3: Quản lý Bộ nhớ • Phiên bản v{lesson?.currentVersion ?? 2}
+              {isDocMode
+                ? `Tài liệu PDF • Trang ${currentDocumentPage} / ${totalPages}`
+                : `Chương 3: Quản lý Bộ nhớ • Phiên bản v${lesson?.currentVersion ?? 2}`}
             </span>
             <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-0.5">
-              {lesson?.title ?? "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp"}
+              {isDocMode
+                ? (activeDoc?.title || lesson?.title || "Tài liệu PDF")
+                : (lesson?.title ?? "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp")}
             </h1>
           </div>
         </div>
 
-        <div className="space-y-5 text-slate-800 dark:text-slate-200">
-          {(lesson?.contentAst?.content || []).map((node, i) => {
-            const blockId = String(node.attrs?.block_id ?? `block-${i}`);
-            const text = (node.content || []).map((c) => c.text || "").join("");
-            const blockAnns = anchoredAnnotations.filter((a) => a.blockId === blockId);
-
-            if (node.type === "heading") {
-              return (
-                <h2
-                  key={blockId}
-                  id={`block-${blockId}`}
-                  className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white pt-2 font-sans"
+        {isDocMode ? (
+          <div className="space-y-6 font-sans">
+            {/* Page Navigation & Controls Bar */}
+            <div
+              data-testid="pdf-page-navigation-bar"
+              className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800"
+            >
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  data-testid="pdf-prev-page-btn"
+                  disabled={currentDocumentPage <= 1}
+                  onClick={() => setCurrentDocumentPage(Math.max(1, currentDocumentPage - 1))}
+                  className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Trang trước (← / PageUp)"
                 >
-                  {text}
-                </h2>
-              );
-            }
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <div className="flex items-center gap-1.5 text-xs">
+                  <span data-testid="pdf-page-indicator" className="font-bold text-slate-900 dark:text-slate-100">
+                    Trang {currentDocumentPage} / {totalPages}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  data-testid="pdf-next-page-btn"
+                  disabled={currentDocumentPage >= totalPages}
+                  onClick={() => setCurrentDocumentPage(Math.min(totalPages, currentDocumentPage + 1))}
+                  className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Trang sau (→ / PageDown)"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
 
-            return (
-              <div
-                key={blockId}
-                id={`block-${blockId}`}
-                onMouseUp={() => handleTextSelectionInBlock(blockId, text)}
-                className="group relative leading-[1.8]"
-              >
-                <p>{renderBlockTextWithHighlights(blockId, text)}</p>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-slate-500 font-medium">Nhảy trang:</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={totalPages}
+                  value={jumpPageInput}
+                  onChange={(e) => setJumpPageInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleJumpPage(e);
+                  }}
+                  data-testid="pdf-jump-page-input"
+                  className="w-16 px-2 py-1 text-center font-bold text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  aria-label="Nhập số trang"
+                />
+                <button
+                  type="button"
+                  onClick={handleJumpPage}
+                  className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition cursor-pointer"
+                >
+                  Đi
+                </button>
+              </div>
+            </div>
 
-                {/* Bidirectional Margin Badges ([📝 N] [⚡ M]) */}
-                {blockAnns.length > 0 && (
-                  <div className="mt-2 flex flex-wrap items-center gap-2 font-sans text-[11px]">
-                    {blockAnns.map((ann) => (
-                      <div key={ann.id} className="inline-flex items-center gap-1.5">
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 font-semibold text-slate-700 dark:text-slate-300 inline-flex items-center gap-1">
-                          <Zap className="w-3 h-3 text-amber-500" />
-                          <span>{ann.linkedFlashcardsCount || 1} thẻ FSRS</span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleInsertCitationIntoNotebook(ann)}
-                          className="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 font-semibold hover:bg-indigo-600 hover:text-white transition cursor-pointer inline-flex items-center gap-1"
-                        >
-                          <FileText className="w-3 h-3" />
-                          <span>+ Trích dẫn sang ghi chú</span>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+            {/* Visual Canvas Layer */}
+            <div className="pdf-canvas-container flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-950 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-inner overflow-auto">
+              <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-2 w-full flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>Bản in trực quan PDF (Trang {currentDocumentPage})</span>
+                </span>
+                {pdfDoc && (
+                  <span className="text-[10px] text-slate-400">
+                    Khổ trang tự nhiên • Kết xuất qua PDF.js
+                  </span>
                 )}
               </div>
-            );
-          })}
-        </div>
+              <canvas
+                ref={canvasRef}
+                data-testid="pdf-page-canvas"
+                className="pdf-canvas shadow-lg max-w-full h-auto rounded border border-slate-200 dark:border-slate-800 bg-white"
+              />
+            </div>
+
+            {/* Extracted Text Layer */}
+            <div className="space-y-3 font-sans">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>Lớp văn bản trích xuất (Trang {currentDocumentPage})</span>
+                </span>
+                {currentPageData && (
+                  <span className="text-[11px] text-slate-400">
+                    {currentPageData.characterCount ?? currentPageData.charCount ?? currentPageData.plainText?.length ?? 0} ký tự • {currentPageData.wordCount ?? 0} từ
+                  </span>
+                )}
+              </div>
+
+              {pageLoading ? (
+                <div className="py-6 text-center text-xs text-indigo-600 dark:text-indigo-400 animate-pulse font-semibold">
+                  Đang nạp lớp văn bản trang {currentDocumentPage}...
+                </div>
+              ) : currentPageData?.hasTextLayer === false || !currentPageData?.plainText?.trim() ? (
+                <div
+                  data-testid="no-text-layer-badge"
+                  className="p-3.5 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 text-xs font-semibold flex items-center gap-2.5 animate-in fade-in"
+                >
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Không có lớp văn bản — chưa OCR</span>
+                </div>
+              ) : (
+                <div
+                  data-testid="pdf-extracted-text-container"
+                  onMouseUp={() => {
+                    if (typeof window === "undefined") return;
+                    const sel = window.getSelection()?.toString().trim() ?? "";
+                    if (sel.length >= 3) {
+                      setSelectedText(sel);
+                    }
+                  }}
+                  className="leading-relaxed whitespace-pre-wrap select-text text-sm sm:text-base text-slate-800 dark:text-slate-200 bg-slate-50/50 dark:bg-slate-950/30 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800/60 font-sans"
+                >
+                  {renderPdfTextWithHighlights(currentPageData.plainText)}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-5 text-slate-800 dark:text-slate-200">
+            {(lesson?.contentAst?.content || []).map((node, i) => {
+              const blockId = String(node.attrs?.block_id ?? `block-${i}`);
+              const text = (node.content || []).map((c) => c.text || "").join("");
+              const blockAnns = anchoredAnnotations.filter((a) => a.blockId === blockId);
+
+              if (node.type === "heading") {
+                return (
+                  <h2
+                    key={blockId}
+                    id={`block-${blockId}`}
+                    className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white pt-2 font-sans"
+                  >
+                    {text}
+                  </h2>
+                );
+              }
+
+              return (
+                <div
+                  key={blockId}
+                  id={`block-${blockId}`}
+                  onMouseUp={() => handleTextSelectionInBlock(blockId, text)}
+                  className="group relative leading-[1.8]"
+                >
+                  <p>{renderBlockTextWithHighlights(blockId, text)}</p>
+
+                  {/* Bidirectional Margin Badges ([📝 N] [⚡ M]) */}
+                  {blockAnns.length > 0 && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 font-sans text-[11px]">
+                      {blockAnns.map((ann) => (
+                        <div key={ann.id} className="inline-flex items-center gap-1.5">
+                          <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 font-semibold text-slate-700 dark:text-slate-300 inline-flex items-center gap-1">
+                            <Zap className="w-3 h-3 text-amber-500" />
+                            <span>{ann.linkedFlashcardsCount || 1} thẻ FSRS</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleInsertCitationIntoNotebook(ann)}
+                            className="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 font-semibold hover:bg-indigo-600 hover:text-white transition cursor-pointer inline-flex items-center gap-1"
+                          >
+                            <FileText className="w-3 h-3" />
+                            <span>+ Trích dẫn sang ghi chú</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </article>
     </div>
-  );
+    );
+  };
 
   return (
     <div className="relative w-full overflow-x-hidden">
@@ -1008,7 +1531,7 @@ export function ReaderAndSplitViews({ mode, onDataMutated }: ReaderAndSplitViews
               <div className="flex items-center justify-between mb-3">
                 {!sidebarCollapsed && (
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Mục lục bài học
+                    {sourceType === "document" && activeDocumentId ? "Điều hướng trang" : "Mục lục bài học"}
                   </span>
                 )}
                 <button
@@ -1022,62 +1545,112 @@ export function ReaderAndSplitViews({ mode, onDataMutated }: ReaderAndSplitViews
               </div>
 
               {!sidebarCollapsed && (
-                <div className="space-y-2 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const headings = document.querySelectorAll("article h2");
-                      if (headings[0]) {
-                        headings[0].scrollIntoView({ behavior: "smooth", block: "start" });
-                      } else {
-                        document.querySelector("article")?.scrollIntoView({ behavior: "smooth" });
-                      }
-                    }}
-                    className="w-full text-left border-l-2 border-indigo-600 pl-2.5 py-1 font-bold text-indigo-600 dark:text-indigo-400 hover:opacity-80 transition cursor-pointer"
-                  >
-                    1.1 Cơ sở lý thuyết Phân trang
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const headings = document.querySelectorAll("article h2");
-                      if (headings[1]) {
-                        headings[1].scrollIntoView({ behavior: "smooth", block: "start" });
-                      } else {
-                        const paras = document.querySelectorAll("article p");
-                        if (paras[1]) paras[1].scrollIntoView({ behavior: "smooth", block: "start" });
-                      }
-                    }}
-                    className="w-full text-left border-l-2 border-transparent hover:border-indigo-600 pl-2.5 py-1 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition cursor-pointer"
-                  >
-                    1.2 Phần cứng Phân trang & TLB
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const headings = document.querySelectorAll("article h2");
-                      if (headings[2]) {
-                        headings[2].scrollIntoView({ behavior: "smooth", block: "start" });
-                      } else {
-                        const paras = document.querySelectorAll("article p");
-                        if (paras[3]) paras[3].scrollIntoView({ behavior: "smooth", block: "start" });
-                      }
-                    }}
-                    className="w-full text-left border-l-2 border-transparent hover:border-indigo-600 pl-2.5 py-1 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition cursor-pointer"
-                  >
-                    1.3 Bảng trang đa cấp 4 tầng
-                  </button>
-
-                  <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
-                    <div className="flex justify-between text-[11px] font-semibold text-slate-500 mb-1">
-                      <span>Tiến độ đọc</span>
-                      <span>68%</span>
+                sourceType === "document" && activeDocumentId ? (
+                  <div className="space-y-1.5 text-xs">
+                    <div className="max-h-[60vh] overflow-y-auto pr-1 space-y-1">
+                      {generatePageJumps(
+                        pdfTotalPages || lesson?.totalPages || 1,
+                        currentDocumentPage
+                      ).map((p) => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setCurrentDocumentPage(p)}
+                          className={`w-full text-left pl-2.5 py-1.5 rounded-lg font-semibold transition cursor-pointer flex items-center justify-between ${
+                            p === currentDocumentPage
+                              ? "border-l-2 border-indigo-600 bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 font-bold"
+                              : "border-l-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                          }`}
+                        >
+                          <span>Trang {p}</span>
+                          {p === 1 && <span className="text-[10px] text-slate-400 font-normal">Đầu</span>}
+                          {p === (pdfTotalPages || lesson?.totalPages || 1) && (
+                            <span className="text-[10px] text-slate-400 font-normal">Cuối</span>
+                          )}
+                        </button>
+                      ))}
                     </div>
-                    <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div className="w-[68%] h-full bg-indigo-600 rounded-full" />
+
+                    <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+                      <div className="flex justify-between text-[11px] font-semibold text-slate-500 mb-1">
+                        <span>Tiến độ đọc</span>
+                        <span>
+                          {Math.round(
+                            (currentDocumentPage / (pdfTotalPages || lesson?.totalPages || 1)) * 100
+                          )}
+                          %
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div
+                          style={{
+                            width: `${Math.round(
+                              (currentDocumentPage / (pdfTotalPages || lesson?.totalPages || 1)) * 100
+                            )}%`
+                          }}
+                          className="h-full bg-indigo-600 rounded-full transition-all duration-300"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="space-y-2 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const headings = document.querySelectorAll("article h2");
+                        if (headings[0]) {
+                          headings[0].scrollIntoView({ behavior: "smooth", block: "start" });
+                        } else {
+                          document.querySelector("article")?.scrollIntoView({ behavior: "smooth" });
+                        }
+                      }}
+                      className="w-full text-left border-l-2 border-indigo-600 pl-2.5 py-1 font-bold text-indigo-600 dark:text-indigo-400 hover:opacity-80 transition cursor-pointer"
+                    >
+                      1.1 Cơ sở lý thuyết Phân trang
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const headings = document.querySelectorAll("article h2");
+                        if (headings[1]) {
+                          headings[1].scrollIntoView({ behavior: "smooth", block: "start" });
+                        } else {
+                          const paras = document.querySelectorAll("article p");
+                          if (paras[1]) paras[1].scrollIntoView({ behavior: "smooth", block: "start" });
+                        }
+                      }}
+                      className="w-full text-left border-l-2 border-transparent hover:border-indigo-600 pl-2.5 py-1 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition cursor-pointer"
+                    >
+                      1.2 Phần cứng Phân trang & TLB
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const headings = document.querySelectorAll("article h2");
+                        if (headings[2]) {
+                          headings[2].scrollIntoView({ behavior: "smooth", block: "start" });
+                        } else {
+                          const paras = document.querySelectorAll("article p");
+                          if (paras[3]) paras[3].scrollIntoView({ behavior: "smooth", block: "start" });
+                        }
+                      }}
+                      className="w-full text-left border-l-2 border-transparent hover:border-indigo-600 pl-2.5 py-1 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition cursor-pointer"
+                    >
+                      1.3 Bảng trang đa cấp 4 tầng
+                    </button>
+
+                    <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+                      <div className="flex justify-between text-[11px] font-semibold text-slate-500 mb-1">
+                        <span>Tiến độ đọc</span>
+                        <span>100%</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div className="w-full h-full bg-indigo-600 rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+                )
               )}
             </aside>
           )}
@@ -1168,47 +1741,87 @@ export function ReaderAndSplitViews({ mode, onDataMutated }: ReaderAndSplitViews
             </div>
 
             {!sidebarCollapsed && (
-              <div className="hidden 2xl:block p-3 space-y-3 text-xs">
-                <div className="font-bold text-slate-900 dark:text-white">
-                  ▾ Chương 3: Quản lý Bộ nhớ
+              <div className="hidden 2xl:block p-3 space-y-4 text-xs">
+                <div>
+                  <div className="font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                    <span>▾ Bài học Lý thuyết</span>
+                    <span className="text-[10px] text-slate-400 font-normal">({effectiveLessons.length})</span>
+                  </div>
+                  <div className="pl-1.5 space-y-1">
+                    {effectiveLessons.map((les) => {
+                      const isActive = sourceType === "lesson" && activeLessonId === les.id;
+                      return (
+                        <button
+                          key={les.id}
+                          type="button"
+                          onClick={() => setActiveLesson(les.id)}
+                          className={`px-2.5 py-1.5 rounded-lg font-bold inline-flex items-center gap-1.5 w-full text-left transition cursor-pointer ${
+                            isActive
+                              ? "bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300"
+                              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                          }`}
+                        >
+                          <BookOpen className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                          <span className="truncate">{les.title}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="pl-3 space-y-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setActiveLesson("44444444-4444-4444-8444-444444444444")}
-                    className={`px-2.5 py-1.5 rounded-lg font-bold inline-flex items-center gap-1.5 w-full text-left transition cursor-pointer ${
-                      sourceType === "lesson" && activeLessonId === "44444444-4444-4444-8444-444444444444"
-                        ? "bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300"
-                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    <BookOpen className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                    <span>3.2 Bộ nhớ ảo & TLB</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveLesson("55555555-5555-5555-8555-555555555555")}
-                    className={`px-2.5 py-1.5 rounded-lg font-bold inline-flex items-center gap-1.5 w-full text-left transition cursor-pointer ${
-                      sourceType === "lesson" && activeLessonId === "55555555-5555-5555-8555-555555555555"
-                        ? "bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300"
-                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    <BookOpen className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                    <span>3.3 Thay thế trang LRU</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveDocument("66666666-6666-6666-8666-666666666666")}
-                    className={`px-2.5 py-1.5 rounded-lg font-bold inline-flex items-center gap-1.5 w-full text-left transition cursor-pointer ${
-                      sourceType === "document"
-                        ? "bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300"
-                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                    <span>OSTEP Paging.pdf</span>
-                  </button>
+
+                <div>
+                  <div className="font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                    <span>▾ Tài liệu PDF Workspace</span>
+                    <span className="text-[10px] text-slate-400 font-normal">({docList.length})</span>
+                  </div>
+                  <div className="pl-1.5 space-y-1">
+                    {docList.length === 0 ? (
+                      <div className="text-slate-400 italic text-[11px] px-2.5 py-1">
+                        Chưa có tài liệu PDF nào
+                      </div>
+                    ) : (
+                      docList.map((doc) => {
+                        const isActive = sourceType === "document" && activeDocumentId === doc.id;
+                        const ocrLabel =
+                          doc.ocrStatus === "completed"
+                            ? "Đã OCR"
+                            : doc.ocrStatus === "processing"
+                            ? "Đang OCR"
+                            : "Chưa OCR";
+                        const ocrBg =
+                          doc.ocrStatus === "completed"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                            : doc.ocrStatus === "processing"
+                            ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
+                            : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400";
+                        return (
+                          <button
+                            key={doc.id}
+                            type="button"
+                            onClick={() => setActiveDocument(doc.id)}
+                            className={`px-2.5 py-1.5 rounded-lg font-bold flex items-center justify-between w-full text-left transition cursor-pointer ${
+                              isActive
+                                ? "bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300"
+                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                              <span className="truncate">{doc.title}</span>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0 ml-1">
+                              <span className="text-[10px] text-slate-400 font-normal">
+                                ({doc.totalPages} tr)
+                              </span>
+                              <span className={`text-[9px] px-1 py-0.5 rounded font-semibold ${ocrBg}`}>
+                                {ocrLabel}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
 
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1">

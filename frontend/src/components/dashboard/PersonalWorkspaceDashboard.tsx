@@ -112,26 +112,6 @@ export function PersonalWorkspaceDashboard({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const estimatePdfPages = (buffer: ArrayBuffer): number => {
-    try {
-      const text = new TextDecoder("latin1").decode(new Uint8Array(buffer));
-      const countMatches = [...text.matchAll(/\/Count\s+(\d+)/g)];
-      if (countMatches.length > 0) {
-        const counts = countMatches.map((m) => parseInt(m[1], 10)).filter((n) => n > 0 && n < 50000);
-        if (counts.length > 0) {
-          return Math.max(...counts);
-        }
-      }
-      const pageMatches = text.match(/\/Type\s*\/Page\b/g);
-      if (pageMatches) {
-        return Math.max(1, pageMatches.length);
-      }
-    } catch {
-      // fallback
-    }
-    return 1;
-  };
-
   const handleProcessFile = async (file: File) => {
     setUploadError(null);
     setSelectedFile(file);
@@ -168,18 +148,8 @@ export function PersonalWorkspaceDashboard({
       }
     } else if (isPdf) {
       setFileMimeType("application/pdf");
-      try {
-        const buffer = await file.arrayBuffer();
-        const pages = estimatePdfPages(buffer);
-        setTotalPages(pages);
-        if (!docText.trim()) {
-          setDocText(
-            `Tài liệu học thuật "${file.name}": Đã tiếp nhận ${pages} trang sách (${formatFileSize(file.size)}). Sẵn sàng phục vụ đọc sâu và tạo thẻ ghi nhớ FSRS.`
-          );
-        }
-      } catch {
-        setTotalPages(1);
-      }
+      // Multi-page PDF parsing and text extraction are handled server-side via PdfPig
+      setTotalPages(1);
     } else {
       setFileMimeType(file.type || "application/octet-stream");
     }
@@ -221,19 +191,28 @@ export function PersonalWorkspaceDashboard({
     setUploading(true);
     setUploadError(null);
     try {
-      const resp = await fetch("/api/v1/documents/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: docTitle.trim(),
-          fileSizeBytes: Math.max(1024, fileSizeBytes),
-          totalPages: Math.max(1, totalPages),
-          mimeType: fileMimeType,
-          extractedText:
-            docText.trim() ||
-            `Tài liệu học thuật "${docTitle.trim()}": Phân tích chuyên sâu về quản lý bộ nhớ ảo, Translation Lookaside Buffer (TLB), bảng trang đa cấp và tối ưu hóa hệ thống.`
-        })
-      });
+      let resp: Response;
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        formData.append("title", docTitle.trim() || selectedFile.name);
+        resp = await fetch("/api/v1/documents/upload", {
+          method: "POST",
+          body: formData
+        });
+      } else {
+        resp = await fetch("/api/v1/documents/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: docTitle.trim(),
+            fileSizeBytes: Math.max(1024, fileSizeBytes),
+            totalPages: Math.max(1, totalPages),
+            mimeType: fileMimeType,
+            extractedText: docText.trim()
+          })
+        });
+      }
 
       if (resp.ok) {
         const created = await resp.json();
@@ -249,6 +228,7 @@ export function PersonalWorkspaceDashboard({
         const err = await resp.json().catch(() => ({}));
         setUploadError(
           err.error ||
+            err.detail ||
             (resp.status === 413
               ? "Vượt quá hạn mức dung lượng lưu trữ 50 MB của gói Free."
               : `Tải tài liệu thất bại (Mã lỗi ${resp.status}).`)
@@ -789,7 +769,7 @@ export function PersonalWorkspaceDashboard({
                       {selectedFile.name}
                     </p>
                     <p className="text-[11px] text-slate-500">
-                      {formatFileSize(fileSizeBytes)} • {totalPages} trang
+                      {formatFileSize(fileSizeBytes)} • {fileMimeType === "application/pdf" ? "Phân tích tự động trên máy chủ" : `${totalPages} trang`}
                     </p>
                   </div>
                 </div>

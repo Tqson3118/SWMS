@@ -75,7 +75,14 @@ const FALLBACK_DASHBOARD_DATA: DashboardData = {
 };
 
 export default function WorkspacePage() {
-  const { activeMode, darkMode } = useWorkspaceStore();
+  const {
+    activeMode,
+    darkMode,
+    sourceType,
+    activeDocumentId,
+    activeLessonId,
+    currentDocumentPage
+  } = useWorkspaceStore();
   const [dashboard, setDashboard] = useState<DashboardData>(FALLBACK_DASHBOARD_DATA);
   const [quota, setQuota] = useState<QuotaSummary | null>(null);
   const mainContainerRef = useRef<HTMLDivElement | null>(null);
@@ -125,8 +132,13 @@ export default function WorkspacePage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isShortcutsOpen]);
 
+  const activeDoc = dashboard.documents.find((d) => d.id === activeDocumentId);
+  const activeLesson = dashboard.lessons.find((l) => l.id === activeLessonId) ?? dashboard.lessons[0];
+
   const activeTitle =
-    dashboard.lessons[0]?.title ?? "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp";
+    sourceType === "document" && activeDoc
+      ? `${activeDoc.title} • Trang ${currentDocumentPage} / ${activeDoc.totalPages}`
+      : (activeLesson?.title ?? "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp");
 
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -152,6 +164,8 @@ export default function WorkspacePage() {
             <ReaderAndSplitViews
               mode={activeMode}
               onDataMutated={fetchDashboardData}
+              documents={dashboard.documents}
+              lessons={dashboard.lessons}
             />
           )}
 
