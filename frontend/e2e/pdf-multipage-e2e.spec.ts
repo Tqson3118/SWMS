@@ -53,25 +53,31 @@ test.describe("SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks)", () => {
     // 5. Verify PDF canvas has non-blank rendered pixels (not blank or white)
     const canvas = page.locator("canvas.pdf-canvas").first();
     await expect(canvas).toBeVisible({ timeout: 10000 });
-    const hasRenderedPixels = await page.evaluate(() => {
-      const c = document.querySelector("canvas.pdf-canvas") as HTMLCanvasElement | null;
-      if (!c || c.width === 0 || c.height === 0) return false;
-      const ctx = c.getContext("2d");
-      if (!ctx) return false;
-      const imgData = ctx.getImageData(0, 0, Math.min(c.width, 200), Math.min(c.height, 200)).data;
-      for (let i = 0; i < imgData.length; i += 4) {
-        const r = imgData[i];
-        const g = imgData[i + 1];
-        const b = imgData[i + 2];
-        const a = imgData[i + 3];
-        // Non-transparent and not purely white
-        if (a > 0 && (r < 250 || g < 250 || b < 250)) {
-          return true;
-        }
-      }
-      return false;
-    });
-    expect(hasRenderedPixels).toBe(true);
+    await expect
+      .poll(
+        async () => {
+          return await page.evaluate(() => {
+            const c = document.querySelector("canvas.pdf-canvas") as HTMLCanvasElement | null;
+            if (!c || c.width === 0 || c.height === 0) return false;
+            const ctx = c.getContext("2d");
+            if (!ctx) return false;
+            const imgData = ctx.getImageData(0, 0, Math.min(c.width, 200), Math.min(c.height, 200)).data;
+            for (let i = 0; i < imgData.length; i += 4) {
+              const r = imgData[i];
+              const g = imgData[i + 1];
+              const b = imgData[i + 2];
+              const a = imgData[i + 3];
+              // Non-transparent and not purely white
+              if (a > 0 && (r < 250 || g < 250 || b < 250)) {
+                return true;
+              }
+            }
+            return false;
+          });
+        },
+        { timeout: 10000, intervals: [200, 500, 1000] }
+      )
+      .toBe(true);
 
     // 6. Navigate to middle page (Page 150)
     const pageInput = page.getByTestId("pdf-jump-page-input");
@@ -97,6 +103,7 @@ test.describe("SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks)", () => {
     await pageInput.fill("200");
     await pageInput.press("Enter");
     await expect(pageIndicator).toHaveText(/Trang 200 \/ 298/, { timeout: 10000 });
+    await expect(textContainer).toBeVisible({ timeout: 10000 });
 
     // Select text on page 200
     await page.evaluate(() => {
@@ -108,6 +115,7 @@ test.describe("SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks)", () => {
         const sel = window.getSelection();
         sel?.removeAllRanges();
         sel?.addRange(range);
+        container.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
       }
     });
 
@@ -122,6 +130,10 @@ test.describe("SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks)", () => {
     // Reload browser and verify highlight persistence on page 200
     await page.reload();
     await page.waitForLoadState("networkidle");
+    const openPdfBtn = page.getByRole("button", { name: "Mở PDF" }).first();
+    if (await openPdfBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await openPdfBtn.click();
+    }
     await pageInput.fill("200");
     await pageInput.press("Enter");
     await expect(pageIndicator).toHaveText(/Trang 200 \/ 298/);
@@ -141,6 +153,21 @@ test.describe("SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks)", () => {
     const reviewModeTab = page.getByTestId("mode-tab-review");
     await expect(reviewModeTab).toBeVisible();
     await reviewModeTab.click();
+
+    // Advance to the PDF flashcard if earlier seeded cards are due
+    for (let i = 0; i < 4; i++) {
+      const cardFront = await page.getByTestId("flashcard-front-face").innerText();
+      if (cardFront.includes("Pháp luật") || cardFront.includes("200")) {
+        break;
+      }
+      await page.getByTestId("rate-btn-3").click();
+      await page.waitForTimeout(300);
+    }
+
+    // Flip card to reveal back face containing "Nhảy đến nguồn"
+    const flipCard = page.getByTestId("fsrs-3d-flip-card");
+    await expect(flipCard).toBeVisible({ timeout: 10000 });
+    await flipCard.click();
 
     // Click "Nhảy đến nguồn"
     const jumpToSourceBtn = page

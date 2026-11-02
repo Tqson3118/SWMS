@@ -718,7 +718,13 @@ export function ReaderAndSplitViews({
   };
 
   const handleOpenDraftFlashcardPopover = (excerptOverride?: string) => {
-    const excerpt = (excerptOverride ?? selectedText).trim();
+    let excerpt = (excerptOverride ?? selectedText).trim();
+    if (!excerpt && typeof window !== "undefined") {
+      const liveSel = window.getSelection()?.toString().trim();
+      if (liveSel && liveSel.length >= 3) {
+        excerpt = liveSel;
+      }
+    }
     if (!excerpt) {
       showToast("Vui lòng bôi đen một đoạn văn bản trong bài đọc trước khi đánh dấu hoặc tạo thẻ!");
       return;

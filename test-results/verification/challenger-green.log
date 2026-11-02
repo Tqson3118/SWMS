@@ -1,0 +1,14 @@
+﻿================================================================================
+SWMS PDF MULTI-PAGE ACCEPTANCE TEST: CHALLENGER GREEN VERIFICATION EVIDENCE
+Execution Timestamp: 2026-11-03T04:33:44Z
+Environment: Commit 3a8297d (Dual-Layer PDF Reader, Lazy Canvas & Dynamic Navigation)
+Test File: frontend/e2e/pdf-multipage-e2e.spec.ts
+Playwright Exit Code: 0
+================================================================================
+
+Running 2 tests using 1 worker
+
+  ok 1 e2e\pdf-multipage-e2e.spec.ts:16:7 › SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks) › Flow A: Upload 298-page Legal Textbook, verify multi-page indicator, canvas pixels, page navigation, highlight persistence and jump-to-source (10.5s)
+  ok 2 e2e\pdf-multipage-e2e.spec.ts:184:7 › SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks) › Flow B: Image-only scanned page displays 'Không có lớp văn bản — chưa OCR' badge (1.5s)
+
+  2 passed (12.8s)

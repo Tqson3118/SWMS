@@ -21,5 +21,6 @@ frontend/.next/
 test-results/*
 !test-results/verification/
 test-results/verification/*
-!test-results/verification/baseline-red.log
+!test-results/verification/*.log
 frontend/test-results/
+/e2e/

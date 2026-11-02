@@ -70,6 +70,18 @@ test.describe("SWMS v1.0 — Core Study Loop & Multi-Viewport E2E Suite", () => 
 
     // 2. Mode 1 Reading: Open Draft Flashcard Confirmation Popover (Cloze Default = 0 AI Credit) & Save Card
     await page.getByTestId("mode-tab-reading").click();
+    await expect(page.getByTestId("mode-1-reading-container")).toBeVisible();
+    await page.evaluate(() => {
+      const p = document.querySelector("article p");
+      if (p) {
+        const range = document.createRange();
+        range.selectNodeContents(p);
+        const sel = window.getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+        p.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+      }
+    });
     await page.getByTestId("to-flashcard-popover-trigger").click();
     await expect(page.getByTestId("draft-flashcard-popover")).toBeVisible();
     await page.getByTestId("commit-draft-flashcard-btn").click();

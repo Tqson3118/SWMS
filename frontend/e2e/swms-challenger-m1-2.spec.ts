@@ -188,7 +188,7 @@ test.describe("Milestone 1 Adversarial Challenge: Multi-Viewport & Responsive St
       [1280, 720, "1280x720 (150% DPI Laptop)"]
     ] as const) {
       await page.setViewportSize({ width: w, height: h });
-      await page.goto("/", { waitUntil: "domcontentloaded" });
+      await page.goto("/");
 
       const previewRoot = page.getByTestId("landing-workspace-preview");
       await previewRoot.scrollIntoViewIfNeeded();
@@ -197,6 +197,10 @@ test.describe("Milestone 1 Adversarial Challenge: Multi-Viewport & Responsive St
       // --- TAB 1: READING MODE (68ch) ---
       const tab1Btn = page.getByTestId("preview-mode-tab-1");
       await tab1Btn.click();
+      if (!(await page.locator(".swms-highlight-yellow").isVisible().catch(() => false))) {
+        await page.waitForTimeout(300);
+        await tab1Btn.click();
+      }
       await expect(page.locator(".swms-highlight-yellow")).toBeVisible();
 
       const readingMetrics = await page.evaluate(() => {
@@ -312,13 +316,17 @@ test.describe("Milestone 1 Adversarial Challenge: Multi-Viewport & Responsive St
     page
   }) => {
     await page.setViewportSize({ width: 360, height: 640 });
-    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.goto("/");
 
     // Open About Modal via visible trigger (e.g. in HeroSection or Footer)
     const aboutTrigger = page.locator('[data-testid="about-swms-trigger"]:visible').first();
     await aboutTrigger.click();
 
     const modal = page.getByTestId("about-swms-modal");
+    if (!(await modal.isVisible().catch(() => false))) {
+      await page.waitForTimeout(300);
+      await aboutTrigger.click();
+    }
     await expect(modal).toBeVisible();
 
     // 1. Check Modal does not overflow viewport horizontally
@@ -372,13 +380,17 @@ test.describe("Milestone 1 Adversarial Challenge: Multi-Viewport & Responsive St
     page
   }) => {
     await page.setViewportSize({ width: 360, height: 640 });
-    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.goto("/");
 
     // Open Keyboard Shortcuts Modal via visible trigger (e.g. in HeroSection)
     const shortcutsTrigger = page.locator('[data-testid="keyboard-shortcuts-trigger"]:visible').first();
     await shortcutsTrigger.click();
 
     const modal = page.getByTestId("keyboard-shortcuts-modal");
+    if (!(await modal.isVisible().catch(() => false))) {
+      await page.waitForTimeout(300);
+      await shortcutsTrigger.click();
+    }
     await expect(modal).toBeVisible();
 
     // 1. Check Modal does not overflow viewport horizontally

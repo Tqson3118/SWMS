@@ -68,6 +68,7 @@ test.describe("Challenger M1-1 — Adversarial Stress Testing", () => {
 
   test("Stress 2: Cross-tab StorageEvent synchronization handles rapid burst without desync", async ({ page }) => {
     await page.goto("/");
+    await expect(page.getByTestId("theme-toggle-btn")).toBeVisible();
 
     // Dispatch alternating storage events from a simulated peer tab
     for (let i = 0; i < 10; i++) {
@@ -96,17 +97,15 @@ test.describe("Challenger M1-1 — Adversarial Stress Testing", () => {
       );
     });
 
-    await page.waitForTimeout(150);
-
-    const isDark = await page.evaluate(() => {
-      return (
-        document.documentElement.classList.contains("dark") &&
-        (document.body ? document.body.classList.contains("dark") : true) &&
-        localStorage.getItem("swms_theme") === "dark"
-      );
-    });
-
-    expect(isDark).toBe(true);
+    await expect.poll(async () => {
+      return await page.evaluate(() => {
+        return (
+          document.documentElement.classList.contains("dark") &&
+          (document.body ? document.body.classList.contains("dark") : true) &&
+          localStorage.getItem("swms_theme") === "dark"
+        );
+      });
+    }, { timeout: 5000 }).toBe(true);
 
     // Final forced storage event: "light"
     await page.evaluate(() => {
@@ -120,17 +119,15 @@ test.describe("Challenger M1-1 — Adversarial Stress Testing", () => {
       );
     });
 
-    await page.waitForTimeout(150);
-
-    const isLight = await page.evaluate(() => {
-      return (
-        !document.documentElement.classList.contains("dark") &&
-        (document.body ? !document.body.classList.contains("dark") : true) &&
-        localStorage.getItem("swms_theme") === "light"
-      );
-    });
-
-    expect(isLight).toBe(true);
+    await expect.poll(async () => {
+      return await page.evaluate(() => {
+        return (
+          !document.documentElement.classList.contains("dark") &&
+          (document.body ? !document.body.classList.contains("dark") : true) &&
+          localStorage.getItem("swms_theme") === "light"
+        );
+      });
+    }, { timeout: 5000 }).toBe(true);
   });
 
   // =========================================================================

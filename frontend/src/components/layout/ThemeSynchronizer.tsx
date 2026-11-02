@@ -45,12 +45,16 @@ export function ThemeSynchronizer() {
 
     try {
       const stored = localStorage.getItem("swms_theme");
-      if (stored === "dark" && !useWorkspaceStore.getState().darkMode) {
-        useWorkspaceStore.setState({ darkMode: true });
+      if (stored === "dark") {
+        if (!useWorkspaceStore.getState().darkMode) {
+          useWorkspaceStore.setState({ darkMode: true });
+        }
         document.documentElement.classList.add("dark");
         document.body?.classList.add("dark");
-      } else if (stored === "light" && useWorkspaceStore.getState().darkMode) {
-        useWorkspaceStore.setState({ darkMode: false });
+      } else if (stored === "light") {
+        if (useWorkspaceStore.getState().darkMode) {
+          useWorkspaceStore.setState({ darkMode: false });
+        }
         document.documentElement.classList.remove("dark");
         document.body?.classList.remove("dark");
       }
