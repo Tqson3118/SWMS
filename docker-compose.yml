@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: swms-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: swms_user
+      POSTGRES_PASSWORD: swms_password_dev_2026
+      POSTGRES_DB: swms_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - swms_pgdata:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U swms_user -d swms_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: swms-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - swms_redisdata:/data
+
+volumes:
+  swms_pgdata:
+  swms_redisdata:

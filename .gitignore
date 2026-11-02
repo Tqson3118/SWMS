@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+
+# Build artifacts
+**/bin/
+**/obj/
+*.user
+*.suo
+
+# Environment & local files
+.env.local
+.env.*.local
+
+# Agent teamwork metadata
+.agents/
+
+# Test output directories
+test-results/
+frontend/test-results/
