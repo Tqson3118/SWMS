@@ -1,0 +1,3 @@
+ĐÂY LÀ TỆP TIN VĂN BẢN THUẦN TÚY (PLAIN TEXT UTF-8) ĐƯỢC ĐỔI ĐUÔI THÀNH .PDF.
+Tệp này không bắt đầu bằng Magic Bytes chuẩn %PDF- của định dạng PDF.
+Hệ thống SWMS bắt buộc phải từ chối tệp này ở tầng xác thực và trả về HTTP 400/422 kèm thông báo lỗi tiếng Việt, không tạo document rỗng và không trừ dung lượng lưu trữ.

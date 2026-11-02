@@ -1,0 +1,67 @@
+﻿================================================================================
+SWMS PDF MULTI-PAGE ACCEPTANCE TEST: BASELINE RED-BEFORE-GREEN EVIDENCE
+Execution Timestamp: 2026-11-03T03:10:15Z
+Environment: Baseline Commit ff44c40 (Before Multi-Page Overhaul)
+Test File: frontend/e2e/pdf-multipage-e2e.spec.ts
+Playwright Exit Code: 1 (Demonstrating detection of 1-page facade bug)
+================================================================================
+
+Running 2 tests using 1 worker
+
+  x  1 e2e\pdf-multipage-e2e.spec.ts:16:7 ΓÇ║ SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks) ΓÇ║ Flow A: Upload 298-page Legal Textbook, verify multi-page indicator, canvas pixels, page navigation, highlight persistence and jump-to-source (22.1s)
+  x  2 e2e\pdf-multipage-e2e.spec.ts:157:7 ΓÇ║ SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks) ΓÇ║ Flow B: Image-only scanned page displays 'Kh├┤ng c├│ lß╗¢p v─ân bß║ún ΓÇö ch╞░a OCR' badge (16.3s)
+
+
+  1) e2e\pdf-multipage-e2e.spec.ts:16:7 ΓÇ║ SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks) ΓÇ║ Flow A: Upload 298-page Legal Textbook, verify multi-page indicator, canvas pixels, page navigation, highlight persistence and jump-to-source 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('pdf-page-indicator')
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('pdf-page-indicator') with timeout 20000ms
+      - waiting for getByTestId('pdf-page-indicator')
+
+
+      48 |     // 4. Assert indicator shows 298 pages (fails on baseline due to 1-page facade)
+      49 |     const pageIndicator = page.getByTestId("pdf-page-indicator");
+    > 50 |     await expect(pageIndicator).toBeVisible({ timeout: 20000 });
+         |                                 ^
+      51 |     await expect(pageIndicator).toHaveText(/Trang 1 \/ 298/, { timeout: 10000 });
+      52 |
+      53 |     // 5. Verify PDF canvas has non-blank rendered pixels (not blank or white)
+        at D:\03_Study\Studxy\frontend\e2e\pdf-multipage-e2e.spec.ts:50:33
+
+    Error Context: test-results\pdf-multipage-e2e-SWMS-Mul-2ea2a-sistence-and-jump-to-source\error-context.md
+
+  2) e2e\pdf-multipage-e2e.spec.ts:157:7 ΓÇ║ SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks) ΓÇ║ Flow B: Image-only scanned page displays 'Kh├┤ng c├│ lß╗¢p v─ân bß║ún ΓÇö ch╞░a OCR' badge 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('pdf-page-indicator')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('pdf-page-indicator') with timeout 15000ms
+      - waiting for getByTestId('pdf-page-indicator')
+
+
+      177 |
+      178 |     const pageIndicator = page.getByTestId("pdf-page-indicator");
+    > 179 |     await expect(pageIndicator).toBeVisible({ timeout: 15000 });
+          |                                 ^
+      180 |
+      181 |     // Jump to page 2 (image-only scanned page with no text layer)
+      182 |     const pageInput = page.getByTestId("pdf-jump-page-input");
+        at D:\03_Study\Studxy\frontend\e2e\pdf-multipage-e2e.spec.ts:179:33
+
+    Error Context: test-results\pdf-multipage-e2e-SWMS-Mul-b1ed7-ß╗¢p-v─ân-bß║ún-ΓÇö-ch╞░a-OCR-badge\error-context.md
+
+  2 failed
+    e2e\pdf-multipage-e2e.spec.ts:16:7 ΓÇ║ SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks) ΓÇ║ Flow A: Upload 298-page Legal Textbook, verify multi-page indicator, canvas pixels, page navigation, highlight persistence and jump-to-source 
+    e2e\pdf-multipage-e2e.spec.ts:157:7 ΓÇ║ SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks) ΓÇ║ Flow B: Image-only scanned page displays 'Kh├┤ng c├│ lß╗¢p v─ân bß║ún ΓÇö ch╞░a OCR' badge 

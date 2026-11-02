@@ -17,6 +17,9 @@ frontend/.next/
 # Agent teamwork metadata
 .agents/
 
-# Test output directories
-test-results/
+# Test output directories (keep verification baseline logs)
+test-results/*
+!test-results/verification/
+test-results/verification/*
+!test-results/verification/baseline-red.log
 frontend/test-results/
