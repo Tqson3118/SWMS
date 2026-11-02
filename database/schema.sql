@@ -198,6 +198,25 @@ CREATE INDEX IF NOT EXISTS idx_documents_uploader ON documents(uploader_id);
 CREATE INDEX IF NOT EXISTS idx_documents_title_trgm ON documents USING gin (f_unaccent(title) gin_trgm_ops);
 
 -- ----------------------------------------------------------------------------
+-- 2.2 PER-PAGE DOCUMENT PERSISTENCE & FULL-TEXT EXTRACTION
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS document_pages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+    page_number INT NOT NULL CHECK (page_number > 0),
+    plain_text TEXT NOT NULL,
+    has_text_layer BOOLEAN NOT NULL DEFAULT TRUE,
+    char_count INT NOT NULL DEFAULT 0 CHECK (char_count >= 0),
+    word_count INT NOT NULL DEFAULT 0 CHECK (word_count >= 0),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(document_id, page_number)
+);
+
+CREATE INDEX IF NOT EXISTS idx_document_pages_doc_page ON document_pages(document_id, page_number);
+CREATE INDEX IF NOT EXISTS idx_document_pages_plain_text_trgm ON document_pages USING gin (f_unaccent(plain_text) gin_trgm_ops);
+
+-- ----------------------------------------------------------------------------
 -- 3. ANNOTATIONS (POLYMORPHIC & STRICTLY EXCLUSIVE TARGETING)
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS annotations (

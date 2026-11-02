@@ -550,5 +550,14 @@ public class SwmsArchitectureTests
         var lessonAstProp = lessonEntity.FindProperty(nameof(Lesson.ContentAstJson))!;
         Assert.Equal("content_ast", lessonAstProp.GetColumnName());
         Assert.Equal("jsonb", lessonAstProp.GetColumnType());
+
+        var pageEntity = db.Model.FindEntityType(typeof(DocumentPage))!;
+        Assert.Equal("document_pages", pageEntity.GetTableName());
+        Assert.Equal("document_id", pageEntity.FindProperty(nameof(DocumentPage.DocumentId))!.GetColumnName());
+        Assert.Equal("page_number", pageEntity.FindProperty(nameof(DocumentPage.PageNumber))!.GetColumnName());
+        Assert.Equal("plain_text", pageEntity.FindProperty(nameof(DocumentPage.PlainText))!.GetColumnName());
+        Assert.Equal("has_text_layer", pageEntity.FindProperty(nameof(DocumentPage.HasTextLayer))!.GetColumnName());
+        Assert.Equal("char_count", pageEntity.FindProperty(nameof(DocumentPage.CharCount))!.GetColumnName());
+        Assert.Equal("word_count", pageEntity.FindProperty(nameof(DocumentPage.WordCount))!.GetColumnName());
     }
 }

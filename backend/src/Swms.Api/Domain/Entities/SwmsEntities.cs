@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Swms.Api.Domain.Entities;
 
@@ -199,6 +200,34 @@ public class Document
     public string? PlainText { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    [JsonIgnore]
+    public ICollection<DocumentPage> Pages { get; set; } = new List<DocumentPage>();
+}
+
+public class DocumentPage
+{
+    [Key]
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid DocumentId { get; set; }
+    public int PageNumber { get; set; }
+    [Required]
+    public string PlainText { get; set; } = string.Empty;
+    public bool HasTextLayer { get; set; } = true;
+    public int CharCount { get; set; } = 0;
+    public int WordCount { get; set; } = 0;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    [NotMapped]
+    public int CharacterCount
+    {
+        get => CharCount;
+        set => CharCount = value;
+    }
+
+    [JsonIgnore]
+    public Document? Document { get; set; }
 }
 
 public class Annotation

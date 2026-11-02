@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Swms.Api.Domain.Entities;
+using Swms.Api.Features.Pdf;
 using Swms.Api.Infrastructure.Ai;
 using Swms.Api.Infrastructure.Database;
 using Swms.Api.Infrastructure.FSRS;
@@ -726,11 +727,14 @@ public static class SwmsEndpoints
         {
             var userId = ResolveUserId(http);
             var doc = await db.Documents.FirstOrDefaultAsync(d => d.Id == id);
-            if (doc == null) return Results.NotFound();
+            if (doc == null) return Results.NotFound(new { error = "Không tìm thấy tài liệu." });
 
             var annotations = await db.Annotations
                 .Where(a => a.DocumentId == id && a.UserId == userId && a.Status != "archived")
                 .ToListAsync();
+
+            var firstPage = await db.DocumentPages
+                .FirstOrDefaultAsync(p => p.DocumentId == id && p.PageNumber == 1);
 
             return Results.Ok(new
             {
@@ -743,70 +747,306 @@ public static class SwmsEndpoints
                 doc.OcrStatus,
                 doc.PlainText,
                 contentAst = string.IsNullOrWhiteSpace(doc.ContentAstJson) ? null : JsonSerializer.Deserialize<object>(doc.ContentAstJson),
+                initialPage = firstPage == null ? null : new
+                {
+                    firstPage.PageNumber,
+                    firstPage.PlainText,
+                    firstPage.HasTextLayer,
+                    charCount = firstPage.CharCount,
+                    characterCount = firstPage.CharCount,
+                    wordCount = firstPage.WordCount
+                },
                 annotations
             });
         });
 
-        api.MapPost("/documents/upload", async (UploadDocumentRequest req, HttpContext http, SwmsDbContext db) =>
+        api.MapGet("/documents/{id:guid}/file", async (Guid id, IConfiguration config, SwmsDbContext db) =>
+        {
+            var doc = await db.Documents.FirstOrDefaultAsync(d => d.Id == id);
+            if (doc == null)
+            {
+                return Results.NotFound(new { error = "Không tìm thấy tài liệu PDF." });
+            }
+
+            var storagePath = config["Storage:LocalStoragePath"] ?? "App_Data/storage/documents";
+            if (!Path.IsPathRooted(storagePath))
+            {
+                storagePath = Path.Combine(AppContext.BaseDirectory, storagePath);
+            }
+            var filePath = Path.Combine(storagePath, $"{id:N}.pdf");
+
+            if (!File.Exists(filePath))
+            {
+                return Results.NotFound(new { error = "Tệp PDF không tồn tại trên hệ thống lưu trữ máy chủ." });
+            }
+
+            return Results.File(
+                filePath,
+                contentType: "application/pdf",
+                fileDownloadName: null,
+                enableRangeProcessing: true
+            );
+        });
+
+        api.MapGet("/documents/{id:guid}/pages", async (
+            Guid id,
+            int? from,
+            int? to,
+            int? page,
+            int? pageSize,
+            SwmsDbContext db) =>
+        {
+            var docExists = await db.Documents.AnyAsync(d => d.Id == id);
+            if (!docExists)
+            {
+                return Results.NotFound(new { error = "Không tìm thấy tài liệu." });
+            }
+
+            var query = db.DocumentPages.Where(p => p.DocumentId == id);
+
+            if (from.HasValue && to.HasValue)
+            {
+                query = query.Where(p => p.PageNumber >= from.Value && p.PageNumber <= to.Value);
+            }
+            else if (page.HasValue)
+            {
+                var size = Math.Clamp(pageSize ?? 20, 1, 100);
+                var skip = (Math.Max(1, page.Value) - 1) * size;
+                query = query.OrderBy(p => p.PageNumber).Skip(skip).Take(size);
+            }
+
+            var pages = await query.OrderBy(p => p.PageNumber).Select(p => new
+            {
+                p.Id,
+                p.DocumentId,
+                p.PageNumber,
+                p.PlainText,
+                p.HasTextLayer,
+                charCount = p.CharCount,
+                characterCount = p.CharCount,
+                wordCount = p.WordCount
+            }).ToListAsync();
+
+            return Results.Ok(pages);
+        });
+
+        api.MapGet("/documents/{id:guid}/pages/{pageNumber:int}", async (
+            Guid id,
+            int pageNumber,
+            SwmsDbContext db) =>
+        {
+            var doc = await db.Documents.FirstOrDefaultAsync(d => d.Id == id);
+            if (doc == null)
+            {
+                return Results.NotFound(new { error = "Không tìm thấy tài liệu." });
+            }
+
+            if (pageNumber < 1 || pageNumber > doc.TotalPages)
+            {
+                return Results.BadRequest(new { error = $"Số trang {pageNumber} không hợp lệ (tài liệu có {doc.TotalPages} trang)." });
+            }
+
+            var pageRecord = await db.DocumentPages
+                .FirstOrDefaultAsync(p => p.DocumentId == id && p.PageNumber == pageNumber);
+
+            if (pageRecord == null)
+            {
+                return Results.NotFound(new { error = $"Không tìm thấy dữ liệu trang {pageNumber}." });
+            }
+
+            return Results.Ok(new
+            {
+                pageRecord.Id,
+                pageRecord.DocumentId,
+                pageRecord.PageNumber,
+                pageRecord.PlainText,
+                pageRecord.HasTextLayer,
+                charCount = pageRecord.CharCount,
+                characterCount = pageRecord.CharCount,
+                wordCount = pageRecord.WordCount
+            });
+        });
+
+        api.MapPost("/documents/upload", async (
+            HttpContext http,
+            IConfiguration config,
+            IPdfExtractionService pdfService,
+            SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
-            var quota = await db.UserQuotas.FirstOrDefaultAsync(q => q.UserId == userId);
-            if (quota != null && quota.CurrentStorageBytes + req.FileSizeBytes > quota.StorageLimitBytes)
+
+            if (http.Request.HasFormContentType)
             {
-                return Results.Json(new { error = "Vượt quá hạn mức dung lượng lưu trữ 50 MB của gói Free." }, statusCode: StatusCodes.Status413PayloadTooLarge);
-            }
-
-            var personalCourse = await db.Courses.FirstOrDefaultAsync(c => c.InstructorId == userId && c.Visibility == "personal")
-                                 ?? await db.Courses.FirstAsync();
-
-            var extractedText = string.IsNullOrWhiteSpace(req.ExtractedText)
-                ? $"Nội dung trích xuất từ tài liệu {req.Title}. Hỗ trợ bôi đậm 5 màu ngữ nghĩa và tạo thẻ FSRS tức thì."
-                : req.ExtractedText;
-
-            var blockId = Guid.NewGuid().ToString();
-            var ast = new
-            {
-                type = "doc",
-                content = new object[]
+                var form = await http.Request.ReadFormAsync();
+                var file = form.Files.GetFile("file") ?? form.Files.FirstOrDefault();
+                if (file == null || file.Length == 0)
                 {
-                    new
-                    {
-                        type = "heading",
-                        attrs = new { level = 2, block_id = Guid.NewGuid().ToString() },
-                        content = new[] { new { type = "text", text = req.Title } }
-                    },
-                    new
-                    {
-                        type = "paragraph",
-                        attrs = new { block_id = blockId },
-                        content = new[] { new { type = "text", text = extractedText } }
-                    }
+                    return Results.BadRequest(new { error = "Không tìm thấy tệp PDF được tải lên." });
                 }
-            };
 
-            var doc = new Document
-            {
-                Id = Guid.NewGuid(),
-                CourseId = personalCourse.Id,
-                UploaderId = userId,
-                Title = req.Title,
-                FileUrl = $"/uploads/{Guid.NewGuid():N}-{req.Title}",
-                FileSizeBytes = Math.Max(1024, req.FileSizeBytes),
-                TotalPages = Math.Max(1, req.TotalPages),
-                MimeType = req.MimeType ?? "application/pdf",
-                OcrStatus = "completed",
-                ContentAstJson = JsonSerializer.Serialize(ast),
-                PlainText = extractedText
-            };
+                var ext = Path.GetExtension(file.FileName);
+                if (!string.Equals(ext, ".pdf", StringComparison.OrdinalIgnoreCase) && file.ContentType != "application/pdf")
+                {
+                    return Results.BadRequest(new { error = "Định dạng tệp không được hỗ trợ. Vui lòng tải lên tệp PDF." });
+                }
 
-            db.Documents.Add(doc);
-            if (quota != null)
-            {
-                quota.CurrentStorageBytes += doc.FileSizeBytes;
+                var quota = await db.UserQuotas.FirstOrDefaultAsync(q => q.UserId == userId);
+                if (quota != null && quota.CurrentStorageBytes + file.Length > quota.StorageLimitBytes)
+                {
+                    return Results.Json(new { error = "Vượt quá hạn mức dung lượng lưu trữ 50 MB của gói Free." }, statusCode: StatusCodes.Status413PayloadTooLarge);
+                }
+
+                using var ms = new MemoryStream();
+                await file.CopyToAsync(ms);
+                var fileBytes = ms.ToArray();
+
+                var extraction = pdfService.Extract(fileBytes);
+                if (!extraction.Success)
+                {
+                    if (extraction.IsEncrypted)
+                    {
+                        return Results.Json(new { error = extraction.ErrorMessage ?? "Tệp tin PDF có mật khẩu bảo vệ." }, statusCode: StatusCodes.Status422UnprocessableEntity);
+                    }
+                    return Results.Json(new { error = extraction.ErrorMessage ?? "Tệp tin PDF bị hỏng hoặc không đúng định dạng." }, statusCode: StatusCodes.Status422UnprocessableEntity);
+                }
+
+                var docId = Guid.NewGuid();
+                var storagePath = config["Storage:LocalStoragePath"] ?? "App_Data/storage/documents";
+                if (!Path.IsPathRooted(storagePath))
+                {
+                    storagePath = Path.Combine(AppContext.BaseDirectory, storagePath);
+                }
+                Directory.CreateDirectory(storagePath);
+                var filePath = Path.Combine(storagePath, $"{docId:N}.pdf");
+                await File.WriteAllBytesAsync(filePath, fileBytes);
+
+                var title = form.TryGetValue("title", out var titleVal) && !string.IsNullOrWhiteSpace(titleVal)
+                    ? titleVal.ToString()
+                    : Path.GetFileNameWithoutExtension(file.FileName);
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    title = "Untitled Document";
+                }
+
+                var personalCourse = await db.Courses.FirstOrDefaultAsync(c => c.InstructorId == userId && c.Visibility == "personal")
+                                     ?? await db.Courses.FirstAsync();
+
+                var firstPageText = extraction.Pages.Count > 0 ? extraction.Pages[0].Text : string.Empty;
+
+                var doc = new Document
+                {
+                    Id = docId,
+                    CourseId = personalCourse.Id,
+                    UploaderId = userId,
+                    Title = title,
+                    FileUrl = $"/api/v1/documents/{docId}/file",
+                    FileSizeBytes = file.Length,
+                    TotalPages = extraction.TotalPages,
+                    MimeType = "application/pdf",
+                    OcrStatus = "completed",
+                    ContentAstJson = null,
+                    PlainText = firstPageText,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                };
+
+                db.Documents.Add(doc);
+
+                foreach (var p in extraction.Pages)
+                {
+                    db.DocumentPages.Add(new DocumentPage
+                    {
+                        Id = Guid.NewGuid(),
+                        DocumentId = docId,
+                        PageNumber = p.PageNumber,
+                        PlainText = p.Text,
+                        HasTextLayer = p.HasTextLayer,
+                        CharCount = p.CharCount,
+                        WordCount = p.WordCount,
+                        CreatedAt = DateTimeOffset.UtcNow,
+                        UpdatedAt = DateTimeOffset.UtcNow
+                    });
+                }
+
+                if (quota != null)
+                {
+                    quota.CurrentStorageBytes += file.Length;
+                }
+                await db.SaveChangesAsync();
+
+                return Results.Ok(doc);
             }
-            await db.SaveChangesAsync();
+            else
+            {
+                // Legacy JSON upload fallback for backward test compatibility
+                UploadDocumentRequest? req = null;
+                try
+                {
+                    req = await http.Request.ReadFromJsonAsync<UploadDocumentRequest>();
+                }
+                catch
+                {
+                    return Results.BadRequest(new { error = "Dữ liệu yêu cầu không hợp lệ." });
+                }
 
-            return Results.Ok(doc);
+                if (req == null)
+                {
+                    return Results.BadRequest(new { error = "Dữ liệu tải lên trống." });
+                }
+
+                var quota = await db.UserQuotas.FirstOrDefaultAsync(q => q.UserId == userId);
+                if (quota != null && quota.CurrentStorageBytes + req.FileSizeBytes > quota.StorageLimitBytes)
+                {
+                    return Results.Json(new { error = "Vượt quá hạn mức dung lượng lưu trữ 50 MB của gói Free." }, statusCode: StatusCodes.Status413PayloadTooLarge);
+                }
+
+                var personalCourse = await db.Courses.FirstOrDefaultAsync(c => c.InstructorId == userId && c.Visibility == "personal")
+                                     ?? await db.Courses.FirstAsync();
+
+                var docId = Guid.NewGuid();
+                var extractedText = req.ExtractedText ?? string.Empty;
+                var totalPages = Math.Max(1, req.TotalPages);
+
+                var doc = new Document
+                {
+                    Id = docId,
+                    CourseId = personalCourse.Id,
+                    UploaderId = userId,
+                    Title = req.Title,
+                    FileUrl = $"/api/v1/documents/{docId}/file",
+                    FileSizeBytes = Math.Max(1024, req.FileSizeBytes),
+                    TotalPages = totalPages,
+                    MimeType = req.MimeType ?? "application/pdf",
+                    OcrStatus = "completed",
+                    ContentAstJson = null,
+                    PlainText = extractedText,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                };
+
+                db.Documents.Add(doc);
+
+                db.DocumentPages.Add(new DocumentPage
+                {
+                    Id = Guid.NewGuid(),
+                    DocumentId = docId,
+                    PageNumber = 1,
+                    PlainText = extractedText,
+                    HasTextLayer = !string.IsNullOrWhiteSpace(extractedText),
+                    CharCount = extractedText.Length,
+                    WordCount = extractedText.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length,
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                });
+
+                if (quota != null)
+                {
+                    quota.CurrentStorageBytes += doc.FileSizeBytes;
+                }
+                await db.SaveChangesAsync();
+
+                return Results.Ok(doc);
+            }
         });
     }
 
@@ -817,12 +1057,13 @@ public static class SwmsEndpoints
     {
         var annGroup = api.MapGroup("/annotations");
 
-        annGroup.MapGet("/", async (Guid? lessonId, Guid? documentId, HttpContext http, SwmsDbContext db) =>
+        annGroup.MapGet("/", async (Guid? lessonId, Guid? documentId, int? pageNumber, HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
             var query = db.Annotations.Where(a => a.UserId == userId && a.Status != "archived");
             if (lessonId.HasValue) query = query.Where(a => a.LessonId == lessonId);
             if (documentId.HasValue) query = query.Where(a => a.DocumentId == documentId);
+            if (pageNumber.HasValue) query = query.Where(a => a.PageNumber == pageNumber.Value);
             var list = await query.OrderBy(a => a.CreatedAt).ToListAsync();
             return Results.Ok(list);
         });
@@ -830,6 +1071,38 @@ public static class SwmsEndpoints
         annGroup.MapPost("/", async (CreateAnnotationRequest req, HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
+
+            var isLesson = req.LessonId.HasValue;
+            var isDoc = req.DocumentId.HasValue;
+
+            if (isLesson == isDoc)
+            {
+                return Results.BadRequest(new
+                {
+                    error = "Mục tiêu bôi đậm không hợp lệ: Phải chỉ định duy nhất Bài học (LessonId + BlockId) HOẶC Tài liệu (DocumentId + PageNumber > 0)."
+                });
+            }
+
+            if (isDoc)
+            {
+                var doc = await db.Documents.FirstOrDefaultAsync(d => d.Id == req.DocumentId!.Value);
+                if (doc == null)
+                {
+                    return Results.NotFound(new { error = "Tài liệu được chỉ định không tồn tại." });
+                }
+
+                var pageNum = req.PageNumber ?? 1;
+                if (pageNum < 1 || pageNum > doc.TotalPages)
+                {
+                    return Results.BadRequest(new { error = $"Số trang {pageNum} vượt quá giới hạn trang của tài liệu ({doc.TotalPages} trang)." });
+                }
+            }
+
+            if (req.EndOffset < req.StartOffset)
+            {
+                return Results.BadRequest(new { error = "Vị trí kết thúc (EndOffset) phải lớn hơn hoặc bằng vị trí bắt đầu (StartOffset)." });
+            }
+
             var defaultLabels = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["yellow"] = "Khái niệm cốt lõi",
@@ -845,10 +1118,10 @@ public static class SwmsEndpoints
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
-                LessonId = req.LessonId,
-                BlockId = req.LessonId.HasValue ? (req.BlockId ?? SeedDataInitializer.BlockPara1Id) : null,
-                DocumentId = req.LessonId.HasValue ? null : req.DocumentId,
-                PageNumber = req.LessonId.HasValue ? null : (req.PageNumber ?? 1),
+                LessonId = isLesson ? req.LessonId : null,
+                BlockId = isLesson ? (req.BlockId ?? SeedDataInitializer.BlockPara1Id) : null,
+                DocumentId = isDoc ? req.DocumentId : null,
+                PageNumber = isDoc ? (req.PageNumber ?? 1) : null,
                 BoundingBoxesJson = req.BoundingBoxesJson,
                 ExactQuote = req.ExactQuote,
                 OriginalExactQuote = req.ExactQuote,
@@ -1257,6 +1530,16 @@ public static class SwmsEndpoints
                             RefLessonId = refLesId
                         });
                     }
+                    else if (refDocId.HasValue)
+                    {
+                        db.NotebookLinks.Add(new NotebookLink
+                        {
+                            NotebookId = notebookId,
+                            SourceBlockId = blockId,
+                            TargetType = "document",
+                            RefDocumentId = refDocId
+                        });
+                    }
                 }
             }
         }
@@ -1318,6 +1601,11 @@ public static class SwmsEndpoints
             var allTags = await db.Tags.Where(t => t.UserId == userId).ToDictionaryAsync(t => t.Id);
             var cardTagLinks = await db.FlashcardTags.ToListAsync();
 
+            var cardAnnIds = cards.Where(c => c.AnnotationId.HasValue).Select(c => c.AnnotationId!.Value).ToHashSet();
+            var annotationMap = cardAnnIds.Count > 0
+                ? await db.Annotations.Where(a => cardAnnIds.Contains(a.Id)).ToDictionaryAsync(a => a.Id)
+                : new Dictionary<Guid, Annotation>();
+
             var fsrsParams = await db.UserFsrsParameters.FirstOrDefaultAsync(p => p.UserId == userId);
             var weights = fsrsParams?.Weights ?? FsrsV5Engine.DefaultWeights;
 
@@ -1334,12 +1622,17 @@ public static class SwmsEndpoints
                     .Select(ft => new { allTags[ft.TagId].Id, allTags[ft.TagId].Name, allTags[ft.TagId].ColorKey })
                     .ToList();
 
+                var pageNumber = c.AnnotationId.HasValue && annotationMap.TryGetValue(c.AnnotationId.Value, out var ann)
+                    ? ann.PageNumber
+                    : null;
+
                 return new
                 {
                     c.Id,
                     c.LessonId,
                     c.DocumentId,
                     c.AnnotationId,
+                    pageNumber,
                     c.CardType,
                     c.SourceTitleSnapshot,
                     c.SourceQuoteSnapshot,

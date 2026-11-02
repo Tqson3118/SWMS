@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Swms.Api.Features;
+using Swms.Api.Features.Pdf;
 using Swms.Api.Infrastructure.Ai;
 using Swms.Api.Infrastructure.Database;
 using Swms.Api.Infrastructure.Security;
@@ -116,6 +117,13 @@ builder.Services.AddAuthorization();
 builder.Services.AddHttpClient<GeminiProxyClient>();
 builder.Services.AddSingleton<AiTaskQueue>();
 builder.Services.AddHostedService<AiJobProcessorService>();
+
+// 3.1 PDF Extraction Engine (PdfPig pure C#)
+builder.Services.AddSingleton<IPdfExtractionService, PdfExtractionService>();
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+});
 
 // 4. CORS for Next.js 15 Frontend (with credentials for HttpOnly RTR cookies)
 builder.Services.AddCors(options =>

@@ -53,8 +53,8 @@
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M0 | Git Baseline & Test Fixtures/Oracle Setup | Git baseline commit, `generate_fixtures.py`, `generate_oracle.py`, `test-fixtures/manifest.json`, `oracle.json` | none | PLANNED |
-| M1 | Backend PDF Ingestion, Streaming & Page Storage | PdfPig integration, `DocumentPage` schema & DDL, `multipart/form-data` upload, `/file` streaming, `/pages` endpoints, error handling, backend tests | M0 | PLANNED |
+| M0 | Git Baseline & Test Fixtures/Oracle Setup | Git baseline commit, `generate_fixtures.py`, `generate_oracle.py`, `test-fixtures/manifest.json`, `oracle.json` | none | DONE |
+| M1 | Backend PDF Ingestion, Streaming & Page Storage | PdfPig integration, `DocumentPage` schema & DDL, `multipart/form-data` upload, `/file` streaming, `/pages` endpoints, error handling, backend tests | M0 | DONE |
 | M2 | Frontend Dual-Layer PDF Reader & Navigation | `pdfjs-dist` setup, real upload, dual canvas+text rendering, `"Trang X / Y"`, no-text-layer badge, dynamic TOC/tree | M1 | PLANNED |
 | M3 | Page-Aware Annotations, Flashcards & Jump-to-Source | Annotation filter fix (`pageNumber`), real quote selection, flashcards/citations with `pageNumber`, "Nhảy đến nguồn" direct page jump & pulse | M2 | PLANNED |
 | M4 | Dual-Track E2E & Full Verification | Red-before-green log, `pdf-multipage-e2e.spec.ts`, `scripts/verify.ps1` 2x exit 0, regression test pass, independent audit & handover report | M3 | PLANNED |

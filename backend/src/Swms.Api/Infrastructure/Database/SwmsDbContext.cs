@@ -18,6 +18,7 @@ public class SwmsDbContext : DbContext
     public DbSet<Lesson> Lessons => Set<Lesson>();
     public DbSet<LessonVersion> LessonVersions => Set<LessonVersion>();
     public DbSet<Document> Documents => Set<Document>();
+    public DbSet<DocumentPage> DocumentPages => Set<DocumentPage>();
     public DbSet<Annotation> Annotations => Set<Annotation>();
     public DbSet<Notebook> Notebooks => Set<Notebook>();
     public DbSet<NotebookLink> NotebookLinks => Set<NotebookLink>();
@@ -47,6 +48,7 @@ public class SwmsDbContext : DbContext
             [typeof(Lesson)] = "lessons",
             [typeof(LessonVersion)] = "lesson_versions",
             [typeof(Document)] = "documents",
+            [typeof(DocumentPage)] = "document_pages",
             [typeof(Annotation)] = "annotations",
             [typeof(Notebook)] = "notebooks",
             [typeof(NotebookLink)] = "notebook_links",
@@ -92,6 +94,12 @@ public class SwmsDbContext : DbContext
         modelBuilder.Entity<FlashcardTag>().HasKey(ft => new { ft.FlashcardId, ft.TagId });
         modelBuilder.Entity<FlashcardReview>().HasIndex(fr => fr.ReviewEventId).IsUnique();
         modelBuilder.Entity<BackgroundJob>().HasIndex(bj => bj.IdempotencyKey).IsUnique();
+        modelBuilder.Entity<DocumentPage>()
+            .HasOne(dp => dp.Document)
+            .WithMany(d => d.Pages)
+            .HasForeignKey(dp => dp.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<DocumentPage>().HasIndex(dp => new { dp.DocumentId, dp.PageNumber }).IsUnique();
     }
 
     private static string ToSnakeCase(string name)
@@ -199,6 +207,21 @@ public class SwmsDbContext : DbContext
             foreach (var nb in Notebooks.Where(n => n.PrimarySourceLessonId.HasValue && deletedLessons.Contains(n.PrimarySourceLessonId.Value)).ToList())
             {
                 nb.PrimarySourceLessonId = null;
+            }
+        }
+
+        // 5. Enforce ON DELETE CASCADE when a Document is deleted
+        var deletedDocuments = ChangeTracker.Entries<Document>()
+            .Where(e => e.State == EntityState.Deleted)
+            .Select(e => e.Entity.Id)
+            .ToHashSet();
+
+        if (deletedDocuments.Count > 0)
+        {
+            var linkedPages = DocumentPages.Where(dp => deletedDocuments.Contains(dp.DocumentId)).ToList();
+            if (linkedPages.Count > 0)
+            {
+                DocumentPages.RemoveRange(linkedPages);
             }
         }
     }

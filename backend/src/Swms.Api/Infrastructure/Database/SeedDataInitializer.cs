@@ -33,12 +33,17 @@ public static class SeedDataInitializer
     public static readonly Guid AnnOrphaned1Id = Guid.Parse("bbbbbbb4-4444-4444-8444-444444444444");
     public static readonly Guid AnnOrphaned2Id = Guid.Parse("bbbbbbb5-5555-4555-8555-555555555555");
 
+    private static readonly SemaphoreSlim SeedLock = new(1, 1);
+
     public static async Task SeedAsync(SwmsDbContext db)
     {
-        if (await db.Users.AnyAsync())
-            return;
+        await SeedLock.WaitAsync();
+        try
+        {
+            if (await db.Users.AnyAsync())
+                return;
 
-        var now = DateTimeOffset.UtcNow;
+            var now = DateTimeOffset.UtcNow;
 
         // 1. Default Learner User: Sơn Trần
         var user = new User
@@ -314,6 +319,17 @@ public static class SeedDataInitializer
             OcrStatus = "completed",
             ContentAstJson = JsonSerializer.Serialize(pdfDocAst),
             PlainText = "Operating Systems: Three Easy Pieces — Chapter 19: Translation Lookaside Buffers. Using paging as the core mechanism to support virtual memory can lead to high performance overheads."
+        });
+
+        db.DocumentPages.Add(new DocumentPage
+        {
+            Id = Guid.NewGuid(),
+            DocumentId = SampleDocumentId,
+            PageNumber = 1,
+            PlainText = "Operating Systems: Three Easy Pieces — Chapter 19: Translation Lookaside Buffers. Using paging as the core mechanism to support virtual memory can lead to high performance overheads.",
+            HasTextLayer = true,
+            CharCount = 186,
+            WordCount = 27
         });
 
         // 5. Annotations (3 anchored + 2 orphaned for reconciliation banner)
@@ -713,5 +729,10 @@ public static class SeedDataInitializer
         );
 
         await db.SaveChangesAsync();
+        }
+        finally
+        {
+            SeedLock.Release();
+        }
     }
 }
