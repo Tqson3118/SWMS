@@ -11,6 +11,13 @@ using Swms.Api.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Ensure default listening URL is port 5080 (aligned with Next.js BFF rewrite destination)
+if (string.IsNullOrEmpty(builder.Configuration["Urls"]) &&
+    string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
+{
+    builder.WebHost.UseUrls("http://127.0.0.1:5080");
+}
+
 // 1. Dual-Mode Database Persistence:
 // Uses PostgreSQL 17 if reachable (or forced via SWMS_USE_POSTGRES=true),
 // otherwise gracefully falls back to InMemory database with Vietnamese Seed Data so local dev & E2E run immediately.

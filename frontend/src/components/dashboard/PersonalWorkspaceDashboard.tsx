@@ -231,6 +231,8 @@ export function PersonalWorkspaceDashboard({
             err.detail ||
             (resp.status === 413
               ? "Vượt quá hạn mức dung lượng lưu trữ 50 MB của gói Free."
+              : resp.status === 500
+              ? "Không thể kết nối hoặc máy chủ Backend gặp sự cố (Mã lỗi 500). Vui lòng kiểm tra máy chủ Backend đang chạy tại cổng 5080."
               : `Tải tài liệu thất bại (Mã lỗi ${resp.status}).`)
         );
       }
