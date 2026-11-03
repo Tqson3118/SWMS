@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  pageExtensions: ["tsx", "ts"],
+  webpack: (config) => {
+    config.resolve.extensions = [".tsx", ".ts", ".jsx", ".js", ".json"];
+    return config;
+  },
   async rewrites() {
     return [
       {

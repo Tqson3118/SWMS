@@ -83,6 +83,7 @@ function Write-Log {
 function Stop-PortProcesses {
     param([int[]]$Ports)
     foreach ($port in $Ports) {
+        $pidsToKill = [System.Collections.Generic.HashSet[int]]::new()
         # Method 1: Get-NetTCPConnection
         try {
             $conns = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
@@ -90,8 +91,7 @@ function Stop-PortProcesses {
                 foreach ($conn in $conns) {
                     $procId = $conn.OwningProcess
                     if ($procId -and $procId -gt 0 -and $procId -ne $PID) {
-                        Write-Log "Cleaning up process on port $port (PID: $procId)" "Yellow"
-                        Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
+                        [void]$pidsToKill.Add($procId)
                     }
                 }
             }
@@ -104,11 +104,23 @@ function Stop-PortProcesses {
                 $tokens = ($item.ToString().Trim() -split '\s+')
                 $procPid = $tokens[-1]
                 if ($procPid -match '^\d+$' -and [int]$procPid -ne $PID -and [int]$procPid -gt 0) {
-                    Write-Log "Cleaning up process on port $port from netstat (PID: $procPid)" "Yellow"
-                    Stop-Process -Id ([int]$procPid) -Force -ErrorAction SilentlyContinue
+                    [void]$pidsToKill.Add([int]$procPid)
                 }
             }
         } catch {}
+
+        foreach ($p in $pidsToKill) {
+            Write-Log "Cleaning up process tree on port $port (PID: $p)" "Yellow"
+            & taskkill /PID $p /T /F 2>$null | Out-Null
+            Stop-Process -Id $p -Force -ErrorAction SilentlyContinue
+        }
+
+        # Wait until port has no Listen state
+        for ($wait = 0; $wait -lt 10; $wait++) {
+            $listening = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
+            if (-not $listening) { break }
+            Start-Sleep -Milliseconds 500
+        }
     }
 }
 
