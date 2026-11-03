@@ -130,9 +130,14 @@ test.describe("SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks)", () => {
     // Reload browser and verify highlight persistence on page 200
     await page.reload();
     await page.waitForLoadState("networkidle");
-    const openPdfBtn = page.getByRole("button", { name: "Mở PDF" }).first();
-    if (await openPdfBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await openPdfBtn.click();
+    const openDocBtn = page.getByRole("button", { name: /Tiếp tục đọc ngay|Mở đọc/i }).first();
+    if (await openDocBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await openDocBtn.click();
+    } else {
+      const readingTab = page.getByTestId("mode-tab-reading");
+      if (await readingTab.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await readingTab.click();
+      }
     }
     await pageInput.fill("200");
     await pageInput.press("Enter");

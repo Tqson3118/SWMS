@@ -1985,7 +1985,7 @@ export function ReaderAndSplitViews({
               onTouchStart={(e) => handleStartTouchResize(1, e)}
               onDoubleClick={resetSplitRatios}
               title="Kéo để thay đổi kích thước (10%–25%) • Nhấp đúp để đặt lại tỷ lệ chuẩn 15 / 45 / 40"
-              className="hidden xl:flex w-1 hover:w-2 bg-slate-200/80 dark:bg-slate-800 hover:bg-indigo-500 transition-colors cursor-col-resize items-center justify-center shrink-0 relative before:absolute before:-inset-x-2 before:inset-y-0 before:z-10"
+              className="hidden xl:flex w-1 hover:w-2 bg-slate-200/80 dark:bg-slate-800 hover:bg-indigo-500 transition-colors cursor-col-resize items-center justify-center shrink-0 relative before:absolute before:-inset-x-3 before:inset-y-0 before:z-10"
             >
               <span className="w-0.5 h-6 rounded-full bg-slate-400/70 pointer-events-none" />
             </div>

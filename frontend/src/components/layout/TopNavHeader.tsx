@@ -132,11 +132,11 @@ export function TopNavHeader({
       className="sticky top-0 z-50 h-14 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md px-3 xl:px-5 flex items-center justify-between gap-2"
     >
       {/* Left: Brand & Breadcrumb */}
-      <div className="flex items-center gap-2.5 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0 relative z-10 shrink-0">
         <Link
           href="/"
           data-testid="brand-logo-link"
-          className="flex items-center gap-2 font-bold tracking-tight text-indigo-600 dark:text-indigo-400 shrink-0 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md px-1.5 py-1 cursor-pointer group"
+          className="relative z-10 flex items-center gap-2 font-bold tracking-tight text-indigo-600 dark:text-indigo-400 shrink-0 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md px-1.5 py-1 cursor-pointer group"
           title="Về Trang chủ SWMS"
         >
           <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-600 text-white text-xs font-extrabold shadow-sm group-hover:scale-105 transition-transform">

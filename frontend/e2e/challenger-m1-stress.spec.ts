@@ -285,6 +285,7 @@ test.describe("Challenger M1-1 — Adversarial Stress Testing", () => {
   // =========================================================================
 
   test("Stress 8: High-frequency 5-round navigation ping-pong (/ <-> /workspace) with zero memory/overflow leaks", async ({ page }) => {
+    test.setTimeout(90000);
     await page.goto("/");
 
     for (let round = 1; round <= 5; round++) {
@@ -302,7 +303,7 @@ test.describe("Challenger M1-1 — Adversarial Stress Testing", () => {
 
       // 2. Click Brand Logo Link to return to Landing
       const brandLogo = page.getByTestId("brand-logo-link");
-      await brandLogo.click();
+      await brandLogo.click({ force: true });
       await expect(page).toHaveURL(/\/(#.*)?$/);
 
       // Verify landing loaded

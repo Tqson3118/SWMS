@@ -125,6 +125,14 @@ export function PersonalWorkspaceDashboard({
 
   // Client-side PDF structure inspection for fast, friendly error handling
   const validatePdfFile = async (file: File): Promise<{ valid: boolean; error?: string }> => {
+    // 0. Check for empty / zero-byte file
+    if (file.size === 0) {
+      return {
+        valid: false,
+        error: "Lỗi: Tệp tin rỗng (0 bytes). Vui lòng chọn một tệp có nội dung hợp lệ."
+      };
+    }
+
     // 1. Check size limit: 50MB (52,428,800 bytes)
     if (file.size > 52428800) {
       return {
