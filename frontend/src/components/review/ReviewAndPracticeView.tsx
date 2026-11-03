@@ -18,7 +18,7 @@ import {
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { evaluateFsrsV5 } from "@/lib/fsrs-engine";
 import { enqueueOfflineMutation, removeOfflineMutation } from "@/lib/offline-queue";
-import { triggerCompletionCelebration } from "@/lib/animations";
+import { triggerCompletionCelebration, waitForElementAndPulse } from "@/lib/animations.ts";
 
 interface DueFlashcardItem {
   id: string;
@@ -472,7 +472,7 @@ export function ReviewAndPracticeView({
                         </span>
                         <span className="text-slate-500 truncate max-w-[260px] sm:max-w-[400px] inline-flex items-center gap-1.5">
                           <BookOpen className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                          <span>{currentCard.sourceTitleSnapshot || "Bài 3.2: Bộ nhớ ảo & Phân trang"}</span>
+                          <span>{currentCard.sourceTitleSnapshot || (currentCard.documentId ? "Tài liệu PDF" : "Bài học")}</span>
                         </span>
                       </div>
 
@@ -532,7 +532,7 @@ export function ReviewAndPracticeView({
                         </span>
                         <span className="text-slate-500 truncate max-w-[260px] sm:max-w-[400px] inline-flex items-center gap-1.5">
                           <BookOpen className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                          <span>{currentCard.sourceTitleSnapshot || "Bài 3.2: Bộ nhớ ảo & Phân trang"}</span>
+                          <span>{currentCard.sourceTitleSnapshot || (currentCard.documentId ? "Tài liệu PDF" : "Bài học")}</span>
                         </span>
                       </div>
 
@@ -576,7 +576,7 @@ export function ReviewAndPracticeView({
                           <button
                             type="button"
                             data-testid="jump-to-source-btn"
-                            onClick={(e) => {
+                            onClick={async (e) => {
                               e.stopPropagation();
                               if (currentCard.lessonId) {
                                 setActiveLesson(currentCard.lessonId);
@@ -587,6 +587,9 @@ export function ReviewAndPracticeView({
                                 );
                               }
                               setActiveMode("split");
+                              if (currentCard.annotationId) {
+                                await waitForElementAndPulse(`reader-highlight-${currentCard.annotationId}`);
+                              }
                             }}
                             className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold shrink-0 cursor-pointer inline-flex items-center gap-1 hover:bg-indigo-600 hover:text-white transition"
                           >

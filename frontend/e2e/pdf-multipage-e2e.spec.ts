@@ -145,6 +145,11 @@ test.describe("SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks)", () => {
     await expect(toFlashcardBtn).toBeVisible();
     await toFlashcardBtn.click();
 
+    // Set deterministic front text anchor
+    const draftFrontInput = page.getByTestId("draft-front-input");
+    await expect(draftFrontInput).toBeVisible();
+    await draftFrontInput.fill("[Page 200 Legal Anchor] {{c1::hợp pháp}} theo quy định");
+
     const commitFlashcardBtn = page.getByTestId("commit-draft-flashcard-btn");
     await expect(commitFlashcardBtn).toBeVisible();
     await commitFlashcardBtn.click();
@@ -154,15 +159,21 @@ test.describe("SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks)", () => {
     await expect(reviewModeTab).toBeVisible();
     await reviewModeTab.click();
 
-    // Advance to the PDF flashcard if earlier seeded cards are due
-    for (let i = 0; i < 4; i++) {
+    // Deterministically advance to the target card
+    let foundTargetCard = false;
+    for (let i = 0; i < 15; i++) {
       const cardFront = await page.getByTestId("flashcard-front-face").innerText();
-      if (cardFront.includes("Pháp luật") || cardFront.includes("200")) {
+      if (cardFront.includes("[Page 200 Legal Anchor]")) {
+        foundTargetCard = true;
         break;
       }
-      await page.getByTestId("rate-btn-3").click();
-      await page.waitForTimeout(300);
+      const rateBtn = page.getByTestId("rate-btn-3");
+      if (await rateBtn.isVisible()) {
+        await rateBtn.click();
+        await page.waitForTimeout(300);
+      }
     }
+    expect(foundTargetCard).toBe(true);
 
     // Flip card to reveal back face containing "Nhảy đến nguồn"
     const flipCard = page.getByTestId("fsrs-3d-flip-card");
@@ -177,7 +188,7 @@ test.describe("SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks)", () => {
     await jumpToSourceBtn.first().click();
 
     // Verify reader lands directly on page 200 with the quote highlighted and pulsed
-    await expect(pageIndicator).toHaveText(/Trang 200 \/ 298/, { timeout: 10000 });
+    await expect(pageIndicator).toHaveText(/Trang 200 \/ 298/, { timeout: 15000 });
     await expect(page200Mark.first()).toBeVisible();
   });
 

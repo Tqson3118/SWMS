@@ -66,7 +66,7 @@ test("Challenger Diagnostic: Canvas rendering details and browser console logs",
     });
     console.log(`[Diagnostic Poll ${i}]`, JSON.stringify(info));
     finalInfo = info;
-    if (info.nonWhiteCount > 0) {
+    if ((info?.nonWhiteCount ?? 0) > 0) {
       console.log(">>> MATCH FOUND! Canvas has rendered non-white pixels!");
       break;
     }

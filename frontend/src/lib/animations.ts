@@ -44,6 +44,25 @@ export function scrollToAndPulseHighlight(targetElementId: string) {
   );
 }
 
+export async function waitForElementAndPulse(
+  targetElementId: string,
+  maxWaitMs: number = 2500,
+  pollIntervalMs: number = 50
+): Promise<boolean> {
+  if (typeof document === "undefined") return false;
+
+  const startTime = Date.now();
+  while (Date.now() - startTime < maxWaitMs) {
+    const el = document.getElementById(targetElementId);
+    if (el) {
+      scrollToAndPulseHighlight(targetElementId);
+      return true;
+    }
+    await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+  }
+  return false;
+}
+
 export function triggerCompletionCelebration(containerId: string) {
   if (typeof document === "undefined" || prefersReducedMotion()) return;
   const container = document.getElementById(containerId);
