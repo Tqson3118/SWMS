@@ -195,7 +195,9 @@ try {
     # Step E: Start Frontend in Background (3000)
     # -------------------------------------------------------------------------
     Write-Log "`n--- Step E: Starting Frontend Next.js Dev Server on http://127.0.0.1:3000 ---" "Yellow"
-    $frontendProc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm.cmd run dev" -WorkingDirectory "$root\frontend" `
+    Stop-PortProcesses @(3000)
+    Start-Sleep -Seconds 1
+    $frontendProc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c npx.cmd next dev --port 3000" -WorkingDirectory "$root\frontend" `
         -RedirectStandardOutput $frontendServiceLog -RedirectStandardError $frontendServiceErr -PassThru
     Write-Log "Frontend process launched (PID: $($frontendProc.Id))" "Gray"
 
@@ -206,6 +208,10 @@ try {
     $frontendReady = $false
     for ($i = 1; $i -le 45; $i++) {
         Start-Sleep -Seconds 1
+        if ($frontendProc.HasExited) {
+            Write-Log "Frontend process exited unexpectedly with code $($frontendProc.ExitCode)" "Red"
+            break
+        }
         try {
             $resp = Invoke-WebRequest -Uri "http://127.0.0.1:3000" -TimeoutSec 2 -UseBasicParsing -ErrorAction Stop
             if ($resp.StatusCode -eq 200) {
