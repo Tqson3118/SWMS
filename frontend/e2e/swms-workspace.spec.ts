@@ -68,8 +68,13 @@ test.describe("SWMS v1.0 — Core Study Loop & Multi-Viewport E2E Suite", () => 
     await expect(page.getByTestId("quota-breakdown-popover")).toBeVisible();
     await page.getByTestId("quota-indicator-btn").click();
 
-    // 2. Mode 1 Reading: Open Draft Flashcard Confirmation Popover (Cloze Default = 0 AI Credit) & Save Card
-    await page.getByTestId("mode-tab-reading").click();
+    // 2. Mode 1 Reading: Switch to Lesson 3.2 Reading Mode (68ch column + 5 Semantic Colors + Orphaned Banner)
+    const readLessonBtn = page.getByRole("button", { name: "Đọc sâu" }).first();
+    if (await readLessonBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await readLessonBtn.click();
+    } else {
+      await page.getByTestId("mode-tab-reading").click();
+    }
     await expect(page.getByTestId("mode-1-reading-container")).toBeVisible();
     await page.evaluate(() => {
       const p = document.querySelector("article p");

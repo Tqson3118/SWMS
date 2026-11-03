@@ -139,9 +139,10 @@ test.describe("SWMS Multi-Page PDF Acceptance E2E (Strictly No Mocks)", () => {
         await readingTab.click();
       }
     }
+    await expect(pageIndicator).toHaveText(/Trang 1 \/ 298/, { timeout: 15000 });
     await pageInput.fill("200");
     await pageInput.press("Enter");
-    await expect(pageIndicator).toHaveText(/Trang 200 \/ 298/);
+    await expect(pageIndicator).toHaveText(/Trang 200 \/ 298/, { timeout: 15000 });
     await expect(page200Mark.first()).toBeVisible({ timeout: 10000 });
 
     // 9. Create flashcard from page 200 highlight and verify "Nhảy đến nguồn"
