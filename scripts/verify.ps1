@@ -71,6 +71,8 @@ $backendServiceErr = Join-Path $runDir "backend-service-err.log"
 $frontendServiceLog = Join-Path $runDir "frontend-service.log"
 $frontendServiceErr = Join-Path $runDir "frontend-service-err.log"
 $backendTestsLog = Join-Path $runDir "backend-tests.log"
+$benchmarkLog = Join-Path $runDir "multiuser-benchmark.log"
+$benchmarkJson = Join-Path $runDir "multiuser-benchmark.json"
 $playwrightLog = Join-Path $runDir "playwright-e2e.log"
 
 function Write-Log {
@@ -148,7 +150,7 @@ try {
     # Step B: Build Backend (Release)
     # -------------------------------------------------------------------------
     Write-Log "`n--- Step B: Building Backend (Release) ---" "Yellow"
-    $buildOutput = & dotnet build backend/src/Swms.Api/Swms.Api.csproj -c Release 2>&1
+    $buildOutput = & dotnet build backend/Swms.Api.sln -c Release 2>&1
     $buildExitCode = $LASTEXITCODE
     $buildOutput | Out-File -FilePath $backendBuildLog -Encoding utf8
     if ($buildExitCode -ne 0) {
@@ -163,9 +165,15 @@ try {
     # Step C: Start Backend in Background (5080)
     # -------------------------------------------------------------------------
     Write-Log "`n--- Step C: Starting Backend API on http://127.0.0.1:5080 ---" "Yellow"
-    $backendArgs = "run --project backend/src/Swms.Api/Swms.Api.csproj -c Release --urls http://127.0.0.1:5080"
-    $backendProc = Start-Process -FilePath "dotnet" -ArgumentList $backendArgs -WorkingDirectory $root `
-        -RedirectStandardOutput $backendServiceLog -RedirectStandardError $backendServiceErr -PassThru
+    $backendDll = Join-Path $root "backend\src\Swms.Api\bin\Release\net10.0\Swms.Api.dll"
+    if (Test-Path $backendDll) {
+        $backendProc = Start-Process -FilePath "dotnet" -ArgumentList "`"$backendDll`" --urls http://127.0.0.1:5080" -WorkingDirectory (Join-Path $root "backend\src\Swms.Api") `
+            -RedirectStandardOutput $backendServiceLog -RedirectStandardError $backendServiceErr -PassThru
+    } else {
+        $backendArgs = "run --project backend/src/Swms.Api/Swms.Api.csproj -c Release --urls http://127.0.0.1:5080"
+        $backendProc = Start-Process -FilePath "dotnet" -ArgumentList $backendArgs -WorkingDirectory $root `
+            -RedirectStandardOutput $backendServiceLog -RedirectStandardError $backendServiceErr -PassThru
+    }
     Write-Log "Backend process launched (PID: $($backendProc.Id))" "Gray"
 
     # -------------------------------------------------------------------------
@@ -197,6 +205,7 @@ try {
     Write-Log "`n--- Step E: Starting Frontend Next.js Dev Server on http://127.0.0.1:3000 ---" "Yellow"
     Stop-PortProcesses @(3000)
     Start-Sleep -Seconds 1
+    $env:NODE_OPTIONS = "--max-old-space-size=4096"
     $frontendProc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c npx.cmd next dev --port 3000" -WorkingDirectory "$root\frontend" `
         -RedirectStandardOutput $frontendServiceLog -RedirectStandardError $frontendServiceErr -PassThru
     Write-Log "Frontend process launched (PID: $($frontendProc.Id))" "Gray"
@@ -215,8 +224,12 @@ try {
         try {
             $resp = Invoke-WebRequest -Uri "http://127.0.0.1:3000" -TimeoutSec 2 -UseBasicParsing -ErrorAction Stop
             if ($resp.StatusCode -eq 200) {
+                # Warm up /workspace as well
+                try {
+                    Invoke-WebRequest -Uri "http://127.0.0.1:3000/workspace" -TimeoutSec 5 -UseBasicParsing -ErrorAction SilentlyContinue | Out-Null
+                } catch {}
                 $frontendReady = $true
-                Write-Log "Frontend is READY (HTTP 200 after ${i}s)" "Green"
+                Write-Log "Frontend is READY and routes warmed up (HTTP 200 after ${i}s)" "Green"
                 break
             }
         } catch {}
@@ -232,7 +245,7 @@ try {
     # Step G: Run Backend Unit & Integration Tests (dotnet test)
     # -------------------------------------------------------------------------
     Write-Log "`n--- Step G: Running Backend Tests (Swms.Tests) ---" "Yellow"
-    $testOutput = & dotnet test backend/tests/Swms.Tests/Swms.Tests.csproj -c Release 2>&1
+    $testOutput = & dotnet test backend/tests/Swms.Tests/Swms.Tests.csproj -c Release --no-build 2>&1
     $testExitCode = $LASTEXITCODE
     $testOutput | Out-File -FilePath $backendTestsLog -Encoding utf8
 
@@ -257,10 +270,41 @@ try {
     }
 
     # -------------------------------------------------------------------------
+    # Step G2: Run Multi-User Concurrency & Load Benchmark (30 VUs, 370+ reqs)
+    # -------------------------------------------------------------------------
+    Write-Log "`n--- Step G2: Running Multi-User Concurrency & Isolation Benchmark ---" "Yellow"
+    $env:SWMS_BENCHMARK_JSON = $benchmarkJson
+    $benchOutput = & node "$root\scripts\benchmark-multiuser.mjs" 2>&1
+    $benchExitCode = $LASTEXITCODE
+    $benchOutput | Out-File -FilePath $benchmarkLog -Encoding utf8
+
+    foreach ($line in $benchOutput) {
+        if ($line -match '^\[PASS\]' -or $line -match 'ALL 6 SCENARIOS PASSED') {
+            Write-Host $line -ForegroundColor Green
+            Add-Content -Path $summaryLog -Value $line -Encoding utf8
+        } elseif ($line -match '^\[FAIL\]' -or $line -match 'BENCHMARK FAILED') {
+            Write-Host $line -ForegroundColor Red
+            Add-Content -Path $summaryLog -Value $line -Encoding utf8
+        } elseif ($line -match '^Total Requests:') {
+            Write-Host $line -ForegroundColor Cyan
+            Add-Content -Path $summaryLog -Value $line -Encoding utf8
+        } else {
+            Write-Host $line
+        }
+    }
+
+    if ($benchExitCode -ne 0) {
+        Write-Log "Multi-User Benchmark FAILED with exit code $benchExitCode" "Red"
+        $failureReasons.Add("Multi-User Benchmark failed (exit code $benchExitCode)")
+        $overallSuccess = $false
+    } else {
+        Write-Log "Multi-User Concurrency & Isolation Benchmark PASSED (exit code 0)." "Green"
+    }
+
+    # -------------------------------------------------------------------------
     # Step H: Run Playwright E2E Test Suites
     # -------------------------------------------------------------------------
     Write-Log "`n--- Step H: Running Playwright E2E Suites ---" "Yellow"
-    Set-Location "$root\frontend"
 
     if ($Suites.Count -eq 0) {
         $targetSuites = @(
@@ -271,7 +315,9 @@ try {
             "e2e/adversarial-viewport-stress.spec.ts",
             "e2e/challenger-m1-stress.spec.ts",
             "e2e/challenger-m2-stress.spec.ts",
-            "e2e/swms-challenger-m1-2.spec.ts"
+            "e2e/swms-challenger-m1-2.spec.ts",
+            "e2e/r5-visual-interactive-e2e.spec.ts",
+            "e2e/course-creation-studio.spec.ts"
         )
     } else {
         $targetSuites = $Suites
@@ -283,12 +329,16 @@ try {
     }
 
     $suitesJoined = $targetSuites -join " "
-    $pwCmd = "npx.cmd playwright test $suitesJoined --reporter=list"
+    $pwCmd = "cd /d `"$root\frontend`" && npx.cmd playwright test $suitesJoined --reporter=list"
     Write-Log "Executing: cmd.exe /c `"$pwCmd`"" "Cyan"
 
     $pwOutput = & cmd.exe /c $pwCmd 2>&1
     $pwExitCode = $LASTEXITCODE
-    $pwOutput | Out-File -FilePath $playwrightLog -Encoding utf8
+    try {
+        [System.IO.File]::WriteAllLines($playwrightLog, [string[]]$pwOutput)
+    } catch {
+        $pwOutput | Out-File -FilePath $playwrightLog -Encoding utf8 -ErrorAction SilentlyContinue
+    }
 
     # Echo playwright output to console and summary
     foreach ($line in $pwOutput) {

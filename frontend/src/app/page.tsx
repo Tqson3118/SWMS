@@ -1,30 +1,29 @@
 import type { Metadata } from "next";
-import { LandingPageClient } from "@/components/landing/LandingPageClient";
+import { LandingPageV2 } from "@/components/landing/LandingPageV2";
 
 export const metadata: Metadata = {
-  title: "SWMS — Không gian Học tập Thống nhất cho Cá nhân Chủ quyền",
+  title: "Studxy — Nền tảng Học tập Thông minh",
   description:
-    "Nền tảng quản trị học tập hợp nhất: Đọc sâu công thái học (68ch), Ghi chép song song (Split PKM), Thuật toán FSRS v5 tối ưu trí nhớ và Luyện thi Formative AI Quiz.",
+    "Hợp nhất Deep Reader, PKM Notebook và thuật toán FSRS v5 trong một không gian duy nhất. Biến mọi tài liệu thành kiến thức bền vững.",
   keywords: [
-    "SWMS",
     "Studxy",
-    "Sovereign Learning",
+    "SWMS",
     "Deep Reader",
-    "Split PKM",
+    "PKM",
     "FSRS v5",
     "Spaced Repetition",
     "Active Recall",
-    "Personal Knowledge Management"
+    "Course Studio",
   ],
   openGraph: {
-    title: "SWMS — Hệ sinh thái Học tập Thống nhất cho Cá nhân Chủ quyền",
+    title: "Studxy — Nền tảng Học tập Thông minh",
     description:
-      "Hợp nhất Đọc sâu, Ghi chú song song và Khoa học Trí nhớ FSRS v5 trong một không gian duy nhất.",
+      "Hợp nhất Deep Reader, PKM Notebook và thuật toán FSRS v5. Biến mọi tài liệu thành kiến thức bền vững.",
     type: "website",
-    locale: "vi_VN"
-  }
+    locale: "vi_VN",
+  },
 };
 
 export default function HomePage() {
-  return <LandingPageClient />;
+  return <LandingPageV2 />;
 }

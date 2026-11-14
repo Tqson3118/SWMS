@@ -357,6 +357,8 @@ test.describe("Adversarial Multi-Viewport Responsive & Ergonomics Stress Suite",
 
     await expect(page.getByTestId("mode-3-review-container")).toBeVisible();
     await expect(page.getByTestId("fsrs-3d-flip-card")).toBeVisible();
+    // Flip card to reveal gated rating controls per M4 contract
+    await page.getByTestId("fsrs-3d-flip-card").click();
     await expect(page.getByTestId("fsrs-rating-bar")).toBeVisible();
 
     const cardBox1280 = await page.getByTestId("fsrs-3d-flip-card").boundingBox();

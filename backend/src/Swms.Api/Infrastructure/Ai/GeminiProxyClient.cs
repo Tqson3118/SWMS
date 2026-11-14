@@ -18,6 +18,12 @@ public record AiCompletionResult(
     bool UsedLiveEndpoint
 );
 
+public record AiCallOverrides(
+    string? BaseUrl = null,
+    string? ApiKey = null,
+    string? Model = null
+);
+
 /// <summary>
 /// Connects directly to the user-configured OpenAI-compatible Gemini proxy endpoint:
 /// Base URL: http://127.0.0.1:8045/v1/chat/completions
@@ -45,13 +51,18 @@ public class GeminiProxyClient
     public async Task<AiCompletionResult> CompleteChatAsync(
         string systemPrompt,
         string userPrompt,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        AiCallOverrides? overrides = null)
     {
+        var baseUrl = (!string.IsNullOrWhiteSpace(overrides?.BaseUrl) ? overrides.BaseUrl : _baseUrl).TrimEnd('/');
+        var apiKey = !string.IsNullOrWhiteSpace(overrides?.ApiKey) ? overrides.ApiKey : _apiKey;
+        var model = !string.IsNullOrWhiteSpace(overrides?.Model) ? overrides.Model : _model;
+
         try
         {
             var reqBody = new
             {
-                model = _model,
+                model,
                 messages = new[]
                 {
                     new { role = "system", content = systemPrompt },
@@ -60,8 +71,8 @@ public class GeminiProxyClient
                 temperature = 0.3
             };
 
-            using var req = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}/v1/chat/completions");
-            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+            using var req = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/v1/chat/completions");
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
             req.Content = new StringContent(JsonSerializer.Serialize(reqBody), Encoding.UTF8, "application/json");
 
             using var resp = await _http.SendAsync(req, ct);
@@ -85,18 +96,18 @@ public class GeminiProxyClient
                     if (usage.TryGetProperty("total_tokens", out var tt)) totalTokens = tt.GetInt32();
                 }
 
-                return new AiCompletionResult(content.Trim(), _model, promptTokens, completionTokens, totalTokens, true);
+                return new AiCompletionResult(content.Trim(), model, promptTokens, completionTokens, totalTokens, true);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Live AI Proxy {BaseUrl} unreachable or timed out; using deterministic Vietnamese academic fallback.", _baseUrl);
+            _logger.LogWarning(ex, "Live AI Proxy {BaseUrl} unreachable or timed out; using deterministic Vietnamese academic fallback.", baseUrl);
         }
 
         // Resilient offline fallback so local dev never fails if proxy is offline
         return new AiCompletionResult(
             Content: string.Empty,
-            Model: $"{_model}-fallback",
+            Model: $"{model}-fallback",
             PromptTokens: 95,
             CompletionTokens: 145,
             TotalTokens: 240,
@@ -190,12 +201,15 @@ public class AiJobProcessorService : BackgroundService
                 var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
                 var now = DateTimeOffset.UtcNow;
 
-                var stalledJobs = await db.BackgroundJobs
+                var candidates = await db.BackgroundJobs
                     .Where(j => (j.Status == "leased" || j.Status == "running") &&
                                 j.LeaseExpiresAt.HasValue &&
-                                j.LeaseExpiresAt.Value <= now &&
                                 j.RetryCount < j.MaxRetries)
                     .ToListAsync(ct);
+
+                var stalledJobs = candidates
+                    .Where(j => j.LeaseExpiresAt!.Value <= now)
+                    .ToList();
 
                 foreach (var job in stalledJobs)
                 {

@@ -17,7 +17,9 @@ import {
   Sparkles,
   X,
   ChevronRight,
-  LogOut
+  LogOut,
+  Users,
+  GraduationCap
 } from "lucide-react";
 import { useWorkspaceStore, type WorkspaceMode } from "@/stores/useWorkspaceStore";
 
@@ -42,7 +44,9 @@ export interface QuotaSummary {
 
 interface TopNavHeaderProps {
   userName: string;
+  userEmail?: string;
   streakDays: number;
+  breadcrumbRoot?: string;
   activeTitle: string;
   dueCount: number;
   quota: QuotaSummary | null;
@@ -51,7 +55,9 @@ interface TopNavHeaderProps {
 
 export function TopNavHeader({
   userName,
+  userEmail = "son.tran@studxy.vn",
   streakDays,
+  breadcrumbRoot = "Khóa học",
   activeTitle,
   dueCount,
   quota,
@@ -62,8 +68,43 @@ export function TopNavHeader({
     setActiveMode,
     darkMode,
     toggleDarkMode,
-    setCommandPaletteOpen
+    setCommandPaletteOpen,
+    setActiveUserHeaderId,
+    aiConfigModalOpen,
+    setAiConfigModalOpen
   } = useWorkspaceStore();
+
+  const [aiApiKey, setAiApiKey] = useState("");
+  const [aiBaseUrl, setAiBaseUrl] = useState(
+    "https://generativelanguage.googleapis.com/v1beta/openai"
+  );
+  const [aiModel, setAiModel] = useState("gemini-2.5-flash");
+  const [aiSavedNotice, setAiSavedNotice] = useState(false);
+
+  useEffect(() => {
+    if (!aiConfigModalOpen || typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("swms_ai_config");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed.apiKey === "string") setAiApiKey(parsed.apiKey);
+        if (typeof parsed.baseUrl === "string" && parsed.baseUrl)
+          setAiBaseUrl(parsed.baseUrl);
+        if (typeof parsed.model === "string" && parsed.model)
+          setAiModel(parsed.model);
+      }
+    } catch {
+      // Ignore storage parse error
+    }
+  }, [aiConfigModalOpen]);
+
+  const userInitials =
+    userName
+      .trim()
+      .split(/\s+/)
+      .map((part) => part[0]?.toUpperCase() ?? "")
+      .join("")
+      .slice(0, 2) || "ST";
 
   const [quotaOpen, setQuotaOpen] = useState(false);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
@@ -116,55 +157,62 @@ export function TopNavHeader({
     id: WorkspaceMode;
     label: string;
     shortLabel: string;
+    fullTitle: string;
     icon: React.ComponentType<{ className?: string }>;
     hotkey: string;
     badge?: number;
   }[] = [
-    { id: "dashboard", label: "Không gian cá nhân", shortLabel: "Tổng quan", icon: LayoutDashboard, hotkey: "0" },
-    { id: "reading", label: "Mode 1: Đọc sâu", shortLabel: "Đọc", icon: BookOpen, hotkey: "1" },
-    { id: "split", label: "Mode 2: Chia đôi PKM", shortLabel: "Split", icon: Columns2, hotkey: "2" },
-    { id: "review", label: "Mode 3: Ôn tập FSRS", shortLabel: "Ôn tập", icon: Brain, hotkey: "3", badge: dueCount }
+    { id: "dashboard", label: "Tổng quan", shortLabel: "Tổng quan", fullTitle: "Không gian cá nhân", icon: LayoutDashboard, hotkey: "0" },
+    { id: "reading", label: "Đọc sâu", shortLabel: "Đọc", fullTitle: "Mode 1: Đọc sâu", icon: BookOpen, hotkey: "1" },
+    { id: "split", label: "Split PKM", shortLabel: "Split", fullTitle: "Mode 2: Chia đôi PKM", icon: Columns2, hotkey: "2" },
+    { id: "review", label: "Ôn tập FSRS", shortLabel: "Ôn tập", fullTitle: "Mode 3: Ôn tập FSRS", icon: Brain, hotkey: "3", badge: dueCount },
+    { id: "studio", label: "Studio", shortLabel: "Studio", fullTitle: "Mode 4: Studio Khóa học", icon: GraduationCap, hotkey: "4" }
   ];
 
   return (
     <header
       data-testid="global-top-header"
-      className="sticky top-0 z-50 h-14 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md px-3 xl:px-5 flex items-center justify-between gap-2"
+      className="sticky top-0 z-50 h-14 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md px-1.5 sm:px-2.5 lg:px-3 xl:px-5 flex items-center justify-between gap-1 sm:gap-1.5 lg:gap-2"
     >
-      {/* Left: Brand & Breadcrumb */}
-      <div className="flex items-center gap-2.5 min-w-0 relative z-10 shrink-0">
+      {/* Left: Brand & Breadcrumb (never shrinks below SW logo on mobile/tablet) */}
+      <div className="flex items-center gap-1.5 lg:gap-2 shrink-0 lg:shrink lg:flex-1 min-w-0 relative z-10">
         <Link
           href="/"
           data-testid="brand-logo-link"
-          className="relative z-10 flex items-center gap-2 font-bold tracking-tight text-indigo-600 dark:text-indigo-400 shrink-0 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md px-1.5 py-1 cursor-pointer group"
+          className="relative z-10 flex items-center gap-2 font-bold tracking-tight text-indigo-600 dark:text-indigo-400 shrink-0 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md px-1 sm:px-1.5 py-1 cursor-pointer group"
           title="Về Trang chủ SWMS"
         >
           <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-600 text-white text-xs font-extrabold shadow-sm group-hover:scale-105 transition-transform">
             SW
           </span>
-          <span className="text-sm font-extrabold hidden sm:inline">SWMS</span>
+          <span className="text-sm font-extrabold hidden lg:inline">SWMS</span>
         </Link>
 
-        <span className="text-slate-300 dark:text-slate-700 hidden md:inline">/</span>
+        <span className="text-slate-300 dark:text-slate-700 hidden lg:inline shrink-0">/</span>
 
-        <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 truncate max-w-[220px] 2xl:max-w-[380px]">
+        <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 min-w-0 flex-1 overflow-hidden">
           <button
             type="button"
+            data-testid="header-breadcrumb-root"
             onClick={() => setActiveMode("dashboard")}
-            className="font-medium text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 shrink-0 cursor-pointer"
-            title="Về Không gian cá nhân"
+            className="font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 truncate max-w-[110px] xl:max-w-[140px] 2xl:max-w-[180px] shrink cursor-pointer"
+            title={`Về Không gian cá nhân (${breadcrumbRoot})`}
           >
-            Hệ điều hành
+            {breadcrumbRoot}
           </button>
           <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
-          <span className="font-semibold text-slate-900 dark:text-slate-100 truncate" title={activeTitle}>
+          <span
+            data-testid="header-breadcrumb-current"
+            className="font-semibold text-slate-900 dark:text-slate-100 truncate min-w-0 flex-1"
+            title={activeTitle}
+          >
             {activeTitle}
           </span>
         </div>
       </div>
 
       {/* Center: Mode Switcher + Command Palette */}
-      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+      <div className="flex items-center gap-1 lg:gap-1.5 shrink-0">
         <nav
           aria-label="Chế độ không gian học tập"
           className="flex items-center bg-slate-100 dark:bg-slate-900 p-0.5 sm:p-1 rounded-xl border border-slate-200/70 dark:border-slate-800"
@@ -178,19 +226,19 @@ export function TopNavHeader({
                 type="button"
                 data-testid={`mode-tab-${m.id}`}
                 onClick={() => setActiveMode(m.id)}
-                className={`min-h-[38px] px-2.5 sm:px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 sm:gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                className={`min-w-[36px] min-h-[38px] px-1.5 lg:px-2 xl:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1 xl:gap-1.5 cursor-pointer whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                   isActive
                     ? "bg-indigo-600 text-white shadow-sm"
                     : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
                 }`}
-                title={`Chuyển sang ${m.label} (Phím ${m.hotkey})`}
+                title={`Chuyển sang ${m.fullTitle} (Phím ${m.hotkey})`}
               >
                 <Icon className="w-3.5 h-3.5 shrink-0" />
                 <span className="hidden xl:inline">{m.label}</span>
                 <span className="hidden sm:inline xl:hidden">{m.shortLabel}</span>
                 {typeof m.badge === "number" && m.badge > 0 && (
                   <span
-                    className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                    className={`px-1 sm:px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
                       isActive
                         ? "bg-white text-indigo-700"
                         : "bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300"
@@ -208,32 +256,32 @@ export function TopNavHeader({
           type="button"
           data-testid="cmd-k-trigger"
           onClick={() => setCommandPaletteOpen(true)}
-          className="min-h-[36px] flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-slate-700 dark:text-slate-300 transition cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="min-w-[36px] min-h-[38px] flex items-center justify-center gap-1.5 px-2 xl:px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-slate-700 dark:text-slate-300 transition cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           title="Mở bảng lệnh & tìm kiếm nhanh (Ctrl+K / Cmd+K)"
         >
           <Search className="w-3.5 h-3.5 text-slate-400" />
-          <span className="hidden md:inline font-medium">Tìm nhanh</span>
-          <kbd className="hidden sm:inline px-1.5 py-0.5 text-[10px] font-mono bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+          <span className="hidden xl:inline font-medium">Tìm nhanh</span>
+          <kbd className="hidden xl:inline px-1.5 py-0.5 text-[10px] font-mono bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300">
             Ctrl+K
           </kbd>
         </button>
       </div>
 
       {/* Right: AI & Storage Quota Indicator + Streak + Theme + Avatar */}
-      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 relative">
+      <div className="flex items-center gap-1 lg:gap-1.5 shrink-0 relative">
         <div ref={quotaRef} className="relative">
           <button
             type="button"
             data-testid="quota-indicator-btn"
             onClick={() => setQuotaOpen((prev) => !prev)}
-            className={`min-h-[36px] px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1 sm:gap-1.5 cursor-pointer transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${quotaColorClass}`}
+            className={`min-w-[36px] min-h-[38px] px-1.5 lg:px-2.5 xl:px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1 lg:gap-1.5 cursor-pointer whitespace-nowrap transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${quotaColorClass}`}
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">AI: {creditsUsed}/{creditsLimit}</span>
-            <span className="sm:hidden">AI:{creditsUsed}</span>
-            <span className="hidden xl:inline text-slate-400">|</span>
-            <HardDrive className="w-3.5 h-3.5 hidden xl:inline" />
-            <span className="hidden xl:inline">{storageMbUsed}/{storageMbLimit} MB</span>
+            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <span className="hidden lg:inline">AI: {creditsUsed}/{creditsLimit}</span>
+            <span className="lg:hidden">AI:{creditsUsed}</span>
+            <span className="hidden 2xl:inline text-slate-400">|</span>
+            <HardDrive className="w-3.5 h-3.5 hidden 2xl:inline shrink-0" />
+            <span className="hidden 2xl:inline">{storageMbUsed}/{storageMbLimit} MB</span>
           </button>
 
           {quotaOpen && (
@@ -319,7 +367,7 @@ export function TopNavHeader({
 
         <div
           data-testid="streak-badge"
-          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-800 dark:text-amber-300 text-xs font-bold"
+          className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-800 dark:text-amber-300 text-xs font-bold whitespace-nowrap"
           title="Chuỗi ngày ôn tập FSRS liên tục"
         >
           <Flame className="w-3.5 h-3.5 text-amber-500" />
@@ -333,7 +381,7 @@ export function TopNavHeader({
             onClick={onOpenShortcuts}
             aria-label="Phím tắt và trợ giúp"
             title="Xem hướng dẫn phím tắt (?)"
-            className="w-10 h-10 min-w-[40px] min-h-[40px] flex items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors"
+            className="hidden sm:flex w-9 h-9 xl:w-10 xl:h-10 items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors"
           >
             <Keyboard className="w-4 h-4" />
           </button>
@@ -341,11 +389,45 @@ export function TopNavHeader({
 
         <button
           type="button"
+          data-testid="topnav-create-course-btn"
+          onClick={() => {
+            setActiveMode("dashboard");
+            if (typeof window !== "undefined") {
+              setTimeout(() => {
+                const btn = document.querySelector('[data-testid="create-course-hub-btn"]') as HTMLButtonElement | null;
+                btn?.click();
+              }, 50);
+            }
+          }}
+          className="hidden sm:flex min-w-[36px] min-h-[36px] px-2 lg:px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold items-center justify-center gap-1.5 cursor-pointer shadow-2xs whitespace-nowrap transition"
+          title="Tạo khóa học mới"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+          <span className="hidden xl:inline">+ Tạo khóa học</span>
+        </button>
+
+        <button
+          type="button"
+          data-testid="open-ai-config-btn"
+          onClick={() => {
+            setAiSavedNotice(false);
+            setAiConfigModalOpen(true);
+          }}
+          aria-label="Cấu hình khóa API AI"
+          title="Cấu hình khóa API AI (Gemini / OpenAI Compatible)"
+          className="hidden sm:flex min-w-[36px] min-h-[36px] px-2 lg:px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold items-center justify-center gap-1 cursor-pointer whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors"
+        >
+          <Bot className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+          <span className="hidden 2xl:inline">AI Key</span>
+        </button>
+
+        <button
+          type="button"
           data-testid="theme-toggle-btn"
           onClick={toggleDarkMode}
           aria-label="Chuyển đổi giao diện Sáng/Tối"
           title="Chuyển đổi giao diện Sáng/Tối"
-          className="w-10 h-10 min-w-[40px] min-h-[40px] flex items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors"
+          className="w-9 h-9 xl:w-10 xl:h-10 flex items-center justify-center p-1.5 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors"
         >
           {darkMode ? (
             <Sun className="w-4 h-4 text-amber-400 stroke-[2]" />
@@ -365,7 +447,7 @@ export function TopNavHeader({
             aria-haspopup="true"
           >
             <div className="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center">
-              ST
+              {userInitials}
             </div>
             <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 hidden 2xl:inline">
               {userName}
@@ -380,11 +462,11 @@ export function TopNavHeader({
               {/* User Info Header */}
               <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="w-9 h-9 rounded-full bg-indigo-600 text-white text-sm font-bold flex items-center justify-center shrink-0">
-                  ST
+                  {userInitials}
                 </div>
                 <div className="min-w-0">
                   <div className="font-bold text-slate-900 dark:text-white truncate">{userName}</div>
-                  <div className="text-[11px] text-slate-500 truncate">son.tran@studxy.vn</div>
+                  <div className="text-[11px] text-slate-500 truncate">{userEmail}</div>
                   <div className="inline-block mt-0.5 px-1.5 py-0.2 rounded-md bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[10px] font-semibold">
                     Gói Miễn Phí (50MB / 50 AI)
                   </div>
@@ -393,6 +475,15 @@ export function TopNavHeader({
 
               {/* Menu Links */}
               <div className="py-2 space-y-1">
+                <Link
+                  href="/app"
+                  data-testid="switch-to-app-v2-link"
+                  onClick={() => setAvatarMenuOpen(false)}
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold text-left transition cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Giao diện mới (/app)</span>
+                </Link>
                 <button
                   type="button"
                   onClick={() => {
@@ -417,6 +508,30 @@ export function TopNavHeader({
                     <span>Bảng phím tắt (?)</span>
                   </button>
                 )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAvatarMenuOpen(false);
+                    setAiSavedNotice(false);
+                    setAiConfigModalOpen(true);
+                  }}
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition cursor-pointer"
+                >
+                  <Bot className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>Cấu hình AI Key (⚙️ AI Key)</span>
+                </button>
+                <button
+                  type="button"
+                  data-testid="switch-account-btn"
+                  onClick={() => {
+                    setAvatarMenuOpen(false);
+                    window.location.href = "/auth";
+                  }}
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition cursor-pointer"
+                >
+                  <Users className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>Chuyển đổi tài khoản (/auth)</span>
+                </button>
               </div>
 
               {/* Logout Action */}
@@ -428,6 +543,11 @@ export function TopNavHeader({
                     try {
                       await fetch("/api/v1/auth/logout", { method: "POST" });
                     } catch {}
+                    try {
+                      window.localStorage.removeItem("swms_active_user_id");
+                      window.localStorage.removeItem("swms_active_user");
+                    } catch {}
+                    setActiveUserHeaderId(null);
                     window.location.href = "/auth";
                   }}
                   className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-left transition cursor-pointer font-semibold"
@@ -440,6 +560,121 @@ export function TopNavHeader({
           )}
         </div>
       </div>
+
+      {aiConfigModalOpen && (
+        <div
+          data-testid="ai-config-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ai-config-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setAiConfigModalOpen(false);
+          }}
+        >
+          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-5 text-xs text-slate-800 dark:text-slate-100 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Bot className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <h2 id="ai-config-modal-title" className="text-sm font-bold text-slate-900 dark:text-white">
+                  Cấu hình AI Sinh Khóa học &amp; Giải thích (BYOK)
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAiConfigModalOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+                aria-label="Đóng"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  API Key (Gemini / OpenAI Compatible)
+                </label>
+                <input
+                  type="password"
+                  data-testid="ai-api-key-input"
+                  value={aiApiKey}
+                  onChange={(e) => setAiApiKey(e.target.value)}
+                  placeholder="AIzaSy... hoặc sk-..."
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Base URL (Endpoint tương thích OpenAI)
+                </label>
+                <input
+                  type="text"
+                  data-testid="ai-base-url-input"
+                  value={aiBaseUrl}
+                  onChange={(e) => setAiBaseUrl(e.target.value)}
+                  placeholder="https://generativelanguage.googleapis.com/v1beta/openai"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Model AI
+                </label>
+                <input
+                  type="text"
+                  data-testid="ai-model-input"
+                  value={aiModel}
+                  onChange={(e) => setAiModel(e.target.value)}
+                  placeholder="gemini-2.5-flash"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+
+            {aiSavedNotice && (
+              <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-semibold">
+                Đã lưu cấu hình AI vào trình duyệt (swms_ai_config).
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setAiConfigModalOpen(false)}
+                className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold cursor-pointer"
+              >
+                Đóng
+              </button>
+              <button
+                type="button"
+                data-testid="save-ai-config-btn"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.localStorage.setItem(
+                      "swms_ai_config",
+                      JSON.stringify({
+                        apiKey: aiApiKey.trim(),
+                        baseUrl: aiBaseUrl.trim(),
+                        model: aiModel.trim() || "gemini-2.5-flash"
+                      })
+                    );
+                  }
+                  setAiSavedNotice(true);
+                  setTimeout(() => {
+                    setAiConfigModalOpen(false);
+                  }, 300);
+                }}
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold cursor-pointer"
+              >
+                Lưu cấu hình AI
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
+import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { TopNavHeader, type QuotaSummary } from "@/components/layout/TopNavHeader";
 import {
   PersonalWorkspaceDashboard,
@@ -9,96 +9,102 @@ import {
 } from "@/components/dashboard/PersonalWorkspaceDashboard";
 import { ReaderAndSplitViews } from "@/components/reader/ReaderAndSplitViews";
 import { ReviewAndPracticeView } from "@/components/review/ReviewAndPracticeView";
+import { CourseStudioView } from "@/components/studio/CourseStudioView";
 import { CommandPaletteModal } from "@/components/command/CommandPaletteModal";
 import { KeyboardShortcutsModal } from "@/components/auxiliary/KeyboardShortcutsModal";
-import { animateWorkspaceTransition } from "@/lib/animations";
+import { animateWorkspaceTransition } from "@/lib/animations.ts";
 
-const FALLBACK_DASHBOARD_DATA: DashboardData = {
+const INITIAL_DASHBOARD_DATA: DashboardData = {
   user: {
-    id: "11111111-1111-4111-8111-111111111111",
-    fullName: "Sơn Trần",
-    email: "son.tran@studxy.vn",
-    streakDays: 7,
-    onboardingStep: 2,
+    id: "",
+    fullName: "Học viên",
+    email: "",
+    streakDays: 0,
+    onboardingStep: 0,
     isActivated: false
   },
   reviewStation: {
-    totalDue: 4,
-    totalCards: 4,
-    newCount: 2,
-    learningCount: 1,
-    reviewCount: 1,
-    estimatedMinutes: 2
+    totalDue: 0,
+    totalCards: 0,
+    newCount: 0,
+    learningCount: 0,
+    reviewCount: 0,
+    estimatedMinutes: 0
   },
-  lessons: [
-    {
-      id: "44444444-4444-4444-8444-444444444444",
-      title: "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp",
-      slug: "bo-nho-ao-tlb-va-bang-trang-da-cap",
-      currentVersion: 2,
-      updatedAt: new Date().toISOString()
-    },
-    {
-      id: "44444444-4444-4444-8444-444444444445",
-      title: "Bài 3.3: Thuật toán Thay thế Trang (LRU, Clock & Working Set)",
-      slug: "thuat-toan-thay-the-trang-lru-clock",
-      currentVersion: 1,
-      updatedAt: new Date().toISOString()
-    }
-  ],
-  documents: [
-    {
-      id: "55555555-5555-4555-8555-555555555555",
-      title: "Operating Systems: Three Easy Pieces (OSTEP - Ch.18-20 Paging & TLB).pdf",
-      totalPages: 48,
-      fileSizeBytes: 19293798,
-      ocrStatus: "completed",
-      updatedAt: new Date().toISOString()
-    }
-  ],
-  notebooks: [
-    {
-      id: "66666666-6666-4666-8666-666666666666",
-      title: "Ghi chú: Bài 3.2 Bộ nhớ ảo, TLB và Bảng trang đa cấp",
-      version: 1,
-      primarySourceLessonId: "44444444-4444-4444-8444-444444444444",
-      primarySourceDocumentId: null,
-      updatedAt: new Date().toISOString()
-    }
-  ],
-  tags: [
-    { id: "88888881-1111-4111-8111-111111111111", name: "OS-Paging", colorKey: "blue", cardCount: 2 },
-    { id: "88888882-2222-4222-8222-222222222222", name: "Memory", colorKey: "yellow", cardCount: 2 },
-    { id: "88888883-3333-4333-8333-333333333333", name: "TLB", colorKey: "green", cardCount: 2 },
-    { id: "88888884-4444-4444-8444-444444444444", name: "Algorithms", colorKey: "purple", cardCount: 1 }
-  ]
+  lessons: [],
+  documents: [],
+  notebooks: [],
+  tags: [],
+  courses: [],
+  quizzes: []
 };
 
 export default function WorkspacePage() {
   const {
     activeMode,
+    setActiveMode,
     darkMode,
+    toggleDarkMode,
     sourceType,
+    activeCourseId,
     activeDocumentId,
     activeLessonId,
-    currentDocumentPage
+    currentDocumentPage,
+    commandPaletteOpen,
+    aiConfigModalOpen,
+    activeUserHeaderId
   } = useWorkspaceStore();
-  const [dashboard, setDashboard] = useState<DashboardData>(FALLBACK_DASHBOARD_DATA);
+  const [dashboard, setDashboard] = useState<DashboardData>(INITIAL_DASHBOARD_DATA);
+  const [isLoadingDashboard, setIsLoadingDashboard] = useState(true);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
   const [quota, setQuota] = useState<QuotaSummary | null>(null);
   const mainContainerRef = useRef<HTMLDivElement | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
+    setIsLoadingDashboard(true);
+    setDashboardError(null);
     try {
-      const resp = await fetch("/api/v1/workspace/dashboard");
-      if (resp.ok) {
-        const data = await resp.json();
-        setDashboard(data);
+      const effectiveUserId =
+        activeUserHeaderId ??
+        (typeof window !== "undefined"
+          ? window.localStorage.getItem("swms_active_user_id")
+          : null);
+      const headers = getClientRequestHeaders(
+        effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
+      );
+      const reqHeaders = Object.keys(headers).length > 0 ? headers : undefined;
+      const dashResp = await fetch("/api/v1/workspace/dashboard", { headers: reqHeaders });
+      if (dashResp.ok) {
+        const data = await dashResp.json();
+        let resolvedCourses = Array.isArray(data.courses) ? data.courses : [];
+        if (resolvedCourses.length === 0) {
+          const coursesResp = await fetch("/api/v1/courses", { headers: reqHeaders }).catch(() => null);
+          const extraCourses =
+            coursesResp && coursesResp.ok ? await coursesResp.json().catch(() => null) : null;
+          if (Array.isArray(extraCourses) && extraCourses.length > 0) {
+            resolvedCourses = extraCourses;
+          }
+        }
+        setDashboard({
+          ...data,
+          courses: resolvedCourses
+        });
         if (data.quota) setQuota(data.quota);
+      } else {
+        const errBody = await dashResp.json().catch(() => null);
+        setDashboardError(
+          errBody?.error ||
+            `Không thể tải dữ liệu không gian học tập (Mã lỗi HTTP ${dashResp.status}).`
+        );
       }
     } catch {
-      // Uses fallback data while offline
+      setDashboardError(
+        "Không thể kết nối máy chủ Backend để tải dữ liệu không gian học tập."
+      );
+    } finally {
+      setIsLoadingDashboard(false);
     }
-  }, []);
+  }, [activeUserHeaderId]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -117,46 +123,118 @@ export default function WorkspacePage() {
         target &&
         (target.tagName === "INPUT" ||
           target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
           target.isContentEditable)
       ) {
         return;
       }
 
-      if (e.key === "?" && !isShortcutsOpen) {
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === "d" || e.key === "D")) {
+        e.preventDefault();
+        toggleDarkMode();
+        return;
+      }
+
+      if (
+        isShortcutsOpen ||
+        commandPaletteOpen ||
+        aiConfigModalOpen ||
+        document.querySelector('[role="dialog"]')
+      ) {
+        return;
+      }
+
+      if (e.key === "?") {
         e.preventDefault();
         setIsShortcutsOpen(true);
+        return;
+      }
+
+      if (e.key === "0" && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        setActiveMode("dashboard");
+        return;
+      }
+
+      if (
+        (e.key === "1" || e.key === "2" || e.key === "3" || e.key === "4") &&
+        !e.ctrlKey &&
+        !e.metaKey
+      ) {
+        const hasSelectedText =
+          typeof window !== "undefined" &&
+          (window.getSelection()?.toString().trim().length ?? 0) >= 3;
+        const canSwitchMode =
+          e.altKey ||
+          activeMode === "dashboard" ||
+          ((activeMode === "reading" || activeMode === "split" || activeMode === "studio") && !hasSelectedText);
+
+        if (canSwitchMode) {
+          e.preventDefault();
+          if (e.key === "1") setActiveMode("reading");
+          if (e.key === "2") setActiveMode("split");
+          if (e.key === "3") setActiveMode("review");
+          if (e.key === "4") setActiveMode("studio");
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isShortcutsOpen]);
+  }, [isShortcutsOpen, commandPaletteOpen, aiConfigModalOpen, activeMode, setActiveMode, toggleDarkMode]);
 
+  const coursesList = dashboard.courses ?? [];
   const activeDoc = dashboard.documents.find((d) => d.id === activeDocumentId);
-  const activeLesson = dashboard.lessons.find((l) => l.id === activeLessonId) ?? dashboard.lessons[0];
+  const allCourseLessons = coursesList.flatMap((c) =>
+    (c.chapters ?? []).flatMap((ch) => ch.lessons ?? [])
+  );
+  const activeLesson =
+    dashboard.lessons.find((l) => l.id === activeLessonId) ??
+    allCourseLessons.find((l) => l.id === activeLessonId) ??
+    dashboard.lessons[0];
+
+  const resolvedCourseId = activeCourseId || activeLesson?.courseId || null;
+  const activeCourse =
+    coursesList.find((c) => (c.courseId || c.id) === resolvedCourseId) ||
+    (activeDocumentId
+      ? coursesList.find((c) => c.sourceDocumentId === activeDocumentId)
+      : undefined);
+
+  const breadcrumbRoot =
+    activeMode === "dashboard" ? "Khóa học" : activeCourse?.title || "Khóa học";
 
   const activeTitle =
-    sourceType === "document" && activeDoc
+    activeMode === "dashboard"
+      ? "Khóa học của tôi"
+      : activeMode === "studio"
+      ? activeCourse?.title || "Studio Khóa học"
+      : activeMode === "review"
+      ? "Ôn tập FSRS & Quiz"
+      : sourceType === "document" && activeDoc
       ? `${activeDoc.title} • Trang ${currentDocumentPage} / ${activeDoc.totalPages}`
-      : (activeLesson?.title ?? "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp");
+      : activeLesson?.title || activeCourse?.title || "Chưa chọn bài học";
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+      <div className="min-h-screen w-full overflow-x-clip bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
         <TopNavHeader
           userName={dashboard.user.fullName}
+          userEmail={dashboard.user.email}
           streakDays={dashboard.user.streakDays}
+          breadcrumbRoot={breadcrumbRoot}
           activeTitle={activeTitle}
           dueCount={dashboard.reviewStation.totalDue}
           quota={quota}
           onOpenShortcuts={() => setIsShortcutsOpen(true)}
         />
 
-        <main ref={mainContainerRef} className="w-full overflow-x-hidden">
+        <main ref={mainContainerRef} className="w-full overflow-x-clip">
           {activeMode === "dashboard" && (
             <PersonalWorkspaceDashboard
               data={dashboard}
               onRefreshDashboard={fetchDashboardData}
+              isLoadingDashboard={isLoadingDashboard}
+              dashboardError={dashboardError}
             />
           )}
 
@@ -166,6 +244,10 @@ export default function WorkspacePage() {
               onDataMutated={fetchDashboardData}
               documents={dashboard.documents}
               lessons={dashboard.lessons}
+              {...({
+                courses: dashboard.courses ?? [],
+                quizzes: dashboard.quizzes ?? []
+              } as Record<string, unknown>)}
             />
           )}
 
@@ -173,7 +255,16 @@ export default function WorkspacePage() {
             <ReviewAndPracticeView
               tags={dashboard.tags}
               onReviewSessionUpdated={fetchDashboardData}
+              {...({
+                courses: dashboard.courses ?? [],
+                quizzes: dashboard.quizzes ?? [],
+                coursesLoading: isLoadingDashboard
+              } as Record<string, unknown>)}
             />
+          )}
+
+          {activeMode === "studio" && (
+            <CourseStudioView onRefreshDashboard={fetchDashboardData} />
           )}
         </main>
 

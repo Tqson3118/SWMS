@@ -160,7 +160,22 @@ public class Lesson
     public string ContentAstJson { get; set; } = "{\"type\":\"doc\",\"content\":[]}";
     [Required]
     public string PlainText { get; set; } = string.Empty;
+    public string? ContentMarkdown { get; set; }
+    public string? VideoUrl { get; set; }
+    public int EstimatedMinutes { get; set; } = 5;
     public bool IsPublished { get; set; } = true;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public class UserLessonProgress
+{
+    [Key]
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid UserId { get; set; }
+    public Guid LessonId { get; set; }
+    public bool IsCompleted { get; set; } = true;
+    public DateTimeOffset? CompletedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

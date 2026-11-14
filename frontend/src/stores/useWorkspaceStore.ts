@@ -1,7 +1,44 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type WorkspaceMode = "dashboard" | "reading" | "split" | "review";
+export type WorkspaceMode = "dashboard" | "reading" | "split" | "review" | "studio";
+export type PdfViewMode = "dual" | "canvas" | "text";
+export type LibraryFilter = "all" | "course" | "pdf" | "lesson" | "notebook";
+
+export interface AiClientConfig {
+  apiKey?: string;
+  baseUrl?: string;
+  model?: string;
+}
+
+export function getClientRequestHeaders(
+  extraHeaders?: Record<string, string>
+): Record<string, string> {
+  const headers: Record<string, string> = { ...(extraHeaders ?? {}) };
+  if (typeof window === "undefined") return headers;
+  try {
+    const activeUserId = window.localStorage.getItem("swms_active_user_id");
+    if (activeUserId && activeUserId.trim()) {
+      headers["X-Test-User-Id"] = activeUserId.trim();
+    }
+    const rawAiConfig = window.localStorage.getItem("swms_ai_config");
+    if (rawAiConfig) {
+      const parsed = JSON.parse(rawAiConfig) as AiClientConfig;
+      if (parsed.apiKey && parsed.apiKey.trim()) {
+        headers["X-Ai-Api-Key"] = parsed.apiKey.trim();
+      }
+      if (parsed.baseUrl && parsed.baseUrl.trim()) {
+        headers["X-Ai-Base-Url"] = parsed.baseUrl.trim();
+      }
+      if (parsed.model && parsed.model.trim()) {
+        headers["X-Ai-Model"] = parsed.model.trim();
+      }
+    }
+  } catch {
+    // Ignore localStorage parse errors
+  }
+  return headers;
+}
 
 export interface SemanticHighlightConfig {
   key: "yellow" | "green" | "blue" | "purple" | "rose";
@@ -63,6 +100,7 @@ interface WorkspaceState {
   serifFont: boolean;
   fontSizePx: number;
   zenMode: boolean;
+  cleanReadingMode: boolean;
   commandPaletteOpen: boolean;
   orphanedDrawerOpen: boolean;
   dismissedOrphanBanner: boolean;
@@ -70,12 +108,33 @@ interface WorkspaceState {
   notebookDraftTextBySource: Record<string, string>;
   practiceQuizDraftAnswers: Record<string, string>;
   currentDocumentPage: number;
+  activeDocumentTotalPages: number | null;
+  pdfViewMode: PdfViewMode;
+  libraryFilter: LibraryFilter;
+  activeUserHeaderId: string | null;
+  activeCourseId: string | null;
+  activeQuizId: string | null;
+  editingCourseId: string | null;
+  editingLessonId: string | null;
+  aiConfigModalOpen: boolean;
+  courseSearchQuery: string;
+  selectedCategory: string;
 
   setActiveMode: (mode: WorkspaceMode) => void;
-  setActiveReviewSubTab: (tab: "fsrs" | "quiz") => void;
+  setActiveReviewSubTab: (tab: "fsrs" | "quiz" | "flashcards") => void;
   setActiveLesson: (lessonId: string) => void;
-  setActiveDocument: (documentId: string, initialPage?: number) => void;
+  setActiveDocument: (documentId: string, initialPage?: number, totalPages?: number | null) => void;
   setCurrentDocumentPage: (page: number) => void;
+  setPdfViewMode: (mode: PdfViewMode) => void;
+  setLibraryFilter: (f: LibraryFilter) => void;
+  setActiveUserHeaderId: (id: string | null) => void;
+  setActiveCourseId: (id: string | null) => void;
+  setActiveQuizId: (id: string | null) => void;
+  setEditingCourseId: (id: string | null) => void;
+  setEditingLessonId: (id: string | null) => void;
+  setAiConfigModalOpen: (open: boolean) => void;
+  setCourseSearchQuery: (query: string) => void;
+  setSelectedCategory: (category: string) => void;
   setSelectedTagFilterId: (tagId: string | null) => void;
   toggleSidebar: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
@@ -86,6 +145,7 @@ interface WorkspaceState {
   toggleSerifFont: () => void;
   setFontSizePx: (size: number) => void;
   toggleZenMode: () => void;
+  toggleCleanReadingMode: () => void;
   setCommandPaletteOpen: (open: boolean) => void;
   setOrphanedDrawerOpen: (open: boolean) => void;
   setDismissedOrphanBanner: (dismissed: boolean) => void;
@@ -109,20 +169,66 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       serifFont: true,
       fontSizePx: 18,
       zenMode: false,
+      cleanReadingMode: true,
       commandPaletteOpen: false,
       orphanedDrawerOpen: false,
       dismissedOrphanBanner: false,
       notebookDraftTextBySource: {},
       practiceQuizDraftAnswers: {},
       currentDocumentPage: 1,
+      activeDocumentTotalPages: null,
+      pdfViewMode: "dual",
+      libraryFilter: "all",
+      activeUserHeaderId:
+        typeof window !== "undefined"
+          ? window.localStorage.getItem("swms_active_user_id")
+          : null,
+      activeCourseId: null,
+      activeQuizId: null,
+      editingCourseId: null,
+      editingLessonId: null,
+      aiConfigModalOpen: false,
+      courseSearchQuery: "",
+      selectedCategory: "Tất cả",
 
       setActiveMode: (mode) => set({ activeMode: mode }),
-      setActiveReviewSubTab: (tab) => set({ activeReviewSubTab: tab }),
+      setActiveReviewSubTab: (tab) =>
+        set({ activeReviewSubTab: tab === "flashcards" ? "fsrs" : tab }),
       setActiveLesson: (lessonId) =>
-        set({ activeLessonId: lessonId, sourceType: "lesson", activeDocumentId: null }),
-      setActiveDocument: (documentId, initialPage = 1) =>
-        set({ activeDocumentId: documentId, sourceType: "document", currentDocumentPage: Math.max(1, initialPage) }),
+        set({
+          activeLessonId: lessonId,
+          sourceType: "lesson",
+          activeDocumentId: null,
+          activeDocumentTotalPages: null
+        }),
+      setActiveDocument: (documentId, initialPage = 1, totalPages = null) =>
+        set({
+          activeDocumentId: documentId,
+          sourceType: "document",
+          currentDocumentPage: Math.max(1, initialPage),
+          activeDocumentTotalPages:
+            typeof totalPages === "number" && totalPages > 0 ? totalPages : null
+        }),
       setCurrentDocumentPage: (page) => set({ currentDocumentPage: Math.max(1, page) }),
+      setPdfViewMode: (mode) => set({ pdfViewMode: mode }),
+      setLibraryFilter: (f) => set({ libraryFilter: f }),
+      setActiveUserHeaderId: (id) => {
+        if (typeof window !== "undefined") {
+          if (id) {
+            window.localStorage.setItem("swms_active_user_id", id);
+          } else {
+            window.localStorage.removeItem("swms_active_user_id");
+          }
+        }
+        set({ activeUserHeaderId: id });
+      },
+      setActiveCourseId: (id) => set({ activeCourseId: id }),
+      setActiveQuizId: (id) => set({ activeQuizId: id }),
+      setEditingCourseId: (id) => set({ editingCourseId: id }),
+      setEditingLessonId: (id) => set({ editingLessonId: id }),
+      setAiConfigModalOpen: (open) => set({ aiConfigModalOpen: open }),
+      setCourseSearchQuery: (query) => set({ courseSearchQuery: query }),
+      setSelectedCategory: (category) => set({ selectedCategory: category }),
       setSelectedTagFilterId: (tagId) => set({ selectedTagFilterId: tagId }),
       toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
       setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
@@ -133,6 +239,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       toggleSerifFont: () => set((s) => ({ serifFont: !s.serifFont })),
       setFontSizePx: (size) => set({ fontSizePx: size }),
       toggleZenMode: () => set((s) => ({ zenMode: !s.zenMode })),
+      toggleCleanReadingMode: () => set((s) => ({ cleanReadingMode: !s.cleanReadingMode })),
       setCommandPaletteOpen: (open) => set({ commandPaletteOpen: open }),
       setOrphanedDrawerOpen: (open) => set({ orphanedDrawerOpen: open }),
       setDismissedOrphanBanner: (dismissed) => set({ dismissedOrphanBanner: dismissed }),
@@ -153,6 +260,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         darkMode: state.darkMode,
         serifFont: state.serifFont,
         fontSizePx: state.fontSizePx,
+        cleanReadingMode: state.cleanReadingMode,
         notebookDraftTextBySource: state.notebookDraftTextBySource,
         practiceQuizDraftAnswers: state.practiceQuizDraftAnswers
       })

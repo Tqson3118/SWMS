@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
+import { usePathname, useRouter } from "next/navigation";
+import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { Search, Zap, Plus, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface SearchResultItem {
   id: string;
+  courseId?: string | null;
   type: "lesson" | "document" | "notebook" | "flashcard" | "tag";
   title: string;
   subtitle: string;
@@ -17,10 +19,13 @@ interface CommandPaletteModalProps {
 }
 
 export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteModalProps) {
+  const pathname = usePathname();
+  const router = useRouter();
   const {
     commandPaletteOpen,
     setCommandPaletteOpen,
     setActiveMode,
+    setActiveCourseId,
     setActiveLesson,
     setActiveDocument,
     setSelectedTagFilterId
@@ -50,7 +55,8 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
     if (!commandPaletteOpen) return;
     let active = true;
     setLoading(true);
-    fetch(`/api/v1/workspace/search?q=${encodeURIComponent(query)}`)
+    const headers = getClientRequestHeaders();
+    fetch(`/api/v1/workspace/search?q=${encodeURIComponent(query)}`, { headers })
       .then((r) => r.json())
       .then((data) => {
         if (active) {
@@ -69,19 +75,46 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
   if (!commandPaletteOpen) return null;
 
   const handleSelectItem = (item: SearchResultItem) => {
+    const inAppShell = pathname?.startsWith("/app");
+
     if (item.type === "lesson") {
+      if (item.courseId) setActiveCourseId(item.courseId);
       setActiveLesson(item.id);
       setActiveMode("reading");
+      if (inAppShell && item.courseId) {
+        router.push(`/app/courses/${item.courseId}/learn?lesson=${item.id}`);
+      }
     } else if (item.type === "document") {
+      if (item.courseId) setActiveCourseId(item.courseId);
       setActiveDocument(item.id);
       setActiveMode("reading");
+      if (inAppShell) {
+        router.push(
+          item.courseId
+            ? `/app/courses/${item.courseId}/learn?doc=${item.id}`
+            : `/app/library`
+        );
+      }
     } else if (item.type === "notebook") {
       setActiveMode("split");
+      if (inAppShell) {
+        router.push(
+          item.courseId
+            ? `/app/courses/${item.courseId}/learn?split=true`
+            : `/workspace`
+        );
+      }
     } else if (item.type === "flashcard") {
       setActiveMode("review");
+      if (inAppShell) {
+        router.push("/app/review");
+      }
     } else if (item.type === "tag") {
       setSelectedTagFilterId(item.id);
       setActiveMode("review");
+      if (inAppShell) {
+        router.push(`/app/review?tag=${encodeURIComponent(item.id)}`);
+      }
     }
     setCommandPaletteOpen(false);
   };
@@ -92,7 +125,7 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
     try {
       const resp = await fetch("/api/v1/flashcards", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           cardType: "cloze",
           frontText: quickCaptureText.includes("{{c1::")

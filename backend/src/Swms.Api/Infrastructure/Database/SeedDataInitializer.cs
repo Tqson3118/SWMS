@@ -35,13 +35,19 @@ public static class SeedDataInitializer
 
     private static readonly SemaphoreSlim SeedLock = new(1, 1);
 
-    public static async Task SeedAsync(SwmsDbContext db)
+    public static Task SeedAsync(SwmsDbContext db) => SeedAsync(db, null);
+
+    public static async Task SeedAsync(SwmsDbContext db, string? documentRootPath)
     {
         await SeedLock.WaitAsync();
         try
         {
             if (await db.Users.AnyAsync())
+            {
+                await Features.DocumentCourseSyncService.SyncAllFromDocumentsAsync(db, documentRootPath);
+                await EnsurePersonalFinanceSeededAsync(db);
                 return;
+            }
 
             var now = DateTimeOffset.UtcNow;
 
@@ -729,10 +735,42 @@ public static class SeedDataInitializer
         );
 
         await db.SaveChangesAsync();
+
+        // 6. Sync all curated document-library courses cleanly, falling back to PF zip only if document library is absent
+        await Features.DocumentCourseSyncService.SyncAllFromDocumentsAsync(db, documentRootPath);
+        await EnsurePersonalFinanceSeededAsync(db);
         }
         finally
         {
             SeedLock.Release();
+        }
+    }
+
+    private static async Task EnsurePersonalFinanceSeededAsync(SwmsDbContext db)
+    {
+        if (await db.Courses.AnyAsync(c => c.Slug == "document-course-personalfinance" || c.Title.Contains("Tài Chính Cá Nhân")))
+        {
+            return;
+        }
+
+        var pfZipFixture = Path.Combine(AppContext.BaseDirectory, "test-fixtures", "personal-finance-course.zip");
+        if (!File.Exists(pfZipFixture))
+        {
+            var fallbackFixture = @"D:\03_Study\Studxy\frontend\e2e\fixtures\personal-finance-course.zip";
+            if (File.Exists(fallbackFixture)) pfZipFixture = fallbackFixture;
+        }
+
+        if (File.Exists(pfZipFixture))
+        {
+            try
+            {
+                using var fs = File.OpenRead(pfZipFixture);
+                await Features.CourseWizardAndImportService.ImportCourseFromZipAsync(db, fs, DefaultUserId);
+            }
+            catch
+            {
+                // Non-critical fallback
+            }
         }
     }
 }

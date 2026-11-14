@@ -46,7 +46,26 @@ else if (!string.Equals(usePostgresEnv, "false", StringComparison.OrdinalIgnoreC
     }
 }
 
-var dbName = builder.Configuration["Database:InMemoryName"] ?? "SwmsAuthoritativeDevDb";
+bool isRunningUnderTests = AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name?.Contains("testhost", StringComparison.OrdinalIgnoreCase) == true)
+                            || !string.IsNullOrWhiteSpace(builder.Configuration["Database:InMemoryName"]);
+
+var rawSqliteConn = builder.Configuration.GetConnectionString("SqliteFallback");
+string sqliteConn;
+if (string.IsNullOrWhiteSpace(rawSqliteConn))
+{
+    var rootDir = Directory.Exists(@"D:\03_Study\Studxy") ? @"D:\03_Study\Studxy" : AppContext.BaseDirectory;
+    sqliteConn = $"Data Source={Path.Combine(rootDir, "swms_local_dev.db")}";
+}
+else if (rawSqliteConn.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase) && !Path.IsPathRooted(rawSqliteConn[12..].Trim()))
+{
+    var rel = rawSqliteConn[12..].Trim();
+    var rootDir = Directory.Exists(@"D:\03_Study\Studxy") ? @"D:\03_Study\Studxy" : AppContext.BaseDirectory;
+    sqliteConn = $"Data Source={Path.Combine(rootDir, rel)}";
+}
+else
+{
+    sqliteConn = rawSqliteConn;
+}
 
 builder.Services.AddDbContext<SwmsDbContext>(options =>
 {
@@ -54,9 +73,15 @@ builder.Services.AddDbContext<SwmsDbContext>(options =>
     {
         options.UseNpgsql(postgresConn);
     }
+    else if (isRunningUnderTests)
+    {
+        var inMem = builder.Configuration["Database:InMemoryName"] ?? "SwmsAuthoritativeDevDb";
+        options.UseInMemoryDatabase(inMem);
+    }
     else
     {
-        options.UseInMemoryDatabase(dbName);
+        // Persistent SQLite for local app so courses and learning progress survive restarts
+        options.UseSqlite(sqliteConn);
     }
 });
 
@@ -172,14 +197,15 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
     await db.Database.EnsureCreatedAsync();
-    await SeedDataInitializer.SeedAsync(db);
+    await SwmsEndpoints.EnsureSqliteSchemaUpdatedAsync(db);
+    await SeedDataInitializer.SeedAsync(db, builder.Configuration["DocumentLibrary:RootPath"]);
 }
 
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "healthy",
     service = "SWMS Backend .NET 10 LTS",
-    databaseMode = isPostgresAvailable ? "PostgreSQL 17 + pgvector" : "Local Dev Fallback (In-Memory + Vietnamese Seed Data)",
+    databaseMode = isPostgresAvailable ? "PostgreSQL 17 + pgvector" : (isRunningUnderTests ? "Isolated In-Memory (Test Runner)" : "Persistent SQLite (swms_local_dev.db) + Vietnamese Seed Data"),
     aiEndpoint = builder.Configuration["AiProxy:BaseUrl"] ?? "http://127.0.0.1:8045",
     aiModel = builder.Configuration["AiProxy:Model"] ?? "gemini-3.8-flash"
 }));

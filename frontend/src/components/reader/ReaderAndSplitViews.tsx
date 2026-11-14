@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import {
   Lightbulb,
@@ -24,16 +24,42 @@ import {
   Target,
   Pin,
   Trash2,
-  X
+  X,
+  CheckCircle2,
+  Trophy,
+  Flame,
+  ListTree,
+  Clock,
+  Type,
+  Eye,
+  Minus,
+  Plus,
+  Layers
 } from "lucide-react";
 import {
   SEMANTIC_HIGHLIGHT_KEYS,
   useWorkspaceStore,
+  getClientRequestHeaders,
   type SemanticHighlightConfig
 } from "@/stores/useWorkspaceStore";
 import { useSynchronizedScroll } from "@/hooks/useSynchronizedScroll";
 import { useNotebookAutoSave } from "@/hooks/useNotebookAutoSave";
-import { scrollToAndPulseHighlight, waitForElementAndPulse } from "@/lib/animations";
+import { scrollToAndPulseHighlight, waitForElementAndPulse } from "@/lib/animations.ts";
+import {
+  CourseRoadmapSidebar,
+  type RoadmapChapterItem
+} from "@/components/reader/CourseRoadmapSidebar";
+import {
+  LessonMarkdownView,
+  type LessonHeadingItem
+} from "@/components/reader/LessonMarkdownView";
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function toNullableUuid(val?: string | number | null): string | null {
+  if (val == null) return null;
+  const trimmed = String(val).trim();
+  return UUID_REGEX.test(trimmed) ? trimmed : null;
+}
 
 // Configure PDF.js offline worker without external CDN
 if (typeof window !== "undefined") {
@@ -101,6 +127,18 @@ export interface LessonDetail {
   slug?: string;
   currentVersion: number;
   plainText?: string;
+  contentMarkdown?: string | null;
+  videoUrl?: string | null;
+  estimatedMinutes?: number;
+  sourceFolder?: string | null;
+  sourceRelativePath?: string | null;
+  courseId?: string | null;
+  courseTitle?: string | null;
+  chapterTitle?: string | null;
+  adjacentPrevLessonId?: string | null;
+  adjacentNextLessonId?: string | null;
+  linkedQuizId?: string | null;
+  linkedFlashcardsCount?: number;
   totalPages?: number;
   fileSizeBytes?: number;
   ocrStatus?: string;
@@ -136,7 +174,168 @@ export interface LessonSummary {
   title: string;
   slug: string;
   currentVersion: number;
+  courseId?: string | null;
+  chapterId?: string | null;
+  sourceDocumentId?: string | null;
+  startPage?: number | null;
+  endPage?: number | null;
   updatedAt?: string;
+}
+
+export interface CourseLessonItemDto {
+  id: string;
+  title: string;
+  slug?: string;
+  sortOrder?: number;
+  currentVersion?: number;
+  estimatedMinutes?: number;
+  chapterTitle?: string | null;
+  sourceFolder?: string | null;
+  sourceRelativePath?: string | null;
+  quizId?: string | null;
+  courseId?: string | null;
+  chapterId?: string | null;
+  sourceDocumentId?: string | null;
+  startPage?: number | null;
+  endPage?: number | null;
+}
+
+export interface CourseChapterItemDto {
+  id: string;
+  title: string;
+  sortOrder?: number;
+  lessons: CourseLessonItemDto[];
+}
+
+export interface CourseSummaryItemDto {
+  id?: string;
+  courseId?: string;
+  title: string;
+  description?: string;
+  isPublished?: boolean;
+  sourceFolder?: string | null;
+  category?: string | null;
+  sourceDocumentId?: string | null;
+  totalPages?: number;
+  chapterCount?: number;
+  lessonCount?: number;
+  flashcardCount?: number;
+  quizCount?: number;
+  lessonQuizMap?: Record<string, string> | null;
+  tagId?: string | null;
+  tagName?: string | null;
+  quizId?: string | null;
+  notebookId?: string | null;
+  firstLessonId?: string | null;
+  lessonIds?: string[];
+  completedLessonIds?: string[];
+  lessons?: CourseLessonItemDto[];
+  chapters?: CourseChapterItemDto[];
+}
+
+export interface CourseProgressDto {
+  courseId: string;
+  totalLessons: number;
+  completedLessons: number;
+  percentCompleted: number;
+  completedLessonIds: string[];
+}
+
+export interface CourseCelebrationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  totalLessons: number;
+  streakDays?: number;
+  onGoToReview: () => void;
+  onGoToDashboard: () => void;
+}
+
+export function CourseCelebrationModal({
+  isOpen,
+  onClose,
+  totalLessons,
+  streakDays = 5,
+  onGoToReview,
+  onGoToDashboard
+}: CourseCelebrationModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      data-testid="course-celebration-modal"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200"
+    >
+      <div className="relative w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-indigo-500/40 p-6 sm:p-8 shadow-2xl text-center space-y-5 animate-in zoom-in-95 duration-200">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full cursor-pointer transition"
+          aria-label="Đóng"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Trophy Header */}
+        <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30">
+          <Trophy className="w-8 h-8" />
+        </div>
+
+        <div className="space-y-2">
+          <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
+            Xuất sắc hoàn thành
+          </span>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+            Chúc mừng bạn đã hoàn thành 100% khóa học!
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+            Bạn đã tiếp thu toàn bộ kiến thức của khóa học. Hãy ôn luyện để củng cố trí nhớ dài hạn cùng FSRS v5.
+          </p>
+        </div>
+
+        {/* Summary Card */}
+        <div className="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800">
+          <div className="text-center">
+            <div className="text-xl font-black text-indigo-600 dark:text-indigo-400">
+              {totalLessons}
+            </div>
+            <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+              Bài học hoàn thành
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-xl font-black text-amber-500 flex items-center justify-center gap-1">
+              <Flame className="w-5 h-5 fill-amber-500" />
+              <span>{streakDays}</span>
+            </div>
+            <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+              Ngày streak liên tiếp
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
+          <button
+            type="button"
+            data-testid="celebration-review-flashcards-btn"
+            onClick={onGoToReview}
+            className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold text-xs sm:text-sm shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
+          >
+            <Zap className="w-4 h-4 text-amber-300" />
+            <span>Ôn tập Flashcards</span>
+          </button>
+          <button
+            type="button"
+            data-testid="celebration-back-dashboard-btn"
+            onClick={onGoToDashboard}
+            className="w-full sm:flex-1 py-3 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs sm:text-sm transition cursor-pointer min-h-[44px]"
+          >
+            Quay về Dashboard
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 interface ReaderAndSplitViewsProps {
@@ -144,6 +343,8 @@ interface ReaderAndSplitViewsProps {
   onDataMutated: () => void;
   documents?: DocumentSummary[];
   lessons?: LessonSummary[];
+  courses?: CourseSummaryItemDto[];
+  quizzes?: Array<{ id: string; title: string }>;
 }
 
 function generatePageJumps(totalPages: number, currentPage: number): number[] {
@@ -165,17 +366,24 @@ export function ReaderAndSplitViews({
   mode,
   onDataMutated,
   documents,
-  lessons
+  lessons,
+  courses: propCourses
 }: ReaderAndSplitViewsProps) {
   const {
     activeLessonId,
     activeDocumentId,
+    activeDocumentTotalPages,
     sourceType,
     currentDocumentPage,
     setCurrentDocumentPage,
     setActiveMode,
     setActiveLesson,
     setActiveDocument,
+    setSelectedTagFilterId,
+    setActiveReviewSubTab,
+    activeCourseId,
+    setActiveCourseId,
+    setActiveQuizId,
     sidebarCollapsed,
     setSidebarCollapsed,
     toggleSidebar,
@@ -190,13 +398,285 @@ export function ReaderAndSplitViews({
     setFontSizePx,
     zenMode,
     toggleZenMode,
+    cleanReadingMode,
+    toggleCleanReadingMode,
     orphanedDrawerOpen,
     setOrphanedDrawerOpen,
     dismissedOrphanBanner,
     setDismissedOrphanBanner,
     notebookDraftTextBySource,
-    setNotebookDraftText
+    setNotebookDraftText,
+    pdfViewMode,
+    setPdfViewMode
   } = useWorkspaceStore();
+
+  const effectivePdfViewMode = pdfViewMode || "dual";
+
+  const [fetchedCourses, setFetchedCourses] = useState<CourseSummaryItemDto[]>([]);
+  const [isEditingLessonTitle, setIsEditingLessonTitle] = useState(false);
+  const [editedLessonTitle, setEditedLessonTitle] = useState("");
+  const [localLessonTitles, setLocalLessonTitles] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const hasMatchInProps =
+      propCourses &&
+      propCourses.length > 0 &&
+      ((!activeCourseId && !activeLessonId && !activeDocumentId) ||
+        propCourses.some((c) => {
+          const cid = c.courseId || c.id;
+          if (sourceType === "document" && activeDocumentId && c.sourceDocumentId === activeDocumentId) {
+            return true;
+          }
+          if (
+            sourceType === "lesson" &&
+            activeLessonId &&
+            (c.chapters?.some((ch) => ch.lessons?.some((l) => l.id === activeLessonId)) ||
+              c.lessons?.some((l) => l.id === activeLessonId) ||
+              c.lessonIds?.includes(activeLessonId))
+          ) {
+            return true;
+          }
+          if (activeCourseId && cid === activeCourseId) {
+            return true;
+          }
+          return false;
+        }));
+
+    if (hasMatchInProps) {
+      return;
+    }
+
+    let isMounted = true;
+    fetch("/api/v1/courses", { headers: getClientRequestHeaders() })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((list) => {
+        if (isMounted && Array.isArray(list)) setFetchedCourses(list);
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, [activeDocumentId, activeLessonId, activeCourseId, sourceType, propCourses]);
+
+  const effectiveCourses =
+    propCourses && propCourses.length > 0 ? propCourses : fetchedCourses;
+
+  const activeCourse =
+    effectiveCourses.find((c) => {
+      const cid = c.courseId || c.id;
+      if (sourceType === "document" && activeDocumentId && c.sourceDocumentId === activeDocumentId) {
+        return true;
+      }
+      if (
+        sourceType === "lesson" &&
+        activeLessonId &&
+        (c.chapters?.some((ch) => ch.lessons?.some((l) => l.id === activeLessonId)) ||
+          c.lessons?.some((l) => l.id === activeLessonId) ||
+          c.lessonIds?.includes(activeLessonId))
+      ) {
+        return true;
+      }
+      if (activeCourseId && cid === activeCourseId) {
+        return true;
+      }
+      return false;
+    }) ?? null;
+
+  const activeCourseLessons: CourseLessonItemDto[] = activeCourse
+    ? activeCourse.chapters && activeCourse.chapters.length > 0
+      ? activeCourse.chapters.flatMap((ch) => ch.lessons || [])
+      : activeCourse.lessons || []
+    : [];
+
+  const activeChapter =
+    activeCourse?.chapters?.find((ch) => ch.lessons?.some((l) => l.id === activeLessonId)) ??
+    null;
+
+  const roadmapChapters: RoadmapChapterItem[] = useMemo(() => {
+    if (!activeCourse) return [];
+    if (activeCourse.chapters && activeCourse.chapters.length > 0) {
+      return activeCourse.chapters.map((ch) => ({
+        id: ch.id,
+        title: ch.title,
+        sortOrder: ch.sortOrder,
+        lessons: (ch.lessons || []).map((l) => ({
+          id: l.id,
+          title: localLessonTitles[l.id] || l.title,
+          slug: l.slug,
+          sortOrder: l.sortOrder,
+          estimatedMinutes: l.estimatedMinutes,
+          startPage: l.startPage,
+          endPage: l.endPage,
+          quizId: l.quizId
+        }))
+      }));
+    }
+    if (activeCourse.lessons && activeCourse.lessons.length > 0) {
+      return [
+        {
+          id: `course-${activeCourse.courseId || activeCourse.id || "default"}-lessons`,
+          title: activeCourse.title || "Nội dung khóa học",
+          lessons: activeCourse.lessons.map((l) => ({
+            id: l.id,
+            title: localLessonTitles[l.id] || l.title,
+            slug: l.slug,
+            sortOrder: l.sortOrder,
+            estimatedMinutes: l.estimatedMinutes,
+            startPage: l.startPage,
+            endPage: l.endPage,
+            quizId: l.quizId
+          }))
+        }
+      ];
+    }
+    return [];
+  }, [activeCourse, localLessonTitles]);
+
+  const [mobileRoadmapOpen, setMobileRoadmapOpen] = useState(false);
+  const [extractedHeadings, setExtractedHeadings] = useState<LessonHeadingItem[]>([]);
+  const [referenceModal, setReferenceModal] = useState<{
+    title: string;
+    relativePath: string;
+    sourceFolder: string;
+    markdown: string;
+  } | null>(null);
+
+  const [courseProgress, setCourseProgress] = useState<CourseProgressDto | null>(null);
+  const [isCompletingLesson, setIsCompletingLesson] = useState(false);
+  const [celebrationModalOpen, setCelebrationModalOpen] = useState(false);
+  const [userStreakDays, setUserStreakDays] = useState<number>(3);
+
+  useEffect(() => {
+    try {
+      const rawSession = typeof window !== "undefined" ? window.localStorage.getItem("swms_auth_session") : null;
+      if (rawSession) {
+        const session = JSON.parse(rawSession);
+        if (typeof session?.user?.streakDays === "number") {
+          setUserStreakDays(session.user.streakDays);
+        }
+      }
+    } catch {}
+  }, []);
+
+  const activeCourseCid = activeCourse?.courseId || activeCourse?.id || activeCourseId || null;
+
+  const fetchCourseProgress = async (cid: string) => {
+    try {
+      const res = await fetch(`/api/v1/courses/${cid}/progress`, {
+        headers: getClientRequestHeaders()
+      });
+      if (res.ok) {
+        const data: CourseProgressDto = await res.json();
+        setCourseProgress(data);
+        return data;
+      }
+    } catch (err) {
+      console.error("Error fetching course progress:", err);
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    if (activeCourseCid) {
+      fetchCourseProgress(activeCourseCid);
+    } else {
+      setCourseProgress(null);
+    }
+  }, [activeCourseCid, activeLessonId]);
+
+  const completedLessonIds = courseProgress?.completedLessonIds ?? [];
+  const totalCourseLessons = activeCourseLessons.length > 0 ? activeCourseLessons.length : (courseProgress?.totalLessons ?? 0);
+  const completedCourseLessons = courseProgress?.completedLessons ?? completedLessonIds.length;
+  const coursePercentCompleted = courseProgress?.percentCompleted ?? (totalCourseLessons > 0 ? Math.round((completedCourseLessons / totalCourseLessons) * 100) : 0);
+
+  const scrollReaderToTop = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      const scrollContainers = document.querySelectorAll<HTMLElement>(
+        "[data-swms-scroll-container], main"
+      );
+      scrollContainers.forEach((node) => {
+        if (node.scrollTop > 0) {
+          node.scrollTo({ top: 0, behavior: "auto" });
+        }
+      });
+    }
+    if (readerScrollRef.current) {
+      readerScrollRef.current.scrollTo({ top: 0, behavior: "auto" });
+    }
+  };
+
+  const handleMarkLessonComplete = async () => {
+    if (!activeLessonId || isCompletingLesson) return;
+    setIsCompletingLesson(true);
+
+    try {
+      // 1. Call POST /api/v1/lessons/{activeLessonId}/complete
+      await fetch(`/api/v1/lessons/${activeLessonId}/complete`, {
+        method: "POST",
+        headers: getClientRequestHeaders({ "Content-Type": "application/json" })
+      });
+
+      // 2. Update local progress state
+      const currentCompleted = new Set(courseProgress?.completedLessonIds ?? []);
+      currentCompleted.add(activeLessonId);
+      const updatedIds = Array.from(currentCompleted);
+      const totalCount = activeCourseLessons.length > 0 ? activeCourseLessons.length : Math.max(1, updatedIds.length);
+      const completedCount = updatedIds.length;
+      const newPercent = Math.min(100, Math.round((completedCount / totalCount) * 100));
+
+      const updatedProgress: CourseProgressDto = {
+        courseId: activeCourseCid ?? "",
+        totalLessons: totalCount,
+        completedLessons: completedCount,
+        percentCompleted: newPercent,
+        completedLessonIds: updatedIds
+      };
+      setCourseProgress(updatedProgress);
+      onDataMutated();
+
+      // 3. Find next lesson in the chapter or next chapter
+      const currentIdx = activeCourseLessons.findIndex((l) => l.id === activeLessonId);
+      const hasNext = currentIdx >= 0 && currentIdx < activeCourseLessons.length - 1;
+
+      // 4. Trigger celebration modal if all completed or reached 100%
+      if (newPercent === 100 || (!hasNext && completedCount >= totalCount)) {
+        setCelebrationModalOpen(true);
+      }
+
+      // Navigate to next lesson
+      let navigatedToNext = false;
+      if (hasNext) {
+        const nextLes = activeCourseLessons[currentIdx + 1];
+        setActiveLesson(nextLes.id);
+        navigatedToNext = true;
+      } else if (lesson?.adjacentNextLessonId) {
+        setActiveLesson(lesson.adjacentNextLessonId);
+        navigatedToNext = true;
+      } else if (activeCourseLessons.length === 0 && effectiveLessons.length > 1) {
+        const effIdx = effectiveLessons.findIndex((l) => l.id === activeLessonId);
+        if (effIdx >= 0 && effIdx < effectiveLessons.length - 1) {
+          setActiveLesson(effectiveLessons[effIdx + 1].id);
+          navigatedToNext = true;
+        }
+      }
+
+      if (navigatedToNext) {
+        requestAnimationFrame(() => scrollReaderToTop());
+      }
+
+      // Re-fetch in background
+      if (activeCourseCid) {
+        fetchCourseProgress(activeCourseCid);
+      }
+    } catch (err) {
+      console.error("Error marking lesson complete:", err);
+    } finally {
+      setIsCompletingLesson(false);
+    }
+  };
 
   const effectiveLessons = (lessons && lessons.length > 0)
     ? lessons
@@ -219,7 +699,7 @@ export function ReaderAndSplitViews({
   const [currentPageData, setCurrentPageData] = useState<DocumentPageDto | null>(null);
   const [pageLoading, setPageLoading] = useState(false);
   const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
-  const [pdfTotalPages, setPdfTotalPages] = useState<number>(1);
+  const [pdfTotalPages, setPdfTotalPages] = useState<number>(0);
   const [jumpPageInput, setJumpPageInput] = useState<string>("1");
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const currentRenderTaskRef = useRef<pdfjsLib.RenderTask | null>(null);
@@ -232,6 +712,9 @@ export function ReaderAndSplitViews({
     (pdfTotalPages > 0 ? pdfTotalPages : undefined) ??
     activeDoc?.totalPages ??
     lesson?.totalPages ??
+    (activeDocumentTotalPages && activeDocumentTotalPages > 0
+      ? activeDocumentTotalPages
+      : undefined) ??
     1
   );
   const safeCurrentPage = Math.max(1, Math.min(effectiveTotalPages, Number(currentDocumentPage) || 1));
@@ -405,7 +888,7 @@ export function ReaderAndSplitViews({
       ? `/api/v1/documents/${activeDocumentId}`
       : `/api/v1/lessons/${activeLessonId}`;
 
-    const res = await fetch(endpoint);
+    const res = await fetch(endpoint, { headers: getClientRequestHeaders() });
     if (res.ok) {
       const rawData = await res.json();
       const data: LessonDetail = {
@@ -428,7 +911,7 @@ export function ReaderAndSplitViews({
       // Auto-provision or fetch linked Freeform Notebook (Decision 3)
       const nbRes = await fetch("/api/v1/notebooks/by-source", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify(
           isDocMode
             ? { documentId: data.id, sourceTitle: data.title }
@@ -443,13 +926,94 @@ export function ReaderAndSplitViews({
   };
 
   useEffect(() => {
+    setExtractedHeadings([]);
+    scrollReaderToTop();
+    const rafId = requestAnimationFrame(() => scrollReaderToTop());
     loadLessonAndNotebook();
+    return () => cancelAnimationFrame(rafId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLessonId, activeDocumentId, sourceType]);
+
+  const handleOpenRelativeMarkdown = async (resolvedRelativePath: string, label: string) => {
+    const folder = lesson?.sourceFolder || activeCourse?.sourceFolder;
+    const cid = activeCourseCid || lesson?.courseId || "";
+    if (!resolvedRelativePath) {
+      showToast(`Không tìm thấy đường dẫn tài liệu: ${label}`);
+      return;
+    }
+
+    try {
+      const qs = new URLSearchParams({
+        relativePath: resolvedRelativePath,
+        ...(cid ? { courseId: cid } : {}),
+        ...(lesson?.id ? { fromLessonId: lesson.id } : {}),
+        ...(folder ? { sourceFolder: folder } : {})
+      });
+      const res = await fetch(`/api/v1/lessons/by-path?${qs.toString()}`, {
+        headers: getClientRequestHeaders()
+      });
+      if (res.ok) {
+        const matched = await res.json();
+        const isMatched = matched?.found !== false;
+
+        if (isMatched && matched?.isAssetMarkdown && matched?.contentMarkdown) {
+          setReferenceModal({
+            title: matched?.title || label || resolvedRelativePath.split("/").pop() || "Tài liệu tham khảo",
+            relativePath: matched?.sourceRelativePath || resolvedRelativePath,
+            sourceFolder: matched?.sourceFolder || folder || "",
+            markdown: matched.contentMarkdown
+          });
+          return;
+        }
+
+        const targetId = isMatched ? (matched?.lessonId || matched?.id) : null;
+        if (targetId) {
+          if (matched?.courseId) setActiveCourseId?.(matched.courseId);
+          setActiveLesson(targetId);
+          showToast(`Đã mở bài học: ${matched?.title || label}`);
+          if (matched?.anchor) {
+            setTimeout(() => {
+              const targetAnchor = String(matched.anchor).replace(/^#/, "");
+              const el = document.getElementById(targetAnchor);
+              el?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 250);
+          }
+          return;
+        }
+      }
+
+      if (folder) {
+        const encodedPath = resolvedRelativePath
+          .split("/")
+          .filter(Boolean)
+          .map((seg) => encodeURIComponent(seg))
+          .join("/");
+        const assetResp = await fetch(
+          `/api/v1/document-assets/${encodeURIComponent(folder)}/${encodedPath}`,
+          { headers: getClientRequestHeaders() }
+        );
+        if (assetResp.ok) {
+          const text = await assetResp.text();
+          setReferenceModal({
+            title: label || resolvedRelativePath.split("/").pop() || "Tài liệu tham khảo",
+            relativePath: resolvedRelativePath,
+            sourceFolder: folder,
+            markdown: text
+          });
+          return;
+        }
+      }
+
+      showToast(`Không tìm thấy tài liệu liên kết (${resolvedRelativePath}).`);
+    } catch {
+      showToast(`Không thể mở liên kết tài liệu: ${label}`);
+    }
+  };
 
   // Load PDF Document Proxy when activeDocumentId changes in document mode
   useEffect(() => {
     const isDocMode = sourceType === "document" && Boolean(activeDocumentId);
+    setPdfTotalPages(0);
     if (!isDocMode || !activeDocumentId) {
       setPdfDoc(null);
       return;
@@ -543,7 +1107,7 @@ export function ReaderAndSplitViews({
         currentRenderTaskRef.current = null;
       }
     };
-  }, [pdfDoc, currentDocumentPage, activeDocumentId, sourceType, mode]);
+  }, [pdfDoc, currentDocumentPage, activeDocumentId, sourceType, mode, effectivePdfViewMode]);
 
   // Fetch page text data for currentDocumentPage
   useEffect(() => {
@@ -702,7 +1266,9 @@ export function ReaderAndSplitViews({
     }
 
     const isDocMode = sourceType === "document" && Boolean(activeDocumentId);
-    const fullText = isDocMode ? (currentPageData?.plainText || "") : (lesson.plainText || "");
+    const fullText = isDocMode
+      ? (currentPageData?.plainText || "")
+      : (lesson.plainText || lesson.contentMarkdown || "");
     const startIdx = fullText.indexOf(quoteToSave);
     const startOffset = startIdx >= 0 ? startIdx : 0;
     const endOffset = startOffset + quoteToSave.length;
@@ -712,14 +1278,14 @@ export function ReaderAndSplitViews({
     const firstParagraphBlock = lesson.contentAst?.content?.find((b) => b.type === "paragraph");
     const defaultBlockId =
       firstParagraphBlock?.attrs?.block_id || "aaaaaaa4-4444-4444-8444-444444444444";
-    const blockIdToUse = isDocMode ? null : (selectedBlockId || defaultBlockId);
+    const blockIdToUse = isDocMode ? null : toNullableUuid(selectedBlockId || defaultBlockId);
 
     setSelectedColorKey(colorKey);
     const cfg = SEMANTIC_HIGHLIGHT_KEYS.find((c) => c.key === colorKey)!;
 
     const resp = await fetch("/api/v1/annotations", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         lessonId: isDocMode ? null : lesson.id,
         documentId: isDocMode ? (activeDocumentId || lesson.id) : null,
@@ -802,7 +1368,7 @@ export function ReaderAndSplitViews({
     try {
       const resp = await fetch("/api/v1/ai/generate-flashcard", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           excerpt,
           contextTitle,
@@ -833,7 +1399,9 @@ export function ReaderAndSplitViews({
 
     if (!targetAnn && (selectedText || draftFront)) {
       const quoteToAnchor = (selectedText || draftFront).trim();
-      const fullText = isDocMode ? (currentPageData?.plainText || "") : (lesson?.plainText || "");
+      const fullText = isDocMode
+        ? (currentPageData?.plainText || "")
+        : (lesson?.plainText || lesson?.contentMarkdown || "");
       const startIdx = fullText.indexOf(quoteToAnchor);
       const startOffset = startIdx >= 0 ? startIdx : 0;
       const endOffset = startOffset + quoteToAnchor.length;
@@ -842,11 +1410,11 @@ export function ReaderAndSplitViews({
 
       const annResp = await fetch("/api/v1/annotations", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           lessonId: isDocMode ? null : lesson?.id,
           documentId: isDocMode ? (activeDocumentId || lesson?.id) : null,
-          blockId: isDocMode ? null : selectedBlockId,
+          blockId: isDocMode ? null : toNullableUuid(selectedBlockId),
           pageNumber: isDocMode ? currentDocumentPage : null,
           exactQuote: quoteToAnchor,
           originalExactQuote: quoteToAnchor,
@@ -868,7 +1436,7 @@ export function ReaderAndSplitViews({
 
     const resp = await fetch("/api/v1/flashcards", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         lessonId: isDocMode ? null : lesson?.id,
         documentId: isDocMode ? (activeDocumentId || lesson?.id) : null,
@@ -905,7 +1473,7 @@ export function ReaderAndSplitViews({
     try {
       const resp = await fetch("/api/v1/ai/explain", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           excerpt,
           contextTitle,
@@ -1034,6 +1602,107 @@ export function ReaderAndSplitViews({
     }
   };
 
+  // Wire all advertised keyboard shortcuts for Reading & Split Modes
+  useEffect(() => {
+    const onReaderShortcut = (e: KeyboardEvent) => {
+      // Ctrl+S / Cmd+S: Save notebook draft (works even inside editor textarea)
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === "s" || e.key === "S")) {
+        e.preventDefault();
+        handleSaveManualNoteParagraph();
+        return;
+      }
+
+      // Alt+S: Toggle synchronized scrolling
+      if (e.altKey && !e.ctrlKey && !e.metaKey && (e.key === "s" || e.key === "S")) {
+        e.preventDefault();
+        toggleSyncScroll();
+        return;
+      }
+
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (e.ctrlKey || e.metaKey || e.altKey) {
+        return;
+      }
+
+      const liveSelection =
+        typeof window !== "undefined" ? (window.getSelection()?.toString().trim() ?? "") : "";
+      const activeExcerpt = selectedText.trim().length >= 3 ? selectedText.trim() : liveSelection;
+
+      if (e.key === "j" || e.key === "J") {
+        e.preventDefault();
+        window.scrollBy({ top: 180, behavior: "smooth" });
+        readerScrollRef.current?.scrollBy({ top: 180, behavior: "smooth" });
+      } else if (e.key === "k" || e.key === "K") {
+        e.preventDefault();
+        window.scrollBy({ top: -180, behavior: "smooth" });
+        readerScrollRef.current?.scrollBy({ top: -180, behavior: "smooth" });
+      } else if (["1", "2", "3", "4", "5"].includes(e.key)) {
+        if (activeExcerpt.length >= 3) {
+          e.preventDefault();
+          const colorMap: Record<string, SemanticHighlightConfig["key"]> = {
+            "1": "yellow",
+            "2": "green",
+            "3": "blue",
+            "4": "purple",
+            "5": "rose"
+          };
+          handleCreateHighlight(colorMap[e.key]);
+        }
+      } else if (e.key === "c" || e.key === "C") {
+        e.preventDefault();
+        handleOpenDraftFlashcardPopover();
+      } else if (e.key === "n" || e.key === "N") {
+        e.preventDefault();
+        if (activeExcerpt.length > 0) {
+          setNotebookDraftText(
+            activeLessonId,
+            `${currentDraftNote}\n• Trích dẫn nhanh: "${activeExcerpt}"`
+          );
+          setActiveMode("split");
+          showToast("Đã chèn trích dẫn vào Ghi chú (Split Mode)!");
+        } else if (anchoredAnnotations.length > 0) {
+          handleInsertCitationIntoNotebook(anchoredAnnotations[anchoredAnnotations.length - 1]);
+        } else {
+          setActiveMode("split");
+        }
+      } else if (e.key === "e" || e.key === "E") {
+        e.preventDefault();
+        handleExplainWithAi();
+      } else if ((e.key === "z" || e.key === "Z") && mode === "reading") {
+        e.preventDefault();
+        toggleZenMode();
+      } else if (e.key === "t" || e.key === "T") {
+        e.preventDefault();
+        toggleSerifFont();
+      }
+    };
+
+    window.addEventListener("keydown", onReaderShortcut);
+    return () => window.removeEventListener("keydown", onReaderShortcut);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    selectedText,
+    currentDraftNote,
+    activeLessonId,
+    anchoredAnnotations,
+    mode,
+    notebook,
+    lesson,
+    activeDocumentId,
+    currentDocumentPage,
+    sourceType
+  ]);
+
   // Render text with dynamic ProseMirror DecorationSet equivalent highlights (supports multiple highlights per block)
   const renderBlockTextWithHighlights = (blockId: string, text: string) => {
     const blockAnns = anchoredAnnotations.filter((a) => a.blockId === blockId);
@@ -1156,8 +1825,339 @@ export function ReaderAndSplitViews({
     const isDocMode = sourceType === "document" && Boolean(activeDocumentId);
     const totalPages = pdfTotalPages || lesson?.totalPages || activeDoc?.totalPages || 1;
 
+    const currentCourseIdx = activeCourseLessons.findIndex((l) => l.id === activeLessonId);
+    const prevLessonId =
+      lesson?.adjacentPrevLessonId ??
+      (currentCourseIdx > 0 ? activeCourseLessons[currentCourseIdx - 1]?.id : null);
+    const nextLessonId =
+      lesson?.adjacentNextLessonId ??
+      (currentCourseIdx >= 0 && currentCourseIdx < activeCourseLessons.length - 1
+        ? activeCourseLessons[currentCourseIdx + 1]?.id
+        : null);
+
+    const rawMarkdown = (lesson?.contentMarkdown ?? "").trim();
+    const rawPlain = (lesson?.plainText ?? "").trim();
+    const hasRichMarkdownSyntax =
+      /(^|\n)#{1,6}\s+|```|\n\s*\|.+\|\s*\n|\n\s*[-*+]\s+\[|\n\s*>\s+|\[[^\]]+\]\([^)]+\)/.test(
+        rawMarkdown
+      );
+    const shouldRenderMarkdown =
+      Boolean(rawMarkdown) &&
+      (Boolean(lesson?.sourceRelativePath) ||
+        (lesson?.contentAst?.content?.length ?? 0) === 0 ||
+        rawMarkdown !== rawPlain ||
+        hasRichMarkdownSyntax);
+
+    const activeLessonCourseMeta = activeCourseLessons.find((l) => l.id === activeLessonId);
+    const activeEstimatedMinutes =
+      lesson?.estimatedMinutes ?? activeLessonCourseMeta?.estimatedMinutes ?? null;
+    const breadcrumbChapter =
+      lesson?.chapterTitle ||
+      activeChapter?.title ||
+      activeCourse?.title ||
+      "Chương 3: Quản lý Bộ nhớ";
+
     return (
-      <div className="space-y-5">
+      <div className="space-y-4">
+      {/* Streamlined Course Context & Learning Header Bar */}
+      {activeCourse && (
+        <div
+          data-testid="course-roadmap-panel"
+          className="rounded-2xl border border-indigo-500/25 bg-white/95 dark:bg-slate-900/95 p-3.5 sm:p-4 space-y-3 shadow-xs"
+        >
+          {/* Compact Top Progress & Mobile/Tablet Drawer Trigger */}
+          <div className="space-y-1.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-slate-800 dark:text-slate-100">
+              <div className="flex flex-wrap items-center gap-2 min-w-0">
+                <span className="flex items-center gap-1.5 text-indigo-700 dark:text-indigo-300 shrink-0">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span>Tiến độ hoàn thành:</span>
+                </span>
+                <span
+                  data-testid="course-progress-percent"
+                  className="px-2 py-0.5 rounded-full bg-indigo-600 text-white text-[11px] font-extrabold shrink-0"
+                >
+                  {coursePercentCompleted}%
+                </span>
+                <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400 shrink-0">
+                  ({completedCourseLessons}/{totalCourseLessons} bài học)
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {coursePercentCompleted === 100 && (
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
+                    ✓ Hoàn thành 100%
+                  </span>
+                )}
+                {roadmapChapters.length > 0 && (
+                  <button
+                    type="button"
+                    data-testid="mobile-roadmap-drawer-btn"
+                    onClick={() => setMobileRoadmapOpen(true)}
+                    className={`${
+                      mode === "split" ? "xl:hidden" : "lg:hidden"
+                    } px-2.5 py-1 rounded-lg border border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold inline-flex items-center gap-1.5 cursor-pointer`}
+                  >
+                    <ListTree className="w-3.5 h-3.5" />
+                    <span>Lộ trình ({totalCourseLessons})</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div
+              data-testid="course-progress-bar-container"
+              role="progressbar"
+              aria-label="Tiến độ khóa học"
+              aria-valuenow={coursePercentCompleted}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              className="w-full bg-slate-200/80 dark:bg-slate-800 h-2 rounded-full overflow-hidden"
+            >
+              <div
+                data-testid="course-progress-bar-fill"
+                className={`h-full rounded-full transition-all duration-300 ease-out ${
+                  coursePercentCompleted === 100
+                    ? "bg-emerald-500"
+                    : "bg-gradient-to-r from-indigo-500 to-emerald-500"
+                }`}
+                style={{ width: `${coursePercentCompleted}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Course Title, Chapter Breadcrumb & Quick Actions */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5">
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="px-2 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-bold shrink-0">
+                  {activeCourse.category || "Khóa học"}
+                </span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[260px] sm:max-w-md">
+                  {activeCourse.title}
+                </span>
+                {(activeChapter?.title || lesson?.chapterTitle) && (
+                  <>
+                    <ChevronRight className="w-3 h-3 shrink-0 opacity-60" />
+                    <span className="truncate max-w-[220px] font-medium text-indigo-700 dark:text-indigo-300">
+                      {lesson?.chapterTitle || activeChapter?.title}
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              {(activeCourse.sourceDocumentId || activeDocumentId) && (
+                <button
+                  type="button"
+                  data-testid="course-jump-to-pdf-page-btn"
+                  onClick={() => {
+                    const targetDocId = activeCourse.sourceDocumentId || activeDocumentId;
+                    const targetPage = activeLessonCourseMeta?.startPage ?? safeCurrentPage ?? 1;
+                    if (targetDocId) {
+                      setActiveDocument(targetDocId, targetPage);
+                    }
+                  }}
+                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-[11px] font-bold cursor-pointer transition"
+                >
+                  📄 Xem trang PDF gốc (Tr. {activeLessonCourseMeta?.startPage ?? safeCurrentPage})
+                </button>
+              )}
+              <button
+                type="button"
+                data-testid="course-reader-flashcards-btn"
+                onClick={() => {
+                  if (activeCourseCid) setActiveCourseId?.(activeCourseCid);
+                  if (activeCourse.tagId) setSelectedTagFilterId(activeCourse.tagId);
+                  else setSelectedTagFilterId(null);
+                  setActiveReviewSubTab("fsrs");
+                  setActiveMode("review");
+                }}
+                className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold cursor-pointer transition"
+              >
+                🧠 Ôn Flashcard khóa này
+              </button>
+              <button
+                type="button"
+                data-testid="course-reader-quiz-btn"
+                onClick={() => {
+                  if (activeCourseCid) setActiveCourseId?.(activeCourseCid);
+                  const targetQuiz =
+                    lesson?.linkedQuizId ||
+                    activeLessonCourseMeta?.quizId ||
+                    (activeCourse.lessonQuizMap && activeLessonId
+                      ? activeCourse.lessonQuizMap[activeLessonId]
+                      : null) ||
+                    activeCourse.quizId;
+                  if (targetQuiz) setActiveQuizId?.(targetQuiz);
+                  setActiveReviewSubTab("quiz");
+                  setActiveMode("review");
+                }}
+                className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold cursor-pointer transition"
+              >
+                🎯 Làm Quiz{" "}
+                {lesson?.linkedQuizId ||
+                activeLessonCourseMeta?.quizId ||
+                (activeCourse.lessonQuizMap && activeLessonId
+                  ? activeCourse.lessonQuizMap[activeLessonId]
+                  : null)
+                  ? "bài này"
+                  : "khóa này"}
+              </button>
+              <button
+                type="button"
+                data-testid="course-reader-notebook-btn"
+                onClick={() => setActiveMode(mode === "split" ? "reading" : "split")}
+                className="px-2.5 py-1 rounded-lg border border-indigo-500/40 bg-white dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold cursor-pointer transition"
+              >
+                📝 {mode === "split" ? "Đóng Split Note" : "Mở Ghi chú song song (Split)"}
+              </button>
+            </div>
+          </div>
+
+          {/* Reading Appearance Controls & In-Place Lesson Title Editing */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            {isEditingLessonTitle ? (
+              <div className="flex items-center gap-2 w-full max-w-lg">
+                <input
+                  type="text"
+                  data-testid="lesson-title-input"
+                  value={editedLessonTitle}
+                  onChange={(e) => setEditedLessonTitle(e.target.value)}
+                  className="px-2.5 py-1 text-xs rounded-lg border border-indigo-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-white flex-1 focus:outline-hidden"
+                  placeholder="Nhập tiêu đề bài học mới..."
+                />
+                <button
+                  type="button"
+                  data-testid="save-lesson-title-btn"
+                  onClick={async () => {
+                    if (editedLessonTitle.trim()) {
+                      const trimmed = editedLessonTitle.trim();
+                      setLocalLessonTitles((prev) => ({ ...prev, [activeLessonId]: trimmed }));
+                      setIsEditingLessonTitle(false);
+                      try {
+                        await fetch(`/api/v1/lessons/${activeLessonId}`, {
+                          method: "PUT",
+                          headers: {
+                            ...getClientRequestHeaders(),
+                            "Content-Type": "application/json"
+                          },
+                          body: JSON.stringify({ title: trimmed })
+                        });
+                      } catch {}
+                    }
+                  }}
+                  className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer"
+                >
+                  Lưu
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingLessonTitle(false)}
+                  className="px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-700 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                >
+                  Hủy
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  data-testid="edit-lesson-title-btn"
+                  onClick={() => {
+                    const currentTitle =
+                      localLessonTitles[activeLessonId] ||
+                      activeLessonCourseMeta?.title ||
+                      lesson?.title ||
+                      "";
+                    setEditedLessonTitle(currentTitle);
+                    setIsEditingLessonTitle(true);
+                  }}
+                  className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 hover:bg-indigo-50 dark:hover:bg-indigo-950 text-slate-700 dark:text-slate-200 text-[11px] font-semibold transition cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <PenTool className="w-3 h-3" />
+                  <span>Sửa tiêu đề bài giảng</span>
+                </button>
+                {localLessonTitles[activeLessonId] && (
+                  <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                    {localLessonTitles[activeLessonId]}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Quick Typography & Focus Controls */}
+            <div className="flex flex-wrap items-center gap-1 text-[11px]">
+              <button
+                type="button"
+                onClick={() => setFontSizePx(Math.max(14, fontSizePx - 1))}
+                className="px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold cursor-pointer inline-flex items-center gap-0.5"
+                title="Giảm cỡ chữ"
+              >
+                <Minus className="w-3 h-3" />
+                <span>A</span>
+              </button>
+              <span className="px-1.5 text-[10px] font-semibold text-slate-500 tabular-nums">
+                {fontSizePx}px
+              </span>
+              <button
+                type="button"
+                onClick={() => setFontSizePx(Math.min(24, fontSizePx + 1))}
+                className="px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold cursor-pointer inline-flex items-center gap-0.5"
+                title="Tăng cỡ chữ"
+              >
+                <Plus className="w-3 h-3" />
+                <span>A</span>
+              </button>
+              <button
+                type="button"
+                onClick={toggleSerifFont}
+                className={`px-2 py-1 rounded-lg border text-[11px] font-bold cursor-pointer inline-flex items-center gap-1 transition ${
+                  serifFont
+                    ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300"
+                    : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+                }`}
+                title="Đổi font Serif / Sans (T)"
+              >
+                <Type className="w-3 h-3" />
+                <span>{serifFont ? "Serif" : "Sans"}</span>
+              </button>
+              {mode === "reading" && (
+                <button
+                  type="button"
+                  onClick={toggleZenMode}
+                  className={`px-2 py-1 rounded-lg border text-[11px] font-bold cursor-pointer inline-flex items-center gap-1 transition ${
+                    zenMode
+                      ? "border-indigo-500 bg-indigo-600 text-white"
+                      : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+                  }`}
+                  title="Chế độ tập trung Zen Mode (Z)"
+                >
+                  <Eye className="w-3 h-3" />
+                  <span>{zenMode ? "Thoát Zen" : "Zen Mode"}</span>
+                </button>
+              )}
+              <button
+                type="button"
+                data-testid="toggle-clean-reading-mode"
+                onClick={toggleCleanReadingMode}
+                className={`px-2 py-1 rounded-lg border text-[11px] font-bold cursor-pointer inline-flex items-center gap-1 transition ${
+                  cleanReadingMode
+                    ? "border-emerald-500/70 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300"
+                    : "border-amber-400 bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300"
+                }`}
+                title="Ẩn/hiện ký hiệu biên soạn ([C01-01], [LO-...], badge kiểm định)"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>{cleanReadingMode ? "Đọc tinh gọn" : "Hiện mã nguồn"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Orphaned Highlight Non-Blocking Top Banner (Section 5.10 & Decision 14) */}
       {orphanedAnnotations.length > 0 && !dismissedOrphanBanner && (
         <div
@@ -1195,7 +2195,11 @@ export function ReaderAndSplitViews({
       {/* In-Situ 5-Color Semantic Selection Toolbar (Section 5.1 & Decision 13) */}
       <div
         data-testid="semantic-selection-toolbar"
-        className="sticky top-2 z-30 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-2.5 shadow-lg flex flex-wrap items-center justify-between gap-2"
+        className={`sticky top-2 z-30 rounded-2xl border transition-all backdrop-blur-md p-2.5 shadow-lg flex flex-wrap items-center justify-between gap-2 ${
+          selectedText.trim()
+            ? "border-indigo-500/70 bg-indigo-50/95 dark:bg-slate-900/95 ring-1 ring-indigo-500/40"
+            : "border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95"
+        }`}
       >
         <div className="flex flex-wrap items-center gap-1.5">
           {SEMANTIC_HIGHLIGHT_KEYS.map((cfg) => (
@@ -1214,6 +2218,16 @@ export function ReaderAndSplitViews({
               <span className="hidden sm:inline">{cfg.label}</span>
             </button>
           ))}
+          {selectedText.trim() ? (
+            <span className="px-2 py-0.5 rounded-full bg-indigo-600/15 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold truncate max-w-[200px]">
+              Đã chọn: &ldquo;{selectedText.trim().slice(0, 32)}
+              {selectedText.trim().length > 32 ? "…" : ""}&rdquo;
+            </span>
+          ) : (
+            <span className="hidden xl:inline text-[11px] text-slate-400 dark:text-slate-500 font-medium pl-1">
+              Bôi đen văn bản để đánh dấu (Phím 1-5) hoặc tạo thẻ (C)
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-1.5">
@@ -1402,23 +2416,33 @@ export function ReaderAndSplitViews({
       <article
         data-testid="reading-prose-column"
         style={{ fontSize: `${fontSizePx}px`, lineHeight: 1.8 }}
-        className={`mx-auto ${
-          isDocMode ? "max-w-4xl xl:max-w-5xl w-full" : "max-w-[68ch]"
-        } bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-xs ${
+        className={`mx-auto w-full min-w-0 overflow-x-hidden ${
+          isDocMode ? "max-w-4xl xl:max-w-5xl" : "max-w-[82ch] xl:max-w-4xl"
+        } bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-8 shadow-xs ${
           serifFont ? "font-serif" : "font-sans"
         }`}
       >
-        <div className="flex items-center justify-between gap-2 pb-4 mb-6 border-b border-slate-100 dark:border-slate-800 font-sans">
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-              {isDocMode
-                ? `Tài liệu PDF • Trang ${safeCurrentPage} / ${effectiveTotalPages}`
-                : `Chương 3: Quản lý Bộ nhớ • Phiên bản v${lesson?.currentVersion ?? 2}`}
-            </span>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-0.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-6 border-b border-slate-100 dark:border-slate-800 font-sans">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                {isDocMode
+                  ? `Tài liệu PDF • Trang ${safeCurrentPage} / ${effectiveTotalPages}`
+                  : `${breadcrumbChapter} • Phiên bản v${lesson?.currentVersion ?? 2}`}
+              </span>
+              {!isDocMode && activeEstimatedMinutes ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                  <Clock className="w-3 h-3" />
+                  <span>~{activeEstimatedMinutes} phút</span>
+                </span>
+              ) : null}
+            </div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-1 break-words">
               {isDocMode
                 ? (activeDoc?.title || lesson?.title || "Tài liệu PDF")
-                : (lesson?.title ?? "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp")}
+                : (localLessonTitles[activeLessonId] ||
+                    lesson?.title ||
+                    "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp")}
             </h1>
           </div>
         </div>
@@ -1467,7 +2491,47 @@ export function ReaderAndSplitViews({
                   </button>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Sleek 3-way PDF View Mode Segmented Control */}
+                  <div className="inline-flex items-center rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 text-[11px] font-bold">
+                    <button
+                      type="button"
+                      data-testid="pdf-view-mode-dual"
+                      onClick={() => setPdfViewMode("dual")}
+                      className={`px-2.5 py-1 rounded-md transition cursor-pointer ${
+                        effectivePdfViewMode === "dual"
+                          ? "bg-indigo-600 text-white"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      Song song
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="pdf-view-mode-canvas"
+                      onClick={() => setPdfViewMode("canvas")}
+                      className={`px-2.5 py-1 rounded-md transition cursor-pointer ${
+                        effectivePdfViewMode === "canvas"
+                          ? "bg-indigo-600 text-white"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      Bản in PDF
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="pdf-view-mode-text"
+                      onClick={() => setPdfViewMode("text")}
+                      className={`px-2.5 py-1 rounded-md transition cursor-pointer ${
+                        effectivePdfViewMode === "text"
+                          ? "bg-indigo-600 text-white"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      Văn bản
+                    </button>
+                  </div>
+
                   <span className="text-[11px] text-slate-500 font-medium">Nhảy trang:</span>
                   <input
                     type="number"
@@ -1512,7 +2576,11 @@ export function ReaderAndSplitViews({
             </div>
 
             {/* Visual Canvas Layer */}
-            <div className="pdf-canvas-container flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-950 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-inner overflow-auto">
+            <div
+              className={`pdf-canvas-container flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-950 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-inner overflow-auto ${
+                effectivePdfViewMode === "text" ? "hidden" : ""
+              }`}
+            >
               <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-2 w-full flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <FileText className="w-3.5 h-3.5 text-indigo-500" />
@@ -1532,7 +2600,11 @@ export function ReaderAndSplitViews({
             </div>
 
             {/* Extracted Text Layer */}
-            <div className="space-y-3 font-sans">
+            <div
+              className={`space-y-3 font-sans ${
+                effectivePdfViewMode === "canvas" ? "hidden" : ""
+              }`}
+            >
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                   <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
@@ -1574,6 +2646,34 @@ export function ReaderAndSplitViews({
               )}
             </div>
           </div>
+        ) : shouldRenderMarkdown ? (
+          <LessonMarkdownView
+            markdown={rawMarkdown}
+            lessonTitle={
+              localLessonTitles[activeLessonId] ||
+              lesson?.title ||
+              activeLessonCourseMeta?.title ||
+              null
+            }
+            sourceFolder={lesson?.sourceFolder ?? activeCourse?.sourceFolder}
+            sourceRelativePath={
+              lesson?.sourceRelativePath ?? activeLessonCourseMeta?.sourceRelativePath
+            }
+            cleanReadingMode={cleanReadingMode}
+            anchoredAnnotations={anchoredAnnotations}
+            onSelectBlockText={(blockId, fullBlockText) =>
+              handleTextSelectionInBlock(blockId, fullBlockText)
+            }
+            onHighlightClick={(quote) => handleOpenDraftFlashcardPopover(quote)}
+            onInsertCitation={(ann) => {
+              const fullAnn = anchoredAnnotations.find((a) => a.id === ann.id);
+              if (fullAnn) {
+                handleInsertCitationIntoNotebook(fullAnn);
+              }
+            }}
+            onOpenRelativeMarkdown={handleOpenRelativeMarkdown}
+            onHeadingsExtracted={(headings) => setExtractedHeadings(headings)}
+          />
         ) : (
           <div className="space-y-5 text-slate-800 dark:text-slate-200">
             {(lesson?.contentAst?.content || []).map((node, i) => {
@@ -1628,13 +2728,101 @@ export function ReaderAndSplitViews({
             })}
           </div>
         )}
+
+        {/* Prominent Footer Bar: Prev Lesson, Status & Mark Complete & Continue */}
+        {activeLessonId && !isDocMode && (
+          <div className="mt-10 pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 font-sans">
+            <div className="flex flex-wrap items-center gap-2.5 text-xs">
+              {prevLessonId && (
+                <button
+                  type="button"
+                  data-testid="prev-lesson-btn"
+                  onClick={() => {
+                    if (activeCourseCid) setActiveCourseId?.(activeCourseCid);
+                    setActiveLesson(prevLessonId);
+                  }}
+                  className="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition cursor-pointer inline-flex items-center gap-1.5 min-h-[40px]"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Bài trước</span>
+                </button>
+              )}
+              {completedLessonIds.includes(activeLessonId) ? (
+                <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Bài học này đã hoàn thành</span>
+                </span>
+              ) : (
+                <span className="text-slate-500 dark:text-slate-400 font-medium">
+                  Hoàn thành bài đọc để ghi nhận tiến độ học tập
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {nextLessonId && (
+                <button
+                  type="button"
+                  data-testid="next-lesson-skip-btn"
+                  onClick={() => {
+                    if (activeCourseCid) setActiveCourseId?.(activeCourseCid);
+                    setActiveLesson(nextLessonId);
+                  }}
+                  className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold text-xs transition cursor-pointer inline-flex items-center gap-1 min-h-[40px]"
+                >
+                  <span>Bài tiếp</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              )}
+              <button
+                type="button"
+                data-testid="mark-lesson-complete-btn"
+                disabled={isCompletingLesson}
+                onClick={handleMarkLessonComplete}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs sm:text-sm shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-center gap-2 min-h-[44px]"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{isCompletingLesson ? "Đang ghi nhận..." : "Đánh dấu hoàn thành & Tiếp tục"}</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+        {activeLessonId && isDocMode && (
+          <div className="mt-8 pt-5 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 font-sans">
+            <div className="flex items-center gap-2 text-xs">
+              {completedLessonIds.includes(activeLessonId) ? (
+                <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Bài học này đã hoàn thành</span>
+                </span>
+              ) : (
+                <span className="text-slate-500 dark:text-slate-400 font-medium">
+                  Hoàn thành bài đọc để ghi nhận tiến độ học tập
+                </span>
+              )}
+            </div>
+
+            <button
+              type="button"
+              data-testid="mark-lesson-complete-btn"
+              disabled={isCompletingLesson}
+              onClick={handleMarkLessonComplete}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs sm:text-sm shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-center gap-2 min-h-[44px]"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{isCompletingLesson ? "Đang ghi nhận..." : "Đánh dấu hoàn thành & Tiếp tục"}</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </article>
     </div>
     );
   };
 
   return (
-    <div className="relative w-full overflow-x-hidden">
+    <div className="relative w-full overflow-x-clip">
       {/* Toast Notification */}
       {toastBanner && (
         <div
@@ -1667,13 +2855,21 @@ export function ReaderAndSplitViews({
             <aside
               data-testid="reading-toc-sidebar"
               className={`hidden lg:flex flex-col shrink-0 transition-all ${
-                sidebarCollapsed ? "w-12" : "w-64 xl:w-72"
+                sidebarCollapsed
+                  ? "w-12"
+                  : activeCourse && roadmapChapters.length > 0
+                  ? "w-72 xl:w-80 max-h-[calc(100vh-5.5rem)] overflow-hidden"
+                  : "w-64 xl:w-72 max-h-[calc(100vh-5.5rem)] overflow-y-auto swms-thin-scrollbar"
               } rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 sticky top-20`}
             >
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-3 shrink-0">
                 {!sidebarCollapsed && (
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    {sourceType === "document" && activeDocumentId ? "Điều hướng trang" : "Mục lục bài học"}
+                    {activeCourse && roadmapChapters.length > 0
+                      ? "Lộ trình khóa học"
+                      : sourceType === "document" && activeDocumentId
+                      ? "Điều hướng trang"
+                      : "Mục lục bài học"}
                   </span>
                 )}
                 <button
@@ -1687,7 +2883,49 @@ export function ReaderAndSplitViews({
               </div>
 
               {!sidebarCollapsed && (
-                sourceType === "document" && activeDocumentId ? (
+                activeCourse && roadmapChapters.length > 0 ? (
+                  <div className="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden">
+                    <CourseRoadmapSidebar
+                      courseTitle={activeCourse.title}
+                      chapters={roadmapChapters}
+                      flatLessons={activeCourseLessons}
+                      activeLessonId={activeLessonId}
+                      completedLessonIds={completedLessonIds}
+                      localLessonTitles={localLessonTitles}
+                      percentCompleted={coursePercentCompleted}
+                      completedCount={completedCourseLessons}
+                      totalCount={totalCourseLessons}
+                      onSelectLesson={(lessonId) => {
+                        if (activeCourseCid) setActiveCourseId?.(activeCourseCid);
+                        setActiveLesson(lessonId);
+                      }}
+                    />
+
+                    {sourceType === "document" && activeDocumentId ? (
+                      <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs shrink-0">
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                          Điều hướng trang PDF ({safeCurrentPage}/{effectiveTotalPages})
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {generatePageJumps(effectiveTotalPages, safeCurrentPage).map((p) => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => setCurrentDocumentPage(p)}
+                              className={`px-2 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+                                p === safeCurrentPage
+                                  ? "bg-indigo-600 text-white font-bold"
+                                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+                              }`}
+                            >
+                              {p}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : sourceType === "document" && activeDocumentId ? (
                   <div className="space-y-1.5 text-xs">
                     <div className="max-h-[60vh] overflow-y-auto pr-1 space-y-1">
                       {generatePageJumps(
@@ -1725,6 +2963,26 @@ export function ReaderAndSplitViews({
                         />
                       </div>
                     </div>
+                  </div>
+                ) : extractedHeadings.length > 0 ? (
+                  <div className="space-y-1.5 text-xs">
+                    {extractedHeadings.map((h, idx) => (
+                      <button
+                        key={h.id}
+                        type="button"
+                        onClick={() => {
+                          const el = document.getElementById(h.id);
+                          el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }}
+                        className={`w-full text-left border-l-2 pl-2.5 py-1 transition cursor-pointer truncate ${
+                          idx === 0
+                            ? "border-indigo-600 font-bold text-indigo-600 dark:text-indigo-400"
+                            : "border-transparent hover:border-indigo-600 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium"
+                        }`}
+                      >
+                        {h.text}
+                      </button>
+                    ))}
                   </div>
                 ) : (
                   <div className="space-y-2 text-xs">
@@ -1788,47 +3046,102 @@ export function ReaderAndSplitViews({
             </aside>
           )}
 
-          {/* Center 68ch Reading Column */}
+          {/* Center Reading Column */}
           <div className="flex-1 min-w-0">{renderReaderColumn()}</div>
 
-          {/* Right Ergonomic Floating Action Rail */}
-          <aside
-            data-testid="reading-action-rail"
-            className="hidden md:flex flex-col gap-2 shrink-0 w-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1.5 sticky top-20 items-center shadow-xs"
-          >
-            <button
-              type="button"
-              onClick={toggleZenMode}
-              className="w-9 h-9 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold cursor-pointer flex items-center justify-center"
-              title="Bật/Tắt Zen Mode"
+          {/* Right Ergonomic Sticky Rail + On-This-Page TOC (eliminates empty right side margin on wide screens) */}
+          <div className="hidden md:flex items-start gap-3 shrink-0 sticky top-20">
+            <aside
+              data-testid="reading-action-rail"
+              className="flex flex-col gap-2 shrink-0 w-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1.5 items-center shadow-xs"
             >
-              <Maximize2 className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-            </button>
-            <button
-              type="button"
-              onClick={toggleSerifFont}
-              className="w-9 h-9 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold cursor-pointer"
-              title="Chuyển phông Serif / Sans"
-            >
-              Aa
-            </button>
-            <button
-              type="button"
-              onClick={() => setFontSizePx(fontSizePx >= 20 ? 16 : fontSizePx + 2)}
-              className="w-9 h-9 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-[11px] font-bold cursor-pointer"
-              title="Cỡ chữ"
-            >
-              {fontSizePx}
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveMode("split")}
-              className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 text-xs font-bold cursor-pointer flex items-center justify-center"
-              title="Chuyển sang Split Workspace (Mode 2)"
-            >
-              <Columns2 className="w-4 h-4" />
-            </button>
-          </aside>
+              <button
+                type="button"
+                onClick={toggleZenMode}
+                className="w-9 h-9 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold cursor-pointer flex items-center justify-center"
+                title="Bật/Tắt Zen Mode"
+              >
+                <Maximize2 className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+              </button>
+              <button
+                type="button"
+                onClick={toggleSerifFont}
+                className="w-9 h-9 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold cursor-pointer"
+                title="Chuyển phông Serif / Sans"
+              >
+                Aa
+              </button>
+              <button
+                type="button"
+                onClick={() => setFontSizePx(fontSizePx >= 20 ? 16 : fontSizePx + 2)}
+                className="w-9 h-9 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-[11px] font-bold cursor-pointer"
+                title="Cỡ chữ"
+              >
+                {fontSizePx}
+              </button>
+              <button
+                type="button"
+                onClick={toggleCleanReadingMode}
+                className={`w-9 h-9 rounded-xl text-xs font-bold cursor-pointer flex items-center justify-center transition ${
+                  cleanReadingMode
+                    ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
+                }`}
+                title={cleanReadingMode ? "Đang bật Đọc tinh gọn (ẩn ký hiệu kiểm định)" : "Đang hiện mã nguồn kiểm định"}
+              >
+                <Sparkles className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveMode("split")}
+                className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 text-xs font-bold cursor-pointer flex items-center justify-center"
+                title="Chuyển sang Split Workspace (Mode 2)"
+              >
+                <Columns2 className="w-4 h-4" />
+              </button>
+            </aside>
+
+            {!zenMode &&
+              extractedHeadings.length > 0 &&
+              activeCourse &&
+              roadmapChapters.length > 0 && (
+                <aside
+                  data-testid="reading-on-this-page-toc"
+                  className="hidden xl:flex flex-col w-56 2xl:w-64 max-h-[calc(100vh-5.5rem)] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 shadow-xs overflow-hidden"
+                >
+                  <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-slate-100 dark:border-slate-800 shrink-0">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      Trong bài này
+                    </span>
+                    <span className="text-[10px] font-semibold text-slate-400 tabular-nums">
+                      {extractedHeadings.length} mục
+                    </span>
+                  </div>
+                  <div className="flex-1 min-h-0 overflow-y-auto swms-thin-scrollbar space-y-1 pr-0.5 text-xs">
+                    {extractedHeadings.map((h) => (
+                      <button
+                        key={h.id}
+                        type="button"
+                        onClick={() => {
+                          const el = document.getElementById(h.id);
+                          el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }}
+                        className={`w-full text-left py-1.5 pr-2 rounded-lg text-[11px] text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition cursor-pointer truncate ${
+                          h.level === 1
+                            ? "pl-2 font-bold text-slate-800 dark:text-slate-200"
+                            : h.level === 2
+                            ? "pl-3 font-semibold"
+                            : "pl-5 font-normal"
+                        }`}
+                        title={h.text}
+                      >
+                        {h.text}
+                      </button>
+                    ))}
+                  </div>
+                </aside>
+              )}
+          </div>
         </div>
       )}
 
@@ -1849,11 +3162,15 @@ export function ReaderAndSplitViews({
             style={{
               flexBasis: sidebarCollapsed ? "48px" : `${splitRatios[0]}%`
             }}
-            className={`hidden xl:flex flex-col shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-y-auto ${
+            className={`hidden xl:flex flex-col shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 ${
+              !sidebarCollapsed && activeCourse && roadmapChapters.length > 0
+                ? "overflow-hidden"
+                : "overflow-y-auto swms-thin-scrollbar"
+            } ${
               sidebarCollapsed ? "w-12 max-w-[48px]" : "min-w-[180px] max-w-[25%]"
             }`}
           >
-            <div className="p-2.5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+            <div className="p-2.5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 shrink-0">
               <span
                 className={`text-xs font-bold uppercase text-slate-500 truncate ${
                   sidebarCollapsed ? "hidden" : "inline"
@@ -1874,33 +3191,58 @@ export function ReaderAndSplitViews({
             </div>
 
             {!sidebarCollapsed && (
-              <div className="p-3 space-y-4 text-xs">
-                <div>
-                  <div className="font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
-                    <span>▾ Bài học Lý thuyết</span>
-                    <span className="text-[10px] text-slate-400 font-normal">({effectiveLessons.length})</span>
+              <div
+                className={`p-3 text-xs ${
+                  activeCourse && roadmapChapters.length > 0
+                    ? "flex-1 min-h-0 flex flex-col gap-3 overflow-hidden"
+                    : "space-y-4"
+                }`}
+              >
+                {activeCourse && roadmapChapters.length > 0 ? (
+                  <CourseRoadmapSidebar
+                    courseTitle={activeCourse.title}
+                    chapters={roadmapChapters}
+                    flatLessons={activeCourseLessons}
+                    activeLessonId={activeLessonId}
+                    completedLessonIds={completedLessonIds}
+                    localLessonTitles={localLessonTitles}
+                    percentCompleted={coursePercentCompleted}
+                    completedCount={completedCourseLessons}
+                    totalCount={totalCourseLessons}
+                    onSelectLesson={(lessonId) => {
+                      if (activeCourseCid) setActiveCourseId?.(activeCourseCid);
+                      setActiveLesson(lessonId);
+                    }}
+                    compact={true}
+                  />
+                ) : (
+                  <div>
+                    <div className="font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
+                      <span>▾ Bài học Lý thuyết</span>
+                      <span className="text-[10px] text-slate-400 font-normal">({effectiveLessons.length})</span>
+                    </div>
+                    <div className="pl-1.5 space-y-1">
+                      {effectiveLessons.map((les) => {
+                        const isActive = sourceType === "lesson" && activeLessonId === les.id;
+                        return (
+                          <button
+                            key={les.id}
+                            type="button"
+                            onClick={() => setActiveLesson(les.id)}
+                            className={`px-2.5 py-1.5 rounded-lg font-bold inline-flex items-center gap-1.5 w-full text-left transition cursor-pointer ${
+                              isActive
+                                ? "bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300"
+                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            }`}
+                          >
+                            <BookOpen className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                            <span className="truncate">{les.title}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="pl-1.5 space-y-1">
-                    {effectiveLessons.map((les) => {
-                      const isActive = sourceType === "lesson" && activeLessonId === les.id;
-                      return (
-                        <button
-                          key={les.id}
-                          type="button"
-                          onClick={() => setActiveLesson(les.id)}
-                          className={`px-2.5 py-1.5 rounded-lg font-bold inline-flex items-center gap-1.5 w-full text-left transition cursor-pointer ${
-                            isActive
-                              ? "bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300"
-                              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                          }`}
-                        >
-                          <BookOpen className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                          <span className="truncate">{les.title}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                )}
 
                 <div>
                   <div className="font-bold text-slate-900 dark:text-white mb-1.5 flex items-center justify-between">
@@ -2043,7 +3385,7 @@ export function ReaderAndSplitViews({
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[10px] font-extrabold">
-                      OCC v{notebook?.version ?? 1} • Web Locks Active
+                      Đã lưu tự động • v{notebook?.version ?? 1}
                     </span>
                     <button
                       type="button"
@@ -2170,14 +3512,39 @@ export function ReaderAndSplitViews({
 
               {/* Rich Synthesis Editor Area with [[Wikilinks]] */}
               <div className="pt-2 space-y-2">
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                   <span className="font-bold text-slate-600 dark:text-slate-400 inline-flex items-center gap-1.5">
                     <PenTool className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                     <span>Soạn thảo ghi chú tổng hợp (Hỗ trợ [[Wikilinks]] & /flashcard):</span>
                   </span>
-                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
-                    Đã đồng bộ IndexedDB Draft
-                  </span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <button
+                      type="button"
+                      data-testid="insert-wikilink-btn"
+                      onClick={() =>
+                        setNotebookDraftText(
+                          activeLessonId,
+                          `${currentDraftNote}\n[[Bài 3.3: Thuật toán Thay thế Trang]]`
+                        )
+                      }
+                      className="px-2 py-0.5 rounded-md border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold cursor-pointer transition"
+                    >
+                      + [[Chèn liên kết Wikilink]]
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="insert-flashcard-syntax-btn"
+                      onClick={() =>
+                        setNotebookDraftText(
+                          activeLessonId,
+                          `${currentDraftNote}\n/flashcard Khái niệm :: Giải thích`
+                        )
+                      }
+                      className="px-2 py-0.5 rounded-md border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold cursor-pointer transition"
+                    >
+                      + /flashcard
+                    </button>
+                  </div>
                 </div>
                 <textarea
                   data-testid="notebook-editor-textarea"
@@ -2196,7 +3563,7 @@ export function ReaderAndSplitViews({
                     onClick={handleSaveManualNoteParagraph}
                     className="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer transition"
                   >
-                    Lưu vào JSONB AST (OCC)
+                    Lưu ghi chú (Ctrl+S)
                   </button>
                 </div>
               </div>
@@ -2317,6 +3684,122 @@ export function ReaderAndSplitViews({
           </div>
         </div>
       )}
+      {/* Mobile / Tablet Responsive Course Roadmap Drawer (<1024px Reading, <1280px Split) */}
+      {mobileRoadmapOpen && activeCourse && roadmapChapters.length > 0 && (
+        <div
+          data-testid="mobile-roadmap-drawer"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex justify-start"
+          onClick={() => setMobileRoadmapOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4 overflow-y-auto shadow-2xl space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2 min-w-0">
+                <Layers className="w-4 h-4 text-indigo-600 shrink-0" />
+                <span className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
+                  {activeCourse.title}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileRoadmapOpen(false)}
+                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 cursor-pointer"
+                aria-label="Đóng lộ trình khóa học"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <CourseRoadmapSidebar
+              courseTitle={activeCourse.title}
+              chapters={roadmapChapters}
+              flatLessons={activeCourseLessons}
+              activeLessonId={activeLessonId}
+              completedLessonIds={completedLessonIds}
+              localLessonTitles={localLessonTitles}
+              percentCompleted={coursePercentCompleted}
+              completedCount={completedCourseLessons}
+              totalCount={totalCourseLessons}
+              onSelectLesson={(lessonId) => {
+                if (activeCourseCid) setActiveCourseId?.(activeCourseCid);
+                setActiveLesson(lessonId);
+                setMobileRoadmapOpen(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Sibling Markdown Reference File Preview Modal */}
+      {referenceModal && (
+        <div
+          data-testid="reference-markdown-modal"
+          className="fixed inset-0 z-50 bg-black/55 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={() => setReferenceModal(null)}
+        >
+          <div
+            className="w-full max-w-3xl max-h-[85vh] bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                  Tài liệu tham khảo đính kèm
+                </div>
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
+                  {referenceModal.title}
+                </h3>
+                <div className="text-[11px] text-slate-500 truncate">
+                  {referenceModal.sourceFolder}/{referenceModal.relativePath}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReferenceModal(null)}
+                className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold inline-flex items-center gap-1 cursor-pointer shrink-0"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Đóng</span>
+              </button>
+            </div>
+            <div className="p-5 sm:p-6 overflow-y-auto">
+              <LessonMarkdownView
+                markdown={referenceModal.markdown}
+                lessonTitle={referenceModal.title}
+                sourceFolder={referenceModal.sourceFolder}
+                sourceRelativePath={referenceModal.relativePath}
+                cleanReadingMode={cleanReadingMode}
+                anchoredAnnotations={[]}
+                onSelectBlockText={() => {}}
+                onHighlightClick={() => {}}
+                onInsertCitation={() => {}}
+                onOpenRelativeMarkdown={handleOpenRelativeMarkdown}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Course 100% Completion Celebration Modal */}
+      <CourseCelebrationModal
+        isOpen={celebrationModalOpen}
+        onClose={() => setCelebrationModalOpen(false)}
+        totalLessons={totalCourseLessons || 1}
+        streakDays={userStreakDays}
+        onGoToReview={() => {
+          setCelebrationModalOpen(false);
+          if (activeCourseCid) setActiveCourseId?.(activeCourseCid);
+          if (activeCourse?.tagId) setSelectedTagFilterId(activeCourse.tagId);
+          setActiveReviewSubTab("fsrs");
+          setActiveMode("review");
+        }}
+        onGoToDashboard={() => {
+          setCelebrationModalOpen(false);
+          setActiveMode("dashboard");
+        }}
+      />
     </div>
   );
 }

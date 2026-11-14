@@ -30,6 +30,7 @@ public class SwmsDbContext : DbContext
     public DbSet<PracticeQuiz> PracticeQuizzes => Set<PracticeQuiz>();
     public DbSet<PracticeQuizItem> PracticeQuizItems => Set<PracticeQuizItem>();
     public DbSet<BackgroundJob> BackgroundJobs => Set<BackgroundJob>();
+    public DbSet<UserLessonProgress> UserLessonProgresses => Set<UserLessonProgress>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,7 +60,8 @@ public class SwmsDbContext : DbContext
             [typeof(FlashcardReview)] = "flashcard_reviews",
             [typeof(PracticeQuiz)] = "practice_quizzes",
             [typeof(PracticeQuizItem)] = "practice_quiz_items",
-            [typeof(BackgroundJob)] = "background_jobs"
+            [typeof(BackgroundJob)] = "background_jobs",
+            [typeof(UserLessonProgress)] = "user_lesson_progress"
         };
 
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
@@ -94,6 +96,7 @@ public class SwmsDbContext : DbContext
         modelBuilder.Entity<FlashcardTag>().HasKey(ft => new { ft.FlashcardId, ft.TagId });
         modelBuilder.Entity<FlashcardReview>().HasIndex(fr => fr.ReviewEventId).IsUnique();
         modelBuilder.Entity<BackgroundJob>().HasIndex(bj => bj.IdempotencyKey).IsUnique();
+        modelBuilder.Entity<UserLessonProgress>().HasIndex(ulp => new { ulp.UserId, ulp.LessonId }).IsUnique();
         modelBuilder.Entity<DocumentPage>()
             .HasOne(dp => dp.Document)
             .WithMany(d => d.Pages)

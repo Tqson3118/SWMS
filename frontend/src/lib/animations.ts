@@ -93,3 +93,10 @@ export function triggerCompletionCelebration(containerId: string) {
     });
   }
 }
+
+export default {
+  animateWorkspaceTransition,
+  scrollToAndPulseHighlight,
+  waitForElementAndPulse,
+  triggerCompletionCelebration
+};
