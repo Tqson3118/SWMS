@@ -1,0 +1,93 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-07T11:23:27Z",
+  "unit_id": "roadmap:unit:dotnet-react:stage-11",
+  "subject_id": "roadmap:subject:dotnet-react",
+  "subject_title": "Stage 11 multi-user ownership, web threats, rate limits, and idempotent writes manual activity",
+  "unit_title": "Stage 11 multi-user ownership, web threats, rate limits, and idempotent writes manual activity",
+  "source_status": "draft",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:dotnet-react:stage-11",
+    "title": "Chặng 11: API nhiều người dùng và bảo mật",
+    "content_markdown": "# Chặng 11: API nhiều người dùng và bảo mật\n\nThời lượng tham khảo: 4–5 tuần. Điều kiện vào: đã có owner/concurrency model hoặc ít nhất hiểu vì sao ID trên URL không phải quyền truy cập.\n\nMục tiêu của chặng này là bảo vệ dữ liệu theo người dùng và giảm các lỗi bảo mật phổ biến. Không tự viết thuật toán mật mã, không tự xây hệ thống identity từ đầu và không coi CORS là cơ chế phân quyền.\n\n## Mục tiêu đạt được\n\n- Phân biệt authentication: ai đang gọi, với authorization: họ được phép làm gì.\n- Bảo vệ resource theo user ownership ở mọi query và command.\n- Dùng policy/resource-based authorization thay vì chỉ kiểm tra một role trong controller.\n- Hiểu cookie/bearer token, CSRF/XSS và trade-off storage ở mức đủ để chọn cách triển khai.\n- Quản lý secret ngoài source; validate input; giới hạn tốc độ; thiết kế idempotency cho request tạo dữ liệu.\n- Viết test chứng minh User A không thể đọc/sửa dữ liệu của User B.\n\n## Tuần 1: identity và ownership\n\n### Buổi 1: authentication flow\n\nVẽ flow trước khi code:\n\n1. User gửi credential qua kênh HTTPS.\n2. Hệ thống xác thực và tạo session/token theo cơ chế đã chọn.\n3. Request tiếp theo mang credential.\n4. middleware xây ClaimsPrincipal.\n5. endpoint dùng identity để quyết định quyền trên resource.\n\nCookie và bearer token không phải hai từ đồng nghĩa. Cookie thường được browser gửi tự động nên cần hiểu CSRF; bearer token cần bảo vệ khỏi việc bị đánh cắp và không nên đặt vào nơi dễ bị script đọc một cách tùy tiện. Với project học, chọn một flow nhất quán và ghi rõ threat model.\n\nKhông log password, access token, refresh token hoặc full request body nhạy cảm.\n\n### Buổi 2: owner filter là điều kiện bắt buộc\n\nNếu Expense có OwnerUserId, mọi đường đọc/sửa/xóa phải gắn owner vào query hoặc authorization resource. Không tải row theo ID trước rồi mới “nhớ” kiểm tra owner ở một nhánh khác.\n\n```csharp\nvar userId = User.FindFirstValue(ClaimTypes.NameIdentifier);\n\nif (userId is null)\n{\n    return Unauthorized();\n}\n\nvar expense = await db.Expenses\n    .SingleOrDefaultAsync(\n        x =&gt; x.Id == id &amp;&amp; x.OwnerUserId == userId,\n        cancellationToken);\n\nif (expense is null)\n{\n    return NotFound();\n}\n```\n\nTrả 404 cho resource không thuộc user có thể tránh làm lộ sự tồn tại của ID. Quy ước cần nhất quán và được test; đừng để một endpoint trả 403 còn endpoint khác trả 404 mà không có lý do.\n\n## Tuần 2: policy và resource-based authorization\n\n### Buổi 3: policy không thay thế resource check\n\nRole hoặc policy có thể trả lời “user có quyền sửa expense nói chung không”. Nó chưa trả lời “expense cụ thể này có thuộc user không”. Resource-based authorization xử lý quyết định phụ thuộc vào object đang được truy cập.\n\nCác bước học:\n\n1. Xác định claim/user identity.\n2. Load resource theo cách không lộ dữ liệu ngoài quyền.\n3. Gọi authorization service với resource.\n4. Trả 403/404 theo contract đã chọn.\n5. Viết test cho owner, user khác và anonymous.\n\nBài tập: tạo policy CanManageExpenses cho quyền chung, sau đó thêm owner check cho resource. Thử đổi ID trên URL, đổi body OwnerUserId và bỏ claim.\n\n### Buổi 4: input và response contract\n\nClient không được tự gửi OwnerUserId để giành quyền sở hữu. Server lấy owner từ identity. DTO create/update chỉ nhận field người dùng thực sự được phép thay đổi.\n\nValidation cần có nhiều lớp:\n\n- Type/format binding ở API.\n- Quy tắc field: amount, date, category.\n- Quy tắc resource: category tồn tại, expense thuộc user.\n- Database constraint là lớp cuối, không phải lý do bỏ validation.\n\nKhông trả entity có navigation/property nội bộ. Error response không chứa stack trace, SQL hoặc secret.\n\n## Tuần 3: web threats và request safety\n\n### Buổi 5: CORS, CSRF và XSS\n\n- CORS là chính sách browser cho cross-origin request; nó không bảo vệ API khỏi một client khác gọi trực tiếp.\n- CSRF liên quan request được browser gửi kèm credential tự động; cookie-based flow cần anti-forgery strategy phù hợp.\n- XSS xảy ra khi dữ liệu không tin cậy được đưa vào HTML/JS theo cách nguy hiểm; React escape text mặc định nhưng không biến mọi API HTML/URL thành an toàn.\n- Không dùng dangerouslySetInnerHTML với dữ liệu người dùng nếu chưa có lý do và sanitizer phù hợp.\n- CORS phải ghi rõ origin cần thiết; không dùng wildcard để che lỗi cấu hình.\n\nBài tập: lập bảng threat → điều kiện → biện pháp → test. Chỉ đưa origin frontend dev thật vào policy, tách dev/staging/production.\n\n### Buổi 6: secret, rate limiting và idempotency\n\nSecret phải nằm trong secret manager/biến môi trường phù hợp, không commit appsettings có password và không đưa secret vào VITE_ frontend.\n\nRate limiting bảo vệ tài nguyên khỏi lạm dụng, nhưng không thay authentication/authorization. Chọn limit theo endpoint; login/import/report có thể có cost khác nhau.\n\nIdempotency dùng khi client có thể retry do timeout nhưng không muốn tạo trùng. Với POST import hoặc tạo expense:\n\n1. Client gửi Idempotency-Key.\n2. Server lưu key cùng owner, request fingerprint và kết quả.\n3. Cùng key + cùng payload trả lại kết quả cũ.\n4. Cùng key + payload khác trả conflict.\n5. Có expiry/cleanup và không dùng key toàn cục giữa user.\n\nBài tập: bấm gửi hai lần và mô phỏng retry sau khi server đã ghi nhưng response bị mất. Chứng minh database chỉ có một giao dịch hợp lệ.\n\n## Dự án chặng: multi-user Expense Tracker\n\nNâng cấp theo lát cắt:\n\n1. Tạo user test A và B bằng cơ chế identity đã chọn.\n2. Thêm OwnerUserId cho Expense và migration/backfill rõ ràng.\n3. Tất cả GET/POST/PUT/DELETE chỉ tác động lên owner hiện tại.\n4. Thêm policy quyền chung và resource-based authorization.\n5. Thêm 401/403/404 contract theo quy ước.\n6. Thêm validation DTO, CORS origin cụ thể, rate limit cho endpoint nhạy cảm.\n7. Thêm Idempotency-Key cho create/import.\n8. Viết threat model ngắn và test matrix.\n\n### Dữ liệu biên bắt buộc\n\n- Anonymous, authenticated nhưng thiếu claim, user đúng owner, user khác owner.\n- Đổi ID trên URL, đổi OwnerUserId trong body, gửi category không thuộc quyền.\n- Token/cookie hết hạn, credential sai, replay request.\n- Hai request cùng Idempotency-Key nhưng payload khác.\n- Origin hợp lệ, origin lạ, preflight bị từ chối.\n- Input dài bất thường, HTML/script trong note, amount/date sai.\n\n### Checkpoint\n\nCụ đạt chặng khi có thể:\n\n- Chứng minh User A không đọc/sửa/xóa được expense của User B kể cả khi biết ID.\n- Giải thích vì sao CORS không phải authorization.\n- Nêu threat model của flow cookie hoặc bearer token đã chọn.\n- Gửi lại request mà không tạo giao dịch trùng.\n- Không còn secret thật trong source, log hoặc frontend bundle.\n\n## Interview checkpoint\n\n1. Authentication và authorization khác nhau ở bước nào?\n2. Vì sao đăng nhập rồi vẫn chưa được sửa bản ghi này?\n3. Tại sao chỉ dùng [Authorize] chưa đủ để bảo vệ resource?\n4. Cookie và bearer token tạo threat nào khác nhau?\n5. CORS có ngăn Postman gọi API không?\n6. Khi nào trả 401, 403 và 404?\n7. Idempotency-Key giải quyết timeout/retry như thế nào?\n8. Vì sao không nhận OwnerUserId từ client?\n9. React escape text có loại bỏ mọi XSS không?\n\nBài debug có thời gian 40 phút: User B đổi ID trên PUT và sửa được expense của User A. Cụ phải viết test tái hiện, tìm query thiếu owner filter, sửa, rồi chạy lại test regression.\n\n## Tự chấm\n\n- 0: biết các từ authentication/CORS/JWT nhưng chưa bảo vệ resource.\n- 1: endpoint có login nhưng ownership còn thủ công, thiếu test.\n- 2: owner/policy/error/idempotency chạy được và có test negative.\n- 3: giải thích được threat model, trade-off token/cookie và chứng minh bằng request/test.\n\n## Tài liệu chính thức\n\n- [Introduction to authorization in ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/security/authorization/introduction?view=aspnetcore-10.0)\n- [Policy-based authorization](https://learn.microsoft.com/en-us/aspnet/core/security/authorization/policies?view=aspnetcore-10.0)\n- [Resource-based authorization](https://learn.microsoft.com/en-us/aspnet/core/mvc/security/authorization/resource-based?view=aspnetcore-10.0)\n- [Authentication overview](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/?view=aspnetcore-10.0)\n- [Rate limiting middleware](https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit?view=aspnetcore-10.0)\n- [Prevent Cross-Site Scripting (XSS)](https://learn.microsoft.com/en-us/aspnet/core/security/cross-site-scripting?view=aspnetcore-10.0)\n",
+    "source_citations": [
+      "`11.md`, Tuần 1–2",
+      "ASP.NET Core authentication overview",
+      "authorization introduction",
+      "resource-based authorization",
+      "`11.md`, Tuần 2 Buổi 4",
+      "Tuần 3 Buổi 5",
+      "ASP.NET Core XSS guidance",
+      "authentication/authorization docs",
+      "`11.md`, Tuần 3 Buổi 6",
+      "ASP.NET Core rate limiting middleware"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-DOTNET-S11-01]",
+        "bloom_level": "Apply",
+        "statement": "Implement and evidence authentication, owner-filtered resource authorization, DTO validation and consistent error outcomes for multiple users."
+      },
+      {
+        "id": "[LO-DOTNET-S11-02]",
+        "bloom_level": "Analyze",
+        "statement": "Analyze cookie/bearer, CSRF, CORS, XSS, secret and rate-limit boundaries and design owner-scoped idempotent writes with an atomic race contract."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "DOTNET-S11-C01",
+        "name": "Authentication, ownership, policy, and resource authorization",
+        "evidence_label": "preliminary"
+      },
+      {
+        "id": "DOTNET-S11-C02",
+        "name": "DTO validation, CSRF/CORS/XSS, and secret boundaries",
+        "evidence_label": "preliminary"
+      },
+      {
+        "id": "DOTNET-S11-C03",
+        "name": "Rate limiting and atomic owner-scoped idempotency",
+        "evidence_label": "preliminary"
+      }
+    ],
+    "external_resources": []
+  },
+  "activity": {
+    "stable_id": "activity:dotnet:stage-11",
+    "type": "manual",
+    "title": "Stage 11 multi-user ownership, web threats, rate limits, and idempotent writes evidence",
+    "instructions": "This single manual unit maps to DotNet-React-Roadmap/11.md. Complete Stage 10 first and preserve the learner sequence Stage 09 -> Stage 10 -> Stage 11. Work in a learner-owned scratch project and learning data only. This is guided learner evidence, not security certification or runtime approval. If API, identity, database, browser, or proxy tooling is unavailable, record the exact blocker and leave that observation incomplete; unavailable or unperformed evidence earns zero for that observation.\n\nChoose one cookie or bearer flow and draw the credential -> claims principal -> endpoint path. Record the threat model, configured scheme and claim used for ownership; never include passwords, tokens or secrets in notes/logs. Create User A, User B and anonymous cases. Confirm the populated OwnerUserId migration/backfill from Stage 10 before exercising multi-user data. Apply OwnerUserId filtering to every Expense read/write path, including category ownership, and add a general policy plus a resource-specific authorization check. Prove A cannot read, update or delete B's expense by changing a URL/body ID, and reject a client-supplied OwnerUserId takeover. Record the chosen consistent 401/403/404 behavior for anonymous, missing-claim, expired token/cookie, invalid credentials, foreign, unknown and forbidden resources; a row loaded by ID before ownership is a failed boundary that must be repaired and retested.\n\nDefine create/update DTOs with only permitted fields. Exercise invalid amount/date/category, a foreign category, oversized input and an HTML/script note. Record model/type/field/resource/database validation outcomes, stable error responses, and confirm that entity internals, SQL, stack traces and secrets do not appear in responses or logs. Keep secrets outside source, frontend bundles and logs; show the configuration boundary used without exposing the value.\n\nWrite a threat -> condition -> control -> test table for cookie or bearer storage, CSRF, XSS, CORS and secret handling. Configure only the exact frontend origins needed for the learning environment and record valid origin, invalid origin and preflight outcomes. Explain that CORS is a browser policy, not authorization and not a defense against direct clients. If a cookie flow is used, record the anti-forgery strategy; if bearer is used, record token theft/storage boundaries. Use safe text rendering and do not introduce raw HTML from untrusted notes. Browser/API observations that cannot be run remain blockers and earn no point.\n\nApply endpoint-specific rate limits to a costly or sensitive route. Reproduce the configured limit and stable 429 response with its retry/limit information where available, and distinguish rate limiting from authentication and authorization. Add Idempotency-Key to create or import. Persist owner, key, request fingerprint and result/status with a uniqueness/atomicity design. Prove same owner + same key + same payload returns the prior result, same key + different payload conflicts, a different owner cannot reuse the key's result, expiry/cleanup is defined, and a response-loss retry does not create a second write. Reproduce concurrent first requests with one key and show one atomic database transaction/result; a check-then-insert explanation without a unique/atomic race result is incomplete.\n\nFinish with a 40-minute reproduction of User B changing an ID on PUT and editing User A's expense. Record the failing test or request, the missing owner boundary, the smallest repair, and the regression result. Answer authentication versus authorization, policy versus resource checks, CORS versus direct clients, 401/403/404, cookie/bearer threats, OwnerUserId trust, 429, and Idempotency-Key. Record commands, requests, responses and logs only when actually observed; do not claim a security review, build, test, API, browser or database result that was not run.\n",
+    "expected_output": "A learner evidence note with chosen identity flow and threat model, A/B/anonymous/missing-claim ownership matrix, policy and resource authorization, URL/body/category/DTO/secret/input/error outcomes, CSRF/CORS/XSS controls and origin/preflight observations, endpoint-specific 429, owner-scoped fingerprinted idempotency with atomic concurrent race evidence, timed authorization regression, expected-versus-observed results, and explicit blockers.",
+    "completion_mode": "learner_attest",
+    "rubric": [
+      {
+        "criterion": "Authentication, ownership, and resource authorization",
+        "evidence": "The note records the credential/claims flow, A/B/anonymous/missing-claim matrix, owner-filtered reads and writes, policy plus resource check, foreign category behavior, client OwnerUserId rejection, and consistent 401/403/404 outcomes. Missing or blocked API evidence remains incomplete and earns no point.",
+        "max_points": 1
+      },
+      {
+        "criterion": "DTO, validation, secrets, CSRF/CORS/XSS boundaries",
+        "evidence": "The note records permitted DTO fields, invalid amount/date/category/foreign category/oversized/HTML outcomes, safe error/log responses, secret boundary, exact origin and preflight behavior, cookie anti-forgery or bearer threat treatment, and safe text rendering. Browser/API blockers earn no point rather than approval.",
+        "max_points": 1
+      },
+      {
+        "criterion": "Rate limit and owner-scoped idempotency race",
+        "evidence": "The note records endpoint-specific 429 behavior and Idempotency-Key owner/fingerprint/result persistence, same/different payload outcomes, cross-owner isolation, expiry/cleanup and a concurrent first-request race with one atomic transaction/result. Prose alone is insufficient.",
+        "max_points": 1
+      },
+      {
+        "criterion": "Timed authorization regression and honest limits",
+        "evidence": "The note records the 40-minute User B ID-change reproduction, failing request/test, minimal owner-filter repair, regression result, interview reasoning and exact blockers. Unperformed or unavailable evidence remains incomplete and earns no point.",
+        "max_points": 1
+      }
+    ],
+    "resources": []
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:stage-11",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Stage 11 multi-user ownership, web threats, rate limits, and idempotent writes manual activity",
+    "card_count": 0,
+    "cards": []
+  }
+}

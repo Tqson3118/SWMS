@@ -1,0 +1,198 @@
+schema_version: 2.0.0
+package_id: package:psychology:w09
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: approved
+version: 7
+created_at: '2026-09-16T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 02-understanding-self
+lesson: week-09-emotion
+learning_objectives:
+- id: LO-W09-01
+  bloom_level: Understand
+  statement: 'Định nghĩa Cảm xúc và phân biệt rõ ràng với Tâm trạng và Cảm giác thể
+    chất; phân tích ba thành tố của cảm xúc: kích hoạt sinh lý, đánh giá nhận thức
+    và biểu hiện hành vi.'
+- id: LO-W09-02
+  bloom_level: Analyze
+  statement: So sánh và đối chiếu bốn lý thuyết cảm xúc kinh điển (James-Lange, Cannon-Bard,
+    Hai yếu tố Schachter-Singer, Đánh giá nhận thức trung gian Lazarus); giải thích
+    hiện tượng gán nhầm kích hoạt sinh lý qua thí nghiệm cầu treo Dutton & Aron.
+- id: LO-W09-03
+  bloom_level: Evaluate
+  statement: 'Lập bản đồ cơ sở sinh học thần kinh của cảm xúc: phân tích vai trò của
+    hạch hạnh nhân, hai lộ trình xử lý đe dọa của Joseph LeDoux (Lộ trình thấp vs
+    Lộ trình cao), và vai trò điều hòa của vỏ não trước trán.'
+- id: LO-W09-04
+  bloom_level: Apply
+  statement: Đánh giá tính phổ quát và đặc thù văn hóa của biểu cảm nét mặt (Paul
+    Ekman và quy tắc thể hiện văn hóa); phân tích cơ chế Giả thuyết phản hồi khuôn
+    mặt; vận dụng Mô hình Quá trình Điều hòa Cảm xúc của James Gross (Đánh giá lại
+    nhận thức vs Đè nén biểu cảm).
+concepts:
+- id: roadmap:concept:psychology:w09-emotion-definition-mood
+  name: Định nghĩa Cảm xúc vs. Tâm trạng & Ba Thành tố
+  claim_ids:
+  - C09-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w09-james-lange-cannon-bard
+  name: Thuyết James-Lange & Cannon-Bard
+  claim_ids:
+  - C09-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w09-two-factor-misattribution
+  name: Thuyết Hai Yếu Tố & Gán nhầm Kích hoạt Sinh lý (Capilano)
+  claim_ids:
+  - C09-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w09-lazarus-cognitive-appraisal
+  name: Thuyết Đánh giá Nhận thức Trung gian Lazarus
+  claim_ids:
+  - C09-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w09-ledoux-fear-pathways
+  name: Sinh học Thần kinh & Hai Lộ trình Sợ hãi LeDoux
+  claim_ids:
+  - C09-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w09-ekman-universal-display-rules
+  name: Biểu cảm Nét mặt Phổ quát & Quy tắc Văn hóa Ekman
+  claim_ids:
+  - C09-06
+  evidence_label: contested
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w09-facial-feedback-replication
+  name: Giả thuyết Phản hồi Khuôn mặt & Khủng hoảng Tái lập
+  claim_ids:
+  - C09-07
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w09-gross-emotion-regulation
+  name: Mô hình Quá trình Điều hòa Cảm xúc James Gross
+  claim_ids:
+  - C09-08
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+questions:
+- id: Q09-01
+  lo_ref: LO-W09-01
+  concept_id: roadmap:concept:psychology:w09-emotion-definition-mood
+  claim_ids:
+  - C09-01
+- id: Q09-02
+  lo_ref: LO-W09-02
+  concept_id: roadmap:concept:psychology:w09-james-lange-cannon-bard
+  claim_ids:
+  - C09-02
+- id: Q09-03
+  lo_ref: LO-W09-02
+  concept_id: roadmap:concept:psychology:w09-two-factor-misattribution
+  claim_ids:
+  - C09-03
+- id: Q09-04
+  lo_ref: LO-W09-02
+  concept_id: roadmap:concept:psychology:w09-lazarus-cognitive-appraisal
+  claim_ids:
+  - C09-04
+- id: Q09-05
+  lo_ref: LO-W09-03
+  concept_id: roadmap:concept:psychology:w09-ledoux-fear-pathways
+  claim_ids:
+  - C09-05
+- id: Q09-06
+  lo_ref: LO-W09-03
+  concept_id: roadmap:concept:psychology:w09-ekman-universal-display-rules
+  claim_ids:
+  - C09-06
+- id: Q09-07
+  lo_ref: LO-W09-03
+  concept_id: roadmap:concept:psychology:w09-facial-feedback-replication
+  claim_ids:
+  - C09-07
+- id: Q09-08
+  lo_ref: LO-W09-04
+  concept_id: roadmap:concept:psychology:w09-gross-emotion-regulation
+  claim_ids:
+  - C09-08
+- id: Q09-09
+  lo_ref: LO-W09-04
+  concept_id: roadmap:concept:psychology:w09-gross-emotion-regulation
+  claim_ids:
+  - C09-08
+- id: Q09-10
+  lo_ref: LO-W09-02
+  concept_id: roadmap:concept:psychology:w09-ekman-universal-display-rules
+  claim_ids:
+  - C09-06
+units:
+- unit_id: roadmap:unit:psychology:w09
+  display_title: 'Tuần 09: Cảm xúc — Chức năng, Nhận diện và Điều hòa'
+  sort_order: 9
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w09
+    path: notes/02-understanding-self/week-09-emotion.md
+    sha256: af9d3578743c24806dd1f25558993331763463680abb89d2543a7fdb08ec632d
+    byte_length: 63178
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w09
+    path: assessments/quizzes/week-09-quiz.md
+    question_count: 10
+    sha256: 9b956f7d721d9483054e2bd1ccc683896c259fde488c4bf6447e4f2cc9256bd4
+    byte_length: 12094
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w09
+    path: assessments/answer-keys/week-09-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: 73737126b47c8d65665ec9e0bd1d3932b4936dff17cd51c9ec074ad2ac38bcdb
+    byte_length: 29978
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w09
+    path: flashcards/week-09.yaml
+    card_count: 8
+    sha256: 1ba833749c18ff99118c6aacd84e4aa1e7cb77522c79e8035de17fc3fb08f75c
+    byte_length: 6902
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

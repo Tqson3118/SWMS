@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:54:03Z",
+  "unit_id": "roadmap:unit:fscr:w23",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 23: GitHub Actions và integration testing",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w23",
+    "title": "Tuần 23: GitHub Actions và integration testing",
+    "content_markdown": "<h1>Tuần 23 — GitHub Actions và integration testing</h1>\n<p>Chặng 6; 3 bài L23-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W23-01: Chạy restore/build/test trên fresh runner.</p>\n</li>\n<li>\n<p>LO-W23-02: Kiểm behavior trên SQL Server thật cùng provider.</p>\n</li>\n<li>\n<p>LO-W23-03: Phân biệt test pass, build artifact và released version.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 22; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-23-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w23-01\"></a></p>\n<h2>Bài 1: CI reproducible pipeline</h2>\n<p>LO-W23-01 · W23-C01</p>\n<p>CI cần tái tạo từ repository: chọn .NET10 SDK/setup-dotnet và Node active LTS đã ghi inventory; npm ci đọc lockfile, không npm install để âm thầm đổi graph. Build Release rồi test; frontend tsc/build và behavior tests non-watch. Workflow pull_request và pushmain có permissions contents:read theo least privilege. Không chạy deploy secrets trên untrusted fork PR. Cache dependency theo lockfile/csproj để nhanh nhưng cold-cache vẫn pass. Pin actions commit SHA cho release supply chain sau khi kiểm revision; tagsmajor trong lab giúp đọc nhưng cần inventory thực tế. Exit code thất bại phải fail job, không ||true.</p>\n<p><a id=\"lo-w23-02\"></a></p>\n<h2>Bài 2: Relational integration tests</h2>\n<p>LO-W23-02 · W23-C02</p>\n<p>EF InMemory không enforce FK/transactions/SQL semantics giống production; SQLite khác SQLServer rowversion/collation/querytranslation. Unit test pure money/validation nhanh; relational integration dùng SQLServer container/testDB riêng. Mỗi test suite quản seed/reset riêng không đụng development/prod. WebApplicationFactory host test và mock principal deterministic chỉ Testing; test JWT invalid issuer/signature qua authintegration riêng chứ không mock luôn. Assert compound ownershipFK, duplicate importkey, rollbackinvalidrow, optimistic409, querycountN+1. Dùng unique DB hoặc serial fixture có reset rõ, tránh tests phụ thuộc order. Testcontainers là tùy chọn đáng dùng khi Docker runner có sẵn.</p>\n<p><a id=\"lo-w23-03\"></a></p>\n<h2>Bài 3: Evidence và deployment boundary</h2>\n<p>LO-W23-03 · W23-C03</p>\n<p>Publish TRX/frontend results logs không chứa secrets; artifact image tagged gitSHA nối commit/test/deployment. Integration tests gate trước push deploy; successful compile không chứng minh ownership/rollback. CI job ở PR chỉ kiểm; deploy jobmain/tag dùng protected environment/OIDC federation khi cloud hỗ trợ, tránh static long-lived credentials. Failure phải cho reproduction steps và expected/actual. Flaky test cần sửa isolation/timeouts, không retry mãi che bug. Code coverage là thông tin, không thay tests risk-based: ownership, concurrency, idempotency, failures quan trọng nhất. Security dependency check có thể thêm nhưng không substitute code review.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Repo cần tests Expense.Tests và client script test='vitest run'. Workflow build.yml:</li>\n</ol>\n<pre><code class=\"language-yaml\">name: verify\non: [push, pull_request]\npermissions:\n  contents: read\njobs:\n  verify:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v6\n      - uses: actions/setup-dotnet@v4\n        with:\n          dotnet-version: '10.0.x'\n      - run: dotnet restore\n      - run: dotnet build -c Release --no-restore\n      - run: dotnet test -c Release --no-build --logger trx\n      - uses: actions/setup-node@v4\n        with:\n          node-version: '24'\n          cache: npm\n          cache-dependency-path: web/package-lock.json\n      - run: npm ci\n        working-directory: web\n      - run: npm run build\n        working-directory: web\n      - run: npm run test -- --run\n        working-directory: web\n</code></pre>\n<ol>\n<li>Đây là baseline compile/unit/UI; chưa provision SQL container. Thêm separate integration job dùng testcontainer fixture để dotnet test chạy SQL behaviors trước markgate.</li>\n<li>Cố ý thay ownership query test fail và PRred; sửa code/test rồi green.</li>\n<li>Ghi action versions thực tế và SHA cho release; mẫu lab dùng major tags, không coi chúng immutable.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>Do not share DB từ course folder hay importer. Test-only fake auth không được enabled Development/Production. YAML booleans parser có thể coi 'on' thành true với YAML1.1; GitHubworkflow dùng schema riêng, không validate bằng parsergeneric rồi kết luận lỗi.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>Unit tests green nhưng duplicateimport thêm rows. Thêm test gì?</p>\n<h3>Bài tập 2</h3>\n<p>Cold runner frontend thiếu dependency vì local node_modules có. Sửa thế nào?</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>SQLServerintegration gửi samekey/hash hai lần/concurrent, assert rowcount không tăng; different hash → 409. Use unique constraint thật, không dictionaryfake.</p>\n<h3>Hướng giải 2</h3>\n<p>Chạy npm ci từ fresh checkout, commit manifest/lockfile đúng; build/test fail là evidence missing dependency. Không upload node_modules để che.</p>\n<h2>Project task</h2>\n<p>Thêm CI gates .NET/frontend/SQL integration, publish test artifacts, Dockerbuild và imageSHA inventory; deployment job chỉ sau gates.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w23.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Fresh Linux runner cold-cache build/unit/UIpass với lockfile.</p>\n</li>\n<li>\n<p>[ ] SQLServer thật chứng minh ownershipFK,rollback,409,idempotency,N+1 guard; tests không chạm DB cá nhân.</p>\n</li>\n<li>\n<p>[ ] Một regression cố ý làmPRred; fixgreen và evidence lưu CI link/commit/image SHA.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Trình bày một CI failure bằng English: trigger, failing assertion, root cause, fix, validation.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://docs.github.com/en/actions/tutorials/build-and-test-code/net\">Restore, build and test .NET workflow</a> — W23-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/ef/core/testing/choosing-a-testing-strategy\">Real database versus test doubles</a> — W23-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions\">Permissions, untrusted inputs and action pinning</a> — W23-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-23-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-23-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-23.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"week-22.md\">Tuần trước</a></p>\n<p><a href=\"week-24.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Restore, build and test .NET workflow](https://docs.github.com/en/actions/tutorials/build-and-test-code/net)",
+      "[Real database versus test doubles](https://learn.microsoft.com/en-us/ef/core/testing/choosing-a-testing-strategy)",
+      "[Permissions, untrusted inputs and action pinning](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W23-01]",
+        "bloom_level": "Apply",
+        "statement": "Chạy restore/build/test trên fresh runner."
+      },
+      {
+        "id": "[LO-W23-02]",
+        "bloom_level": "Apply",
+        "statement": "Kiểm behavior trên SQL Server thật cùng provider."
+      },
+      {
+        "id": "[LO-W23-03]",
+        "bloom_level": "Apply",
+        "statement": "Phân biệt test pass, build artifact và released version."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w23-c01",
+        "name": "CI reproducible pipeline",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w23-c02",
+        "name": "Relational integration tests",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w23-c03",
+        "name": "Evidence và deployment boundary",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w23",
+    "title": "Trắc nghiệm Tuần 23: GitHub Actions và integration testing",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w23:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "Frontend CI nên cài dependencies bằng gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Copy local node_modules"
+          },
+          {
+            "id": "B",
+            "text": "npm install rồi không review"
+          },
+          {
+            "id": "C",
+            "text": "Không cần package.json"
+          },
+          {
+            "id": "D",
+            "text": "npm ci với committed lockfile"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "CI dùng graph locked và fail khi mismatch.",
+        "wrong_explanations": {
+          "A": "Local state không fresh reproducible.",
+          "B": "Install có thể cập nhật lock graph.",
+          "C": "Manifest khai báo scripts/dependencies."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w23-c01",
+        "lesson_anchor": "#lo-w23-01",
+        "claim_ids": [
+          "W23-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w23:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Build step exit nonzero nên làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Fail job và chặn rollout"
+          },
+          {
+            "id": "B",
+            "text": "Thêm ||true"
+          },
+          {
+            "id": "C",
+            "text": "Xóa failed log"
+          },
+          {
+            "id": "D",
+            "text": "Deploy vẫn tiếp"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Failure cần giữ evidence và sửa.",
+        "wrong_explanations": {
+          "B": "Ignore che regression ở pipeline.",
+          "C": "Log giúp chẩn đoán failure.",
+          "D": "Rollout failed artifact tăng rủi ro."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w23-c01",
+        "lesson_anchor": "#lo-w23-01",
+        "claim_ids": [
+          "W23-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w23:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "EFInMemory chứng minh SQL constraints không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Có FK như SQLServer"
+          },
+          {
+            "id": "B",
+            "text": "Không, test relational provider thật"
+          },
+          {
+            "id": "C",
+            "text": "Có đầy đủ rowversion"
+          },
+          {
+            "id": "D",
+            "text": "Có actualexecutionplan"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Provider fake khác relational semantics.",
+        "wrong_explanations": {
+          "A": "Fake không enforce mọi FK tương đương.",
+          "C": "Rowversion do SQLServer thực thi.",
+          "D": "InMemory không SQL queryplan."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w23-c02",
+        "lesson_anchor": "#lo-w23-02",
+        "claim_ids": [
+          "W23-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w23:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "Integration test DB nên dùng gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "DBcá nhân bất kỳ"
+          },
+          {
+            "id": "B",
+            "text": "Chạy phụ thuộc thứ tự"
+          },
+          {
+            "id": "C",
+            "text": "Database test riêng có seed/reset"
+          },
+          {
+            "id": "D",
+            "text": "Productionshared"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Isolation giữ tests deterministic/an toàn.",
+        "wrong_explanations": {
+          "A": "Local state khiến kết quả không tái hiện.",
+          "B": "Order dependency tạo flaky behavior.",
+          "D": "Tests không được sửa businessdata thật."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w23-c02",
+        "lesson_anchor": "#lo-w23-02",
+        "claim_ids": [
+          "W23-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w23:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "ForkPR chưa tin cậy nên được gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Cloudadminsecret"
+          },
+          {
+            "id": "B",
+            "text": "ProductionSQLpassword"
+          },
+          {
+            "id": "C",
+            "text": "Write-alltoken mặc định"
+          },
+          {
+            "id": "D",
+            "text": "Read-only verify, không deploy secrets"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Untrusted code cần giới hạn credential.",
+        "wrong_explanations": {
+          "A": "Credentialadmin có thể bị exfiltrate.",
+          "B": "PR không cần productiondata secret.",
+          "C": "Least privilege giảm attack surface."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w23-c03",
+        "lesson_anchor": "#lo-w23-03",
+        "claim_ids": [
+          "W23-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w23:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "Image nên nối release với gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "CommitSHA và CIevidence"
+          },
+          {
+            "id": "B",
+            "text": "Tên latest duy nhất"
+          },
+          {
+            "id": "C",
+            "text": "Ảnh screenshot không version"
+          },
+          {
+            "id": "D",
+            "text": "Dateđơn lẻ"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Có thể truy source/test của artifact.",
+        "wrong_explanations": {
+          "B": "Latest mutable khó biết code thật.",
+          "C": "Screenshot không provenance artifact.",
+          "D": "Ngày không xác định exact revision."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w23-c03",
+        "lesson_anchor": "#lo-w23-03",
+        "claim_ids": [
+          "W23-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w23",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 23: GitHub Actions và integration testing",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w23-001",
+        "concept_name": "Reproducibility",
+        "front": "Frontend CI nên cài dependencies bằng gì?",
+        "back": "npm ci với committed lockfile. CI dùng graph locked và fail khi mismatch.",
+        "tags": [
+          "w23",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W23-C01"
+        ],
+        "source_citation": "notes/module-6/week-23.md",
+        "lesson_anchor": "#lo-w23-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w23-002",
+        "concept_name": "Fail gate",
+        "front": "Build step exit nonzero nên làm gì?",
+        "back": "Fail job và chặn rollout. Failure cần giữ evidence và sửa.",
+        "tags": [
+          "w23",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W23-C01"
+        ],
+        "source_citation": "notes/module-6/week-23.md",
+        "lesson_anchor": "#lo-w23-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w23-003",
+        "concept_name": "DB test double",
+        "front": "EFInMemory chứng minh SQL constraints không?",
+        "back": "Không, test relational provider thật. Provider fake khác relational semantics.",
+        "tags": [
+          "w23",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W23-C02"
+        ],
+        "source_citation": "notes/module-6/week-23.md",
+        "lesson_anchor": "#lo-w23-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w23-004",
+        "concept_name": "Isolation",
+        "front": "Integration test DB nên dùng gì?",
+        "back": "Database test riêng có seed/reset. Isolation giữ tests deterministic/an toàn.",
+        "tags": [
+          "w23",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W23-C02"
+        ],
+        "source_citation": "notes/module-6/week-23.md",
+        "lesson_anchor": "#lo-w23-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w23-005",
+        "concept_name": "Fork security",
+        "front": "ForkPR chưa tin cậy nên được gì?",
+        "back": "Read-only verify, không deploy secrets. Untrusted code cần giới hạn credential.",
+        "tags": [
+          "w23",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W23-C03"
+        ],
+        "source_citation": "notes/module-6/week-23.md",
+        "lesson_anchor": "#lo-w23-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w23-006",
+        "concept_name": "Release trace",
+        "front": "Image nên nối release với gì?",
+        "back": "CommitSHA và CIevidence. Có thể truy source/test của artifact.",
+        "tags": [
+          "w23",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W23-C03"
+        ],
+        "source_citation": "notes/module-6/week-23.md",
+        "lesson_anchor": "#lo-w23-03"
+      }
+    ]
+  }
+}

@@ -7,188 +7,90 @@
 
 ---
 
-## 1. SƠ ĐỒ CÂY ĐỔ XUỐNG DẠNG ĐỒ HỌA (FLOWCHART TREE)
+## 1. SƠ ĐỒ CÂY ĐỔ XUỐNG DẠNG ĐỒ HỌA (FLOWCHART TREE — 4 TẦNG MỚI)
 
 ```mermaid
 flowchart TD
-    Home["🏠 TRANG CHỦ (Home /)"]
+    Home["🏠 TRANG CHỦ (/)"]
     Auth["🔐 ĐĂNG NHẬP / ĐĂNG KÝ (/auth)"]
-    Dash["📊 BẢNG ĐIỀU KHIỂN TRUNG TÂM (/workspace)"]
-    
-    Home -->|Khách ghé thăm| Auth
-    Auth -->|Đăng nhập thành công| Dash
-    Home -->|Người dùng đã đăng nhập| Dash
+    Today["☀️ LEVEL 1: HÔM NAY (/app)"]
 
-    subgraph DashboardSections["Các Khu vực trên Dashboard"]
-        Hero["1. Thẻ Học tiếp (Hero Continue Learning)"]
-        ReviewTile["2. Trạm Ôn tập Nhanh (Review Station Card)"]
-        StatsTile["3. Thống kê & Chuỗi học (Stats & Streak)"]
-        Library["4. THƯ VIỆN KHÓA HỌC & TÀI LIỆU (Course Library)"]
+    Home -->|Khách| Auth
+    Auth -->|Đăng nhập| Today
+    Home -->|Đã đăng nhập| Today
+
+    subgraph Level2["LEVEL 2: KHÔNG GIAN THEO TÀI NGUYÊN"]
+        Courses["📚 Khóa học (/app/courses)"]
+        CourseNew["➕ Tạo khóa học (/app/courses/new)"]
+        Docs["📄 Tài liệu PDF (/app/documents)"]
+        Notes["📝 Sổ tay (/app/notes)"]
+        Review["🧠 Ôn tập (/app/review)"]
+        Settings["⚙️ Cài đặt (/app/settings)"]
     end
 
-    Dash --> Hero
-    Dash --> ReviewTile
-    Dash --> StatsTile
-    Dash --> Library
+    Today --> Courses
+    Today --> Docs
+    Today --> Notes
+    Today --> Review
+    Today --> Settings
+    Courses --> CourseNew
 
-    subgraph LibraryActions["Hành động tại Thư viện"]
-        Filter["Bộ lọc: Tất cả | Khóa học | PDF | Sổ tay"]
-        CourseCards["Danh sách Thẻ Khóa học (Course Cards)"]
-        CreateBtn["Nút: + Tạo khóa học mới"]
+    subgraph Level3["LEVEL 3: TRANG TRUNG TÂM KHÓA HỌC"]
+        CourseHub["🎯 Chi tiết & Đề cương (/app/courses/[id])"]
+        CourseQuiz["📋 Kiểm tra Quiz (/app/courses/[id]/quiz)"]
+        CourseEdit["🛠️ Biên tập khóa học (/app/courses/[id]/edit)"]
     end
 
-    Library --> Filter
-    Library --> CourseCards
-    Library --> CreateBtn
+    Courses --> CourseHub
+    CourseNew --> CourseHub
+    CourseHub --> CourseQuiz
+    CourseHub --> CourseEdit
 
-    %% Nhánh 1: Vào học
-    subgraph LearnBranch["NHÁNH HỌC VIÊN: VÀO HỌC KHÓA HỌC"]
-        CourseCards -->|"Bấm 'Học Lộ trình' / 'Tiếp tục học'"| CourseView["KHÔNG GIAN HỌC KHÓA HỌC (Reader & Split View)"]
-        CourseView --> Roadmap["Thanh Lộ trình (Course Roadmap)"]
-        CourseView --> ContentArea["Khu vực Bài giảng (Video / Markdown / PDF)"]
-        CourseView --> ActionComplete["Nút: 'Đánh dấu hoàn thành & Học bài kế'"]
-        
-        Roadmap --> Chapter1["Chương 1: Giới thiệu & Cơ bản"]
-        Chapter1 --> Lesson1["Bài 1.1: Xem Video / Đọc bài"]
-        Chapter1 --> Lesson2["Bài 1.2: Đọc tài liệu PDF & Highlight"]
-        Roadmap --> Chapter2["Chương 2: Chuyên sâu & Thực hành"]
-        
-        ActionComplete --> ProgressCalc["Cập nhật Thanh % Tiến độ Khóa học"]
-        ProgressCalc -->|Đạt 100%| Celebration["🎉 Màn hình Chúc mừng Hoàn thành Khóa học"]
+    subgraph Level4["LEVEL 4: KHÔNG GIAN HỌC TẬP TẬP TRUNG"]
+        Learn["📖 Học bài (/app/courses/[id]/learn)"]
     end
 
-    %% Nhánh 2: Ôn tập & Quiz
-    subgraph ReviewBranch["NHÁNH ÔN TẬP & ĐÁNH GIÁ (Review & Quiz)"]
-        CourseCards -->|"Bấm 'Ôn tập' / 'Làm Quiz'"| ReviewStation["TRẠM ÔN TẬP (Active Recall Mode)"]
-        ReviewTile --> ReviewStation
-        ReviewStation --> FSRSFlashcards["Lật thẻ Flashcards 3D (Thuật toán FSRS v5)"]
-        ReviewStation --> QuizPractice["Làm bài tập Quiz trắc nghiệm & Tự luận (AI Rubric)"]
-    end
-
-    %% Nhánh 3: Tác giả tạo & quản lý khóa học
-    subgraph CreatorBranch["NHÁNH TÁC GIẢ: TẠO & BIÊN TẬP KHÓA HỌC"]
-        CreateBtn -->|"Mở Hub Tạo Khóa học"| CreateModal["HUB TẠO KHÓA HỌC (Course Create Hub)"]
-        CreateModal --> MethodDoc["Cách 1: Nạp tài liệu PDF/Docs (AI tự sinh bài)"]
-        CreateModal --> MethodWizard["Cách 2: Trợ lý AI Wizard 3 bước (Chủ đề -> Khảo sát -> Đề cương)"]
-        CreateModal --> MethodZip["Cách 3: Nhập tệp SWM ZIP có sẵn"]
-        
-        CreateModal -->|"Tạo xong / Bấm 'Biên tập'"| StudioView["STUDIO BIÊN TẬP KHÓA HỌC (Course Studio)"]
-        StudioView --> TreeBuilder["Cây Đề cương (Thêm/Sửa/Xóa Chương & Bài) [✅ ĐÃ HIỆN HỮU]"]
-        StudioView --> Editor["Trình soạn bài: Markdown Live Preview + Nhúng Video URL [✅ ĐÃ HIỆN HỮU]"]
-        StudioView --> MiniQuizBuilder["Tạo câu hỏi trắc nghiệm & Thẻ Flashcard cho bài [⏳ LỘ TRÌNH V2.4]"]
-        StudioView --> PublishAction["Xuất bản: Đổi trạng thái Public + Lấy Link chia sẻ / Xuất ZIP [✅ ĐÃ HIỆN HỮU]"]
-    end
+    CourseHub -->|Học ngay / Chọn bài| Learn
+    Docs -->|Mở PDF| Learn
+    Notes -->|Mở ghi chú| Learn
 ```
 
 ---
 
-## 2. BẢN ĐỒ CÂY ĐỔ XUỐNG DẠNG VĂN BẢN (TEXT INDENTATION TREE)
+## 2. BẢN ĐỒ PHÂN CẤP 4 TẦNG (MULTI-LEVEL ROUTE TREE)
 
 ```text
-🏠 Trang chủ (Home /)
-│
-├── 🔐 Xác thực & Đăng nhập (/auth)
-│    ├── Đăng nhập (Email & Mật khẩu)
-│    ├── Đăng ký tài khoản mới
-│    └── Chọn tài khoản Demo nhanh (Sơn Trần / Minh Anh)
-│
-└── 📊 Bảng điều khiển Trung tâm (Dashboard /workspace)
-     │
-     ├── 1. Thẻ Học tiếp (Hero Continue Learning) ──────> Nhấp 1-click vào ngay bài học đang dở
-     │
-     ├── 2. Trạm Ôn tập Nhanh (Review Station Card) ────> Báo số thẻ đến hạn hôm nay + Nút "Ôn tập ngay"
-     │
-     ├── 3. Thống kê & Chuỗi học (Stats & Streak) ─────> Chuỗi ngày học, chỉ số trí nhớ FSRS, hạn mức AI
-     │
-     └── 4. Thư viện Khóa học & Tài liệu (Course & Library Grid)
-          │
-          ├── [Bộ lọc]: Tất cả | Khóa học | Tài liệu PDF | Sổ tay
-          │
-          ├── 🎓 DANH SÁCH CÁC KHÓA HỌC (Course Cards)
-          │    │
-          │    ├── Khóa học A: Lập trình Web C# .NET 10 (Tiến độ: 45%)
-          │    │    ├── 🔘 Nút: "Tiếp tục học" ──────┐
-          │    │    ├── 🔘 Nút: "Ôn tập Flashcards" ─┼───> (Xem chi tiết nhánh học bên dưới)
-          │    │    ├── 🔘 Nút: "Làm bài Quiz" ──────┤
-          │    │    └── 🔘 Nút: "Mở trong Studio" ───┘
-          │    │
-          │    └── Khóa học B: Giáo trình Pháp luật đại cương (Tiến độ: 100% - Đã hoàn thành)
-          │
-          └── ➕ NÚT "+ TẠO KHÓA HỌC MỚI" (Dành cho Giảng viên / Học viên tự soạn)
-               │
-               ▼ Mở Hub Tạo Khóa học (Course Create Hub)
-               ├── Cách 1: Nạp tài liệu (PDF, DOCX, TXT, MD) -> AI bóc tách sinh khóa học
-               ├── Cách 2: Trợ lý AI Wizard 3 bước:
-               │    ├── Bước 1: Nhập đề tài muốn học/dạy
-               │    ├── Bước 2: AI khảo sát mục tiêu & trình độ
-               │    └── Bước 3: Xem trước đề cương (Syllabus Preview) -> Bấm Tạo
-               └── Cách 3: Nhập gói SWM ZIP chuẩn bị sẵn
+Level 0: Cổng vào & Cài đặt hệ thống
+├── /                          Trang chủ (Landing)
+├── /auth                      Đăng nhập / Đăng ký / Chọn tài khoản nhanh
+└── /app/settings              Giao diện (Sáng/Tối, Font chữ, Cỡ chữ), AI Provider, Tài khoản
 
-----------------------------------------------------------------------------------------------------
+Level 1: Hôm nay (/app)
+└── /app                       Tâm điểm học hằng ngày
+     ├── 1. Thẻ "Tiếp tục lộ trình" (bài học kế tiếp của khóa đang học)
+     ├── 2. Thẻ "Ôn tập hôm nay" (số thẻ đến hạn & thời gian ước tính)
+     ├── 3. Khóa học gần đây (tối đa 4 khóa học đã khử trùng lặp) -> /app/courses/[id]
+     └── 4. Lối tắt 4 khu vực: Khóa học, Tài liệu, Sổ tay, Ôn tập
 
-📚 CHI TIẾT NHÁNH 1: HỌC VIÊN VÀO HỌC KHÓA HỌC (Learning Flow)
-└── Bấm "Tiếp tục học" trên thẻ khóa học
-     │
-     ▼ Mở Không gian Học tập & Trình đọc (Reader & Split Workspace)
-     ├── CỘT TRÁI: Lộ trình Khóa học (Course Roadmap Sidebar)
-     │    ├── Thanh % Tổng tiến độ khóa học (Progress Bar)
-     │    ├── Chương 1: Kiến thức Cốt lõi
-     │    │    ├── ✅ Bài 1.1: Tổng quan (Đã học xong - Tích xanh)
-     │    │    ├── ▶️ Bài 1.2: Cấu trúc dữ liệu (Đang học - Đang mở)
-     │    │    └── ⚪ Bài 1.3: Bài tập thực hành (Chưa học)
-     │    └── Chương 2: Nâng cao & Ứng dụng
-     │
-     ├── KHUNG CHÍNH: Nội dung Bài giảng Đa phương thức
-     │    ├── Trình phát Video (YouTube / Vimeo / MP4 nếu có)
-     │    ├── Bài đọc Markdown chi tiết (Có bảng, code highlight, công thức toán)
-     │    └── Trình đọc PDF song song (nếu bài học gắn với trang tài liệu gốc)
-     │
-     ├── KHUNG GHI CHÚ: Sổ tay cá nhân (Mở song song để ghi chép trích dẫn)
-     │
-     └── CHÂN BÀI HỌC: Thanh điều hướng & Hoàn thành
-          ├── ⬅️ Nút "Bài trước"
-          ├── ➡️ Nút "Đánh dấu Hoàn thành & Tiếp tục" ──> Ghi nhận tiến độ vào Database
-          │                                            ──> Tự động chuyển sang Bài 1.3
-          └── 🎉 Khi xong bài cuối cùng (100%) ─────────> Bật Modal Chúc mừng Hoàn thành!
+Level 2: Không gian làm việc theo loại tài nguyên (Sidebar 5 mục chính)
+├── /app/courses               Danh mục Khóa học (Tìm kiếm, Lọc lĩnh vực & trạng thái, Ẩn bản sao trùng lặp)
+│    └── /app/courses/new      Tạo khóa học mới (Tải tài liệu, AI Wizard 3 bước, Nhập SWM ZIP)
+├── /app/documents             Thư viện Tài liệu PDF (Danh sách tài liệu, Tải PDF lên, Mở trình đọc)
+├── /app/notes                 Kho Sổ tay Ghi chú (Danh sách sổ tay, Mở đúng bối cảnh bài học)
+└── /app/review                Phòng Ôn tập Thẻ ghi nhớ (Tách rời không gian đọc)
 
-----------------------------------------------------------------------------------------------------
+Level 3: Chi tiết Khóa học (Course Hub)
+└── /app/courses/[id]          Tổng quan, thống kê, tiến độ, bài học kế tiếp, Đề cương chương/bài (tìm & lọc)
+     ├── /app/courses/[id]/quiz   Bài kiểm tra trắc nghiệm & tự luận
+     └── /app/courses/[id]/edit   Trình biên tập khóa học (Cây chương/bài, Markdown Live Preview, Video URL, Xuất bản, Xuất SWM ZIP)
 
-🧠 CHI TIẾT NHÁNH 2: ÔN TẬP & KIỂM TRA (Review & Practice Flow)
-└── Bấm "Ôn tập" hoặc "Làm Quiz" từ Khóa học
-     │
-     ▼ Mở Trạm Ôn tập Chủ động (Active Recall Mode)
-     ├── Tab 1: Ôn tập Thẻ Flashcards (FSRS v5 Engine)
-     │    ├── Mặt trước câu hỏi (Front)
-     │    ├── Bấm lật thẻ 3D ──> Hiện mặt sau đáp án (Back)
-     │    ├── 4 Nút đánh giá ghi nhớ: [1: Quên] - [2: Khó] - [3: Tốt] - [4: Dễ]
-     │    └── Nút Hoàn tác (Undo / Phím Z) nếu bấm nhầm
-     │
-     └── Tab 2: Làm bài Kiểm tra Trắc nghiệm (Practice Quiz)
-          ├── Danh sách câu hỏi trắc nghiệm của khóa học
-          ├── Chọn đáp án A, B, C, D
-          └── Bấm "Nộp bài" ──> AI chấm điểm, phân tích lỗi sai và đưa ra lời khuyên
+Level 4: Không gian Học tập Tập trung (Immersive Learning Workspace)
+└── /app/courses/[id]/learn    Ẩn thanh điều hướng toàn cục; chỉ giữ:
+     ├── Thanh trên tối giản: Bật/tắt lộ trình (Ctrl+\), Breadcrumb về /app/courses/[id], % tiến độ, Cỡ chữ/Font (Aa), Mục lục bài, Ngăn Sổ tay/Thẻ, Nút Quiz
+     ├── Cột trái: Lộ trình Khóa học (CourseRoadmapSidebar)
+     ├── Khung chính: Trình phát Video / Bài đọc Markdown sạch / Trình đọc PDF + Thanh chọn văn bản (Highlight, Tạo thẻ, Lưu vào sổ tay, AI giải thích)
+     ├── Thanh dưới: Bài trước / Đánh dấu hoàn thành & Học bài tiếp
+     └── Cột phải (theo ngữ cảnh): Mục lục "Trong bài này" hoặc Ngăn 3 tab (Sổ tay / Highlight / Thẻ ghi nhớ)
+```
 
-----------------------------------------------------------------------------------------------------
-
-🛠️ CHI TIẾT NHÁNH 3: TÁC GIẢ SOẠN & BIÊN TẬP KHÓA HỌC (Course Studio Flow)
-└── Bấm "Mở trong Studio" hoặc sau khi tạo khóa học mới
-     │
-     ▼ Mở Studio Biên tập Khóa học (Course Studio)
-     ├── THANH CÔNG CỤ TRÊN:
-     │    ├── Tên khóa học & Mô tả
-     │    ├── Công tắc: [Bản nháp ⟷ Công khai] (Draft / Public)
-     │    ├── 🔗 Nút "Sao chép liên kết chia sẻ" (Gửi cho học viên vào học)
-     │    └── 💾 Nút "Xuất gói SWM ZIP" (Tải trọn bộ về máy để lưu trữ)
-     │
-     ├── CỘT TRÁI: Trình thiết kế Cây Đề cương (Curriculum Tree Builder) [✅ ĐÃ HIỆN HỮU & KIỂM CHỨNG]
-     │    ├── Nút "+ Thêm Chương mới" [✅]
-     │    ├── Nút "+ Thêm Bài giảng mới" [✅]
-     │    └── Thao tác trên từng mục: Đổi tên [✅] | Xóa chương/bài [✅] | Kéo thả sắp xếp [⏳ LỘ TRÌNH V2.4]
-     │
-     └── CỘT PHẢI: Trình soạn thảo Nội dung Bài đang chọn [✅ ĐÃ HIỆN HỮU & KIỂM CHỨNG]
-          ├── Nhập tiêu đề bài giảng & Thời lượng học (phút) [✅]
-          ├── Ô dán link Video bài giảng (Tự động hiển thị khung xem trước Video) [✅]
-          ├── Trình soạn thảo văn bản Markdown (Soạn bên trái - Xem trước trực tiếp bên phải) [✅]
-          ├── Chọn trang tài liệu PDF tham chiếu [⏳ LỘ TRÌNH V2.4]
-          └── Thêm câu hỏi trắc nghiệm Mini Quiz cho riêng bài học đó [⏳ LỘ TRÌNH V2.4]
 ```

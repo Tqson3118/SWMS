@@ -1,0 +1,1830 @@
+
+ SET | Docs
+ {"acl_categories":["@write","@string","@slow"],"arguments":[{"display_text":"key","key_spec_index":0,"name":"key","type":"key"},{"display_text":"value","name":"value","type":"string"},{"arguments":[{"display_text":"nx","name":"nx","token":"NX","type":"pure-token"},{"display_text":"xx","name":"xx","token":"XX","type":"pure-token"},{"display_text":"ifeq-value","name":"ifeq-value","since":"8.4.0","token":"IFEQ","type":"string"},{"display_text":"ifne-value","name":"ifne-value","since":"8.4.0","token":"IFNE","type":"string"},{"display_text":"ifdeq-digest","name":"ifdeq-digest","since":"8.4.0","token":"IFDEQ","type":"string"},{"display_text":"ifdne-digest","name":"ifdne-digest","since":"8.4.0","token":"IFDNE","type":"string"}],"name":"condition","optional":true,"since":"2.6.12","type":"oneof"},{"display_text":"get","name":"get","optional":true,"since":"6.2.0","token":"GET","type":"pure-token"},{"arguments":[{"display_text":"seconds","name":"seconds","since":"2.6.12","token":"EX","type":"integer"},{"display_text":"milliseconds","name":"milliseconds","since":"2.6.12","token":"PX","type":"integer"},{"display_text":"unix-time-seconds","name":"unix-time-seconds","since":"6.2.0","token":"EXAT","type":"unix-time"},{"display_text":"unix-time-milliseconds","name":"unix-time-milliseconds","since":"6.2.0","token":"PXAT","type":"unix-time"},{"display_text":"keepttl","name":"keepttl","since":"6.0.0","token":"KEEPTTL","type":"pure-token"}],"name":"expiration","optional":true,"type":"oneof"}],"arity":-3,"categories":["docs","develop","stack","oss","rs","rc","oss","kubernetes","clients"],"command_flags":["write","denyoom"],"complexity":"O(1)","description":"Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.","duplicateOf":"head:data-ai-metadata","group":"string","key_specs":[{"RW":true,"access":true,"begin_search":{"spec":{"index":1},"type":"index"},"find_keys":{"spec":{"keystep":1,"lastkey":0,"limit":0},"type":"range"},"notes":"RW and ACCESS due to the optional `GET` argument","update":true,"variable_flags":true}],"location":"body","since":"1.0.0","syntax_fmt":"SET key value [NX | XX | IFEQ ifeq-value | IFNE ifne-value |\n IFDEQ ifdeq-digest | IFDNE ifdne-digest] [GET] [EX seconds |\n PX milliseconds | EXAT unix-time-seconds |\n PXAT unix-time-milliseconds | KEEPTTL]","title":"SET","tableOfContents":{"sections":[]},"codeExamples":[{"codetabsId":"set_and_get-stepset","commands":[{"acl_categories":["@write","@string","@slow"],"complexity":"O(1)","name":"SET"},{"acl_categories":["@read","@string","@fast"],"complexity":"O(1)","name":"GET"}],"description":"Foundational: Set the string value of a key using SET (creates key if needed, overwrites existing value, supports expiration options)","difficulty":"beginner","id":"set","languages":[{"id":"redis-cli","panelId":"panel_redis-cli_set_and_get-stepset"},{"clientId":"redis-py","clientName":"redis-py","id":"Python","langId":"python","panelId":"panel_Python_set_and_get-stepset"},{"id":"Node-js","panelId":"panel_Nodejs_set_and_get-stepset"},{"clientId":"ioredis","clientName":"ioredis","id":"ioredis","langId":"javascript","panelId":"panel_ioredis_set_and_get-stepset"},{"clientId":"jedis","clientName":"Jedis","id":"Java-Sync","langId":"java","panelId":"panel_Java-Sync_set_and_get-stepset"},{"clientId":"lettuce","clientName":"Lettuce","id":"Java-Async","langId":"java","panelId":"panel_Java-Async_set_and_get-stepset"},{"clientId":"lettuce","clientName":"Lettuce","id":"Java-Reactive","langId":"java","panelId":"panel_Java-Reactive_set_and_get-stepset"},{"clientId":"go-redis","clientName":"go-redis","id":"Go","langId":"go","panelId":"panel_Go_set_and_get-stepset"},{"id":"dotnet-Sync (SE-Redis)","panelId":"panel_Csharp-Sync (SERedis)_set_and_get-stepset"},{"clientId":"predis","clientName":"Predis","id":"PHP","langId":"php","panelId":"panel_PHP_set_and_get-stepset"},{"clientId":"redis-rb","clientName":"redis-rb","id":"Ruby","langId":"ruby","panelId":"panel_Ruby_set_and_get-stepset"},{"clientId":"redis-rs","clientName":"redis-rs","id":"Rust-Sync","langId":"rust","panelId":"panel_Rust-Sync_set_and_get-stepset"},{"clientId":"redis-rs","clientName":"redis-rs","id":"Rust-Async","langId":"rust","panelId":"panel_Rust-Async_set_and_get-stepset"}]}]}
+ AI agent builder
+ Redis install
+ Data types
+ Tools
+ Community
+ Docs
+ Search
+ Login
+ Sign up
+ Open search
+ Open main menu
+ AI agent builder
+ Redis install
+ Data types
+ Tools
+ Community
+ Docs
+Sign up
+ Login
+ Develop with Redis
+ Libraries and tools
+ Redis products
+ Commands
+ Redis 8.10 Commands
+ Redis 8.8 Commands
+ Redis 8.6 Commands
+ Redis 8.4 Commands
+ Redis 8.2 Commands
+ Redis 8.0 Commands
+ Redis 7.4 Commands
+ Redis 7.2 Commands
+ Redis 6.2 Commands
+ ACL CAT
+ ACL DELUSER
+ ACL DRYRUN
+ ACL GENPASS
+ ACL GETUSER
+ ACL LIST
+ ACL LOAD
+ ACL LOG
+ ACL SAVE
+ ACL SETUSER
+ ACL USERS
+ ACL WHOAMI
+ APPEND
+ ARCOUNT
+ ARDEL
+ ARDELRANGE
+ ARGET
+ ARGETRANGE
+ ARGREP
+ ARINFO
+ ARINSERT
+ ARLASTITEMS
+ ARLEN
+ ARMGET
+ ARMSET
+ ARNEXT
+ AROP
+ ARRING
+ ARSCAN
+ ARSEEK
+ ARSET
+ ASKING
+ AUTH
+ BACKUP ABORT
+ BACKUP CLEANUP
+ BACKUP LIST
+ BACKUP SEAL
+ BACKUP START
+ BACKUP STATUS
+ BF.ADD
+ BF.CARD
+ BF.EXISTS
+ BF.INFO
+ BF.INSERT
+ BF.LOADCHUNK
+ BF.MADD
+ BF.MEXISTS
+ BF.RESERVE
+ BF.SCANDUMP
+ BGREWRITEAOF
+ BGSAVE
+ BITCOUNT
+ BITFIELD
+ BITFIELD_RO
+ BITOP
+ BITPOS
+ BLMOVE
+ BLMOVEM
+ BLMPOP
+ BLPOP
+ BRPOP
+ BRPOPLPUSH
+ BZMPOP
+ BZPOPMAX
+ BZPOPMIN
+ CF.ADD
+ CF.ADDNX
+ CF.COUNT
+ CF.DEL
+ CF.EXISTS
+ CF.INFO
+ CF.INSERT
+ CF.INSERTNX
+ CF.LOADCHUNK
+ CF.MEXISTS
+ CF.RESERVE
+ CF.SCANDUMP
+ CLIENT CACHING
+ CLIENT GETNAME
+ CLIENT GETREDIR
+ CLIENT ID
+ CLIENT INFO
+ CLIENT KILL
+ CLIENT LIST
+ CLIENT NO-EVICT
+ CLIENT NO-TOUCH
+ CLIENT PAUSE
+ CLIENT REPLY
+ CLIENT SETINFO
+ CLIENT SETNAME
+ CLIENT TRACKING
+ CLIENT TRACKINGINFO
+ CLIENT UNBLOCK
+ CLIENT UNPAUSE
+ CLUSTER ADDSLOTS
+ CLUSTER ADDSLOTSRANGE
+ CLUSTER BUMPEPOCH
+ CLUSTER COUNT-FAILURE-REPORTS
+ CLUSTER COUNTKEYSINSLOT
+ CLUSTER DELSLOTS
+ CLUSTER DELSLOTSRANGE
+ CLUSTER FAILOVER
+ CLUSTER FLUSHSLOTS
+ CLUSTER FORGET
+ CLUSTER GETKEYSINSLOT
+ CLUSTER INFO
+ CLUSTER KEYSLOT
+ CLUSTER LINKS
+ CLUSTER MEET
+ CLUSTER MIGRATION
+ CLUSTER MYID
+ CLUSTER MYSHARDID
+ CLUSTER NODES
+ CLUSTER REPLICAS
+ CLUSTER REPLICATE
+ CLUSTER RESET
+ CLUSTER SAVECONFIG
+ CLUSTER SET-CONFIG-EPOCH
+ CLUSTER SETSLOT
+ CLUSTER SHARDS
+ CLUSTER SLAVES
+ CLUSTER SLOT-STATS
+ CLUSTER SLOTS
+ CMS.INCRBY
+ CMS.INFO
+ CMS.INITBYDIM
+ CMS.INITBYPROB
+ CMS.MERGE
+ CMS.QUERY
+ COMMAND
+ COMMAND COUNT
+ COMMAND DOCS
+ COMMAND GETKEYS
+ COMMAND GETKEYSANDFLAGS
+ COMMAND INFO
+ COMMAND LIST
+ CONFIG GET
+ CONFIG RESETSTAT
+ CONFIG REWRITE
+ CONFIG SET
+ COPY
+ DBSIZE
+ DECR
+ DECRBY
+ DEL
+ DELEX
+ DIGEST
+ DISCARD
+ DUMP
+ ECHO
+ EVAL
+ EVAL_RO
+ EVALSHA
+ EVALSHA_RO
+ EXEC
+ EXISTS
+ EXPIRE
+ EXPIREAT
+ EXPIRETIME
+ FAILOVER
+ FCALL
+ FCALL_RO
+ FLUSHALL
+ FLUSHDB
+ FT._LIST
+ FT.AGGREGATE
+ FT.ALIASADD
+ FT.ALIASDEL
+ FT.ALIASLIST
+ FT.ALIASUPDATE
+ FT.ALTER
+ FT.CONFIG GET
+ FT.CONFIG SET
+ FT.CREATE
+ FT.CURSOR DEL
+ FT.CURSOR READ
+ FT.DICTADD
+ FT.DICTDEL
+ FT.DICTDUMP
+ FT.DROPINDEX
+ FT.EXPLAIN
+ FT.EXPLAINCLI
+ FT.HYBRID
+ FT.INFO
+ FT.PROFILE
+ FT.SEARCH
+ FT.SPELLCHECK
+ FT.SUGADD
+ FT.SUGDEL
+ FT.SUGGET
+ FT.SUGLEN
+ FT.SYNDUMP
+ FT.SYNUPDATE
+ FT.TAGVALS
+ FUNCTION DELETE
+ FUNCTION DUMP
+ FUNCTION FLUSH
+ FUNCTION KILL
+ FUNCTION LIST
+ FUNCTION LOAD
+ FUNCTION RESTORE
+ FUNCTION STATS
+ GEOADD
+ GEODIST
+ GEOHASH
+ GEOPOS
+ GEORADIUS
+ GEORADIUS_RO
+ GEORADIUSBYMEMBER
+ GEORADIUSBYMEMBER_RO
+ GEOSEARCH
+ GEOSEARCHSTORE
+ GET
+ GETBIT
+ GETDEL
+ GETEX
+ GETRANGE
+ GETSET
+ HDEL
+ HELLO
+ HEXISTS
+ HEXPIRE
+ HEXPIREAT
+ HEXPIRETIME
+ HGET
+ HGETALL
+ HGETDEL
+ HGETEX
+ HIMPORT
+ HIMPORT DISCARD
+ HIMPORT DISCARDALL
+ HIMPORT PREPARE
+ HIMPORT SET
+ HINCRBY
+ HINCRBYFLOAT
+ HKEYS
+ HLEN
+ HMGET
+ HMSET
+ HOTKEYS
+ HOTKEYS GET
+ HOTKEYS RESET
+ HOTKEYS START
+ HOTKEYS STOP
+ HPERSIST
+ HPEXPIRE
+ HPEXPIREAT
+ HPEXPIRETIME
+ HPTTL
+ HRANDFIELD
+ HSCAN
+ HSET
+ HSETEX
+ HSETNX
+ HSTRLEN
+ HTTL
+ HVALS
+ INCR
+ INCRBY
+ INCRBYFLOAT
+ INCREX
+ INFO
+ JSON.ARRAPPEND
+ JSON.ARRINDEX
+ JSON.ARRINSERT
+ JSON.ARRLEN
+ JSON.ARRPOP
+ JSON.ARRTRIM
+ JSON.CLEAR
+ JSON.DEBUG
+ JSON.DEBUG MEMORY
+ JSON.DEL
+ JSON.FORGET
+ JSON.GET
+ JSON.MERGE
+ JSON.MGET
+ JSON.MSET
+ JSON.NUMINCRBY
+ JSON.NUMMULTBY
+ JSON.OBJKEYS
+ JSON.OBJLEN
+ JSON.RESP
+ JSON.SET
+ JSON.STRAPPEND
+ JSON.STRLEN
+ JSON.TOGGLE
+ JSON.TYPE
+ KEYS
+ LASTSAVE
+ LATENCY DOCTOR
+ LATENCY GRAPH
+ LATENCY HISTOGRAM
+ LATENCY HISTORY
+ LATENCY LATEST
+ LATENCY RESET
+ LCS
+ LINDEX
+ LINSERT
+ LLEN
+ LMOVE
+ LMOVEM
+ LMPOP
+ LOLWUT
+ LPOP
+ LPOS
+ LPUSH
+ LPUSHX
+ LRANGE
+ LREM
+ LSET
+ LTRIM
+ MEMORY DOCTOR
+ MEMORY MALLOC-STATS
+ MEMORY PURGE
+ MEMORY STATS
+ MEMORY USAGE
+ MGET
+ MIGRATE
+ MODULE LIST
+ MODULE LOAD
+ MODULE LOADEX
+ MODULE UNLOAD
+ MONITOR
+ MOVE
+ MSET
+ MSETEX
+ MSETNX
+ MULTI
+ OBJECT ENCODING
+ OBJECT FREQ
+ OBJECT IDLETIME
+ OBJECT REFCOUNT
+ PERSIST
+ PEXPIRE
+ PEXPIREAT
+ PEXPIRETIME
+ PFADD
+ PFCOUNT
+ PFDEBUG
+ PFMERGE
+ PFSELFTEST
+ PING
+ PSETEX
+ PSUBSCRIBE
+ PSYNC
+ PTTL
+ PUBLISH
+ PUBSUB CHANNELS
+ PUBSUB NUMPAT
+ PUBSUB NUMSUB
+ PUBSUB SHARDCHANNELS
+ PUBSUB SHARDNUMSUB
+ PUNSUBSCRIBE
+ QUIT
+ RANDOMKEY
+ READONLY
+ READWRITE
+ RENAME
+ RENAMENX
+ REPLCONF
+ REPLICAOF
+ RESET
+ RESTORE
+ RESTORE-ASKING
+ ROLE
+ RPOP
+ RPOPLPUSH
+ RPUSH
+ RPUSHX
+ SADD
+ SAVE
+ SCAN
+ SCARD
+ SCRIPT DEBUG
+ SCRIPT EXISTS
+ SCRIPT FLUSH
+ SCRIPT KILL
+ SCRIPT LOAD
+ SDIFF
+ SDIFFCARD
+ SDIFFSTORE
+ SELECT
+ SET
+ SETBIT
+ SETEX
+ SETNX
+ SETRANGE
+ SHUTDOWN
+ SINTER
+ SINTERCARD
+ SINTERSTORE
+ SISMEMBER
+ SLAVEOF
+ SLOWLOG GET
+ SLOWLOG LEN
+ SLOWLOG RESET
+ SMEMBERS
+ SMISMEMBER
+ SMOVE
+ SORT
+ SORT_RO
+ SPOP
+ SPUBLISH
+ SRANDMEMBER
+ SREM
+ SSCAN
+ SSUBSCRIBE
+ STRLEN
+ SUBSCRIBE
+ SUBSTR
+ SUNION
+ SUNIONCARD
+ SUNIONSTORE
+ SUNSUBSCRIBE
+ SWAPDB
+ SYNC
+ TDIGEST.ADD
+ TDIGEST.BYRANK
+ TDIGEST.BYREVRANK
+ TDIGEST.CDF
+ TDIGEST.CREATE
+ TDIGEST.INFO
+ TDIGEST.MAX
+ TDIGEST.MERGE
+ TDIGEST.MIN
+ TDIGEST.QUANTILE
+ TDIGEST.RANK
+ TDIGEST.RESET
+ TDIGEST.REVRANK
+ TDIGEST.TRIMMED_MEAN
+ TIME
+ TOPK.ADD
+ TOPK.COUNT
+ TOPK.INCRBY
+ TOPK.INFO
+ TOPK.LIST
+ TOPK.QUERY
+ TOPK.RESERVE
+ TOUCH
+ TS.ADD
+ TS.ALTER
+ TS.CREATE
+ TS.CREATERULE
+ TS.DECRBY
+ TS.DEL
+ TS.DELETERULE
+ TS.GET
+ TS.INCRBY
+ TS.INFO
+ TS.MADD
+ TS.MGET
+ TS.MRANGE
+ TS.MREVRANGE
+ TS.NRANGE
+ TS.NREVRANGE
+ TS.QUERYINDEX
+ TS.QUERYLABELS
+ TS.RANGE
+ TS.READ
+ TS.REVRANGE
+ TTL
+ TYPE
+ UNLINK
+ UNSUBSCRIBE
+ UNWATCH
+ VADD
+ VCARD
+ VDIM
+ VEMB
+ VGETATTR
+ VINFO
+ VISMEMBER
+ VLINKS
+ VRANDMEMBER
+ VRANGE
+ VREM
+ VSETATTR
+ VSIM
+ WAIT
+ WAITAOF
+ WATCH
+ XACK
+ XACKDEL
+ XADD
+ XAUTOCLAIM
+ XCFGSET
+ XCLAIM
+ XDEL
+ XDELEX
+ XGROUP CREATE
+ XGROUP CREATECONSUMER
+ XGROUP DELCONSUMER
+ XGROUP DESTROY
+ XGROUP SETID
+ XIDMPRECORD
+ XINFO CONSUMERS
+ XINFO GROUPS
+ XINFO STREAM
+ XLEN
+ XNACK
+ XPENDING
+ XRANGE
+ XREAD
+ XREADGROUP
+ XREVRANGE
+ XSETID
+ XTRIM
+ ZADD
+ ZCARD
+ ZCOUNT
+ ZDIFF
+ ZDIFFSTORE
+ ZINCRBY
+ ZINTER
+ ZINTERCARD
+ ZINTERSTORE
+ ZLEXCOUNT
+ ZMPOP
+ ZMSCORE
+ ZPOPMAX
+ ZPOPMIN
+ ZRANDMEMBER
+ ZRANGE
+ ZRANGEBYLEX
+ ZRANGEBYSCORE
+ ZRANGESTORE
+ ZRANK
+ ZREM
+ ZREMRANGEBYLEX
+ ZREMRANGEBYRANK
+ ZREMRANGEBYSCORE
+ ZREVRANGE
+ ZREVRANGEBYLEX
+ ZREVRANGEBYSCORE
+ ZREVRANK
+ ZSCAN
+ ZSCORE
+ ZUNION
+ ZUNIONSTORE
+ Download documentation
+ Download documentation
+ Choose the products and versions you want. Everything arrives as one
+ .tar.gz, with a directory per product.
+ Format
+ Markdown — one .md file per page
+ Markdown, single file — every page in one .md file
+ HTML — browse offline
+ JSON — one .json file per page
+ This page
+ Download
+ Products
+ Version
+ Develop with Redis
+ Clients, data types, programmability, and Redis for AI. RedisVL is listed separately.
+ Libraries and tools
+ Client libraries, observability, and cloud integrations. Redis Data Integration is listed separately.
+ RedisVL
+ latest
+ v0.27.1
+ v0.27.0
+ v0.26.0
+ v0.25.1
+ v0.25.0
+ v0.24.0
+ v0.23.0
+ v0.22.0
+ v0.20.1
+ v0.20.0
+ v0.19.0
+ v0.18.2
+ v0.18.1
+ v0.18.0
+ v0.17.1
+ v0.17.0
+ v0.16.0
+ v0.15.0
+ v0.14.0
+ v0.13.2
+ v0.13.0
+ v0.12.1
+ v0.12.0
+ v0.11.1
+ v0.11.0
+ v0.10.0
+ v0.9.1
+ v0.9.0
+ v0.8.2
+ v0.8.1
+ v0.8.0
+ v0.7.0
+ v0.6.0
+ Redis Software
+ latest
+ v8.0
+ v7.22
+ v7.8
+ v7.4
+ Redis Cloud
+ Redis for Kubernetes
+ latest
+ v8.0.18
+ v8.0
+ v7.22
+ v7.8.6
+ v7.8.4
+ v7.4.6
+ Redis Open Source
+ Redis Iris context engine
+ Redis Feature Form
+ Redis Insight
+ Redis Data Integration
+ latest
+ v1.19.1
+ Glossary
+ Command reference
+ Cancel
+ Download
+ Docs
+ Docs
+ →
+ Commands
+ →
+ SET
+ SET
+ Syntax text
+ Syntax diagram
+ API methods
+SET key value [NX | XX | IFEQ ifeq-value | IFNE ifne-value |
+ IFDEQ ifdeq-digest | IFDNE ifdne-digest] [GET] [EX seconds |
+ PX milliseconds | EXAT unix-time-seconds |
+ PXAT unix-time-milliseconds | KEEPTTL]
+ Client:
+ Python (redis-py)
+ Node.js (node-redis)
+ Java-Sync (Jedis)
+ Lettuce-Sync
+ Java-Async (Lettuce)
+ Java-Reactive (Lettuce)
+ Go (go-redis)
+ C#-Sync (NRedisStack)
+ C#-Async (NRedisStack)
+ PHP (Predis)
+ Rust-Sync (redis-rs)
+ Rust-Async (redis-rs)
+set(
+ name: KeyT,
+ value: EncodableT,
+ ex: Optional[ExpiryT] = None,
+ px: Optional[ExpiryT] = None,
+ nx: bool = False,
+ xx: bool = False,
+ keepttl: bool = False,
+ get: bool = False,
+ exat: Optional[AbsExpiryT] = None,
+ pxat: Optional[AbsExpiryT] = None,
+ ifeq: Optional[Union[bytes, str]] = None,
+ ifne: Optional[Union[bytes, str]] = None,
+ ifdeq: Optional[str] = None,
+ ifdne: Optional[str] = None
+) → ResponseT
+SET(
+ key: RedisArgument,
+ value: RedisArgument | number,
+ options?: SetOptions
+) → Any
+set(
+ key: byte[],
+ value: byte[]
+) → String // simple-string-reply OK if SET was executed correctly, or null if the SET operation was not performed because the user specified the NX or XX option but the condition was not met.
+set(
+ key: byte[],
+ value: byte[],
+ params: SetParams // key if it already exists. EX|PX, expire time units: EX = seconds; PX = milliseconds
+) → String // simple-string-reply OK if SET was executed correctly, or null if the SET operation was not performed because the user specified the NX or XX option but the condition was not met.
+set(
+ key: String,
+ value: String
+) → String // simple-string-reply OK if SET was executed correctly, or null if the SET operation was not performed because the user specified the NX or XX option but the condition was not met.
+set(
+ key: String,
+ value: String,
+ params: SetParams // key if it already exists. EX|PX, expire time units: EX = seconds; PX = milliseconds
+) → String // simple-string-reply OK if SET was executed correctly, or null if the SET operation was not performed because the user specified the NX or XX option but the condition was not met.
+set(
+ key: K, // the key.
+ value: V // the value.
+) → String // String simple-string-reply OK if SET was executed correctly.
+set(
+ key: K, // the key.
+ value: V, // the value.
+ setArgs: SetArgs // the setArgs.
+) → String // String simple-string-reply OK if SET was executed correctly.
+set(
+ key: K, // the key.
+ value: V // the value.
+) → RedisFuture<String> // String simple-string-reply OK if SET was executed correctly.
+set(
+ key: K, // the key.
+ value: V, // the value.
+ setArgs: SetArgs // the setArgs.
+) → RedisFuture<String> // String simple-string-reply OK if SET was executed correctly.
+set(
+ key: K, // the key.
+ value: V // the value.
+) → Mono<String> // String simple-string-reply OK if SET was executed correctly.
+set(
+ key: K, // the key.
+ value: V, // the value.
+ setArgs: SetArgs // the setArgs.
+) → Mono<String> // String simple-string-reply OK if SET was executed correctly.
+Set(
+ ctx: context.Context,
+ key: string,
+ value: interface{},
+ expiration: time.Duration
+) → *StatusCmd
+StringSet(
+ key: RedisKey,
+ value: RedisValue,
+ expiry: TimeSpan?, // The expiry to set.
+ when: When // Which condition to set the value under (defaults to always).
+) → bool // true if the keys were set, false otherwise.
+StringSet(
+ key: RedisKey,
+ value: RedisValue,
+ expiry: TimeSpan?, // The expiry to set.
+ when: When, // Which condition to set the value under (defaults to always).
+ flags: CommandFlags // The flags to use for this operation.
+) → bool // true if the keys were set, false otherwise.
+StringSet(
+ key: RedisKey,
+ value: RedisValue,
+ expiry: TimeSpan?, // The expiry to set.
+ keepTtl: bool,
+ when: When, // Which condition to set the value under (defaults to always).
+ flags: CommandFlags // The flags to use for this operation.
+) → bool // true if the keys were set, false otherwise.
+StringSet(
+ key: RedisKey,
+ value: RedisValue,
+ expiry: Expiration, // The expiry to set.
+ when: ValueCondition, // Which condition to set the value under (defaults to always).
+ flags: CommandFlags // The flags to use for this operation.
+) → bool // true if the keys were set, false otherwise.
+StringSet(
+ values: KeyValuePair<RedisKey, RedisValue>[], // The keys and values to set.
+ when: When, // Which condition to set the value under (defaults to always).
+ flags: CommandFlags // The flags to use for this operation.
+) → bool // true if the keys were set, false otherwise.
+StringSet(
+ key: RedisKey,
+ value: RedisValue,
+ expiry: TimeSpan?, // The expiry to set.
+ when: When // Which condition to set the value under (defaults to always).
+) → bool // true if the keys were set, false otherwise.
+StringSet(
+ key: RedisKey,
+ value: RedisValue,
+ expiry: TimeSpan?, // The expiry to set.
+ when: When, // Which condition to set the value under (defaults to always).
+ flags: CommandFlags // The flags to use for this operation.
+) → bool // true if the keys were set, false otherwise.
+StringSet(
+ key: RedisKey,
+ value: RedisValue,
+ expiry: TimeSpan?, // The expiry to set.
+ keepTtl: bool,
+ when: When, // Which condition to set the value under (defaults to always).
+ flags: CommandFlags // The flags to use for this operation.
+) → bool // true if the keys were set, false otherwise.
+StringSet(
+ key: RedisKey,
+ value: RedisValue,
+ expiry: Expiration, // The expiry to set.
+ when: ValueCondition, // Which condition to set the value under (defaults to always).
+ flags: CommandFlags // The flags to use for this operation.
+) → bool // true if the keys were set, false otherwise.
+StringSet(
+ values: KeyValuePair<RedisKey, RedisValue>[], // The keys and values to set.
+ when: When, // Which condition to set the value under (defaults to always).
+ flags: CommandFlags // The flags to use for this operation.
+) → bool // true if the keys were set, false otherwise.
+set(
+ $key: string,
+ $value: Any,
+ $expireResolution = null: Any,
+ $expireTTL = null: Any,
+ $flag = null: Any,
+ $flagValue = null: Any
+) → Status|null
+set(
+ key: K,
+ value: V
+) → (())
+set(
+ key: K,
+ value: V
+) → (())
+ Available since:
+ Redis Open Source 1.0.0
+ Time complexity:
+ O(1)
+ ACL categories:
+ @write,
+ @string,
+ @slow,
+ Compatibility:
+ Redis Software and Redis Cloud compatibility
+Set key to hold the string value.
+If key already holds a value, it is overwritten, regardless of its type.
+Any previous time to live associated with the key is discarded on successful SET operation.
+ Required arguments
+key
+The name of the key.
+value
+The string value to set.
+ Optional arguments
+The following options modify the command's behavior. The condition options (NX, XX, IFEQ, IFNE, IFDEQ, IFDNE) are mutually exclusive, as are the expiration options (EX, PX, EXAT, PXAT, KEEPTTL).
+NX
+Only set the key if it does not already exist.
+XX
+Only set the key if it already exists.
+IFEQ ifeq-value
+Set the key's value and expiration only if its current value is equal to ifeq-value. If the key doesn't exist, it won't be created.
+IFNE ifne-value
+Set the key's value and expiration only if its current value is not equal to ifne-value. If the key doesn't exist, it will be created.
+IFDEQ ifdeq-digest
+Set the key's value and expiration only if the hash digest of its current value is equal to ifdeq-digest. If the key doesn't exist, it won't be created. See the Hash Digest section below for more information.
+IFDNE ifdne-digest
+Set the key's value and expiration only if the hash digest of its current value is not equal to ifdne-digest. If the key doesn't exist, it will be created. See the Hash Digest section below for more information.
+GET
+Return the old string stored at the key, or nil if the key did not exist. An error is returned and SET is aborted if the value stored at the key is not a string.
+EX seconds
+Set the specified expire time, in seconds (a positive integer).
+PX milliseconds
+Set the specified expire time, in milliseconds (a positive integer).
+EXAT unix-time-seconds
+Set the specified Unix time at which the key will expire, in seconds (a positive integer).
+PXAT unix-time-milliseconds
+Set the specified Unix time at which the key will expire, in milliseconds (a positive integer).
+KEEPTTL
+Retain the time to live associated with the key.
+Note: Since the SET command options can replace SETNX, SETEX, PSETEX, GETSET, it is possible that in future versions of Redis these commands will be deprecated and finally removed.
+ Examples
+ Language:
+ >_ Redis CLI
+ Python
+ JavaScript (node-redis)
+ JavaScript (ioredis)
+ Java-Sync
+ Java-Async
+ Java-Reactive
+ Go
+ C#-Sync (SE.Redis)
+ PHP
+ Ruby
+ Rust-Sync
+ Rust-Async
+ Try it
+ Show full output
+ Copied!
+ Copied!
+ Foundational: Set the string value of a key using SET (creates key if needed, overwrites existing value, supports expiration options)
+> SET mykey "Hello"
+OK
+> GET mykey
+"Hello"
+> SET anotherkey "will expire in a minute" EX 60
+OK
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ Redis CLI guide
+ Also, check out our other client tools
+ Redis Insight
+ and
+ Redis for VS Code.
+"""
+Code samples for data structure store quickstart pages:
+ https://redis.io/docs/latest/develop/get-started/data-store/
+"""
+import redis
+r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+res = r.set("bike:1", "Process 134")
+print(res)
+# >>> True
+res = r.get("bike:1")
+print(res)
+# >>> "Process 134"
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ ▶
+ Method
+ set(
+ name: KeyT,
+ value: EncodableT,
+ ex: Optional[ExpiryT] = None,
+ px: Optional[ExpiryT] = None,
+ nx: bool = False,
+ xx: bool = False,
+ keepttl: bool = False,
+ get: bool = False,
+ exat: Optional[AbsExpiryT] = None,
+ pxat: Optional[AbsExpiryT] = None,
+ ifeq: Optional[Union[bytes, str]] = None,
+ ifne: Optional[Union[bytes, str]] = None,
+ ifdeq: Optional[str] = None,
+ ifdne: Optional[str] = None
+ ) → 
+ ResponseT
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ ▶
+ Method
+ get(
+ name: KeyT
+ ) → 
+ ResponseT
+ Python Quick-Start
+import { createClient } from 'redis';
+const client = createClient();
+client.on('error', err => console.log('Redis Client Error', err));
+await client.connect().catch(console.error);
+await client.set('bike:1', 'Process 134');
+const value = await client.get('bike:1');
+console.log(value);
+// returns 'Process 134'
+await client.close();
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ ▶
+ Method
+ SET(
+ key: RedisArgument,
+ value: RedisArgument | number,
+ options?: SetOptions
+ ) → 
+ Any
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ ▶
+ Method
+ GET(
+ key: RedisArgument
+ ) → 
+ Any
+ Node.js Quick-Start
+import assert from 'node:assert';
+import { Redis } from 'ioredis';
+const redis = new Redis();
+const res1 = await redis.set('bike:1', 'Process 134');
+console.log(res1); // >>> OK
+const res2 = await redis.get('bike:1');
+console.log(res2); // >>> Process 134
+redis.disconnect();
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ ▶
+ Methods
+ set(
+ key: RedisKey,
+ value: string | Buffer | number,
+ callback?: Callback<"OK">
+ ) → 
+ Any
+ set(
+ key: RedisKey,
+ value: string | Buffer | number,
+ get: "GET",
+ callback?: Callback<string | null>
+ ) → 
+ Any
+ set(
+ key: RedisKey,
+ value: string | Buffer | number,
+ nx: "NX",
+ callback?: Callback<"OK" | null>
+ ) → 
+ Any
+ set(
+ key: RedisKey,
+ value: string | Buffer | number,
+ nx: "NX",
+ get: "GET",
+ callback?: Callback<string | null>
+ ) → 
+ Any
+ set(
+ key: RedisKey,
+ value: string | Buffer | number,
+ xx: "XX",
+ callback?: Callback<"OK" | null>
+ ) → 
+ Any
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ ▶
+ Method
+ get(
+ key: RedisKey,
+ callback?: Callback<string | null>
+ ) → 
+ Any
+ ioredis Quick-Start
+package io.redis.examples;
+import redis.clients.jedis.RedisClient;
+public class SetGetExample {
+ public void run() {
+ RedisClient jedis = RedisClient.create("redis://localhost:6379");
+ String status = jedis.set("bike:1", "Process 134");
+ if ("OK".equals(status)) System.out.println("Successfully added a bike.");
+ String value = jedis.get("bike:1");
+ if (value != null) System.out.println("The name of the bike is: " + value + ".");
+ jedis.close();
+ }
+}
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ ▶
+ Methods
+ set(
+ key: byte[],
+ value: byte[]
+ ) → 
+ String // simple-string-reply OK if SET was executed correctly, or null if the SET operation was not performed because the user specified the NX or XX option but the condition was not met.
+ set(
+ key: byte[],
+ value: byte[],
+ params: SetParams // key if it already exists. EX|PX, expire time units: EX = seconds; PX = milliseconds
+ ) → 
+ String // simple-string-reply OK if SET was executed correctly, or null if the SET operation was not performed because the user specified the NX or XX option but the condition was not met.
+ set(
+ key: String,
+ value: String
+ ) → 
+ String // simple-string-reply OK if SET was executed correctly, or null if the SET operation was not performed because the user specified the NX or XX option but the condition was not met.
+ set(
+ key: String,
+ value: String,
+ params: SetParams // key if it already exists. EX|PX, expire time units: EX = seconds; PX = milliseconds
+ ) → 
+ String // simple-string-reply OK if SET was executed correctly, or null if the SET operation was not performed because the user specified the NX or XX option but the condition was not met.
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ ▶
+ Method
+ get(
+ key: String
+ ) → 
+ String // Bulk reply
+ Java-Sync Quick-Start
+package io.redis.examples.async;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.async.RedisAsyncCommands;
+import io.lettuce.core.api.StatefulRedisConnection;
+import java.util.concurrent.CompletableFuture;
+public class SetGetExample {
+ public void run() {
+ RedisClient redisClient = RedisClient.create("redis://localhost:6379");
+ try (StatefulRedisConnection<String, String> connection = redisClient.connect()) {
+ RedisAsyncCommands<String, String> asyncCommands = connection.async();
+ CompletableFuture<Void> setGetExample = asyncCommands.set("bike:1", "Process 134")
+ .thenCompose(res1 -> {
+ System.out.println(res1); // >>> OK
+ return asyncCommands.get("bike:1");
+ }).thenAccept(res2 -> {
+ System.out.println(res2); // >>> Process 134
+ }).toCompletableFuture();
+ setGetExample.join();
+ } finally {
+ redisClient.shutdown();
+ }
+ }
+}
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ ▶
+ Methods
+ set(
+ key: K, // the key.
+ value: V // the value.
+ ) → 
+ RedisFuture<String> // String simple-string-reply OK if SET was executed correctly.
+ set(
+ key: K, // the key.
+ value: V, // the value.
+ setArgs: SetArgs // the setArgs.
+ ) → 
+ RedisFuture<String> // String simple-string-reply OK if SET was executed correctly.
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ ▶
+ Method
+ get(
+ key: K // the key.
+ ) → 
+ RedisFuture<V> // V bulk-string-reply the value of key, or null when key does not exist.
+ Java-Async Quick-Start
+package io.redis.examples.reactive;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.reactive.RedisReactiveCommands;
+import io.lettuce.core.api.StatefulRedisConnection;
+import reactor.core.publisher.Mono;
+public class SetGetExample {
+ public void run() {
+ RedisClient redisClient = RedisClient.create("redis://localhost:6379");
+ try (StatefulRedisConnection<String, String> connection = redisClient.connect()) {
+ RedisReactiveCommands<String, String> reactiveCommands = connection.reactive();
+ Mono<Void> setGetExample = reactiveCommands.set("bike:1", "Process 134")
+ .doOnNext(res1 -> {
+ System.out.println(res1); // >>> OK
+ })
+ .then(reactiveCommands.get("bike:1"))
+ .doOnNext(res2 -> {
+ System.out.println(res2); // >>> Process 134
+ })
+ .then();
+ setGetExample.block();
+ } finally {
+ redisClient.shutdown();
+ }
+ }
+}
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ ▶
+ Methods
+ set(
+ key: K, // the key.
+ value: V // the value.
+ ) → 
+ Mono<String> // String simple-string-reply OK if SET was executed correctly.
+ set(
+ key: K, // the key.
+ value: V, // the value.
+ setArgs: SetArgs // the setArgs.
+ ) → 
+ Mono<String> // String simple-string-reply OK if SET was executed correctly.
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ ▶
+ Method
+ get(
+ key: K // the key.
+ ) → 
+ Mono<V> // V bulk-string-reply the value of key, or null when key does not exist.
+ Java-Reactive Quick-Start
+package example_commands_test
+import (
+ "context"
+ "fmt"
+ "github.com/redis/go-redis/v9"
+)
+func ExampleClient_Set_and_get() {
+ ctx := context.Background()
+ rdb := redis.NewClient(&redis.Options{
+ Addr: "localhost:6379",
+ Password: "", // no password docs
+ DB: 0, // use default DB
+ })
+ err := rdb.Set(ctx, "bike:1", "Process 134", 0).Err()
+ if err != nil {
+ panic(err)
+ }
+ fmt.Println("OK")
+ value, err := rdb.Get(ctx, "bike:1").Result()
+ if err != nil {
+ panic(err)
+ }
+ fmt.Printf("The name of the bike is %s", value)
+}
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ ▶
+ Method
+ Set(
+ ctx: context.Context,
+ key: string,
+ value: interface{},
+ expiration: time.Duration
+ ) → 
+ *StatusCmd
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ ▶
+ Method
+ Get(
+ ctx: context.Context,
+ key: string
+ ) → 
+ *StringCmd
+ Go Quick-Start
+using NRedisStack.Tests;
+using StackExchange.Redis;
+public class SetGetExample
+{
+ public void Run()
+ {
+ var muxer = ConnectionMultiplexer.Connect("localhost:6379");
+ var db = muxer.GetDatabase();
+ bool status = db.StringSet("bike:1", "Process 134");
+ if (status)
+ Console.WriteLine("Successfully added a bike.");
+ var value = db.StringGet("bike:1");
+ if (value.HasValue)
+ Console.WriteLine("The name of the bike is: " + value + ".");
+ }
+}
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ ▶
+ Methods
+ StringSet(
+ key: RedisKey,
+ value: RedisValue,
+ expiry: TimeSpan?, // The expiry to set.
+ when: When // Which condition to set the value under (defaults to always).
+ ) → 
+ bool // true if the keys were set, false otherwise.
+ StringSet(
+ key: RedisKey,
+ value: RedisValue,
+ expiry: TimeSpan?, // The expiry to set.
+ when: When, // Which condition to set the value under (defaults to always).
+ flags: CommandFlags // The flags to use for this operation.
+ ) → 
+ bool // true if the keys were set, false otherwise.
+ StringSet(
+ key: RedisKey,
+ value: RedisValue,
+ expiry: TimeSpan?, // The expiry to set.
+ keepTtl: bool,
+ when: When, // Which condition to set the value under (defaults to always).
+ flags: CommandFlags // The flags to use for this operation.
+ ) → 
+ bool // true if the keys were set, false otherwise.
+ StringSet(
+ key: RedisKey,
+ value: RedisValue,
+ expiry: Expiration, // The expiry to set.
+ when: ValueCondition, // Which condition to set the value under (defaults to always).
+ flags: CommandFlags // The flags to use for this operation.
+ ) → 
+ bool // true if the keys were set, false otherwise.
+ StringSet(
+ values: KeyValuePair<RedisKey, RedisValue>[], // The keys and values to set.
+ when: When, // Which condition to set the value under (defaults to always).
+ flags: CommandFlags // The flags to use for this operation.
+ ) → 
+ bool // true if the keys were set, false otherwise.
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ ▶
+ Methods
+ StringGet(
+ key: RedisKey,
+ flags: CommandFlags // The flags to use for this operation.
+ ) → 
+ RedisValue // The values of the strings with Null for keys do not exist.
+ StringGet(
+ keys: RedisKey[], // The keys of the strings.
+ flags: CommandFlags // The flags to use for this operation.
+ ) → 
+ RedisValue[] // The values of the strings with Null for keys do not exist.
+ StringGet(
+ key: Any,
+ flags: Any // The flags to use for this operation.
+ ) → 
+ return // The values of the strings with Null for keys do not exist.
+ StringGet(
+ key: RedisKey,
+ flags: CommandFlags // The flags to use for this operation.
+ ) → 
+ RedisValue // The values of the strings with Null for keys do not exist.
+ StringGet(
+ keys: RedisKey[], // The keys of the strings.
+ flags: CommandFlags // The flags to use for this operation.
+ ) → 
+ RedisValue[] // The values of the strings with Null for keys do not exist.
+ C#-Sync (SE.Redis) Quick-Start
+<?php
+use Predis\Client as PredisClient;
+class SetGetTest
+{
+ public function testSetGet() {
+ $r = new PredisClient([
+ 'scheme' => 'tcp',
+ 'host' => '127.0.0.1',
+ 'port' => 6379,
+ 'password' => '',
+ 'database' => 0,
+ ]);
+ $res1 = $r->set('bike:1', 'Process 134');
+ echo $res1 . PHP_EOL; // >>> OK
+ $res2 = $r->get('bike:1');
+ echo $res2 . PHP_EOL; // >>> Process 134
+ }
+}
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ ▶
+ Method
+ set(
+ $key: string,
+ $value: Any,
+ $expireResolution = null: Any,
+ $expireTTL = null: Any,
+ $flag = null: Any,
+ $flagValue = null: Any
+ ) → 
+ Status|null
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ ▶
+ Method
+ get(
+ $key: string
+ ) → 
+ string|null
+ PHP Quick-Start
+require 'redis'
+r = Redis.new
+res1 = r.set('bike:1', 'Process 134')
+puts res1 # >>> OK
+res2 = r.get('bike:1')
+puts res2 # >>> Process 134
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ ▶
+ Method
+ set(
+ key: String,
+ value: String,
+ ex: Integer, // Set the specified expire time, in seconds.
+ px: Integer, // Set the specified expire time, in milliseconds.
+ exat: Integer, // Set the specified Unix time at which the key will expire, in seconds.
+ pxat: Integer, // Set the specified Unix time at which the key will expire, in milliseconds.
+ nx: Boolean, // Only set the key if it does not already exist.
+ xx: Boolean, // Only set the key if it already exists.
+ keepttl: Boolean, // Retain the time to live associated with the key.
+ get: Boolean // Return the old string stored at key, or nil if key did not exist.
+ ) → 
+ String, Boolean // "OK" or true, false if :nx => true or :xx => true
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ ▶
+ Method
+ get(
+ key: String
+ ) → 
+ String
+ Ruby Quick-Start
+mod set_and_get_tests {
+ use redis::Commands;
+ fn run() {
+ let mut r = match redis::Client::open("redis://127.0.0.1") {
+ Ok(client) => match client.get_connection() {
+ Ok(conn) => conn,
+ Err(e) => {
+ println!("Failed to connect to Redis: {e}");
+ return;
+ }
+ },
+ Err(e) => {
+ println!("Failed to create Redis client: {e}");
+ return;
+ }
+ };
+ if let Ok(res1) = r.set("bike:1", "Process 134") {
+ let res1: String = res1;
+ println!("{res1}"); // >>> OK
+ }
+ if let Ok(res2) = r.get("bike:1") {
+ let res2: String = res2;
+ println!("{res2}"); // >>> Process 134
+ }
+ }
+}
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ ▶
+ Method
+ set(
+ key: K,
+ value: V
+ ) → 
+ (())
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ ▶
+ Methods
+ get(
+ key: K
+ ) → 
+ (Option<String>)
+ get(
+ mut self: Any,
+ get: bool
+ ) → 
+ Self
+ Rust-Sync Quick-Start
+mod set_and_get_tests {
+ use redis::AsyncCommands;
+ async fn run() {
+ let mut r = match redis::Client::open("redis://127.0.0.1") {
+ Ok(client) => match client.get_multiplexed_async_connection().await {
+ Ok(conn) => conn,
+ Err(e) => {
+ println!("Failed to connect to Redis: {e}");
+ return;
+ }
+ },
+ Err(e) => {
+ println!("Failed to create Redis client: {e}");
+ return;
+ }
+ };
+ if let Ok(res1) = r.set("bike:1", "Process 134").await {
+ let res1: String = res1;
+ println!("{res1}"); // >>> OK
+ }
+ if let Ok(res2) = r.get("bike:1").await {
+ let res2: String = res2;
+ println!("{res2}"); // >>> Process 134
+ }
+ }
+}
+ ▼
+ Commands:
+ SET, GET
+ SET
+ (
+ @write
+ , 
+ @string
+ , 
+ @slow
+ )
+ Sets the string value of a key, ignoring its type. The key is created if it doesn't exist.
+ ▶
+ Method
+ set(
+ key: K,
+ value: V
+ ) → 
+ (())
+ GET
+ (
+ @read
+ , 
+ @string
+ , 
+ @fast
+ )
+ Returns the string value of a key.
+ ▶
+ Methods
+ get(
+ key: K
+ ) → 
+ (Option<String>)
+ get(
+ mut self: Any,
+ get: bool
+ ) → 
+ Self
+ Rust-Async Quick-Start
+ Details
+ Hash digest
+A hash digest is a fixed-size numerical representation of a string value, computed using the XXH3 hash algorithm. Redis uses this hash digest for efficient comparison operations without needing to compare the full string content. You can retrieve a key's hash digest using the DIGEST command, which returns it as a hexadecimal string that you can use with the IFDEQ and IFDNE options, and also the DELEX command's IFDEQ and IFDNE options.
+ Patterns
+Note: The following pattern is discouraged in favor of the Redlock algorithm which is only a bit more complex to implement, but offers better guarantees and is fault tolerant.
+The command SET resource-name anystring NX EX max-lock-time is a simple way to implement a locking system with Redis.
+A client can acquire the lock if the above command returns OK (or retry after some time if the command returns Nil), and remove the lock just using DEL.
+The lock will be auto-released after the expire time is reached.
+It is possible to make this system more robust modifying the unlock schema as follows:
+Instead of setting a fixed string, set a non-guessable large random string, called token.
+Instead of releasing the lock with DEL, send a script that only removes the key if the value matches.
+This avoids that a client will try to release the lock after the expire time deleting the key created by another client that acquired the lock later.
+An example of unlock script would be similar to the following:
+if redis.call("get",KEYS[1]) == ARGV[1]
+then
+ return redis.call("del",KEYS[1])
+else
+ return 0
+end
+The script should be called with EVAL ...script... 1 resource-name token-value
+ Redis Software and Redis Cloud compatibility
+ RedisSoftware
+ RedisCloud
+ Notes
+ ✅ Standard✅ Active-Active
+ ✅ Standard✅ Active-Active
+ Return information
+ RESP2
+ RESP3
+If GET was not specified, one of the following:
+Null bulk string reply in the following two cases.
+The key doesn’t exist and XX/IFEQ/IFDEQ was specified. The key was not created.
+The key exists, and NX was specified or a specified IFEQ/IFNE/IFDEQ/IFDNE condition is false. The key was not set.
+Simple string reply: OK: The key was set.
+If GET was specified, one of the following:
+Null bulk string reply: The key didn't exist before the SET operation, whether the key was created of not.
+Bulk string reply: The previous value of the key, whether the key was set or not.
+If GET was not specified, one of the following:
+Null reply in the following two cases.
+The key doesn’t exist and XX/IFEQ/IFDEQ was specified. The key was not created.
+The key exists, and NX was specified or a specified IFEQ/IFNE/IFDEQ/IFDNE condition is false. The key was not set.
+Simple string reply: OK: The key was set.
+If GET was specified, one of the following:
+Null reply: The key didn't exist before the SET operation, whether the key was created of not.
+Bulk string reply: The previous value of the key, whether the key was set or not.
+History
+Starting with Redis version 2.6.12: Added the EX, PX, NX and XX options.
+Starting with Redis version 6.0.0: Added the KEEPTTL option.
+Starting with Redis version 6.2.0: Added the GET, EXAT and PXAT option.
+Starting with Redis version 7.0.0: Allowed the NX and GET options to be used together.
+Starting with Redis version 8.4.0: Added 'IFEQ', 'IFNE', 'IFDEQ', 'IFDNE' options.
+ RATE THIS PAGE
+ ★
+ ★
+ ★
+ ★
+ ★
+ Back to top ↑
+ Submit
+ Edit this page
+ Create an issue
+ Download documentation
+ Ask AI to explain this page
+ See also
+ APPEND
+ DECR
+ DECRBY
+ DELEX
+ DIGEST
+ GET
+ GETDEL
+ GETEX
+ GETRANGE
+ GETSET
+ INCR
+ INCRBY
+ INCRBYFLOAT
+ INCREX
+ LCS
+ MGET
+ MSET
+ MSETEX
+ MSETNX
+ PSETEX
+ SET
+ SETEX
+ SETNX
+ SETRANGE
+ STRLEN
+ SUBSTR
+ Trust
+ Privacy
+ Terms of use
+ Legal notices
+Compare
+ Redis vs Elasticache
+ Redis vs Memcached
+ Redis vs Memory Store
+ Redis vs. Open Source
+Company
+ Mission & valuesLeadership
+ Careers
+Partners
+ Amazon Web Services
+ Google Cloud
+ Microsoft Azure
+ All partners
+Support
+ Professional
+ servicesSupport
+ Trust
+ Privacy
+ Terms of use
+ Legal notices
+ All products
+ Redis Software
+ Redis Cloud
+ Redis Open Source
+ Redis Insight
+ Redis Enterprise for K8s
+ Redis Data Integration
+ Client Libraries
+ ESC

@@ -1,0 +1,162 @@
+schema_version: 2.0.0
+package_id: package:personal-finance:w05
+subject_id: roadmap:subject:personal-finance
+display_title: Tài chính cá nhân thực hành
+source_status: reviewed
+version: 12
+created_at: '2026-09-15T00:00:00Z'
+subject: Tài chính cá nhân
+course: Tài chính cá nhân thực hành
+module: module-2
+lesson: week-05-bao-hiem-vietnam
+learning_objectives:
+- id: LO-PF-W05-01
+  bloom_level: Understand
+  statement: Phân biệt các loại bảo hiểm cá nhân cơ bản.
+- id: LO-PF-W05-02
+  bloom_level: Analyze
+  statement: Giải thích chuyển giao rủi ro và phạm vi bảo hiểm.
+- id: LO-PF-W05-03
+  bloom_level: Apply
+  statement: Đối chiếu bảo hiểm bắt buộc với tự nguyện trong bối cảnh Việt Nam.
+- id: LO-PF-W05-04
+  bloom_level: Evaluate
+  statement: So sánh lựa chọn bảo hiểm theo nhu cầu và điều kiện hợp đồng.
+concepts:
+- id: roadmap:concept:pf:insurance-risk-transfer
+  name: Chuyển giao rủi ro
+  claim_ids:
+  - M2-C03
+  evidence_label: moderate
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded-primary-and-content-review52
+    date: '2026-10-03'
+    notes: Bounded conditional policy/coverage, BHYT operational roles and dated categories, base67 tariff/ceilings
+      with inspected105/220 scope, term-life/beneficiary terminology. Actual primary evidence46/48/law30
+      and review47/author50. Not full references, learner journey, current all-law or release approval.
+- id: roadmap:concept:pf:insurance-vietnam-law
+  name: Bảo hiểm tại Việt Nam
+  claim_ids:
+  - M2-C05
+  - M2-C06
+  evidence_label: moderate
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded-primary-and-content-review52
+    date: '2026-10-03'
+    notes: Bounded conditional policy/coverage, BHYT operational roles and dated categories, base67 tariff/ceilings
+      with inspected105/220 scope, term-life/beneficiary terminology. Actual primary evidence46/48/law30
+      and review47/author50. Not full references, learner journey, current all-law or release approval.
+- id: roadmap:concept:pf:w05-term-life
+  name: Bảo hiểm tử kỳ
+  claim_ids:
+  - M2-C20
+  evidence_label: moderate
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded-primary-and-content-review52
+    date: '2026-10-03'
+    notes: Bounded conditional policy/coverage, BHYT operational roles and dated categories, base67 tariff/ceilings
+      with inspected105/220 scope, term-life/beneficiary terminology. Actual primary evidence46/48/law30
+      and review47/author50. Not full references, learner journey, current all-law or release approval.
+- id: roadmap:concept:pf:w05-beneficiary
+  name: Người thụ hưởng
+  claim_ids:
+  - M2-C21
+  evidence_label: moderate
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded-primary-and-content-review52
+    date: '2026-10-03'
+    notes: Bounded conditional policy/coverage, BHYT operational roles and dated categories, base67 tariff/ceilings
+      with inspected105/220 scope, term-life/beneficiary terminology. Actual primary evidence46/48/law30
+      and review47/author50. Not full references, learner journey, current all-law or release approval.
+questions:
+- id: Q01
+  lo_ref: LO-PF-W05-01
+  concept_id: roadmap:concept:pf:insurance-risk-transfer
+  claim_ids:
+  - M2-C03
+- id: Q02
+  lo_ref: LO-PF-W05-01
+  concept_id: roadmap:concept:pf:w05-term-life
+  claim_ids:
+  - M2-C20
+- id: Q03
+  lo_ref: LO-PF-W05-03
+  concept_id: roadmap:concept:pf:insurance-vietnam-law
+  claim_ids:
+  - M2-C05
+- id: Q04
+  lo_ref: LO-PF-W05-03
+  concept_id: roadmap:concept:pf:insurance-vietnam-law
+  claim_ids:
+  - M2-C06
+- id: Q05
+  lo_ref: LO-PF-W05-01
+  concept_id: roadmap:concept:pf:insurance-risk-transfer
+  claim_ids:
+  - M2-C03
+- id: Q06
+  lo_ref: LO-PF-W05-02
+  concept_id: roadmap:concept:pf:w05-beneficiary
+  claim_ids:
+  - M2-C21
+- id: Q07
+  lo_ref: LO-PF-W05-04
+  concept_id: roadmap:concept:pf:insurance-risk-transfer
+  claim_ids:
+  - M2-C03
+- id: Q08
+  lo_ref: LO-PF-W05-03
+  concept_id: roadmap:concept:pf:insurance-vietnam-law
+  claim_ids:
+  - M2-C05
+- id: Q09
+  lo_ref: LO-PF-W05-02
+  concept_id: roadmap:concept:pf:insurance-risk-transfer
+  claim_ids:
+  - M2-C03
+- id: Q10
+  lo_ref: LO-PF-W05-04
+  concept_id: roadmap:concept:pf:insurance-risk-transfer
+  claim_ids:
+  - M2-C03
+units:
+- unit_id: roadmap:unit:pf:w05
+  display_title: 'Bài 5: Bảo hiểm tại Việt Nam – Nhân thọ, Sức khỏe, Xe cộ'
+  sort_order: 5
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:pf:w05
+    path: notes/module-2/week-05-bao-hiem-vietnam.md
+    sha256: 530f0f059e7739c791023c9be8b1262b5997a29bfa322dc89df9520773508158
+    byte_length: 19387
+  - role: quiz_questions
+    stable_id: roadmap:quiz:pf:w05
+    path: assessments/quizzes/week-05-quiz.md
+    question_count: 10
+    sha256: c1c1e3f673de8758adc912b377e058dd95b1be5fbd526230f41d180489e9ab3b
+    byte_length: 3722
+  - role: quiz_answers
+    stable_id: roadmap:answers:pf:w05
+    path: assessments/answer-keys/week-05-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: e01af7af6ea9256df3976750ee37775a0841a521f98614a0089f26d0ae0cc2b5
+    byte_length: 16521
+  - role: source_ledger
+    path: quality/module-2-source-ledger.md
+    sha256: f5db4ed4fa181b0611eb65e49e6d0eb18e973677275296b0ec244eccea075c7c
+    byte_length: 16875
+  - role: flashcard_deck
+    stable_id: deck-pf-w05
+    path: flashcards/week-05.yaml
+    byte_length: 8376
+    sha256: babbb03325dae3c6116d9752d3ea0699f67344679890082f1629d50d6ecff007
+    card_count: 15

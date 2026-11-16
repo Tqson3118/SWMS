@@ -24,7 +24,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/app/library`,
+      url: `${baseUrl}/app/courses`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/app/courses/new`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.65,
+    },
+    {
+      url: `${baseUrl}/app/documents`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/app/notes`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.8,
@@ -41,26 +59,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.5,
     },
-    {
-      url: `${baseUrl}/app/studio`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/app/studio/create`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    // Dynamic routes (courses/[id], courses/[id]/learn, studio/[id])
-    // are not listed here — they'd be generated server-side with actual course IDs
-    // Keep /workspace for backward compatibility
-    {
-      url: `${baseUrl}/workspace`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.5,
-    },
+    // Dynamic routes: /app/courses/[id], /app/courses/[id]/learn, /app/courses/[id]/quiz, /app/courses/[id]/edit
   ];
 }

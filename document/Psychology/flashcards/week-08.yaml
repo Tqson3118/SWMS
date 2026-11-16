@@ -1,0 +1,143 @@
+deck_id: "deck-psy-w08"
+subject: "Psychology"
+lesson_id: "week-08-memory-stage-review"
+version: "1.0.0"
+description: "Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng (Spaced Repetition - R5 Compliant) Tuần 08: Trí nhớ, Sai lệch Ký ức và Tổng hợp Chặng 1"
+
+cards:
+  - id: "fc-psy-w08-001"
+    concept: "Ba giai đoạn trí nhớ và Hiệu ứng Tự liên hệ"
+    front: "Ba giai đoạn vận hành của trí nhớ là gì và Hiệu ứng Tự liên hệ (Self-Reference Effect) giúp ích gì cho mã hóa?"
+    back: "Gồm: Mã hóa (Encoding), Lưu trữ (Storage) và Truy xuất (Retrieval). Hiệu ứng tự liên hệ chứng minh thông tin được mã hóa sâu sắc nhất và nhớ lâu bền nhất khi chủ động liên hệ nội dung mới với bản thân và kinh nghiệm cá nhân."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-08-memory-stage-review.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C08-01"
+    tags:
+      - "memory-stages"
+      - "encoding"
+      - "self-reference-effect"
+
+  - id: "fc-psy-w08-002"
+    concept: "Mô hình ba kho lưu trữ Atkinson-Shiffrin"
+    front: "Ba kho lưu trữ trong mô hình Atkinson-Shiffrin (1968) có dung lượng và thời gian duy trì ra sao?"
+    back: "1. Cảm giác (Sensory): thị giác <1s, thính giác 3-4s; 2. Ngắn hạn (STM): 7±2 mục tử (hoặc ~4 cụm), kéo dài 15-30s nếu không ôn nhẩm; 3. Dài hạn (LTM): dung lượng và thời gian lưu trữ gần như không giới hạn."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-08-memory-stage-review.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C08-02"
+    tags:
+      - "atkinson-shiffrin"
+      - "stm"
+      - "ltm"
+      - "sensory-memory"
+
+  - id: "fc-psy-w08-003"
+    concept: "Phân loại Trí nhớ Dài hạn: Tường minh vs Ẩn tàng"
+    front: "Phân biệt Trí nhớ Tường minh (Explicit) và Trí nhớ Ẩn tàng (Implicit) trong cấu trúc LTM?"
+    back: "Tường minh (Khai báo - có ý thức): gồm Ngữ nghĩa (tri thức trừu tượng, sự kiện) và Tình tiết (trải nghiệm cá nhân gắn thời-không gian). Ẩn tàng (Không khai báo - vô thức): gồm Quy trình (kỹ năng vận động) và Phản xạ có điều kiện/mồi nhận thức."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-08-memory-stage-review.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C08-03"
+    tags:
+      - "explicit-memory"
+      - "implicit-memory"
+      - "semantic"
+      - "procedural"
+
+  - id: "fc-psy-w08-004"
+    concept: "Ba dạng truy xuất và Đường cong quên Ebbinghaus"
+    front: "Ba hình thức truy xuất thông tin là gì và Đường cong quên của Ebbinghaus phát hiện quy luật nào?"
+    back: "Ba hình thức: Nhớ lại (Recall - tự tái hiện), Nhận biết (Recognition - nhận ra phương án đúng), Học lại (Relearning - tiết kiệm thời gian học lại). Ebbinghaus chứng minh sự quên diễn ra nhanh nhất trong 24 giờ đầu, sau đó ổn định dần."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-08-memory-stage-review.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C08-04"
+    tags:
+      - "retrieval"
+      - "recall-recognition"
+      - "ebbinghaus"
+      - "forgetting-curve"
+
+  - id: "fc-psy-w08-005"
+    concept: "Cơ sở giải phẫu thần kinh của trí nhớ"
+    front: "Các cấu trúc não bộ chính (Hồi hải mã, Hạch hạnh nhân, Tiểu não, Vỏ não trước trán) đóng vai trò gì trong trí nhớ?"
+    back: "Hồi hải mã: củng cố ký ức tường minh mới chuyển ra vỏ não. Hạch hạnh nhân: ký ức cảm xúc mạnh và đèn flash. Tiểu não & Hạch nền: trí nhớ quy trình và phản xạ vận động. Vỏ não trước trán: điều phối trí nhớ làm việc và truy xuất chiến lược."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-08-memory-stage-review.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C08-05"
+    tags:
+      - "neuroanatomy"
+      - "hippocampus"
+      - "amygdala"
+      - "cerebellum"
+
+  - id: "fc-psy-w08-006"
+    concept: "Ca lâm sàng Bệnh nhân H.M. và phân ly thần kinh"
+    front: "Ca bệnh nhân H.M. sau phẫu thuật cắt hồi hải mã hai bên đã chứng minh sự phân ly thần kinh nào?"
+    back: "H.M. bị mất khả năng tạo trí nhớ tường minh mới (quên thuận chiều - anterograde amnesia), nhưng vẫn học và giữ được kỹ năng vận động mới (vẽ sao qua gương), chứng minh trí nhớ tường minh và trí nhớ quy trình do các mạng lưới thần kinh độc lập điều khiển."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-08-memory-stage-review.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C08-06"
+    tags:
+      - "case-hm"
+      - "amnesia"
+      - "hippocampus"
+      - "memory-dissociation"
+
+  - id: "fc-psy-w08-007"
+    concept: "Bản chất tái tạo và Hiệu ứng Thông tin Sai lệch Loftus"
+    front: "Thí nghiệm của Elizabeth Loftus (1974) về vụ tai nạn xe hơi chứng minh bản chất nào của trí nhớ?"
+    back: "Chứng minh trí nhớ mang bản chất tái tạo (reconstruction) chứ không phải sao chép video. Ngôn từ gợi ý sau sự kiện ('smashed' vs 'hit') làm sai lệch ước tính tốc độ và cấy vào đầu nhân chứng ký ức giả mạo (thấy mảnh kính vỡ)."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-08-memory-stage-review.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C08-07"
+    tags:
+      - "reconstructive-memory"
+      - "misinformation-effect"
+      - "loftus"
+      - "false-memory"
+
+  - id: "fc-psy-w08-008"
+    concept: "Bảy sai sót của Schacter và cơ chế Can thiệp xuôi/ngược"
+    front: "Bảy sai sót của trí nhớ (Schacter) và phân biệt Can thiệp xuôi (Proactive) vs Can thiệp ngược (Retroactive) ra sao?"
+    back: "7 sai sót: Phai mờ, Lơ đễnh, Nghẽn, Gán sai nguồn, Ám thị, Thiên kiến, Ám ảnh. Can thiệp xuôi: thông tin cũ cản trở học/nhớ thông tin mới. Can thiệp ngược: thông tin mới học làm lu mờ/cản trở nhớ lại thông tin cũ."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-08-memory-stage-review.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C08-08"
+    tags:
+      - "schacter-seven-sins"
+      - "proactive-interference"
+      - "retroactive-interference"
+
+  - id: "fc-psy-w08-009"
+    concept: "Các chiến lược tăng cường trí nhớ dựa trên bằng chứng khoa học"
+    front: "Bốn chiến lược tăng cường trí nhớ dựa trên bằng chứng khoa học nhận thức là gì?"
+    back: "1. Phân cụm (Chunking - gom khối ý nghĩa); 2. Ôn nhẩm mở rộng (liên hệ sâu kiến thức cũ); 3. Hiệu ứng giãn cách (học cách nhật thay vì nhồi nhét); 4. Hiệu ứng kiểm tra (Testing effect - tự truy xuất chủ động qua quiz/flashcard vượt trội đọc lại thụ động)."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-08-memory-stage-review.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C08-09"
+    tags:
+      - "testing-effect"
+      - "spacing-effect"
+      - "chunking"
+      - "elaborative-rehearsal"
+
+  - id: "fc-psy-w08-010"
+    concept: "Khung kiến trúc sư phạm tổng kết Chặng 1 (W01–W08)"
+    front: "Kiến trúc logic 8 mắt xích của Chặng 1 (Nền tảng Khoa học của Tâm lý học) phát triển như thế nào?"
+    back: "W01 Nhận thức luận & Lịch sử ➔ W02 Phương pháp & Đạo đức ➔ W03 Thống kê tái lập ➔ W04 Sinh học thần kinh ➔ W05 Tiếp nhận cảm giác & Tri giác ➔ W06 Ý thức & Giấc ngủ ➔ W07 Học tập & Điều kiện hóa ➔ W08 Lưu trữ & Tái tạo trí nhớ."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-08-memory-stage-review.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C08-10"
+    tags:
+      - "stage-1-synthesis"
+      - "curriculum-architecture"
+      - "scientific-foundations"

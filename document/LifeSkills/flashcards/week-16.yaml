@@ -1,0 +1,157 @@
+deck_id: deck-ls-w16
+subject: LifeSkills
+lesson_id: week-16-personal-development-plan
+version: 1.0.0
+description: 'Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng Tuần 16: Kế hoạch Phát triển Cá nhân (PDP) và Thiết kế Cuộc đời'
+cards:
+- id: fc-ls-w16-001
+  concept: Bản chất của Kế hoạch Phát triển Cá nhân (PDP)
+  front: Personal Development Plan (PDP) là gì và mục tiêu thực tế của nó?
+  back: Là một tài liệu sống có cấu trúc giúp cá nhân xác định mục tiêu phát triển bản thân, phân tích khoảng cách kỹ năng hiện tại, và vạch ra lộ trình hành động cụ thể có thể đo lường trong từng mốc thời gian.
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - pdp
+  - foundations
+  - module-4
+- id: fc-ls-w16-002
+  concept: Công cụ Bánh xe Cuộc đời (Wheel of Life)
+  front: Ví dụ Wheel of Life trong bài dùng tám lĩnh vực nào và giới hạn gì?
+  back: 'Ví dụ: sức khỏe, sự nghiệp, tài chính, quan hệ, phát triển bản thân, môi trường sống, giải trí/nghỉ và ý nghĩa sống. Có thể đổi/bỏ lĩnh vực; đây là reflection tùy chọn, không phải test chuẩn hóa hay điểm khách quan.'
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - wheel-of-life
+  - self-assessment
+  - module-4
+- id: fc-ls-w16-003
+  concept: Tiêu chuẩn Mục tiêu SMART
+  front: Năm chữ cái trong bộ tiêu chuẩn mục tiêu SMART đại diện cho điều gì?
+  back: 'SMART là một checklist tùy chọn: S (Specific - cụ thể); M (Measurable - đo được); A (Achievable - khả thi); R (Relevant - phù hợp); T (Time-bound - có thời hạn). Đây là khung mô tả, không phải bảo đảm kết quả.'
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - smart-goals
+  - goal-setting
+  - module-4
+- id: fc-ls-w16-004
+  concept: Khung mục tiêu OKR trong phát triển cá nhân
+  front: Khung OKR (Objectives & Key Results) gồm 2 thành tố nào?
+  back: 'OKR gồm O (Objective: hướng định tính) và KR (Key Results: dấu hiệu/kết quả quan sát được). Số KR và chỉ số tùy bối cảnh; ví dụ chạy 10 km chỉ là minh họa, không phải chuẩn chung hay lời hứa.'
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - okr
+  - performance
+  - module-4
+- id: fc-ls-w16-005
+  concept: Kế hoạch hành động 90 ngày (90-Day Sprints)
+  front: Vì sao một số người có thể chọn chu kỳ 90 ngày để review PDP?
+  back: 90 ngày là một lựa chọn thực hành đủ ngắn để review và đủ dài để quan sát xu hướng; không phải khung thời gian lý tưởng cho mọi người hay bảo đảm thay đổi thói quen.
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - 90-day-sprint
+  - execution
+  - module-4
+- id: fc-ls-w16-006
+  concept: Mục tiêu Quá trình vs Mục tiêu Kết quả
+  front: Tại sao nên tập trung vào Mục tiêu Hành động (Process Goals) thay vì Mục tiêu Kết quả (Outcome Goals)?
+  back: Outcome goals chịu nhiều biến số; process goals thường trực tiếp ảnh hưởng hơn nhưng vẫn có thể bị bệnh, khuyết tật, chăm sóc, công việc hoặc môi trường cản trở. Hãy chọn hành vi nhỏ, fallback và hỗ trợ phù hợp thay vì giả định kiểm soát 100%.
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - process-goals
+  - locus-of-control
+  - module-4
+- id: fc-ls-w16-007
+  concept: Bốn đòn bẩy thiết kế thói quen (heuristic tác giả)
+  front: Bốn đòn bẩy thực hành nào có thể dùng để thiết kế một thói quen nhỏ?
+  back: Làm tín hiệu rõ ràng, làm hành vi hấp dẫn vừa đủ, giảm ma sát để dễ bắt đầu, và tạo phản hồi thỏa mãn. Đây là heuristic tác giả, không gán cho James Clear hay xem như quy luật phổ quát.
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - atomic-habits
+  - james-clear
+  - module-4
+- id: fc-ls-w16-008
+  concept: Kỹ thuật Chồng thói quen (Habit Stacking)
+  front: Kỹ thuật Habit Stacking hoạt động theo công thức nào?
+  back: '''Sau khi thực hiện [Thói quen hiện tại], tôi sẽ thực hiện ngay [Thói quen mới]''. Ví dụ: ''Sau khi pha cà phê buổi sáng, tôi sẽ viết 1 trang nhật ký''.'
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - habit-stacking
+  - routine
+  - module-4
+- id: fc-ls-w16-009
+  concept: Mô hình Phản tư hàng tuần (Weekly Review)
+  front: Ba câu hỏi phản tư cốt lõi trong buổi đánh giá cá nhân cuối tuần là gì?
+  back: 1. Tuần qua điều gì đã diễn ra tốt đẹp và đem lại năng lượng tích cực? 2. Điều gì chưa đạt và nguyên nhân gốc rễ là gì? 3. Tuần tới mình sẽ điều chỉnh một hành động cụ thể nào?
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - weekly-review
+  - reflection
+  - module-4
+- id: fc-ls-w16-010
+  concept: Đối tác đồng hành trách nhiệm (Accountability Partner)
+  front: Vai trò của một Accountability Partner trong việc thực thi mục tiêu dài hạn là gì?
+  back: Người đồng hành cùng kiểm tra tiến độ theo thỏa thuận, không phán xét; đây là hỗ trợ tự nguyện, không phải áp lực hay bảo đảm vượt trì hoãn.
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - accountability-partner
+  - discipline
+  - module-4
+- id: fc-ls-w16-011
+  concept: Quy tắc 'Không bao giờ bỏ lỡ hai lần liên tiếp'
+  front: Quy tắc 'Never miss twice' giúp duy trì thói quen dài hạn như thế nào?
+  back: Đây là lời nhắc mềm để quay lại sau một lần bỏ lỡ, nếu an toàn và phù hợp. Không phải luật tâm lý; nghỉ thêm có thể đúng khi cần hồi phục hoặc chăm sóc.
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - consistency
+  - resilience
+  - module-4
+- id: fc-ls-w16-012
+  concept: Phân tích Khoảng cách Kỹ năng (Skill Gap Analysis)
+  front: Thực hiện Skill Gap Analysis trong PDP như thế nào?
+  back: So sánh năng lực hiện tại với yêu cầu của mục tiêu trong khoảng thời gian do người học chọn, rồi xác định một vài kỹ năng ưu tiên. Đây là công cụ lập kế hoạch, không mặc định mốc ba năm hay số lượng cố định.
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - skill-gap
+  - career-planning
+  - module-4
+- id: fc-ls-w16-013
+  concept: Bảo vệ PDP khỏi bẫy quá tải mục tiêu
+  front: Vì sao quá nhiều mục tiêu có thể làm PDP khó duy trì?
+  back: Đặt quá nhiều mục tiêu cùng lúc làm tăng số hành động cần theo dõi và khiến kế hoạch khó duy trì trong bối cảnh bận rộn; hãy ưu tiên 1-2 hành vi mới, thử ở quy mô nhỏ và điều chỉnh theo dữ kiện review. Đây là nguyên tắc thiết kế kế hoạch, không phải kết luận về cơ chế thần kinh hay bảo đảm thất bại.
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - plan-load
+  - focus
+  - module-4
+- id: fc-ls-w16-014
+  concept: Chấp nhận điều chỉnh lộ trình linh hoạt
+  front: Khi hoàn cảnh sống thay đổi đột ngột, thái độ đúng đắn đối với bản kế hoạch PDP là gì?
+  back: Xem PDP là bản đồ thử nghiệm linh hoạt, không phải bản án cố định. Sẵn sàng cập nhật và điều chỉnh mục tiêu cho phù hợp với thực tế cuộc sống mà không cảm thấy tội lỗi.
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - adaptability
+  - growth-mindset
+  - module-4
+- id: fc-ls-w16-015
+  concept: Tự trắc ẩn (Self-Compassion) trên hành trình phát triển
+  front: Tự trắc ẩn có thể được thực hành thế nào khi kế hoạch gặp sai sót?
+  back: Nói với bản thân công bằng và tử tế, ghi nhận hoàn cảnh, rồi chọn một bước điều chỉnh nhỏ. Đây là một thực hành có thể hỗ trợ việc tiếp tục thử nghiệm, không phải “nhiên liệu bền vững nhất”, phương pháp chữa/ngăn trầm cảm hay bảo đảm hồi phục nhanh.
+  source_lesson: LifeSkills/notes/module-4/week-16-personal-development-plan.md
+  version: 1.0.0
+  tags:
+  - self-compassion
+  - kristin-neff
+  - sustainable-growth
+  - module-4

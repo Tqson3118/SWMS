@@ -1,0 +1,123 @@
+schema_version: 2.0.0
+package_id: package:dotnet-react:stage-12
+version: 1
+created_at: '2026-10-04T00:00:00Z'
+source_status: draft
+subject_id: roadmap:subject:dotnet-react
+display_title: Stage 12 Frontend state, request races, accessible forms, and performance manual activity
+learning_objectives:
+- id: LO-DOTNET-S12-01
+  bloom_level: Apply
+  statement: Implement explicit UI/server state, URL filters and accessible asynchronous forms in the expense application.
+- id: LO-DOTNET-S12-02
+  bloom_level: Analyze
+  statement: Analyze stale request outcomes, cache invalidation and measured rendering costs using reproducible
+    evidence.
+concepts:
+- id: DOTNET-S12-C01
+  name: UI/server state and reducer transitions
+  claim_ids:
+  - W12-C01
+  - W12-C02
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-12-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root236 bounded operational mapping
+    date: '2026-10-04'
+    notes: Complete original chapter and new activity/ledger mapped. Learning-only evidence; incomplete observations
+      earn zero. Full primary-source/runtime/database/browser/course approval remains open.
+- id: DOTNET-S12-C02
+  name: Request race handling
+  claim_ids:
+  - W12-C03
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-12-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root236 bounded operational mapping
+    date: '2026-10-04'
+    notes: Complete original chapter and new activity/ledger mapped. Learning-only evidence; incomplete observations
+      earn zero. Full primary-source/runtime/database/browser/course approval remains open.
+- id: DOTNET-S12-C03
+  name: Accessible asynchronous forms
+  claim_ids:
+  - W12-C04
+  - W12-C05
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-12-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root236 bounded operational mapping
+    date: '2026-10-04'
+    notes: Complete original chapter and new activity/ledger mapped. Learning-only evidence; incomplete observations
+      earn zero. Full primary-source/runtime/database/browser/course approval remains open.
+units:
+- unit_id: roadmap:unit:dotnet-react:stage-12
+  display_title: Stage 12 Frontend state, request races, accessible forms, and performance manual activity
+  sort_order: 12
+  learning_objectives:
+  - id: LO-DOTNET-S12-01
+    bloom_level: Apply
+    statement: Implement explicit UI/server state, URL filters and accessible asynchronous forms in the expense
+      application.
+  - id: LO-DOTNET-S12-02
+    bloom_level: Analyze
+    statement: Analyze stale request outcomes, cache invalidation and measured rendering costs using reproducible
+      evidence.
+  concepts:
+  - id: DOTNET-S12-C01
+    name: UI/server state and reducer transitions
+    claim_ids:
+    - W12-C01
+    - W12-C02
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-12-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root236 bounded operational mapping
+      date: '2026-10-04'
+      notes: Complete original chapter and new activity/ledger mapped. Learning-only evidence; incomplete observations
+        earn zero. Full primary-source/runtime/database/browser/course approval remains open.
+  - id: DOTNET-S12-C02
+    name: Request race handling
+    claim_ids:
+    - W12-C03
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-12-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root236 bounded operational mapping
+      date: '2026-10-04'
+      notes: Complete original chapter and new activity/ledger mapped. Learning-only evidence; incomplete observations
+        earn zero. Full primary-source/runtime/database/browser/course approval remains open.
+  - id: DOTNET-S12-C03
+    name: Accessible asynchronous forms
+    claim_ids:
+    - W12-C04
+    - W12-C05
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-12-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root236 bounded operational mapping
+      date: '2026-10-04'
+      notes: Complete original chapter and new activity/ledger mapped. Learning-only evidence; incomplete observations
+        earn zero. Full primary-source/runtime/database/browser/course approval remains open.
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:dotnet-react:stage-12
+    path: 12.md
+    sha256: e53391c8a01d6d905e9baf69603b96b3c525af86c0939c7ceccd0f855545254e
+    byte_length: 9523
+  - role: activity_manual
+    stable_id: activity:dotnet:stage-12
+    path: activities/manual-stage-12.yaml
+    sha256: 1c89f225d719f0f6e952e5ebcf9ace5741e0b0aaa45b885c6b7221fd869c1c0f
+    byte_length: 3564
+  - role: source_ledger
+    stable_id: ledger:dotnet:stage-12
+    path: quality/stage-12-source-ledger.md
+    sha256: 2b1666d9cf4242663029c75ebd14fa0f809836e70838efec9b32a3599f57eded
+    byte_length: 2071
+external_resources: []

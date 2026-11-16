@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "jsx": "react-jsx",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "skipLibCheck": true,
+    "outDir": "out",
+    "paths": {
+      "react": [
+        "D:\\03_Study\\Roadmap\\FullStack-CSharp-React-Refresh\\quality\\runtime\\typescript\\node_modules\\@types\\react\\index.d.ts"
+      ],
+      "react/jsx-runtime": [
+        "D:\\03_Study\\Roadmap\\FullStack-CSharp-React-Refresh\\quality\\runtime\\typescript\\node_modules\\@types\\react\\jsx-runtime.d.ts"
+      ]
+    }
+  },
+  "include": [
+    "App.tsx",
+    "domain.ts"
+  ]
+}

@@ -1,0 +1,133 @@
+schema_version: 2.0.0
+package_id: package:lifeskills:w15
+subject_id: roadmap:subject:lifeskills
+display_title: LifeSkills — Tình cảm, Giao tiếp & Kỹ năng sống
+source_status: in_review
+version: 8
+created_at: '2026-09-22T00:00:00Z'
+subject: LifeSkills
+course: Tự học LifeSkills 16 tuần
+module: module-4
+lesson: week-15-networking-social-skills
+learning_objectives:
+- id: LO-W15-01
+  bloom_level: Understand
+  statement: Giải thích networking và social skills theo hướng tương hỗ, tôn trọng và bền vững.
+- id: LO-W15-02
+  bloom_level: Analyze
+  statement: Phân tích tình huống giao tiếp bằng ít nhất ba giả thuyết thay thế.
+- id: LO-W15-03
+  bloom_level: Apply
+  statement: Thiết kế một bước kết nối cụ thể, có consent và có thể đảo ngược.
+- id: LO-W15-04
+  bloom_level: Evaluate
+  statement: Nhận diện giới hạn văn hóa, quyền lực và khi nào cần hỗ trợ chuyên môn.
+concepts:
+- id: roadmap:concept:lifeskills:w15:weak-ties
+  name: Weak ties và vốn xã hội bắc cầu
+  claim_ids:
+  - W15-C01
+  evidence_label: preliminary
+  source_ledger_path: quality/module-4-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: Bounded definitions, teaching/card coverage, quiz feedback and source classification checked in continuation-life324.
+      Authored practices and abstract-level sources separated; full source/course/learner approval not claimed.
+- id: roadmap:concept:lifeskills:w15:consent-giver-mindset
+  name: Đồng thuận, reciprocity và networking có đạo đức
+  claim_ids:
+  - W15-C02
+  evidence_label: preliminary
+  source_ledger_path: quality/module-4-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: Bounded definitions, teaching/card coverage, quiz feedback and source classification checked in continuation-life324.
+      Authored practices and abstract-level sources separated; full source/course/learner approval not claimed.
+questions:
+- id: Q15-01
+  lo_ref: LO-W15-01
+  concept_id: roadmap:concept:lifeskills:w15:weak-ties
+  claim_ids:
+  - W15-C01
+- id: Q15-02
+  lo_ref: LO-W15-01
+  concept_id: roadmap:concept:lifeskills:w15:weak-ties
+  claim_ids:
+  - W15-C01
+- id: Q15-03
+  lo_ref: LO-W15-01
+  concept_id: roadmap:concept:lifeskills:w15:weak-ties
+  claim_ids:
+  - W15-C01
+- id: Q15-04
+  lo_ref: LO-W15-01
+  concept_id: roadmap:concept:lifeskills:w15:weak-ties
+  claim_ids:
+  - W15-C01
+- id: Q15-05
+  lo_ref: LO-W15-03
+  concept_id: roadmap:concept:lifeskills:w15:consent-giver-mindset
+  claim_ids:
+  - W15-C02
+- id: Q15-06
+  lo_ref: LO-W15-03
+  concept_id: roadmap:concept:lifeskills:w15:consent-giver-mindset
+  claim_ids:
+  - W15-C02
+- id: Q15-07
+  lo_ref: LO-W15-02
+  concept_id: roadmap:concept:lifeskills:w15:weak-ties
+  claim_ids:
+  - W15-C01
+- id: Q15-08
+  lo_ref: LO-W15-03
+  concept_id: roadmap:concept:lifeskills:w15:consent-giver-mindset
+  claim_ids:
+  - W15-C02
+- id: Q15-09
+  lo_ref: LO-W15-04
+  concept_id: roadmap:concept:lifeskills:w15:consent-giver-mindset
+  claim_ids:
+  - W15-C02
+- id: Q15-10
+  lo_ref: LO-W15-04
+  concept_id: roadmap:concept:lifeskills:w15:consent-giver-mindset
+  claim_ids:
+  - W15-C02
+units:
+- unit_id: roadmap:unit:lifeskills:w15
+  display_title: 'Tuần 15: Networking và kỹ năng xã hội: Kết nối có mục đích và tôn trọng đồng thuận'
+  sort_order: 15
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:lifeskills:w15
+    path: notes/module-4/week-15-networking-social-skills.md
+    sha256: 26b662e1d8d889f087346a2aae6980f5dda0550ca09d280a06bc6361c6bf4b43
+    byte_length: 17383
+  - role: quiz_questions
+    stable_id: roadmap:quiz:lifeskills:w15
+    path: assessments/quizzes/week-15-quiz.md
+    question_count: 10
+    sha256: edb91b0b5ab09a9b3495dfe32ab749db616d8681a81f3603c462af3ad6e7eb77
+    byte_length: 6327
+  - role: quiz_answers
+    stable_id: roadmap:answers:lifeskills:w15
+    path: assessments/answer-keys/week-15-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: 45e6030ac275a29bba583c5bed810abb0332eae905b9e975c212212695e6d3c3
+    byte_length: 11183
+  - role: flashcard_deck
+    stable_id: roadmap:deck:lifeskills:w15
+    path: flashcards/week-15.yaml
+    card_count: 15
+    sha256: 14fb8a15089e5cc1c6920034b02ce674d8d35a2b954e3faf20a29143dfd6de5f
+    byte_length: 9270
+  - role: source_ledger
+    path: quality/module-4-source-ledger.md
+    sha256: 9cbb46c502e19d93ef8907564205b43262abe5df8ce767cecfa0438d68bddfd8
+    byte_length: 6743

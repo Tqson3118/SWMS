@@ -1,0 +1,72 @@
+deck_id: deck-fscr-w20
+subject: FullStack-CSharp-React-Refresh
+lesson_id: week-20
+version: 1.0.0
+description: Dashboard, accessibility và frontend tests
+cards:
+- id: fc-fscr-w20-001
+  concept: Report source
+  front: Monthly total lấy từ đâu?
+  back: API report cho toàn tháng. Pagination không bao hết tháng.
+  source_lesson: notes/module-5/week-20.md
+  version: 1.0.0
+  claim_ids:
+  - W20-C01
+  tags:
+  - w20
+  - fullstack
+- id: fc-fscr-w20-002
+  concept: Zero budget
+  front: Budget0 xử lý percentage thế nào?
+  back: Không chia0; label và percent null. Giữ contract rõ và tránh giá trị invalid.
+  source_lesson: notes/module-5/week-20.md
+  version: 1.0.0
+  claim_ids:
+  - W20-C01
+  tags:
+  - w20
+  - fullstack
+- id: fc-fscr-w20-003
+  concept: Reducer role
+  front: Reducer nên có đặc tính gì?
+  back: Pure state/action → next state. Pure transition dễ kiểm và tái hiện.
+  source_lesson: notes/module-5/week-20.md
+  version: 1.0.0
+  claim_ids:
+  - W20-C02
+  tags:
+  - w20
+  - fullstack
+- id: fc-fscr-w20-004
+  concept: State choice
+  front: Khi nào thêm global state library?
+  back: Khi nhu cầu chia sẻ/transition có bằng chứng. ADR cân nhắc complexity so benefit.
+  source_lesson: notes/module-5/week-20.md
+  version: 1.0.0
+  claim_ids:
+  - W20-C02
+  tags:
+  - w20
+  - fullstack
+- id: fc-fscr-w20-005
+  concept: UI tests
+  front: Query nào gần cách user tìm nút?
+  back: getByRole('button',{name:'Retry'}). Role/name kiểm UI có thể truy cập.
+  source_lesson: notes/module-5/week-20.md
+  version: 1.0.0
+  claim_ids:
+  - W20-C03
+  tags:
+  - w20
+  - fullstack
+- id: fc-fscr-w20-006
+  concept: Accessibility evidence
+  front: Test tự động pass có chứng minh mọi a11y?
+  back: Không, cần keyboard/focus/manual checks. Tool không phát hiện mọi usability issue.
+  source_lesson: notes/module-5/week-20.md
+  version: 1.0.0
+  claim_ids:
+  - W20-C03
+  tags:
+  - w20
+  - fullstack

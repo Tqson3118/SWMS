@@ -1,0 +1,193 @@
+deck_id: deck-ls-w08
+subject: LifeSkills
+lesson_id: week-08-conflict-resolution-negotiation
+version: 1.1.0
+description: 'Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng Tuần 08: Giải quyết Xung
+  đột và Nghệ thuật Thương lượng'
+cards:
+- id: fc-ls-w08-001
+  concept: Mô hình Thomas-Kilmann (TKI)
+  front: Hai trục đo lường trong mô hình giải quyết xung đột Thomas-Kilmann là gì?
+  back: 'Trục tung: Tính quyết đoán (Assertiveness - mức độ theo đuổi mục tiêu của
+    bản thân); Trục hoành: Tính hợp tác (Cooperativeness - mức độ hỗ trợ mục tiêu
+    của đối phương).'
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.0.0
+  tags:
+  - tki-model
+  - conflict-styles
+  - module-2
+- id: fc-ls-w08-002
+  concept: Năm phong cách xử lý xung đột
+  front: Năm mode TKI mô tả những cách xử lý nào?
+  back: Cạnh tranh, cộng tác, thỏa hiệp, tránh né, nhượng bộ. Đây là cách xử lý theo
+    hai chiều quan tâm; tên mode không bảo đảm thắng/thua hay có một mode tốt nhất.
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.1.0
+  tags:
+  - conflict-styles
+  - negotiation
+  - module-2
+- id: fc-ls-w08-003
+  concept: Khi nào nên dùng phong cách Tránh né (Avoiding)?
+  front: Phong cách Tránh né có hợp lý không và được áp dụng trong trường hợp cụ thể
+    nào?
+  back: 'Hợp lý khi: Vấn đề không quan trọng, cảm xúc đang quá căng thẳng cần thời
+    gian hạ nhiệt, hoặc rủi ro đối đầu trực tiếp đe dọa đến an toàn cá nhân.'
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.0.0
+  tags:
+  - avoiding
+  - strategic-pause
+  - module-2
+- id: fc-ls-w08-004
+  concept: Khi nào nên dùng phong cách Hợp tác (Collaborating)?
+  front: Cộng tác hướng tới điều gì, và vì sao chưa thể bảo đảm kết quả?
+  back: Tìm lựa chọn đáp ứng các mối quan tâm; cần thời gian và khả năng trao đổi.
+    Thiện chí không bảo đảm giải pháp tối ưu hay quan hệ bền vững; quyền từ chối và
+    rủi ro vẫn cần xem xét.
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.1.0
+  tags:
+  - collaborating
+  - win-win
+  - module-2
+- id: fc-ls-w08-005
+  concept: Khái niệm BATNA trong thương lượng
+  front: BATNA (Best Alternative to a Negotiated Agreement) là gì và nó có thể ảnh
+    hưởng thế nào đến vị thế đàm phán?
+  back: Là phương án thay thế tốt nhất nếu cuộc thương lượng đổ vỡ. Một BATNA khả
+    thi có thể giúp đánh giá đề nghị và giảm áp lực chấp nhận điều kiện xấu; sức mạnh
+    còn phụ thuộc thông tin, nguồn lực, thời gian và rủi ro thực tế, không phải “lối
+    thoát” chắc chắn.
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.0.0
+  tags:
+  - batna
+  - negotiation-strategy
+  - module-2
+- id: fc-ls-w08-006
+  concept: Tách con người khỏi vấn đề
+  front: Nguyên tắc 'Separate the people from the problem' trong thương lượng Harvard
+    (Fisher & Ury) nghĩa là gì?
+  back: Tấn công vào bản chất khó khăn của sự việc, không tấn công vào tính cách hay
+    danh dự của con người. Đối xử mềm mỏng với con người nhưng cứng rắn với vấn đề.
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.0.0
+  tags:
+  - principled-negotiation
+  - harvard-model
+  - module-2
+- id: fc-ls-w08-007
+  concept: Lập trường vs Lợi ích (Positions vs Interests)
+  front: Tại sao cần đào sâu từ Lập trường (Positions) xuống Lợi ích cốt lõi (Interests)
+    trong tranh chấp?
+  back: Lập trường là điều họ tuyên bố muốn (thường đối đầu nhau, ví dụ 'Tôi muốn
+    cửa sổ mở'); Lợi ích là lý do sâu xa tại sao họ muốn điều đó ('Tôi cần không khí
+    trong lành'). Lợi ích thường có nhiều cách thỏa mãn.
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.0.0
+  tags:
+  - positions
+  - interests
+  - module-2
+- id: fc-ls-w08-008
+  concept: Vùng thỏa thuận khả thi (ZOPA)
+  front: ZOPA là gì và kết luận không có ZOPA cần giới hạn thế nào?
+  back: Vùng các thỏa thuận đáp ứng ngưỡng chấp nhận của các bên. Không có giao nhau
+    với điều kiện hiện tại thì chưa có thỏa thuận khả thi trong mô hình đó; thêm vấn
+    đề hoặc thay đổi thông tin có thể làm các ngưỡng thay đổi.
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.1.0
+  tags:
+  - zopa
+  - deal-making
+  - module-2
+- id: fc-ls-w08-009
+  concept: Chiến thuật Đóng băng cảm xúc (Emotional De-escalation)
+  front: Khi một bên bắt đầu la hét hoặc đập bàn trong tranh luận, hành động hạ nhiệt
+    tốt nhất là gì?
+  back: Nếu an toàn, hạ thấp tông giọng, nói chậm lại và đề xuất tạm dừng có thể giúp
+    giảm kích thích; không ép tiếp xúc mắt, không hứa một khoảng 10–15 phút sẽ giải
+    quyết xung đột, và rời đi/tìm hỗ trợ nếu có đe dọa.
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.0.0
+  tags:
+  - de-escalation
+  - emotional-control
+  - module-2
+- id: fc-ls-w08-010
+  concept: Thương lượng dựa trên tiêu chí khách quan
+  front: Nguyên tắc 'Insist on objective criteria' giúp giải quyết bế tắc thương lượng
+    ra sao?
+  back: 'Thay vì tranh cãi ai có ý chí mạnh hơn, hai bên đồng ý dựa vào một tiêu chuẩn
+    trung lập: giá thị trường, quy định pháp luật, tiền lệ công ty hoặc thẩm định
+    viên độc lập.'
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.0.0
+  tags:
+  - objective-criteria
+  - fairness
+  - module-2
+- id: fc-ls-w08-011
+  concept: Tạo thêm giá trị trước khi chia bánh
+  front: Khái niệm 'Expanding the pie' trong đàm phán hợp tác là gì?
+  back: 'Tìm kiếm các điều khoản mà một bên coi trọng nhưng bên kia tốn ít chi phí
+    để đáp ứng (ví dụ: thời gian bàn giao, quyền đào tạo, điều kiện thanh toán) để
+    đôi bên cùng có lợi.'
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.0.0
+  tags:
+  - value-creation
+  - win-win
+  - module-2
+- id: fc-ls-w08-012
+  concept: Bẫy cam kết leo thang (Escalation of Commitment)
+  front: Chi phí đã bỏ ra có thể tạo bẫy cam kết leo thang trong ví dụ đàm phán thế
+    nào?
+  back: Tiếp tục một thỏa thuận kém chỉ để gỡ thời gian/chi phí đã mất. So sánh lợi
+    ích và chi phí tương lai với phương án ngoài; không suy rằng mọi xung đột leo
+    thang đều do một cơ chế.
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.1.0
+  tags:
+  - sunk-cost
+  - conflict-trap
+  - module-2
+- id: fc-ls-w08-013
+  concept: Kỹ thuật 'Tạm nghỉ chiến thuật' (Time-out)
+  front: Quy tắc vàng khi xin tạm dừng (Time-out) trong một cuộc cãi vã gia đình hoặc
+    đồng nghiệp là gì?
+  back: Nếu cả hai bên an toàn và muốn tiếp tục, có thể đề nghị thời điểm quay lại
+    cụ thể ("Chúng ta nghỉ 30 phút và quay lại lúc 10h"). Nếu có đe dọa hoặc rủi ro,
+    không cần hứa quay lại; ưu tiên rời đi và hỗ trợ phù hợp.
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.0.0
+  tags:
+  - time-out
+  - fair-fighting
+  - module-2
+- id: fc-ls-w08-014
+  concept: Ghi nhận đóng góp của đối phương
+  front: Có thể ghi nhận nhượng bộ thực tế của đối phương theo cách nào?
+  back: Nêu cụ thể điều đã được điều chỉnh và tác động với mình. Đây là lựa chọn giao
+    tiếp biên soạn; không bảo đảm họ cảm thấy được tôn trọng hay tiếp tục hợp tác.
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.1.0
+  tags:
+  - recognition
+  - rapport
+  - module-2
+- id: fc-ls-w08-015
+  concept: Văn bản hóa thỏa thuận (Written Agreement)
+  front: Sau khi đạt được tiếng nói chung, bước nào thường giúp giảm hiểu lầm về thỏa
+    thuận?
+  back: 'Khi phù hợp, tóm tắt bằng văn bản hoặc tin nhắn: ai làm gì, thời hạn bao
+    lâu và tiêu chí nào được dùng. Với nghĩa vụ pháp lý hoặc hợp đồng, cần xem xét
+    văn bản/chuyên gia phù hợp; ghi chép không tự tạo ra sự đồng ý.'
+  source_lesson: LifeSkills/notes/module-2/week-08-conflict-resolution-negotiation.md
+  version: 1.0.0
+  tags:
+  - action-plan
+  - accountability
+  - module-2

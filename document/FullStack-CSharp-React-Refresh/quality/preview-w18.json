@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:53:58Z",
+  "unit_id": "roadmap:unit:fscr:w18",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 18: Hooks, routing và API lifecycle",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w18",
+    "title": "Tuần 18: Hooks, routing và API lifecycle",
+    "content_markdown": "<h1>Tuần 18 — Hooks, routing và API lifecycle</h1>\n<p>Chặng 5; 3 bài L18-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W18-01: Đồng bộ external API mà không tạo vòng lặp.</p>\n</li>\n<li>\n<p>LO-W18-02: Tạo navigation và deep link có thể tải lại.</p>\n</li>\n<li>\n<p>LO-W18-03: Chặn stale result và hiển thị loading/error/empty.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 17; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-18-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w18-01\"></a></p>\n<h2>Bài 1: Effects và lifecycle</h2>\n<p>LO-W18-01 · W18-C01</p>\n<p>Effect chạy sau commit để đồng bộ external system. Event submit POST thuộc event handler; total derive thuộc render, không cần effect. Dependencies gồm các reactive values effect đọc; bỏ dependency để 'chỉ chạy một lần' tạo stale closure. Effect không khai báo async vì return phải là cleanup hoặc undefined; đặt async function bên trong rồi gọi. Cleanup abort/ignore request cũ trước effect mới và unmount. Strict Mode Development có chu kỳ setup-cleanup-setup để phát hiện thiếu cleanup; không tắt chỉ để giấu bug. useRef giữ controller/request id mà thay đổi không render; useMemo chỉ tối ưu khi có bằng chứng.</p>\n<p><a id=\"lo-w18-02\"></a></p>\n<h2>Bài 2: Routes và URL state</h2>\n<p>LO-W18-02 · W18-C02</p>\n<p>Dùng React Router declarative BrowserRouter, Routes, Route với react-router theo docs phiên bản đã khóa; routes /expenses, /budgets, /reports, /login và catch-all. Link đổi URL mà không full reload. Query string chứa filter tháng/page cho bookmark; state input tạm thời có thể local. Khi đổi from/to hoặc category, reset page về1. Refresh /expenses cần host fallback index.html cho SPA, nhưng /api route phải đến backend. Route guard giúp UX khi chưa login; server vẫn enforce authorization. Không hard-code localhost trong production; cấu hình public API base URL theo environment.</p>\n<p><a id=\"lo-w18-03\"></a></p>\n<h2>Bài 3: Request state machine</h2>\n<p>LO-W18-03 · W18-C03</p>\n<p>API helper kiểm response.ok vì fetch không reject chỉ do404/500; 204 trả undefined không gọi json. Loading hiển thị progress; success có items empty khác error. Union {status:'loading'|'error'|'success'} tránh các boolean mâu thuẫn. GET dựa filter cần abort và ignore để response tháng cũ không ghi đè tháng mới. Không show AbortError như lỗi cho user. Parse ProblemDetails an toàn và display message generic/field error; giữ traceId để báo lỗi. DTO không có runtime trust do TypeScript. Kiểm Number.isSafeInteger cho totals; abort network không chứng minh mutation server đã rollback.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Trong component list import useEffect/useState; state union để dữ liệu không xuất hiện ở error.</li>\n<li>Core effect, apiUrl là URL GET đã chứa filter; decodeList là guard tự viết tuần17:</li>\n</ol>\n<pre><code class=\"language-tsx\">useEffect(() =&gt; {\n const ac = new AbortController(); let active = true;\n setView({status:'loading'});\n async function load() {\n  try {\n   const r=await fetch(apiUrl,{signal:ac.signal});\n   if(!r.ok) throw new Error(`HTTP ${r.status}`);\n   const data=decodeList(await r.json());\n   if(active) setView({status:'success',data});\n  } catch(e) {\n   if(active &amp;&amp; !ac.signal.aborted)\n    setView({status:'error',message:e instanceof Error?e.message:'Request failed'});\n  }\n }\n void load();\n return ()=&gt;{active=false;ac.abort();};\n},[apiUrl]);\n</code></pre>\n<ol>\n<li>Throttle DevTools: Oct chậm, Nov nhanh; đổi filter trước Oct xong. Cuối chỉ hiển thị Nov.</li>\n<li>GET Bob items=[] hiển thị empty CTA;500 hiển thị retry; không gộp thành 'no expenses'.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>Abort giảm công việc nhưng ignore bảo vệ state khi request đã gần hoàn thành. Không thêm rows vào effect dependencies nếu effect setRows mỗi lần. Router state không cache server data. Thư viện query cache là tùy chọn sau khi đã hiểu race/keys/invalidation.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>Thiết kế xử lý DELETE204 trong api helper.</p>\n<h3>Bài tập 2</h3>\n<p>Filter mới page5 không có items nhưng có totalCount. Sửa UX.</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>Nếu status===204 return undefined trước json; các status khác check ok và content type. Sau delete refetch list đúng filter/page.</p>\n<h3>Hướng giải 2</h3>\n<p>Reset page1 khi filter thay đổi; khi xóa item cuối trang, tính lại page hợp lệ rồi fetch. Empty state chỉ khi filter không có kết quả.</p>\n<h2>Project task</h2>\n<p>Nối list/pagination/filter React tới API của tuần14–16; thêm routing và GET state machine; lưu filter URL để chia sẻ link.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w18.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Refresh deep link /expenses?month=2026-10 hoạt động; back/forward phục hồi filter.</p>\n</li>\n<li>\n<p>[ ] Test Oct/Nov responses đảo thứ tự không ghi đè mới; unmount không update state.</p>\n</li>\n<li>\n<p>[ ] Loading,500 retry,Bob empty và success có giao diện riêng; DELETE204 không JSON error.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Đọc Effects docs15 phút; nói 'A stale closure is...' và mô tả cleanup bằng sơ đồ lời nói.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://react.dev/learn/synchronizing-with-effects\">Cleanup, dependencies and development remount</a> — W18-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://reactrouter.com/start/declarative/routing\">BrowserRouter, Routes and nested routes</a> — W18-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch\">Response status and cancellation</a> — W18-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-18-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-18-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-18.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"week-17.md\">Tuần trước</a></p>\n<p><a href=\"week-19.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Cleanup, dependencies and development remount](https://react.dev/learn/synchronizing-with-effects)",
+      "[BrowserRouter, Routes and nested routes](https://reactrouter.com/start/declarative/routing)",
+      "[Response status and cancellation](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W18-01]",
+        "bloom_level": "Apply",
+        "statement": "Đồng bộ external API mà không tạo vòng lặp."
+      },
+      {
+        "id": "[LO-W18-02]",
+        "bloom_level": "Apply",
+        "statement": "Tạo navigation và deep link có thể tải lại."
+      },
+      {
+        "id": "[LO-W18-03]",
+        "bloom_level": "Apply",
+        "statement": "Chặn stale result và hiển thị loading/error/empty."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w18-c01",
+        "name": "Effects và lifecycle",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w18-c02",
+        "name": "Routes và URL state",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w18-c03",
+        "name": "Request state machine",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w18",
+    "title": "Trắc nghiệm Tuần 18: Hooks, routing và API lifecycle",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w18:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "POST do user bấm submit nên đặt đâu?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Effect mỗi render"
+          },
+          {
+            "id": "B",
+            "text": "Module global startup"
+          },
+          {
+            "id": "C",
+            "text": "Trong event handler"
+          },
+          {
+            "id": "D",
+            "text": "Render body"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Mutation gắn với intent submit.",
+        "wrong_explanations": {
+          "A": "Effect lặp có thể tạo expense trùng.",
+          "B": "Startup không biết dữ liệu form/user.",
+          "D": "Render phải không gây side effects."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w18-c01",
+        "lesson_anchor": "#lo-w18-01",
+        "claim_ids": [
+          "W18-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w18:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Effect fetch trả cleanup để làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Undo mọi server commit"
+          },
+          {
+            "id": "B",
+            "text": "Tắt TypeScript"
+          },
+          {
+            "id": "C",
+            "text": "Giữ request chạy mãi"
+          },
+          {
+            "id": "D",
+            "text": "Abort và ignore kết quả cũ"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Cleanup bảo vệ UI khi đổi dependency.",
+        "wrong_explanations": {
+          "A": "Commit server có lifecycle riêng.",
+          "B": "Type checking không liên quan cleanup.",
+          "C": "Không hủy làm lãng phí và dễ race."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w18-c01",
+        "lesson_anchor": "#lo-w18-01",
+        "claim_ids": [
+          "W18-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w18:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "SPA refresh route cần gì ở host?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Fallback index.html cho UI routes"
+          },
+          {
+            "id": "B",
+            "text": "Fallback mọi /api sang HTML"
+          },
+          {
+            "id": "C",
+            "text": "Chỉ mở root được"
+          },
+          {
+            "id": "D",
+            "text": "Lưu route trong JWT"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Host phải phục vụ entry cho route UI.",
+        "wrong_explanations": {
+          "B": "API cần JSON/status đúng backend.",
+          "C": "Deep links là yêu cầu navigation.",
+          "D": "JWT không lưu browser route cần thiết."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w18-c02",
+        "lesson_anchor": "#lo-w18-02",
+        "claim_ids": [
+          "W18-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w18:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "Guard client thay auth API không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Có nếu URL khó đoán"
+          },
+          {
+            "id": "B",
+            "text": "Không, API tự kiểm quyền"
+          },
+          {
+            "id": "C",
+            "text": "Có nếu button ẩn"
+          },
+          {
+            "id": "D",
+            "text": "Có nếu router private"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Client bị sửa và API gọi trực tiếp được.",
+        "wrong_explanations": {
+          "A": "Khó đoán không enforce authorization.",
+          "C": "UI visibility không security boundary.",
+          "D": "Router không validate bearer ở server."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w18-c02",
+        "lesson_anchor": "#lo-w18-02",
+        "claim_ids": [
+          "W18-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w18:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "fetch gặp HTTP500 thường làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Luôn parse ProblemDetails"
+          },
+          {
+            "id": "B",
+            "text": "Tự retry không giới hạn"
+          },
+          {
+            "id": "C",
+            "text": "Resolve Response cần kiểm ok"
+          },
+          {
+            "id": "D",
+            "text": "Luôn reject"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "HTTP lỗi vẫn là response network thành công.",
+        "wrong_explanations": {
+          "A": "Body parsing do ứng dụng xử lý.",
+          "B": "Fetch không tự thực hiện retry policy.",
+          "D": "Reject thường do network/abort."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w18-c03",
+        "lesson_anchor": "#lo-w18-03",
+        "claim_ids": [
+          "W18-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w18:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "DELETE204 nên xử lý body thế nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Parse JSON rỗng"
+          },
+          {
+            "id": "B",
+            "text": "Gán error500"
+          },
+          {
+            "id": "C",
+            "text": "Đòi backend gửi {}"
+          },
+          {
+            "id": "D",
+            "text": "Không gọi json, trả undefined"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "204 biểu thị không có body.",
+        "wrong_explanations": {
+          "A": "JSON parser lỗi vì input rỗng.",
+          "B": "Success204 không phải server failure.",
+          "C": "Body {} vi phạm semantics204."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w18-c03",
+        "lesson_anchor": "#lo-w18-03",
+        "claim_ids": [
+          "W18-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w18",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 18: Hooks, routing và API lifecycle",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w18-001",
+        "concept_name": "Effect boundary",
+        "front": "POST do user bấm submit nên đặt đâu?",
+        "back": "Trong event handler. Mutation gắn với intent submit.",
+        "tags": [
+          "w18",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W18-C01"
+        ],
+        "source_citation": "notes/module-5/week-18.md",
+        "lesson_anchor": "#lo-w18-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w18-002",
+        "concept_name": "Cleanup",
+        "front": "Effect fetch trả cleanup để làm gì?",
+        "back": "Abort và ignore kết quả cũ. Cleanup bảo vệ UI khi đổi dependency.",
+        "tags": [
+          "w18",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W18-C01"
+        ],
+        "source_citation": "notes/module-5/week-18.md",
+        "lesson_anchor": "#lo-w18-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w18-003",
+        "concept_name": "Deep links",
+        "front": "SPA refresh route cần gì ở host?",
+        "back": "Fallback index.html cho UI routes. Host phải phục vụ entry cho route UI.",
+        "tags": [
+          "w18",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W18-C02"
+        ],
+        "source_citation": "notes/module-5/week-18.md",
+        "lesson_anchor": "#lo-w18-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w18-004",
+        "concept_name": "Route guard",
+        "front": "Guard client thay auth API không?",
+        "back": "Không, API tự kiểm quyền. Client bị sửa và API gọi trực tiếp được.",
+        "tags": [
+          "w18",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W18-C02"
+        ],
+        "source_citation": "notes/module-5/week-18.md",
+        "lesson_anchor": "#lo-w18-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w18-005",
+        "concept_name": "Fetch status",
+        "front": "fetch gặp HTTP500 thường làm gì?",
+        "back": "Resolve Response cần kiểm ok. HTTP lỗi vẫn là response network thành công.",
+        "tags": [
+          "w18",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W18-C03"
+        ],
+        "source_citation": "notes/module-5/week-18.md",
+        "lesson_anchor": "#lo-w18-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w18-006",
+        "concept_name": "204 parsing",
+        "front": "DELETE204 nên xử lý body thế nào?",
+        "back": "Không gọi json, trả undefined. 204 biểu thị không có body.",
+        "tags": [
+          "w18",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W18-C03"
+        ],
+        "source_citation": "notes/module-5/week-18.md",
+        "lesson_anchor": "#lo-w18-03"
+      }
+    ]
+  }
+}

@@ -1,0 +1,84 @@
+deck_id: "deck-psy-w28"
+subject: "Psychology"
+lesson_id: "week-28-love-languages-critique"
+version: "1.0.0"
+description: "Flashcards ôn tập Tuần 28 - Phản biện các mô hình phổ biến"
+
+cards:
+  - id: "fc-psy-w28-001"
+    concept: "Pop psychology (Tâm lý học đại chúng)"
+    front: "Đặc điểm chính của Pop Psychology là gì?"
+    back: "Thường đơn giản hóa các khái niệm khoa học phức tạp, dễ tiếp cận với đại chúng nhưng thường thiếu bằng chứng thực nghiệm mạnh mẽ."
+    source_lesson: "Psychology/notes/04-love-relationships/week-28-love-languages-critique.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C28-01"
+    tags:
+      - "pop-psychology"
+
+  - id: "fc-psy-w28-002"
+    concept: "Operationalization"
+    front: "Trong nghiên cứu khoa học, Operationalization (thao tác hóa) nghĩa là gì?"
+    back: "Quá trình định nghĩa các khái niệm trừu tượng thành các biến số cụ thể, có thể đo lường và quan sát được."
+    source_lesson: "Psychology/notes/04-love-relationships/week-28-love-languages-critique.md"
+    version: "1.0.0"
+    tags:
+      - "research-method"
+
+  - id: "fc-psy-w28-003"
+    concept: "5 Love Languages"
+    front: "Hạn chế khoa học lớn nhất của mô hình 5 Ngôn ngữ tình yêu là gì?"
+    back: "Thiếu bằng chứng thực nghiệm hệ thống, khó thao tác hóa các biến số (chồng chéo), và không có bằng chứng chứng minh sự 'tương hợp' ngôn ngữ quyết định hạnh phúc."
+    source_lesson: "Psychology/notes/04-love-relationships/week-28-love-languages-critique.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C28-02"
+    tags:
+      - "love-languages"
+
+  - id: "fc-psy-w28-004"
+    concept: "Perceived Partner Responsiveness"
+    front: "Perceived Partner Responsiveness là gì?"
+    back: "Sự phản hồi nhận thức: Cảm nhận của một cá nhân rằng đối tác thấu hiểu, trân trọng và quan tâm đến các nhu cầu cốt lõi của họ."
+    source_lesson: "Psychology/notes/04-love-relationships/week-28-love-languages-critique.md"
+    version: "1.0.0"
+    tags:
+      - "relationships"
+
+  - id: "fc-psy-w28-005"
+    concept: "The Four Horsemen (Gottman)"
+    front: "Bốn Kỵ sĩ (The Four Horsemen) trong mô hình của Gottman ám chỉ điều gì?"
+    back: "4 hành vi giao tiếp tiêu cực tiên đoán khả năng ly hôn cao: Chỉ trích (Criticism), Khinh miệt (Contempt), Phòng thủ (Defensiveness), Xây tường (Stonewalling)."
+    source_lesson: "Psychology/notes/04-love-relationships/week-28-love-languages-critique.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C28-03"
+    tags:
+      - "gottman"
+
+  - id: "fc-psy-w28-006"
+    concept: "Correlation vs Causation"
+    front: "Sự khác biệt giữa Tương quan và Nhân quả trong nghiên cứu về sự hài lòng trong tình yêu?"
+    back: "Tương quan nghĩa là hai biến số thay đổi cùng nhau (ví dụ: giao tiếp tốt và hạnh phúc), nhưng không nhất thiết cái này gây ra cái kia (nhân quả)."
+    source_lesson: "Psychology/notes/04-love-relationships/week-28-love-languages-critique.md"
+    version: "1.0.0"
+    tags:
+      - "research-method"
+
+  - id: "fc-psy-w28-007"
+    concept: "WEIRD Sample"
+    front: "Mẫu WEIRD trong nghiên cứu tâm lý học là gì?"
+    back: "Mẫu nghiên cứu gồm những người thuộc nhóm Western (Phương Tây), Educated (Có học thức), Industrialized (Công nghiệp hóa), Rich (Giàu có), Democratic (Dân chủ). Đây là một giới hạn phổ biến."
+    source_lesson: "Psychology/notes/04-love-relationships/week-28-love-languages-critique.md"
+    version: "1.0.0"
+    tags:
+      - "bias"
+
+  - id: "fc-psy-w28-008"
+    concept: "Tính ứng dụng của Pop Psychology"
+    front: "Bất chấp thiếu sót về khoa học, mô hình Chapman có giá trị thực tiễn nào?"
+    back: "Hoạt động như một công cụ giao tiếp hữu ích, giúp các cặp đôi dễ dàng mở lời thảo luận về nhu cầu và kỳ vọng tình cảm của bản thân."
+    source_lesson: "Psychology/notes/04-love-relationships/week-28-love-languages-critique.md"
+    version: "1.0.0"
+    tags:
+      - "pop-psychology"

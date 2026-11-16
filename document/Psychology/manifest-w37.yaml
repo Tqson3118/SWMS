@@ -1,0 +1,174 @@
+schema_version: 2.0.0
+package_id: package:psychology:w37
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 05-development-mental-health
+lesson: week-37-wellbeing-positive-psychology
+learning_objectives:
+- id: LO-W37-01
+  bloom_level: Understand
+  statement: Phân biệt hạnh phúc khoái lạc (Hedonic) và hạnh phúc ý nghĩa (Eudaimonic), mô hình SWB của Ed Diener.
+- id: LO-W37-02
+  bloom_level: Analyze
+  statement: Phân tích 5 trụ cột của mô hình PERMA (Seligman) và điều kiện xuất hiện trạng thái dòng chảy (Flow của Csikszentmihalyi).
+- id: LO-W37-03
+  bloom_level: Apply
+  statement: Ứng dụng các can thiệp tâm lý tích cực dựa trên bằng chứng (broaden-and-build, gratitude, mindfulness) vào đời sống hàng ngày.
+- id: LO-W37-04
+  bloom_level: Evaluate
+  statement: Đánh giá các giới hạn phương pháp luận của tâm lý học tích cực, phản biện sự lạc quan độc hại và bác bỏ tỷ lệ Losada.
+concepts:
+- id: roadmap:concept:psychology:w37-c37-01
+  name: Phân biệt Hedonic và Eudaimonic Well-being (Deci & Ryan)
+  claim_ids:
+  - C37-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w37-c37-02
+  name: Mô hình Hạnh phúc Chủ quan (SWB - Ed Diener)
+  claim_ids:
+  - C37-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w37-c37-03
+  name: Mô hình PERMA về sự Hưng thịnh (Martin Seligman)
+  claim_ids:
+  - C37-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w37-c37-04
+  name: Trạng thái Dòng chảy (Flow State - Csikszentmihalyi)
+  claim_ids:
+  - C37-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w37-c37-05
+  name: Phản biện khoa học & Cảnh báo Lạc quan độc hại (Brown et al., Ehrenreich)
+  claim_ids:
+  - C37-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+questions:
+- id: Q37-01
+  lo_ref: LO-W37-01
+  concept_id: roadmap:concept:psychology:w37-c37-01
+  claim_ids:
+  - C37-01
+- id: Q37-02
+  lo_ref: LO-W37-01
+  concept_id: roadmap:concept:psychology:w37-c37-02
+  claim_ids:
+  - C37-02
+- id: Q37-03
+  lo_ref: LO-W37-02
+  concept_id: roadmap:concept:psychology:w37-c37-03
+  claim_ids:
+  - C37-03
+- id: Q37-04
+  lo_ref: LO-W37-02
+  concept_id: roadmap:concept:psychology:w37-c37-03
+  claim_ids:
+  - C37-03
+- id: Q37-05
+  lo_ref: LO-W37-02
+  concept_id: roadmap:concept:psychology:w37-c37-04
+  claim_ids:
+  - C37-04
+- id: Q37-06
+  lo_ref: LO-W37-02
+  concept_id: roadmap:concept:psychology:w37-c37-04
+  claim_ids:
+  - C37-04
+- id: Q37-07
+  lo_ref: LO-W37-03
+  concept_id: roadmap:concept:psychology:w37-c37-01
+  claim_ids:
+  - C37-01
+- id: Q37-08
+  lo_ref: LO-W37-03
+  concept_id: roadmap:concept:psychology:w37-c37-03
+  claim_ids:
+  - C37-03
+- id: Q37-09
+  lo_ref: LO-W37-04
+  concept_id: roadmap:concept:psychology:w37-c37-05
+  claim_ids:
+  - C37-05
+- id: Q37-10
+  lo_ref: LO-W37-04
+  concept_id: roadmap:concept:psychology:w37-c37-05
+  claim_ids:
+  - C37-05
+- id: Q37-11
+  lo_ref: LO-W37-03
+  concept_id: roadmap:concept:psychology:w37-c37-02
+  claim_ids:
+  - C37-02
+- id: Q37-12
+  lo_ref: LO-W37-04
+  concept_id: roadmap:concept:psychology:w37-c37-05
+  claim_ids:
+  - C37-05
+units:
+- unit_id: roadmap:unit:psychology:w37
+  display_title: 'Tuần 37: Wellbeing và Tâm lý học Tích cực (Wellbeing & Positive Psychology)'
+  sort_order: 37
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w37
+    path: notes/05-development-mental-health/week-37-wellbeing-positive-psychology.md
+    sha256: d9f96e40b933fd8d466510fce959024beca3d371d525bce6223a935176231bef
+    byte_length: 38994
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w37
+    path: assessments/quizzes/week-37-quiz.md
+    question_count: 12
+    sha256: df6b34b7aaf31fecf2716f31d60daff3d8f7b54849febaa5e72d87f6699f92f6
+    byte_length: 9885
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w37
+    path: assessments/answer-keys/week-37-answers.md
+    correct_count: 12
+    wrong_count: 36
+    sha256: 8188a7e355ccc7500a272df78dd236114895f261974b28b1ddd98a06f154e8d0
+    byte_length: 8476
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w37
+    path: flashcards/week-37.yaml
+    card_count: 8
+    sha256: 2628c0ad4b96c26f219357defa3b29b0d32fe9cecd11a2f9a68799b35de4c1b5
+    byte_length: 6227
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

@@ -1,0 +1,167 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.17.0
+2 info using node@v24.19.0
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:D:\03_Study\Roadmap\FullStack-CSharp-React-Refresh\quality\runtime\typescript\.npmrc
+5 silly config load:file:C:\Users\Administrator\.npmrc
+6 silly config load:file:C:\Users\Administrator\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm install typescript @types/react @types/react-dom
+8 verbose argv "install" "--ignore-scripts" "--no-audit" "--no-fund" "--save-dev" "--save-exact" "typescript" "@types/react" "@types/react-dom" "--cache" "D:\\03_Study\\Roadmap\\FullStack-CSharp-React-Refresh\\quality\\runtime\\npm-cache"
+9 verbose logfile logs-max:10 dir:D:\03_Study\Roadmap\FullStack-CSharp-React-Refresh\quality\runtime\npm-cache\_logs\2026-10-03T11_36_28_791Z-
+10 verbose logfile D:\03_Study\Roadmap\FullStack-CSharp-React-Refresh\quality\runtime\npm-cache\_logs\2026-10-03T11_36_28_791Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+13 silly idealTree buildDeps
+14 silly fetch manifest typescript@*
+15 silly packumentCache full:https://registry.npmjs.org/typescript cache-miss
+16 http fetch GET 200 https://registry.npmjs.org/npm 303ms
+17 http fetch GET 200 https://registry.npmjs.org/typescript 477ms (cache miss)
+18 silly packumentCache full:https://registry.npmjs.org/typescript set size:undefined disposed:false
+19 silly fetch manifest @types/react@*
+20 silly packumentCache full:https://registry.npmjs.org/@types%2freact cache-miss
+21 http fetch GET 200 https://registry.npmjs.org/@types%2freact 126ms (cache miss)
+22 silly packumentCache full:https://registry.npmjs.org/@types%2freact set size:undefined disposed:false
+23 silly fetch manifest @types/react-dom@*
+24 silly packumentCache full:https://registry.npmjs.org/@types%2freact-dom cache-miss
+25 http fetch GET 200 https://registry.npmjs.org/@types%2freact-dom 70ms (cache miss)
+26 silly packumentCache full:https://registry.npmjs.org/@types%2freact-dom set size:undefined disposed:false
+27 silly placeDep ROOT @types/react@19.3.0 OK for: course-example-checks@1.0.0 want: *
+28 silly placeDep ROOT @types/react-dom@19.3.0 OK for: course-example-checks@1.0.0 want: *
+29 silly placeDep ROOT typescript@7.0.2 OK for: course-example-checks@1.0.0 want: *
+30 silly fetch manifest csstype@^3.2.2
+31 silly packumentCache full:https://registry.npmjs.org/csstype cache-miss
+32 silly fetch manifest @typescript/typescript-aix-ppc64@7.0.2
+33 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-aix-ppc64 cache-miss
+34 silly fetch manifest @typescript/typescript-linux-arm@7.0.2
+35 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-arm cache-miss
+36 silly fetch manifest @typescript/typescript-linux-x64@7.0.2
+37 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-x64 cache-miss
+38 silly fetch manifest @typescript/typescript-sunos-x64@7.0.2
+39 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-sunos-x64 cache-miss
+40 silly fetch manifest @typescript/typescript-win32-x64@7.0.2
+41 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-win32-x64 cache-miss
+42 silly fetch manifest @typescript/typescript-darwin-x64@7.0.2
+43 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-darwin-x64 cache-miss
+44 silly fetch manifest @typescript/typescript-netbsd-x64@7.0.2
+45 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-netbsd-x64 cache-miss
+46 silly fetch manifest @typescript/typescript-freebsd-x64@7.0.2
+47 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-freebsd-x64 cache-miss
+48 silly fetch manifest @typescript/typescript-linux-arm64@7.0.2
+49 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-arm64 cache-miss
+50 silly fetch manifest @typescript/typescript-linux-ppc64@7.0.2
+51 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-ppc64 cache-miss
+52 silly fetch manifest @typescript/typescript-linux-s390x@7.0.2
+53 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-s390x cache-miss
+54 silly fetch manifest @typescript/typescript-openbsd-x64@7.0.2
+55 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-openbsd-x64 cache-miss
+56 silly fetch manifest @typescript/typescript-win32-arm64@7.0.2
+57 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-win32-arm64 cache-miss
+58 silly fetch manifest @typescript/typescript-darwin-arm64@7.0.2
+59 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-darwin-arm64 cache-miss
+60 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-aix-ppc64 64ms (cache miss)
+61 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-aix-ppc64 set size:undefined disposed:false
+62 silly fetch manifest @typescript/typescript-netbsd-arm64@7.0.2
+63 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-netbsd-arm64 cache-miss
+64 http fetch GET 200 https://registry.npmjs.org/csstype 66ms (cache miss)
+65 silly packumentCache full:https://registry.npmjs.org/csstype set size:undefined disposed:false
+66 silly fetch manifest @typescript/typescript-freebsd-arm64@7.0.2
+67 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-freebsd-arm64 cache-miss
+68 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-freebsd-arm64 63ms (cache miss)
+69 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-freebsd-arm64 set size:undefined disposed:false
+70 silly fetch manifest @typescript/typescript-linux-loong64@7.0.2
+71 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-loong64 cache-miss
+72 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-netbsd-arm64 69ms (cache miss)
+73 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-netbsd-arm64 set size:undefined disposed:false
+74 silly fetch manifest @typescript/typescript-linux-riscv64@7.0.2
+75 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-riscv64 cache-miss
+76 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-linux-s390x 154ms (cache miss)
+77 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-s390x set size:undefined disposed:false
+78 silly fetch manifest @typescript/typescript-openbsd-arm64@7.0.2
+79 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-openbsd-arm64 cache-miss
+80 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-darwin-x64 171ms (cache miss)
+81 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-darwin-x64 set size:undefined disposed:false
+82 silly fetch manifest @typescript/typescript-linux-mips64el@7.0.2
+83 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-mips64el cache-miss
+84 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-linux-arm64 179ms (cache miss)
+85 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-arm64 set size:undefined disposed:false
+86 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-sunos-x64 189ms (cache miss)
+87 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-sunos-x64 set size:undefined disposed:false
+88 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-linux-loong64 63ms (cache miss)
+89 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-loong64 set size:undefined disposed:false
+90 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-win32-arm64 196ms (cache miss)
+91 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-win32-arm64 set size:undefined disposed:false
+92 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-linux-riscv64 76ms (cache miss)
+93 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-riscv64 set size:undefined disposed:false
+94 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-linux-arm 210ms (cache miss)
+95 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-arm set size:undefined disposed:false
+96 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-win32-x64 210ms (cache miss)
+97 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-win32-x64 set size:undefined disposed:false
+98 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-openbsd-arm64 65ms (cache miss)
+99 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-openbsd-arm64 set size:undefined disposed:false
+100 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-openbsd-x64 219ms (cache miss)
+101 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-openbsd-x64 set size:undefined disposed:false
+102 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-netbsd-x64 221ms (cache miss)
+103 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-netbsd-x64 set size:undefined disposed:false
+104 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-linux-x64 224ms (cache miss)
+105 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-x64 set size:undefined disposed:false
+106 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-linux-mips64el 57ms (cache miss)
+107 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-mips64el set size:undefined disposed:false
+108 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-linux-ppc64 230ms (cache miss)
+109 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-linux-ppc64 set size:undefined disposed:false
+110 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-darwin-arm64 300ms (cache miss)
+111 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-darwin-arm64 set size:undefined disposed:false
+112 http fetch GET 200 https://registry.npmjs.org/@typescript%2ftypescript-freebsd-x64 538ms (cache miss)
+113 silly packumentCache full:https://registry.npmjs.org/@typescript%2ftypescript-freebsd-x64 set size:undefined disposed:false
+114 silly placeDep ROOT csstype@3.2.3 OK for: @types/react@19.3.0 want: ^3.2.2
+115 silly placeDep ROOT @typescript/typescript-aix-ppc64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+116 silly placeDep ROOT @typescript/typescript-darwin-arm64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+117 silly placeDep ROOT @typescript/typescript-darwin-x64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+118 silly placeDep ROOT @typescript/typescript-freebsd-arm64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+119 silly placeDep ROOT @typescript/typescript-freebsd-x64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+120 silly placeDep ROOT @typescript/typescript-linux-arm@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+121 silly placeDep ROOT @typescript/typescript-linux-arm64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+122 silly placeDep ROOT @typescript/typescript-linux-loong64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+123 silly placeDep ROOT @typescript/typescript-linux-mips64el@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+124 silly placeDep ROOT @typescript/typescript-linux-ppc64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+125 silly placeDep ROOT @typescript/typescript-linux-riscv64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+126 silly placeDep ROOT @typescript/typescript-linux-s390x@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+127 silly placeDep ROOT @typescript/typescript-linux-x64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+128 silly placeDep ROOT @typescript/typescript-netbsd-arm64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+129 silly placeDep ROOT @typescript/typescript-netbsd-x64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+130 silly placeDep ROOT @typescript/typescript-openbsd-arm64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+131 silly placeDep ROOT @typescript/typescript-openbsd-x64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+132 silly placeDep ROOT @typescript/typescript-sunos-x64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+133 silly placeDep ROOT @typescript/typescript-win32-arm64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+134 silly placeDep ROOT @typescript/typescript-win32-x64@7.0.2 OK for: typescript@7.0.2 want: 7.0.2
+135 silly reify moves {}
+136 http cache @types/react-dom@https://registry.npmjs.org/@types/react-dom/-/react-dom-19.3.0.tgz 0ms (cache hit)
+137 http cache @typescript/typescript-win32-x64@https://registry.npmjs.org/@typescript/typescript-win32-x64/-/typescript-win32-x64-7.0.2.tgz 0ms (cache hit)
+138 http cache csstype@https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz 0ms (cache hit)
+139 http cache @types/react@https://registry.npmjs.org/@types/react/-/react-19.3.0.tgz 0ms (cache hit)
+140 http cache typescript@https://registry.npmjs.org/typescript/-/typescript-7.0.2.tgz 0ms (cache hit)
+141 silly tarball no local data for @types/react-dom@https://registry.npmjs.org/@types/react-dom/-/react-dom-19.3.0.tgz. Extracting by manifest.
+142 silly tarball no local data for @typescript/typescript-win32-x64@https://registry.npmjs.org/@typescript/typescript-win32-x64/-/typescript-win32-x64-7.0.2.tgz. Extracting by manifest.
+143 silly tarball no local data for csstype@https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz. Extracting by manifest.
+144 silly tarball no local data for @types/react@https://registry.npmjs.org/@types/react/-/react-19.3.0.tgz. Extracting by manifest.
+145 silly tarball no local data for typescript@https://registry.npmjs.org/typescript/-/typescript-7.0.2.tgz. Extracting by manifest.
+146 http fetch GET 200 https://registry.npmjs.org/@types/react-dom/-/react-dom-19.3.0.tgz 84ms (cache miss)
+147 http fetch GET 200 https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz 87ms (cache miss)
+148 http fetch GET 200 https://registry.npmjs.org/@types/react/-/react-19.3.0.tgz 97ms (cache miss)
+149 http fetch GET 200 https://registry.npmjs.org/@typescript/typescript-win32-x64/-/typescript-win32-x64-7.0.2.tgz 508ms (cache miss)
+150 http fetch GET 200 https://registry.npmjs.org/typescript/-/typescript-7.0.2.tgz 513ms (cache miss)
+151 silly ADD node_modules/@typescript/typescript-win32-x64
+152 silly ADD node_modules/csstype
+153 silly ADD node_modules/typescript
+154 silly ADD node_modules/@types/react-dom
+155 silly ADD node_modules/@types/react
+156 verbose cwd D:\03_Study\Roadmap\FullStack-CSharp-React-Refresh\quality\runtime\typescript
+157 verbose os Windows_NT 10.0.26200
+158 verbose node v24.19.0
+159 verbose npm  v11.17.0
+160 notice
+160 notice New major version of npm available! 11.17.0 -> 12.2.0
+160 notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+160 notice To update run: npm install -g npm@12.2.0
+160 notice  { force: true, Symbol(proc-log.meta): true }
+161 verbose exit 0
+162 info ok

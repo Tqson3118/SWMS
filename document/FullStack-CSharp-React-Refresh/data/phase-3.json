@@ -1,0 +1,658 @@
+[
+  {
+    "week": 9,
+    "title": "SQL schema, constraints và normalization",
+    "lessons": [
+      {
+        "title": "Relational model và khóa",
+        "objective": "Thiết kế Users/Categories/Expenses với PK/FK và data types đúng.",
+        "body": "Table là tập rows có schema, PK định danh duy nhất và not-null, FK bảo vệ quan hệ. SQL Server uniqueidentifier phù hợp Guid; bigint cho amount, date cho spentOn, nvarchar cho Unicode. Không lưu số tiền đã format '50.000₫' để SUM. Surrogate Id không thay business unique constraint: Category cần UNIQUE(UserId,Name). FK CategoryId đơn lẻ chỉ chứng minh category tồn tại, không chứng minh cùng owner, nên FK(CategoryId,UserId) tới unique Categories(Id,UserId). Constraint là lớp bảo vệ bất kể API/import nào ghi; validation UI hỗ trợ feedback nhưng không đủ. Nullability phải theo domain, note nullable còn amount/owner không-null."
+      },
+      {
+        "title": "Normalization thực dụng",
+        "objective": "Nhận diện update anomaly và tách bảng theo functional dependency.",
+        "body": "1NF giữ giá trị atomic theo nhu cầu truy vấn, không chuỗi id '1,2,3'; 2NF loại dependency một phần với composite key; 3NF hạn chế non-key phụ thuộc qua non-key. Đừng lưu CategoryName lặp trên mọi Expense nếu muốn tên current: đổi1 category sẽ không cập nhật mọi row, gây update anomaly. Snapshot tên historical là chủ ý khác cần ADR, không tự gọi duplication sai. Budget phụ thuộc UserId/CategoryId/MonthStart nên unique bộ đó. Normalize trước đo query; denormalize cho read model có cơ chế đồng bộ khi bằng chứng cần. Không gộp tất cả JSON chỉ để tránh JOIN."
+      },
+      {
+        "title": "Constraints và seed reproducible",
+        "objective": "Tạo CHECK/UNIQUE/FK và seed dữ liệu hai user để kiểm ownership.",
+        "body": "CHECK AmountVnd>0 và <=1e9 đi cùng NOT NULL vì CHECK có thể cho UNKNOWN do null. UNIQUE giữ không trùng business key; constraint fail trả error để API map400/409, không nuốt. Chọn NO ACTION khi xóa category còn expenses để tránh mất lịch sử. Seed dùng IDs cố định và transaction trong DB lab, không overwrite data thật. Đọc SELECT DB_NAME() trước script; tạo database lab thủ công và không DROP/TRUNCATE. Script repeatable dùng guard theo key, nhưng race chống duplicate vẫn do UNIQUE. Quan sát constraint reject trái user ngay cả insert trực tiếp ngoài API."
+      }
+    ],
+    "example": "1. Bài toán: chứng minh category Alice không dùng cho expense Bob.\n2. Dùng schema temp độc lập với int id để minh họa compound FK; production dùng Guid như spec.\n3. Chạy cùng một session SQL:\n```sql\nCREATE TABLE #Users(Id int PRIMARY KEY);\nCREATE TABLE #Categories(\n Id int PRIMARY KEY,UserId int NOT NULL,Name nvarchar(60) NOT NULL,\n UNIQUE(Id,UserId),UNIQUE(UserId,Name));\nCREATE TABLE #Expenses(\n Id int PRIMARY KEY,UserId int NOT NULL,CategoryId int NOT NULL,\n AmountVnd bigint NOT NULL CHECK(AmountVnd>0 AND AmountVnd<=1000000000),\n SpentOn date NOT NULL);\nINSERT #Users VALUES(1),(2);\nINSERT #Categories VALUES(10,1,N'Food'),(20,2,N'Food');\n-- SQL Server không enforce FK trên temp tables: dùng phép kiểm logic demo bên dưới.\nSELECT c.Id FROM #Categories c WHERE c.Id=10 AND c.UserId=2; -- 0 rows\nINSERT #Expenses VALUES(1,1,10,50000,'20261001');\nSELECT SUM(AmountVnd) AS Total FROM #Expenses; -- 50000\n```\n4. Trong schema persistent dbo của project, tạo FK(UserId)->Users và compound FK(CategoryId,UserId)->Categories(Id,UserId); insert Bob/10 phải bị DB reject. Temp example không đủ để chứng minh FK; gate dùng bảng thật ExpenseLab.",
+    "deep": "SQL Server temp tables không enforce FK nên phải thử constraint trên bảng lab persistent. Constraint nhiều key có thể tạo index liên quan; FK không tự bảo đảm index tối ưu cho lookup child. UserId không được client tùy ý gửi để quyết định ownership.",
+    "exercises": [
+      {
+        "prompt": "Viết CREATE TABLE dbo Categories/Expenses theo spec và giải thích compound FK.",
+        "solution": "Tạo Users trước, Categories có alternate UNIQUE(Id,UserId), Expenses FK2col. Test insert Alice/own thành công, Bob/categoryAlice fail, amount0 fail, duplicate categoryName/user fail. Null amount bị NOT NULL."
+      },
+      {
+        "prompt": "Bảng Expense có CategoryName current lặp100 rows; đổi tên gây gì?",
+        "solution": "Nếu update một row có nhiều tên khác nhau cùng category -> anomaly. Tách Categories và JOIN lấy current name. Nếu muốn lịch sử, name snapshot được ghi rõ khi tạo và không đồng bộ rename; hai mô hình khác nhau."
+      }
+    ],
+    "project": "Tạo ExpenseLab và schema đầy đủ spec, seed Alice/Bob và3 expenses. Lưu ops/schema.sql + seed.sql trong repo học viên; không tạo/xóa bảng trên DB có dữ liệu cần giữ.",
+    "criteria": [
+      "SELECT fixture Alice3 rows,total100000,Bob0.",
+      "Bảng thật reject amount0/null/overmax và cross-owner CategoryId.",
+      "UNIQUE chặn category trùng cùng user, cho cùng tên khác user; delete category có rows bị chặn."
+    ],
+    "english": "Thu: 'Why is a foreign key on category ID alone insufficient for ownership?' Viết PK/FK/constraint/update anomaly.",
+    "sources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/sql/relational-databases/tables/primary-and-foreign-key-constraints",
+        "section": "Primary and foreign key constraints"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/office/troubleshoot/access/database-normalization-description",
+        "section": "Database normalization basics"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/sql/relational-databases/tables/unique-constraints-and-check-constraints",
+        "section": "UNIQUE constraints and CHECK constraints"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Owner FK",
+        "stem": "CategoryId FK đơn lẻ bảo đảm cùng owner không?",
+        "options": [
+          "Không",
+          "Có vì Id là PK",
+          "Có nếu frontend filter",
+          "Chỉ cần categoryName"
+        ],
+        "reasons": [
+          "Nó chỉ bảo tồn tồn tại; cần owner constraint/query.",
+          "PK không liên kết owner của expense.",
+          "Client filter không bảo vệ direct writes.",
+          "Tên không đủ định danh ownership."
+        ],
+        "front": "CategoryId FK đơn lẻ bảo đảm cùng owner không?",
+        "back": "Không. Nó chỉ bảo tồn tồn tại; cần owner constraint/query."
+      },
+      {
+        "concept": "Data type",
+        "stem": "Số tiền nguyên theo spec SQL nên lưu gì?",
+        "options": [
+          "bigint NOT NULL có CHECK",
+          "nvarchar đã format tiền",
+          "float mặc định",
+          "date"
+        ],
+        "reasons": [
+          "Numeric nguyên hỗ trợ SUM và domain guard.",
+          "Text formatted khó tính và validate.",
+          "Float có representation không chính xác cho nhiều decimals.",
+          "Date biểu diễn ngày, không tiền."
+        ],
+        "front": "Số tiền nguyên theo spec SQL nên lưu gì?",
+        "back": "bigint NOT NULL có CHECK. Numeric nguyên hỗ trợ SUM và domain guard."
+      },
+      {
+        "concept": "Normalization",
+        "stem": "CategoryName current lặp trong expenses nguy cơ gì?",
+        "options": [
+          "Update anomaly khi đổi tên không đồng bộ",
+          "Luôn query nhanh tuyệt đối",
+          "Tự có FK",
+          "Không thể insert dữ liệu"
+        ],
+        "reasons": [
+          "Nhiều bản tên cần cập nhật gây inconsistency.",
+          "Performance phải đo workload.",
+          "Duplicate name không tạo relational constraint.",
+          "Vẫn insert được nhưng dễ sai semantics."
+        ],
+        "front": "CategoryName current lặp trong expenses nguy cơ gì?",
+        "back": "Update anomaly khi đổi tên không đồng bộ. Nhiều bản tên cần cập nhật gây inconsistency."
+      },
+      {
+        "concept": "Business unique",
+        "stem": "UNIQUE(UserId,Name) cho categories nhằm gì?",
+        "options": [
+          "Cùng user không trùng tên, khác user có thể trùng",
+          "Cấm mọi Food trong hệ thống",
+          "Thay mọi PK",
+          "Cho null amount"
+        ],
+        "reasons": [
+          "Uniqueness xét tổ hợp columns.",
+          "Không cấm same Name khi UserId khác.",
+          "Surrogate PK vẫn định danh rows.",
+          "Category uniqueness không tiền expense."
+        ],
+        "front": "UNIQUE(UserId,Name) cho categories nhằm gì?",
+        "back": "Cùng user không trùng tên, khác user có thể trùng. Uniqueness xét tổ hợp columns."
+      },
+      {
+        "concept": "Check null",
+        "stem": "CHECK(amount>0) có đủ cấm NULL không?",
+        "options": [
+          "Không, cần NOT NULL",
+          "Có mọi null tự thành0",
+          "Có CHECK luôn false cho NULL",
+          "Chỉ cần CSS required"
+        ],
+        "reasons": [
+          "SQL three-valued logic CHECK có thể chấp nhận UNKNOWN.",
+          "NULL không tự chuyển0.",
+          "UNKNOWN không đồng nhất FALSE trong CHECK.",
+          "CSS/client không DB constraint."
+        ],
+        "front": "CHECK(amount>0) có đủ cấm NULL không?",
+        "back": "Không, cần NOT NULL. SQL three-valued logic CHECK có thể chấp nhận UNKNOWN."
+      },
+      {
+        "concept": "Lab FK test",
+        "stem": "Temp demo đã đủ chứng minh FK SQL Server chưa?",
+        "options": [
+          "Chưa, phải kiểm persistent lab tables",
+          "Đủ vì mọi temp FK enforced",
+          "Không cần kiểm DB",
+          "Chỉ nhìn diagram"
+        ],
+        "reasons": [
+          "SQL Server temp không enforce FK như bảng persistent.",
+          "Đó là giả định sai cho SQL Server.",
+          "Direct DB rejection là evidence cần.",
+          "Diagram thể hiện ý định, không behavior."
+        ],
+        "front": "Temp demo đã đủ chứng minh FK SQL Server chưa?",
+        "back": "Chưa, phải kiểm persistent lab tables. SQL Server temp không enforce FK như bảng persistent."
+      }
+    ]
+  },
+  {
+    "week": 10,
+    "title": "JOIN, GROUP BY, subqueries và CTE",
+    "lessons": [
+      {
+        "title": "JOIN và cardinality",
+        "objective": "Viết INNER/LEFT JOIN và dự đoán row count khi one-to-many.",
+        "body": "INNER JOIN giữ matches, LEFT JOIN giữ mọi row bên trái và null cho thiếu bên phải. Join predicate xác định quan hệ, không chỉ cùng tên column. Một category nhiều expenses tạo nhiều joined rows; SUM sau join thêm bảng khác1:N có thể nhân đôi expense. WHERE e.AmountVnd>0 sau LEFT JOIN loại null rows, biến hành vi gần inner; đặt filter child ở ON khi muốn giữ category rỗng. JOIN luôn kèm scope UserId và compound ownership khi cần. SELECT* gây cột thừa/name ambiguity; project rõ fields DTO. Kiểm row count trước aggregate để phát hiện duplicated sums."
+      },
+      {
+        "title": "GROUP BY và HAVING",
+        "objective": "Tính category totals, empty groups và filter aggregate đúng.",
+        "body": "GROUP BY chia rows theo group key; mọi selected non-aggregate columns phải có trong group theo SQL Server rules. SUM bỏ qua null; COALESCE(SUM(...),0) cho category rỗng khi LEFT JOIN. COUNT(*) đếm row join null synthetic, COUNT(e.Id) đếm expenses thật. WHERE lọc rows trước grouping; HAVING lọc group theo aggregate sau grouping. GROUP BY không tự sort, thêm ORDER BY. Tổng Alice100000, Food80000,Travel20000; category Entertainment không expense vẫn0 nếu LEFT JOIN. Không lấy average bằng integer division ngoài ý muốn, cast decimal khi cần."
+      },
+      {
+        "title": "Subquery, EXISTS và CTE",
+        "objective": "Dùng EXISTS cho membership và CTE tổ chức query, không coi CTE tự cache.",
+        "body": "Subquery nằm trong SELECT/FROM/WHERE; correlated subquery tham chiếu outer row. EXISTS kiểm có row, phù hợp tìm category có expenses, tránh JOIN duplicate khi chỉ cần membership. NOT IN với NULL có thể làm predicate UNKNOWN; dùng NOT EXISTS khi semantics phù hợp. CTE WITH name AS (...) đặt tên query trong một statement, cải thiện readability nhưng không bảo đảm materialize/cache hoặc nhanh hơn. T-SQL dùng ;WITH nếu statement trước chưa kết thúc. Window SUM OVER cho totals bên cạnh row là tùy chọn; core focus readable report. Parameterize user/date, không nối input vào SQL string."
+      }
+    ],
+    "example": "1. Bài toán: category Food/Travel/Empty, tổng kể cả rỗng.\n2. LEFT JOIN + COALESCE, count child PK.\n3. Query độc lập:\n```sql\n;WITH C AS(\n SELECT * FROM (VALUES(1,N'Food'),(2,N'Travel'),(3,N'Empty'))v(Id,Name)\n), E AS(\n SELECT * FROM (VALUES(1,1,CAST(50000 AS bigint)),(2,2,20000),(3,1,30000))v(Id,CategoryId,AmountVnd)\n)\nSELECT C.Name,COALESCE(SUM(E.AmountVnd),0) Total,COUNT(E.Id) ExpenseCount\nFROM C LEFT JOIN E ON E.CategoryId=C.Id\nGROUP BY C.Name\nORDER BY Total DESC,C.Name;\n```\n4. Expected Food80000/2,Travel20000/1,Empty0/0. Đổi COUNT(E.Id)->COUNT(*) sẽ cho Empty1; giải thích synthetic joined row.",
+    "deep": "N+1 ở app không thể chữa bằng GROUP BY trong memory sau khi đã gọi nhiều query. Query aggregate SQL chỉ trả dữ liệu cần. JOIN multiplicity cần hiểu trước thêm DISTINCT; DISTINCT không sửa tổng đã cộng trùng.",
+    "exercises": [
+      {
+        "prompt": "Tìm categories có expenses>=30000 dùng EXISTS.",
+        "solution": "WHERE EXISTS(SELECT1 FROM Expenses e WHERE e.CategoryId=c.Id AND e.UserId=c.UserId AND e.AmountVnd>=30000); Food có,Travel không theo fixture. Không duplicate Food dù2 expenses."
+      },
+      {
+        "prompt": "Tính totals>=50000, giữ query ordering rõ.",
+        "solution": "GROUP BY category rồi HAVING SUM(amount)>=50000; fixture chỉ Food80000. WHERE amount>=50000 trước group cho Food50000, là bài toán khác."
+      }
+    ],
+    "project": "Lưu report monthly, category totals kể cả0 và membership queries. Báo cáo owner/date scope trước aggregate; read only scripts có parameters.",
+    "criteria": [
+      "Report fixture Food80000/2,Travel20000/1,categoryempty0/0.",
+      "HAVING total>=50000 trả Food80000; giải thích khác WHERE item>=50000.",
+      "EXISTS không duplicate category; query Bob không chứa Alice."
+    ],
+    "english": "Thu: 'Why did this LEFT JOIN lose empty categories?' Trình bày WHERE vs ON/HAVING với fixture.",
+    "sources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/sql/relational-databases/performance/joins",
+        "section": "Logical and physical joins"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/sql/t-sql/queries/select-group-by-transact-sql",
+        "section": "GROUP BY and HAVING"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql",
+        "section": "Common table expressions"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Left join filter",
+        "stem": "WHERE child.amount>0 sau LEFT JOIN làm gì với parent rỗng?",
+        "options": [
+          "Loại parent rỗng vì predicate không true",
+          "Giữ mọi parent bắt buộc",
+          "Tự chuyển amount null->0",
+          "Tạo child mới"
+        ],
+        "reasons": [
+          "Null comparison UNKNOWN bị WHERE lọc.",
+          "LEFT JOIN preservation có thể bị WHERE loại.",
+          "Không có automatic coalesce.",
+          "Query SELECT không insert rows."
+        ],
+        "front": "WHERE child.amount>0 sau LEFT JOIN làm gì với parent rỗng?",
+        "back": "Loại parent rỗng vì predicate không true. Null comparison UNKNOWN bị WHERE lọc."
+      },
+      {
+        "concept": "Join multiplicity",
+        "stem": "Category2 expenses JOIN trả2rows có phải SQL bug?",
+        "options": [
+          "Không, đúng one-to-many cardinality",
+          "Có, luôn1row/category",
+          "Có nên bỏ FK",
+          "Có nên SUM DISTINCT(amount) luôn"
+        ],
+        "reasons": [
+          "Mỗi matched child có row output.",
+          "Join không aggregate tự động.",
+          "FK không gây bug cardinality.",
+          "Distinct amount có thể bỏ hai expense cùng amount hợp lệ."
+        ],
+        "front": "Category2 expenses JOIN trả2rows có phải SQL bug?",
+        "back": "Không, đúng one-to-many cardinality. Mỗi matched child có row output."
+      },
+      {
+        "concept": "Count empty",
+        "stem": "LEFT JOIN category rỗng muốn expense count0 dùng gì?",
+        "options": [
+          "COUNT(child.Id)",
+          "COUNT(*)",
+          "COUNT(1)",
+          "SUM(1)"
+        ],
+        "reasons": [
+          "Null child PK không được COUNT(column) đếm.",
+          "COUNT* đếm preserved row.",
+          "COUNT1 cũng đếm synthetic row.",
+          "SUM1 cũng cho1 ở row preserved."
+        ],
+        "front": "LEFT JOIN category rỗng muốn expense count0 dùng gì?",
+        "back": "COUNT(child.Id). Null child PK không được COUNT(column) đếm."
+      },
+      {
+        "concept": "Group filter",
+        "stem": "Lọc category total>=50000 nên dùng gì?",
+        "options": [
+          "HAVING SUM(amount)>=50000",
+          "WHERE amount>=50000 trước group như tương đương",
+          "ORDER BY50000",
+          "LIMIT total"
+        ],
+        "reasons": [
+          "HAVING lọc aggregate group.",
+          "WHERE thay tập items nên tổng có thể khác.",
+          "Ordering không filtering.",
+          "SQL Server không dùng LIMIT và semantics sai."
+        ],
+        "front": "Lọc category total>=50000 nên dùng gì?",
+        "back": "HAVING SUM(amount)>=50000. HAVING lọc aggregate group."
+      },
+      {
+        "concept": "CTE semantics",
+        "stem": "CTE luôn materialize và cache query không?",
+        "options": [
+          "Không",
+          "Có persistent table tự tạo",
+          "Có mọi CTE chạy nhanh hơn",
+          "Có transaction tự mở"
+        ],
+        "reasons": [
+          "CTE tổ chức query, optimizer quyết strategy.",
+          "CTE không persistent table.",
+          "Performance phụ thuộc plan/workload.",
+          "WITH query không tự mở explicit transaction."
+        ],
+        "front": "CTE luôn materialize và cache query không?",
+        "back": "Không. CTE tổ chức query, optimizer quyết strategy."
+      },
+      {
+        "concept": "Exists membership",
+        "stem": "Chỉ cần category có expense nên EXISTS ích gì?",
+        "options": [
+          "Membership không nhân duplicate parent",
+          "Tự trả mọi child fields",
+          "Tự index DB",
+          "Tự bỏ authorization"
+        ],
+        "reasons": [
+          "EXISTS trả bool condition cho outer row.",
+          "Nó không projection child columns.",
+          "Query không create index.",
+          "Scope user vẫn cần explicit."
+        ],
+        "front": "Chỉ cần category có expense nên EXISTS ích gì?",
+        "back": "Membership không nhân duplicate parent. EXISTS trả bool condition cho outer row."
+      }
+    ]
+  },
+  {
+    "week": 11,
+    "title": "Index, execution plan, pagination và N+1",
+    "lessons": [
+      {
+        "title": "Index design",
+        "objective": "Thiết kế index cho owner/date và đo reads/write tradeoff.",
+        "body": "B-tree index giúp tìm/range/order bằng key phù hợp; composite key order quan trọng. Query WHERE UserId=@u AND SpentOn>=@from AND SpentOn<@to ORDER BY SpentOn DESC,Id DESC có candidate(UserId,SpentOn DESC,Id DESC) INCLUDE(AmountVnd,CategoryId). Included columns giúp cover projection, không tham gia ordering key. Index tăng storage và write maintenance; không tạo mọi column index. SARGable date range so column trực tiếp tốt hơn YEAR(SpentOn)=... làm khó seek. Scan có thể đúng cho small table/manyrows, không gọi mọi scan là lỗi. Statistics/cardinality estimate ảnh hưởng lựa chọn plan."
+      },
+      {
+        "title": "Basic execution plan và đo lường",
+        "objective": "Đọc actual plan, row estimates, lookup/sort và logical reads.",
+        "body": "SQL Server SSMS bật Include Actual Execution Plan và SET STATISTICS IO,TIME ON. Actual rows so estimated rows để thấy estimation lệch; Index Seek vẫn có thể đọc nhiều rows/lookup, không chỉ nhìn icon. Key Lookup nhiều lần/sort spill có thể đáng chú ý; cost% là estimate relative, không latency thực. Dùng dataset100000 expense giả, query shape/parameters cố định, warm/cold state ghi rõ, chạy nhiều lượt báo median/p95 và logical reads. So before/after cùng data, không hứa50ms mọi máy. Kiểm functional output unchanged trước nhận optimization."
+      },
+      {
+        "title": "Pagination và query round trips",
+        "objective": "Viết stable paging và nhận diện N+1 ở SQL/EF contract.",
+        "body": "OFFSET/FETCH hỗ trợ page number nhưng page sâu skip nhiều rows; luôn ORDER BY ổn định có unique tie-breaker Id. Concurrent inserts có thể làm offset lặp/missing giữa các request; keyset cursor dùng (SpentOn,Id) after tuple theo sort để next page nhất quán hơn, nhưng không tự snapshot mọi data changes. N+1 là 1 query list rồi 1 query per row/category, tăng round trips; project DTO join/projection hoặc eager load có chủ đích, không Include mọi graph. Filter/paging trước materialize, giới hạn pageSize<=100. TotalCount thêm query là2 không phải N+1; cần đếm cùng filter."
+      }
+    ],
+    "example": "1. Bài toán: xem trang đầu owner/date, không lấy toàn DB.\n2. Parameter và stable ordering.\n3. Trên schema project đã seed:\n```sql\nDECLARE @UserId uniqueidentifier='11111111-1111-1111-1111-111111111111';\nDECLARE @From date='20261001',@To date='20261101';\nSELECT Id,CategoryId,AmountVnd,SpentOn\nFROM dbo.Expenses\nWHERE UserId=@UserId AND SpentOn>=@From AND SpentOn<@To\nORDER BY SpentOn DESC,Id DESC\nOFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY;\n-- Tạo sau khi đã lưu plan/IO trước:\nCREATE INDEX IX_Expenses_User_Date_Id\nON dbo.Expenses(UserId,SpentOn DESC,Id DESC) INCLUDE(AmountVnd,CategoryId);\n```\n4. Seed Alice với Guid này; expected3 rows descending dates. Index tạo1lần trong migration/script có guard về sau; don't blindly rerun CREATE INDEX. Data3rows chưa chứng minh hiệu năng, cần 100000 rows fixture.",
+    "deep": "NoSQL cũng cần indexes, không thoát query design. N+1 còn xảy ra trong API loop tự fetch child; đo count queries/requests, không chỉ SQL string. Tối ưu có bằng chứng không thay ownership/date filters.",
+    "exercises": [
+      {
+        "prompt": "3 expense cùng spentOn; phân trang1item/trang, test ties.",
+        "solution": "ORDER BY SpentOn DESC,Id DESC, unique Id phá ties. Ghi IDs mỗi trang trước mutation; không lặp/missing trên fixed dataset. Với concurrent inserts thử keyset và mô tả snapshot hạn chế."
+      },
+      {
+        "prompt": "100 expenses mỗi row gọi category query; sửa và đo.",
+        "solution": "JOIN/projection DTO lấy categoryName cùng expenses; query count1(list)+1(count) thay101. Nếu endpoint cần nhiều graph test split-query số roundtrips cố định, tránh Include bừa."
+      }
+    ],
+    "project": "Endpoint query contract và SQL scripts có owner/date filters, stable page và baseline plan100000rows. Chuẩn bị EF projection tuần14.",
+    "criteria": [
+      "Fixed dataset/tied dates phân trang không duplicate/missing; pageSize0/101 bị chặn.",
+      "N+1 case100rows từ 101 queries xuống<=2 cho list+count; output đúng.",
+      "Lưu before/after actual plan/logical reads/dataset/version; giải thích write cost index."
+    ],
+    "english": "Thu: 'Can an index seek still be slow?' Nói workload, logical reads, round trip, keyset, tie-breaker.",
+    "sources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-index-design-guide",
+        "section": "Index design guide"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/sql/relational-databases/performance/display-an-actual-execution-plan",
+        "section": "Display an actual execution plan"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/ef/core/performance/efficient-querying",
+        "section": "Pagination, projection and lazy loading N+1"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Index cost",
+        "stem": "Thêm index có tradeoff gì?",
+        "options": [
+          "Read có thể nhanh hơn, write/storage tốn hơn",
+          "Mọi query luôn nhanh hơn",
+          "Write không đổi bất kể index",
+          "Không cần stats"
+        ],
+        "reasons": [
+          "Index maintenance/storage đổi workload cost.",
+          "Không index nào tối ưu mọi query.",
+          "Every applicable write maintenance có chi phí.",
+          "Statistics ảnh hưởng optimizer."
+        ],
+        "front": "Thêm index có tradeoff gì?",
+        "back": "Read có thể nhanh hơn, write/storage tốn hơn. Index maintenance/storage đổi workload cost."
+      },
+      {
+        "concept": "SARGable date",
+        "stem": "Filter tháng nên thử form nào?",
+        "options": [
+          "SpentOn>=from AND SpentOn<to",
+          "YEAR(SpentOn)=y luôn seek tối ưu",
+          "Format date thành text rồi compare",
+          "Bỏ UserId để nhanh"
+        ],
+        "reasons": [
+          "Range trên column phù hợp index.",
+          "Function trên column có thể làm khó seek.",
+          "Formatting thêm computation/semantics sai.",
+          "Bỏ owner phá security."
+        ],
+        "front": "Filter tháng nên thử form nào?",
+        "back": "SpentOn>=from AND SpentOn<to. Range trên column phù hợp index."
+      },
+      {
+        "concept": "Plan evidence",
+        "stem": "Index Seek đủ chứng minh query nhanh chưa?",
+        "options": [
+          "Chưa, xem reads/rows/lookup/timing",
+          "Đủ icon là guarantee",
+          "Chỉ cost% chắc chắn latency",
+          "Chỉ screenshot không dataset"
+        ],
+        "reasons": [
+          "Seek có thể lấy nhiều rows và costly lookups.",
+          "Icon không total work.",
+          "Cost% estimate không thời gian thực.",
+          "Dataset/conditions cần để reproduce."
+        ],
+        "front": "Index Seek đủ chứng minh query nhanh chưa?",
+        "back": "Chưa, xem reads/rows/lookup/timing. Seek có thể lấy nhiều rows và costly lookups."
+      },
+      {
+        "concept": "Small scan",
+        "stem": "Scan small table luôn cần sửa không?",
+        "options": [
+          "Không, có thể plan hợp lý",
+          "Có mọi scan là bug",
+          "Có đổi thành NoSQL luôn",
+          "Có thêm100indexes"
+        ],
+        "reasons": [
+          "Optimizer có thể chọn scan rẻ cho small/manyrows.",
+          "Khẳng định tuyệt đối sai.",
+          "Đổi DB không thay workload evidence.",
+          "Index bừa tăng write/storage."
+        ],
+        "front": "Scan small table luôn cần sửa không?",
+        "back": "Không, có thể plan hợp lý. Optimizer có thể chọn scan rẻ cho small/manyrows."
+      },
+      {
+        "concept": "Stable paging",
+        "stem": "ORDER BY date có ties thì thêm gì?",
+        "options": [
+          "Unique Id tie-breaker",
+          "Random() mỗi query",
+          "Không cần ORDER BY",
+          "Chỉ tăng pageSize"
+        ],
+        "reasons": [
+          "Unique secondary key ổn định fixed data.",
+          "Random phá thứ tự.",
+          "SQL output không bảo đảm order mặc định.",
+          "Page size không giải tie order."
+        ],
+        "front": "ORDER BY date có ties thì thêm gì?",
+        "back": "Unique Id tie-breaker. Unique secondary key ổn định fixed data."
+      },
+      {
+        "concept": "N+1 fix",
+        "stem": "List100rows rồi fetch category từngrow nên sửa gì?",
+        "options": [
+          "Projection/JOIN theo dữ liệu cần, đo query count",
+          "Tăng timeout vô hạn",
+          "Load toàn DB vào memory",
+          "Thêm index frontend"
+        ],
+        "reasons": [
+          "Giảm round trips và tải fields hợp lý.",
+          "Timeout không bỏ 101 calls.",
+          "Toàn DB không scale/security boundary.",
+          "Frontend index không giảm backend query count."
+        ],
+        "front": "List100rows rồi fetch category từngrow nên sửa gì?",
+        "back": "Projection/JOIN theo dữ liệu cần, đo query count. Giảm round trips và tải fields hợp lý."
+      }
+    ]
+  },
+  {
+    "week": 12,
+    "title": "Transactions, concurrency và data correctness",
+    "lessons": [
+      {
+        "title": "ACID và transaction boundary",
+        "objective": "Ghi expense/import batch atomically và chứng minh rollback.",
+        "body": "Atomicity all-or-nothing, consistency giữ constraints/invariants, isolation điều khiển tương tác concurrent, durability commit survive theo DB guarantees. Một statement thường atomic, nhiều statement nghiệp vụ cần transaction chung. Begin -> write -> commit; exception -> rollback; giữ transaction ngắn, không chờ HTTP user input trong lock. SET XACT_ABORT ON giúp transaction bị abort trên nhiều runtime errors; TRY/CATCH xử lý XACT_STATE rồi rollback và THROW. DB transaction không bao web requests/cache/broker bằng phép màu; external side effects cần outbox học cuối. Dùng data lab, test fault injection sau write đầu trước write2."
+      },
+      {
+        "title": "Isolation, race và optimistic concurrency",
+        "objective": "Tái hiện lost update và dùng version token để phát hiện stale write.",
+        "body": "Read committed ngăn dirty reads nhưng không tự ngăn mọi lost update/read skew. SQL Server rowversion là binary version tăng khi update, không datetime. Update WHERE Id=@id AND UserId=@u AND Version=@old; affected0 là missing/stale cần scoped existence check cho404/409. EF concurrency token làm điều này và DbUpdateConcurrencyException khi conflict. Hai editor cùng version: đầu update thành công, thứ hai409; không last-write silently. Serializability tăng bảo vệ nhưng có locking/blocking và retry deadlock cần bounded; unique constraint vẫn cần chống insert duplicate race."
+      },
+      {
+        "title": "Idempotency và retry an toàn",
+        "objective": "Thiết kế chống duplicate batch cùng owner/key và phân biệt retry/read.",
+        "body": "Idempotency nghĩa lặp cùng operation key và payload không tạo extra effect; nó không yêu cầu HTTP response bytes luôn giống. UNIQUE(UserId,IdempotencyKey) + request hash + result trong transaction giữ retry nhất quán. Same key/same hash -> trả kết quả đã có; same key/different hash ->409. Check exists rồi insert không khóa/unique vẫn race; DB enforce uniqueness và xử conflict. Retry transient có backoff/giới hạn, không retry validation/auth failures; explicit transaction với EF execution strategy cần execute whole transaction unit. Hủy sau commit có thể khiến client chưa thấy success; tra batch status trước gửi lại key mới."
+      }
+    ],
+    "example": "1. Bài toán:2editor cập nhật cùng amount.\n2. Optimistic concurrency dùng old version trong WHERE.\n3. Trên ExpenseLab: đọc Id/UserId/Version của expense Alice; giữ @OldVersion từ SELECT rồi update thử:\n```sql\nDECLARE @Id uniqueidentifier='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';\nDECLARE @UserId uniqueidentifier='11111111-1111-1111-1111-111111111111';\nDECLARE @OldVersion binary(8);\nSELECT @OldVersion=Version FROM dbo.Expenses WHERE Id=@Id AND UserId=@UserId;\nUPDATE dbo.Expenses SET AmountVnd=60000\nWHERE Id=@Id AND UserId=@UserId AND Version=@OldVersion;\nSELECT @@ROWCOUNT FirstWriter;\nUPDATE dbo.Expenses SET AmountVnd=70000\nWHERE Id=@Id AND UserId=@UserId AND Version=@OldVersion;\nSELECT @@ROWCOUNT StaleWriter;\n```\n4. Seed expense với Id trên trước test; expected1 rồi0, amount60000. Rollback test transaction nếu muốn giữ fixture nguyên; không chạy update trên DB thật.",
+    "deep": "Transaction không bảo đảm mọi nghiệp vụ đúng nếu code/invariant sai. rowversion SQL Server không tương đương PostgreSQL xmin một cách tùy tiện; PostgreSQL optional phải dùng token/version strategy riêng. Cache invalidation không atomic với DB; TTL giảm stale nhưng không strong consistency.",
+    "exercises": [
+      {
+        "prompt": "Fault sau insert expense trước insert batch status; DB cuối thế nào?",
+        "solution": "Chung transaction, throw/fault rollback toàn unit ->0 newexpense/0batch. Nếu outside transaction thấy partial state, đó là bug. Test cùng key retry một lần ->1batch và sốrow đúng."
+      },
+      {
+        "prompt": "Hai request check missing key rồi insert; chống double import bằng gì?",
+        "solution": "Unique composite key DB và transaction. Một insert thắng; loser đọc result hợp lệ sau xử uniqueness/retry theo boundary, không cả hai append expenses. Different hash same key ->409."
+      }
+    ],
+    "project": "Scripts transaction rollback và optimistic update; thiết kế ImportBatch unique/hash/status. Tag phase3-db và ghi evidence2sessions/fault injection.",
+    "criteria": [
+      "Fault giữa multiwrites giữ0 partial records; success lưu toàn batch.",
+      "Same old version2writes:1 success/1stale; không âm thầm overwrite.",
+      "Same user/key/payload retry không nhân rows; different payload cùng key conflict."
+    ],
+    "english": "Thu: 'What does a transaction protect, and what does it not protect?' Giải thích lost update/idempotency/rollback.",
+    "sources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/sql/t-sql/language-elements/transactions-transact-sql",
+        "section": "Transactions and autocommit"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/ef/core/saving/concurrency",
+        "section": "Optimistic concurrency"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/ef/core/saving/transactions",
+        "section": "Transaction control and execution strategy"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Atomicity",
+        "stem": "2writes nghiệp vụ cần all-or-nothing thì làm gì?",
+        "options": [
+          "Cùng transaction boundary",
+          "2connections autocommit độc lập",
+          "Chỉ try/catch client",
+          "Chỉ disable nút"
+        ],
+        "reasons": [
+          "Transaction chung cho phép rollback unit.",
+          "Writes độc lập có partial commit.",
+          "Client catch không undo DB writes.",
+          "Disable chỉ UX không atomicity."
+        ],
+        "front": "2writes nghiệp vụ cần all-or-nothing thì làm gì?",
+        "back": "Cùng transaction boundary. Transaction chung cho phép rollback unit."
+      },
+      {
+        "concept": "External boundary",
+        "stem": "SQL transaction có tự rollback email đã gửi không?",
+        "options": [
+          "Không",
+          "Có mọi external effect chungACID",
+          "Có nếu dùng async",
+          "Có nếu timestamp giống"
+        ],
+        "reasons": [
+          "DB transaction chỉ bảo vệ resource tham gia.",
+          "External email ngoài DB không chung transaction tự động.",
+          "Async scheduling không distributed atomicity.",
+          "Timestamp không tạo transaction."
+        ],
+        "front": "SQL transaction có tự rollback email đã gửi không?",
+        "back": "Không. DB transaction chỉ bảo vệ resource tham gia."
+      },
+      {
+        "concept": "Rowversion semantics",
+        "stem": "SQL Server rowversion là gì?",
+        "options": [
+          "Binary concurrency version, không thời gian",
+          "Ngày giờ UTC",
+          "User JWT",
+          "Số tiền"
+        ],
+        "reasons": [
+          "Token hỗ trợ detect stale write.",
+          "Tên cũ timestamp không phải time semantics.",
+          "Auth token và row token khác mục đích.",
+          "Không numeric expense amount."
+        ],
+        "front": "SQL Server rowversion là gì?",
+        "back": "Binary concurrency version, không thời gian. Token hỗ trợ detect stale write."
+      },
+      {
+        "concept": "Lost update guard",
+        "stem": "UPDATE với oldversion mismatch có affectedrows gì?",
+        "options": [
+          "0",
+          "Luôn1",
+          "Tự merge fields",
+          "Tự trả HTTP201"
+        ],
+        "reasons": [
+          "Predicate version không match nên không write.",
+          "Có thể0 dù row tồn tại.",
+          "DB không suy ra merge semantics.",
+          "SQL rowcount không HTTP response."
+        ],
+        "front": "UPDATE với oldversion mismatch có affectedrows gì?",
+        "back": "0. Predicate version không match nên không write."
+      },
+      {
+        "concept": "Idempotency hash",
+        "stem": "Same key/different payload nên xử lý gì?",
+        "options": [
+          "409 conflict",
+          "Import lần nữa",
+          "Ghi đè result cũ silent",
+          "Chỉ đổi userId từ body"
+        ],
+        "reasons": [
+          "Key đã đại diện operation khác nên conflict.",
+          "Làm lại có duplicate side effect.",
+          "Silent overwrite mất contract key.",
+          "Owner phải từ principal, không body."
+        ],
+        "front": "Same key/different payload nên xử lý gì?",
+        "back": "409 conflict. Key đã đại diện operation khác nên conflict."
+      },
+      {
+        "concept": "Exists race",
+        "stem": "Check exists trước insert đã đủ chống concurrent duplicate chưa?",
+        "options": [
+          "Chưa, cần unique/atomicity",
+          "Đủ vì request chạy lần lượt luôn",
+          "Đủ nếu print log",
+          "Đủ nếu LINQ Any trảfalse"
+        ],
+        "reasons": [
+          "Hai transaction có thể cùng thấy missing.",
+          "Server xử concurrent requests.",
+          "Log không synchronization.",
+          "Any check không khóa future insert."
+        ],
+        "front": "Check exists trước insert đã đủ chống concurrent duplicate chưa?",
+        "back": "Chưa, cần unique/atomicity. Hai transaction có thể cùng thấy missing."
+      }
+    ]
+  }
+]

@@ -1,0 +1,225 @@
+schema_version: 2.0.0
+package_id: package:psychology:w16
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: draft
+version: 6
+created_at: '2026-09-16T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 02-understanding-self
+lesson: week-16-self-understanding-portfolio
+learning_objectives:
+- id: LO-W16-01
+  bloom_level: Understand
+  statement: Định nghĩa giới hạn tự báo cáo/nội quan theo Nisbett & Wilson (1977);
+    trình bày mô hình SOKA của Vazire (2010) ở tầng dự đoán; mô tả choice blindness
+    (Johansson và cộng sự, 2005) và chức năng Lie Scale (OpenStax 11.9).
+- id: LO-W16-02
+  bloom_level: Analyze
+  statement: 'Giải thích giá trị của tam giác hóa dữ liệu: vì sao meta-analysis về
+    báo cáo từ người quan sát (Connelly & Ones, 2010) và phương pháp đo lặp lại trong
+    đời sống (Bolger & Laurenceau, 2013) bổ sung cho tự báo cáo chứ không thay thế
+    nó; phân biệt các giới hạn cần nêu (mẫu WEIRD, tương quan).'
+- id: LO-W16-03
+  bloom_level: Apply
+  statement: Vận dụng quy trình 5 bước xây hồ sơ tự hiểu (quan sát cụ thể → đa nguồn
+    → ≥ 3 giả thuyết → mức tự tin → ranh giới không chẩn đoán) vào kịch bản giả định;
+    nhận diện ranh giới dữ liệu tự hiểu vs chẩn đoán chuyên môn theo NIMH.
+- id: LO-W16-04
+  bloom_level: Evaluate
+  statement: Đánh giá tuyên bố pop psychology về quiz online 'biết hết con người trong
+    5 phút'; chỉ ra giới hạn mẫu WEIRD, giới hạn tương quan, và giới hạn phạm vi của
+    các nghiên cứu cấu trúc SOKA; trình bày đúng tình trạng 'còn đang phát triển'
+    của mô hình SOKA.
+concepts:
+- id: roadmap:concept:psychology:w16-self-report-limits
+  name: Giới hạn tự báo cáo/nội quan (Nisbett & Wilson, 1977)
+  claim_ids:
+  - C16-01
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w16-choice-blindness
+  name: Mù lựa chọn / Choice blindness (Johansson et al., 2005)
+  claim_ids:
+  - C16-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w16-soka
+  name: Mô hình SOKA — bất đối xứng tự–tha nhân (Vazire, 2010)
+  claim_ids:
+  - C16-02
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w16-informant-reports
+  name: Báo cáo từ người quan sát (Connelly & Ones, 2010)
+  claim_ids:
+  - C16-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w16-intensive-longitudinal
+  name: Phương pháp dọc đậm đặc — diary & experience sampling (Bolger & Laurenceau,
+    2013)
+  claim_ids:
+  - C16-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w16-openstax-backbone
+  name: Backbone giáo trình OpenStax 11.9 & 2.2
+  claim_ids:
+  - C16-06
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w16-no-diagnosis
+  name: Ranh giới KHÔNG CHẨN ĐOÁN (NIMH)
+  claim_ids:
+  - C16-07
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w16-pop-debunk
+  name: Phản biện quiz '5 phút biết hết con người' (Cấp 5)
+  claim_ids:
+  - C16-08
+  evidence_label: preliminary
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w16-five-step-process
+  name: Quy trình 5 bước xây hồ sơ tự hiểu dựa trên bằng chứng
+  claim_ids:
+  - C16-01
+  - C16-02
+  - C16-04
+  - C16-05
+  - C16-07
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+questions:
+- id: Q16-01
+  lo_ref: LO-W16-01
+  concept_id: roadmap:concept:psychology:w16-self-report-limits
+  claim_ids:
+  - C16-01
+- id: Q16-02
+  lo_ref: LO-W16-01
+  concept_id: roadmap:concept:psychology:w16-choice-blindness
+  claim_ids:
+  - C16-03
+- id: Q16-03
+  lo_ref: LO-W16-01
+  concept_id: roadmap:concept:psychology:w16-soka
+  claim_ids:
+  - C16-02
+- id: Q16-04
+  lo_ref: LO-W16-02
+  concept_id: roadmap:concept:psychology:w16-informant-reports
+  claim_ids:
+  - C16-04
+- id: Q16-05
+  lo_ref: LO-W16-02
+  concept_id: roadmap:concept:psychology:w16-intensive-longitudinal
+  claim_ids:
+  - C16-05
+- id: Q16-06
+  lo_ref: LO-W16-03
+  concept_id: roadmap:concept:psychology:w16-no-diagnosis
+  claim_ids:
+  - C16-07
+- id: Q16-07
+  lo_ref: LO-W16-01
+  concept_id: roadmap:concept:psychology:w16-openstax-backbone
+  claim_ids:
+  - C16-06
+- id: Q16-08
+  lo_ref: LO-W16-04
+  concept_id: roadmap:concept:psychology:w16-pop-debunk
+  claim_ids:
+  - C16-08
+- id: Q16-09
+  lo_ref: LO-W16-04
+  concept_id: roadmap:concept:psychology:w16-soka
+  claim_ids:
+  - C16-02
+- id: Q16-10
+  lo_ref: LO-W16-03
+  concept_id: roadmap:concept:psychology:w16-five-step-process
+  claim_ids:
+  - C16-01
+- id: Q16-11
+  lo_ref: LO-W16-04
+  concept_id: roadmap:concept:psychology:w16-self-report-limits
+  claim_ids:
+  - C16-01
+- id: Q16-12
+  lo_ref: LO-W16-03
+  concept_id: roadmap:concept:psychology:w16-informant-reports
+  claim_ids:
+  - C16-04
+  - C16-02
+units:
+- unit_id: roadmap:unit:psychology:w16
+  display_title: 'Tuần 16: Hồ sơ Tự hiểu Dựa trên Bằng chứng'
+  sort_order: 16
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w16
+    path: notes/02-understanding-self/week-16-self-understanding-portfolio.md
+    sha256: 5d8713935cac8f636345ff9f0b43e51b6ffd437ba9d6fdc8c6c3cfe1ddda3bbe
+    byte_length: 56862
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w16
+    path: assessments/quizzes/week-16-quiz.md
+    question_count: 12
+    sha256: 6fca11e93884b982b287dbc0de405a4fb0a55835be6eecbaae544bb9669a4257
+    byte_length: 8113
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w16
+    path: assessments/answer-keys/week-16-answers.md
+    correct_count: 12
+    wrong_count: 36
+    sha256: f187d1cde44825b10a40913a27a10db90f362e9fb3b3384796b23d885802ac18
+    byte_length: 31360
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w16
+    path: flashcards/week-16.yaml
+    card_count: 10
+    sha256: 73abb27f0405e1d14e0d3bdc4ef243c96bed3c6217d2b63e1c7cb181689e8c72
+    byte_length: 10531
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

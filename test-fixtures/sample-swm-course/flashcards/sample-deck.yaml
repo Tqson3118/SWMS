@@ -1,0 +1,5 @@
+﻿deck_id: deck-swm-sample
+cards:
+  - id: fc-01
+    front: Studxy sử dụng thuật toán ôn tập nào?
+    back: FSRS v5 (Free Spaced Repetition Scheduler v5)

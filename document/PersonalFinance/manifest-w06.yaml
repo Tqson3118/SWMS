@@ -1,0 +1,217 @@
+schema_version: 2.0.0
+package_id: package:personal-finance:w06
+subject_id: roadmap:subject:personal-finance
+display_title: Tài chính cá nhân thực hành
+source_status: reviewed
+version: 13
+created_at: '2026-09-15T00:00:00Z'
+subject: Tài chính cá nhân
+course: Tài chính cá nhân thực hành
+module: module-2
+lesson: week-06-quan-ly-no
+learning_objectives:
+- id: LO-PF-W06-01
+  bloom_level: Analyze
+  statement: Phân biệt các cách phân tích rủi ro của khoản nợ.
+- id: LO-PF-W06-02
+  bloom_level: Apply
+  statement: So sánh Snowball và Avalanche.
+- id: LO-PF-W06-03
+  bloom_level: Analyze
+  statement: Tính và so sánh tác động của lãi suất đến khoản nợ.
+- id: LO-PF-W06-04
+  bloom_level: Evaluate
+  statement: Nhận diện bẫy tín dụng và lựa chọn phương án xử lý nợ.
+concepts:
+- id: roadmap:concept:pf:debt-classification
+  name: Phân tích nợ
+  claim_ids:
+  - M2-C07
+  - M2-C08
+  evidence_label: preliminary
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded73
+    date: '2026-10-03'
+    notes: 'Bounded teaching claims only: current58 Article13, independent model arithmetic, conditional
+      frameworks, abstract associations and DTI heuristics. Complete sources/other content/learner approval
+      remain open.'
+- id: roadmap:concept:pf:debt-repayment
+  name: Snowball và Avalanche
+  claim_ids:
+  - M2-C10
+  - M2-C11
+  evidence_label: moderate
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded73
+    date: '2026-10-03'
+    notes: 'Bounded teaching claims only: current58 Article13, independent model arithmetic, conditional
+      frameworks, abstract associations and DTI heuristics. Complete sources/other content/learner approval
+      remain open.'
+- id: roadmap:concept:pf:consumer-credit
+  name: Lãi suất tín dụng tiêu dùng
+  claim_ids:
+  - M2-C09
+  evidence_label: moderate
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded73
+    date: '2026-10-03'
+    notes: 'Bounded teaching claims only: current58 Article13, independent model arithmetic, conditional
+      frameworks, abstract associations and DTI heuristics. Complete sources/other content/learner approval
+      remain open.'
+- id: roadmap:concept:pf:w06-minimum-payment-model
+  name: Minimum-payment arithmetic
+  claim_ids:
+  - M2-C15
+  evidence_label: moderate
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded73
+    date: '2026-10-03'
+    notes: 'Bounded teaching claims only: current58 Article13, independent model arithmetic, conditional
+      frameworks, abstract associations and DTI heuristics. Complete sources/other content/learner approval
+      remain open.'
+- id: roadmap:concept:pf:w06-flat-interest-model
+  name: Flat-rate arithmetic
+  claim_ids:
+  - M2-C16
+  evidence_label: moderate
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded73
+    date: '2026-10-03'
+    notes: 'Bounded teaching claims only: current58 Article13, independent model arithmetic, conditional
+      frameworks, abstract associations and DTI heuristics. Complete sources/other content/learner approval
+      remain open.'
+- id: roadmap:concept:pf:w06-payoff-simulation
+  name: Payoff simulation
+  claim_ids:
+  - M2-C17
+  evidence_label: moderate
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded73
+    date: '2026-10-03'
+    notes: 'Bounded teaching claims only: current58 Article13, independent model arithmetic, conditional
+      frameworks, abstract associations and DTI heuristics. Complete sources/other content/learner approval
+      remain open.'
+- id: roadmap:concept:pf:w06-dti-context
+  name: DTI definition and contextual limits
+  claim_ids:
+  - M2-C18
+  evidence_label: moderate
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded73
+    date: '2026-10-03'
+    notes: 'Bounded teaching claims only: current58 Article13, independent model arithmetic, conditional
+      frameworks, abstract associations and DTI heuristics. Complete sources/other content/learner approval
+      remain open.'
+- id: roadmap:concept:pf:w06-optimism-bias-pending
+  name: 'Optimism bias: abstract-scoped association'
+  claim_ids:
+  - M2-C19
+  evidence_label: preliminary
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded73
+    date: '2026-10-03'
+    notes: 'Bounded teaching claims only: current58 Article13, independent model arithmetic, conditional
+      frameworks, abstract associations and DTI heuristics. Complete sources/other content/learner approval
+      remain open.'
+questions:
+- id: Q01
+  lo_ref: LO-PF-W06-01
+  concept_id: roadmap:concept:pf:debt-classification
+  claim_ids:
+  - M2-C07
+- id: Q02
+  lo_ref: LO-PF-W06-04
+  concept_id: roadmap:concept:pf:consumer-credit
+  claim_ids:
+  - M2-C09
+- id: Q03
+  lo_ref: LO-PF-W06-03
+  concept_id: roadmap:concept:pf:w06-minimum-payment-model
+  claim_ids:
+  - M2-C15
+- id: Q04
+  lo_ref: LO-PF-W06-03
+  concept_id: roadmap:concept:pf:w06-flat-interest-model
+  claim_ids:
+  - M2-C16
+- id: Q05
+  lo_ref: LO-PF-W06-03
+  concept_id: roadmap:concept:pf:w06-payoff-simulation
+  claim_ids:
+  - M2-C17
+- id: Q06
+  lo_ref: LO-PF-W06-02
+  concept_id: roadmap:concept:pf:debt-repayment
+  claim_ids:
+  - M2-C10
+  - M2-C11
+- id: Q07
+  lo_ref: LO-PF-W06-02
+  concept_id: roadmap:concept:pf:debt-repayment
+  claim_ids:
+  - M2-C10
+- id: Q08
+  lo_ref: LO-PF-W06-02
+  concept_id: roadmap:concept:pf:debt-repayment
+  claim_ids:
+  - M2-C11
+- id: Q09
+  lo_ref: LO-PF-W06-04
+  concept_id: roadmap:concept:pf:w06-optimism-bias-pending
+  claim_ids:
+  - M2-C19
+- id: Q10
+  lo_ref: LO-PF-W06-04
+  concept_id: roadmap:concept:pf:w06-dti-context
+  claim_ids:
+  - M2-C18
+units:
+- unit_id: roadmap:unit:pf:w06
+  display_title: Tuần 06 — Cơ Học Quản Lý Nợ & Phân Tích Nợ Theo Bối Cảnh (Debt Mechanics & Contextual
+    Debt Analysis)
+  sort_order: 6
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:pf:w06
+    path: notes/module-2/week-06-quan-ly-no.md
+    sha256: a0768cec97cdd66d326590947fcf9859788d4b6fb1b75f3669efdb29aabeb5f8
+    byte_length: 57775
+  - role: quiz_questions
+    stable_id: roadmap:quiz:pf:w06
+    path: assessments/quizzes/week-06-quiz.md
+    question_count: 10
+    sha256: 5b55cce99ac3da935f9a607e06fa5b7e7a02c1a0a582f952a14ec57245289d49
+    byte_length: 5401
+  - role: quiz_answers
+    stable_id: roadmap:answers:pf:w06
+    path: assessments/answer-keys/week-06-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: 1f10bc31d84a22a125e0d1e28449f63f5cfb4acdda676875fbb8c4cf27df36c0
+    byte_length: 14953
+  - role: source_ledger
+    path: quality/module-2-source-ledger.md
+    sha256: f5db4ed4fa181b0611eb65e49e6d0eb18e973677275296b0ec244eccea075c7c
+    byte_length: 16875
+  - role: flashcard_deck
+    stable_id: deck-pf-w06
+    path: flashcards/week-06.yaml
+    byte_length: 11260
+    sha256: aa821bcab2a07e7977c7dba6dd9b4b9089a38049cb3c6d0c349f2961101c4c69
+    card_count: 15

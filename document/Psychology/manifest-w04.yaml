@@ -1,0 +1,217 @@
+schema_version: 2.0.0
+package_id: package:psychology:w04
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: approved
+version: 8
+created_at: '2026-09-14T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 01-scientific-foundations
+lesson: week-04-brain-genes-environment
+learning_objectives:
+- id: LO-W04-01
+  bloom_level: Understand
+  statement: 'Mô tả giải phẫu và cơ chế điện hóa của nơ-ron: 4 bộ phận cấu trúc chính,
+    điện thế nghỉ, điện thế động theo quy luật tất cả hoặc không, và cơ chế dẫn truyền
+    qua khe synap.'
+- id: LO-W04-02
+  bloom_level: Analyze
+  statement: Phân tích chức năng tâm lý của các chất dẫn truyền thần kinh chính (Acetylcholine,
+    Dopamine, Serotonin, GABA, Glutamate); giải thích cơ chế tác động của thuốc hướng
+    thần (Agonist, Antagonist, SSRI).
+- id: LO-W04-03
+  bloom_level: Analyze
+  statement: 'Lập bản đồ giải phẫu chức năng của hệ thần kinh: phân nhánh CNS vs PNS
+    (somatic vs autonomic: giao cảm vs đối giao cảm); bốn thùy vỏ não và các cấu trúc
+    dưới vỏ / hệ viền.'
+- id: LO-W04-04
+  bloom_level: Evaluate
+  statement: 'Đánh giá bản chất tương tác Gene - Môi trường: giải thích cơ chế tính
+    mềm dẻo nơ-ron và neurogenesis; phản biện thuyết tiền định di truyền thô thiển
+    thông qua mô hình Phạm vi phản ứng và Di truyền biểu sinh.'
+concepts:
+- id: roadmap:concept:psychology:w04-neuron-structure
+  name: Cấu trúc nơ-ron và bao myelin
+  claim_ids:
+  - C04-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w04-action-potential
+  name: Điện thế động & Quy luật Tất cả hoặc Không
+  claim_ids:
+  - C04-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w04-synaptic-transmission
+  name: Dẫn truyền qua synap & Cơ chế tái hấp thu
+  claim_ids:
+  - C04-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w04-neurotransmitters
+  name: Các chất dẫn truyền thần kinh & Bệnh Parkinson
+  claim_ids:
+  - C04-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w04-pharmacology-ssri
+  name: Dược lý học tâm thần & Thuốc SSRI
+  claim_ids:
+  - C04-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w04-autonomic-nervous-system
+  name: 'Hệ thần kinh tự chủ: Giao cảm vs Đối giao cảm'
+  claim_ids:
+  - C04-06
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w04-cerebral-cortex
+  name: Bốn thùy vỏ não & Vùng Broca
+  claim_ids:
+  - C04-07
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w04-limbic-system
+  name: 'Hệ viền: Hồi hải mã & Hạch hạnh nhân'
+  claim_ids:
+  - C04-08
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w04-neuroplasticity
+  name: Tính mềm dẻo của não bộ & Neurogenesis
+  claim_ids:
+  - C04-09
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w04-epigenetics
+  name: Di truyền học biểu sinh & Phạm vi phản ứng
+  claim_ids:
+  - C04-10
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+questions:
+- id: Q04-01
+  lo_ref: LO-W04-01
+  concept_id: roadmap:concept:psychology:w04-action-potential
+  claim_ids:
+  - C04-02
+- id: Q04-02
+  lo_ref: LO-W04-01
+  concept_id: roadmap:concept:psychology:w04-action-potential
+  claim_ids:
+  - C04-02
+- id: Q04-03
+  lo_ref: LO-W04-02
+  concept_id: roadmap:concept:psychology:w04-pharmacology-ssri
+  claim_ids:
+  - C04-05
+- id: Q04-04
+  lo_ref: LO-W04-02
+  concept_id: roadmap:concept:psychology:w04-neurotransmitters
+  claim_ids:
+  - C04-04
+- id: Q04-05
+  lo_ref: LO-W04-02
+  concept_id: roadmap:concept:psychology:w04-neurotransmitters
+  claim_ids:
+  - C04-04
+- id: Q04-06
+  lo_ref: LO-W04-03
+  concept_id: roadmap:concept:psychology:w04-autonomic-nervous-system
+  claim_ids:
+  - C04-06
+- id: Q04-07
+  lo_ref: LO-W04-03
+  concept_id: roadmap:concept:psychology:w04-cerebral-cortex
+  claim_ids:
+  - C04-07
+- id: Q04-08
+  lo_ref: LO-W04-03
+  concept_id: roadmap:concept:psychology:w04-limbic-system
+  claim_ids:
+  - C04-08
+- id: Q04-09
+  lo_ref: LO-W04-04
+  concept_id: roadmap:concept:psychology:w04-neuroplasticity
+  claim_ids:
+  - C04-09
+- id: Q04-10
+  lo_ref: LO-W04-04
+  concept_id: roadmap:concept:psychology:w04-epigenetics
+  claim_ids:
+  - C04-10
+units:
+- unit_id: roadmap:unit:psychology:w04
+  display_title: 'Tuần 04: Não bộ, Hệ Thần kinh, Gene, Môi trường và Tính Mềm dẻo'
+  sort_order: 4
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w04
+    path: notes/01-scientific-foundations/week-04-brain-genes-environment.md
+    sha256: cdc71c2e172275f7503c1631d119398d1f76f6214d17bf234978558d4bfd4548
+    byte_length: 54613
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w04
+    path: assessments/quizzes/week-04-quiz.md
+    question_count: 10
+    sha256: 0bf4fda845fc0fc151f59f34320efca19d9ca706426663c2a295683c01e6c563
+    byte_length: 8140
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w04
+    path: assessments/answer-keys/week-04-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: b2a173f84df345c463b0418481a39e469232e709912055cd7c2076e0aaf203d3
+    byte_length: 24424
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w04
+    path: flashcards/week-04.yaml
+    card_count: 10
+    sha256: 91b00fc502aef780ce0fbd26c095f71f25751eacc85c2e7a12a3dfc8a1061d95
+    byte_length: 8465
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

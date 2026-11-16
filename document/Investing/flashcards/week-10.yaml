@@ -1,0 +1,78 @@
+deck_id: "deck-inv-w10"
+subject: "Investing"
+lesson_id: "week-10-growth-index-etf-dca"
+version: "1.0.0"
+description: "Bộ thẻ truy xuất kiến thức W10 - Đầu tư tăng trưởng, Index/ETF và DCA. Nội dung giáo dục, không phải khuyến nghị đầu tư."
+
+cards:
+  - id: "fc-inv-w10-001"
+    concept: "Cổ phiếu tăng trưởng (Growth Stock)"
+    front: "Cổ phiếu tăng trưởng (growth stock) được định nghĩa bằng những đặc điểm đo được nào, và cái giá ẩn của tốc độ tăng trưởng đó là gì?"
+    back: "Theo tài liệu Investor.gov của SEC: growth stock là cổ phiếu có lợi nhuận tăng nhanh hơn mặt bằng thị trường, hiếm khi trả cổ tức, được mua với kỳ vọng tăng giá (capital appreciation). Cái giá ẩn: mức định giá cao đã nhúng sẵn kỳ vọng tăng trưởng lạc quan, nên khi kỳ vọng không thành hiện thực, cả hai thành phần - tăng trưởng và định giá - cùng đảo chiều. Hệ quả: cần phân biệt 'công ty tốt' với 'cổ phiếu tốt (giá hợp lý)', và đọc kèm khung giá trị/giá của W09 trước khi kết luận."
+    source_lesson: "Investing/notes/module-2/week-10-growth-index-etf-dca.md"
+    version: "1.0.0"
+    claim_ids: ["W10-C01"]
+    tags: ["growth-investing", "growth-stock", "module-2"]
+
+  - id: "fc-inv-w10-002"
+    concept: "Value so với Growth: bằng chứng lịch sử"
+    front: "Nghiên cứu Fama-French nói gì về kết quả của cổ phiếu giá trị (value) so với cổ phiếu tăng trưởng (growth) trên thị trường quốc tế, và cần đọc giới hạn nào kèm theo?"
+    back: "Theo abstract nghiên cứu đăng trên SSRN: trong giai đoạn 1975-1995, value có lợi nhuận cao hơn growth ở 12 trong 13 thị trường lớn, chênh lệch trung bình 7,60%/năm giữa rổ book-to-market cao và thấp. Hai giới hạn bắt buộc: (1) đây là kết quả lịch sử của một giai đoạn, không phải quy luật bảo đảm tương lai; (2) chính nghiên cứu chỉ ra phần chênh gắn với 'risk factor for relative distress' - yếu tố rủi ro của doanh nghiệp khó khăn - nghĩa là value premium có thể là phần bù rủi ro, không phải tiền miễn phí."
+    source_lesson: "Investing/notes/module-2/week-10-growth-index-etf-dca.md"
+    version: "1.0.0"
+    claim_ids: ["W10-C02"]
+    tags: ["value-vs-growth", "fama-french", "module-2"]
+
+  - id: "fc-inv-w10-003"
+    concept: "Cấu trúc ETF: giá thị trường, NAV và arbitrage"
+    front: "ETF khác quỹ mở ở cơ chế mua bán như thế nào, và vì sao giá thị trường của ETF thường nằm gần NAV?"
+    back: "Theo Investor Bulletin của SEC: chứng chỉ ETF được giao dịch trên sàn như cổ phiếu, theo giá thị trường biến động trong ngày - giá này có thể hơn hoặc kém NAV (giá trị tài sản ròng trên đơn vị). Giá thị trường thường được giữ gần NAV cuối ngày nhờ cơ chế arbitrage: chỉ Authorized Participants mới mua/chuộc trực tiếp với quỹ theo lô lớn (Creation Units), rồi mua bán lại trên thị trường. Nhà đầu tư lẻ chỉ giao dịch qua thị trường, nên chịu spread, thanh khoản và có thể mua ở premium/discount - khác quỹ mở mua theo NAV."
+    source_lesson: "Investing/notes/module-2/week-10-growth-index-etf-dca.md"
+    version: "1.0.0"
+    claim_ids: ["W10-C03"]
+    tags: ["etf", "nav", "arbitrage", "module-2"]
+
+  - id: "fc-inv-w10-004"
+    concept: "Phí quỹ và expense ratio"
+    front: "Phí và chi phí của quỹ tác động đến lợi nhuận nhà đầu tư như thế nào, và expense ratio nghĩa là gì?"
+    back: "Investor Bulletin của SEC (2025) khẳng định: phí và chi phí làm giảm giá trị lợi nhuận quỹ; quỹ chi phí cao phải làm tốt hơn mới chỉ tạo được cùng mức lợi nhuận. Expense ratio là tổng chi phí vận hành thường niên tính bằng % tài sản ròng bình quân, trừ dần vào tài sản quỹ - nhà đầu tư trả phí mỗi ngày dù không thấy hóa đơn. Ngoài biểu phí còn có chi phí giao dịch của quỹ. Đây là nền tảng của tracking difference: lợi nhuận quỹ ít khi bằng đúng lợi nhuận chỉ số tham chiếu."
+    source_lesson: "Investing/notes/module-2/week-10-growth-index-etf-dca.md"
+    version: "1.0.0"
+    claim_ids: ["W10-C04"]
+    tags: ["fees", "expense-ratio", "module-2"]
+
+  - id: "fc-inv-w10-005"
+    concept: "ETF đòn bẩy và inverse: ranh giới theo ngày"
+    front: "Vì sao ETF đòn bẩy (leveraged ETF) không phải là biến thể an toàn của ETF thường để giữ dài hạn, kể cả trong kế hoạch DCA kỷ luật?"
+    back: "SEC mô tả: leveraged ETF tìm cách đạt hiệu suất bằng bội số của chỉ số SAU phí, và mục tiêu này chỉ theo NGÀY - 'on a daily basis only, potentially making them unsuitable for long-term investors'. Cơ chế reset hàng ngày cộng hiệu ứng gộp (compounding) trong thị trường dao động làm kết quả tích lũy dài hạn lệch xa bội số tên gọi. Kỷ luật DCA đúng lịch không thể sửa sai lỗi chọn sản phẩm; dạng inverse tương tự. ETF thường (mô phỏng chỉ số) và ETF đòn bẩy/inverse phải phân loại ngay từ đầu."
+    source_lesson: "Investing/notes/module-2/week-10-growth-index-etf-dca.md"
+    version: "1.0.0"
+    claim_ids: ["W10-C05"]
+    tags: ["leveraged-etf", "daily-reset", "module-2"]
+
+  - id: "fc-inv-w10-006"
+    concept: "DCA so với lump-sum theo nghiên cứu Vanguard"
+    front: "Nghiên cứu Vanguard 2023 kết luận gì về DCA (cost averaging) so với lump-sum, và khi nào DCA vẫn có chỗ đứng hợp lý?"
+    back: "Kết luận: trên dữ liệu 1976-2022, lump-sum vượt cost averaging khoảng hai phần ba số trường hợp (68% số kỳ với MSCI World, CA 3 tháng); cơ chế là chi phí cơ hội của phần bù rủi ro bị mất ở phần tiền chờ ngoài thị trường (cổ phiếu Mỹ vượt tiền mặt 76% số kỳ). DCA không tạo kỳ vọng lợi nhuận cao hơn, nhưng tạm thời giảm rủi ro, tốt hơn giữ 100% tiền mặt, và phù hợp người cực kỳ ngại mất mát; nếu dùng thì giai đoạn giải ngân nên ngắn (khoảng 3 tháng). Ranh giới: DCA từ thu nhập định kỳ là hoàn cảnh khác - không có lump-sum sẵn để so."
+    source_lesson: "Investing/notes/module-2/week-10-growth-index-etf-dca.md"
+    version: "1.0.0"
+    claim_ids: ["W10-C06"]
+    tags: ["dca", "lump-sum", "vanguard", "module-2"]
+
+  - id: "fc-inv-w10-007"
+    concept: "Giá vốn bình quân DCA và độ nhạy theo đường giá"
+    front: "Trong ví dụ minh họa của bài (120 triệu VND, 6 kỳ, phí 0,15%), thứ hạng DCA so với lump-sum thay đổi thế nào theo từng kịch bản giá?"
+    back: "Kịch bản tăng dần (50.000 lên 66.000 VND/đơn vị): LSI thắng, 158.162.400 so với 139.622.340 VND, chênh 18,5 triệu - mua sớm toàn bộ có lợi. Kịch bản giảm rồi hồi phục: DCA thắng, +11,1% so với +3,8%, nhờ mua nhiều đơn vị ở vùng đáy. Kịch bản giảm sâu: cả hai cùng lỗ, DCA lỗ ít hơn (10,3% so với 24,1%) - ít lỗ hơn vẫn là lỗ. Kịch bản đi ngang: hai bên bằng nhau. Giá vốn bình quân DCA luôn nằm giữa giá min-max các kỳ nhưng không bảo đảm lãi. Kết luận: kết quả là hàm của đường giá, DCA không phải lúc nào cũng thắng."
+    source_lesson: "Investing/notes/module-2/week-10-growth-index-etf-dca.md"
+    version: "1.0.0"
+    claim_ids: ["W10-C07", "W10-C06"]
+    tags: ["dca", "sensitivity", "worked-example", "module-2"]
+
+  - id: "fc-inv-w10-008"
+    concept: "Tracking difference và tracking error"
+    front: "Tracking difference và tracking error khác nhau thế nào, và tại sao quỹ chỉ số không bao giờ bám sát chỉ số tuyệt đối?"
+    back: "Tracking difference là chênh lệch lợi nhuận giữa quỹ và chỉ số tham chiếu trong một kỳ - đo độ lớn của sự lệch. Tracking error đo độ biến động (thường dùng độ lệch chuẩn) của chênh lệch đó - đo tính ổn định, không phải độ lớn. Nguyên nhân: expense ratio, chi phí giao dịch khi tái lập rổ, tiền mặt dư, và cách tái lập rổ (sampling); với ETF còn premium/discount so với NAV. Đây là khung khái niệm của bài học; con số cụ thể của từng quỹ phải lấy từ công bố chính thức của chính quỹ đó."
+    source_lesson: "Investing/notes/module-2/week-10-growth-index-etf-dca.md"
+    version: "1.0.0"
+    claim_ids: ["W10-C03", "W10-C04"]
+    tags: ["tracking-difference", "tracking-error", "index-fund", "module-2"]

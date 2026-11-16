@@ -1,0 +1,351 @@
+schema_version: 2.0.0
+package_id: package:dotnet-react:stage-08
+version: 6
+created_at: '2026-10-08T00:00:00Z'
+source_status: draft
+subject_id: roadmap:subject:dotnet-react
+display_title: Stage 08 C# async import, cancellation, resources, and execution manual activity
+learning_objectives:
+- id: LO-DOTNET-S08-01
+  bloom_level: Apply
+  statement: Build and explain a cancellable streaming expense import with explicit validation, resource, token
+    and partial-batch boundaries after Stage 07.
+- id: LO-DOTNET-S08-02
+  bloom_level: Analyze
+  statement: Record actual type/equality, generic/delegate, deferred-query, runtime-error, cancellation, parser-test
+    and timed-debug evidence while preserving blockers.
+concepts:
+- id: DOTNET-S08-C01
+  name: Types, generic functions, delegates, and execution state
+  claim_ids:
+  - W08-C01
+  - W08-C02
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-08-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded manual mapping/safety review203
+    date: '2026-10-04'
+    notes: Scratch learning-data, positive evidence and operational boundaries reviewed; full technical sources/runtime/browser
+      approval open.
+- id: DOTNET-S08-C02
+  name: Streaming resources and cooperative async cancellation
+  claim_ids:
+  - W08-C03
+  - W08-C04
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-08-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded manual mapping/safety review203
+    date: '2026-10-04'
+    notes: Scratch learning-data, positive evidence and operational boundaries reviewed; full technical sources/runtime/browser
+      approval open.
+- id: DOTNET-S08-C03
+  name: Import validation, partial commits, and honest test evidence
+  claim_ids:
+  - W08-C05
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-08-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded manual mapping/safety review203
+    date: '2026-10-04'
+    notes: Scratch learning-data, positive evidence and operational boundaries reviewed; full technical sources/runtime/browser
+      approval open.
+units:
+- unit_id: roadmap:unit:dotnet-react:stage-08
+  display_title: Stage 08 C# async import, cancellation, resources, and execution manual activity
+  sort_order: 8
+  learning_objectives:
+  - id: LO-DOTNET-S08-01
+    bloom_level: Apply
+    statement: Build and explain a cancellable streaming expense import with explicit validation, resource, token
+      and partial-batch boundaries after Stage 07.
+  - id: LO-DOTNET-S08-02
+    bloom_level: Analyze
+    statement: Record actual type/equality, generic/delegate, deferred-query, runtime-error, cancellation, parser-test
+      and timed-debug evidence while preserving blockers.
+  concepts:
+  - id: DOTNET-S08-C01
+    name: Types, generic functions, delegates, and execution state
+    claim_ids:
+    - W08-C01
+    - W08-C02
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-08-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root bounded manual mapping/safety review203
+      date: '2026-10-04'
+      notes: Scratch learning-data, positive evidence and operational boundaries reviewed; full technical sources/runtime/browser
+        approval open.
+  - id: DOTNET-S08-C02
+    name: Streaming resources and cooperative async cancellation
+    claim_ids:
+    - W08-C03
+    - W08-C04
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-08-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root bounded manual mapping/safety review203
+      date: '2026-10-04'
+      notes: Scratch learning-data, positive evidence and operational boundaries reviewed; full technical sources/runtime/browser
+        approval open.
+  - id: DOTNET-S08-C03
+    name: Import validation, partial commits, and honest test evidence
+    claim_ids:
+    - W08-C05
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-08-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root bounded manual mapping/safety review203
+      date: '2026-10-04'
+      notes: Scratch learning-data, positive evidence and operational boundaries reviewed; full technical sources/runtime/browser
+        approval open.
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:dotnet-react:stage-08
+    path: 8.md
+    sha256: 2b3dac86d73d8cec31881fb37e828dcdca43e21f2b6117f11e7a9c542abc0b8f
+    byte_length: 13543
+  - role: activity_manual
+    stable_id: activity:dotnet:stage-08
+    path: activities/manual-stage-08.yaml
+    sha256: 94b87b06c7cb6869b04f458e56611b1cfd8b77633c8ab5556ecf0e9fe5552c18
+    byte_length: 6351
+  - role: source_ledger
+    stable_id: ledger:dotnet:stage-08
+    path: quality/stage-08-source-ledger.md
+    sha256: 07fe4b83662c47c6ad822aa027cd68d827b2d0bee8472efa1d45e2e732d68251
+    byte_length: 6178
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:00bafdceacb39506be9b
+    path: reference/stage-08-async/global.json
+    sha256: 4e7d5022b2a5a8d02bb951bb264a4c8613eabc332572a0af5f9743d23f23d84e
+    byte_length: 105
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:e9f39eeb485fe675b82d
+    path: reference/stage-08-async/README.md
+    sha256: e7575f47098753287e6318421bd72915f56f62c7eaef6328cd542fad52dc5d8a
+    byte_length: 9288
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:9159761925cb43961e5d
+    path: reference/stage-08-async/src/AsyncReference/AsyncImport.cs
+    sha256: fe6b2db4f144e745b5b6bc4c828329fd39e686c85303e31ead046b54db3dab66
+    byte_length: 1727
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:ac646f372f37d18244ee
+    path: reference/stage-08-async/src/AsyncReference/AsyncReference.csproj
+    sha256: 9b8458580be4e786dd73ed606f80627ab81a4545fbe8834e205dc430a56e7544
+    byte_length: 261
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:197df9b0fc9932c01bda
+    path: reference/stage-08-async/src/AsyncReference/CsvImport.cs
+    sha256: 1adb0bc93832a7958af5f5875146b4d68095e6d2c8339042f481471a06a63f7d
+    byte_length: 7674
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:d33b481714796f70ce99
+    path: reference/stage-08-async/src/AsyncReference/Models.cs
+    sha256: 3449bd8806c04a551f81fa06fabbb8628a2ec15abe5e5af81b086c6b16958d3f
+    byte_length: 903
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:d832cf231da42eddb2f3
+    path: reference/stage-08-async/tests/AsyncReference.Tests/AsyncReference.Tests.csproj
+    sha256: 0d9dca03c211fff91f597868420078ce1e5bf86d38b7190cfedbd57c5703fbb3
+    byte_length: 686
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:9083e1580a98eff902b9
+    path: reference/stage-08-async/tests/AsyncReference.Tests/AsyncReferenceTests.cs
+    sha256: 01c26a41d0ce85eb6674b9e2bd7f58bf05e9a74d3a15d9150a6807d79a3eb78a
+    byte_length: 3703
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:618a7ccaa57e6baa7450
+    path: reference/stage-08-async/tests/AsyncReference.Tests/CsvImportTests.cs
+    sha256: 548f25433579eab4ae5ff528d84c9bc885291d8407bf24feae373b86fba75c9b
+    byte_length: 8338
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:36c918f0c2102ba4f9c0
+    path: reference/stage-08-persistence/ExpenseImportPersistence.csproj
+    sha256: dd501e5130512c8400a12d052bd267b146d322570618afbd93c3378af944a142
+    byte_length: 1093
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:57804be9a1934d122fdf
+    path: reference/stage-08-persistence/global.json
+    sha256: 4e7d5022b2a5a8d02bb951bb264a4c8613eabc332572a0af5f9743d23f23d84e
+    byte_length: 105
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:39221152425afbb16f3a
+    path: reference/stage-08-persistence/Migrations/20261007145400_InitialCreate.cs
+    sha256: 56c8e27960d8970411bbe4bb2b0babd4968269a6d9a7989e164ff9691239e1b6
+    byte_length: 2865
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:ca92e1dec5ec5adc8122
+    path: reference/stage-08-persistence/Migrations/20261007145400_InitialCreate.Designer.cs
+    sha256: 3ee8bb84434e30a485852eb39479b81b0ba39134b99d1a59c4ca6e4b2c07aff8
+    byte_length: 3651
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:77bb1ff7ad39929e1312
+    path: reference/stage-08-persistence/Migrations/ImportDbContextModelSnapshot.cs
+    sha256: be4b5e79f6b888c7c86a2a89dc5519f4d153a5e24222208128bd4528c11428e4
+    byte_length: 3550
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:8b52f5db90e72698fe84
+    path: reference/stage-08-persistence/README.md
+    sha256: 22beb5a29707864bcb9d9f28ebc6c29f0b53caee3de9f6e35dc45ee37f486590
+    byte_length: 6105
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:1a08479da29fb0bec562
+    path: reference/stage-08-persistence/src/DesignTimeFactory.cs
+    sha256: 1d7e46c4e0016982683de976476e6b17acf743b5b5d80b2887b6710c7c0ff51c
+    byte_length: 552
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:776f757415b011a497d1
+    path: reference/stage-08-persistence/src/Domain.cs
+    sha256: 40d0149f8689bb0ba3e92c02d93653f88d1069687a13fffdc8131dc3d6b7ef90
+    byte_length: 1655
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:c9c2215be51eb52469b4
+    path: reference/stage-08-persistence/src/ExpenseImportService.cs
+    sha256: d8b44a46b7ce94b22acefafe6b95cd407b7e0f7a5e4b772e7c0f36ee34decad1
+    byte_length: 6189
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:0d67fe84f1e67684ef04
+    path: reference/stage-08-persistence/src/ImportDatabase.cs
+    sha256: c395ef8a158e6472171ac68f90ec15cdd39f2f1d7729839896d059dbe38c7c0d
+    byte_length: 2122
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:218dde447366d4257af4
+    path: reference/stage-08-persistence/tests/PersistenceTests.cs
+    sha256: 4c1551bc45fa607fcfaaed831a7b7ac03765d979c8e54426a03afbae4f879793
+    byte_length: 13431
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:466c0f72309c897874ac
+    path: reference/stage-08-integration/api/ApiTests.cs
+    sha256: 416c297acc02b5134b810e64f0e50b2bb7723aadfec409d6947eb110904acd69
+    byte_length: 9234
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:4dafb6486f68bf024b90
+    path: reference/stage-08-integration/api/BoundaryTests.cs
+    sha256: b87b5cdc0415a3e60dfbf2094004aaba22a329b523a5a399458a670d8d6aa3c8
+    byte_length: 10403
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:8f51f71ac6e5d48c6ede
+    path: reference/stage-08-integration/api/ContractTests.cs
+    sha256: 5182dbaba5c6e12f7890cd38e9cc648810ae675f3f849c8acff80fb84681475e
+    byte_length: 7935
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:8f0b4d323f74c315173f
+    path: reference/stage-08-integration/api/KestrelContractTests.cs
+    sha256: 065b31365a837455c5af8896fb44c980c74c61f37d03f6515141976b7ab70579
+    byte_length: 4744
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:5a5ba41ba61736e7c39f
+    path: reference/stage-08-integration/api/PersistenceFaultTests.cs
+    sha256: f12ddded97efbbc7cf4261078dd519a97fb3751074c2d07f9c838a13ec56836a
+    byte_length: 5780
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:f4a67b56317ad53267ca
+    path: reference/stage-08-integration/api/Program.cs
+    sha256: 6c9238f4b95f03786561b77fe5b501b20c540acf2bc097ba458df8026b556481
+    byte_length: 9199
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:ef90220fdfb266319af0
+    path: reference/stage-08-integration/api/README.md
+    sha256: c5f5d78d08f2f94e6d656a8dbdb033ced35bf2860333626fe8e728ac36fe3c82
+    byte_length: 8648
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:9782b159e97d8ecd47bd
+    path: reference/stage-08-integration/api/Stage8IntegrationApi.csproj
+    sha256: aa8323e161d0fce668cef0478d9ce51eed80d1ea9014d6b94ad4e2d82004bd68
+    byte_length: 776
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:6806952832975cd3f8c8
+    path: reference/stage-08-integration/api/Stage8IntegrationApi.sln
+    sha256: 913c12aacc7f5f7abc84b3d371ced67803b325edcc7037045987075033146860
+    byte_length: 165
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:5c844d541eb54a5e3096
+    path: reference/stage-08-integration/api/StartupGuardTests.cs
+    sha256: 6196e9df467eba8ee8d680382f4e3adff29d4f2f7893e23cdac98416259efc72
+    byte_length: 860
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:5c098c3ecc3568474013
+    path: reference/stage-08-integration/frontend/index.html
+    sha256: 4a528f95431e4251fda2710be50b2bf295ed2221ecc559ca4be982ae803c9ab4
+    byte_length: 73
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:e124a4dbf6999d881482
+    path: reference/stage-08-integration/frontend/package-lock.json
+    sha256: 420b21e46f028577e9f242082fca0a37cd0ca3f8d28338e6b82c79943cc6e1bb
+    byte_length: 102901
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:20edf5881232e8c2321d
+    path: reference/stage-08-integration/frontend/package.json
+    sha256: e822d903a1644eb86eda0b7b1ba8d052a164c9842696e30ad4bec761299591cb
+    byte_length: 543
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:1117d2e2c6c3b526f881
+    path: reference/stage-08-integration/frontend/README.md
+    sha256: be6dcc30adbc8edc34a4f54b2653ee6857265047c53c6bf295d8354169afaac4
+    byte_length: 1218
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:0eace3337c03069ee053
+    path: reference/stage-08-integration/frontend/src/api.test.ts
+    sha256: 2ff7d4d4e192b6d662bdae7bea8463315184a746fc1a44719a39e85174b46fdb
+    byte_length: 5316
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:d0c795ef30fecfcdc4e8
+    path: reference/stage-08-integration/frontend/src/api.ts
+    sha256: a415da574289d518f4a6600167229bbe961f19f218d734bbc2cc7d2b33e64d99
+    byte_length: 7235
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:2f600eb973242d267d12
+    path: reference/stage-08-integration/frontend/src/App.tsx
+    sha256: c00c77714aab8fcb548f09b3b9586f1c08f5d2806ee5b51f80170bf9f842c22c
+    byte_length: 3848
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:330a4d97f988d37e60cd
+    path: reference/stage-08-integration/frontend/src/importController.test.tsx
+    sha256: 495ab971601e3241008c05e587b9f7bb9898546711951f7477a2e5b9d32eb6e2
+    byte_length: 10810
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:aa8f7819c234667d1383
+    path: reference/stage-08-integration/frontend/src/importController.ts
+    sha256: 70eeef467c6cec8115456cad5591e507b5c76f2ed165971b42090251f41d6abc
+    byte_length: 5840
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:8a2ee5be13c057b1c294
+    path: reference/stage-08-integration/frontend/src/main.tsx
+    sha256: 8920a34bee96bed6190272ec4ab7172c1b5cac44e836679278058f5bdd325818
+    byte_length: 217
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:b7f237ac74778953ec73
+    path: reference/stage-08-integration/frontend/src/style.css
+    sha256: 5ccaf9d030f4ad2ee2d0ae2da800dd97c917674897bbd94aebea2c918d8198d8
+    byte_length: 263
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:1376f62e9b7a37d686b2
+    path: reference/stage-08-integration/frontend/src/test/setup.ts
+    sha256: 91a3c8962a0edcb956206a501d943fe99e1c78c6d4d8b5c9a948a3362c75978c
+    byte_length: 43
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:9fc00d9bdb81004081e7
+    path: reference/stage-08-integration/frontend/tsconfig.json
+    sha256: 8a86c7fd74802b6ede2852f73ac3bef977f595cba856038fc57142d67d9bcb9c
+    byte_length: 363
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:a7e2f0179cf64fc1c77e
+    path: reference/stage-08-integration/frontend/vite.config.ts
+    sha256: 894512483dfeecf7f139d2fc6ad79f0698510d52d2116cef2768090d45e312f5
+    byte_length: 961
+  - role: reference_source
+    stable_id: roadmap:reference:dotnet:stage-08:d578532e79e894a54e38
+    path: reference/stage-08-integration/frontend/vitest.config.ts
+    sha256: 8143e66b8d43c6e1969fd553b81182c7927c0539c58d87c81ce6dc3cb139d4be
+    byte_length: 210
+external_resources: []
+integration_notes: Bounded Stage8 references1050; source status stays draft. Current8.md selected; retained8_CSharp_Chuyen_Sau.docx
+  publication parity remains open. Reference source artifacts do not prove browser/auth/fullcourse readiness.

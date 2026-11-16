@@ -1,0 +1,120 @@
+deck_id: "deck-psy-w10"
+subject: "Psychology"
+lesson_id: "week-10-motivation"
+version: "1.0.0"
+description: "Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng (Spaced Repetition - R5 Compliant) Tuần 10: Động lực, Nhu cầu, Mục tiêu và Phần thưởng"
+
+cards:
+  - id: "fc-psy-w10-001"
+    concept: "Động lực Nội tại và Hiệu ứng Biện minh quá mức"
+    front: "Phân biệt Động lực nội tại và Động lực ngoại tại, và giải thích cơ chế của Hiệu ứng Biện minh quá mức (Overjustification Effect)?"
+    back: "Động lực nội tại đến từ sự hứng thú, thỏa mãn tự thân của hoạt động; động lực ngoại tại hướng đến phần thưởng bên ngoài hoặc tránh phạt. Hiệu ứng biện minh quá mức xảy ra khi việc trao phần thưởng ngoại tại hữu hình cho hành vi vốn có động lực nội tại làm suy giảm động lực tự thân tự nhiên."
+    source_lesson: "Psychology/notes/02-understanding-self/week-10-motivation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C10-01"
+    tags:
+      - "motivation"
+      - "intrinsic"
+      - "extrinsic"
+      - "overjustification-effect"
+
+  - id: "fc-psy-w10-002"
+    concept: "Thuyết Tự quyết (SDT) và Ba Nhu cầu Tâm lý Cơ bản"
+    front: "Theo Thuyết Tự quyết (Deci & Ryan), ba nhu cầu tâm lý cơ bản nào là điều kiện tất yếu cho sự phát triển lành mạnh và động lực nội tại bền vững?"
+    back: "1. Quyền tự chủ (Autonomy - quyền chủ động lựa chọn và kiểm soát hành vi); 2. Năng lực (Competence - cảm giác làm chủ thử thách và hiệu quả); 3. Sự gắn kết (Relatedness - cảm giác thuộc về, được quan tâm và kết nối xã hội)."
+    source_lesson: "Psychology/notes/02-understanding-self/week-10-motivation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C10-02"
+    tags:
+      - "self-determination-theory"
+      - "deci-ryan"
+      - "autonomy"
+      - "competence"
+      - "relatedness"
+
+  - id: "fc-psy-w10-003"
+    concept: "Thuyết Thúc đẩy của Clark Hull và Cân bằng Nội môi"
+    front: "Thuyết Thúc đẩy (Drive Theory) của Clark Hull giải thích nguồn gốc hành vi thông qua nguyên lý Cân bằng nội môi (Homeostasis) như thế nào?"
+    back: "Sự lệch chuẩn sinh học (như thiếu nước, đói) tạo ra nhu cầu thể chất, kích hoạt trạng thái thúc đẩy tâm lý (drive state) khó chịu căng thẳng, thôi thúc sinh vật hành vi nhằm giảm căng thẳng và khôi phục trạng thái cân bằng nội môi tối ưu."
+    source_lesson: "Psychology/notes/02-understanding-self/week-10-motivation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C10-03"
+    tags:
+      - "drive-theory"
+      - "hull"
+      - "homeostasis"
+      - "drive-reduction"
+
+  - id: "fc-psy-w10-004"
+    concept: "Định luật Yerkes-Dodson về Kích hoạt và Hiệu suất"
+    front: "Định luật Yerkes-Dodson (1908) mô tả mối quan hệ giữa mức độ kích hoạt sinh lý (Arousal) và Hiệu suất thực thi ra sao, và độ khó của nhiệm vụ tác động thế nào?"
+    back: "Hiệu suất đạt tối ưu ở mức kích hoạt vừa phải (đường cong chữ U ngược). Nhiệm vụ đơn giản/quen thuộc đạt hiệu suất tốt nhất ở mức kích hoạt cao; ngược lại nhiệm vụ phức tạp/đòi hỏi tập trung nhận thức đạt hiệu suất tốt nhất ở mức kích hoạt thấp hơn."
+    source_lesson: "Psychology/notes/02-understanding-self/week-10-motivation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C10-04"
+    tags:
+      - "yerkes-dodson"
+      - "arousal"
+      - "performance"
+      - "optimal-arousal"
+
+  - id: "fc-psy-w10-005"
+    concept: "Tháp Nhu cầu Maslow và Bằng chứng Thực nghiệm Đa văn hóa"
+    front: "Tháp Nhu cầu của Abraham Maslow được cấu trúc thế nào và nghiên cứu thực nghiệm hiện đại của Tay & Diener (2011) chỉ ra giới hạn gì?"
+    back: "Maslow xếp nhu cầu từ thấp lên cao: Sinh lý -> An toàn -> Xã hội/Gắn kết -> Tôn trọng -> Tự hiện thực hóa. Tuy nhiên, dữ liệu toàn cầu của Tay & Diener (123 quốc gia) chứng minh con người vẫn có thể đạt hạnh phúc và tự hiện thực hóa ngay cả khi nhu cầu cơ bản chưa trọn vẹn, bác bỏ tính tuần tự cứng nhắc."
+    source_lesson: "Psychology/notes/02-understanding-self/week-10-motivation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C10-05"
+    tags:
+      - "maslow"
+      - "hierarchy-of-needs"
+      - "self-actualization"
+      - "tay-diener"
+
+  - id: "fc-psy-w10-006"
+    concept: "Thuyết Đặt Mục tiêu Locke & Latham"
+    front: "Hai đặc tính then chốt nào của mục tiêu giúp tối ưu hóa hiệu suất theo Thuyết Đặt Mục tiêu (Locke & Latham), và ba điều kiện hỗ trợ là gì?"
+    back: "Mục tiêu phải Cụ thể (Specific) và Có tính thách thức cao nhưng vừa tầm (Challenging). Ba điều kiện hỗ trợ bắt buộc gồm: Cam kết với mục tiêu (Goal commitment), Phản hồi tiến độ định kỳ (Feedback), và Năng lực/nguồn lực thực thi tương xứng."
+    source_lesson: "Psychology/notes/02-understanding-self/week-10-motivation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C10-06"
+    tags:
+      - "goal-setting"
+      - "locke-latham"
+      - "performance"
+      - "feedback"
+
+  - id: "fc-psy-w10-007"
+    concept: "Sự Phân ly Não bộ giữa 'Ham muốn' (Wanting) và 'Thích thú' (Liking)"
+    front: "Nghiên cứu của Berridge & Robinson phát hiện sự phân ly sinh học thần kinh giữa 'Wanting' và 'Liking' như thế nào và ý nghĩa đối với nghiện?"
+    back: "Wanting (động lực khao khát/tìm kiếm phần thưởng) do hệ dopamine trung viền từ VTA đến Nucleus Accumbens điều khiển. Liking (khoái cảm thưởng thức khi nhận thưởng) do các điểm nóng opioid/cannabinoid nội sinh điều khiển. Trong nghiện, wanting tăng vọt nhạy cảm hóa trong khi liking suy giảm dần."
+    source_lesson: "Psychology/notes/02-understanding-self/week-10-motivation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C10-07"
+    tags:
+      - "neuroscience"
+      - "dopamine"
+      - "berridge-robinson"
+      - "wanting-vs-liking"
+      - "reward-system"
+
+  - id: "fc-psy-w10-008"
+    concept: "Cơ chế Sinh học Điều hòa Đói và No"
+    front: "Hai trung tâm vùng dưới đồi (LH và VMH) cùng hai hormone Leptin và Ghrelin tương tác điều hòa cảm giác đói - no ra sao?"
+    back: "Nhân bên vùng dưới đồi (LH) kích hoạt đói ('trung tâm ăn'); nhân bụng giữa (VMH) phát tín hiệu no ('trung tâm ngừng ăn'). Hormone Ghrelin do dạ dày rỗng tiết ra kích thích thèm ăn; hormone Leptin do mô mỡ tiết ra báo hiệu dự trữ năng lượng đủ, ức chế cơn đói."
+    source_lesson: "Psychology/notes/02-understanding-self/week-10-motivation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C10-08"
+    tags:
+      - "biological-regulation"
+      - "hunger-satiety"
+      - "hypothalamus"
+      - "ghrelin-leptin"

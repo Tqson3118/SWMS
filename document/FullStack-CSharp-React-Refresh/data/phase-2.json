@@ -1,0 +1,658 @@
+[
+  {
+    "week": 5,
+    "title": "C# value/reference, OOP và invariants",
+    "lessons": [
+      {
+        "title": "Value, reference và equality",
+        "objective": "Dự đoán copy/alias, phân biệt identity/value equality và sửa shared mutation.",
+        "body": "Value type assignment copy value; reference type assignment copy reference nên hai biến có thể trỏ cùng object. Không kết luận value luôn stack/reference luôn heap: storage phụ thuộc context, boxing/fields/closures. Struct chứa reference vẫn copy reference field shallow. string là reference type immutable nên thay chuỗi tạo giá trị mới, không sửa cùng chuỗi. Class mặc định Equals thường identity trừ override; record dùng value-based equality cho members, nhưng collection member không tự deep compare nội dung. == có thể overload nên phải đọc type. Dùng debugger xem hai biến trước/sau mutate; lựa chọn class/record/struct theo semantics và kích thước, không theo mẹo stack nhanh."
+      },
+      {
+        "title": "OOP và encapsulation",
+        "objective": "Tạo domain Expense bảo vệ amount/note và giải thích interface/composition.",
+        "body": "Encapsulation gom state với quy tắc thay đổi; private setter tránh caller bỏ qua validation. Constructor/factory kiểm tra invariants, method Rename/ChangeAmount biểu diễn hành vi. Inheritance dùng khi subtype thực sự substitutable; composition ghép collaborator thường dễ test hơn. Interface là contract hành vi, không phải nơi mặc định đặt mọi implementation. Polymorphism gọi đúng implementation qua interface mà caller không biết concrete type. Domain không biết HTTP/DbContext/React; lỗi domain được API map sang status sau. SOLID thực dụng: một lý do thay đổi, dependency hướng vào policy, thêm rule qua boundary có nhu cầu; không xây 10 layer cho CRUD nhỏ."
+      },
+      {
+        "title": "Money/date và test đầu tiên",
+        "objective": "Viết domain có guard số tiền và unit tests cho biên.",
+        "body": "Theo project-spec: long AmountVnd nguyên 1..1e9, DateOnly SpentOn, note tối đa200. checked bắt overflow khi cộng long; decimal phù hợp tính tỷ lệ hoặc đa tiền tệ về sau, không dùng double cho decimal currency. Truyền ngày vào nghiệp vụ thay gọi DateTime.Now rải rác để test deterministic. Unit test kiểm tra behavior: 1 hợp lệ,0/âm/trênmax invalid, note trim. Arrange input, Act gọi domain, Assert expected. Không test lại auto-property getter như tiêu chí hiểu OOP. Xunit Assert.Throws cho guard lỗi; fixture string/Guid cố định, không random làm expected khó tái hiện."
+      }
+    ],
+    "example": "1. Bài toán: class alias so với struct copy.\n2. Dự đoán output trước chạy; Type không quyết định đơn giản vị trí memory.\n3. Program.cs console:\n```csharp\nvar a=new Box { Amount=1 }; var b=a; b.Amount=2;\nvar x=new Money(1); var y=x; y=new Money(2);\nConsole.WriteLine($\"{a.Amount} {x.Amount} {y.Amount}\"); // 2 1 2\npublic sealed class Box { public long Amount {get;set;} }\npublic readonly record struct Money(long Amount);\n```\nDomain trong Expense.Domain:\n```csharp\npublic sealed class Expense {\n public long AmountVnd {get;private set;}\n public Expense(long amount) => ChangeAmount(amount);\n public void ChangeAmount(long amount) {\n  if(amount<=0||amount>1_000_000_000L) throw new ArgumentOutOfRangeException(nameof(amount));\n  AmountVnd=amount;\n }\n}\n```\n4. Expected new Expense(0) throw; new Expense(50000) hợp lệ. Mở rộng DateOnly/note theo spec, không xóa guard để test xanh.",
+    "deep": "Boxing value type vào object tạo boxed copy; sửa biến gốc không tự sửa boxed value. Record with copy cũng shallow đối với reference member. Invariant cần tồn tại cả domain và boundary, vì DB/import có thể gọi domain từ đường khác.",
+    "exercises": [
+      {
+        "prompt": "Thêm note trim<=200 và test whitespace/201 ký tự.",
+        "solution": "Chuẩn hóa note?.Trim(); nếu Length>200 trả validation/throw theo domain contract. Whitespace thành chuỗi rỗng hoặc null quyết định nhất quán; test không vượt200 và không mất note hợp lệ."
+      },
+      {
+        "prompt": "Thay Report kế thừa DbContext bằng ReportService nhận IExpenseReader; giải thích.",
+        "solution": "ReportService sử dụng reader theo composition, không phải một DbContext. Interface chỉ có dữ liệu cần đọc; mock trả fixture, report total100000. Domain không phụ thuộc EF."
+      }
+    ],
+    "project": "Tạo Expense.Domain và console nhập fixture, guard money/date/note. Chạy unit tests biên; console report total100000. Giữ JS UI ở commit cũ.",
+    "criteria": [
+      "Tự dự đoán và giải thích output2/1/2 cùng class alias/struct copy.",
+      "Domain chặn0/âm/trên1e9/note201; nhận fixture; tests xanh.",
+      "Console total100000, domain không reference ASP.NET/EF."
+    ],
+    "english": "Thu: 'What is copied when I assign a class variable?' Đọc value types và encapsulation, ghi invariant/reference/equality.",
+    "sources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/value-types",
+        "section": "Value types and copying"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/object-oriented/",
+        "section": "Encapsulation, inheritance and polymorphism"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-csharp-with-xunit",
+        "section": "Unit testing C# with xUnit"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Reference copy",
+        "stem": "b=a với a class rồi b.Amount=2 thường đổi a.Amount không?",
+        "options": [
+          "Có, nếu cùng instance",
+          "Không vì assignment deep clone",
+          "Chỉ khi dùng static",
+          "Class luôn copy từng field"
+        ],
+        "reasons": [
+          "Hai biến giữ reference tới cùng instance.",
+          "Assignment class không tự clone.",
+          "Alias không cần static.",
+          "Field copy không phải default class assignment."
+        ],
+        "front": "b=a với a class rồi b.Amount=2 thường đổi a.Amount không?",
+        "back": "Có, nếu cùng instance. Hai biến giữ reference tới cùng instance."
+      },
+      {
+        "concept": "Value storage",
+        "stem": "Có nên khẳng định value type luôn nằm stack không?",
+        "options": [
+          "Không",
+          "Có bất kể boxing/field",
+          "Chỉ enum luôn vậy",
+          "C# cấm value field trong class"
+        ],
+        "reasons": [
+          "Storage phụ thuộc context; boxing/fields có thể ở heap.",
+          "Boxing là phản ví dụ cho khẳng định tuyệt đối.",
+          "Enum cũng là value type, không quy định mọi storage.",
+          "Class có value fields hợp lệ."
+        ],
+        "front": "Có nên khẳng định value type luôn nằm stack không?",
+        "back": "Không. Storage phụ thuộc context; boxing/fields có thể ở heap."
+      },
+      {
+        "concept": "Encapsulation",
+        "stem": "Setter amount public bỏ guard nguy cơ gì?",
+        "options": [
+          "Caller tạo trạng thái invalid",
+          "Tự tăng performance chắc chắn",
+          "Tự bảo đảm OOP",
+          "Tự tạo transaction"
+        ],
+        "reasons": [
+          "Setter có thể bỏ quy tắc domain.",
+          "Performance không thay invariant.",
+          "OOP không chỉ có class/public property.",
+          "Setter không có atomic transaction mặc định."
+        ],
+        "front": "Setter amount public bỏ guard nguy cơ gì?",
+        "back": "Caller tạo trạng thái invalid. Setter có thể bỏ quy tắc domain."
+      },
+      {
+        "concept": "Composition",
+        "stem": "ReportService dùng reader hợp với quan hệ nào?",
+        "options": [
+          "Has-a qua composition",
+          "Is-a DbContext",
+          "Kế thừa React component",
+          "Không cần boundary nào"
+        ],
+        "reasons": [
+          "Service cần collaborator reader, không phải reader subtype.",
+          "Report không substitutable DbContext.",
+          "Hai runtime không có inheritance như vậy.",
+          "Boundary có ích khi IO cần test/đổi."
+        ],
+        "front": "ReportService dùng reader hợp với quan hệ nào?",
+        "back": "Has-a qua composition. Service cần collaborator reader, không phải reader subtype."
+      },
+      {
+        "concept": "VND representation",
+        "stem": "Core lưu tiền VND theo spec bằng gì?",
+        "options": [
+          "long nguyên có guard",
+          "double rồi bỏ phần lẻ",
+          "string tùy ý",
+          "int không cần giới hạn"
+        ],
+        "reasons": [
+          "Long nguyên tránh rounding cho VND và guard miền.",
+          "Double có rounding, bỏ phần lẻ che input invalid.",
+          "String tùy ý không có numeric invariant.",
+          "Int dễ overflow tổng và vẫn cần guard."
+        ],
+        "front": "Core lưu tiền VND theo spec bằng gì?",
+        "back": "long nguyên có guard. Long nguyên tránh rounding cho VND và guard miền."
+      },
+      {
+        "concept": "Meaningful test",
+        "stem": "Test nào kiểm tra domain rule?",
+        "options": [
+          "Amount0 bị chặn,50000 được nhận",
+          "Chỉ getter trả value mặc định",
+          "Chỉ file tồn tại",
+          "Chỉ tên class đúng"
+        ],
+        "reasons": [
+          "Kiểm tra behavior và boundary thật.",
+          "Getter thường không kiểm rule validation.",
+          "File tồn tại không chứng minh behavior.",
+          "Naming không chứng minh domain đúng."
+        ],
+        "front": "Test nào kiểm tra domain rule?",
+        "back": "Amount0 bị chặn,50000 được nhận. Kiểm tra behavior và boundary thật."
+      }
+    ]
+  },
+  {
+    "week": 6,
+    "title": "Collections, generics và delegates",
+    "lessons": [
+      {
+        "title": "List, Dictionary, HashSet",
+        "objective": "Chọn collection theo truy cập, duplicate và chi phí trung bình.",
+        "body": "List<T> là dãy có thứ tự, truy cập index O(1), tìm theo điều kiện O(n). Dictionary<TKey,TValue> lookup key trung bình O(1), cần equality/hash đúng, không có guarantee mọi case O(1). HashSet<T> theo membership/unique, Add trả false nếu duplicate theo comparer. Dùng Dictionary categoryId->name khi render nhiều expense; không tìm List category lặp trong loop nếu dữ liệu lớn. Không sửa List trong foreach vì enumerator bị invalidated; dùng RemoveAll(predicate) hoặc duyệt snapshot khi phù hợp. Dictionary không thay index DB và HashSet memory không bảo đảm chống trùng giữa process. Chọn collection theo yêu cầu trước tối ưu."
+      },
+      {
+        "title": "Generics và constraints",
+        "objective": "Viết generic helper có constraint và phân biệt compile/runtime safety.",
+        "body": "Generic type/method nhận type parameter T, reuse thuật toán mà giữ compile-time type safety. Không cast object tùy tiện hoặc tạo List<object> khi domain homogeneous. where T:notnull hỗ trợ key không-null; where T:class cho reference; where T:new() cho tạo instance public parameterless; interface constraint cho hành vi. Constraints chỉ cho phép dùng members được contract xác định, không biến T thành dynamic. IEnumerable<T> mô tả khả năng enumerate, IReadOnlyList<T> thêm count/index nhưng không bảo đảm underlying object immutable. Generic wrapper không phải abstraction tốt nếu chỉ che code một lần và làm debug khó hơn."
+      },
+      {
+        "title": "Delegate, lambda và callback",
+        "objective": "Dùng Func/Action/Predicate để lọc và kiểm tra captured state.",
+        "body": "Delegate là type-safe callable reference; Func<Expense,bool> trả bool, Action<Expense> không trả value, Predicate<T> là filter contract phổ biến. Lambda tạo function expression; e=>e.AmountVnd>threshold capture threshold lexical, có thể thấy threshold bị đổi. Tránh capture loop/shared mutable state khi dùng concurrent tasks. Method group có thể truyền thay lambda nếu signature khớp. Callback dùng cho rule/transform; không cần event bus khi một function param đủ. Event pattern cho thông báo nhiều subscribers là tùy chọn. Để tính báo cáo, truyền pure predicate, không sửa mảng trong callback."
+      }
+    ],
+    "example": "1. Bài toán: lookup category và bỏ id nhập trùng trong batch.\n2. Dictionary lookup, HashSet membership; không khẳng định chống trùng toàn DB.\n3. Console:\n```csharp\nvar categories=new Dictionary<string,string>{{\"f1\",\"Food\"},{\"t1\",\"Travel\"}};\nvar seen=new HashSet<string>();\nforeach(var id in new[]{\"f1\",\"f1\",\"t1\"}) {\n if(seen.Add(id)&&categories.TryGetValue(id,out var name)) Console.WriteLine(name);\n}\nvar xs=new List<long>{50000,20000,30000};\nFunc<long,bool> large=x=>x>=30000;\nConsole.WriteLine(string.Join(\",\",xs.Where(large))); // 50000,30000\nxs.RemoveAll(x=>x<30000);\nConsole.WriteLine(xs.Count); // 2\n```\n4. Output Food/Travel một lần; missing key dùng TryGetValue không throw. Đổi comparer để thấy case sensitivity.",
+    "deep": "Hash/equality inconsistency làm lookup sai dù code compile. IReadOnly collection interface không freeze source; đừng expose mutable List domain trực tiếp. Delegate giúp Strategy đơn giản, chỉ tạo interface Strategy khi cần state/lifecycle nhiều method.",
+    "exercises": [
+      {
+        "prompt": "Group sums bằng Dictionary cho fixture; không dùng LINQ.",
+        "solution": "Duyệt expense; TryGetValue category total cũ; checked cộng; assign. Food80000,Travel20000; [] dictionary rỗng. Complexity trung bình O(n)."
+      },
+      {
+        "prompt": "Viết generic DistinctByKey<T,TKey>(IEnumerable<T>,Func<T,TKey>) where TKey:notnull.",
+        "solution": "HashSet<TKey>, foreach item nếu set.Add(key(item)) thì yield return item; giữ lần đầu. Test key a,a,b -> a,b; không biến loop thành mutation source."
+      }
+    ],
+    "project": "Console filter/report theo category và deduplicate import draft trong memory. Giữ giải thích đây chỉ là batch-local dedup; idempotency DB học W16.",
+    "criteria": [
+      "Dictionary report Food80000/Travel20000, empty đúng; missing category báo lỗi rõ.",
+      "Không Collection was modified khi xóa; Add HashSet nhận trùng đúng.",
+      "Generic helper và Func filter chạy với2 kiểu dữ liệu, giải thích constraint."
+    ],
+    "english": "Thu: 'Why did you choose a Dictionary instead of a List?' Thêm average lookup, duplicate, constraint, delegate, captured variable.",
+    "sources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/standard/collections/selecting-a-collection-class",
+        "section": "Generic collections"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/generics/constraints-on-type-parameters",
+        "section": "Constraints on type parameters"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/delegates/",
+        "section": "Delegates"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Dictionary lookup",
+        "stem": "Lookup Dictionary nên mô tả chi phí thế nào?",
+        "options": [
+          "Trung bình O(1), không tuyệt đối mọi case",
+          "Luôn O(1) bất kể hash",
+          "Luôn O(n²)",
+          "Không cần equality"
+        ],
+        "reasons": [
+          "Hash table average nhanh nhưng collision/pathology có thể khác.",
+          "Khẳng định tuyệt đối bỏ qua collisions.",
+          "Lookup không mặc định quadratic.",
+          "Hash/equality cần nhất quán."
+        ],
+        "front": "Lookup Dictionary nên mô tả chi phí thế nào?",
+        "back": "Trung bình O(1), không tuyệt đối mọi case. Hash table average nhanh nhưng collision/pathology có thể khác."
+      },
+      {
+        "concept": "Foreach mutation",
+        "stem": "Xóa List trong foreach nên đổi cách nào?",
+        "options": [
+          "RemoveAll hoặc strategy không mutate enumerator đang chạy",
+          "Bọc try/catch rồi bỏ lỗi",
+          "Đổi var thành int",
+          "Thêm Thread.Sleep"
+        ],
+        "reasons": [
+          "Tránh invalidating active enumerator.",
+          "Nuốt lỗi có thể chỉ xóa một phần.",
+          "Variable declaration không sửa enumeration semantics.",
+          "Sleep không giải quyết mutation."
+        ],
+        "front": "Xóa List trong foreach nên đổi cách nào?",
+        "back": "RemoveAll hoặc strategy không mutate enumerator đang chạy. Tránh invalidating active enumerator."
+      },
+      {
+        "concept": "Generic constraint",
+        "stem": "where T:new() cho phép điều gì?",
+        "options": [
+          "new T() với constructor phù hợp",
+          "Gọi mọi member tùy ý",
+          "Bảo đảm deep immutable",
+          "Tự kết nối DB"
+        ],
+        "reasons": [
+          "Constraint yêu cầu public parameterless construction.",
+          "Chỉ members có constraint mới dùng được.",
+          "new() không bảo đảm immutability.",
+          "Generic constraint không thực hiện IO."
+        ],
+        "front": "where T:new() cho phép điều gì?",
+        "back": "new T() với constructor phù hợp. Constraint yêu cầu public parameterless construction."
+      },
+      {
+        "concept": "Read-only interface",
+        "stem": "IReadOnlyList<T> bảo đảm source không đổi bởi bất kỳ ai không?",
+        "options": [
+          "Không",
+          "Có freeze deep",
+          "Có thread-safe luôn",
+          "Nó cấm mọi reference type"
+        ],
+        "reasons": [
+          "Interface hạn chế API caller, underlying có thể mutable.",
+          "Không thực hiện deep freeze.",
+          "Không bảo đảm concurrent safety.",
+          "T có thể reference type."
+        ],
+        "front": "IReadOnlyList<T> bảo đảm source không đổi bởi bất kỳ ai không?",
+        "back": "Không. Interface hạn chế API caller, underlying có thể mutable."
+      },
+      {
+        "concept": "Func signature",
+        "stem": "Func<long,bool> biểu diễn gì?",
+        "options": [
+          "Nhận long và trả bool",
+          "Nhận bool trả long",
+          "Không trả value",
+          "Luôn async"
+        ],
+        "reasons": [
+          "Type cuối là return, trước là parameters.",
+          "Thứ tự parameter/return bị đảo.",
+          "Action mới không có return value.",
+          "Func có thể sync hoặc trả Task riêng."
+        ],
+        "front": "Func<long,bool> biểu diễn gì?",
+        "back": "Nhận long và trả bool. Type cuối là return, trước là parameters."
+      },
+      {
+        "concept": "Closure capture",
+        "stem": "Lambda capture threshold rồi threshold đổi có thể thấy gì?",
+        "options": [
+          "Value mới của captured variable",
+          "Luôn snapshot cũ",
+          "Luôn null",
+          "Compile lỗi vì capture cấm"
+        ],
+        "reasons": [
+          "Capture binding có thể phản ánh mutation.",
+          "Không deep freeze value tự động.",
+          "Không tự biến số thành null.",
+          "C# cho phép capture locals phù hợp."
+        ],
+        "front": "Lambda capture threshold rồi threshold đổi có thể thấy gì?",
+        "back": "Value mới của captured variable. Capture binding có thể phản ánh mutation."
+      }
+    ]
+  },
+  {
+    "week": 7,
+    "title": "LINQ, nullable và exception boundaries",
+    "lessons": [
+      {
+        "title": "LINQ deferred và materialization",
+        "objective": "Giải thích query deferred, chạy filter/projection/grouping và tránh enumerate thừa.",
+        "body": "Where/Select thường deferred: tạo pipeline chưa enumerate. ToList/ToArray materialize snapshot; Sum/Count/First cũng thực thi terminal operation. IEnumerable LINQ chạy trên .NET objects; IQueryable expression có thể được EF translate SQL, không tùy tiện gọi method custom trong query DB. Source list đổi trước enumerate có thể đổi kết quả; mỗi enumerate có thể lặp công việc hoặc IO tùy provider. GroupBy category rồi Sum AmountVnd tạo report; OrderBy/ThenBy giữ thứ tự xác định. First throw nếu không có element, FirstOrDefault trả default có thể null/0 nên caller phải phân biệt absence."
+      },
+      {
+        "title": "Nullable reference types",
+        "objective": "Loại warnings null bằng guard đúng, không dùng null-forgiving để che lỗi.",
+        "body": "NRT là compiler analysis cho annotation string/string?, không tự cài runtime validation. Enable Nullable trong csproj; string? cho data có thể thiếu. if(value is null) guard làm flow analysis biết branch còn lại non-null. ?. access và ?? fallback cần semantics rõ; note null có thể hợp lệ, category missing thì không. ! chỉ thông báo compiler tin tác giả, không biến null thành object; dùng chỉ khi invariant thật đã chứng minh. DTO từ deserialization vẫn có thể thiếu field; API/domain guard runtime. Try-pattern giúp parse without expected exception, ví dụ DateOnly.TryParseExact với invariant culture."
+      },
+      {
+        "title": "Exceptions và error contract",
+        "objective": "Đặt catch tại boundary, bảo toàn stack và phân biệt expected failures.",
+        "body": "Exception biểu diễn failure phá normal flow; validation expected có thể return result thay throw liên tục. Catch loại có thể xử lý; catch(Exception) ở global boundary ghi log và response generic, không nuốt lỗi. throw; giữ stack; throw ex; reset điểm stack nên tránh. finally dọn trạng thái/resource, using đảm bảo Dispose sau scope; không đặt return trong finally. Cancellation OperationCanceledException gắn token được coi cancellation, không lỗi500 mặc định. Domain không trả HTTP status; API adapter map Argument/validation/conflict theo contract. Log structured dữ liệu không nhạy cảm và exception, không token/note đầy đủ."
+      }
+    ],
+    "example": "1. Bài toán: deferred query trước/sau sửa source.\n2. Query và snapshot có thời điểm khác nhau.\n3. Console:\n```csharp\nvar xs=new List<long>{50000,20000};\nvar q=xs.Where(x=>x>=30000);\nvar snapshot=q.ToList();\nxs.Add(30000);\nConsole.WriteLine(q.Sum()); // 80000\nConsole.WriteLine(snapshot.Sum()); // 50000\nstring? note=null;\nConsole.WriteLine(note?.Trim()??\"(không ghi chú)\");\n```\n4. Nếu source bất biến kết quả bằng nhau; đừng materialize mọi query sớm vì mất SQL composition sau này. Null note hợp lệ nhưng categoryId null không được fallback thành category của user khác.",
+    "deep": "LINQ đọc gọn không bảo đảm query nhanh. Đếm Count rồi foreach có thể enumerate2 lần; materialize khi cần snapshot và hiểu memory. Async exception ở Task chỉ được quan sát khi await; fire-and-forget có thể mất error boundary.",
+    "exercises": [
+      {
+        "prompt": "Group fixture theo category, order total giảm dần và kiểm []",
+        "solution": "GroupBy category; Select g=>new {Category=g.Key,Total=g.Sum(x=>x.AmountVnd)}; OrderByDescending Total rồi ThenBy Category. Food80000,Travel20000; [] no rows."
+      },
+      {
+        "prompt": "Parse ngày yyyy-MM-dd và note optional; test ngày không tồn tại và null.",
+        "solution": "DateOnly.TryParseExact với CultureInfo.InvariantCulture/DateTimeStyles.None; '2026-02-30' invalid, '2026-10-01' valid; note?.Trim() cho null an toàn. Không dùng ! để lách guard."
+      }
+    ],
+    "project": "Report domain LINQ có projection và null-aware import validation. Tạo error result {row,field,message} cho lỗi input; không nuốt exception IO.",
+    "criteria": [
+      "Deferred demo q80000/snapshot50000 và giải thích thời điểm enumerate.",
+      "Report đúng fixture, empty và sort tie deterministic.",
+      "Nullable warnings quan trọng được giải bằng guard; invalid date không crash hoặc lưu sai."
+    ],
+    "english": "Thu: 'When does this LINQ query execute?' Dùng deferred execution, materialize, nullable, boundary, stack trace.",
+    "sources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/standard/linq/deferred-execution-lazy-evaluation",
+        "section": "Deferred execution and lazy evaluation"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references",
+        "section": "Nullable reference types"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/standard/exceptions/best-practices-for-exceptions",
+        "section": "Best practices for exceptions"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Deferred query",
+        "stem": "Tạo Where trên List có luôn chạy filter ngay không?",
+        "options": [
+          "Thường chưa, tới enumeration",
+          "Luôn copy source ngay",
+          "Luôn gọi DB",
+          "Luôn tạo thread"
+        ],
+        "reasons": [
+          "Where pipeline thường deferred.",
+          "ToList mới materialize snapshot ở ví dụ.",
+          "List LINQ không cần DB.",
+          "Enumeration không tự tạo thread."
+        ],
+        "front": "Tạo Where trên List có luôn chạy filter ngay không?",
+        "back": "Thường chưa, tới enumeration. Where pipeline thường deferred."
+      },
+      {
+        "concept": "Snapshot result",
+        "stem": "q deferred tạo từ50000/20000 rồi thêm30000; snapshot trước thêm tổng gì?",
+        "options": [
+          "50000",
+          "80000",
+          "20000",
+          "0"
+        ],
+        "reasons": [
+          "Snapshot đã materialize phần đạt filter trước thêm.",
+          "80000 là q enumerate sau mutation.",
+          "20000 không đạt filter>=30000.",
+          "Snapshot có50000 nên không0."
+        ],
+        "front": "q deferred tạo từ50000/20000 rồi thêm30000; snapshot trước thêm tổng gì?",
+        "back": "50000. Snapshot đã materialize phần đạt filter trước thêm."
+      },
+      {
+        "concept": "Nullable scope",
+        "stem": "NRT thay validation runtime không?",
+        "options": [
+          "Không",
+          "Có cấm deserialization thiếu field",
+          "Có mọi null đều exception compile",
+          "Chỉ cần ! để an toàn"
+        ],
+        "reasons": [
+          "NRT là annotation và compiler flow analysis.",
+          "Input bên ngoài vẫn cần runtime guard.",
+          "Warnings không áp mọi runtime path.",
+          "! chỉ suppress phân tích, không tạo object."
+        ],
+        "front": "NRT thay validation runtime không?",
+        "back": "Không. NRT là annotation và compiler flow analysis."
+      },
+      {
+        "concept": "Null guard",
+        "stem": "note?.Trim()??'' khi note=null trả gì?",
+        "options": [
+          "Chuỗi rỗng",
+          "Throw luôn",
+          "null vì ?? không hoạt động",
+          "Tạo string 'null'"
+        ],
+        "reasons": [
+          "?. cho null, ?? chọn fallback.",
+          "Conditional access tránh gọi Trim trên null.",
+          "?? dùng fallback khi left null.",
+          "Không tự convert thành chữ null."
+        ],
+        "front": "note?.Trim()??'' khi note=null trả gì?",
+        "back": "Chuỗi rỗng. ?. cho null, ?? chọn fallback."
+      },
+      {
+        "concept": "Stack preservation",
+        "stem": "Rethrow trong catch nên dùng gì để giữ stack?",
+        "options": [
+          "throw;",
+          "throw ex;",
+          "return success;",
+          "throw new Exception() không inner"
+        ],
+        "reasons": [
+          "Rethrow giữ original exception stack.",
+          "throw ex có thể reset trace location.",
+          "Return success che failure.",
+          "Exception mới không inner mất nguyên nhân."
+        ],
+        "front": "Rethrow trong catch nên dùng gì để giữ stack?",
+        "back": "throw;. Rethrow giữ original exception stack."
+      },
+      {
+        "concept": "Expected parse failure",
+        "stem": "Ngày invalid nên xử lý ra sao ở import?",
+        "options": [
+          "TryParseExact và row/field error",
+          "Silently đổi thành hôm nay",
+          "! để hết warning",
+          "Catch mọi lỗi rồi bỏ dòng không báo"
+        ],
+        "reasons": [
+          "Input expected invalid cần error rõ và không partial commit.",
+          "Đổi ngày làm sai data nghiệp vụ.",
+          "! không parse/validate.",
+          "Bỏ lỗi không báo gây mất dữ liệu."
+        ],
+        "front": "Ngày invalid nên xử lý ra sao ở import?",
+        "back": "TryParseExact và row/field error. Input expected invalid cần error rõ và không partial commit."
+      }
+    ]
+  },
+  {
+    "week": 8,
+    "title": "Task, cancellation, disposal và DI",
+    "lessons": [
+      {
+        "title": "Task và async I/O",
+        "objective": "Viết async import, truyền cancellation và không block Task bằng Result.",
+        "body": "Task đại diện completion, không đồng nghĩa thread riêng. I/O-bound dùng API async và await; CPU-bound chỉ cân nhắc Task.Run ở client/console, ASP.NET không bọc IO Task.Run để tăng throughput giả. Không .Result/.Wait trong request vì block thread và có thể deadlock trong synchronization context khác. Return Task<T> thay async void trừ event handler; caller await và xử lý failure. Task.WhenAll không làm DbContext thread-safe; không chạy parallel operations chung instance. Async method chạy synchronous đến await chưa completed đầu tiên; giữ cancellation token truyền xuyên boundary. Đo throughput/latency trước đổi concurrency."
+      },
+      {
+        "title": "CancellationToken và resource",
+        "objective": "Hủy import trước commit, dispose stream và phân biệt timeout/cancellation.",
+        "body": "Cancellation hợp tác: token.ThrowIfCancellationRequested tại điểm hợp lý, truyền token vào ReadAsync/DB calls; caller request cancel không cưỡng chế mọi code dừng. catch OperationCanceledException khi token cancellation để báo 'đã hủy'; không nuốt rồi return success. using/await using gọi Dispose/DisposeAsync deterministic cho IDisposable/IAsyncDisposable dù exception; GC không thay đóng file/socket đúng lúc. Resource ownership: ai tạo có trách nhiệm dispose trừ contract khác; injected DbContext/HttpClientFactory thường container/factory quản lifecycle, không dispose tùy tiện. Hủy sau commit không rollback, trả operation status theo batchId. Timeout có giới hạn duration, khác caller cancel dù cùng cơ chế token có thể dùng linked source."
+      },
+      {
+        "title": "Dependency Injection lifetimes",
+        "objective": "Đăng ký DI đúng lifetime và tránh singleton giữ scoped dependency.",
+        "body": "DI đưa collaborator qua constructor; container xây graph và quản lifecycle. Transient mới mỗi resolution, scoped một instance mỗi scope (web request phổ biến), singleton một instance cho container. Scoped DbContext không thread-safe, một unit of work; singleton report cache không giữ trực tiếp scoped DbContext (captive dependency). Background job tạo scope cho từng job bằng IServiceScopeFactory; chưa cần implement ở console lab. Domain chỉ biết interface reader/importer cần thiết; concrete registered ở composition root. DI không thay encapsulation hoặc automatically thread safety. Kiểm tra scope validation ở Development; service singleton có mutable state cần synchronization hoặc tránh state."
+      }
+    ],
+    "example": "1. Bài toán: đọc file fixture có thể hủy và đóng handle.\n2. Await IO, truyền token, using stream do hàm sở hữu.\n3. Console:\n```csharp\nusing var cts=new CancellationTokenSource();\nawait File.WriteAllTextAsync(\"fixture.txt\",\"50000\\n20000\\n30000\");\ncts.Cancel();\ntry { Console.WriteLine(await ReadAsync(\"fixture.txt\",cts.Token)); }\ncatch(OperationCanceledException) { Console.WriteLine(\"Đã hủy\"); }\nstatic async Task<string> ReadAsync(string path,CancellationToken token) {\n using var reader=new StreamReader(path);\n token.ThrowIfCancellationRequested();\n return await reader.ReadToEndAsync(token);\n}\n```\n4. Expected Đã hủy, file handle đóng. Bỏ cts.Cancel để đọc3 dòng. Import production validate tất cả rows rồi commit1 transaction W12/W16.",
+    "deep": "DI lifetime không tương đương lifetime DB transaction. Một request có thể nhiều queries; transaction explicit cho multi-write. Cancellation token source phải dispose khi hàm tạo nó. Hủy read partial phải discard staging rows; import batch lớn giới hạn1000 nên chưa cần streaming DB partial commit.",
+    "exercises": [
+      {
+        "prompt": "Viết SumAsync đọc dòng VND, hủy sau10 dòng trên file1000 dòng; không ghi DB.",
+        "solution": "await read line token, TryParse long guard; token check mỗi lượt. Return tổng chỉ khi complete; catch cancellation bên caller, không expose partial như success. Tạo fixture có dòng invalid để test error row."
+      },
+      {
+        "prompt": "Reader dùng scoped DbContext, Report singleton. Sửa DI và giải thích.",
+        "solution": "Đổi Report scoped hoặc tạo scope per job nếu background. Không inject scoped reader vào singleton. Test2 scopes reader khác, cùng scope dùng chung; container dispose scoped resources."
+      }
+    ],
+    "project": "Console import staging rows có cancellation, validation và tests; dependency reader qua constructor. Ghi ADR ngắn why scoped/why no async void. Tag phase2-domain.",
+    "criteria": [
+      "Cancel trước khi đọc/giữa staging báo canceled, không trả success partial.",
+      "Stream đóng cả success/error/cancel; run lại không file locked.",
+      "Task được await; không .Result/async void cho service; DI không captive scoped."
+    ],
+    "english": "Thu: 'Does async await create a new thread?' Trả lời rồi mô tả cancellation hợp tác và disposal.",
+    "sources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/",
+        "section": "Task asynchronous programming model"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/standard/threading/cancellation-in-managed-threads",
+        "section": "Cooperative cancellation"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection",
+        "section": "Service lifetimes and scopes"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Task meaning",
+        "stem": "Task luôn là thread riêng không?",
+        "options": [
+          "Không",
+          "Có mỗi Task một OS thread",
+          "Chỉ Task<int> là thread",
+          "await tăng CPU core"
+        ],
+        "reasons": [
+          "Task đại diện completion, có thể async IO không giữ thread chờ.",
+          "Mapping1:1 với OS thread sai.",
+          "Generic chỉ biểu diễn result type.",
+          "Await không tăng phần cứng."
+        ],
+        "front": "Task luôn là thread riêng không?",
+        "back": "Không. Task đại diện completion, có thể async IO không giữ thread chờ."
+      },
+      {
+        "concept": "Blocking task",
+        "stem": "Tại sao tránh .Result trong web service?",
+        "options": [
+          "Nó block thread và có rủi ro context/deadlock",
+          "Nó luôn trả null",
+          "Nó validate JWT",
+          "Nó tự hủy token"
+        ],
+        "reasons": [
+          "Blocking giảm scalability và có context hazard.",
+          "Result có thể đúng value nhưng cách chờ có vấn đề.",
+          "Task.Result không xử auth.",
+          "Cancellation phải explicit."
+        ],
+        "front": "Tại sao tránh .Result trong web service?",
+        "back": "Nó block thread và có rủi ro context/deadlock. Blocking giảm scalability và có context hazard."
+      },
+      {
+        "concept": "Cooperative cancel",
+        "stem": "Token cancel có cưỡng chế mọi function dừng không?",
+        "options": [
+          "Không, code/API phải quan sát token",
+          "Có kill mọi thread",
+          "Có rollback commit đã xong",
+          "Có dispose mọi object trong app"
+        ],
+        "reasons": [
+          "Cancellation là cooperative contract.",
+          "Không thread abort toàn hệ thống.",
+          "Commit đã xong không tự undo.",
+          "Resource cleanup cần lifecycle/using."
+        ],
+        "front": "Token cancel có cưỡng chế mọi function dừng không?",
+        "back": "Không, code/API phải quan sát token. Cancellation là cooperative contract."
+      },
+      {
+        "concept": "Using ownership",
+        "stem": "using cho stream bảo đảm gì khi exception trong scope?",
+        "options": [
+          "Dispose stream khi thoát scope",
+          "GC chạy ngay toàn heap",
+          "Exception bị nuốt",
+          "File data luôn rollback"
+        ],
+        "reasons": [
+          "Compiler cleanup gọi dispose cả exceptional exit.",
+          "Dispose không ép GC toàn heap.",
+          "Exception vẫn propagate nếu không catch.",
+          "Closing stream không transaction data rollback."
+        ],
+        "front": "using cho stream bảo đảm gì khi exception trong scope?",
+        "back": "Dispose stream khi thoát scope. Compiler cleanup gọi dispose cả exceptional exit."
+      },
+      {
+        "concept": "Scoped lifetime",
+        "stem": "Scoped ở ASP.NET thường dùng instance ra sao?",
+        "options": [
+          "Một instance mỗi request scope",
+          "Một instance toàn process",
+          "Mới mỗi dòng code",
+          "Một instance mỗi table"
+        ],
+        "reasons": [
+          "Request scope là lifetime phổ biến.",
+          "Singleton mới container-wide.",
+          "Transient per resolution, không per line.",
+          "Table không DI scope."
+        ],
+        "front": "Scoped ở ASP.NET thường dùng instance ra sao?",
+        "back": "Một instance mỗi request scope. Request scope là lifetime phổ biến."
+      },
+      {
+        "concept": "Captive dependency",
+        "stem": "Singleton giữ DbContext scoped nên xử lý thế nào?",
+        "options": [
+          "Đổi lifetime hoặc tạo scope đúng boundary job",
+          "Để mặc định vì singleton thread-safe",
+          "Khóa mọi HTTP request toàn app",
+          "Dispose DbContext ngay constructor"
+        ],
+        "reasons": [
+          "Tách lifetime tránh giữ resource ngoài scope.",
+          "Singleton không bảo đảm dependency an toàn.",
+          "Global lock che design sai và giảm throughput.",
+          "Dispose constructor làm collaborator không dùng được."
+        ],
+        "front": "Singleton giữ DbContext scoped nên xử lý thế nào?",
+        "back": "Đổi lifetime hoặc tạo scope đúng boundary job. Tách lifetime tránh giữ resource ngoài scope."
+      }
+    ]
+  }
+]

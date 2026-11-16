@@ -1,0 +1,302 @@
+"use client";
+
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  AlertCircle,
+  BookOpen,
+  FileText,
+  NotebookPen,
+  RefreshCw,
+  Search,
+  X,
+} from "lucide-react";
+import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { getCourseId, normalizeVi, type CourseLike } from "@/lib/course-helpers";
+
+interface NotebookItem {
+  id: string;
+  title: string;
+  version?: number;
+  primarySourceLessonId?: string | null;
+  primarySourceDocumentId?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+interface LessonLookupItem {
+  id?: string;
+  title?: string;
+  courseId?: string;
+}
+
+interface DocLookupItem {
+  id?: string;
+  documentId?: string;
+  title?: string;
+  fileName?: string;
+  courseId?: string;
+}
+
+const ZERO_GUID = "00000000-0000-0000-0000-000000000000";
+
+function formatDate(iso?: string | null): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
+
+export default function NotesPage() {
+  const router = useRouter();
+  const { activeUserHeaderId, setActiveCourseId, setActiveLesson, setActiveDocument } =
+    useWorkspaceStore();
+
+  const [notebooks, setNotebooks] = useState<NotebookItem[]>([]);
+  const [lessonMap, setLessonMap] = useState<Record<string, LessonLookupItem>>({});
+  const [docMap, setDocMap] = useState<Record<string, DocLookupItem>>({});
+  const [courseMap, setCourseMap] = useState<Record<string, string>>({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  const fetchNotes = useCallback(async () => {
+    setIsLoading(true);
+    setFetchError(null);
+    try {
+      const effectiveUserId =
+        activeUserHeaderId ??
+        (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
+      const headers = getClientRequestHeaders(
+        effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
+      );
+
+      const resp = await fetch("/api/v1/workspace/dashboard", { headers });
+      if (!resp.ok) {
+        setFetchError(`Không tải được danh sách sổ tay (HTTP ${resp.status}).`);
+        return;
+      }
+
+      const data = await resp.json();
+      setNotebooks(Array.isArray(data.notebooks) ? data.notebooks : []);
+
+      const nextLessons: Record<string, LessonLookupItem> = {};
+      for (const l of (data.lessons ?? []) as LessonLookupItem[]) {
+        if (l.id) nextLessons[l.id] = l;
+      }
+      setLessonMap(nextLessons);
+
+      const nextDocs: Record<string, DocLookupItem> = {};
+      for (const d of (data.documents ?? []) as DocLookupItem[]) {
+        const id = String(d.documentId || d.id || "");
+        if (id) nextDocs[id] = d;
+      }
+      setDocMap(nextDocs);
+
+      const nextCourses: Record<string, string> = {};
+      for (const c of (data.courses ?? []) as CourseLike[]) {
+        const id = getCourseId(c);
+        if (id && c.title) nextCourses[id] = c.title;
+      }
+      setCourseMap(nextCourses);
+    } catch {
+      setFetchError("Không thể kết nối tới máy chủ.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [activeUserHeaderId]);
+
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
+
+  const resolveContext = (nb: NotebookItem) => {
+    const lesson = nb.primarySourceLessonId ? lessonMap[nb.primarySourceLessonId] : undefined;
+    const doc = nb.primarySourceDocumentId ? docMap[nb.primarySourceDocumentId] : undefined;
+
+    const rawCourseId =
+      lesson?.courseId ||
+      (doc?.courseId && doc.courseId !== ZERO_GUID ? doc.courseId : undefined) ||
+      "";
+    const courseId = rawCourseId && rawCourseId !== ZERO_GUID ? rawCourseId : "standalone";
+    const courseTitle = rawCourseId ? courseMap[rawCourseId] : undefined;
+
+    const sourceLabel = lesson?.title
+      ? `Bài: ${lesson.title}`
+      : doc?.title || doc?.fileName
+        ? `Tài liệu: ${doc.title || doc.fileName}`
+        : courseTitle || "Ghi chú cá nhân";
+
+    return {
+      courseId,
+      lessonId: nb.primarySourceLessonId || undefined,
+      docId: nb.primarySourceDocumentId || undefined,
+      sourceLabel,
+      courseTitle,
+      isDocumentSource: Boolean(!lesson && doc),
+    };
+  };
+
+  const handleOpenNotebook = (nb: NotebookItem) => {
+    const ctx = resolveContext(nb);
+    if (ctx.courseId !== "standalone") {
+      setActiveCourseId(ctx.courseId);
+    }
+    if (ctx.lessonId) {
+      setActiveLesson(ctx.lessonId);
+    } else if (ctx.docId) {
+      setActiveDocument(ctx.docId, 1, null);
+    }
+
+    const params = new URLSearchParams();
+    if (ctx.lessonId) params.set("lesson", ctx.lessonId);
+    if (ctx.docId) params.set("doc", ctx.docId);
+    params.set("notebook", nb.id);
+    params.set("notes", "open");
+    router.push(`/app/courses/${ctx.courseId}/learn?${params.toString()}`);
+  };
+
+  const filteredNotebooks = useMemo(() => {
+    const q = normalizeVi(searchQuery);
+    if (!q) return notebooks;
+    return notebooks.filter((nb) => {
+      const ctx = resolveContext(nb);
+      const hay = normalizeVi(`${nb.title || ""} ${ctx.sourceLabel} ${ctx.courseTitle || ""}`);
+      return hay.includes(q);
+    });
+  }, [notebooks, searchQuery, lessonMap, docMap, courseMap]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10">
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
+          Sổ tay
+        </h1>
+        <p className="text-sm text-text-secondary mt-1">
+          {notebooks.length} sổ tay ghi chú gắn với bài giảng và tài liệu của bạn.
+        </p>
+      </div>
+
+      {fetchError && (
+        <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{fetchError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={fetchNotes}
+            className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md border border-border hover:bg-bg-secondary text-text-primary cursor-pointer"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Thử lại
+          </button>
+        </div>
+      )}
+
+      {/* Search bar */}
+      <div className="relative mb-6">
+        <Search className="w-4 h-4 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Tìm sổ tay theo tiêu đề, bài giảng hoặc khóa học..."
+          className="w-full h-9 pl-9 pr-8 rounded-md border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent transition"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery("")}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+
+      {/* Notebooks Grid */}
+      {filteredNotebooks.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredNotebooks.map((nb) => {
+            const ctx = resolveContext(nb);
+            const dateLabel = formatDate(nb.updatedAt || nb.createdAt);
+
+            return (
+              <div
+                key={nb.id}
+                className="rounded-lg border border-border bg-bg-primary p-4 flex flex-col justify-between hover:border-accent/50 transition"
+              >
+                <div>
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-9 h-9 rounded-md bg-bg-secondary border border-border flex items-center justify-center shrink-0">
+                      <NotebookPen className="w-4 h-4 text-accent" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h2 className="text-sm font-semibold text-text-primary line-clamp-2">
+                        {nb.title || "Sổ tay ghi chú"}
+                      </h2>
+                      {nb.version != null && (
+                        <span className="inline-block text-[11px] font-medium text-text-tertiary bg-bg-tertiary rounded-md px-1.5 py-0.5 mt-1">
+                          Phiên bản {nb.version}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 text-xs text-text-secondary bg-bg-secondary rounded-md px-2.5 py-1.5 mb-3">
+                    {ctx.isDocumentSource ? (
+                      <FileText className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
+                    ) : (
+                      <BookOpen className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
+                    )}
+                    <span className="truncate">{ctx.sourceLabel}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 pt-2 border-t border-border-subtle">
+                  <span className="text-xs text-text-tertiary">
+                    {dateLabel ? `Cập nhật ${dateLabel}` : ""}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenNotebook(nb)}
+                    className="h-7 px-3 rounded-md bg-bg-secondary hover:bg-accent hover:text-white border border-border hover:border-accent text-xs font-medium text-text-primary transition cursor-pointer"
+                  >
+                    Mở ghi chú
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="rounded-lg border border-border bg-bg-secondary p-10 text-center">
+          <NotebookPen className="w-8 h-8 text-text-tertiary mx-auto mb-3" />
+          <p className="text-sm font-medium text-text-primary mb-1">
+            {searchQuery ? "Không tìm thấy sổ tay phù hợp" : "Chưa có sổ tay ghi chú nào"}
+          </p>
+          <p className="text-xs text-text-tertiary">
+            {searchQuery
+              ? "Thử đổi từ khóa tìm kiếm."
+              : "Sổ tay sẽ tự động được tạo khi bạn ghi chú trong lúc học bài hoặc đọc tài liệu."}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

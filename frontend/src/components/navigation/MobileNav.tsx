@@ -5,10 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  FolderOpen,
+  BookOpen,
+  FileText,
+  NotebookPen,
   Brain,
-  GraduationCap,
-  Settings,
 } from "lucide-react";
 
 interface MobileNavItem {
@@ -19,11 +19,11 @@ interface MobileNavItem {
 }
 
 const MOBILE_NAV_ITEMS: MobileNavItem[] = [
-  { href: "/app", label: "Tổng quan", icon: LayoutDashboard },
-  { href: "/app/library", label: "Thư viện", icon: FolderOpen, matchPrefix: true },
-  { href: "/app/review", label: "Ôn tập", icon: Brain },
-  { href: "/app/studio", label: "Studio", icon: GraduationCap, matchPrefix: true },
-  { href: "/app/settings", label: "Cài đặt", icon: Settings },
+  { href: "/app", label: "Hôm nay", icon: LayoutDashboard },
+  { href: "/app/courses", label: "Khóa học", icon: BookOpen, matchPrefix: true },
+  { href: "/app/documents", label: "Tài liệu", icon: FileText, matchPrefix: true },
+  { href: "/app/notes", label: "Sổ tay", icon: NotebookPen, matchPrefix: true },
+  { href: "/app/review", label: "Ôn tập", icon: Brain, matchPrefix: true },
 ];
 
 export function MobileNav() {

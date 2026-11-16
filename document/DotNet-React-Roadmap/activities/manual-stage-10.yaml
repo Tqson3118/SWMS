@@ -1,0 +1,33 @@
+stable_id: activity:dotnet:stage-10
+type: manual
+title: Stage 10 SQL/EF Core query shape, migration, transactions, and concurrency evidence
+instructions: |
+  This single manual unit maps to DotNet-React-Roadmap/10.md. Complete Stage 09 first and preserve the learner sequence Stage 09 -> Stage 10 -> Stage 11. Work in a learner-owned scratch project and learning database only. This is guided learner evidence, not runtime approval or a deployment gate. If SDK, provider, SQL Server, database, or browser tooling is unavailable, record the exact blocker and leave that observation incomplete; unavailable or unperformed evidence earns zero for that observation.
+
+  Start with a concrete owner/date expense list query. Record the query shape, filter/order semantics, page and page-size contract, and a baseline logical-read/time/plan observation on enough learning data to make the limitation visible. Apply projection and AsNoTracking deliberately. Keep filtering, ordering, Skip and Take in the database; do not call ToList before them. Compare a bounded page, an empty result, page beyond total, pageSize 0, 101, negative and a very large value. Define a safe page/offset overflow boundary using an explicit maximum, long/checked arithmetic, or a documented rejection; show the actual response or preserve the blocker. A code snippet without observed boundary evidence earns no point for that observation.
+
+  Inspect the query shape for navigation loading and N+1 behavior. Record SQL/log or ToQueryString evidence where available, compare projection with entity/navigation loading, and explain why a query may still scan or sort despite an index. Measure before and after one index chosen from the actual filter/order query, including logical reads, elapsed time and plan evidence; record write/storage trade-offs and the small-data limitation. Do not claim that an index is beneficial from its existence alone.
+
+  Add a monthly aggregate/report projection and verify the date boundary with an inclusive start and exclusive end. Exercise no rows, month boundary and a category that is missing or no longer valid. Make transaction boundaries explicit for a multi-step expense plus audit operation. Reproduce or record a failure between steps and show that the chosen transaction prevents a partial audit/expense result; distinguish transaction atomicity from isolation. If two learning sessions are available, observe dirty/non-repeatable/locking behavior with a stated isolation choice and limits; do not imply that Serializable is always best.
+
+  Create a migration against a populated learning database. Before applying it, preserve a row count/copy, read the generated SQL, classify nullable/default/backfill/NOT NULL behavior, and apply it only to the learning database. Verify old rows and the post-migration schema/count. As an optional authored extension, document a retention/archival policy, owner/date scope, audit consequence and backup boundary; this extension is not a task explicitly stated in 10.md and does not authorize deleting content or real data. Record empty and populated database outcomes separately.
+
+  Configure SQL Server rowversion as a concurrency token only within the provider/schema boundary actually used. Record the model mapping, migration/schema result, and token returned to the update path; do not generalize SQL Server rowversion or an empty byte-array default to every provider. Reproduce two reads of one expense with the same token: the first update succeeds and the second stale update must preserve the first update, return the stable 409 conflict contract, and expose a UI choice to reload/compare rather than overwrite. Record the API response and UI behavior when actually observed; if API/UI/browser access is unavailable, retain the exact blocker and award no point.
+
+  Finish with a 35-minute timed investigation of a list endpoint slow at one million learning rows. Record hypothesis, filter/order/index/query-shape/plan/IO/time observations, one change, result, and trade-off. Answer the interview questions on index write cost, AsNoTracking, projection, offset pagination, transaction versus concurrency, blind retry, 409 versus 400/404, and plan operators. Record commands and outputs only when actually run; no build, test, database, or frontend result may be claimed without evidence.
+expected_output: A learner evidence note with query shape, projection/no-tracking, bounded pagination and overflow, N+1/plan evidence, measured index trade-off, monthly period projection, transaction/isolation observation, populated migration and optional retention extension, SQL Server/provider-scoped rowversion, stale-update 409 and reload/compare UI behavior, timed investigation, interview reasoning, expected-versus-observed outcomes, and explicit blockers.
+completion_mode: learner_attest
+rubric:
+  - criterion: Query shape, projection, pagination, N+1, and measured index
+    evidence: The note records the owner/date query, projection and no-tracking choice, database-side filtering/order/pagination, page overflow boundary, N+1 or navigation evidence, and before/after logical reads/time/plan with write/storage trade-off. Missing or blocked observations remain incomplete and earn no point.
+    max_points: 1
+  - criterion: Transaction, period report, and populated migration
+    evidence: The note records exclusive-end period behavior and edge rows, transaction failure/atomicity and stated isolation limit, a populated-database migration with SQL/backfill/count evidence, with backup/rollback and learning-data scope. The authored retention/archival extension is optional and does not affect the point. Unperformed required database evidence earns no point.
+    max_points: 1
+  - criterion: Provider-scoped concurrency and 409/UI behavior
+    evidence: The note identifies the actual provider/schema rowversion boundary and records two stale-token updates where one succeeds, the other preserves the winner and returns the stable 409 contract, plus reload/compare UI behavior. An unavailable API/UI/browser path is an explicit blocker and earns no point.
+    max_points: 1
+  - criterion: Timed debugging, trade-offs, and honest limits
+    evidence: The note contains the timed one-million-row investigation, actual plan/IO/time reasoning, answers on retry and status semantics, expected-versus-observed results and exact blockers. A snippet, assertion, or unperformed command is not positive evidence.
+    max_points: 1
+resources: []

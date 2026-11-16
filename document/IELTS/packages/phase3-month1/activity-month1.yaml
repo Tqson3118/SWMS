@@ -1,0 +1,60 @@
+stable_id: activity:ielts:phase3-month1-manual
+type: manual
+title: Phase 3 Month 1 bounded manual learner evidence
+instructions: 'Dùng lesson Month1 theo guide24ngày. Hoàn tất các bài của18ngày luyện cho mỗi kỹ năng đọc/viết/nói,18buổi
+  nghe public,grammar/vocabulary theo phần được giao và ôn120cards. Giữ câu trả lời đầu trước khi mở model/key.
+  Reading/writing dùng đúng rubric trong lesson; không cộng vào thang100 của paper.
+
+
+  Có sáu main papers và sáu retry papers, cùng12keys; key không phải một lượt test. Main tests D4/D8/D16/D20 có60phút,
+  D12/D24 có90phút. Mọi paper100đ:grammar50,vocabulary30,listening10,speaking10. Ngưỡng main thường60, D12/D2470;
+  mọi miền tối thiểu25/15/5/5. Làm main theo lịch; khi thiếu tổng hoặc một miền, ôn một ngày rồi làm retry tương
+  ứng. Giữ lần đầu/retry/cótrợgiúp riêng, không tự cộng điểm hoặc sửa điểm learner trong hệ thống. Nguồn nghe quen
+  thuộc được ghi rõ, không gọi điểm retry là đo nguồn mới.
+
+
+  Phải phát/nghe audio tại trang nguồn chính thức. Không có audio thì listening notscored và activity chưa hoàn
+  tất; đọc transcript không thay bằng chứng nghe. Với speaking, nói lần đầu không trợ giúp; recorder tùy chọn, thiếu
+  recorder dùng đường trực tiếp/tự kiểm của lesson và ghi rõ giới hạn. Dùng nhân vật hư cấu, giữ evidence trên thiết
+  bị cá nhân, không gửi recordings hoặc dữ liệu riêng tư.
+
+
+  Đây là hoạt động tự ghi nhận manual; không có MCQ chấm tự động. Chỉ ghi complete khi mọi observation bắt buộc
+  đã thực hiện và sửa theo rubric. Phần thiếu/blocker không có điểm và để activity incomplete. Không dùng activity
+  để tự nhận band/CEFR hoặc khóa upload-ready. Route authored pilot và fallback Phase2 ngoài prototype; không trộn
+  audio/key/điểm của chúng với publicroute.'
+expected_output: Ghi chú cá nhân cho18ngày luyện:18bài đọc,18draft/revision viết,18lần nói/tựkiểm,18buổi nghe,grammar/vocabulary
+  và120card review; sáu main papers và retry khi cần theo ngưỡng/minima, key-supported corrections, điểm đầu/retry/trợgiúp
+  riêng. Missing observation/audio => incomplete.
+completion_mode: learner_attest
+completion_requirements:
+- 18 actual practice-day observations for each reading, writing and speaking skill, following assigned A/B/C lessons
+  and rubrics; grammar/vocabulary completed as assigned.
+- 18 actual listening sessions, three per public companion; missing playback remains not scored and incomplete.
+- 120-card review and six main papers; after a below-threshold total or domain minimum, one study day and the corresponding
+  conditional retry.
+- Six main papers and six retry papers have twelve answer keys; a key is not a learner attempt. Preserve first/assisted/retry
+  evidence separately.
+- Only actual completed observations earn rubric points; no missing evidence or learner-state changes used as proof.
+rubric:
+- criterion: Grammar và vocabulary theo lịch
+  evidence: Hoàn thành phần A/B/C được giao, sửa theo key và nêu quy tắc/từ dùng trong câu mới; C6 chỉ ôn. Phần
+    thiếu không có điểm.
+  max_points: 1
+- criterion: 18 bài đọc và18 bài viết
+  evidence: Mỗi ngày luyện có câu trả lời đọc và chứng cứ đoạn; viết giữ draft/revision và rubric của bài. Thiếu
+    bất kỳ bài bắt buộc thì criterion chưa đạt.
+  max_points: 1
+- criterion: 18 lần nói và tự kiểm
+  evidence: Có18 first attempts không trợ giúp, tựkiểm theo rubric và retry trợgiúp tách biệt nếu dùng; dùng nhân
+    vật hư cấu, recorder tùy chọn theo lesson. Thiếu attempt thì chưa đạt.
+  max_points: 1
+- criterion: 18 buổi nghe public
+  evidence: Ghi actual player/listening và gist/details/dictation/shadow theo từng buổi; không có playback thì notscored,
+    activity incomplete và criterion0. Transcript không thay quan sát nghe.
+  max_points: 1
+- criterion: 120cards và đánh giá main/retry
+  evidence: Ôn120cards và giữ ghi chú nhớ/quên; sáu main papers theo100đ/minima, sửa theo key; ôn/retry khi không
+    đạt, không tính key như lượt test. Missing/blocker thì chưa complete, không tự động sinh kết quả learner.
+  max_points: 1
+resources: []

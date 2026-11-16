@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="ab116e65-9623-48ba-a607-c840d9bd6c53" name="Administrator@DESKTOP-C0K1LT1 2026-10-08 15:40:09" runUser="DESKTOP-C0K1LT1\Administrator" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-08T15:40:09.8072070+07:00" queuing="2026-10-08T15:40:09.8072074+07:00" start="2026-10-08T15:40:07.2563162+07:00" finish="2026-10-08T15:40:09.8117978+07:00" />
+  <TestSettings name="default" id="fa233780-1df9-42f5-bf68-4d8dfc913207">
+    <Deployment runDeploymentRoot="Administrator_DESKTOP-C0K1LT1_2026-10-08_15_40_09" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="48497df4-1b71-4b38-afac-1174ef9ce83e" testId="d7eebfdc-36c5-7871-7b75-3ed47d323aaa" testName="Stage8IntegrationApiTests.PersistenceFaultTests.Exclusive_retained_file_lease_returns_safe_invalid_import_and_zero_rows" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1280187" startTime="2026-10-08T15:40:09.5955089+07:00" endTime="2026-10-08T15:40:09.7236533+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="48497df4-1b71-4b38-afac-1174ef9ce83e">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure: Strings differ&#xD;
+           ↓ (pos 0)&#xD;
+Expected: "invalid_import"&#xD;
+Actual:   "read-fault"&#xD;
+           ↑ (pos 0)</Message>
+          <StackTrace>   at Stage8IntegrationApiTests.PersistenceFaultTests.Exclusive_retained_file_lease_returns_safe_invalid_import_and_zero_rows() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\PersistenceFaultTests.cs:line 55&#xD;
+   at Stage8IntegrationApiTests.PersistenceFaultTests.Exclusive_retained_file_lease_returns_safe_invalid_import_and_zero_rows() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\PersistenceFaultTests.cs:line 57&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="ffc4279b-0996-4afb-972c-051da64f895f" testId="9ba544a7-8b69-30bd-a9dc-b5b83abbeaef" testName="Stage8IntegrationApiTests.PersistenceFaultTests.Saving_changes_dbupdate_fault_returns_safe_unknown_and_zero_observed_rows" computerName="DESKTOP-C0K1LT1" duration="00:00:00.6324626" startTime="2026-10-08T15:40:08.9479437+07:00" endTime="2026-10-08T15:40:09.5870697+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ffc4279b-0996-4afb-972c-051da64f895f" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Stage8IntegrationApiTests.PersistenceFaultTests.Saving_changes_dbupdate_fault_returns_safe_unknown_and_zero_observed_rows" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="9ba544a7-8b69-30bd-a9dc-b5b83abbeaef">
+      <Execution id="ffc4279b-0996-4afb-972c-051da64f895f" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.PersistenceFaultTests" name="Saving_changes_dbupdate_fault_returns_safe_unknown_and_zero_observed_rows" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.PersistenceFaultTests.Exclusive_retained_file_lease_returns_safe_invalid_import_and_zero_rows" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="d7eebfdc-36c5-7871-7b75-3ed47d323aaa">
+      <Execution id="48497df4-1b71-4b38-afac-1174ef9ce83e" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.PersistenceFaultTests" name="Exclusive_retained_file_lease_returns_safe_invalid_import_and_zero_rows" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="d7eebfdc-36c5-7871-7b75-3ed47d323aaa" executionId="48497df4-1b71-4b38-afac-1174ef9ce83e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9ba544a7-8b69-30bd-a9dc-b5b83abbeaef" executionId="ffc4279b-0996-4afb-972c-051da64f895f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="2" executed="2" passed="1" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)&#xD;
+[xUnit.net 00:00:00.09]   Discovering: Stage8IntegrationApi&#xD;
+[xUnit.net 00:00:00.12]   Discovered:  Stage8IntegrationApi&#xD;
+[xUnit.net 00:00:00.14]   Starting:    Stage8IntegrationApi&#xD;
+RoadmapImport915 database before create: RoadmapImport915_2fd7eb77e54640b087a08b3b1c7183d3&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Stage8IntegrationApi&#xD;
+DN54_LISTENING=http://127.0.0.1:0&#xD;
+RoadmapImport915 database before create: RoadmapImport915_7ecd236f103c43c39a555e9343764b24&#xD;
+DN54_LISTENING=http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Stage8IntegrationApi&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="894e53c3-fe56-4460-98e2-6db76d8e45a8" 276&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.JsonResult[1]&#xD;
+      Setting HTTP status code 500.&#xD;
+info: Microsoft.AspNetCore.Http.Result.JsonResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 500 - application/json;+charset=utf-8 384.3013ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 36.1951ms&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+RoadmapImport915 database before create: RoadmapImport915_b59eb44ff8ae40ba992fa685752f1a68&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Stage8IntegrationApi&#xD;
+DN54_LISTENING=http://127.0.0.1:0&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="1cf1301c-9d4d-4bc6-a389-a19bc7359198" 271&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[1]&#xD;
+      Setting HTTP status code 400.&#xD;
+info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 400 - application/json;+charset=utf-8 6.8914ms&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+[xUnit.net 00:00:02.08]       Assert.Equal() Failure: Strings differ&#xD;
+[xUnit.net 00:00:02.08]                  ↓ (pos 0)&#xD;
+[xUnit.net 00:00:02.08]       Expected: "invalid_import"&#xD;
+[xUnit.net 00:00:02.08]       Actual:   "read-fault"&#xD;
+[xUnit.net 00:00:02.08]                  ↑ (pos 0)&#xD;
+[xUnit.net 00:00:02.08]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.08]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\PersistenceFaultTests.cs(55,0): at Stage8IntegrationApiTests.PersistenceFaultTests.Exclusive_retained_file_lease_returns_safe_invalid_import_and_zero_rows()&#xD;
+[xUnit.net 00:00:02.08]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\PersistenceFaultTests.cs(57,0): at Stage8IntegrationApiTests.PersistenceFaultTests.Exclusive_retained_file_lease_returns_safe_invalid_import_and_zero_rows()&#xD;
+[xUnit.net 00:00:02.08]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.08]   Finished:    Stage8IntegrationApi&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-08T15:40:09.7260000+07:00">
+        <Text>[xUnit.net 00:00:02.08]     Stage8IntegrationApiTests.PersistenceFaultTests.Exclusive_retained_file_lease_returns_safe_invalid_import_and_zero_rows [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

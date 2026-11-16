@@ -1,0 +1,174 @@
+schema_version: 2.0.0
+package_id: package:psychology:w39
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 05-development-mental-health
+lesson: week-39-anxiety-depression-ocd
+learning_objectives:
+- id: LO-W39-01
+  bloom_level: Understand
+  statement: Phân biệt lo âu thích nghi với Rối loạn Lo âu Lan tỏa (GAD) và các tiêu chuẩn chẩn đoán MDD theo DSM-5-TR.
+- id: LO-W39-02
+  bloom_level: Analyze
+  statement: Phân tích Tam giác Nhận thức của Beck trong trầm cảm và mô hình sinh học tâm lý xã hội.
+- id: LO-W39-03
+  bloom_level: Apply
+  statement: Nhận diện các dấu hiệu lâm sàng và cơ chế củng cố âm duy trì vòng xoáy ám ảnh cưỡng chế (OCD).
+- id: LO-W39-04
+  bloom_level: Evaluate
+  statement: Đánh giá bằng chứng thực nghiệm của các liệu pháp tâm lý dựa trên bằng chứng (CBT, ERP) và ranh giới an toàn.
+concepts:
+- id: roadmap:concept:psychology:w39-c39-01
+  name: Phân biệt Lo âu Thích nghi & Rối loạn Lo âu Lan tỏa (GAD - DSM-5-TR)
+  claim_ids:
+  - C39-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w39-c39-02
+  name: Tiêu chuẩn Chẩn đoán Rối loạn Trầm cảm Chủ yếu (MDD - DSM-5-TR)
+  claim_ids:
+  - C39-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w39-c39-03
+  name: Thuyết Nhận thức về Trầm cảm & Tam giác Nhận thức của Beck
+  claim_ids:
+  - C39-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w39-c39-04
+  name: Cơ chế Vận hành của Rối loạn Ám ảnh Cưỡng chế (OCD - Foa & Kozak)
+  claim_ids:
+  - C39-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w39-c39-05
+  name: Can thiệp Lâm sàng Thực chứng cho Trầm cảm và OCD (CBT, ERP)
+  claim_ids:
+  - C39-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+questions:
+- id: Q39-01
+  lo_ref: LO-W39-01
+  concept_id: roadmap:concept:psychology:w39-c39-01
+  claim_ids:
+  - C39-01
+- id: Q39-02
+  lo_ref: LO-W39-01
+  concept_id: roadmap:concept:psychology:w39-c39-01
+  claim_ids:
+  - C39-01
+- id: Q39-03
+  lo_ref: LO-W39-02
+  concept_id: roadmap:concept:psychology:w39-c39-03
+  claim_ids:
+  - C39-03
+- id: Q39-04
+  lo_ref: LO-W39-01
+  concept_id: roadmap:concept:psychology:w39-c39-02
+  claim_ids:
+  - C39-02
+- id: Q39-05
+  lo_ref: LO-W39-03
+  concept_id: roadmap:concept:psychology:w39-c39-04
+  claim_ids:
+  - C39-04
+- id: Q39-06
+  lo_ref: LO-W39-03
+  concept_id: roadmap:concept:psychology:w39-c39-04
+  claim_ids:
+  - C39-04
+- id: Q39-07
+  lo_ref: LO-W39-03
+  concept_id: roadmap:concept:psychology:w39-c39-02
+  claim_ids:
+  - C39-02
+- id: Q39-08
+  lo_ref: LO-W39-01
+  concept_id: roadmap:concept:psychology:w39-c39-01
+  claim_ids:
+  - C39-01
+- id: Q39-09
+  lo_ref: LO-W39-04
+  concept_id: roadmap:concept:psychology:w39-c39-03
+  claim_ids:
+  - C39-03
+- id: Q39-10
+  lo_ref: LO-W39-04
+  concept_id: roadmap:concept:psychology:w39-c39-05
+  claim_ids:
+  - C39-05
+- id: Q39-11
+  lo_ref: LO-W39-03
+  concept_id: roadmap:concept:psychology:w39-c39-04
+  claim_ids:
+  - C39-04
+- id: Q39-12
+  lo_ref: LO-W39-04
+  concept_id: roadmap:concept:psychology:w39-c39-05
+  claim_ids:
+  - C39-05
+units:
+- unit_id: roadmap:unit:psychology:w39
+  display_title: 'Tuần 39: Lo âu, Trầm cảm và Rối loạn Ám ảnh Cưỡng chế'
+  sort_order: 39
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w39
+    path: notes/05-development-mental-health/week-39-anxiety-depression-ocd.md
+    sha256: 51e3739c46704fa944f40f1be037d2a6e889ea1f770ef5afaacb1916cce61c4d
+    byte_length: 26722
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w39
+    path: assessments/quizzes/week-39-quiz.md
+    question_count: 12
+    sha256: 28f3ce3e83c1bd35b6255b1b21a51004e89c17dadb19f968d8758792a34a8e42
+    byte_length: 10043
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w39
+    path: assessments/answer-keys/week-39-answers.md
+    correct_count: 12
+    wrong_count: 36
+    sha256: 0206e05aeb096ee982d0fe057053bd80d5983666dee48673638d2700edb2c617
+    byte_length: 8018
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w39
+    path: flashcards/week-39.yaml
+    card_count: 8
+    sha256: 2592b87ec2f74b192d76a56fe7910dd9fd42d3ef4079f49f8190d703987f0f70
+    byte_length: 6167
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

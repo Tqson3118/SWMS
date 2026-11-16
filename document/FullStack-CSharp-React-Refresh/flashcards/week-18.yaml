@@ -1,0 +1,72 @@
+deck_id: deck-fscr-w18
+subject: FullStack-CSharp-React-Refresh
+lesson_id: week-18
+version: 1.0.0
+description: Hooks, routing và API lifecycle
+cards:
+- id: fc-fscr-w18-001
+  concept: Effect boundary
+  front: POST do user bấm submit nên đặt đâu?
+  back: Trong event handler. Mutation gắn với intent submit.
+  source_lesson: notes/module-5/week-18.md
+  version: 1.0.0
+  claim_ids:
+  - W18-C01
+  tags:
+  - w18
+  - fullstack
+- id: fc-fscr-w18-002
+  concept: Cleanup
+  front: Effect fetch trả cleanup để làm gì?
+  back: Abort và ignore kết quả cũ. Cleanup bảo vệ UI khi đổi dependency.
+  source_lesson: notes/module-5/week-18.md
+  version: 1.0.0
+  claim_ids:
+  - W18-C01
+  tags:
+  - w18
+  - fullstack
+- id: fc-fscr-w18-003
+  concept: Deep links
+  front: SPA refresh route cần gì ở host?
+  back: Fallback index.html cho UI routes. Host phải phục vụ entry cho route UI.
+  source_lesson: notes/module-5/week-18.md
+  version: 1.0.0
+  claim_ids:
+  - W18-C02
+  tags:
+  - w18
+  - fullstack
+- id: fc-fscr-w18-004
+  concept: Route guard
+  front: Guard client thay auth API không?
+  back: Không, API tự kiểm quyền. Client bị sửa và API gọi trực tiếp được.
+  source_lesson: notes/module-5/week-18.md
+  version: 1.0.0
+  claim_ids:
+  - W18-C02
+  tags:
+  - w18
+  - fullstack
+- id: fc-fscr-w18-005
+  concept: Fetch status
+  front: fetch gặp HTTP500 thường làm gì?
+  back: Resolve Response cần kiểm ok. HTTP lỗi vẫn là response network thành công.
+  source_lesson: notes/module-5/week-18.md
+  version: 1.0.0
+  claim_ids:
+  - W18-C03
+  tags:
+  - w18
+  - fullstack
+- id: fc-fscr-w18-006
+  concept: 204 parsing
+  front: DELETE204 nên xử lý body thế nào?
+  back: Không gọi json, trả undefined. 204 biểu thị không có body.
+  source_lesson: notes/module-5/week-18.md
+  version: 1.0.0
+  claim_ids:
+  - W18-C03
+  tags:
+  - w18
+  - fullstack

@@ -47,6 +47,7 @@ interface LessonMarkdownViewProps {
   sourceFolder?: string | null;
   sourceRelativePath?: string | null;
   cleanReadingMode?: boolean;
+  hideInlineCitationBadges?: boolean;
   anchoredAnnotations: MarkdownAnnotationItem[];
   onSelectBlockText: (blockId: string, fullBlockText: string) => void;
   onHighlightClick: (exactQuote: string) => void;
@@ -833,6 +834,41 @@ function InlineAudioPracticePlayer({ src, title, fileName }: AudioAttachment) {
 function CodeBlockCard({ lang, code }: { lang: string; code: string }) {
   const [copied, setCopied] = useState(false);
 
+  const normalizedLang = (lang || "").toLowerCase();
+  if (normalizedLang.startsWith("practice-")) {
+    let parsedTitle = "Bài tập thực hành tương tác";
+    try {
+      const parsed = JSON.parse(code) as { title?: string; topic?: string };
+      if (parsed.title || parsed.topic) {
+        parsedTitle = parsed.title || parsed.topic || parsedTitle;
+      }
+    } catch {
+      // Ignore parse error for preview card
+    }
+    const kindLabel =
+      normalizedLang === "practice-finance"
+        ? "Biểu đồ Nến & Quản trị Rủi ro"
+        : normalizedLang === "practice-english"
+          ? "Luyện Nghe & Nói Tiếng Anh"
+          : normalizedLang === "practice-code"
+            ? "Bàn thực hành Code"
+            : "Tình huống thực hành";
+
+    return (
+      <div className="my-4 rounded-xl border border-indigo-200 dark:border-indigo-800/70 bg-indigo-50/50 dark:bg-indigo-950/30 p-4 font-sans">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+          {kindLabel}
+        </div>
+        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 mt-0.5">
+          {parsedTitle}
+        </div>
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+          Chuyển sang tab <span className="font-semibold">Thực hành</span> ở phía trên để làm bài trực tiếp.
+        </p>
+      </div>
+    );
+  }
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(code);
@@ -892,6 +928,7 @@ export function LessonMarkdownView({
   sourceFolder,
   sourceRelativePath,
   cleanReadingMode = true,
+  hideInlineCitationBadges = false,
   anchoredAnnotations,
   onSelectBlockText,
   onHighlightClick,
@@ -1195,7 +1232,7 @@ export function LessonMarkdownView({
   };
 
   const renderCitationBadges = (matchedAnns: MarkdownAnnotationItem[]) => {
-    if (matchedAnns.length === 0) return null;
+    if (hideInlineCitationBadges || matchedAnns.length === 0) return null;
 
     // Deduplicate annotations targeting the same quote within one paragraph so repeated pills don't clutter
     const dedupMap = new Map<string, { primary: MarkdownAnnotationItem; totalCards: number }>();

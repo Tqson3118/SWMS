@@ -1,0 +1,72 @@
+deck_id: deck-fscr-w05
+subject: FullStack-CSharp-React-Refresh
+lesson_id: week-05
+version: 1.0.0
+description: C# value/reference, OOP và invariants
+cards:
+- id: fc-fscr-w05-001
+  concept: Reference copy
+  front: b=a với a class rồi b.Amount=2 thường đổi a.Amount không?
+  back: Có, nếu cùng instance. Hai biến giữ reference tới cùng instance.
+  source_lesson: notes/module-2/week-05.md
+  version: 1.0.0
+  claim_ids:
+  - W05-C01
+  tags:
+  - w05
+  - fullstack
+- id: fc-fscr-w05-002
+  concept: Value storage
+  front: Có nên khẳng định value type luôn nằm stack không?
+  back: Không. Storage phụ thuộc context; boxing/fields có thể ở heap.
+  source_lesson: notes/module-2/week-05.md
+  version: 1.0.0
+  claim_ids:
+  - W05-C01
+  tags:
+  - w05
+  - fullstack
+- id: fc-fscr-w05-003
+  concept: Encapsulation
+  front: Setter amount public bỏ guard nguy cơ gì?
+  back: Caller tạo trạng thái invalid. Setter có thể bỏ quy tắc domain.
+  source_lesson: notes/module-2/week-05.md
+  version: 1.0.0
+  claim_ids:
+  - W05-C02
+  tags:
+  - w05
+  - fullstack
+- id: fc-fscr-w05-004
+  concept: Composition
+  front: ReportService dùng reader hợp với quan hệ nào?
+  back: Has-a qua composition. Service cần collaborator reader, không phải reader subtype.
+  source_lesson: notes/module-2/week-05.md
+  version: 1.0.0
+  claim_ids:
+  - W05-C02
+  tags:
+  - w05
+  - fullstack
+- id: fc-fscr-w05-005
+  concept: VND representation
+  front: Core lưu tiền VND theo spec bằng gì?
+  back: long nguyên có guard. Long nguyên tránh rounding cho VND và guard miền.
+  source_lesson: notes/module-2/week-05.md
+  version: 1.0.0
+  claim_ids:
+  - W05-C03
+  tags:
+  - w05
+  - fullstack
+- id: fc-fscr-w05-006
+  concept: Meaningful test
+  front: Test nào kiểm tra domain rule?
+  back: Amount0 bị chặn,50000 được nhận. Kiểm tra behavior và boundary thật.
+  source_lesson: notes/module-2/week-05.md
+  version: 1.0.0
+  claim_ids:
+  - W05-C03
+  tags:
+  - w05
+  - fullstack

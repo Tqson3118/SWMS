@@ -1,0 +1,87 @@
+deck_id: deck-psy-w19
+subject: Psychology
+lesson_id: week-19-empathy-theory-of-mind
+version: 1.0.0
+description: Draft; lesson-linked recall, source ledger mapping remains to be reviewed.
+cards:
+- id: fc-psy-w19-001
+  concept: Đồng cảm cảm xúc
+  front: Affective empathy khác cognitive empathy thế nào?
+  back: Affective empathy nói tới chia sẻ/cảm nhận cảm xúc; cognitive empathy nói
+    tới hiểu quan điểm và cảm xúc. Hiểu không bảo đảm cảm nhận giống hệt.
+  source_lesson: Psychology/notes/03-understanding-others/week-19-empathy-theory-of-mind.md#31-empathy-là-gì
+  version: 1.0.0
+  tags:
+  - w19
+  - draft-assessment
+- id: fc-psy-w19-002
+  concept: Theory of Mind
+  front: ToM giúp phân biệt điều gì?
+  back: Trạng thái tâm lý của người khác có thể khác với kiến thức, niềm tin và mong
+    muốn của mình.
+  source_lesson: Psychology/notes/03-understanding-others/week-19-empathy-theory-of-mind.md#32-theory-of-mind-tom
+  version: 1.0.0
+  tags:
+  - w19
+  - draft-assessment
+- id: fc-psy-w19-003
+  concept: False-belief task
+  front: Trong Maxi task, Maxi chưa biết socola bị chuyển. Vì sao phải xét điều Maxi
+    biết?
+  back: Dự đoán tìm kiếm theo niềm tin Maxi đang có, không theo vị trí thực tế mà
+    người quan sát biết.
+  source_lesson: Psychology/notes/03-understanding-others/week-19-empathy-theory-of-mind.md#33-false-belief-task
+  version: 1.0.0
+  tags:
+  - w19
+  - draft-assessment
+- id: fc-psy-w19-004
+  concept: Perspective-taking
+  front: Đặt mình vào vị trí người khác có chứng minh ta đọc được suy nghĩ không?
+  back: Không. Nó giúp tạo giả thuyết; phải cho phép người đó sửa cách hiểu và cân
+    nhắc giải thích khác.
+  source_lesson: Psychology/notes/03-understanding-others/week-19-empathy-theory-of-mind.md#34-perspective-taking
+  version: 1.0.0
+  tags:
+  - w19
+  - draft-assessment
+- id: fc-psy-w19-005
+  concept: Empathy và sympathy
+  front: Sympathy khác với chia sẻ cảm xúc ở điểm nào?
+  back: Sự quan tâm/thông cảm không nhất thiết đồng nghĩa với cảm nhận cùng cảm xúc
+    hoặc hiểu hoàn toàn quan điểm người khác.
+  source_lesson: Psychology/notes/03-understanding-others/week-19-empathy-theory-of-mind.md#35-bảng-so-sánh
+  version: 1.0.0
+  tags:
+  - w19
+  - draft-assessment
+- id: fc-psy-w19-006
+  concept: Empathic distress
+  front: Đồng cảm có giới hạn nào cần lưu ý?
+  back: Cảm nhận khó chịu của người khác có thể trở nên quá tải; không cần bỏ ranh
+    giới hay chịu trách nhiệm toàn bộ thay họ.
+  source_lesson: Psychology/notes/03-understanding-others/week-19-empathy-theory-of-mind.md#42-đồng-cảm-cấu-trúc-và-cơ-chế
+  version: 1.0.0
+  tags:
+  - w19
+  - draft-assessment
+- id: fc-psy-w19-007
+  concept: In-group bias
+  front: Vì sao cần kiểm tra thiên lệch đồng cảm theo nhóm?
+  back: Ta có thể phản ứng khác với người cùng nhóm và khác nhóm; cảm xúc của mình
+    không phải thước đo giá trị con người.
+  source_lesson: Psychology/notes/03-understanding-others/week-19-empathy-theory-of-mind.md#42-đồng-cảm-cấu-trúc-và-cơ-chế
+  version: 1.0.0
+  tags:
+  - w19
+  - draft-assessment
+- id: fc-psy-w19-008
+  concept: Nhiều giả thuyết
+  front: Người bạn trả lời ngắn. Bài W19 gợi cách phân tích nào?
+  back: Tách quan sát khỏi kết luận, nêu ít nhất ba giả thuyết (bận, mệt, không muốn
+    nói lúc này), rồi hỏi lại nhẹ nhàng.
+  source_lesson: Psychology/notes/03-understanding-others/week-19-empathy-theory-of-mind.md#43-ứng-dụng-thực-tiễn
+  version: 1.0.0
+  tags:
+  - w19
+  - draft-assessment

@@ -1,0 +1,72 @@
+deck_id: deck-fscr-w14
+subject: FullStack-CSharp-React-Refresh
+lesson_id: week-14
+version: 1.0.0
+description: EF Core mapping, migrations và validation
+cards:
+- id: fc-fscr-w14-001
+  concept: DbContext
+  front: 2parallel queries dùng cùng DbContext có an toàn không?
+  back: Không. Context không thread-safe, cần await sequential/separate unit.
+  source_lesson: notes/module-4/week-14.md
+  version: 1.0.0
+  claim_ids:
+  - W14-C01
+  tags:
+  - w14
+  - fullstack
+- id: fc-fscr-w14-002
+  concept: Tenant filter
+  front: Owner filter ở đâu?
+  back: IQueryable trước ToList. DB chỉ trả rows scoped.
+  source_lesson: notes/module-4/week-14.md
+  version: 1.0.0
+  claim_ids:
+  - W14-C01
+  tags:
+  - w14
+  - fullstack
+- id: fc-fscr-w14-003
+  concept: Rename migration
+  front: Generated drop/add do đổi tên nên làm gì?
+  back: Review rename và test clone có data. Generator không hiểu mọi rename intent.
+  source_lesson: notes/module-4/week-14.md
+  version: 1.0.0
+  claim_ids:
+  - W14-C02
+  tags:
+  - w14
+  - fullstack
+- id: fc-fscr-w14-004
+  concept: EF versions
+  front: Provider/Design cho EF10 nên major nào?
+  back: 10 cùng compatible set. API/tool major phải tương thích.
+  source_lesson: notes/module-4/week-14.md
+  version: 1.0.0
+  claim_ids:
+  - W14-C02
+  tags:
+  - w14
+  - fullstack
+- id: fc-fscr-w14-005
+  concept: Validation
+  front: HTML required thay DB/domainguard không?
+  back: Không. Other caller/directwrite vẫn invalid.
+  source_lesson: notes/module-4/week-14.md
+  version: 1.0.0
+  claim_ids:
+  - W14-C03
+  tags:
+  - w14
+  - fullstack
+- id: fc-fscr-w14-006
+  concept: Stale version
+  front: Loadlatest rồi bỏ version editor có detect stale intent không?
+  back: Không. Original editor version phải tham gia predicate.
+  source_lesson: notes/module-4/week-14.md
+  version: 1.0.0
+  claim_ids:
+  - W14-C03
+  tags:
+  - w14
+  - fullstack

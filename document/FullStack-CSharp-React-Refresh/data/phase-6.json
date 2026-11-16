@@ -1,0 +1,658 @@
+[
+  {
+    "week": 21,
+    "title": "Git, Linux và environment configuration",
+    "lessons": [
+      {
+        "title": "Git và review workflow",
+        "objective": "Tạo history có thể review và tái hiện.",
+        "body": "Git snapshot tracked files, index là staging chọn nội dung commit; git diff trước stage và git diff --cached trước commit. Branch cho feature, commit nhỏ có lý do và tests. git fetch tải refs; pull tích hợp nên hiểu merge/rebase trước dùng. Rebase đổi commit IDs, chỉ rewrite branch riêng chưa chia sẻ; không force-push main. Merge conflict đọc cả intent, sửa file rồi chạy kiểm hành vi; không chọn toàn ours/theirs mù. .gitignore loại bin/obj/node_modules/.env/secret/log chứa personal data. Commit lockfile và migrations, không commit credentials. Pull request mô tả behavior/why/evidence, không chỉ liệt kê tên file."
+      },
+      {
+        "title": "Linux và process basics",
+        "objective": "Chẩn đoán đường dẫn, quyền và network service.",
+        "body": "Linux paths case-sensitive; src/Api khác src/api, lỗi Windows có thể chỉ lộ trong CI. pwd/ls/cat/head/tail đọc context, rg tìm text, mkdir tạo thư mục, chmod thay quyền có chủ đích. Không dùng chmod777 để chữa mọi lỗi; service cần quyền đọc code và ghi đúng data/log path. ps xem process, ss -ltn xem listener, curl kiểm HTTP, exit code0 thường success. SIGTERM yêu cầu graceful shutdown; SIGKILL không cho cleanup. Port binding0.0.0.0 trong container khác localhost chỉ trong container. stdout/stderr phục vụ container logs; shell quoting cần tránh secrets lọt command history."
+      },
+      {
+        "title": "Configuration và secrets",
+        "objective": "Phân biệt public frontend config với backend secret.",
+        "body": "ASP.NET Core đọc appsettings, environment-specific và env với key nested dùng __; ConnectionStrings__Finance overrides JSON. Development user-secrets là convenience ngoài repo, không là vault bảo mật production. Environment variables là cách truyền cấu hình, vẫn có thể lộ ở process/log nên production dùng secret manager/access control. Frontend VITE_API_BASE_URL đóng vào bundle lúc build, mọi VITE_ value public; đổi env container sau build không tự sửa bundle. Tách Development/Testing/Production, validate required configuration khi startup. Không bật detailed errors hoặc dev user-jwts trong production. .env.example có tên biến và giá trị lab công khai không có secrets thật."
+      }
+    ],
+    "example": "1. Tạo branch feat/config-runbook; git status --short, git diff rồi stage đúng files.\n2. Linux/WSL hoặc container shell: pwd; rg 'localhost' web/src; curl -i http://localhost:8080/api/ping. Các lệnh chạy riêng, không in env toàn bộ.\n3. Trong API lab đọc builder.Configuration.GetConnectionString(\"Finance\"); đặt ConnectionStrings__Finance ở process env, không ghi repo. Frontend đọc import.meta.env.VITE_API_BASE_URL.\n4. Build client với API URL A, sau đó đổi env thànhB nhưng không rebuild: bundle vẫnA. Ghi kết quả và chọn rebuild hoặc runtime public config file có validation.",
+    "deep": "Env không tự là secret và minify không che giá trị. Secret đã commit: revoke/rotate trước, rồi xử lý history theo team workflow; chỉ xóa dòng không xóa lịch sử. Lab tránh cố tình commit secret thật.",
+    "exercises": [
+      {
+        "prompt": "Sửa conflict cùng category validator ở hai branch.",
+        "solution": "Đọc cả diff, thống nhất trim/range policy; sửa conflict markers, test empty/60/61 chars rồi commit resolution. Ghi lý do cho reviewer."
+      },
+      {
+        "prompt": "CI Linux báo module không tìm được dù Windows chạy.",
+        "solution": "Kiểm casing filename/import, lockfile và cwd; sửa tên/import qua git mv nếu filesystem case-insensitive. Không thêm dependency ngẫu nhiên."
+      }
+    ],
+    "project": "Đưa finance repo lên GitHub riêng của học viên; tạo PR feature nhỏ, README runbook và configuration inventory không secrets. Git/English vốn chạy từtuần1, tuần này chuẩn hóa để người khác chạy.",
+    "criteria": [
+      "Fresh clone chạy theo README với lockfile/migrations và không file ngầm cá nhân.",
+      "PR có behavior/test evidence; resolve conflict không mất validator policy.",
+      "Scan repo hiện tại không secret; client bundle chỉ chứa publicconfig, Linux import casing pass."
+    ],
+    "english": "Viết PR description English120–180words: concrete change, validation, limitation; đọc thành tiếng.",
+    "sources": [
+      {
+        "url": "https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository",
+        "section": "Staging and reviewing commits"
+      },
+      {
+        "url": "https://manpages.ubuntu.com/manpages/noble/en/man1/chmod.1.html",
+        "section": "Symbolic modes and permission bits"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-10.0",
+        "section": "Configuration providers and environment overrides"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Staging",
+        "stem": "Lệnh nào xem nội dung sẽ commit?",
+        "options": [
+          "git diff --cached",
+          "git diff chỉ unstaged",
+          "git log thay diff",
+          "git fetch tự review"
+        ],
+        "reasons": [
+          "Cached diff là index so HEAD.",
+          "Diff mặc định xem worktree so index.",
+          "Log xem commits đã có.",
+          "Fetch tải refs không xem staged change."
+        ],
+        "front": "Lệnh nào xem nội dung sẽ commit?",
+        "back": "git diff --cached. Cached diff là index so HEAD."
+      },
+      {
+        "concept": "Secret incident",
+        "stem": "Secret đã commit cần bước ưu tiên gì?",
+        "options": [
+          "Revoke/rotate credential",
+          "Chỉ xóa dòng mới",
+          "Đổi README",
+          "Minify file"
+        ],
+        "reasons": [
+          "Credential có thể đã lộ từ history.",
+          "History còn giữ secret cũ.",
+          "README không thu hồi quyền credential.",
+          "Obfuscation không bảo vệ secret."
+        ],
+        "front": "Secret đã commit cần bước ưu tiên gì?",
+        "back": "Revoke/rotate credential. Credential có thể đã lộ từ history."
+      },
+      {
+        "concept": "Linux paths",
+        "stem": "Linux CI không tìm Expense.tsx thường kiểm gì?",
+        "options": [
+          "Casing đường dẫn/import",
+          "Tắt TypeScript",
+          "Chmod777 mọi file",
+          "Xóa toàn repo"
+        ],
+        "reasons": [
+          "Case-sensitive paths khác Windows.",
+          "Tắt checks không sửa đường dẫn.",
+          "Permissions khác lỗi tên file.",
+          "Xóa repo không chẩn đoán nguyên nhân."
+        ],
+        "front": "Linux CI không tìm Expense.tsx thường kiểm gì?",
+        "back": "Casing đường dẫn/import. Case-sensitive paths khác Windows."
+      },
+      {
+        "concept": "Container listener",
+        "stem": "API trong container thường bind địa chỉ nào để nhận ngoài?",
+        "options": [
+          "0.0.0.0 trên port nội bộ",
+          "Chỉ127.0.0.1",
+          "IP trình duyệt user",
+          "Hostname database"
+        ],
+        "reasons": [
+          "Bind mọi interfaces container cho mapped port.",
+          "Loopback không nhận qua container network.",
+          "Client IP không listener của server.",
+          "DB hostname thuộc dependency khác."
+        ],
+        "front": "API trong container thường bind địa chỉ nào để nhận ngoài?",
+        "back": "0.0.0.0 trên port nội bộ. Bind mọi interfaces container cho mapped port."
+      },
+      {
+        "concept": "Public env",
+        "stem": "VITE_ variable trong build được xem là gì?",
+        "options": [
+          "Public client configuration",
+          "Secret vault",
+          "Chỉ server đọc",
+          "Encrypted tự động"
+        ],
+        "reasons": [
+          "Bundle gửi browser có thể inspect.",
+          "Frontend build không giữ secret vault.",
+          "Client code đọc giá trị được build.",
+          "Vite không tự mã hóa credential."
+        ],
+        "front": "VITE_ variable trong build được xem là gì?",
+        "back": "Public client configuration. Bundle gửi browser có thể inspect."
+      },
+      {
+        "concept": "Nested config",
+        "stem": "Env key cho ConnectionStrings:Finance là gì?",
+        "options": [
+          "ConnectionStrings__Finance",
+          "ConnectionStrings.Finance",
+          "VITE_SQL_PASSWORD",
+          "Finance:BrowserSecret"
+        ],
+        "reasons": [
+          "Double underscore map nested config đa nền tảng.",
+          "Dot không mặc định map hierarchical key.",
+          "VITE khiến giá trị public ở client.",
+          "Browser không nên chứa DB connection."
+        ],
+        "front": "Env key cho ConnectionStrings:Finance là gì?",
+        "back": "ConnectionStrings__Finance. Double underscore map nested config đa nền tảng."
+      }
+    ]
+  },
+  {
+    "week": 22,
+    "title": "Docker Compose và persistence",
+    "lessons": [
+      {
+        "title": "Images và multi-stage build",
+        "objective": "Đóng gói API runtime tách khỏi SDK.",
+        "body": "Image là template layers; container là process từ image có writable layer riêng. Dockerfile build stage dùng SDK để restore/publish, runtime stage chỉ aspnet runtime và published output. COPY csproj rồi restore trước code tận dụng cache; .dockerignore loại secrets/artifacts. .NET10 runtime container dùng8080 theo env ở lab; chạy non-root USER app khi image hỗ trợ. Tags10.0 nhận servicing updates nhưng không immutable; release dùng digest lưu trong inventory và rebuild có lịch. Build image không chứng minh startup/config/database. Không COPY .env vào image và không dùng build ARG để đưa secret vào layers."
+      },
+      {
+        "title": "Compose networking và volumes",
+        "objective": "Nối API–SQL–Redis bằng service DNS và giữ dữ liệu.",
+        "body": "Compose tạo network với DNS theo service name: API gọi db:1433/redis:6379, không localhost. Host browser dùng published API port8080. SQL volume /var/opt/mssql và Redis volume tùy durability design; container deletion không đồng nghĩa xóa named volume. depends_on chỉ service_started chưa bảo đảm DB sẵn; healthcheck/service_healthy hoặc retry bounded/app readiness cần thiết. Lab dùng SQL Server2022 Developer local, không coi license lab là production grant. Secrets được env/secret injection ngoài tracked files. Không publish DB/Redis ra internet; local SQL port nếu cần bind127.0.0.1. Reset test volumes chỉ khi xác nhận là dữ liệu test riêng."
+      },
+      {
+        "title": "Startup và failure recovery",
+        "objective": "Phân biệt startup order, retry và persistent state.",
+        "body": "Migrations là schema change có review, không để mọi replica tự Database.Migrate đồng thời ở production. Local lab chạy migrations từ host/tool một lần sau DBready; image app có schema expectation rõ. Readiness kiểm dependency cần cho request; liveness kiểm process còn hoạt động, không buộc DBhealthy khiến restartstorm. Redis cache optional: outage degrade về SQL và log/metric, không mất write. Graceful shutdown ngừng nhận mới, cancel work hợp lý; container restart không làm transaction đã commit mất. Volume cần backup; volume không là backup độc lập. Verify restart bằng fixture counts và ownership cases."
+      }
+    ],
+    "example": "1. Repo layout src/Expense.Api/Expense.Api.csproj, assembly Expense.Api.dll. Dockerfile từ root:\n```dockerfile\nFROM mcr.microsoft.com/dotnet/sdk:10.0 AS build\nWORKDIR /src\nCOPY src/Expense.Api/Expense.Api.csproj src/Expense.Api/\nCOPY src/Expense.Domain/Expense.Domain.csproj src/Expense.Domain/\nRUN dotnet restore src/Expense.Api/Expense.Api.csproj\nCOPY src/Expense.Api/ src/Expense.Api/\nCOPY src/Expense.Domain/ src/Expense.Domain/\nRUN dotnet publish src/Expense.Api/Expense.Api.csproj -c Release -o /out --no-restore\nFROM mcr.microsoft.com/dotnet/aspnet:10.0\nWORKDIR /app\nCOPY --from=build /out .\nENV ASPNETCORE_HTTP_PORTS=8080\nUSER app\nEXPOSE 8080\nENTRYPOINT [\"dotnet\",\"Expense.Api.dll\"]\n```\n2. Nếu project references thư viện domain, COPY csproj/code của các thư viện và restore toàn solution; không dùng Dockerfile này nguyên xi khi layout khác.\n3. Compose db(SQL) volume, redis, api network; inject ConnectionStrings__Finance trỏ db:1433. Kiểm container logs và GETping.\n4. Seed100000, restart api/db rồi report vẫn100000. Dừng Redis nếu chưa cache thì app vẫn đọc SQL; tuần26 bổ sung fallback.",
+    "deep": "SQL password với ; cần connection string escaping bằng builder, không nối string tùy ý. TrustServerCertificate chỉ lab; production verify certificate. Compose là lab/local, không tự cung cấp autoscaling hoặc managed backups.",
+    "exercises": [
+      {
+        "prompt": "API báo connection refused tới localhost1433 trong container.",
+        "solution": "Đổi server=db,1433 theo network; kiểm SQLready/log/credential. localhost là API container, không DBservice. Dùng bounded retry, không loop vô hạn."
+      },
+      {
+        "prompt": "Restart container rồi mất dữ liệu; kiểm gì?",
+        "solution": "Xem mount SQL data có namedvolume đúng /var/opt/mssql không; kiểm docker compose down -v đã xóa volume chưa. Khôi phục testfixture/backup, không xóa production."
+      }
+    ],
+    "project": "Đóng gói API+SQL+Redis local bằng Compose, thêm Dockerfile/.dockerignore/env instructions và runbook restart/migrate. UI có thể devserver ở host tuần này; cloud buildstatic tuần24.",
+    "criteria": [
+      "Docker build và API container chạy non-root, GETping200, DBhostname db.",
+      "Restart SQL giữ Alice100000/Bob0; volume path và backup procedure được ghi.",
+      "Secrets không nằm image/commits; dependency-not-ready có lỗi rõ/retry bounded."
+    ],
+    "english": "Giải thích image/container/volume/network trong English90 giây; đọc một Docker log không đọc secret.",
+    "sources": [
+      {
+        "url": "https://docs.docker.com/build/building/multi-stage/",
+        "section": "Build and runtime stages"
+      },
+      {
+        "url": "https://docs.docker.com/compose/how-tos/networking/",
+        "section": "Service DNS and host/container ports"
+      },
+      {
+        "url": "https://docs.docker.com/compose/how-tos/startup-order/",
+        "section": "Startup order versus readiness"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Stages",
+        "stem": "Multi-stage build giúp gì?",
+        "options": [
+          "Chỉ copy runtime artifacts sang final image",
+          "Tự backup DB",
+          "Tự cấp JWT",
+          "Tự triển khai cloud"
+        ],
+        "reasons": [
+          "Build tools không cần ở runtime layer.",
+          "Database backup là nhiệm vụ khác.",
+          "Image không tạo identity protocol.",
+          "Build image không publish service."
+        ],
+        "front": "Multi-stage build giúp gì?",
+        "back": "Chỉ copy runtime artifacts sang final image. Build tools không cần ở runtime layer."
+      },
+      {
+        "concept": "Image secret",
+        "stem": "COPY .env vào image có an toàn không?",
+        "options": [
+          "Không, secret có thể tồn tại layers",
+          "Có vì container private",
+          "Có vì minify",
+          "Có nếu xóa ở layer sau"
+        ],
+        "reasons": [
+          "Image/layers có thể inspect/redistribute.",
+          "Private deployment không xóa exposure.",
+          "Minify không encrypt credentials.",
+          "Xóa sau không xóa content layer trước."
+        ],
+        "front": "COPY .env vào image có an toàn không?",
+        "back": "Không, secret có thể tồn tại layers. Image/layers có thể inspect/redistribute."
+      },
+      {
+        "concept": "Service address",
+        "stem": "API container nối SQL Compose bằng gì?",
+        "options": [
+          "db:1433",
+          "localhost:1433",
+          "Browser localhost5173",
+          "IP user laptop"
+        ],
+        "reasons": [
+          "DNS service name resolve trong network.",
+          "Loopback trỏ chính API container.",
+          "5173 là frontend devserver.",
+          "Laptop IP không service DNS ổn định."
+        ],
+        "front": "API container nối SQL Compose bằng gì?",
+        "back": "db:1433. DNS service name resolve trong network."
+      },
+      {
+        "concept": "Persistent data",
+        "stem": "Named volume có phải backup đủ không?",
+        "options": [
+          "Không, cần bản backup/restore độc lập",
+          "Có bảo đảm mọi disaster",
+          "Có vì cùng host",
+          "Không cần restoretest"
+        ],
+        "reasons": [
+          "Volume vẫn mất khi host/storage hỏng.",
+          "Persistence không disaster recovery.",
+          "Cùng failure domain không độc lập.",
+          "Backup không thử restore chưa đáng tin."
+        ],
+        "front": "Named volume có phải backup đủ không?",
+        "back": "Không, cần bản backup/restore độc lập. Volume vẫn mất khi host/storage hỏng."
+      },
+      {
+        "concept": "Ready dependency",
+        "stem": "depends_on mặc định chứng minh DBready không?",
+        "options": [
+          "Không, cần healthcheck/condition hoặc retry",
+          "Có ngay lập tức",
+          "Chỉ cần sleep1s",
+          "Không thể kiểm readiness"
+        ],
+        "reasons": [
+          "Started khác accepting SQL queries.",
+          "Service có thể đang initialize.",
+          "Fixed delay phụ thuộc timing không chắc.",
+          "Healthcheck kiểm được readiness."
+        ],
+        "front": "depends_on mặc định chứng minh DBready không?",
+        "back": "Không, cần healthcheck/condition hoặc retry. Started khác accepting SQL queries."
+      },
+      {
+        "concept": "Migration rollout",
+        "stem": "Production nhiều replicas nên migrate thế nào?",
+        "options": [
+          "Một job có review trước rollout",
+          "Mọi replica tự migrate cùng lúc",
+          "Xóa DB trước mỗi start",
+          "Bỏ migrations khỏi repo"
+        ],
+        "reasons": [
+          "Điều phối schema change giảm race.",
+          "Concurrent migration có thể tranh chấp.",
+          "Xóa DB làm mất business data.",
+          "Schema history cần tracked/reviewed."
+        ],
+        "front": "Production nhiều replicas nên migrate thế nào?",
+        "back": "Một job có review trước rollout. Điều phối schema change giảm race."
+      }
+    ]
+  },
+  {
+    "week": 23,
+    "title": "GitHub Actions và integration testing",
+    "lessons": [
+      {
+        "title": "CI reproducible pipeline",
+        "objective": "Chạy restore/build/test trên fresh runner.",
+        "body": "CI cần tái tạo từ repository: chọn .NET10 SDK/setup-dotnet và Node active LTS đã ghi inventory; npm ci đọc lockfile, không npm install để âm thầm đổi graph. Build Release rồi test; frontend tsc/build và behavior tests non-watch. Workflow pull_request và pushmain có permissions contents:read theo least privilege. Không chạy deploy secrets trên untrusted fork PR. Cache dependency theo lockfile/csproj để nhanh nhưng cold-cache vẫn pass. Pin actions commit SHA cho release supply chain sau khi kiểm revision; tagsmajor trong lab giúp đọc nhưng cần inventory thực tế. Exit code thất bại phải fail job, không ||true."
+      },
+      {
+        "title": "Relational integration tests",
+        "objective": "Kiểm behavior trên SQL Server thật cùng provider.",
+        "body": "EF InMemory không enforce FK/transactions/SQL semantics giống production; SQLite khác SQLServer rowversion/collation/querytranslation. Unit test pure money/validation nhanh; relational integration dùng SQLServer container/testDB riêng. Mỗi test suite quản seed/reset riêng không đụng development/prod. WebApplicationFactory host test và mock principal deterministic chỉ Testing; test JWT invalid issuer/signature qua authintegration riêng chứ không mock luôn. Assert compound ownershipFK, duplicate importkey, rollbackinvalidrow, optimistic409, querycountN+1. Dùng unique DB hoặc serial fixture có reset rõ, tránh tests phụ thuộc order. Testcontainers là tùy chọn đáng dùng khi Docker runner có sẵn."
+      },
+      {
+        "title": "Evidence và deployment boundary",
+        "objective": "Phân biệt test pass, build artifact và released version.",
+        "body": "Publish TRX/frontend results logs không chứa secrets; artifact image tagged gitSHA nối commit/test/deployment. Integration tests gate trước push deploy; successful compile không chứng minh ownership/rollback. CI job ở PR chỉ kiểm; deploy jobmain/tag dùng protected environment/OIDC federation khi cloud hỗ trợ, tránh static long-lived credentials. Failure phải cho reproduction steps và expected/actual. Flaky test cần sửa isolation/timeouts, không retry mãi che bug. Code coverage là thông tin, không thay tests risk-based: ownership, concurrency, idempotency, failures quan trọng nhất. Security dependency check có thể thêm nhưng không substitute code review."
+      }
+    ],
+    "example": "1. Repo cần tests Expense.Tests và client script test='vitest run'. Workflow build.yml:\n```yaml\nname: verify\non: [push, pull_request]\npermissions:\n  contents: read\njobs:\n  verify:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v6\n      - uses: actions/setup-dotnet@v4\n        with:\n          dotnet-version: '10.0.x'\n      - run: dotnet restore\n      - run: dotnet build -c Release --no-restore\n      - run: dotnet test -c Release --no-build --logger trx\n      - uses: actions/setup-node@v4\n        with:\n          node-version: '24'\n          cache: npm\n          cache-dependency-path: web/package-lock.json\n      - run: npm ci\n        working-directory: web\n      - run: npm run build\n        working-directory: web\n      - run: npm run test -- --run\n        working-directory: web\n```\n2. Đây là baseline compile/unit/UI; chưa provision SQL container. Thêm separate integration job dùng testcontainer fixture để dotnet test chạy SQL behaviors trước markgate.\n3. Cố ý thay ownership query test fail và PRred; sửa code/test rồi green.\n4. Ghi action versions thực tế và SHA cho release; mẫu lab dùng major tags, không coi chúng immutable.",
+    "deep": "Do not share DB từ course folder hay importer. Test-only fake auth không được enabled Development/Production. YAML booleans parser có thể coi 'on' thành true với YAML1.1; GitHubworkflow dùng schema riêng, không validate bằng parsergeneric rồi kết luận lỗi.",
+    "exercises": [
+      {
+        "prompt": "Unit tests green nhưng duplicateimport thêm rows. Thêm test gì?",
+        "solution": "SQLServerintegration gửi samekey/hash hai lần/concurrent, assert rowcount không tăng; different hash → 409. Use unique constraint thật, không dictionaryfake."
+      },
+      {
+        "prompt": "Cold runner frontend thiếu dependency vì local node_modules có. Sửa thế nào?",
+        "solution": "Chạy npm ci từ fresh checkout, commit manifest/lockfile đúng; build/test fail là evidence missing dependency. Không upload node_modules để che."
+      }
+    ],
+    "project": "Thêm CI gates .NET/frontend/SQL integration, publish test artifacts, Dockerbuild và imageSHA inventory; deployment job chỉ sau gates.",
+    "criteria": [
+      "Fresh Linux runner cold-cache build/unit/UIpass với lockfile.",
+      "SQLServer thật chứng minh ownershipFK,rollback,409,idempotency,N+1 guard; tests không chạm DB cá nhân.",
+      "Một regression cố ý làmPRred; fixgreen và evidence lưu CI link/commit/image SHA."
+    ],
+    "english": "Trình bày một CI failure bằng English: trigger, failing assertion, root cause, fix, validation.",
+    "sources": [
+      {
+        "url": "https://docs.github.com/en/actions/tutorials/build-and-test-code/net",
+        "section": "Restore, build and test .NET workflow"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/ef/core/testing/choosing-a-testing-strategy",
+        "section": "Real database versus test doubles"
+      },
+      {
+        "url": "https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions",
+        "section": "Permissions, untrusted inputs and action pinning"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Reproducibility",
+        "stem": "Frontend CI nên cài dependencies bằng gì?",
+        "options": [
+          "npm ci với committed lockfile",
+          "Copy local node_modules",
+          "npm install rồi không review",
+          "Không cần package.json"
+        ],
+        "reasons": [
+          "CI dùng graph locked và fail khi mismatch.",
+          "Local state không fresh reproducible.",
+          "Install có thể cập nhật lock graph.",
+          "Manifest khai báo scripts/dependencies."
+        ],
+        "front": "Frontend CI nên cài dependencies bằng gì?",
+        "back": "npm ci với committed lockfile. CI dùng graph locked và fail khi mismatch."
+      },
+      {
+        "concept": "Fail gate",
+        "stem": "Build step exit nonzero nên làm gì?",
+        "options": [
+          "Fail job và chặn rollout",
+          "Thêm ||true",
+          "Xóa failed log",
+          "Deploy vẫn tiếp"
+        ],
+        "reasons": [
+          "Failure cần giữ evidence và sửa.",
+          "Ignore che regression ở pipeline.",
+          "Log giúp chẩn đoán failure.",
+          "Rollout failed artifact tăng rủi ro."
+        ],
+        "front": "Build step exit nonzero nên làm gì?",
+        "back": "Fail job và chặn rollout. Failure cần giữ evidence và sửa."
+      },
+      {
+        "concept": "DB test double",
+        "stem": "EFInMemory chứng minh SQL constraints không?",
+        "options": [
+          "Không, test relational provider thật",
+          "Có đầy đủ rowversion",
+          "Có actualexecutionplan",
+          "Có FK như SQLServer"
+        ],
+        "reasons": [
+          "Provider fake khác relational semantics.",
+          "Rowversion do SQLServer thực thi.",
+          "InMemory không SQL queryplan.",
+          "Fake không enforce mọi FK tương đương."
+        ],
+        "front": "EFInMemory chứng minh SQL constraints không?",
+        "back": "Không, test relational provider thật. Provider fake khác relational semantics."
+      },
+      {
+        "concept": "Isolation",
+        "stem": "Integration test DB nên dùng gì?",
+        "options": [
+          "Database test riêng có seed/reset",
+          "Productionshared",
+          "DBcá nhân bất kỳ",
+          "Chạy phụ thuộc thứ tự"
+        ],
+        "reasons": [
+          "Isolation giữ tests deterministic/an toàn.",
+          "Tests không được sửa businessdata thật.",
+          "Local state khiến kết quả không tái hiện.",
+          "Order dependency tạo flaky behavior."
+        ],
+        "front": "Integration test DB nên dùng gì?",
+        "back": "Database test riêng có seed/reset. Isolation giữ tests deterministic/an toàn."
+      },
+      {
+        "concept": "Fork security",
+        "stem": "ForkPR chưa tin cậy nên được gì?",
+        "options": [
+          "Read-only verify, không deploy secrets",
+          "Cloudadminsecret",
+          "ProductionSQLpassword",
+          "Write-alltoken mặc định"
+        ],
+        "reasons": [
+          "Untrusted code cần giới hạn credential.",
+          "Credentialadmin có thể bị exfiltrate.",
+          "PR không cần productiondata secret.",
+          "Least privilege giảm attack surface."
+        ],
+        "front": "ForkPR chưa tin cậy nên được gì?",
+        "back": "Read-only verify, không deploy secrets. Untrusted code cần giới hạn credential."
+      },
+      {
+        "concept": "Release trace",
+        "stem": "Image nên nối release với gì?",
+        "options": [
+          "CommitSHA và CIevidence",
+          "Tên latest duy nhất",
+          "Ảnh screenshot không version",
+          "Dateđơn lẻ"
+        ],
+        "reasons": [
+          "Có thể truy source/test của artifact.",
+          "Latest mutable khó biết code thật.",
+          "Screenshot không provenance artifact.",
+          "Ngày không xác định exact revision."
+        ],
+        "front": "Image nên nối release với gì?",
+        "back": "CommitSHA và CIevidence. Có thể truy source/test của artifact."
+      }
+    ]
+  },
+  {
+    "week": 24,
+    "title": "Cloud deployment, monitoring và recovery",
+    "lessons": [
+      {
+        "title": "Deployment runbook",
+        "objective": "Triển khai container/SPA với cấu hình production.",
+        "body": "Chọn cloud có managedcontainer và database, viết ADR chi phí/quota/region và cleanup trước tạo resource. Lab tham khảo Azure Container Apps cho APIimage .NET10, static hosting cho React build và managedSQL tương thích SQLServer; không yêu cầu mua cloud lớn. Dùng image digest từ CI, secretsmanager cho DB/auth, HTTPS và exact origins. SPAredirect/providerconfiguration phải khớp publicURL; không giữ localhost production. VITE_API_BASE_URL là build-time public; rebuild client đúng endpoint. Nếu AzureSQL khác localSQL tính năng cần test migration/provider. Deploy schema job một lần, health/readiness rồi smoke tests, chỉ expose API/UI. Không publicRedis/DBports."
+      },
+      {
+        "title": "Logs, metrics và health",
+        "objective": "Đo latency/error và truy trace có bảo vệ dữ liệu.",
+        "body": "Structured logs có traceId/requestID/operation/status/elapsed, không note/token/connectionstring. Metrics requestcount/errorrate/p95latency và dependencyfailures; define cửa sổ đo cùng traffic, không đo một request rồi gọip95. Liveness không DB-heavy; readiness kiểm essential DB, cacheRedis optional có degradedmetric. Monitoring alert có action/runbook, ví dụ5xx>2% trong5phút với mintraffic, đây là project mục tiêu không industryguarantee. Correlate frontendtraceId từ ProblemDetails với serverlog. Tracing useful cho API→SQL/Redis, sampling và redaction giảm overhead. Healthendpoint public trả trạng thái tối giản, không connectiondetails."
+      },
+      {
+        "title": "Backup, rollback và operations",
+        "objective": "Diễn tập restore và rollback với schema compatibility.",
+        "body": "Backup cần retention và restoretest trên DB riêng; RPO là data losswindow mục tiêu, RTO là thời gian khôi phục mục tiêu. Course đặt labRPO24h/RTO60phút để luyện, không bảo đảmcloud tự đạt. Release dùng additive schema trước để old/new app cùng chạy; deletecolumn cần contract/expand-contractphase sau. App rollback vềimage cũ không tự undo destructive migration. Giữ release manifestcommit/image/schema version và runbook thực thi. Smoke loginAlice/Bob,ownership,total,import,restart và tokenexpiry sau rollout. Demo public dùng dữ liệu giả, không finance thật; rotate credentials nếu logs lộ. Cleanup tài nguyên theo runbook khi không dùng."
+      }
+    ],
+    "example": "1. Chọn provider và ghi inventory resource/APIURL/UIURL/image digest/schema; lấy hướng dẫn chính thức theo nguồn tuần.\n2. Rollout staging với production auth; migrate reviewed SQL một lần, deploy API, kiểm health rồi build/deploy client trỏ URL thật.\n3. Smoke Alice report100000, Bob0, BobGETAlice404; importkey lặp không duplicate;401expired,409stale.\n4. Backup DB test và restore vào DBrecovery mới; counts/owner/constraints khớp. Deploy image previous lên staging với schema hiện tại để chứng minh rollback, ghi phút thực tế.",
+    "deep": "Cloud 'running' không chứng minh route/auth/DB. Đừng dùng Developerexceptionpage để debugpublic. Hosting có thể đổi support/price: đọc provider docs khi làm lab và ghi ngày/version; course không khóa giá. Không thực hiện cloud deploy thay user trong quá trình tạo course.",
+    "exercises": [
+      {
+        "prompt": "Sau deploy refresh /reports404 nhưng root200. Sửa gì?",
+        "solution": "Static host cần SPAfallback UI routes; backend /api không fallback. Kiểm builtAPIURL và CORS, không sửa controller chỉ vì UIroute."
+      },
+      {
+        "prompt": "Oldimage rollback fail vì cột đãdrop. Viết prevention.",
+        "solution": "Expand-contract migrations và compatibility test; additive schema trước, old/new code cùng pass. Restore backup có dataloss và cần runbook, không rollback SQL blind."
+      }
+    ],
+    "project": "Triển khai bảndemo giả lập dữ liệu lên cloud học viên chọn; thêm monitoring/health/backup restore/rollback runbook và release evidence. Nếu cloud chưa làm thì không đánh dấugate nàyđạt.",
+    "criteria": [
+      "PublicHTTPSUI/API hoạt động login/provider và Alice/Bobownership; no devtoken/dev exception.",
+      "Logs nối traceId, dashboard/erroralert có thử failure và không secrets.",
+      "Restore vào DBriêng khớp fixture; rollback staging compatibility pass, ghi RPO/RTO thực tế và cleanup."
+    ],
+    "english": "Thu demo deployment3 phút; giải thích 'What would you do if this release caused errors?' với rollback/schema/restore.",
+    "sources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/azure/container-apps/get-started?tabs=azure-cli",
+        "section": "Container Apps deployment quickstart"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-10.0",
+        "section": "Liveness and readiness checks"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/applying",
+        "section": "Reviewing and applying production migrations"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Production config",
+        "stem": "SPA APIURL đổi lúc nào với Vite build-timeenv?",
+        "options": [
+          "Build/rebuild client đúng publicURL",
+          "Chỉ đổi API containerenv",
+          "Gửi DBpassword vào client",
+          "Tắt HTTPS"
+        ],
+        "reasons": [
+          "Build-time value được đóng vào assets.",
+          "Backendenv không sửa clientbundle.",
+          "Browser không cần databasecredential.",
+          "HTTPS cần cho traffic/auth."
+        ],
+        "front": "SPA APIURL đổi lúc nào với Vite build-timeenv?",
+        "back": "Build/rebuild client đúng publicURL. Build-time value được đóng vào assets."
+      },
+      {
+        "concept": "Auth deployment",
+        "stem": "Production dùng dev user-jwts được không?",
+        "options": [
+          "Không, provider token validation thật",
+          "Có mãi mãi",
+          "Có nếu đổi tên claim",
+          "Có nếu API public"
+        ],
+        "reasons": [
+          "Devtool chỉ phục vụ Development lab.",
+          "Không là identity service production.",
+          "Renameclaim không đổi securitymodel.",
+          "Public endpoint càng cần trustvalidation."
+        ],
+        "front": "Production dùng dev user-jwts được không?",
+        "back": "Không, provider token validation thật. Devtool chỉ phục vụ Development lab."
+      },
+      {
+        "concept": "Readiness",
+        "stem": "DBdown nên phản ánh ở đâu cho API cần DB?",
+        "options": [
+          "Readiness và dependency metrics",
+          "Livenessalwaysrestartstorm",
+          "Không log bao giờ",
+          "Trả 200 fake expense"
+        ],
+        "reasons": [
+          "Readiness báo khả năng xử lý dependency.",
+          "Restartprocess không chữa DBoutage.",
+          "Cần diagnosis/alert có action.",
+          "Fake success làm sai client/data."
+        ],
+        "front": "DBdown nên phản ánh ở đâu cho API cần DB?",
+        "back": "Readiness và dependency metrics. Readiness báo khả năng xử lý dependency."
+      },
+      {
+        "concept": "Logging privacy",
+        "stem": "Production nên tránh log gì?",
+        "options": [
+          "Bearer token và finance note",
+          "TraceID",
+          "Statuscode",
+          "Operationname"
+        ],
+        "reasons": [
+          "Credential/personal data không cần diagnosis.",
+          "TraceID nối request với logs.",
+          "Status giúp đo success/error.",
+          "Operation mô tả hành vi không secret."
+        ],
+        "front": "Production nên tránh log gì?",
+        "back": "Bearer token và finance note. Credential/personal data không cần diagnosis."
+      },
+      {
+        "concept": "Restore proof",
+        "stem": "Có backupfile đã đủ recovery gate chưa?",
+        "options": [
+          "Chưa, phải restore và kiểm dữ liệu",
+          "Đủ tuyệt đối",
+          "Chỉ kiểm tênfile",
+          "Không cần constraints"
+        ],
+        "reasons": [
+          "Restoretest xác nhận bảnbackup dùng được.",
+          "Backup có thể lỗi/không truy cập.",
+          "Filename không integrity/recoverability.",
+          "Constraints/ownership là dữ liệu đúng."
+        ],
+        "front": "Có backupfile đã đủ recovery gate chưa?",
+        "back": "Chưa, phải restore và kiểm dữ liệu. Restoretest xác nhận bảnbackup dùng được."
+      },
+      {
+        "concept": "Schema rollback",
+        "stem": "Rollback image có undo destructive SQL tự động không?",
+        "options": [
+          "Không, cần compatibility/recovery plan",
+          "Có EF luônrollback",
+          "Có DockerundoDB",
+          "Có CDNcache"
+        ],
+        "reasons": [
+          "Appartifact và DBstate là boundaries riêng.",
+          "EF không tự đảo migration khi imagecũ.",
+          "Docker không version businessDB theo image.",
+          "CDN không khôi phục schema."
+        ],
+        "front": "Rollback image có undo destructive SQL tự động không?",
+        "back": "Không, cần compatibility/recovery plan. Appartifact và DBstate là boundaries riêng."
+      }
+    ]
+  }
+]

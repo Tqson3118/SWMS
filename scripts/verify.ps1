@@ -165,12 +165,14 @@ try {
     # Step C: Start Backend in Background (5080)
     # -------------------------------------------------------------------------
     Write-Log "`n--- Step C: Starting Backend API on http://127.0.0.1:5080 ---" "Yellow"
+    $verifyDbPath = Join-Path $runDir "swms_verify.db"
+    $sqliteArg = "`"--ConnectionStrings:SqliteFallback=Data Source=$verifyDbPath`""
     $backendDll = Join-Path $root "backend\src\Swms.Api\bin\Release\net10.0\Swms.Api.dll"
     if (Test-Path $backendDll) {
-        $backendProc = Start-Process -FilePath "dotnet" -ArgumentList "`"$backendDll`" --urls http://127.0.0.1:5080" -WorkingDirectory (Join-Path $root "backend\src\Swms.Api") `
+        $backendProc = Start-Process -FilePath "dotnet" -ArgumentList "`"$backendDll`" --urls http://127.0.0.1:5080 $sqliteArg" -WorkingDirectory (Join-Path $root "backend\src\Swms.Api") `
             -RedirectStandardOutput $backendServiceLog -RedirectStandardError $backendServiceErr -PassThru
     } else {
-        $backendArgs = "run --project backend/src/Swms.Api/Swms.Api.csproj -c Release --urls http://127.0.0.1:5080"
+        $backendArgs = "run --project backend/src/Swms.Api/Swms.Api.csproj -c Release --urls http://127.0.0.1:5080 -- $sqliteArg"
         $backendProc = Start-Process -FilePath "dotnet" -ArgumentList $backendArgs -WorkingDirectory $root `
             -RedirectStandardOutput $backendServiceLog -RedirectStandardError $backendServiceErr -PassThru
     }
@@ -310,14 +312,15 @@ try {
         $targetSuites = @(
             "e2e/pdf-multipage-e2e.spec.ts",
             "e2e/qa-e2e-suite.spec.ts",
-            "e2e/swms-landing.spec.ts",
+            "e2e/v2-landing-ergonomics.spec.ts",
             "e2e/swms-workspace.spec.ts",
             "e2e/adversarial-viewport-stress.spec.ts",
-            "e2e/challenger-m1-stress.spec.ts",
             "e2e/challenger-m2-stress.spec.ts",
-            "e2e/swms-challenger-m1-2.spec.ts",
             "e2e/r5-visual-interactive-e2e.spec.ts",
-            "e2e/course-creation-studio.spec.ts"
+            "e2e/course-creation-studio.spec.ts",
+            "e2e/v2-app-completeness.spec.ts",
+            "e2e/reader-polish-and-roadmap.spec.ts",
+            "e2e/v2-topdown-sitemap.spec.ts"
         )
     } else {
         $targetSuites = $Suites

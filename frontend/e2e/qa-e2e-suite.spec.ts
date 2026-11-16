@@ -21,9 +21,9 @@ test.describe("SWMS v1.0 — Comprehensive End-to-End User Flow & Defect QA Suit
   });
 
   // ==========================================================================
-  // FLOW 1: Landing Page, Navigation, Modals & Theme Switching
+  // FLOW 1: Landing Page V2, Navigation, Modals & Theme Switching
   // ==========================================================================
-  test("Flow 1: Landing Page, 9 Sections, About & Shortcuts Modals, Theme Switching", async ({
+  test("Flow 1: Landing Page, Sections, Info Modal & Theme Switching", async ({
     page
   }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
@@ -34,36 +34,33 @@ test.describe("SWMS v1.0 — Comprehensive End-to-End User Flow & Defect QA Suit
     await expect(page.getByTestId("landing-hero-section")).toBeVisible();
     await takeScreenshot(page, "FLOW01_01_landing_hero_1080p.png");
 
-    // 2. Comparison Matrix Section
-    const compSection = page.locator("#comparison");
-    await compSection.scrollIntoViewIfNeeded();
-    await expect(compSection).toBeVisible();
+    // 2. Pillars & Shortcuts Sections
+    const pillarsSection = page.getByTestId("landing-pillars-section");
+    await pillarsSection.scrollIntoViewIfNeeded();
+    await expect(pillarsSection).toBeVisible();
     await takeScreenshot(page, "FLOW01_02_landing_comparison_1080p.png");
 
-    // 3. Open About SWMS Modal (5 tabs)
-    await page.getByTestId("about-swms-trigger").first().click();
-    const aboutModal = page.getByTestId("about-swms-modal");
-    await expect(aboutModal).toBeVisible();
+    const shortcutsSection = page.getByTestId("landing-shortcuts-section");
+    await shortcutsSection.scrollIntoViewIfNeeded();
+    await expect(shortcutsSection).toBeVisible();
+
+    // 3. Open Privacy Info Modal
+    await page.getByTestId("privacy-modal-trigger").click();
+    const infoModal = page.getByTestId("landing-info-modal");
+    await expect(infoModal).toBeVisible();
     await takeScreenshot(page, "FLOW01_03_about_swms_modal.png");
+    await page.getByTestId("close-info-modal").click();
+    await expect(infoModal).toBeHidden();
 
-    // Switch tabs inside About modal
-    const hybridTab = aboutModal.locator('button:has-text("Mô hình Hybrid Persona")');
-    if (await hybridTab.isVisible()) {
-      await hybridTab.click();
-      await page.waitForTimeout(200);
-    }
-    await page.getByTestId("close-about-modal").first().click();
-    await expect(aboutModal).toBeHidden();
-
-    // 4. Open Keyboard Shortcuts Modal
-    await page.getByTestId("keyboard-shortcuts-trigger").first().click();
-    const shortcutsModal = page.getByTestId("keyboard-shortcuts-modal");
-    await expect(shortcutsModal).toBeVisible();
+    // 4. Open Terms Modal & close with Escape
+    await page.getByTestId("terms-modal-trigger").click();
+    await expect(infoModal).toBeVisible();
     await takeScreenshot(page, "FLOW01_04_keyboard_shortcuts_modal.png");
-    await page.getByTestId("close-shortcuts-modal").first().click();
-    await expect(shortcutsModal).toBeHidden();
+    await page.keyboard.press("Escape");
+    await expect(infoModal).toBeHidden();
 
     // 5. Dark Mode Toggle
+    await page.evaluate(() => window.scrollTo(0, 0));
     await page.getByTestId("theme-toggle-btn").first().click();
     await expect(page.locator("html")).toHaveClass(/dark/);
     await takeScreenshot(page, "FLOW01_05_landing_dark_mode.png");
@@ -72,8 +69,10 @@ test.describe("SWMS v1.0 — Comprehensive End-to-End User Flow & Defect QA Suit
     await page.getByTestId("theme-toggle-btn").first().click();
     await expect(page.locator("html")).not.toHaveClass(/dark/);
 
-    // 6. Navigation to Workspace
-    await page.getByTestId("landing-nav-cta").click();
+    // 6. Navigation to App & Workspace Classic
+    await page.getByTestId("landing-app-link").click();
+    await expect(page).toHaveURL(/.*\/app/);
+    await page.getByTestId("switch-to-workspace-link").click();
     await expect(page).toHaveURL(/.*workspace/);
   });
 
@@ -428,15 +427,19 @@ test.describe("SWMS v1.0 — Comprehensive End-to-End User Flow & Defect QA Suit
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto("/");
 
-    // Open About Modal
-    await page.getByTestId("about-swms-trigger").first().click();
-    const modal = page.getByTestId("about-swms-modal");
+    // Open Privacy Info Modal
+    await page.getByTestId("privacy-modal-trigger").click();
+    const modal = page.getByTestId("landing-info-modal");
     await expect(modal).toBeVisible();
 
-    // Press Tab multiple times to inspect if focus leaks out of modal
+    // Press Tab multiple times and assert focus remains trapped inside modal
     for (let i = 0; i < 12; i++) {
       await page.keyboard.press("Tab");
     }
+    const focusInsideModal = await modal.evaluate((el) =>
+      el.contains(document.activeElement)
+    );
+    expect(focusInsideModal).toBe(true);
 
     await takeScreenshot(page, "UX_03_modal_focus_escape_leak.png");
   });

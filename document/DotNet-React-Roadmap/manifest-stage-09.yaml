@@ -1,0 +1,122 @@
+schema_version: 2.0.0
+package_id: package:dotnet-react:stage-09
+version: 3
+created_at: '2026-10-04T00:00:00Z'
+source_status: draft
+subject_id: roadmap:subject:dotnet-react
+display_title: Stage 09 behavior-preserving boundaries, patterns, and dependency manual activity
+learning_objectives:
+- id: LO-DOTNET-S09-01
+  bloom_level: Apply
+  statement: Refactor one concrete importer/report boundary without behavior change and extend it through explicit
+    application, infrastructure and transport contracts after Stage 08.
+- id: LO-DOTNET-S09-02
+  bloom_level: Analyze
+  statement: Record actual Strategy, format-whitelisted Factory, Adapter, shared importer contract, period-aware
+    report, composition-root, trade-off and timed-debug evidence while preserving blockers.
+concepts:
+- id: DOTNET-S09-C01
+  name: Cohesion, composition, SOLID, and dependency direction
+  claim_ids:
+  - W09-C01
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-09-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded manual mapping/safety review203
+    date: '2026-10-04'
+    notes: Scratch learning-data, positive evidence and operational boundaries reviewed; full technical sources/runtime/browser
+      approval open.
+- id: DOTNET-S09-C02
+  name: Strategy, Factory, Adapter, and shared importer/report contracts
+  claim_ids:
+  - W09-C02
+  - W09-C03
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-09-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded manual mapping/safety review203
+    date: '2026-10-04'
+    notes: Scratch learning-data, positive evidence and operational boundaries reviewed; full technical sources/runtime/browser
+      approval open.
+- id: DOTNET-S09-C03
+  name: Composition root, abstraction trade-offs, and regression reasoning
+  claim_ids:
+  - W09-C04
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-09-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded manual mapping/safety review203
+    date: '2026-10-04'
+    notes: Scratch learning-data, positive evidence and operational boundaries reviewed; full technical sources/runtime/browser
+      approval open.
+units:
+- unit_id: roadmap:unit:dotnet-react:stage-09
+  display_title: Stage 09 behavior-preserving boundaries, patterns, and dependency manual activity
+  sort_order: 9
+  learning_objectives:
+  - id: LO-DOTNET-S09-01
+    bloom_level: Apply
+    statement: Refactor one concrete importer/report boundary without behavior change and extend it through explicit
+      application, infrastructure and transport contracts after Stage 08.
+  - id: LO-DOTNET-S09-02
+    bloom_level: Analyze
+    statement: Record actual Strategy, format-whitelisted Factory, Adapter, shared importer contract, period-aware
+      report, composition-root, trade-off and timed-debug evidence while preserving blockers.
+  concepts:
+  - id: DOTNET-S09-C01
+    name: Cohesion, composition, SOLID, and dependency direction
+    claim_ids:
+    - W09-C01
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-09-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root bounded manual mapping/safety review203
+      date: '2026-10-04'
+      notes: Scratch learning-data, positive evidence and operational boundaries reviewed; full technical sources/runtime/browser
+        approval open.
+  - id: DOTNET-S09-C02
+    name: Strategy, Factory, Adapter, and shared importer/report contracts
+    claim_ids:
+    - W09-C02
+    - W09-C03
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-09-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root bounded manual mapping/safety review203
+      date: '2026-10-04'
+      notes: Scratch learning-data, positive evidence and operational boundaries reviewed; full technical sources/runtime/browser
+        approval open.
+  - id: DOTNET-S09-C03
+    name: Composition root, abstraction trade-offs, and regression reasoning
+    claim_ids:
+    - W09-C04
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-09-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root bounded manual mapping/safety review203
+      date: '2026-10-04'
+      notes: Scratch learning-data, positive evidence and operational boundaries reviewed; full technical sources/runtime/browser
+        approval open.
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:dotnet-react:stage-09
+    path: 9.md
+    sha256: 36417598af455624d01a54e243a40b97d2ccee8167004a977a622cb22f36fa41
+    byte_length: 8451
+  - role: activity_manual
+    stable_id: activity:dotnet:stage-09
+    path: activities/manual-stage-09.yaml
+    sha256: 0ffe9d293c79bec11b907090e524910cffe6b6e6d227a2179836d32c8d406d9f
+    byte_length: 4428
+  - role: source_ledger
+    stable_id: ledger:dotnet:stage-09
+    path: quality/stage-09-source-ledger.md
+    sha256: f979124e6ccac3be33c1d74a9fcc3297aece8b299374f9d0c598069e141b86e1
+    byte_length: 3180
+external_resources: []

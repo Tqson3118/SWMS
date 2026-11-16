@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Loader2,
+  Search,
   Send,
   Sparkles,
   Trophy,
@@ -77,6 +78,13 @@ interface QuizDetail {
   items: QuizItem[];
 }
 
+const QUIZ_ITEM_TYPE_LABELS: Record<string, string> = {
+  multiple_choice: "Trắc nghiệm",
+  cloze: "Điền khuyết",
+  short_answer: "Trả lời ngắn",
+  essay: "Tự luận",
+};
+
 export default function CourseQuizPage() {
   const params = useParams();
   const courseId = params.id as string;
@@ -84,6 +92,7 @@ export default function CourseQuizPage() {
 
   const [courseTitle, setCourseTitle] = useState("Khóa học");
   const [quizzes, setQuizzes] = useState<QuizListItem[]>([]);
+  const [quizQuery, setQuizQuery] = useState("");
   const [selectedQuizId, setSelectedQuizId] = useState<string | null>(null);
   const [quizDetail, setQuizDetail] = useState<QuizDetail | null>(null);
   const [draftAnswers, setDraftAnswers] = useState<Record<string, string>>({});
@@ -268,7 +277,7 @@ export default function CourseQuizPage() {
             className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-border text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition"
           >
             <Brain className="w-3.5 h-3.5" />
-            <span>Ôn tập FSRS</span>
+            <span>Ôn thẻ ghi nhớ</span>
           </Link>
         </div>
       </div>
@@ -295,10 +304,10 @@ export default function CourseQuizPage() {
         <div className="rounded-lg border border-border bg-bg-secondary p-10 text-center">
           <ClipboardCheck className="w-10 h-10 text-text-tertiary mx-auto mb-3" />
           <h2 className="text-base font-semibold text-text-primary mb-1">
-            Khóa học này chưa có bài quiz nào
+            Khóa học này chưa có bài kiểm tra nào
           </h2>
           <p className="text-sm text-text-secondary mb-6">
-            Bạn có thể học bài giảng hoặc ôn tập bằng thẻ ghi nhớ FSRS trong thời gian chờ.
+            Bạn có thể học bài giảng hoặc ôn tập bằng thẻ ghi nhớ trong thời gian chờ.
           </p>
           <div className="flex items-center justify-center gap-3">
             <Link
@@ -313,85 +322,153 @@ export default function CourseQuizPage() {
               className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-border text-sm font-medium text-text-primary hover:bg-bg-tertiary transition"
             >
               <Brain className="w-4 h-4" />
-              <span>Ôn tập FSRS</span>
+              <span>Ôn thẻ ghi nhớ</span>
             </Link>
           </div>
         </div>
       ) : (
-        <div className="space-y-6">
-          {/* Quiz Selector */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Mobile Quiz Selector Dropdown */}
           {quizzes.length > 1 && (
-            <div className="flex flex-wrap gap-2">
-              {quizzes.map((q) => (
-                <button
-                  key={q.id}
-                  type="button"
-                  onClick={() => handleSelectQuiz(q.id)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium border transition cursor-pointer ${
-                    selectedQuizId === q.id
-                      ? "bg-accent text-white border-accent"
-                      : "bg-bg-secondary text-text-secondary border-border hover:text-text-primary"
-                  }`}
-                >
-                  {q.title}
-                </button>
-              ))}
+            <div className="lg:hidden">
+              <label
+                htmlFor="quiz-mobile-selector"
+                className="block text-xs font-medium text-text-secondary mb-1.5"
+              >
+                Chọn bài kiểm tra ({quizzes.length} bài)
+              </label>
+              <select
+                id="quiz-mobile-selector"
+                data-testid="quiz-mobile-selector"
+                value={selectedQuizId ?? ""}
+                onChange={(e) => handleSelectQuiz(e.target.value)}
+                className="w-full h-9 rounded-md border border-border bg-bg-primary px-3 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent"
+              >
+                {quizzes.map((q) => (
+                  <option key={q.id} value={q.id}>
+                    {q.title} ({q.correctItems}/{q.totalItems} đúng)
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
-          {/* Quiz Summary Banner */}
-          <div className="rounded-lg border border-border bg-bg-secondary p-5 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h2 className="text-base font-semibold text-text-primary">
-                {quizDetail.title}
-              </h2>
-              <p className="text-xs text-text-tertiary mt-1">
-                {quizDetail.items.length} câu hỏi · Trạng thái:{" "}
-                <span className="font-medium text-text-secondary">
-                  {quizDetail.status === "completed" ? "Đã hoàn thành" : "Đang làm"}
+          {/* Desktop 2-Column Sidebar Selector */}
+          {quizzes.length > 1 && (
+            <aside
+              data-testid="quiz-sidebar-selector"
+              className="hidden lg:flex lg:col-span-4 flex-col rounded-lg border border-border bg-bg-secondary p-3.5 sticky top-4"
+            >
+              <div className="flex items-center justify-between gap-2 mb-2.5">
+                <span className="text-xs font-semibold text-text-primary">
+                  Danh sách bài kiểm tra
                 </span>
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="px-3 py-1.5 rounded-md bg-bg-primary border border-border text-sm font-semibold text-text-primary flex items-center gap-1.5">
-                <Trophy className="w-4 h-4 text-amber-500" />
-                <span>
-                  {quizDetail.correctItems}/{quizDetail.totalItems} đúng
+                <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-bg-primary border border-border text-text-tertiary">
+                  {quizzes.length} bài
                 </span>
               </div>
+
+              <div className="relative mb-2.5">
+                <Search className="w-3.5 h-3.5 text-text-tertiary absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  data-testid="quiz-search-input"
+                  value={quizQuery}
+                  onChange={(e) => setQuizQuery(e.target.value)}
+                  placeholder="Lọc bài kiểm tra..."
+                  className="w-full h-8 pl-8 pr-2.5 rounded-md border border-border bg-bg-primary text-xs text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent"
+                />
+              </div>
+
+              <div className="max-h-[460px] overflow-y-auto swms-thin-scrollbar space-y-1 pr-0.5">
+                {quizzes
+                  .filter((q) =>
+                    q.title.toLowerCase().includes(quizQuery.trim().toLowerCase())
+                  )
+                  .map((q) => {
+                    const active = selectedQuizId === q.id;
+                    return (
+                      <button
+                        key={q.id}
+                        type="button"
+                        onClick={() => handleSelectQuiz(q.id)}
+                        className={`w-full text-left px-3 py-2 rounded-md text-xs transition cursor-pointer flex items-center justify-between gap-2 ${
+                          active
+                            ? "bg-accent text-white font-medium"
+                            : "bg-bg-primary text-text-secondary border border-border/60 hover:text-text-primary hover:border-border"
+                        }`}
+                      >
+                        <span className="truncate">{q.title}</span>
+                        <span
+                          className={`text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0 ${
+                            active
+                              ? "bg-white/20 text-white"
+                              : "bg-bg-secondary text-text-tertiary"
+                          }`}
+                        >
+                          {q.correctItems}/{q.totalItems}
+                        </span>
+                      </button>
+                    );
+                  })}
+              </div>
+            </aside>
+          )}
+
+          <div className={`${quizzes.length > 1 ? "lg:col-span-8" : "lg:col-span-12"} space-y-6`}>
+            {/* Quiz Summary Banner */}
+            <div className="rounded-lg border border-border bg-bg-secondary p-5 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-base font-semibold text-text-primary">
+                  {quizDetail.title}
+                </h2>
+                <p className="text-xs text-text-tertiary mt-1">
+                  {quizDetail.items.length} câu hỏi · Trạng thái:{" "}
+                  <span className="font-medium text-text-secondary">
+                    {quizDetail.status === "completed" ? "Đã hoàn thành" : "Đang làm"}
+                  </span>
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="px-3 py-1.5 rounded-md bg-bg-primary border border-border text-sm font-semibold text-text-primary flex items-center gap-1.5">
+                  <Trophy className="w-4 h-4 text-amber-500" />
+                  <span>
+                    {quizDetail.correctItems}/{quizDetail.totalItems} đúng
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Quiz Items */}
-          <div className="space-y-4">
-            {quizDetail.items.map((item, idx) => {
-              const promptObj =
-                typeof item.prompt === "string"
-                  ? { question: item.prompt }
-                  : item.prompt;
-              const questionText =
-                promptObj?.question || `Câu hỏi #${idx + 1}`;
-              const rubricCriteria = promptObj?.rubricCriteria ?? [];
-              const draft = draftAnswers[item.id] ?? "";
-              const isSubmitting = Boolean(submittingIds[item.id]);
-              const isEvaluated = Boolean(item.evaluatedAt);
+            {/* Quiz Items */}
+            <div className="space-y-4">
+              {quizDetail.items.map((item, idx) => {
+                const promptObj =
+                  typeof item.prompt === "string"
+                    ? { question: item.prompt }
+                    : item.prompt;
+                const questionText =
+                  promptObj?.question || `Câu hỏi #${idx + 1}`;
+                const rubricCriteria = promptObj?.rubricCriteria ?? [];
+                const draft = draftAnswers[item.id] ?? "";
+                const isSubmitting = Boolean(submittingIds[item.id]);
+                const isEvaluated = Boolean(item.evaluatedAt);
 
-              return (
-                <div
-                  key={item.id}
-                  data-testid={`quiz-item-${idx + 1}`}
-                  className="rounded-lg border border-border bg-bg-primary p-5 space-y-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <span className="inline-block text-[11px] font-semibold uppercase tracking-wider text-accent bg-accent-subtle px-2 py-0.5 rounded-md mb-2">
-                        Câu {idx + 1} · {item.itemType.replace("_", " ")}
-                      </span>
-                      <h3 className="text-sm font-semibold text-text-primary leading-relaxed">
-                        {questionText}
-                      </h3>
-                    </div>
+                return (
+                  <div
+                    key={item.id}
+                    data-testid={`quiz-item-${idx + 1}`}
+                    className="rounded-lg border border-border bg-bg-primary p-5 space-y-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <span className="inline-block text-[11px] font-semibold text-accent bg-accent-subtle px-2 py-0.5 rounded-md mb-2">
+                          Câu {idx + 1} · {QUIZ_ITEM_TYPE_LABELS[item.itemType] ?? item.itemType.replace("_", " ")}
+                        </span>
+                        <h3 className="text-sm font-semibold text-text-primary leading-relaxed">
+                          {questionText}
+                        </h3>
+                      </div>
 
                     {isEvaluated && item.isCorrect !== null && (
                       <span
@@ -583,6 +660,7 @@ export default function CourseQuizPage() {
                 </div>
               );
             })}
+            </div>
           </div>
         </div>
       )}

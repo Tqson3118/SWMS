@@ -1,0 +1,117 @@
+schema_version: 2.0.0
+package_id: package:fscr:w02
+subject_id: roadmap:subject:fullstack-csharp-react-refresh
+display_title: FullStack C# + React Refresh
+source_status: in_review
+version: 1
+created_at: '2026-10-03T09:21:35Z'
+subject: FullStack C# + React Refresh
+course: FullStack C# + React Refresh
+module: phase-1-week-02
+lesson: week-02
+source_ledger_path: quality/ledger-w02.md
+learning_objectives:
+- id: LO-W02-01
+  bloom_level: Apply
+  statement: Dự đoán scope/closure và viết factory quản lý ngân sách.
+- id: LO-W02-02
+  bloom_level: Apply
+  statement: Dùng map/filter/reduce/find/some với mảng rỗng và không mutate input.
+- id: LO-W02-03
+  bloom_level: Apply
+  statement: Validate số tiền nguyên và viết hàm thuần cho fixture báo cáo.
+concepts:
+- id: concept:fscr:w02-c01
+  name: Scope và closure
+  claim_ids:
+  - W02-C01
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w02.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w02-c02
+  name: Array methods và immutability
+  claim_ids:
+  - W02-C02
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w02.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w02-c03
+  name: Validation, equality và dữ liệu
+  claim_ids:
+  - W02-C03
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w02.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+questions:
+- id: Q02-01
+  lo_ref: LO-W02-01
+  concept_id: concept:fscr:w02-c01
+  claim_ids:
+  - W02-C01
+- id: Q02-02
+  lo_ref: LO-W02-01
+  concept_id: concept:fscr:w02-c01
+  claim_ids:
+  - W02-C01
+- id: Q02-03
+  lo_ref: LO-W02-02
+  concept_id: concept:fscr:w02-c02
+  claim_ids:
+  - W02-C02
+- id: Q02-04
+  lo_ref: LO-W02-02
+  concept_id: concept:fscr:w02-c02
+  claim_ids:
+  - W02-C02
+- id: Q02-05
+  lo_ref: LO-W02-03
+  concept_id: concept:fscr:w02-c03
+  claim_ids:
+  - W02-C03
+- id: Q02-06
+  lo_ref: LO-W02-03
+  concept_id: concept:fscr:w02-c03
+  claim_ids:
+  - W02-C03
+units:
+- unit_id: roadmap:unit:fscr:w02
+  display_title: 'Tuần 02: JavaScript: scope, closure, array và tiền'
+  sort_order: 2
+  artifacts:
+  - role: lesson_theory
+    path: notes/module-1/week-02.html
+    sha256: de3b86ce9ee369d617f41f1486f32a0ff0166f93679f2314ab6a0fd046e3622a
+    byte_length: 9199
+    stable_id: roadmap:lesson:fscr:w02
+  - role: quiz_questions
+    path: assessments/quizzes/week-02-quiz.md
+    sha256: d780ff1dd88ef018aa603c49f912c6990e76c1a8442727b187c7b57df3ba3621
+    byte_length: 1274
+    stable_id: roadmap:quiz:fscr:w02
+    question_count: 6
+  - role: quiz_answers
+    path: assessments/answer-keys/week-02-answers.md
+    sha256: 3b75d9e3529af06a04c157fe68c3423493aa5036647547610e0b6fae8af60992
+    byte_length: 3960
+    stable_id: roadmap:answers:fscr:w02
+    correct_count: 6
+    wrong_count: 18
+  - role: flashcard_deck
+    path: flashcards/week-02.yaml
+    sha256: 4b5b472896502ee738548d36d110fb83da0ee2e314c72029e748b9f4ff7ef42f
+    byte_length: 2003
+    stable_id: roadmap:deck:fscr:w02
+    card_count: 6
+  - role: source_ledger
+    path: quality/ledger-w02.md
+    sha256: 4d180787e876b62477e247cf7e114a026cb89244aa3661b538344bc247186b8b
+    byte_length: 645

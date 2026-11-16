@@ -1,0 +1,174 @@
+schema_version: 2.0.0
+package_id: package:psychology:w32
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 04-love-relationships
+lesson: week-32-jealousy-trust-betrayal
+learning_objectives:
+- id: LO-W32-01
+  bloom_level: Understand
+  statement: Định nghĩa các cấp độ của lòng tin, phân biệt ghen tuông với đố kỵ và các lý thuyết ghen tuông.
+- id: LO-W32-02
+  bloom_level: Apply
+  statement: Nhận diện các bước hành vi minh bạch cần thiết để tái thiết lòng tin sau sự kiện phản bội.
+- id: LO-W32-03
+  bloom_level: Analyze
+  statement: Phân tích tác động của chấn thương phản bội và ảnh hưởng của kiểu gắn bó lên phản ứng bất an.
+- id: LO-W32-04
+  bloom_level: Evaluate
+  statement: Đánh giá rủi ro của việc lãng mạn hóa ghen tuông và phân biệt ghen tuông thông thường với ghen tuông bệnh lý.
+concepts:
+- id: roadmap:concept:psychology:w32-c32-01
+  name: Phân biệt Ghen tuông (Jealousy) & Đố kỵ (Envy) (Parrott & Smith)
+  claim_ids:
+  - C32-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w32-c32-02
+  name: Mô hình Ba cấp độ của Lòng tin (Rempel, Holmes, & Zanna)
+  claim_ids:
+  - C32-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w32-c32-03
+  name: Thuyết tiến hóa ghen tuông & Phản biện nhận thức xã hội (Buss, DeSteno)
+  claim_ids:
+  - C32-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w32-c32-04
+  name: Ghen tuông bệnh lý & Tác hại của việc lãng mạn hóa kiểm soát (Kingham & Gordon)
+  claim_ids:
+  - C32-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w32-c32-05
+  name: Chấn thương niềm tin & Tiến trình phục hồi sau phản bội (Janoff-Bulman, Gordon)
+  claim_ids:
+  - C32-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+questions:
+- id: Q32-01
+  lo_ref: LO-W32-01
+  concept_id: roadmap:concept:psychology:w32-c32-01
+  claim_ids:
+  - C32-01
+- id: Q32-02
+  lo_ref: LO-W32-01
+  concept_id: roadmap:concept:psychology:w32-c32-02
+  claim_ids:
+  - C32-02
+- id: Q32-03
+  lo_ref: LO-W32-01
+  concept_id: roadmap:concept:psychology:w32-c32-03
+  claim_ids:
+  - C32-03
+- id: Q32-04
+  lo_ref: LO-W32-04
+  concept_id: roadmap:concept:psychology:w32-c32-03
+  claim_ids:
+  - C32-03
+- id: Q32-05
+  lo_ref: LO-W32-03
+  concept_id: roadmap:concept:psychology:w32-c32-04
+  claim_ids:
+  - C32-04
+- id: Q32-06
+  lo_ref: LO-W32-03
+  concept_id: roadmap:concept:psychology:w32-c32-05
+  claim_ids:
+  - C32-05
+- id: Q32-07
+  lo_ref: LO-W32-02
+  concept_id: roadmap:concept:psychology:w32-c32-04
+  claim_ids:
+  - C32-04
+- id: Q32-08
+  lo_ref: LO-W32-01
+  concept_id: roadmap:concept:psychology:w32-c32-02
+  claim_ids:
+  - C32-02
+- id: Q32-09
+  lo_ref: LO-W32-01
+  concept_id: roadmap:concept:psychology:w32-c32-05
+  claim_ids:
+  - C32-05
+- id: Q32-10
+  lo_ref: LO-W32-04
+  concept_id: roadmap:concept:psychology:w32-c32-04
+  claim_ids:
+  - C32-04
+- id: Q32-11
+  lo_ref: LO-W32-02
+  concept_id: roadmap:concept:psychology:w32-c32-05
+  claim_ids:
+  - C32-05
+- id: Q32-12
+  lo_ref: LO-W32-04
+  concept_id: roadmap:concept:psychology:w32-c32-04
+  claim_ids:
+  - C32-04
+units:
+- unit_id: roadmap:unit:psychology:w32
+  display_title: 'Tuần 32: Ghen tuông, lòng tin, phản bội và bất an'
+  sort_order: 32
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w32
+    path: notes/04-love-relationships/week-32-jealousy-trust-betrayal.md
+    sha256: 228475105f3f7188684675252ee3f426461b15252ac85faa738c9f4734955cca
+    byte_length: 10843
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w32
+    path: assessments/quizzes/week-32-quiz.md
+    question_count: 12
+    sha256: 7ac6e6a17ba3bf16c92383afd5f9056b69978273ae619be1fc13c967ac79dbd3
+    byte_length: 5158
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w32
+    path: assessments/answer-keys/week-32-answers.md
+    correct_count: 12
+    wrong_count: 36
+    sha256: 9aaa8572f09c5d08d020df8be92da45da7bb33b9f7e1c148de1bc9a283d9aca1
+    byte_length: 6099
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w32
+    path: flashcards/week-32.yaml
+    card_count: 8
+    sha256: 2de6a0187083bf0c9e82fdb5c0d03e563352868464464af2556861e7cd97baf3
+    byte_length: 4766
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

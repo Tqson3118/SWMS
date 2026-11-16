@@ -1,0 +1,117 @@
+schema_version: 2.0.0
+package_id: package:fscr:w03
+subject_id: roadmap:subject:fullstack-csharp-react-refresh
+display_title: FullStack C# + React Refresh
+source_status: in_review
+version: 1
+created_at: '2026-10-03T09:21:35Z'
+subject: FullStack C# + React Refresh
+course: FullStack C# + React Refresh
+module: phase-1-week-03
+lesson: week-03
+source_ledger_path: quality/ledger-w03.md
+learning_objectives:
+- id: LO-W03-01
+  bloom_level: Apply
+  statement: Xử lý submit, render an toàn và event delegation cho list.
+- id: LO-W03-02
+  bloom_level: Apply
+  statement: Tách domain/storage/view module và hiểu import/export qua HTTP.
+- id: LO-W03-03
+  bloom_level: Apply
+  statement: Lưu/đọc JSON có guard và recovery khi dữ liệu hỏng.
+concepts:
+- id: concept:fscr:w03-c01
+  name: DOM và event flow
+  claim_ids:
+  - W03-C01
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w03.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w03-c02
+  name: ES modules và boundary
+  claim_ids:
+  - W03-C02
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w03.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w03-c03
+  name: localStorage và lỗi dữ liệu
+  claim_ids:
+  - W03-C03
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w03.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+questions:
+- id: Q03-01
+  lo_ref: LO-W03-01
+  concept_id: concept:fscr:w03-c01
+  claim_ids:
+  - W03-C01
+- id: Q03-02
+  lo_ref: LO-W03-01
+  concept_id: concept:fscr:w03-c01
+  claim_ids:
+  - W03-C01
+- id: Q03-03
+  lo_ref: LO-W03-02
+  concept_id: concept:fscr:w03-c02
+  claim_ids:
+  - W03-C02
+- id: Q03-04
+  lo_ref: LO-W03-02
+  concept_id: concept:fscr:w03-c02
+  claim_ids:
+  - W03-C02
+- id: Q03-05
+  lo_ref: LO-W03-03
+  concept_id: concept:fscr:w03-c03
+  claim_ids:
+  - W03-C03
+- id: Q03-06
+  lo_ref: LO-W03-03
+  concept_id: concept:fscr:w03-c03
+  claim_ids:
+  - W03-C03
+units:
+- unit_id: roadmap:unit:fscr:w03
+  display_title: 'Tuần 03: DOM, sự kiện, modules và persistence nhỏ'
+  sort_order: 3
+  artifacts:
+  - role: lesson_theory
+    path: notes/module-1/week-03.html
+    sha256: b6b4f5c97ee7d234c1261fe610fe8f251cc3ccb365956853c1d3b8f23175ea48
+    byte_length: 9400
+    stable_id: roadmap:lesson:fscr:w03
+  - role: quiz_questions
+    path: assessments/quizzes/week-03-quiz.md
+    sha256: e82e60bbc336686faaabb8ca87c7aefe1dc95cbc99e459b7a0e8208843b8dbcd
+    byte_length: 1378
+    stable_id: roadmap:quiz:fscr:w03
+    question_count: 6
+  - role: quiz_answers
+    path: assessments/answer-keys/week-03-answers.md
+    sha256: 91a61a841d323e27857ea68ba8e012ccc5c4001790e0c8aa85014e9029cd6269
+    byte_length: 4034
+    stable_id: roadmap:answers:fscr:w03
+    correct_count: 6
+    wrong_count: 18
+  - role: flashcard_deck
+    path: flashcards/week-03.yaml
+    sha256: 3127b9027cfa7853a770af732d2667674f5468089b9e6acfd34aefa8cf809c3e
+    byte_length: 1983
+    stable_id: roadmap:deck:fscr:w03
+    card_count: 6
+  - role: source_ledger
+    path: quality/ledger-w03.md
+    sha256: cb470b97adc91b2f06de7404282ea724db3fe29b7f46e67c26d4e497aceb831c
+    byte_length: 621

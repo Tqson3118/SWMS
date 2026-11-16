@@ -1,0 +1,210 @@
+schema_version: 2.0.0
+package_id: package:personal-finance:w01
+subject_id: roadmap:subject:personal-finance
+display_title: Tài Chính Cá Nhân Thực Hành
+source_status: reviewed
+version: 13
+created_at: '2026-09-13T00:00:00Z'
+subject: Tài chính cá nhân
+course: Tài chính cá nhân thực hành
+module: module-1
+lesson: week-01-money-psychology
+learning_objectives:
+- id: LO-W01-01
+  bloom_level: Understand
+  statement: Định nghĩa và phân biệt tính duy lý giới hạn với giả định Homo Economicus; giải thích Hệ
+    thống 1 và 2.
+- id: LO-W01-02
+  bloom_level: Analyze
+  statement: Phân tích hàm giá trị/điểm tham chiếu và mô tả mất mát định tính trong Prospect Theory1979;
+    không yêu cầu hệ số1992 chưa có body.
+- id: LO-W01-03
+  bloom_level: Analyze
+  statement: Bóc tách biểu hiện của Ảo tưởng kiểm soát và Ngụy biện chi phí chìm; áp dụng nguyên lý chi
+    phí cơ hội.
+- id: LO-W01-04
+  bloom_level: Apply
+  statement: Thảo luận mental accounting và tính thay thế trong case giả định; tính các phương án theo
+    giả định, không bảo đảm phá bỏ thiên kiến.
+- id: LO-W01-05
+  bloom_level: Evaluate
+  statement: Đánh giá rủi ro tư duy bầy đàn, cạm bẫy BNPL và mua sắm bù đắp cảm xúc; áp dụng quy tắc làm
+    nguội 48 giờ.
+concepts:
+- id: roadmap:concept:pf:bounded-rationality
+  name: Tính duy lý giới hạn & Homo Economicus
+  claim_ids:
+  - W01-C01
+  - W01-CAUTH-01
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-source-scope602
+    date: '2026-10-06'
+    notes: Scoped theory versus authored definitions/examples/practice; no universal efficacy
+- id: roadmap:concept:pf:illusion-of-control
+  name: Ảo tưởng kiểm soát (Illusion of Control)
+  claim_ids:
+  - W01-C02
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-source-scope602
+    date: '2026-10-06'
+    notes: Scoped theory versus authored definitions/examples/practice; no universal efficacy
+- id: roadmap:concept:pf:prospect-theory-loss-aversion
+  name: Lý thuyết Triển vọng & Ác cảm mất mát
+  claim_ids:
+  - W01-C03
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-source-scope602
+    date: '2026-10-06'
+    notes: Scoped theory versus authored definitions/examples/practice; no universal efficacy
+- id: roadmap:concept:pf:sunk-cost-fallacy
+  name: Ngụy biện chi phí chìm (Sunk Cost Fallacy)
+  claim_ids:
+  - W01-C04
+  - W01-CAUTH-01
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-source-scope602
+    date: '2026-10-06'
+    notes: Scoped theory versus authored definitions/examples/practice; no universal efficacy
+- id: roadmap:concept:pf:mental-accounting
+  name: Kế toán tâm lý & Tính có thể thay thế của tiền
+  claim_ids:
+  - W01-C05
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-source-scope602
+    date: '2026-10-06'
+    notes: Scoped theory versus authored definitions/examples/practice; no universal efficacy
+- id: roadmap:concept:pf:retail-therapy-bnpl
+  name: Cạm bẫy BNPL & Mua sắm bù đắp cảm xúc
+  claim_ids:
+  - W01-C06
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-source-scope602
+    date: '2026-10-06'
+    notes: Scoped theory versus authored definitions/examples/practice; no universal efficacy
+- id: roadmap:concept:pf:dual-process-theory
+  name: Thuyết Hai Hệ Thống Xử Lý Nhận Thức
+  claim_ids:
+  - W01-C07
+  - W01-CAUTH-01
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-source-scope602
+    date: '2026-10-06'
+    notes: Scoped theory versus authored definitions/examples/practice; no universal efficacy
+questions:
+- id: Q01
+  lo_ref: LO-W01-01
+  concept_id: roadmap:concept:pf:bounded-rationality
+  claim_ids:
+  - W01-C01
+- id: Q02
+  lo_ref: LO-W01-03
+  concept_id: roadmap:concept:pf:illusion-of-control
+  claim_ids:
+  - W01-C02
+- id: Q03
+  lo_ref: LO-W01-03
+  concept_id: roadmap:concept:pf:sunk-cost-fallacy
+  claim_ids:
+  - W01-C04
+  - W01-CAUTH-01
+- id: Q04
+  lo_ref: LO-W01-05
+  concept_id: roadmap:concept:pf:bounded-rationality
+  claim_ids:
+  - W01-C01
+  - W01-CAUTH-01
+- id: Q05
+  lo_ref: LO-W01-05
+  concept_id: roadmap:concept:pf:retail-therapy-bnpl
+  claim_ids:
+  - W01-C06
+- id: Q06
+  lo_ref: LO-W01-01
+  concept_id: roadmap:concept:pf:bounded-rationality
+  claim_ids:
+  - W01-C01
+  - W01-CAUTH-01
+- id: Q07
+  lo_ref: LO-W01-05
+  concept_id: roadmap:concept:pf:dual-process-theory
+  claim_ids:
+  - W01-C07
+  - W01-CAUTH-01
+- id: Q08
+  lo_ref: LO-W01-02
+  concept_id: roadmap:concept:pf:prospect-theory-loss-aversion
+  claim_ids:
+  - W01-C03
+- id: Q09
+  lo_ref: LO-W01-04
+  concept_id: roadmap:concept:pf:mental-accounting
+  claim_ids:
+  - W01-C05
+- id: Q10
+  lo_ref: LO-W01-01
+  concept_id: roadmap:concept:pf:bounded-rationality
+  claim_ids:
+  - W01-C01
+units:
+- unit_id: roadmap:unit:pf:w01
+  display_title: 'Tuần 01: Tâm Lý Tài Chính & Tiền Bạc'
+  sort_order: 1
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:pf:w01
+    path: notes/module-1/week-01-money-psychology.md
+    sha256: 0bac692530af76f47b30a0281e4dc1fc6ed9007f3e2709a62b09f571af087a9a
+    byte_length: 71211
+  - role: quiz_questions
+    stable_id: roadmap:quiz:pf:w01
+    path: assessments/quizzes/week-01-quiz.md
+    question_count: 10
+    sha256: ea69ab8f943e8b8813d15011890facad69079d14b9cfabd4d4891835e503e5c3
+    byte_length: 10540
+  - role: quiz_answers
+    stable_id: roadmap:answers:pf:w01
+    path: assessments/answer-keys/week-01-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: 9a1d7022e268546fe3aa8a22618d2945a8e43bfbf1a1650cdb7cb5ef4b23da16
+    byte_length: 28675
+  - role: flashcard_deck
+    stable_id: roadmap:deck:pf:w01
+    path: flashcards/week-01.yaml
+    card_count: 6
+    sha256: 27f81fdc985fc188d640b1232eccea431f0c7e2c82f8755d15c29b00d8c7be56
+    byte_length: 5790
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: 88778ca2b2273d9c7c5cbe5550fccf00743e4594cceb618e17293a4fc40d42fd
+    byte_length: 19567
+external_resources:
+- resource_id: ext-pf-w01-calc
+  title: Hướng dẫn giáo dục về thẻ tín dụng và chi phí lãi
+  url: https://www.consumerfinance.gov/consumer-tools/credit-cards/
+  type: reference
+  requirement_level: optional
+  task_description: Nhập số tiền nợ thẻ tín dụng 30.000.000 VND và so sánh tổng lãi phải trả sau 1 năm
+    giữa phương án trả tối thiểu 5% và phương án trả dứt điểm bằng tiền thưởng.
+  return_step: Dùng như nguồn đọc thêm; bài học và quiz vẫn tự chứa, không phụ thuộc công cụ bên ngoài.

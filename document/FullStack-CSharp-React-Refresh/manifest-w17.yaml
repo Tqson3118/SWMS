@@ -1,0 +1,117 @@
+schema_version: 2.0.0
+package_id: package:fscr:w17
+subject_id: roadmap:subject:fullstack-csharp-react-refresh
+display_title: FullStack C# + React Refresh
+source_status: in_review
+version: 1
+created_at: '2026-10-03T09:21:35Z'
+subject: FullStack C# + React Refresh
+course: FullStack C# + React Refresh
+module: phase-5-week-17
+lesson: week-17
+source_ledger_path: quality/ledger-w17.md
+learning_objectives:
+- id: LO-W17-01
+  bloom_level: Apply
+  statement: Phân biệt compile-time types với runtime validation.
+- id: LO-W17-02
+  bloom_level: Apply
+  statement: Chia UI theo nhiệm vụ và dùng keys ổn định.
+- id: LO-W17-03
+  bloom_level: Apply
+  statement: Cập nhật immutable và tránh state trùng lặp.
+concepts:
+- id: concept:fscr:w17-c01
+  name: Kiểu dữ liệu tại boundary
+  claim_ids:
+  - W17-C01
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w17.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w17-c02
+  name: Components, props và identity
+  claim_ids:
+  - W17-C02
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w17.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w17-c03
+  name: State và derived values
+  claim_ids:
+  - W17-C03
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w17.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+questions:
+- id: Q17-01
+  lo_ref: LO-W17-01
+  concept_id: concept:fscr:w17-c01
+  claim_ids:
+  - W17-C01
+- id: Q17-02
+  lo_ref: LO-W17-01
+  concept_id: concept:fscr:w17-c01
+  claim_ids:
+  - W17-C01
+- id: Q17-03
+  lo_ref: LO-W17-02
+  concept_id: concept:fscr:w17-c02
+  claim_ids:
+  - W17-C02
+- id: Q17-04
+  lo_ref: LO-W17-02
+  concept_id: concept:fscr:w17-c02
+  claim_ids:
+  - W17-C02
+- id: Q17-05
+  lo_ref: LO-W17-03
+  concept_id: concept:fscr:w17-c03
+  claim_ids:
+  - W17-C03
+- id: Q17-06
+  lo_ref: LO-W17-03
+  concept_id: concept:fscr:w17-c03
+  claim_ids:
+  - W17-C03
+units:
+- unit_id: roadmap:unit:fscr:w17
+  display_title: 'Tuần 17: TypeScript, components và state'
+  sort_order: 17
+  artifacts:
+  - role: lesson_theory
+    path: notes/module-5/week-17.html
+    sha256: d7cd09bd06a6bdbf606bcc57808e88db7c6c3b89be08e20efb8619ed630ea19d
+    byte_length: 8688
+    stable_id: roadmap:lesson:fscr:w17
+  - role: quiz_questions
+    path: assessments/quizzes/week-17-quiz.md
+    sha256: 98cecdf186a9d8440bd131164396208e10e8ca1f390edfc2898bd33e8ede22ac
+    byte_length: 1277
+    stable_id: roadmap:quiz:fscr:w17
+    question_count: 6
+  - role: quiz_answers
+    path: assessments/answer-keys/week-17-answers.md
+    sha256: ab3e705549b9cf298824eda6f20b9e905a3a1be38320bece302c38c38be367dd
+    byte_length: 3968
+    stable_id: roadmap:answers:fscr:w17
+    correct_count: 6
+    wrong_count: 18
+  - role: flashcard_deck
+    path: flashcards/week-17.yaml
+    sha256: d01e9ced4cb3be85b079bf4fa1d68899f4779fb0475af12bfd5823ae908388c7
+    byte_length: 1951
+    stable_id: roadmap:deck:fscr:w17
+    card_count: 6
+  - role: source_ledger
+    path: quality/ledger-w17.md
+    sha256: 42ad878d90d2910b190fda8ce7e6c9a62342168c7ad815777f74902ac022d37d
+    byte_length: 548

@@ -1,0 +1,125 @@
+<h1>Tuần 24 — Cloud deployment, monitoring và recovery</h1>
+<p>Chặng 6; 3 bài L24-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>
+<h2>Mục tiêu và tiên quyết</h2>
+<ul>
+<li>
+<p>LO-W24-01: Triển khai container/SPA với cấu hình production.</p>
+</li>
+<li>
+<p>LO-W24-02: Đo latency/error và truy trace có bảo vệ dữ liệu.</p>
+</li>
+<li>
+<p>LO-W24-03: Diễn tập restore và rollback với schema compatibility.</p>
+</li>
+</ul>
+<p>Tiên quyết: Đạt gate tuần 23; dùng lại fixture và commit trước.</p>
+<h2>Chẩn đoán và phân bổ thời gian</h2>
+<p>Làm <a href="../../assessments/quizzes/week-24-quiz.md">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>
+<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>
+<p><a id="lo-w24-01"></a></p>
+<h2>Bài 1: Deployment runbook</h2>
+<p>LO-W24-01 · W24-C01</p>
+<p>Chọn cloud có managedcontainer và database, viết ADR chi phí/quota/region và cleanup trước tạo resource. Lab tham khảo Azure Container Apps cho APIimage .NET10, static hosting cho React build và managedSQL tương thích SQLServer; không yêu cầu mua cloud lớn. Dùng image digest từ CI, secretsmanager cho DB/auth, HTTPS và exact origins. SPAredirect/providerconfiguration phải khớp publicURL; không giữ localhost production. VITE_API_BASE_URL là build-time public; rebuild client đúng endpoint. Nếu AzureSQL khác localSQL tính năng cần test migration/provider. Deploy schema job một lần, health/readiness rồi smoke tests, chỉ expose API/UI. Không publicRedis/DBports.</p>
+<p><a id="lo-w24-02"></a></p>
+<h2>Bài 2: Logs, metrics và health</h2>
+<p>LO-W24-02 · W24-C02</p>
+<p>Structured logs có traceId/requestID/operation/status/elapsed, không note/token/connectionstring. Metrics requestcount/errorrate/p95latency và dependencyfailures; define cửa sổ đo cùng traffic, không đo một request rồi gọip95. Liveness không DB-heavy; readiness kiểm essential DB, cacheRedis optional có degradedmetric. Monitoring alert có action/runbook, ví dụ5xx&gt;2% trong5phút với mintraffic, đây là project mục tiêu không industryguarantee. Correlate frontendtraceId từ ProblemDetails với serverlog. Tracing useful cho API→SQL/Redis, sampling và redaction giảm overhead. Healthendpoint public trả trạng thái tối giản, không connectiondetails.</p>
+<p><a id="lo-w24-03"></a></p>
+<h2>Bài 3: Backup, rollback và operations</h2>
+<p>LO-W24-03 · W24-C03</p>
+<p>Backup cần retention và restoretest trên DB riêng; RPO là data losswindow mục tiêu, RTO là thời gian khôi phục mục tiêu. Course đặt labRPO24h/RTO60phút để luyện, không bảo đảmcloud tự đạt. Release dùng additive schema trước để old/new app cùng chạy; deletecolumn cần contract/expand-contractphase sau. App rollback vềimage cũ không tự undo destructive migration. Giữ release manifestcommit/image/schema version và runbook thực thi. Smoke loginAlice/Bob,ownership,total,import,restart và tokenexpiry sau rollout. Demo public dùng dữ liệu giả, không finance thật; rotate credentials nếu logs lộ. Cleanup tài nguyên theo runbook khi không dùng.</p>
+<h2>Ví dụ giải từng bước</h2>
+<ol>
+<li>Chọn provider và ghi inventory resource/APIURL/UIURL/image digest/schema; lấy hướng dẫn chính thức theo nguồn tuần.</li>
+<li>Rollout staging với production auth; migrate reviewed SQL một lần, deploy API, kiểm health rồi build/deploy client trỏ URL thật.</li>
+<li>Smoke Alice report100000, Bob0, BobGETAlice404; importkey lặp không duplicate;401expired,409stale.</li>
+<li>Backup DB test và restore vào DBrecovery mới; counts/owner/constraints khớp. Deploy image previous lên staging với schema hiện tại để chứng minh rollback, ghi phút thực tế.</li>
+</ol>
+<h2>Đào sâu và lỗi thường gặp</h2>
+<p>Cloud 'running' không chứng minh route/auth/DB. Đừng dùng Developerexceptionpage để debugpublic. Hosting có thể đổi support/price: đọc provider docs khi làm lab và ghi ngày/version; course không khóa giá. Không thực hiện cloud deploy thay user trong quá trình tạo course.</p>
+<h2>Bài tập thực hành</h2>
+<h3>Bài tập 1</h3>
+<p>Sau deploy refresh /reports404 nhưng root200. Sửa gì?</p>
+<h3>Bài tập 2</h3>
+<p>Oldimage rollback fail vì cột đãdrop. Viết prevention.</p>
+<h2>Hướng dẫn giải bài tập</h2>
+<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>
+<h3>Hướng giải 1</h3>
+<p>Static host cần SPAfallback UI routes; backend /api không fallback. Kiểm builtAPIURL và CORS, không sửa controller chỉ vì UIroute.</p>
+<h3>Hướng giải 2</h3>
+<p>Expand-contract migrations và compatibility test; additive schema trước, old/new code cùng pass. Restore backup có dataloss và cần runbook, không rollback SQL blind.</p>
+<h2>Project task</h2>
+<p>Triển khai bảndemo giả lập dữ liệu lên cloud học viên chọn; thêm monitoring/health/backup restore/rollback runbook và release evidence. Nếu cloud chưa làm thì không đánh dấugate nàyđạt.</p>
+<p>Theo <a href="../../project-spec.md">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w24.md của repo học viên. Không lưu secret.</p>
+<h2>Acceptance và rubric</h2>
+<ul>
+<li>
+<p>[ ] PublicHTTPSUI/API hoạt động login/provider và Alice/Bobownership; no devtoken/dev exception.</p>
+</li>
+<li>
+<p>[ ] Logs nối traceId, dashboard/erroralert có thử failure và không secrets.</p>
+</li>
+<li>
+<p>[ ] Restore vào DBriêng khớp fixture; rollback staging compatibility pass, ghi RPO/RTO thực tế và cleanup.</p>
+</li>
+<li>
+<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>
+</li>
+<li>
+<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Tiêu chí</th>
+<th>0 Chưa đạt</th>
+<th>1 Đang phát triển</th>
+<th>2 Đạt</th>
+<th>3 Vững</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hiểu cơ chế</td>
+<td>Không giải thích</td>
+<td>Lặp tên API</td>
+<td>Nói input/output và cơ chế tuần</td>
+<td>So sánh phương án và điều kiện biên</td>
+</tr>
+<tr>
+<td>Practice</td>
+<td>Chưa chạy</td>
+<td>Chỉ happy path</td>
+<td>Đúng output và edge cases</td>
+<td>Tự thêm regression có ý nghĩa</td>
+</tr>
+<tr>
+<td>Project</td>
+<td>Chưa có feature</td>
+<td>Copy chưa chứng minh</td>
+<td>Mọi gate tuần có evidence</td>
+<td>Tái hiện/sửa lỗi không xem lời giải</td>
+</tr>
+</tbody>
+</table>
+<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>
+<h2>English và ôn tập</h2>
+<p>Thu demo deployment3 phút; giải thích 'What would you do if this release caused errors?' với rollback/schema/restore.</p>
+<p><a href="../../english-practice.md">Nhịp 30–60 phút/ngày</a></p>
+<h2>Nguồn và kiểm chứng</h2>
+<ul>
+<li>
+<p><a href="https://learn.microsoft.com/en-us/azure/container-apps/get-started?tabs=azure-cli">Container Apps deployment quickstart</a> — W24-C01; primary. HTTP: 200; section xem ledger.</p>
+</li>
+<li>
+<p><a href="https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-10.0">Liveness and readiness checks</a> — W24-C02; primary. HTTP: 200; section xem ledger.</p>
+</li>
+<li>
+<p><a href="https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/applying">Reviewing and applying production migrations</a> — W24-C03; primary. HTTP: 200; section xem ledger.</p>
+</li>
+</ul>
+<h2>Liên kết ôn tập và tuần liên quan</h2>
+<p><a href="../../assessments/quizzes/week-24-quiz.md">Quiz</a> · <a href="../../assessments/answer-keys/week-24-answers.md">Đáp án</a> · <a href="../../flashcards/week-24.yaml">Flashcards</a> · <a href="../../quality/source-ledger.md">Ledger</a></p>
+<p><a href="week-23.md">Tuần trước</a></p>
+<p><a href="../module-7/week-25.md">Tuần tiếp</a></p>

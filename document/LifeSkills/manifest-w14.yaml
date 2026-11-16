@@ -1,0 +1,134 @@
+schema_version: 2.0.0
+package_id: package:lifeskills:w14
+subject_id: roadmap:subject:lifeskills
+display_title: LifeSkills — Tình cảm, Giao tiếp & Kỹ năng sống
+source_status: in_review
+version: 9
+created_at: '2026-09-22T00:00:00Z'
+subject: LifeSkills
+course: Tự học LifeSkills 16 tuần
+module: module-4
+lesson: week-14-decision-making
+learning_objectives:
+- id: LO-W14-01
+  bloom_level: Understand
+  statement: Trình bày quy trình gồm câu hỏi, tiêu chí, phương án, dữ kiện và thời điểm review; phân biệt quyết
+    định tốt với kết quả tốt.
+- id: LO-W14-02
+  bloom_level: Apply
+  statement: Sinh ít nhất ba phương án và ghi tiêu chí, dữ kiện thiếu, điều kiện cập nhật.
+- id: LO-W14-03
+  bloom_level: Apply
+  statement: Viết premortem có hai kịch bản và dùng outside view cho case giả định.
+- id: LO-W14-04
+  bloom_level: Evaluate
+  statement: Nhận diện confirmation bias, sunk cost và anchoring trong tình huống ngắn; nêu một giới hạn debiasing.
+concepts:
+- id: roadmap:concept:lifeskills:w14:decision-biases
+  name: Thiên kiến và decision journal
+  claim_ids:
+  - W14-C01
+  evidence_label: preliminary
+  source_ledger_path: quality/module-4-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: Bounded definitions, teaching/card coverage, quiz feedback and source classification checked in continuation-life324.
+      Authored practices and abstract-level sources separated; full source/course/learner approval not claimed.
+- id: roadmap:concept:lifeskills:w14:premortem-uncertainty
+  name: Premortem, ngưỡng dừng và bất định
+  claim_ids:
+  - W14-C02
+  evidence_label: preliminary
+  source_ledger_path: quality/module-4-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: Bounded definitions, teaching/card coverage, quiz feedback and source classification checked in continuation-life324.
+      Authored practices and abstract-level sources separated; full source/course/learner approval not claimed.
+questions:
+- id: Q14-01
+  lo_ref: LO-W14-01
+  concept_id: roadmap:concept:lifeskills:w14:decision-biases
+  claim_ids:
+  - W14-C01
+- id: Q14-02
+  lo_ref: LO-W14-01
+  concept_id: roadmap:concept:lifeskills:w14:premortem-uncertainty
+  claim_ids:
+  - W14-C02
+- id: Q14-03
+  lo_ref: LO-W14-01
+  concept_id: roadmap:concept:lifeskills:w14:decision-biases
+  claim_ids:
+  - W14-C01
+- id: Q14-04
+  lo_ref: LO-W14-01
+  concept_id: roadmap:concept:lifeskills:w14:premortem-uncertainty
+  claim_ids:
+  - W14-C02
+- id: Q14-05
+  lo_ref: LO-W14-02
+  concept_id: roadmap:concept:lifeskills:w14:decision-biases
+  claim_ids:
+  - W14-C01
+- id: Q14-06
+  lo_ref: LO-W14-02
+  concept_id: roadmap:concept:lifeskills:w14:premortem-uncertainty
+  claim_ids:
+  - W14-C02
+- id: Q14-07
+  lo_ref: LO-W14-03
+  concept_id: roadmap:concept:lifeskills:w14:premortem-uncertainty
+  claim_ids:
+  - W14-C02
+- id: Q14-08
+  lo_ref: LO-W14-03
+  concept_id: roadmap:concept:lifeskills:w14:premortem-uncertainty
+  claim_ids:
+  - W14-C02
+- id: Q14-09
+  lo_ref: LO-W14-04
+  concept_id: roadmap:concept:lifeskills:w14:decision-biases
+  claim_ids:
+  - W14-C01
+- id: Q14-10
+  lo_ref: LO-W14-04
+  concept_id: roadmap:concept:lifeskills:w14:premortem-uncertainty
+  claim_ids:
+  - W14-C02
+units:
+- unit_id: roadmap:unit:lifeskills:w14
+  display_title: 'Tuần 14: Ra quyết định và thiên kiến nhận thức: Tạo quy trình giảm sai sót'
+  sort_order: 14
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:lifeskills:w14
+    path: notes/module-4/week-14-decision-making.md
+    sha256: 01b02dcef3c75fff939b9597b26148545ef5deb03ff7f474ec73acaff4f7aa22
+    byte_length: 15226
+  - role: quiz_questions
+    stable_id: roadmap:quiz:lifeskills:w14
+    path: assessments/quizzes/week-14-quiz.md
+    question_count: 10
+    sha256: 1d01bf64a0f6cfd6f677a73f5fa20fc3f95e034272eeea59471f3fb13f6bca65
+    byte_length: 6364
+  - role: quiz_answers
+    stable_id: roadmap:answers:lifeskills:w14
+    path: assessments/answer-keys/week-14-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: 6e8fe0342f7a074d7a150a570c81add42594c475f1185bc87ed13ad679390e1f
+    byte_length: 11421
+  - role: flashcard_deck
+    stable_id: roadmap:deck:lifeskills:w14
+    path: flashcards/week-14.yaml
+    card_count: 15
+    sha256: b3fb5146d7073adab4a497bb0e1d8db171eaf98ebd43feea4234f7f5f908e53b
+    byte_length: 7119
+  - role: source_ledger
+    path: quality/module-4-source-ledger.md
+    sha256: 9cbb46c502e19d93ef8907564205b43262abe5df8ce767cecfa0438d68bddfd8
+    byte_length: 6743

@@ -1,0 +1,57 @@
+stable_id: activity:dotnet:stage-14
+type: manual
+title: Stage 14 Deployment artifacts, health checks, observability, and recovery rehearsal evidence
+instructions: 'This single manual unit maps to the complete original 14.md. Use a learner-owned scratch project
+  and synthetic learning data. Source status remains draft; this is guided evidence, not course, runtime or operational
+  approval. Record environment, commands, inputs, expected outcomes, observed outputs and exact blockers. Each rubric
+  criterion earns its one point only when all named positive evidence is present; unavailable or unperformed observations
+  earn zero.
+
+
+  Complete Stage 13 first. Use a learner-owned isolated environment and synthetic data only. Record build commit,
+  SDK/runtime, image/artifact version and startup command. Review Docker build context and .dockerignore before
+  COPY . .; exclude secrets and private files. Keep secrets outside image, repository, frontend bundle and logs.
+  Record configuration names without values. VITE-prefixed frontend values are public. Verify local/staging configuration,
+  HTTPS/CORS and SPA refresh routing without publishing production.
+
+
+  Describe and rehearse the PR checks -> artifact -> isolated staging -> migration -> deployment sequence. Preserve
+  explicit production approval as a future gate. Record schema/code compatibility for expand/contract, migration
+  failure and an older application artifact; code rollback is not automatic schema rollback. This activity does
+  not authorize a production deployment or destructive migration.
+
+
+  Separate liveness from readiness, record what each endpoint checks, and observe a simulated dependency outage
+  in the isolated environment. Keep health responses free of internal data. Show structured logs with correlation
+  ID, route/status/elapsed time but no passwords/tokens/private notes, plus the chapter''s four metrics and a traced
+  request. A health 200 alone is not proof of database readiness.
+
+
+  Back up synthetic learning data and restore into a NEW separately named learning database. Compare row counts,
+  a report result, migration state and elapsed time; state assumptions about possible data loss. Do not delete or
+  overwrite the original, any live database or learner data. Rehearse recovery from an unhealthy artifact, 500s/slow
+  query, incompatible migration and external-service failure; collect evidence and distinguish code rollback, schema
+  compatibility and data recovery. Complete the 45-minute incident exercise, final vertical slice and interview
+  reasoning. Redis/queues/SignalR/microservices/Kubernetes remain optional extensions.'
+expected_output: An evidence folder containing the implementation/diff, environment and commands, expected/observed
+  case table, relevant test/browser/profiler or recovery records, and a blocker list. Redact secrets and private
+  data. Optional extensions are not required for the four-point core rubric.
+completion_mode: learner_attest
+rubric:
+- criterion: Reproducible artifact and configuration boundary
+  evidence: Recorded commit/runtime/artifact plus observed startup/routing/configuration, with build-context and
+    secret exclusion evidence.
+  max_points: 1
+- criterion: Pipeline and migration compatibility
+  evidence: Isolated rehearsal results and old/new schema-code compatibility matrix, including a genuine migration-failure
+    handling observation.
+  max_points: 1
+- criterion: Health and observability
+  evidence: Observed liveness/readiness during dependency outage, redacted correlated logs, four metrics and traced
+    request.
+  max_points: 1
+- criterion: Restore and recovery evidence
+  evidence: New-database restore comparisons and elapsed time, code/schema/data recovery distinctions and incident/vertical-slice
+    explanation; no destructive action required.
+  max_points: 1
+resources: []

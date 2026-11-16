@@ -1,0 +1,144 @@
+<h1>Tuần 01 — HTML/CSS và giao diện có thể sử dụng</h1>
+<p>Chặng 1; 3 bài L01-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>
+<h2>Mục tiêu và tiên quyết</h2>
+<ul>
+<li>
+<p>LO-W01-01: Dựng form và danh sách khoản chi dùng semantic elements, label và bàn phím.</p>
+</li>
+<li>
+<p>LO-W01-02: Giải thích box model và chọn Flexbox/Grid cho layout chi tiêu.</p>
+</li>
+<li>
+<p>LO-W01-03: Kiểm tra UI ở 320/768/1280px, zoom và keyboard; sửa lỗi overflow.</p>
+</li>
+</ul>
+<p>Tiên quyết: Hoàn thành setup, đọc project-spec; đã từng học biến/hàm/if/loop.</p>
+<h2>Chẩn đoán và phân bổ thời gian</h2>
+<p>Làm <a href="../../assessments/quizzes/week-01-quiz.md">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>
+<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>
+<p><a id="lo-w01-01"></a></p>
+<h2>Bài 1: Semantic HTML và form</h2>
+<p>LO-W01-01 · W01-C01</p>
+<p>HTML biểu diễn ý nghĩa, CSS biểu diễn cách nhìn. Dùng header cho đầu trang, main cho nội dung chính, nav cho điều hướng; mỗi trang có heading mô tả nhiệm vụ. Form gom input cùng submit, label for phải khớp id. Input name quyết định key FormData; id chỉ định vị phần tử. button mặc định có thể submit trong form nên nút xóa đặt type="button". required/min/maxlength hỗ trợ người dùng nhưng backend vẫn phải validate. Table cần caption và th scope="col" khi dữ liệu có cột; danh sách ngắn có thể dùng ul/li. Giữ focus thấy rõ, thao tác Tab/Enter phải thực hiện cùng hành vi với chuột. aria-live="polite" thông báo kết quả; không đặt aria lên mọi div để thay semantic sẵn có.</p>
+<p><a id="lo-w01-02"></a></p>
+<h2>Bài 2: Box model, Flexbox, Grid</h2>
+<p>LO-W01-02 · W01-C02</p>
+<p>Mặc định width chỉ content; padding và border tăng kích thước thực. box-sizing:border-box gộp padding/border trong width nên form dễ vừa container. Margin nằm ngoài box. Flexbox bố trí theo một trục chính; flex-wrap cho hàng tự xuống dòng. Grid bố trí hai chiều; repeat(auto-fit,minmax(240px,1fr)) tạo cột co giãn cho dashboard. Cột hẹp có thể minmax(0,1fr) để content dài không ép grid tràn. Không dùng absolute positioning cho toàn trang vì phần tử thoát normal flow. Cascade xét origin/importance/layer rồi specificity và thứ tự; tránh tăng !important khi chưa xem Computed styles. Dùng class cho thành phần và token CSS :root cho màu/spacing; dark/light sau này thay token.</p>
+<p><a id="lo-w01-03"></a></p>
+<h2>Bài 3: Responsive và accessibility</h2>
+<p>LO-W01-03 · W01-C03</p>
+<p>Responsive bắt đầu từ nội dung: viewport meta đặt width=device-width,initial-scale=1. Dùng max-width cho container, gap linh hoạt, media query ở điểm nội dung khó đọc thay vì học thuộc một kích thước điện thoại. Bảng rộng có vùng overflow-x:auto riêng, không làm toàn body cuộn ngang. Không tắt zoom. Focus-visible có outline tương phản; lỗi form có text, không chỉ màu đỏ. Font relative và zoom 200% phải còn đọc/thao tác được. Ảnh dùng max-width:100%; không đặt width cứng cho input. Kiểm tra layout trên browser thực, thu screenshot từng width và ghi lỗi; công cụ tự động hỗ trợ nhưng không thay thao tác bàn phím.</p>
+<h2>Ví dụ giải từng bước</h2>
+<ol>
+<li>Bài toán: form thêm khoản chi có số tiền, ngày và ghi chú, dashboard 2 card.</li>
+<li>Chọn semantic form và grid; chưa xử lý lưu dữ liệu.</li>
+<li>Tạo index.html và style.css theo setup:</li>
+</ol>
+<pre><code class="language-html">&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;main&gt;&lt;h1&gt;Sổ chi tiêu&lt;/h1&gt;
+&lt;form id=&quot;expense-form&quot;&gt;
+&lt;label for=&quot;amount&quot;&gt;Số tiền VND&lt;/label&gt;
+&lt;input id=&quot;amount&quot; name=&quot;amountVnd&quot; type=&quot;number&quot; min=&quot;1&quot; max=&quot;1000000000&quot; step=&quot;1&quot; required&gt;
+&lt;label for=&quot;spent&quot;&gt;Ngày chi&lt;/label&gt;
+&lt;input id=&quot;spent&quot; name=&quot;spentOn&quot; type=&quot;date&quot; required&gt;
+&lt;button type=&quot;submit&quot;&gt;Thêm khoản chi&lt;/button&gt;
+&lt;/form&gt;&lt;p id=&quot;message&quot; aria-live=&quot;polite&quot;&gt;&lt;/p&gt;
+&lt;section class=&quot;cards&quot; aria-label=&quot;Tổng quan&quot;&gt;&lt;h2&gt;Tổng tháng&lt;/h2&gt;&lt;p&gt;100.000 ₫&lt;/p&gt;&lt;/section&gt;
+&lt;/main&gt;
+</code></pre>
+<pre><code class="language-css">* { box-sizing: border-box; }
+main { max-width: 64rem; margin: auto; padding: 1rem; }
+form { display: flex; flex-wrap: wrap; gap: .75rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit,minmax(15rem,1fr)); gap: 1rem; }
+:focus-visible { outline: 3px solid #2458a6; outline-offset: 3px; }
+</code></pre>
+<ol>
+<li>Expected: click label đưa focus vào input; Tab đến submit; browser chặn rỗng; ở 320px form xuống hàng. Thử width 100% + padding trước/sau border-box để thấy khác biệt.</li>
+</ol>
+<h2>Đào sâu và lỗi thường gặp</h2>
+<p>Lỗi: placeholder không thay label; div onclick thiếu keyboard semantics; display:none trên error làm screen reader không nhận khi chưa hiện lại đúng lúc. Inspect accessibility tree để kiểm tra tên accessible. So sánh flex row và grid hai cột bằng cùng fixture; layout không được thay thứ tự đọc chỉ để trông đẹp.</p>
+<h2>Bài tập thực hành</h2>
+<h3>Bài tập 1</h3>
+<p>Tạo bảng 3 khoản fixture. Thử tên danh mục dài 80 ký tự và zoom 200%.</p>
+<h3>Bài tập 2</h3>
+<p>Form có nút Xóa và Thêm. Enter đang ở amount phải làm gì?</p>
+<h2>Hướng dẫn giải bài tập</h2>
+<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>
+<h3>Hướng giải 1</h3>
+<p>Dùng table/caption/thead/tbody và th scope; bọc div overflow-x:auto. Container max-width, word wrapping cho note. Expected tổng body không tràn, bảng vẫn đọc và cuộn riêng.</p>
+<h3>Hướng giải 2</h3>
+<p>Đặt Xóa type=button, Thêm type=submit. Enter kích hoạt submit; kiểm tra required/min. Dùng Tab để focus được cả hai, không xóa ngẫu nhiên.</p>
+<h2>Project task</h2>
+<p>Tạo UI tĩnh với fixture Alice, form, table và tổng. Viết README chạy HTTP server và commit ui-static. Chưa dùng framework để che lỗi HTML/CSS.</p>
+<p>Theo <a href="../../project-spec.md">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w01.md của repo học viên. Không lưu secret.</p>
+<h2>Acceptance và rubric</h2>
+<ul>
+<li>
+<p>[ ] UI fixture hiện 3 dòng và tổng 100000 VND.</p>
+</li>
+<li>
+<p>[ ] Ở 320/768/1280px và zoom 200%, không mất input/nút; bảng cuộn riêng nếu cần.</p>
+</li>
+<li>
+<p>[ ] Label click focus đúng; Tab/Enter sử dụng được form; nút xóa không submit.</p>
+</li>
+<li>
+<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>
+</li>
+<li>
+<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Tiêu chí</th>
+<th>0 Chưa đạt</th>
+<th>1 Đang phát triển</th>
+<th>2 Đạt</th>
+<th>3 Vững</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hiểu cơ chế</td>
+<td>Không giải thích</td>
+<td>Lặp tên API</td>
+<td>Nói input/output và cơ chế tuần</td>
+<td>So sánh phương án và điều kiện biên</td>
+</tr>
+<tr>
+<td>Practice</td>
+<td>Chưa chạy</td>
+<td>Chỉ happy path</td>
+<td>Đúng output và edge cases</td>
+<td>Tự thêm regression có ý nghĩa</td>
+</tr>
+<tr>
+<td>Project</td>
+<td>Chưa có feature</td>
+<td>Copy chưa chứng minh</td>
+<td>Mọi gate tuần có evidence</td>
+<td>Tái hiện/sửa lỗi không xem lời giải</td>
+</tr>
+</tbody>
+</table>
+<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>
+<h2>English và ôn tập</h2>
+<p>Đọc docs label/box model, ghi semantic element, focus, overflow, layout, validation. Thu: 'How does this form remain usable on a small screen?'</p>
+<p><a href="../../english-practice.md">Nhịp 30–60 phút/ngày</a></p>
+<h2>Nguồn và kiểm chứng</h2>
+<ul>
+<li>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label">Associating a label with a form control</a> — W01-C01; primary. HTTP: 200; section xem ledger.</p>
+</li>
+<li>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_model/Introduction_to_the_CSS_box_model">Parts of the CSS box model</a> — W01-C02; primary. HTTP: 200; section xem ledger.</p>
+</li>
+<li>
+<p><a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout/Responsive_Design">Responsive design</a> — W01-C03; primary. HTTP: 200; section xem ledger.</p>
+</li>
+</ul>
+<h2>Liên kết ôn tập và tuần liên quan</h2>
+<p><a href="../../assessments/quizzes/week-01-quiz.md">Quiz</a> · <a href="../../assessments/answer-keys/week-01-answers.md">Đáp án</a> · <a href="../../flashcards/week-01.yaml">Flashcards</a> · <a href="../../quality/source-ledger.md">Ledger</a></p>
+<p><a href="week-02.md">Tuần tiếp</a></p>

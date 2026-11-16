@@ -1,0 +1,174 @@
+schema_version: 2.0.0
+package_id: package:psychology:w35
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 05-development-mental-health
+lesson: week-35-lifespan-development
+learning_objectives:
+- id: LO-W35-01
+  bloom_level: Understand
+  statement: So sánh các giai đoạn phát triển nhận thức của Piaget và các giai đoạn phát triển tâm lý xã hội của Erikson.
+- id: LO-W35-02
+  bloom_level: Analyze
+  statement: Giải thích sự phát triển bất đồng bộ của não bộ ở tuổi vị thành niên và mối liên hệ với hành vi tìm kiếm rủi ro.
+- id: LO-W35-03
+  bloom_level: Apply
+  statement: Nhận diện các yếu tố duy trì tính mềm dẻo não bộ và sự phát triển trí tuệ kết tinh trong giai đoạn lão hóa.
+- id: LO-W35-04
+  bloom_level: Evaluate
+  statement: Đánh giá giới hạn của các lý thuyết phát triển giai đoạn kinh điển và phản biện các huyền thoại pop psychology.
+concepts:
+- id: roadmap:concept:psychology:w35-c35-01
+  name: Góc nhìn phát triển suốt đời (Baltes, 1987)
+  claim_ids:
+  - C35-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w35-c35-02
+  name: Các giai đoạn phát triển nhận thức Piaget & Hiệu chỉnh thực nghiệm (Baillargeon)
+  claim_ids:
+  - C35-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w35-c35-03
+  name: Tám giai đoạn phát triển tâm lý xã hội Erikson & Bốn trạng thái bản sắc Marcia
+  claim_ids:
+  - C35-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w35-c35-04
+  name: Não bộ tuổi vị thành niên & Mô hình hệ thống kép Steinberg
+  claim_ids:
+  - C35-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w35-c35-05
+  name: Trí tuệ linh hoạt và trí tuệ kết tinh trong quá trình lão hóa (Cattell, Horn)
+  claim_ids:
+  - C35-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+questions:
+- id: Q35-01
+  lo_ref: LO-W35-01
+  concept_id: roadmap:concept:psychology:w35-c35-01
+  claim_ids:
+  - C35-01
+- id: Q35-02
+  lo_ref: LO-W35-01
+  concept_id: roadmap:concept:psychology:w35-c35-02
+  claim_ids:
+  - C35-02
+- id: Q35-03
+  lo_ref: LO-W35-04
+  concept_id: roadmap:concept:psychology:w35-c35-02
+  claim_ids:
+  - C35-02
+- id: Q35-04
+  lo_ref: LO-W35-01
+  concept_id: roadmap:concept:psychology:w35-c35-03
+  claim_ids:
+  - C35-03
+- id: Q35-05
+  lo_ref: LO-W35-01
+  concept_id: roadmap:concept:psychology:w35-c35-03
+  claim_ids:
+  - C35-03
+- id: Q35-06
+  lo_ref: LO-W35-02
+  concept_id: roadmap:concept:psychology:w35-c35-04
+  claim_ids:
+  - C35-04
+- id: Q35-07
+  lo_ref: LO-W35-02
+  concept_id: roadmap:concept:psychology:w35-c35-04
+  claim_ids:
+  - C35-04
+- id: Q35-08
+  lo_ref: LO-W35-03
+  concept_id: roadmap:concept:psychology:w35-c35-05
+  claim_ids:
+  - C35-05
+- id: Q35-09
+  lo_ref: LO-W35-03
+  concept_id: roadmap:concept:psychology:w35-c35-05
+  claim_ids:
+  - C35-05
+- id: Q35-10
+  lo_ref: LO-W35-04
+  concept_id: roadmap:concept:psychology:w35-c35-01
+  claim_ids:
+  - C35-01
+- id: Q35-11
+  lo_ref: LO-W35-03
+  concept_id: roadmap:concept:psychology:w35-c35-05
+  claim_ids:
+  - C35-05
+- id: Q35-12
+  lo_ref: LO-W35-04
+  concept_id: roadmap:concept:psychology:w35-c35-03
+  claim_ids:
+  - C35-03
+units:
+- unit_id: roadmap:unit:psychology:w35
+  display_title: 'Tuần 35: Phát triển suốt đời — Trẻ em, vị thành niên, trưởng thành và tuổi già'
+  sort_order: 35
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w35
+    path: notes/05-development-mental-health/week-35-lifespan-development.md
+    sha256: 908311f6ad46833de84f4acd4e5acd9eea3d29652e6aa350b7c095fb802d0747
+    byte_length: 44929
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w35
+    path: assessments/quizzes/week-35-quiz.md
+    question_count: 12
+    sha256: 9b72fec16967a280216500de65dc45edb4052e78734c9edbd8fbf31c6331b615
+    byte_length: 8839
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w35
+    path: assessments/answer-keys/week-35-answers.md
+    correct_count: 12
+    wrong_count: 36
+    sha256: a5e4530ba8af3631b73709451c38fdef17a560b813e93e547190b3d3ce2340b4
+    byte_length: 8579
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w35
+    path: flashcards/week-35.yaml
+    card_count: 8
+    sha256: 84cace53908a04d76d87b6c052536477a3be751c735db9e2a692b969c1ad713c
+    byte_length: 6492
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

@@ -1,0 +1,121 @@
+deck_id: "deck-psy-w12"
+subject: "Psychology"
+lesson_id: "week-12-self-concept-identity"
+version: "1.0.0"
+description: "Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng (Spaced Repetition - R5 Compliant) Tuần 12: Khái Niệm Bản Thân, Lòng Tự Trọng và Bản Sắc Cá Nhân"
+
+cards:
+  - id: "fc-psy-w12-001"
+    concept: "Khái niệm Bản thân và Thí nghiệm Nhận diện qua Gương (Rouge Test)"
+    front: "Thí nghiệm Rouge Test (Gallup, 1970; Amsterdam, 1972) kiểm tra khả năng tự nhận thức bằng hành vi nào và xuất hiện ở độ tuổi nào?"
+    back: "Khi trẻ nhìn vào gương và lập tức đưa tay lên sờ vào chính mũi mình để lau vệt son đỏ (chứ không chạm vào gương), trẻ chứng tỏ đã nhận ra hình ảnh phản chiếu là chính mình. Mốc tự nhận thức sơ khai này xuất hiện vững chắc ở trẻ từ 18 đến 24 tháng tuổi."
+    source_lesson: "Psychology/notes/02-understanding-self/week-12-self-concept-identity.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C12-01"
+    tags:
+      - "self-concept"
+      - "rouge-test"
+      - "gallup"
+      - "amsterdam"
+      - "self-awareness"
+
+  - id: "fc-psy-w12-002"
+    concept: "Thuyết Bản thân Carl Rogers: Sự Tương hợp vs Bất tương hợp"
+    front: "Theo Carl Rogers, cấu trúc khái niệm bản thân gồm hai thành tố nào và Sự tương hợp (Congruence) khác Bất tương hợp (Incongruence) ra sao?"
+    back: "Gồm Bản thân thực tế (Real Self) và Bản thân lý tưởng (Ideal Self). Sự tương hợp: Real Self và Ideal Self giao thoa lớn, đem lại lòng tự trọng lành mạnh và khả năng vận hành đầy đủ. Sự bất tương hợp: khoảng cách giữa hai yếu tố quá lớn, tạo ra lo âu thường trực và cơ chế tự vệ phòng thủ."
+    source_lesson: "Psychology/notes/02-understanding-self/week-12-self-concept-identity.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C12-02"
+    tags:
+      - "carl-rogers"
+      - "real-self"
+      - "ideal-self"
+      - "congruence"
+      - "incongruence"
+
+  - id: "fc-psy-w12-003"
+    concept: "Phân biệt Lòng Tự trọng (Rosenberg) và Niềm tin Năng lực (Bandura)"
+    front: "Phân biệt Lòng tự trọng (Self-Esteem) và Niềm tin vào năng lực bản thân (Self-Efficacy) theo bản chất tâm lý và phạm vi áp dụng?"
+    back: "Self-Esteem (Rosenberg): đánh giá cảm xúc tổng thể mang tính toàn cục về giá trị nhân phẩm của bản thân ('Tôi có đáng giá không?'). Self-Efficacy (Bandura): niềm tin nhận thức mang tính bối cảnh cụ thể vào khả năng thực hiện thành công hành vi trong lĩnh vực nhất định ('Tôi có làm được việc này không?')."
+    source_lesson: "Psychology/notes/02-understanding-self/week-12-self-concept-identity.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C12-03"
+    tags:
+      - "self-esteem"
+      - "self-efficacy"
+      - "rosenberg"
+      - "bandura"
+
+  - id: "fc-psy-w12-004"
+    concept: "Thuyết Thước đo Xã hội (Sociometer Theory) của Mark Leary"
+    front: "Thuyết Thước đo Xã hội (Sociometer Theory) giải thích chức năng tiến hóa của lòng tự trọng con người như thế nào?"
+    back: "Lòng tự trọng không phải kho cảm xúc tự khen, mà là chiếc đồng hồ đo tâm lý tiến hóa liên tục giám sát mức độ cá nhân được nhóm xã hội chấp nhận hay có nguy cơ bị tẩy chay, bài xích. Lòng tự trọng giảm sút phát tín hiệu đau đớn tâm lý để cá nhân kịp thời điều chỉnh hành vi tái gắn kết."
+    source_lesson: "Psychology/notes/02-understanding-self/week-12-self-concept-identity.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C12-04"
+    tags:
+      - "sociometer-theory"
+      - "mark-leary"
+      - "evolutionary-psychology"
+      - "social-acceptance"
+
+  - id: "fc-psy-w12-005"
+    concept: "Phản biện Phong trào Tự trọng và Lòng Trắc ẩn với Bản thân (Neff)"
+    front: "Baumeister et al. (2003) chỉ ra mặt tối gì của lòng tự trọng cao mỏng manh, và ba thành tố của Lòng trắc ẩn với bản thân (Kristin Neff) là gì?"
+    back: "Tự trọng cao mỏng manh dễ dẫn đến tính ái kỷ, hung hăng phòng vệ khi bị chỉ trích. Ba thành tố của Self-Compassion (Kristin Neff): 1. Tử tế với chính mình (Self-Kindness); 2. Nhận biết nhân tính chung (Common Humanity — nhận thức đau khổ/sai sót là của chung nhân loại); 3. Chánh niệm (Mindfulness)."
+    source_lesson: "Psychology/notes/02-understanding-self/week-12-self-concept-identity.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C12-05"
+    tags:
+      - "self-compassion"
+      - "kristin-neff"
+      - "baumeister"
+      - "fragile-self-esteem"
+
+  - id: "fc-psy-w12-006"
+    concept: "Khủng hoảng Bản sắc đối lập Mơ hồ Vai trò theo Erikson"
+    front: "Nội dung và ý nghĩa của cuộc khủng hoảng Bản sắc đối lập Mơ hồ vai trò (Giai đoạn 5: 12–18 tuổi) theo Erik Erikson?"
+    back: "Thanh thiếu niên đối mặt với câu hỏi 'Tôi là ai trong xã hội?', thử nghiệm nhiều vai trò, niềm tin và nghề nghiệp khác nhau. Vượt qua thành công giúp hình thành phẩm chất Trung thực (Fidelity) và ý thức nhất quán về bản thân; thất bại dẫn đến mơ hồ vai trò hoặc tiếp nhận bản sắc tiêu cực."
+    source_lesson: "Psychology/notes/02-understanding-self/week-12-self-concept-identity.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C12-06"
+    tags:
+      - "erikson"
+      - "identity-crisis"
+      - "role-confusion"
+      - "adolescence"
+
+  - id: "fc-psy-w12-007"
+    concept: "Bốn Trạng thái Bản sắc của James Marcia"
+    front: "James Marcia phân định 4 trạng thái bản sắc dựa trên hai chiều kích nào và miêu tả đặc trưng của từng trạng thái?"
+    back: "Dựa trên Khám phá (Exploration) và Cam kết (Commitment): 1. Phân tán (Diffusion: chưa khám phá, chưa cam kết); 2. Đóng kín (Foreclosure: cam kết mù quáng, chưa khám phá); 3. Tạm hoãn (Moratorium: tích cực khám phá, chưa cam kết); 4. Đạt được (Achievement: đã khám phá và cam kết tự chủ)."
+    source_lesson: "Psychology/notes/02-understanding-self/week-12-self-concept-identity.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C12-07"
+    tags:
+      - "marcia"
+      - "identity-statuses"
+      - "moratorium"
+      - "foreclosure"
+      - "achievement"
+
+  - id: "fc-psy-w12-008"
+    concept: "Bản sắc Văn hóa: Cấu trúc Bản thân Độc lập vs Tương liên"
+    front: "So sánh Cấu trúc Bản thân Độc lập và Bản thân Tương liên theo nghiên cứu của Hazel Markus và Shinobu Kitayama (1991)?"
+    back: "Bản thân Độc lập (phương Tây cá nhân chủ nghĩa): định nghĩa mình là thực thể tự trị, tách rời xã hội, nhấn mạnh tài năng nội tại và sự khác biệt độc đáo. Bản thân Tương liên (phương Đông tập thể): định nghĩa mình qua mạng lưới quan hệ xã hội, nhấn mạnh hòa hợp nhóm và bổn phận liên đới."
+    source_lesson: "Psychology/notes/02-understanding-self/week-12-self-concept-identity.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C12-08"
+    tags:
+      - "culture-and-self"
+      - "markus-kitayama"
+      - "independent-self"
+      - "interdependent-self"

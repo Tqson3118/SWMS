@@ -1,0 +1,154 @@
+schema_version: 2.0.0
+package_id: package:psychology:w24
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 03-understanding-others
+lesson: week-24-competing-hypotheses
+learning_objectives:
+- id: LO-W24-01
+  bloom_level: Create
+  statement: Tích hợp các nguyên lý nhận thức xã hội, quy kết bối cảnh, ảnh hưởng
+    nhóm và rào cản giao tiếp vào một khung phân tích đa chiều.
+- id: LO-W24-02
+  bloom_level: Evaluate
+  statement: Áp dụng Phương pháp Phân tích Giả thuyết Cạnh tranh (ACH) để kiểm định
+    khách quan các giả thuyết đối lập, tập trung vào tìm kiếm bằng chứng bác bỏ.
+- id: LO-W24-03
+  bloom_level: Apply
+  statement: Rèn luyện năng lực Khiêm tốn nhận thức, loại trừ thói quen dán nhãn tâm
+    lý vội vã, và xây dựng kế hoạch can thiệp có đạo đức.
+concepts:
+- id: roadmap:concept:psychology:w24-ach-framework
+  name: Phân tích Giả thuyết Cạnh tranh (ACH Framework)
+  claim_ids:
+  - C24-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w24-multilevel-social-model
+  name: Mô hình hóa hành vi xã hội đa tầng & Nguyên lý tiết kiệm
+  claim_ids:
+  - C24-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w24-epistemic-humility
+  name: Khiêm tốn nhận thức & Ranh giới đạo đức
+  claim_ids:
+  - C24-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w24-stage3-synthesis
+  name: Khung tổng hợp Chặng 3 — Hiểu Người Khác
+  claim_ids:
+  - C24-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+questions:
+- id: Q24-01
+  lo_ref: LO-W24-01
+  concept_id: roadmap:concept:psychology:w24-ach-framework
+  claim_ids:
+  - C24-01
+- id: Q24-02
+  lo_ref: LO-W24-01
+  concept_id: roadmap:concept:psychology:w24-ach-framework
+  claim_ids:
+  - C24-01
+- id: Q24-03
+  lo_ref: LO-W24-02
+  concept_id: roadmap:concept:psychology:w24-multilevel-social-model
+  claim_ids:
+  - C24-02
+- id: Q24-04
+  lo_ref: LO-W24-02
+  concept_id: roadmap:concept:psychology:w24-multilevel-social-model
+  claim_ids:
+  - C24-02
+- id: Q24-05
+  lo_ref: LO-W24-03
+  concept_id: roadmap:concept:psychology:w24-epistemic-humility
+  claim_ids:
+  - C24-03
+- id: Q24-06
+  lo_ref: LO-W24-03
+  concept_id: roadmap:concept:psychology:w24-epistemic-humility
+  claim_ids:
+  - C24-03
+- id: Q24-07
+  lo_ref: LO-W24-01
+  concept_id: roadmap:concept:psychology:w24-stage3-synthesis
+  claim_ids:
+  - C24-04
+- id: Q24-08
+  lo_ref: LO-W24-02
+  concept_id: roadmap:concept:psychology:w24-stage3-synthesis
+  claim_ids:
+  - C24-04
+- id: Q24-09
+  lo_ref: LO-W24-03
+  concept_id: roadmap:concept:psychology:w24-ach-framework
+  claim_ids:
+  - C24-01
+- id: Q24-10
+  lo_ref: LO-W24-01
+  concept_id: roadmap:concept:psychology:w24-stage3-synthesis
+  claim_ids:
+  - C24-04
+units:
+- unit_id: roadmap:unit:psychology:w24
+  display_title: 'Tuần 24: Case Study Tổng Hợp Chặng 3 — Phân Tích Giả Thuyết Cạnh
+    Tranh'
+  sort_order: 24
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w24
+    path: notes/03-understanding-others/week-24-competing-hypotheses.md
+    sha256: 0797922e65cb56f3e08d89c5fc6d95d9f22250ac4234058696c32c46c47c9143
+    byte_length: 16513
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w24
+    path: assessments/quizzes/week-24-quiz.md
+    question_count: 10
+    sha256: e74fd10137d3bfd80b4b7723f8e06aa2ebe15e23fd11d33438126eb8877c7b6d
+    byte_length: 8332
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w24
+    path: assessments/answer-keys/week-24-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: c7710b8d00df46f66b80f657835391fbe471592b5aaae516b4557d8b648d86e1
+    byte_length: 10099
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w24
+    path: flashcards/week-24.yaml
+    card_count: 8
+    sha256: a4d750dcd0026cdb3eab439b6b35ec832840d2fdcd391818d91d1775fe5dc306
+    byte_length: 5306
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

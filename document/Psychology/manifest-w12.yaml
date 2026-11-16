@@ -1,0 +1,199 @@
+schema_version: 2.0.0
+package_id: package:psychology:w12
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: draft
+version: 6
+created_at: '2026-09-16T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 02-understanding-self
+lesson: week-12-self-concept-identity
+learning_objectives:
+- id: LO-W12-01
+  bloom_level: Understand
+  statement: Phân biệt khái niệm bản thân và nhận diện bản thân qua gương.
+- id: LO-W12-02
+  bloom_level: Analyze
+  statement: Giải thích bất tương hợp và chấp nhận tích cực vô điều kiện trong thuyết
+    Rogers.
+- id: LO-W12-03
+  bloom_level: Analyze
+  statement: Phân biệt self-esteem, self-efficacy và chức năng sociometer.
+- id: LO-W12-04
+  bloom_level: Evaluate
+  statement: Đánh giá bằng chứng về tự trọng, lòng trắc ẩn với bản thân và phát triển
+    bản sắc.
+concepts:
+- id: roadmap:concept:psychology:w12-self-concept
+  name: Khái niệm bản thân và nhận diện bản thân
+  claim_ids:
+  - C12-01
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: Stage 2 source verification approved.
+- id: roadmap:concept:psychology:w12-rogers
+  name: Thuyết bản thân Carl Rogers
+  claim_ids:
+  - C12-02
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: Stage 2 source verification approved.
+- id: roadmap:concept:psychology:w12-self-esteem-efficacy
+  name: Tự trọng và niềm tin năng lực
+  claim_ids:
+  - C12-03
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: Stage 2 source verification approved.
+- id: roadmap:concept:psychology:w12-sociometer
+  name: Thuyết thước đo xã hội
+  claim_ids:
+  - C12-04
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: Stage 2 source verification approved.
+- id: roadmap:concept:psychology:w12-self-compassion
+  name: Tự trọng mong manh và lòng trắc ẩn với bản thân
+  claim_ids:
+  - C12-05
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: Stage 2 source verification approved.
+- id: roadmap:concept:psychology:w12-erikson
+  name: Khủng hoảng bản sắc Erikson
+  claim_ids:
+  - C12-06
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: Stage 2 source verification approved.
+- id: roadmap:concept:psychology:w12-marcia
+  name: Các trạng thái bản sắc Marcia
+  claim_ids:
+  - C12-07
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: Stage 2 source verification approved.
+- id: roadmap:concept:psychology:w12-cultural-self
+  name: Bản thân độc lập và tương liên
+  claim_ids:
+  - C12-08
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: Stage 2 source verification approved.
+questions:
+- id: Q12-01
+  lo_ref: LO-W12-01
+  concept_id: roadmap:concept:psychology:w12-self-concept
+  claim_ids:
+  - C12-01
+- id: Q12-02
+  lo_ref: LO-W12-01
+  concept_id: roadmap:concept:psychology:w12-self-concept
+  claim_ids:
+  - C12-01
+- id: Q12-03
+  lo_ref: LO-W12-02
+  concept_id: roadmap:concept:psychology:w12-rogers
+  claim_ids:
+  - C12-02
+- id: Q12-04
+  lo_ref: LO-W12-02
+  concept_id: roadmap:concept:psychology:w12-rogers
+  claim_ids:
+  - C12-02
+- id: Q12-05
+  lo_ref: LO-W12-03
+  concept_id: roadmap:concept:psychology:w12-self-esteem-efficacy
+  claim_ids:
+  - C12-03
+- id: Q12-06
+  lo_ref: LO-W12-03
+  concept_id: roadmap:concept:psychology:w12-sociometer
+  claim_ids:
+  - C12-04
+- id: Q12-07
+  lo_ref: LO-W12-04
+  concept_id: roadmap:concept:psychology:w12-self-compassion
+  claim_ids:
+  - C12-05
+- id: Q12-08
+  lo_ref: LO-W12-04
+  concept_id: roadmap:concept:psychology:w12-erikson
+  claim_ids:
+  - C12-06
+- id: Q12-09
+  lo_ref: LO-W12-04
+  concept_id: roadmap:concept:psychology:w12-marcia
+  claim_ids:
+  - C12-07
+- id: Q12-10
+  lo_ref: LO-W12-04
+  concept_id: roadmap:concept:psychology:w12-cultural-self
+  claim_ids:
+  - C12-08
+units:
+- unit_id: roadmap:unit:psychology:w12
+  display_title: 'Tuần 12: Nhận thức về bản thân và Bản sắc'
+  sort_order: 12
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w12
+    path: notes/02-understanding-self/week-12-self-concept-identity.md
+    sha256: c20ddfa290181fc0dec143116a7bcb067c6f1117e8509c4674a12f57b7f37b0e
+    byte_length: 59771
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w12
+    path: assessments/quizzes/week-12-quiz.md
+    question_count: 10
+    sha256: 19c3d2b7ce96f3cc23acd5d049a5c900e2686a491761dcf09983c9e893a192c8
+    byte_length: 10388
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w12
+    path: assessments/answer-keys/week-12-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: d126cf3a07075d2187377a26ff3e214f04f10cea75b9a9f9b465549461b304b9
+    byte_length: 27232
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w12
+    path: flashcards/week-12.yaml
+    card_count: 8
+    sha256: 5a3c88e844f9338d97ae480c964bd9ea108bc7cc6409d35bdcd0e1633c9c37f3
+    byte_length: 7700
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

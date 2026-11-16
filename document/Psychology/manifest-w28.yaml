@@ -1,0 +1,179 @@
+schema_version: 2.0.0
+package_id: package:psychology:w28
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 04-love-relationships
+lesson: week-28-love-languages-critique
+learning_objectives:
+- id: LO-W28-01
+  bloom_level: Understand
+  statement: Trình bày 5 ngôn ngữ tình yêu của Chapman và giải thích lý do thiếu bằng
+    chứng khoa học mạnh mẽ.
+- id: LO-W28-02
+  bloom_level: Apply
+  statement: Vận dụng giới hạn của mô hình ngôn ngữ tình yêu để tránh dán nhãn cứng
+    nhắc trong giao tiếp.
+- id: LO-W28-03
+  bloom_level: Analyze
+  statement: So sánh mô hình Chapman với các khung lý thuyết có bằng chứng mạnh (Gottman,
+    Reis & Shaver).
+- id: LO-W28-04
+  bloom_level: Evaluate
+  statement: Đánh giá sự khác biệt giữa tính tiện dụng pop-psychology và tính chính
+    xác khoa học thực nghiệm.
+concepts:
+- id: roadmap:concept:psychology:w28-c28-01
+  name: Phản biện mô hình 5 Ngôn ngữ Tình yêu & Pop Psychology (Chapman, Egbert &
+    Polk)
+  claim_ids:
+  - C28-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w28-c28-02
+  name: Kiểm chứng thực nghiệm giả định tương hợp ngôn ngữ tình yêu (Bunt, Impett)
+  claim_ids:
+  - C28-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w28-c28-03
+  name: Giới hạn đo lường & Ẩn dụ bữa tiệc tự chọn cân bằng (Hughes, Surra)
+  claim_ids:
+  - C28-03
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w28-c28-04
+  name: Giải mã các huyền thoại pop-psychology về thuyết gắn bó (Lilienfeld)
+  claim_ids:
+  - C28-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w28-c28-05
+  name: Yếu tố dự báo bền vững quan hệ thực nghiệm vs công thức giản lược (Gottman)
+  claim_ids:
+  - C28-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+questions:
+- id: Q28-01
+  lo_ref: LO-W28-01
+  concept_id: roadmap:concept:psychology:w28-c28-01
+  claim_ids:
+  - C28-01
+- id: Q28-02
+  lo_ref: LO-W28-02
+  concept_id: roadmap:concept:psychology:w28-c28-01
+  claim_ids:
+  - C28-01
+- id: Q28-03
+  lo_ref: LO-W28-01
+  concept_id: roadmap:concept:psychology:w28-c28-03
+  claim_ids:
+  - C28-03
+- id: Q28-04
+  lo_ref: LO-W28-03
+  concept_id: roadmap:concept:psychology:w28-c28-05
+  claim_ids:
+  - C28-05
+- id: Q28-05
+  lo_ref: LO-W28-04
+  concept_id: roadmap:concept:psychology:w28-c28-02
+  claim_ids:
+  - C28-02
+- id: Q28-06
+  lo_ref: LO-W28-02
+  concept_id: roadmap:concept:psychology:w28-c28-02
+  claim_ids:
+  - C28-02
+- id: Q28-07
+  lo_ref: LO-W28-01
+  concept_id: roadmap:concept:psychology:w28-c28-01
+  claim_ids:
+  - C28-01
+- id: Q28-08
+  lo_ref: LO-W28-01
+  concept_id: roadmap:concept:psychology:w28-c28-05
+  claim_ids:
+  - C28-05
+- id: Q28-09
+  lo_ref: LO-W28-04
+  concept_id: roadmap:concept:psychology:w28-c28-04
+  claim_ids:
+  - C28-04
+- id: Q28-10
+  lo_ref: LO-W28-02
+  concept_id: roadmap:concept:psychology:w28-c28-04
+  claim_ids:
+  - C28-04
+- id: Q28-11
+  lo_ref: LO-W28-03
+  concept_id: roadmap:concept:psychology:w28-c28-05
+  claim_ids:
+  - C28-05
+- id: Q28-12
+  lo_ref: LO-W28-04
+  concept_id: roadmap:concept:psychology:w28-c28-01
+  claim_ids:
+  - C28-01
+units:
+- unit_id: roadmap:unit:psychology:w28
+  display_title: 'Tuần 28: Phản Biện Các Mô Hình Phổ Biến Về Tình Yêu'
+  sort_order: 28
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w28
+    path: notes/04-love-relationships/week-28-love-languages-critique.md
+    sha256: c4c4a1dcf94196fed0fd62b0fefceed7a4e2f4935f54609d02299381a32b1224
+    byte_length: 12859
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w28
+    path: assessments/quizzes/week-28-quiz.md
+    question_count: 12
+    sha256: 3a3b19d384714e05a11ce50ab4d12754c26ecba9b0695d1f9bba96a087f5c370
+    byte_length: 6537
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w28
+    path: assessments/answer-keys/week-28-answers.md
+    correct_count: 12
+    wrong_count: 36
+    sha256: dabea65686d171b9166f882db1e30aa54d392e8eb14c99860f526472634e018f
+    byte_length: 5871
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w28
+    path: flashcards/week-28.yaml
+    card_count: 8
+    sha256: c4763b457765692255020ce7d40163c7cdf9b7b33b4d7b8ac34e0124046faf1c
+    byte_length: 4352
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

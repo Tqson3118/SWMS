@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:54:04Z",
+  "unit_id": "roadmap:unit:fscr:w24",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 24: Cloud deployment, monitoring và recovery",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w24",
+    "title": "Tuần 24: Cloud deployment, monitoring và recovery",
+    "content_markdown": "<h1>Tuần 24 — Cloud deployment, monitoring và recovery</h1>\n<p>Chặng 6; 3 bài L24-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W24-01: Triển khai container/SPA với cấu hình production.</p>\n</li>\n<li>\n<p>LO-W24-02: Đo latency/error và truy trace có bảo vệ dữ liệu.</p>\n</li>\n<li>\n<p>LO-W24-03: Diễn tập restore và rollback với schema compatibility.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 23; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-24-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w24-01\"></a></p>\n<h2>Bài 1: Deployment runbook</h2>\n<p>LO-W24-01 · W24-C01</p>\n<p>Chọn cloud có managedcontainer và database, viết ADR chi phí/quota/region và cleanup trước tạo resource. Lab tham khảo Azure Container Apps cho APIimage .NET10, static hosting cho React build và managedSQL tương thích SQLServer; không yêu cầu mua cloud lớn. Dùng image digest từ CI, secretsmanager cho DB/auth, HTTPS và exact origins. SPAredirect/providerconfiguration phải khớp publicURL; không giữ localhost production. VITE_API_BASE_URL là build-time public; rebuild client đúng endpoint. Nếu AzureSQL khác localSQL tính năng cần test migration/provider. Deploy schema job một lần, health/readiness rồi smoke tests, chỉ expose API/UI. Không publicRedis/DBports.</p>\n<p><a id=\"lo-w24-02\"></a></p>\n<h2>Bài 2: Logs, metrics và health</h2>\n<p>LO-W24-02 · W24-C02</p>\n<p>Structured logs có traceId/requestID/operation/status/elapsed, không note/token/connectionstring. Metrics requestcount/errorrate/p95latency và dependencyfailures; define cửa sổ đo cùng traffic, không đo một request rồi gọip95. Liveness không DB-heavy; readiness kiểm essential DB, cacheRedis optional có degradedmetric. Monitoring alert có action/runbook, ví dụ5xx&gt;2% trong5phút với mintraffic, đây là project mục tiêu không industryguarantee. Correlate frontendtraceId từ ProblemDetails với serverlog. Tracing useful cho API→SQL/Redis, sampling và redaction giảm overhead. Healthendpoint public trả trạng thái tối giản, không connectiondetails.</p>\n<p><a id=\"lo-w24-03\"></a></p>\n<h2>Bài 3: Backup, rollback và operations</h2>\n<p>LO-W24-03 · W24-C03</p>\n<p>Backup cần retention và restoretest trên DB riêng; RPO là data losswindow mục tiêu, RTO là thời gian khôi phục mục tiêu. Course đặt labRPO24h/RTO60phút để luyện, không bảo đảmcloud tự đạt. Release dùng additive schema trước để old/new app cùng chạy; deletecolumn cần contract/expand-contractphase sau. App rollback vềimage cũ không tự undo destructive migration. Giữ release manifestcommit/image/schema version và runbook thực thi. Smoke loginAlice/Bob,ownership,total,import,restart và tokenexpiry sau rollout. Demo public dùng dữ liệu giả, không finance thật; rotate credentials nếu logs lộ. Cleanup tài nguyên theo runbook khi không dùng.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Chọn provider và ghi inventory resource/APIURL/UIURL/image digest/schema; lấy hướng dẫn chính thức theo nguồn tuần.</li>\n<li>Rollout staging với production auth; migrate reviewed SQL một lần, deploy API, kiểm health rồi build/deploy client trỏ URL thật.</li>\n<li>Smoke Alice report100000, Bob0, BobGETAlice404; importkey lặp không duplicate;401expired,409stale.</li>\n<li>Backup DB test và restore vào DBrecovery mới; counts/owner/constraints khớp. Deploy image previous lên staging với schema hiện tại để chứng minh rollback, ghi phút thực tế.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>Cloud 'running' không chứng minh route/auth/DB. Đừng dùng Developerexceptionpage để debugpublic. Hosting có thể đổi support/price: đọc provider docs khi làm lab và ghi ngày/version; course không khóa giá. Không thực hiện cloud deploy thay user trong quá trình tạo course.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>Sau deploy refresh /reports404 nhưng root200. Sửa gì?</p>\n<h3>Bài tập 2</h3>\n<p>Oldimage rollback fail vì cột đãdrop. Viết prevention.</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>Static host cần SPAfallback UI routes; backend /api không fallback. Kiểm builtAPIURL và CORS, không sửa controller chỉ vì UIroute.</p>\n<h3>Hướng giải 2</h3>\n<p>Expand-contract migrations và compatibility test; additive schema trước, old/new code cùng pass. Restore backup có dataloss và cần runbook, không rollback SQL blind.</p>\n<h2>Project task</h2>\n<p>Triển khai bảndemo giả lập dữ liệu lên cloud học viên chọn; thêm monitoring/health/backup restore/rollback runbook và release evidence. Nếu cloud chưa làm thì không đánh dấugate nàyđạt.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w24.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] PublicHTTPSUI/API hoạt động login/provider và Alice/Bobownership; no devtoken/dev exception.</p>\n</li>\n<li>\n<p>[ ] Logs nối traceId, dashboard/erroralert có thử failure và không secrets.</p>\n</li>\n<li>\n<p>[ ] Restore vào DBriêng khớp fixture; rollback staging compatibility pass, ghi RPO/RTO thực tế và cleanup.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Thu demo deployment3 phút; giải thích 'What would you do if this release caused errors?' với rollback/schema/restore.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/azure/container-apps/get-started?tabs=azure-cli\">Container Apps deployment quickstart</a> — W24-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-10.0\">Liveness and readiness checks</a> — W24-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/applying\">Reviewing and applying production migrations</a> — W24-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-24-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-24-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-24.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"week-23.md\">Tuần trước</a></p>\n<p><a href=\"../module-7/week-25.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Container Apps deployment quickstart](https://learn.microsoft.com/en-us/azure/container-apps/get-started?tabs=azure-cli)",
+      "[Liveness and readiness checks](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-10.0)",
+      "[Reviewing and applying production migrations](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/applying)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W24-01]",
+        "bloom_level": "Apply",
+        "statement": "Triển khai container/SPA với cấu hình production."
+      },
+      {
+        "id": "[LO-W24-02]",
+        "bloom_level": "Apply",
+        "statement": "Đo latency/error và truy trace có bảo vệ dữ liệu."
+      },
+      {
+        "id": "[LO-W24-03]",
+        "bloom_level": "Apply",
+        "statement": "Diễn tập restore và rollback với schema compatibility."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w24-c01",
+        "name": "Deployment runbook",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w24-c02",
+        "name": "Logs, metrics và health",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w24-c03",
+        "name": "Backup, rollback và operations",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w24",
+    "title": "Trắc nghiệm Tuần 24: Cloud deployment, monitoring và recovery",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w24:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "SPA APIURL đổi lúc nào với Vite build-timeenv?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Build/rebuild client đúng publicURL"
+          },
+          {
+            "id": "B",
+            "text": "Chỉ đổi API containerenv"
+          },
+          {
+            "id": "C",
+            "text": "Gửi DBpassword vào client"
+          },
+          {
+            "id": "D",
+            "text": "Tắt HTTPS"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Build-time value được đóng vào assets.",
+        "wrong_explanations": {
+          "B": "Backendenv không sửa clientbundle.",
+          "C": "Browser không cần databasecredential.",
+          "D": "HTTPS cần cho traffic/auth."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w24-c01",
+        "lesson_anchor": "#lo-w24-01",
+        "claim_ids": [
+          "W24-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w24:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Production dùng dev user-jwts được không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Có nếu API public"
+          },
+          {
+            "id": "B",
+            "text": "Không, provider token validation thật"
+          },
+          {
+            "id": "C",
+            "text": "Có mãi mãi"
+          },
+          {
+            "id": "D",
+            "text": "Có nếu đổi tên claim"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Devtool chỉ phục vụ Development lab.",
+        "wrong_explanations": {
+          "A": "Public endpoint càng cần trustvalidation.",
+          "C": "Không là identity service production.",
+          "D": "Renameclaim không đổi securitymodel."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w24-c01",
+        "lesson_anchor": "#lo-w24-01",
+        "claim_ids": [
+          "W24-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w24:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "DBdown nên phản ánh ở đâu cho API cần DB?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Không log bao giờ"
+          },
+          {
+            "id": "B",
+            "text": "Trả 200 fake expense"
+          },
+          {
+            "id": "C",
+            "text": "Readiness và dependency metrics"
+          },
+          {
+            "id": "D",
+            "text": "Livenessalwaysrestartstorm"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Readiness báo khả năng xử lý dependency.",
+        "wrong_explanations": {
+          "A": "Cần diagnosis/alert có action.",
+          "B": "Fake success làm sai client/data.",
+          "D": "Restartprocess không chữa DBoutage."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w24-c02",
+        "lesson_anchor": "#lo-w24-02",
+        "claim_ids": [
+          "W24-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w24:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "Production nên tránh log gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "TraceID"
+          },
+          {
+            "id": "B",
+            "text": "Statuscode"
+          },
+          {
+            "id": "C",
+            "text": "Operationname"
+          },
+          {
+            "id": "D",
+            "text": "Bearer token và finance note"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Credential/personal data không cần diagnosis.",
+        "wrong_explanations": {
+          "A": "TraceID nối request với logs.",
+          "B": "Status giúp đo success/error.",
+          "C": "Operation mô tả hành vi không secret."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w24-c02",
+        "lesson_anchor": "#lo-w24-02",
+        "claim_ids": [
+          "W24-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w24:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "Có backupfile đã đủ recovery gate chưa?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Chưa, phải restore và kiểm dữ liệu"
+          },
+          {
+            "id": "B",
+            "text": "Đủ tuyệt đối"
+          },
+          {
+            "id": "C",
+            "text": "Chỉ kiểm tênfile"
+          },
+          {
+            "id": "D",
+            "text": "Không cần constraints"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Restoretest xác nhận bảnbackup dùng được.",
+        "wrong_explanations": {
+          "B": "Backup có thể lỗi/không truy cập.",
+          "C": "Filename không integrity/recoverability.",
+          "D": "Constraints/ownership là dữ liệu đúng."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w24-c03",
+        "lesson_anchor": "#lo-w24-03",
+        "claim_ids": [
+          "W24-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w24:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "Rollback image có undo destructive SQL tự động không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Có CDNcache"
+          },
+          {
+            "id": "B",
+            "text": "Không, cần compatibility/recovery plan"
+          },
+          {
+            "id": "C",
+            "text": "Có EF luônrollback"
+          },
+          {
+            "id": "D",
+            "text": "Có DockerundoDB"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Appartifact và DBstate là boundaries riêng.",
+        "wrong_explanations": {
+          "A": "CDN không khôi phục schema.",
+          "C": "EF không tự đảo migration khi imagecũ.",
+          "D": "Docker không version businessDB theo image."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w24-c03",
+        "lesson_anchor": "#lo-w24-03",
+        "claim_ids": [
+          "W24-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w24",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 24: Cloud deployment, monitoring và recovery",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w24-001",
+        "concept_name": "Production config",
+        "front": "SPA APIURL đổi lúc nào với Vite build-timeenv?",
+        "back": "Build/rebuild client đúng publicURL. Build-time value được đóng vào assets.",
+        "tags": [
+          "w24",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W24-C01"
+        ],
+        "source_citation": "notes/module-6/week-24.md",
+        "lesson_anchor": "#lo-w24-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w24-002",
+        "concept_name": "Auth deployment",
+        "front": "Production dùng dev user-jwts được không?",
+        "back": "Không, provider token validation thật. Devtool chỉ phục vụ Development lab.",
+        "tags": [
+          "w24",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W24-C01"
+        ],
+        "source_citation": "notes/module-6/week-24.md",
+        "lesson_anchor": "#lo-w24-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w24-003",
+        "concept_name": "Readiness",
+        "front": "DBdown nên phản ánh ở đâu cho API cần DB?",
+        "back": "Readiness và dependency metrics. Readiness báo khả năng xử lý dependency.",
+        "tags": [
+          "w24",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W24-C02"
+        ],
+        "source_citation": "notes/module-6/week-24.md",
+        "lesson_anchor": "#lo-w24-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w24-004",
+        "concept_name": "Logging privacy",
+        "front": "Production nên tránh log gì?",
+        "back": "Bearer token và finance note. Credential/personal data không cần diagnosis.",
+        "tags": [
+          "w24",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W24-C02"
+        ],
+        "source_citation": "notes/module-6/week-24.md",
+        "lesson_anchor": "#lo-w24-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w24-005",
+        "concept_name": "Restore proof",
+        "front": "Có backupfile đã đủ recovery gate chưa?",
+        "back": "Chưa, phải restore và kiểm dữ liệu. Restoretest xác nhận bảnbackup dùng được.",
+        "tags": [
+          "w24",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W24-C03"
+        ],
+        "source_citation": "notes/module-6/week-24.md",
+        "lesson_anchor": "#lo-w24-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w24-006",
+        "concept_name": "Schema rollback",
+        "front": "Rollback image có undo destructive SQL tự động không?",
+        "back": "Không, cần compatibility/recovery plan. Appartifact và DBstate là boundaries riêng.",
+        "tags": [
+          "w24",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W24-C03"
+        ],
+        "source_citation": "notes/module-6/week-24.md",
+        "lesson_anchor": "#lo-w24-03"
+      }
+    ]
+  }
+}

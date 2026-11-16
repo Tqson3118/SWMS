@@ -12,8 +12,7 @@ export default function AppShellLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { darkMode, toggleDarkMode, setCommandPaletteOpen, commandPaletteOpen } =
-    useWorkspaceStore();
+  const { darkMode, toggleDarkMode } = useWorkspaceStore();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const pathname = usePathname();
 
@@ -35,13 +34,6 @@ export default function AppShellLayout({
         return;
       }
 
-      // Ctrl+K — Command palette
-      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-        e.preventDefault();
-        setCommandPaletteOpen(!commandPaletteOpen);
-        return;
-      }
-
       // Ctrl+D — Toggle dark mode
       if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === "d" || e.key === "D")) {
         e.preventDefault();
@@ -59,7 +51,7 @@ export default function AppShellLayout({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [commandPaletteOpen, setCommandPaletteOpen, toggleDarkMode]);
+  }, [toggleDarkMode]);
 
   return (
     <div className={darkMode ? "dark" : ""}>

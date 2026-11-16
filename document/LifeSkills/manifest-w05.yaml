@@ -1,0 +1,139 @@
+schema_version: 2.0.0
+package_id: package:lifeskills:w05
+subject_id: roadmap:subject:lifeskills
+display_title: LifeSkills — Tình cảm, Giao tiếp & Kỹ năng sống
+source_status: in_review
+version: 7
+created_at: '2026-09-22T00:00:00Z'
+subject: LifeSkills
+course: Tự học LifeSkills 16 tuần
+module: module-2
+lesson: week-05-active-listening
+learning_objectives:
+- id: LO-W05-01
+  bloom_level: Understand
+  statement: Trình bày được ba thành phần cốt lõi của active listening và phân biệt lắng nghe với các phản hồi thay
+    thế như lời khuyên hay trấn an.
+- id: LO-W05-02
+  bloom_level: Apply
+  statement: Với một tình huống giả định, nhận diện được paraphrase nội dung, paraphrase cảm xúc, câu hỏi làm rõ
+    và gọi tên chúng chính xác.
+- id: LO-W05-03
+  bloom_level: Apply
+  statement: Soạn được một phản hồi lắng nghe hoàn chỉnh (kiểm tra hiểu + xin phép trước khi góp ý), có điều kiện
+    dừng và không áp đặt.
+- id: LO-W05-04
+  bloom_level: Evaluate
+  statement: 'Đánh giá được các giới hạn và bằng chứng của active listening: điều gì được ủng hộ, điều gì còn tranh
+    luận, và khi nào cần chuyển hướng hỗ trợ.'
+concepts:
+- id: roadmap:concept:lifeskills:w05:active-listening
+  name: Thành phần và giới hạn của active listening
+  claim_ids:
+  - W05-C01
+  - W05-C04
+  evidence_label: moderate
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded content/practice review210
+    date: '2026-10-04'
+    notes: Scoped actual192diff and remaining210 corrections/source limits; full week/course/source/learner approval
+      open.
+- id: roadmap:concept:lifeskills:w05:listening-evidence
+  name: Tín hiệu fallible, đồng thuận và hỗ trợ có điều kiện
+  claim_ids:
+  - W05-C02
+  - W05-C03
+  evidence_label: preliminary
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded content/practice review210
+    date: '2026-10-04'
+    notes: Scoped actual192diff and remaining210 corrections/source limits; full week/course/source/learner approval
+      open.
+questions:
+- id: Q05-01
+  lo_ref: LO-W05-01
+  concept_id: roadmap:concept:lifeskills:w05:active-listening
+  claim_ids:
+  - W05-C01
+- id: Q05-02
+  lo_ref: LO-W05-01
+  concept_id: roadmap:concept:lifeskills:w05:active-listening
+  claim_ids:
+  - W05-C01
+- id: Q05-03
+  lo_ref: LO-W05-01
+  concept_id: roadmap:concept:lifeskills:w05:active-listening
+  claim_ids:
+  - W05-C01
+- id: Q05-04
+  lo_ref: LO-W05-01
+  concept_id: roadmap:concept:lifeskills:w05:listening-evidence
+  claim_ids:
+  - W05-C02
+- id: Q05-05
+  lo_ref: LO-W05-02
+  concept_id: roadmap:concept:lifeskills:w05:active-listening
+  claim_ids:
+  - W05-C01
+- id: Q05-06
+  lo_ref: LO-W05-02
+  concept_id: roadmap:concept:lifeskills:w05:active-listening
+  claim_ids:
+  - W05-C01
+- id: Q05-07
+  lo_ref: LO-W05-02
+  concept_id: roadmap:concept:lifeskills:w05:active-listening
+  claim_ids:
+  - W05-C01
+- id: Q05-08
+  lo_ref: LO-W05-03
+  concept_id: roadmap:concept:lifeskills:w05:active-listening
+  claim_ids:
+  - W05-C01
+- id: Q05-09
+  lo_ref: LO-W05-03
+  concept_id: roadmap:concept:lifeskills:w05:active-listening
+  claim_ids:
+  - W05-C04
+- id: Q05-10
+  lo_ref: LO-W05-04
+  concept_id: roadmap:concept:lifeskills:w05:listening-evidence
+  claim_ids:
+  - W05-C03
+units:
+- unit_id: roadmap:unit:lifeskills:w05
+  display_title: 'Tuần 5: Active Listening: Lắng nghe để hiểu và phản hồi có kiểm chứng'
+  sort_order: 5
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:lifeskills:w05
+    path: notes/module-2/week-05-active-listening.md
+    sha256: 6d1f5f349bf384db79733c0c354238538a5f19875a789db0f8d35a17e90dfc06
+    byte_length: 27725
+  - role: quiz_questions
+    stable_id: roadmap:quiz:lifeskills:w05
+    path: assessments/quizzes/week-05-quiz.md
+    question_count: 10
+    sha256: 526a10291f4bc687cff9f86621a71bb7425823f76489698be8299a50ef06e943
+    byte_length: 6355
+  - role: quiz_answers
+    stable_id: roadmap:answers:lifeskills:w05
+    path: assessments/answer-keys/week-05-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: abb9a470a7c0af80b76de1f54c40dfd53bb8e2deaeeef6a4b6bdb7449ec3e28f
+    byte_length: 13675
+  - role: flashcard_deck
+    stable_id: roadmap:deck:lifeskills:w05
+    path: flashcards/week-05.yaml
+    card_count: 15
+    sha256: 695c1175ebe59d19acf49a94c6d064766a17d27f3cb47e0a6ed16ea2b2db4b08
+    byte_length: 10045
+  - role: source_ledger
+    path: quality/module-2-source-ledger.md
+    sha256: cfeccfce313ede6fe19efb47986ec9452171d9c84f10b9b6b24ab589eda362be
+    byte_length: 13372

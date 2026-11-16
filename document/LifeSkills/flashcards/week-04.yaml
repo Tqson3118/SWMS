@@ -1,0 +1,210 @@
+deck_id: deck-ls-w04
+subject: LifeSkills
+lesson_id: week-04-boundaries
+version: 1.0.0
+description: 'Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng Tuần 04: Thiết lập Ranh giới Cá nhân Lành mạnh'
+cards:
+- id: fc-ls-w04-001
+  concept: Bản chất của ranh giới cá nhân
+  front: Ranh giới cá nhân (Personal Boundaries) là gì và mục tiêu cốt lõi của nó là gì?
+  back: Là đường ranh vô hình xác định những điều bản thân chấp nhận và không chấp nhận trong tương tác với người
+    khác. Mục tiêu là bảo vệ sức khỏe tâm lý và tính toàn vẹn cá nhân, không phải để trừng phạt hay cô lập người
+    khác.
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - boundaries
+  - foundations
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-002
+  concept: Ba kiểu hình ranh giới
+  front: Ba kiểu hình ranh giới cá nhân cơ bản (Cứng nhắc, Lỏng lẻo, Lành mạnh) phân biệt nhau như thế nào?
+  back: 'Trong taxonomy authored của bài, ba trạng thái thực hành được mô tả như sau: Ranh giới cứng nhắc (Rigid):
+    đóng kín; Ranh giới lỏng lẻo (Porous): khó nói không; Ranh giới lành mạnh (Healthy): linh hoạt và rõ ràng. Đây
+    không phải phân loại khoa học phổ quát.'
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - boundaries
+  - typology
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-003
+  concept: Ranh giới thể lý (Physical Boundaries)
+  front: Ranh giới thể lý bao gồm những khía cạnh nào và biểu hiện bị xâm phạm là gì?
+  back: 'Bao gồm không gian cá nhân, quyền riêng tư về thân thể và đụng chạm. Biểu hiện xâm phạm: đụng chạm không
+    có sự đồng thuận, lục lọi đồ đạc riêng tư hoặc xâm nhập phòng ngủ mà không gõ cửa.'
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - boundaries
+  - physical
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-004
+  concept: Ranh giới cảm xúc (Emotional Boundaries)
+  front: Ranh giới cảm xúc bảo vệ điều gì và làm sao để không gánh thay cảm xúc của người khác?
+  back: Bảo vệ năng lượng tinh thần và quyền trải nghiệm cảm xúc riêng. Thực hành bằng cách lắng nghe đồng cảm nhưng
+    không nhận trách nhiệm phải sửa chữa hay gánh chịu tâm trạng tiêu cực của đối phương.
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - boundaries
+  - emotional-wellbeing
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-005
+  concept: Ranh giới thời gian và năng lượng
+  front: Làm thế nào để bảo vệ ranh giới thời gian khi liên tục bị người khác nhờ vả việc ngoài cam kết?
+  back: 'Xác định rõ mức độ ưu tiên cá nhân, có thể dừng lại để kiểm tra ưu tiên trước khi nhận lời và trả lời rõ
+    ràng: ''Hiện tại mình đang ưu tiên hoàn thành việc X nên không thể hỗ trợ việc này''.'
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - time-management
+  - boundaries
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-006
+  concept: Ranh giới tài chính cá nhân
+  front: Khi bạn bè hoặc người thân mượn tiền vượt quá khả năng sẵn sàng mất, nguyên tắc ranh giới tài chính là
+    gì?
+  back: Một ví dụ thực hành là chỉ cho mượn số tiền mà bản thân chấp nhận mất nếu không được hoàn trả; mức chịu
+    đựng và ảnh hưởng quan hệ tùy bối cảnh; nếu không thể, từ chối rõ ràng và đề xuất hỗ trợ phi tiền bạc nếu có
+    thể.
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - financial-boundaries
+  - relationships
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-007
+  concept: Cảm giác tội lỗi khi nói 'Không'
+  front: Tại sao nhiều người cảm thấy tội lỗi khi thiết lập ranh giới và cách nhận diện nhận thức này?
+  back: Có thể liên quan tới mong muốn làm hài lòng, sợ bị từ chối hoặc các kỳ vọng văn hóa; không thể suy ra nguyên
+    nhân duy nhất. Hãy kiểm tra nhu cầu, cam kết và bối cảnh trước khi lựa chọn giới hạn.
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - guilt
+  - people-pleasing
+  - cognitive-reframing
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-008
+  concept: Script bốn bước thiết lập ranh giới
+  front: Công thức 4 bước do bài học thiết kế để nêu ranh giới là gì?
+  back: 1. Mô tả sự việc; 2. Nêu tác động/cảm nhận; 3. Tuyên bố ranh giới; 4. Nêu hệ quả bảo vệ khả thi. Đây là
+    script authored, không phải DEAR MAN/FAST nguyên bản.
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - assertiveness
+  - boundary-setting
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-009
+  concept: Hiện tượng kiểm tra ranh giới (Boundary Testing)
+  front: Khi bạn vừa đặt ranh giới và đối phương phản ứng giận dữ hoặc cố tình vi phạm lại, điều đó phản ánh điều
+    gì?
+  back: Một số người có thể phản kháng hoặc tiếp tục thương lượng khi ranh giới mới được nêu. Hãy quan sát bối cảnh,
+    giữ giới hạn phù hợp và ưu tiên an toàn; phản ứng này không phải dấu hiệu chắc chắn về “extinction burst”.
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - boundary-testing
+  - conflict
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-010
+  concept: Hậu quả của việc thiếu ranh giới kéo dài
+  front: Những phản ứng nào có thể cần tự quan sát khi thường xuyên đồng ý trái với giới hạn?
+  back: Có thể cảm thấy mệt mỏi, resentment hoặc mất kết nối với nhu cầu của mình khi thường xuyên đồng ý trái với
+    giới hạn; đây là các khả năng cần tự quan sát, không phải hậu quả chắc chắn hay chẩn đoán burnout.
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - burnout
+  - mental-health
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-011
+  concept: Ranh giới trong môi trường công sở
+  front: Thiết lập ranh giới công việc sau giờ làm như thế nào để trao đổi kỳ vọng rõ ràng trong bối cảnh cụ thể?
+  back: Quy định rõ khung giờ phản hồi email/tin nhắn, thỏa thuận trước kỳ vọng về tình huống khẩn cấp thực sự và
+    hoàn thành đúng hạn công việc trong giờ làm việc chính thức.
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - workplace
+  - work-life-balance
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-012
+  concept: Ranh giới trong mạng xã hội & công nghệ
+  front: Cách thiết lập ranh giới số (Digital Boundaries) để giảm áp lực thông tin và so sánh xã hội?
+  back: Có thể thử tắt thông báo hoặc mute/unfollow theo nhu cầu; mốc 21h, điện thoại ngoài giường và thao tác unfollow
+    là ví dụ authored, không phải quy tắc bắt buộc.
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - digital-boundaries
+  - wellbeing
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-013
+  concept: Ranh giới trí tuệ (Intellectual Boundaries)
+  front: Ranh giới trí tuệ là gì và biểu hiện tôn trọng ranh giới này trong thảo luận tranh biện?
+  back: Tôn trọng ý kiến, niềm tin và góc nhìn của người khác. Tôn trọng thể hiện qua việc tranh luận trên cơ sở
+    dữ kiện, không xúc phạm danh dự hay hạ thấp năng lực tư duy của người đối thoại.
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - intellectual-boundaries
+  - communication
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-014
+  concept: Hệ quả của sự uất ức (Resentment)
+  front: Tại sao cảm xúc uất ức (Resentment) được xem là dấu hiệu chỉ báo (indicator) quan trọng của ranh giới bị
+    xâm phạm?
+  back: Uất ức đôi khi là tín hiệu để kiểm tra xem mình có đồng ý trái với nhu cầu hay không; đây là một gợi ý tự
+    phản tư, không phải chỉ báo duy nhất hay bằng chứng rằng ranh giới đã bị xâm phạm.
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - resentment
+  - self-awareness
+  - module-1
+  claim_ids:
+  - W04-C01
+- id: fc-ls-w04-015
+  concept: Hành động nhất quán khi ranh giới bị phá vỡ
+  front: Nếu cần hành động nhất quán sau khi ranh giới bị phá vỡ, những lựa chọn nào có thể phù hợp theo bối cảnh
+    và an toàn?
+  back: Có thể rút lui khỏi cuộc hội thoại, giữ khoảng cách hoặc tìm hỗ trợ phù hợp; chấm dứt/cắt liên hệ chỉ là
+    lựa chọn có điều kiện sau khi cân nhắc an toàn, không phải chỉ dẫn tự động.
+  source_lesson: LifeSkills/notes/module-1/week-04-boundaries.md
+  version: 1.0.0
+  tags:
+  - enforcement
+  - consequences
+  - module-1
+  claim_ids:
+  - W04-C01
+  - W04-C02

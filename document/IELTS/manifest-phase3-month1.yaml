@@ -1,0 +1,88 @@
+schema_version: 2.0.0
+package_id: package:ielts:phase3-month1
+subject_id: roadmap:subject:ielts
+version: 4
+created_at: '2026-10-08T00:00:00Z'
+source_status: draft
+display_title: IELTS Phase3 Month1 source prototype
+learning_objectives: &id001
+- id: LO-IELTS-M1-01
+  bloom_level: Apply
+  statement: Work through the selected24day grammar/vocabulary/skills schedule and keep first-response corrections
+    using actual lesson rubrics.
+- id: LO-IELTS-M1-02
+  bloom_level: Analyze
+  statement: Distinguish manual evidence from automatic grading, keep main/retry/domain scores separate and mark
+    missing playback or observations incomplete.
+concepts: &id002
+- id: IELTS-M1-C01
+  name: Practice sequence and evidence
+  claim_ids:
+  - W01-C01
+  evidence_label: preliminary
+  source_ledger_path: packages/phase3-month1/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root1054 bounded workflow/privacy/media incompleteness mapping
+    date: '2026-10-08'
+- id: IELTS-M1-C02
+  name: Manual assessment and correction
+  claim_ids:
+  - W01-C02
+  evidence_label: preliminary
+  source_ledger_path: packages/phase3-month1/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root1054 bounded workflow/privacy/media incompleteness mapping
+    date: '2026-10-08'
+- id: IELTS-M1-C03
+  name: Public listening and privacy boundaries
+  claim_ids:
+  - W01-C03
+  evidence_label: preliminary
+  source_ledger_path: packages/phase3-month1/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root1054 bounded workflow/privacy/media incompleteness mapping
+    date: '2026-10-08'
+units:
+- unit_id: roadmap:unit:ielts:phase3-month1
+  display_title: Month1 manual practice prototype
+  sort_order: 9
+  learning_objectives: *id001
+  concepts: *id002
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:ielts:phase3-month1
+    path: packages/phase3-month1/lesson-month1.md
+    sha256: 7440bf7f3d606f7ee2f342ba6c8a42c402278673e64916f17e403d0f9840cdb2
+    byte_length: 599623
+  - role: activity_manual
+    stable_id: activity:ielts:phase3-month1-manual
+    path: packages/phase3-month1/activity-month1.yaml
+    sha256: 07645c138651457ee70475afd166261e157204a7edaa7f9f5fe7c8a8ba445f96
+    byte_length: 4630
+  - role: source_ledger
+    stable_id: roadmap:source-ledger:ielts:phase3-month1
+    path: packages/phase3-month1/source-ledger.md
+    sha256: fcb5e67ecbfcad2e6682744aaf3a7bf342c73143c32f0f2454b97b26a1457196
+    byte_length: 4808
+  - role: reference_source
+    stable_id: roadmap:reference:ielts:phase3-month1-anki-csv
+    path: packages/phase3-month1/personality-month1-120.csv
+    sha256: 9e8147ab0b548d707d8fee130f62ae078d4c9688cde188e698a93b9746727d43
+    byte_length: 17418
+  - role: flashcard_deck
+    stable_id: roadmap:deck:ielts:phase3-month1
+    path: packages/phase3-month1/personality-month1-120.yaml
+    sha256: 77390b6a78750a422e8f053b8715c4c5ae8b1c33f19e57c1fd5c2ba1103f9f7c
+    byte_length: 44783
+    card_count: 120
+  - role: reference_source
+    stable_id: roadmap:reference:ielts:phase3-month1-anki-txt
+    path: packages/phase3-month1/personality-month1-120-anki.txt
+    sha256: de2f43c362f6d478115f9a559653e7998e6205c446258fa3a16d4728854adbeb
+    byte_length: 17457
+external_resources: []
+packaging_notes: Bounded source-only Month1 candidate1079; all course release flags false. Actual audio/browser/fullmonth/course
+  and future curriculum gates remain. Do not perform live import or learner attestation from package evidence.

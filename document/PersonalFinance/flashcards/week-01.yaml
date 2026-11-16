@@ -1,0 +1,97 @@
+deck_id: deck-pf-w01
+subject: PersonalFinance
+lesson_id: week-01-money-psychology
+version: 1.0.0
+description: 'Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng (Spaced Repetition - R5 Compliant) Tuần 01: Tâm lý tài
+  chính và Tiền bạc'
+cards:
+- id: fc-pf-w01-001
+  concept: Tài chính hành vi & Tính duy lý giới hạn (Behavioral Finance & Bounded Rationality)
+  front: Tài chính hành vi (Behavioral Finance) bác bỏ giả định nền tảng nào của kinh tế học cổ điển và giải thích
+    hạn chế của con người ra sao?
+  back: Simon mô tả lựa chọn trong điều kiện thông tin và năng lực tính toán hạn chế. Đây là mô hình để thảo luận
+    quyết định, không chứng minh mọi người luôn có thiên kiến hay mọi ứng dụng thị trường của khóa học.
+  source_lesson: PersonalFinance/notes/module-1/week-01-money-psychology.md
+  version: 1.0.0
+  claim_ids:
+  - W01-C01
+  tags:
+  - behavioral-finance
+  - bounded-rationality
+  - foundations
+- id: fc-pf-w01-002
+  concept: Ảo tưởng kiểm soát (Illusion of Control)
+  front: Ảo tưởng kiểm soát (Illusion of Control - Ellen Langer) là gì và dẫn đến những sai lầm nguy hiểm nào trong
+    đầu tư tài chính?
+  back: Là xu hướng tin rằng lựa chọn hoặc nghi thức cá nhân kiểm soát được kết quả ngẫu nhiên; trong Thí nghiệm
+    2 (Langer, 1975, tr. 316–317), người tự chọn vé số định giá lại vé cao hơn người nhận vé ngẫu nhiên. Nghiên
+    cứu không đo overtrading, giao dịch thị trường hay stop-loss; các ví dụ đó là ứng dụng giả định của khóa học.
+  source_lesson: PersonalFinance/notes/module-1/week-01-money-psychology.md
+  version: 1.0.0
+  claim_ids:
+  - W01-C02
+  tags:
+  - cognitive-bias
+  - risk-management
+  - trading
+- id: fc-pf-w01-003
+  concept: Lý thuyết Triển vọng & Ác cảm mất mát (Prospect Theory & Loss Aversion)
+  front: Theo Lý thuyết Triển vọng (Kahneman & Tversky), hàm giá trị tâm lý có đặc điểm gì và Ác cảm mất mát (Loss
+    Aversion) cần được diễn giải ra sao?
+  back: 'Hàm giá trị có dạng chữ S với điểm tham chiếu tâm lý: lõm ở miền lời nhưng lồi ở miền lỗ, dốc hơn ở miền
+    lỗ. Ác cảm mất mát là xu hướng phụ thuộc bối cảnh, không phải quy luật tuyệt đối; nguồn 1979 hỗ trợ mô tả định
+    tính, còn hệ số định lượng cụ thể không phải hằng số phổ quát trong bài học. Trong ứng dụng đầu tư, có thể dùng
+    để thảo luận disposition effect; đây là xu hướng bối cảnh, không phải hành vi tất định.'
+  source_lesson: PersonalFinance/notes/module-1/week-01-money-psychology.md
+  version: 1.0.0
+  claim_ids:
+  - W01-C03
+  tags:
+  - prospect-theory
+  - loss-aversion
+  - decision-making
+- id: fc-pf-w01-004
+  concept: Ngụy biện chi phí chìm (Sunk Cost Fallacy)
+  front: Ngụy biện chi phí chìm (Sunk Cost Fallacy) là gì? Đâu là nguyên tắc kinh tế đúng đắn để đưa ra quyết định
+    cắt lỗ?
+  back: Chi phí chìm là tiền/công sức/thời gian đã bỏ ra và không thu hồi được. Khi so sánh phương án tương lai,
+    tách khoản này khỏi chi phí và lợi ích có thể thay đổi; vẫn tính giá trị bán lại, phí mới, rủi ro và chi phí
+    cơ hội của nguồn lực còn sử dụng được. Bài tập là ứng dụng, không là khuyến nghị cắt lỗ mọi tài sản.
+  source_lesson: PersonalFinance/notes/module-1/week-01-money-psychology.md
+  version: 1.0.0
+  claim_ids:
+  - W01-C04
+  tags:
+  - sunk-cost
+  - decision-making
+  - budgeting
+- id: fc-pf-w01-005
+  concept: Kế toán tâm lý & Tính có thể thay thế của tiền (Mental Accounting & Fungibility)
+  front: Kế toán tâm lý (Mental Accounting - Richard Thaler) vi phạm nguyên tắc tiền tệ nào và dẫn đến nghịch lý
+    chi tiêu Tết ra sao?
+  back: Thaler1999 mô tả việc tổ chức, đánh giá và theo dõi tiền theo các ngăn tinh thần; cách xử lý này có thể
+    vi phạm tính thay thế của các đơn vị tiền cùng mệnh giá. Thưởng Tết/nợ36% là tình huống giả định của khóa học,
+    không là kết quả dân số hoặc mức lãi thị trường.
+  source_lesson: PersonalFinance/notes/module-1/week-01-money-psychology.md
+  version: 1.0.0
+  claim_ids:
+  - W01-C05
+  tags:
+  - mental-accounting
+  - fungibility
+  - budgeting
+- id: fc-pf-w01-006
+  concept: Quy tắc làm nguội 48 giờ & Kiểm soát bẫy BNPL (Cooling-off Rule & BNPL Defense)
+  front: Mốc thực hành48 giờ trong khóa học có phạm vi gì, và cần kiểm tra gì trước một giao dịch BNPL?
+  back: 'Mua sắm bù đắp và BNPL có thể làm người dùng chú ý ít hơn đến dòng tiền ra tức thời. Quy tắc làm nguội
+    48 giờ là mốc thực hành tùy chọn do khóa học đề xuất, chưa được nguồn này xác minh về hiệu quả. Trước khi dùng
+    BNPL, hãy đọc điều khoản sản phẩm: số tiền thực nhận/được tài trợ, lịch thanh toán, lãi, phí bắt buộc và điều
+    kiện phát sinh phí trễ hạn — thay vì kết luận tổng chi phí chỉ từ quảng cáo ''0% lãi suất''.'
+  source_lesson: PersonalFinance/notes/module-1/week-01-money-psychology.md
+  version: 1.0.0
+  claim_ids:
+  - W01-C06
+  tags:
+  - retail-therapy
+  - bnpl
+  - behavioral-intervention

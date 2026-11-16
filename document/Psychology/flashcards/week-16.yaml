@@ -1,0 +1,152 @@
+deck_id: "deck-psy-w16"
+subject: "Psychology"
+lesson_id: "week-16-self-understanding-portfolio"
+version: "1.0.0"
+description: "Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng (Spaced Repetition - R5 Compliant) Tuần 16: Hồ sơ Tự hiểu Dựa trên Bằng chứng"
+
+cards:
+  - id: "fc-psy-w16-001"
+    concept: "Giới hạn tự báo cáo/nội quan (Nisbett & Wilson, 1977)"
+    front: "Vì sao lời tự báo cáo về nguyên nhân hành vi cần đọc thận trọng, và phạm vi kết luận dừng ở đâu?"
+    back: "Nisbett & Wilson (1977): 'there may be little or no direct introspective access to higher order cognitive processes' — quyền truy cập nội quan trực tiếp vào tiến trình bậc cao có thể rất ít hoặc không có; lý do tự báo cáo thường dựa trên 'a priori, implicit causal theories'. Đây là REVIEW/lý thuyết (không phải thí nghiệm đơn lẻ), nhãn [Khá]; abstract cũng ghi tự báo cáo chính xác khi tác nhân nổi bật và hợp lý — KHÔNG kết luận 'mọi tự báo cáo đều sai'."
+    source_lesson: "Psychology/notes/02-understanding-self/week-16-self-understanding-portfolio.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C16-01"
+    tags:
+      - "self-report"
+      - "introspection"
+      - "nisbett-wilson"
+      - "evidence-limits"
+
+  - id: "fc-psy-w16-002"
+    concept: "Mù lựa chọn / Choice blindness (Johansson et al., 2005)"
+    front: "Choice blindness là gì, con số nào chứng minh, và phạm vi minh họa dừng ở đâu?"
+    back: "Trong nhiệm vụ chọn khuôn mặt, người tham gia không nhận ra khi lựa chọn bị hoán đổi ngầm (chỉ 46/354 lượt = 13% phát hiện ngay; tối đa ~26% mọi hình thức), nhưng vẫn đưa ra lý do nội quan cho lựa chọn họ không hề chọn. Chi tiết phụ: 84% người không phát hiện vẫn tin lẽ ra mình phát hiện được. Giá trị: minh họa cơ chế dựng lý do sau hành vi — không suy rộng ra mọi quyết định."
+    source_lesson: "Psychology/notes/02-understanding-self/week-16-self-understanding-portfolio.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C16-03"
+    tags:
+      - "choice-blindness"
+      - "johansson"
+      - "introspection"
+      - "lab-scope"
+
+  - id: "fc-psy-w16-003"
+    concept: "Mô hình SOKA — bất đối xứng tự–tha nhân (Vazire, 2010)"
+    front: "SOKA dự đoán gì cho trait ít quan sát được, trait mang tính đánh giá, và trait trung tính?"
+    back: "'the self should be more accurate than others for traits low in observability (e.g., neuroticism), whereas others should be more accurate than the self for traits high in evaluativeness (e.g., intellect)'. Kết quả: self tốt nhất với neuroticism; bạn bè tốt nhất với intellect; extraversion — mọi góc nhìn ngang nhau. Mẫu 165, sinh viên trẻ (WEIRD), 1 nghiên cứu đơn lẻ, mô hình đang phát triển — chi tiết attractiveness (người lạ tốt hơn) chưa xác minh trong sổ nguồn."
+    source_lesson: "Psychology/notes/02-understanding-self/week-16-self-understanding-portfolio.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C16-02"
+    tags:
+      - "soka"
+      - "vazire"
+      - "self-other-asymmetry"
+      - "weird"
+
+  - id: "fc-psy-w16-004"
+    concept: "Báo cáo từ người quan sát (Connelly & Ones, 2010)"
+    front: "Meta-analysis này quy mô thế nào, kết luận trung tâm là gì, và đọc đúng ra sao?"
+    back: "'44,178 target individuals rated across 263 independent samples'. Với tiêu chí thành tích học tập/hiệu suất công việc: đánh giá từ người khác có 'predictive validities substantially greater than and incremental to self-ratings'. Độ thân mật cải thiện độ chính xác đặc biệt với trait ít hiện rõ (Emotional Stability). Đọc đúng: ĐA NGUỒN tốt hơn một nguồn — KHÔNG phải 'người khác luôn đúng hơn self'; là meta-analysis tương quan/dự báo, không nhân quả."
+    source_lesson: "Psychology/notes/02-understanding-self/week-16-self-understanding-portfolio.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C16-04"
+    tags:
+      - "informant-report"
+      - "meta-analysis"
+      - "incremental-validity"
+      - "triangulation"
+
+  - id: "fc-psy-w16-005"
+    concept: "Phương pháp dọc đậm đặc — diary & experience sampling (Bolger & Laurenceau, 2013)"
+    front: "Nhóm phương pháp intensive longitudinal gồm những dạng nào, và mệnh đề nào chưa xác minh?"
+    back: "'Intensive longitudinal studies involve many repeated measurements taken on individuals, dyads, or groups, and include diary and experience sampling studies.' Sách là hướng dẫn phương pháp (không phải nghiên cứu hiệu ứng). Lưu ý bắt buộc: mệnh đề 'diary/ESM giảm recall bias' là NOT-VERIFIED trong phạm vi đã đọc — cần mở chương 1 hoặc nguồn khác trước khi trích."
+    source_lesson: "Psychology/notes/02-understanding-self/week-16-self-understanding-portfolio.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C16-05"
+    tags:
+      - "intensive-longitudinal"
+      - "experience-sampling"
+      - "diary"
+      - "not-verified"
+
+  - id: "fc-psy-w16-006"
+    concept: "Backbone giáo trình — Personality Assessment & self-report bias (OpenStax 11.9, 2.2)"
+    front: "OpenStax Psychology 2e 11.9 và 2.2 cung cấp những trích dẫn khái niệm nào cho tuần này?"
+    back: "11.9 (đúng là Section 11.9, KHÔNG phải 11.8): 'There is also an increased likelihood of test takers being inclined to answer in ways that are intentionally or unintentionally more socially desirable, exaggerated, biased, or misleading.' Lie Scale: 15 item, phát hiện 'faking good' (underreporting). TAT: 'Standardization... virtually nonexistent... modest to low on validity and reliability'. 2.2: 'the information... subject to problems associated with any type of self-reported data'."
+    source_lesson: "Psychology/notes/02-understanding-self/week-16-self-understanding-portfolio.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C16-06"
+    tags:
+      - "openstax"
+      - "personality-assessment"
+      - "lie-scale"
+      - "section-11-9"
+
+  - id: "fc-psy-w16-007"
+    concept: "Ranh giới KHÔNG CHẨN ĐOÁN (NIMH)"
+    front: "Vì sao dữ liệu tự hiểu không thay thế chẩn đoán, và hướng đi đúng khi triệu chứng nặng/kéo dài là gì?"
+    back: "NIMH: 'Certain medications and medical conditions, such as viruses or thyroid disorders, can cause the same symptoms as depression. A provider can rule out these possibilities by doing a physical exam, interview, and lab tests.' → Triệu chứng ≠ chẩn đoán. Hướng đi: 'talk to a health care provider' (bác sĩ/chuyên gia tâm lý địa phương). NIMH không có câu 'screening ≠ diagnosis' nguyên văn — diễn dịch đúng phạm vi; không giả định quốc gia."
+    source_lesson: "Psychology/notes/02-understanding-self/week-16-self-understanding-portfolio.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C16-07"
+    tags:
+      - "nimh"
+      - "no-diagnosis"
+      - "clinical-boundary"
+      - "safety"
+
+  - id: "fc-psy-w16-008"
+    concept: "Phản biện pop psychology — quiz '5 phút biết hết con người' (Cấp 5)"
+    front: "Vì sao tuyên bố quiz 5 phút 'đủ biết chính xác con người bạn' vượt bằng chứng, và cách dùng quiz cho đúng?"
+    back: "Phản biện Cấp 5 (Vox 2014): tới ~50% người làm lại một test tính cách phổ biến cho kết quả khác trong vài tuần; nhiều quiz online không có chuẩn psychometrics. Tổng hợp bằng chứng: tự báo cáo một lần có giới hạn đo lường; lý do tự thuật có thể dựng sau hành vi; SOKA dự đoán self không chính xác nhất ở một số trait; cần đa nguồn. Cách đúng: quiz có thể là trò vui, không phải kết luận định mệnh về bản thân."
+    source_lesson: "Psychology/notes/02-understanding-self/week-16-self-understanding-portfolio.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C16-08"
+      - "C16-01"
+    tags:
+      - "pop-psychology"
+      - "debunked"
+      - "quiz-limits"
+      - "tier-5"
+
+  - id: "fc-psy-w16-009"
+    concept: "Quy trình 5 bước xây hồ sơ tự hiểu dựa trên bằng chứng"
+    front: "Quy trình 5 bước gồm những bước nào, và mỗi bước đối ứng bằng chứng nào?"
+    back: "1) Ghi quan sát cụ thể, không ghi kết luận [C16-01]; 2) Thu thập đa nguồn: tự báo cáo lặp lại + báo cáo người có dữ kiện + hành vi đo được [C16-02, C16-04, C16-05]; 3) Viết ≥ 3 giả thuyết thay thế cho mỗi mẫu [C16-02, C15-01]; 4) Gán mức tự tin (thấp/vừa/cao) theo dữ kiện; 5) Vẽ ranh giới không chẩn đoán [C16-07]. Ba lớp kiểm soát: lớp nguồn, lớp giả thuyết, lớp ranh giới."
+    source_lesson: "Psychology/notes/02-understanding-self/week-16-self-understanding-portfolio.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C16-01"
+      - "C16-02"
+      - "C16-04"
+      - "C16-05"
+      - "C16-07"
+    tags:
+      - "five-step-process"
+      - "portfolio"
+      - "triangulation"
+      - "safety-boundary"
+
+  - id: "fc-psy-w16-010"
+    concept: "Đọc meta-analysis cho đúng — chọn nguồn theo trait và bối cảnh"
+    front: "Khi cần thêm dữ liệu về một trait, chọn nguồn nào là hợp lý nhất, và sai lầm cần tránh là gì?"
+    back: "Chọn nguồn có dữ kiện phù hợp với trait và bối cảnh: với trait ít quan sát được (như ổn định cảm xúc), người thân thiết quan sát nhiều bối cảnh và thời gian dài hơn — 'Interpersonal intimacy improved accuracy especially for traits low in visibility'. Sai lầm cần tránh: dùng một nguồn duy nhất một lần (quiz online trong lúc căng thẳng), hoặc suy từ trung bình nhóm xuống cá nhân. Đọc meta-analysis là ĐA NGUỒN, không phải một phía luôn đúng."
+    source_lesson: "Psychology/notes/02-understanding-self/week-16-self-understanding-portfolio.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C16-04"
+      - "C16-02"
+    tags:
+      - "informant-selection"
+      - "trait-visibility"
+      - "intimacy"
+      - "triangulation"

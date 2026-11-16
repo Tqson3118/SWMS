@@ -1,0 +1,40 @@
+schema_version: "2.0.0"
+package_id: "package:personal-finance:w06"
+subject_id: "roadmap:subject:personal-finance"
+display_title: "T�i Ch�nh C� Nh�n Th?c H�nh"
+source_status: "in_review"
+version: 1
+created_at: "2026-09-15T00:00:00Z"
+subject: "T�i ch�nh c� nh�n"
+course: "T�i ch�nh c� nh�n th?c h�nh"
+module: "module-2"
+lesson: "week-06-quan-ly-no"
+learning_objectives:
+  - {id: "LO-PF-W06-01", bloom_level: "Understand", statement: "Ph�n bi?t c�c c�ch ph�n t�ch r?i ro c?a kho?n n?."}
+  - {id: "LO-PF-W06-02", bloom_level: "Apply", statement: "So s�nh Snowball v� Avalanche."}
+  - {id: "LO-PF-W06-03", bloom_level: "Apply", statement: "T�nh v� so s�nh t�c d?ng c?a l�i su?t d?n kho?n n?."}
+  - {id: "LO-PF-W06-04", bloom_level: "Evaluate", statement: "Nh?n di?n b?y t�n d?ng v� l?a ch?n phuong �n x? l� n?."}
+concepts:
+  - {id: "roadmap:concept:pf:debt-classification", name: "Ph�n t�ch n?", claim_ids: ["M2-C07", "M2-C08"], evidence_label: "medium", source_ledger_path: "quality/module-2-source-ledger.md"}
+  - {id: "roadmap:concept:pf:debt-repayment", name: "Snowball v� Avalanche", claim_ids: ["M2-C10", "M2-C11"], evidence_label: "strong", source_ledger_path: "quality/module-2-source-ledger.md"}
+  - {id: "roadmap:concept:pf:consumer-credit", name: "L�i su?t t�n d?ng ti�u d�ng", claim_ids: ["M2-C09"], evidence_label: "medium", source_ledger_path: "quality/module-2-source-ledger.md"}
+questions:
+  - {id: "Q01", lo_ref: "LO-PF-W06-01", concept_id: "roadmap:concept:pf:debt-classification", claim_ids: ["M2-C07"]}
+  - {id: "Q02", lo_ref: "LO-PF-W06-03", concept_id: "roadmap:concept:pf:consumer-credit", claim_ids: ["M2-C09"]}
+  - {id: "Q03", lo_ref: "LO-PF-W06-02", concept_id: "roadmap:concept:pf:debt-repayment", claim_ids: ["M2-C10"]}
+  - {id: "Q04", lo_ref: "LO-PF-W06-02", concept_id: "roadmap:concept:pf:debt-repayment", claim_ids: ["M2-C11"]}
+  - {id: "Q05", lo_ref: "LO-PF-W06-01", concept_id: "roadmap:concept:pf:debt-classification", claim_ids: ["M2-C08"]}
+  - {id: "Q06", lo_ref: "LO-PF-W06-03", concept_id: "roadmap:concept:pf:consumer-credit", claim_ids: ["M2-C09"]}
+  - {id: "Q07", lo_ref: "LO-PF-W06-04", concept_id: "roadmap:concept:pf:debt-classification", claim_ids: []}
+  - {id: "Q08", lo_ref: "LO-PF-W06-02", concept_id: "roadmap:concept:pf:debt-repayment", claim_ids: ["M2-C11"]}
+  - {id: "Q09", lo_ref: "LO-PF-W06-04", concept_id: "roadmap:concept:pf:debt-classification", claim_ids: []}
+  - {id: "Q10", lo_ref: "LO-PF-W06-04", concept_id: "roadmap:concept:pf:consumer-credit", claim_ids: ["M2-C09"]}
+units:
+  - unit_id: "roadmap:unit:pf:w06"
+    display_title: "Tu?n 06: Qu?n l� n?"
+    sort_order: 6
+    artifacts:
+      - {role: "lesson_theory", stable_id: "roadmap:lesson:pf:w06", path: "notes/module-2/week-06-quan-ly-no.md", sha256: "fa633bcf31e387258f567c59eaf5a57fafe58ff7972c49de4b0d95f3109f313e", byte_length: 50332}
+      - {role: "quiz_questions", stable_id: "roadmap:quiz:pf:w06", path: "assessments/quizzes/week-06-quiz.md", question_count: 10, sha256: "e194a52e92dbb459efd40f774dd33baec6f21d05cd4528122ef95861b16f559b", byte_length: 4985}
+      - {role: "quiz_answers", stable_id: "roadmap:answers:pf:w06", path: "assessments/answer-keys/week-06-answers.md", correct_count: 10, wrong_count: 30, sha256: "dac600829b1b53e41f4334c5a54014eb26afceddb8c76662e5601ac6611eb607", byte_length: 16822}
+      - {role: "source_ledger", path: "quality/module-2-source-ledger.md", sha256: "dbde3cc07e474aa2cf54a5189b997dd527495c72c6c5ca851259a150f03e8709", byte_length: 4686}

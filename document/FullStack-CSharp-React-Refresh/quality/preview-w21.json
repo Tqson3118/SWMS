@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:54:01Z",
+  "unit_id": "roadmap:unit:fscr:w21",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 21: Git, Linux và environment configuration",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w21",
+    "title": "Tuần 21: Git, Linux và environment configuration",
+    "content_markdown": "<h1>Tuần 21 — Git, Linux và environment configuration</h1>\n<p>Chặng 6; 3 bài L21-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W21-01: Tạo history có thể review và tái hiện.</p>\n</li>\n<li>\n<p>LO-W21-02: Chẩn đoán đường dẫn, quyền và network service.</p>\n</li>\n<li>\n<p>LO-W21-03: Phân biệt public frontend config với backend secret.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 20; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-21-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w21-01\"></a></p>\n<h2>Bài 1: Git và review workflow</h2>\n<p>LO-W21-01 · W21-C01</p>\n<p>Git snapshot tracked files, index là staging chọn nội dung commit; git diff trước stage và git diff --cached trước commit. Branch cho feature, commit nhỏ có lý do và tests. git fetch tải refs; pull tích hợp nên hiểu merge/rebase trước dùng. Rebase đổi commit IDs, chỉ rewrite branch riêng chưa chia sẻ; không force-push main. Merge conflict đọc cả intent, sửa file rồi chạy kiểm hành vi; không chọn toàn ours/theirs mù. .gitignore loại bin/obj/node_modules/.env/secret/log chứa personal data. Commit lockfile và migrations, không commit credentials. Pull request mô tả behavior/why/evidence, không chỉ liệt kê tên file.</p>\n<p><a id=\"lo-w21-02\"></a></p>\n<h2>Bài 2: Linux và process basics</h2>\n<p>LO-W21-02 · W21-C02</p>\n<p>Linux paths case-sensitive; src/Api khác src/api, lỗi Windows có thể chỉ lộ trong CI. pwd/ls/cat/head/tail đọc context, rg tìm text, mkdir tạo thư mục, chmod thay quyền có chủ đích. Không dùng chmod777 để chữa mọi lỗi; service cần quyền đọc code và ghi đúng data/log path. ps xem process, ss -ltn xem listener, curl kiểm HTTP, exit code0 thường success. SIGTERM yêu cầu graceful shutdown; SIGKILL không cho cleanup. Port binding0.0.0.0 trong container khác localhost chỉ trong container. stdout/stderr phục vụ container logs; shell quoting cần tránh secrets lọt command history.</p>\n<p><a id=\"lo-w21-03\"></a></p>\n<h2>Bài 3: Configuration và secrets</h2>\n<p>LO-W21-03 · W21-C03</p>\n<p>ASP.NET Core đọc appsettings, environment-specific và env với key nested dùng __; ConnectionStrings__Finance overrides JSON. Development user-secrets là convenience ngoài repo, không là vault bảo mật production. Environment variables là cách truyền cấu hình, vẫn có thể lộ ở process/log nên production dùng secret manager/access control. Frontend VITE_API_BASE_URL đóng vào bundle lúc build, mọi VITE_ value public; đổi env container sau build không tự sửa bundle. Tách Development/Testing/Production, validate required configuration khi startup. Không bật detailed errors hoặc dev user-jwts trong production. .env.example có tên biến và giá trị lab công khai không có secrets thật.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Tạo branch feat/config-runbook; git status --short, git diff rồi stage đúng files.</li>\n<li>Linux/WSL hoặc container shell: pwd; rg 'localhost' web/src; curl -i http://localhost:8080/api/ping. Các lệnh chạy riêng, không in env toàn bộ.</li>\n<li>Trong API lab đọc builder.Configuration.GetConnectionString(\"Finance\"); đặt ConnectionStrings__Finance ở process env, không ghi repo. Frontend đọc import.meta.env.VITE_API_BASE_URL.</li>\n<li>Build client với API URL A, sau đó đổi env thànhB nhưng không rebuild: bundle vẫnA. Ghi kết quả và chọn rebuild hoặc runtime public config file có validation.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>Env không tự là secret và minify không che giá trị. Secret đã commit: revoke/rotate trước, rồi xử lý history theo team workflow; chỉ xóa dòng không xóa lịch sử. Lab tránh cố tình commit secret thật.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>Sửa conflict cùng category validator ở hai branch.</p>\n<h3>Bài tập 2</h3>\n<p>CI Linux báo module không tìm được dù Windows chạy.</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>Đọc cả diff, thống nhất trim/range policy; sửa conflict markers, test empty/60/61 chars rồi commit resolution. Ghi lý do cho reviewer.</p>\n<h3>Hướng giải 2</h3>\n<p>Kiểm casing filename/import, lockfile và cwd; sửa tên/import qua git mv nếu filesystem case-insensitive. Không thêm dependency ngẫu nhiên.</p>\n<h2>Project task</h2>\n<p>Đưa finance repo lên GitHub riêng của học viên; tạo PR feature nhỏ, README runbook và configuration inventory không secrets. Git/English vốn chạy từtuần1, tuần này chuẩn hóa để người khác chạy.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w21.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Fresh clone chạy theo README với lockfile/migrations và không file ngầm cá nhân.</p>\n</li>\n<li>\n<p>[ ] PR có behavior/test evidence; resolve conflict không mất validator policy.</p>\n</li>\n<li>\n<p>[ ] Scan repo hiện tại không secret; client bundle chỉ chứa publicconfig, Linux import casing pass.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Viết PR description English120–180words: concrete change, validation, limitation; đọc thành tiếng.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository\">Staging and reviewing commits</a> — W21-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://manpages.ubuntu.com/manpages/noble/en/man1/chmod.1.html\">Symbolic modes and permission bits</a> — W21-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-10.0\">Configuration providers and environment overrides</a> — W21-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-21-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-21-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-21.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"../module-5/week-20.md\">Tuần trước</a></p>\n<p><a href=\"week-22.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Staging and reviewing commits](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)",
+      "[Symbolic modes and permission bits](https://manpages.ubuntu.com/manpages/noble/en/man1/chmod.1.html)",
+      "[Configuration providers and environment overrides](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-10.0)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W21-01]",
+        "bloom_level": "Apply",
+        "statement": "Tạo history có thể review và tái hiện."
+      },
+      {
+        "id": "[LO-W21-02]",
+        "bloom_level": "Apply",
+        "statement": "Chẩn đoán đường dẫn, quyền và network service."
+      },
+      {
+        "id": "[LO-W21-03]",
+        "bloom_level": "Apply",
+        "statement": "Phân biệt public frontend config với backend secret."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w21-c01",
+        "name": "Git và review workflow",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w21-c02",
+        "name": "Linux và process basics",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w21-c03",
+        "name": "Configuration và secrets",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w21",
+    "title": "Trắc nghiệm Tuần 21: Git, Linux và environment configuration",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w21:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "Lệnh nào xem nội dung sẽ commit?",
+        "options": [
+          {
+            "id": "A",
+            "text": "git fetch tự review"
+          },
+          {
+            "id": "B",
+            "text": "git diff --cached"
+          },
+          {
+            "id": "C",
+            "text": "git diff chỉ unstaged"
+          },
+          {
+            "id": "D",
+            "text": "git log thay diff"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Cached diff là index so HEAD.",
+        "wrong_explanations": {
+          "A": "Fetch tải refs không xem staged change.",
+          "C": "Diff mặc định xem worktree so index.",
+          "D": "Log xem commits đã có."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w21-c01",
+        "lesson_anchor": "#lo-w21-01",
+        "claim_ids": [
+          "W21-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w21:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Secret đã commit cần bước ưu tiên gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Đổi README"
+          },
+          {
+            "id": "B",
+            "text": "Minify file"
+          },
+          {
+            "id": "C",
+            "text": "Revoke/rotate credential"
+          },
+          {
+            "id": "D",
+            "text": "Chỉ xóa dòng mới"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Credential có thể đã lộ từ history.",
+        "wrong_explanations": {
+          "A": "README không thu hồi quyền credential.",
+          "B": "Obfuscation không bảo vệ secret.",
+          "D": "History còn giữ secret cũ."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w21-c01",
+        "lesson_anchor": "#lo-w21-01",
+        "claim_ids": [
+          "W21-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w21:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "Linux CI không tìm Expense.tsx thường kiểm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tắt TypeScript"
+          },
+          {
+            "id": "B",
+            "text": "Chmod777 mọi file"
+          },
+          {
+            "id": "C",
+            "text": "Xóa toàn repo"
+          },
+          {
+            "id": "D",
+            "text": "Casing đường dẫn/import"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Case-sensitive paths khác Windows.",
+        "wrong_explanations": {
+          "A": "Tắt checks không sửa đường dẫn.",
+          "B": "Permissions khác lỗi tên file.",
+          "C": "Xóa repo không chẩn đoán nguyên nhân."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w21-c02",
+        "lesson_anchor": "#lo-w21-02",
+        "claim_ids": [
+          "W21-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w21:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "API trong container thường bind địa chỉ nào để nhận ngoài?",
+        "options": [
+          {
+            "id": "A",
+            "text": "0.0.0.0 trên port nội bộ"
+          },
+          {
+            "id": "B",
+            "text": "Chỉ127.0.0.1"
+          },
+          {
+            "id": "C",
+            "text": "IP trình duyệt user"
+          },
+          {
+            "id": "D",
+            "text": "Hostname database"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Bind mọi interfaces container cho mapped port.",
+        "wrong_explanations": {
+          "B": "Loopback không nhận qua container network.",
+          "C": "Client IP không listener của server.",
+          "D": "DB hostname thuộc dependency khác."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w21-c02",
+        "lesson_anchor": "#lo-w21-02",
+        "claim_ids": [
+          "W21-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w21:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "VITE_ variable trong build được xem là gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Encrypted tự động"
+          },
+          {
+            "id": "B",
+            "text": "Public client configuration"
+          },
+          {
+            "id": "C",
+            "text": "Secret vault"
+          },
+          {
+            "id": "D",
+            "text": "Chỉ server đọc"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Bundle gửi browser có thể inspect.",
+        "wrong_explanations": {
+          "A": "Vite không tự mã hóa credential.",
+          "C": "Frontend build không giữ secret vault.",
+          "D": "Client code đọc giá trị được build."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w21-c03",
+        "lesson_anchor": "#lo-w21-03",
+        "claim_ids": [
+          "W21-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w21:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "Env key cho ConnectionStrings:Finance là gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "VITE_SQL_PASSWORD"
+          },
+          {
+            "id": "B",
+            "text": "Finance:BrowserSecret"
+          },
+          {
+            "id": "C",
+            "text": "ConnectionStrings__Finance"
+          },
+          {
+            "id": "D",
+            "text": "ConnectionStrings.Finance"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Double underscore map nested config đa nền tảng.",
+        "wrong_explanations": {
+          "A": "VITE khiến giá trị public ở client.",
+          "B": "Browser không nên chứa DB connection.",
+          "D": "Dot không mặc định map hierarchical key."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w21-c03",
+        "lesson_anchor": "#lo-w21-03",
+        "claim_ids": [
+          "W21-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w21",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 21: Git, Linux và environment configuration",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w21-001",
+        "concept_name": "Staging",
+        "front": "Lệnh nào xem nội dung sẽ commit?",
+        "back": "git diff --cached. Cached diff là index so HEAD.",
+        "tags": [
+          "w21",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W21-C01"
+        ],
+        "source_citation": "notes/module-6/week-21.md",
+        "lesson_anchor": "#lo-w21-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w21-002",
+        "concept_name": "Secret incident",
+        "front": "Secret đã commit cần bước ưu tiên gì?",
+        "back": "Revoke/rotate credential. Credential có thể đã lộ từ history.",
+        "tags": [
+          "w21",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W21-C01"
+        ],
+        "source_citation": "notes/module-6/week-21.md",
+        "lesson_anchor": "#lo-w21-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w21-003",
+        "concept_name": "Linux paths",
+        "front": "Linux CI không tìm Expense.tsx thường kiểm gì?",
+        "back": "Casing đường dẫn/import. Case-sensitive paths khác Windows.",
+        "tags": [
+          "w21",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W21-C02"
+        ],
+        "source_citation": "notes/module-6/week-21.md",
+        "lesson_anchor": "#lo-w21-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w21-004",
+        "concept_name": "Container listener",
+        "front": "API trong container thường bind địa chỉ nào để nhận ngoài?",
+        "back": "0.0.0.0 trên port nội bộ. Bind mọi interfaces container cho mapped port.",
+        "tags": [
+          "w21",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W21-C02"
+        ],
+        "source_citation": "notes/module-6/week-21.md",
+        "lesson_anchor": "#lo-w21-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w21-005",
+        "concept_name": "Public env",
+        "front": "VITE_ variable trong build được xem là gì?",
+        "back": "Public client configuration. Bundle gửi browser có thể inspect.",
+        "tags": [
+          "w21",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W21-C03"
+        ],
+        "source_citation": "notes/module-6/week-21.md",
+        "lesson_anchor": "#lo-w21-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w21-006",
+        "concept_name": "Nested config",
+        "front": "Env key cho ConnectionStrings:Finance là gì?",
+        "back": "ConnectionStrings__Finance. Double underscore map nested config đa nền tảng.",
+        "tags": [
+          "w21",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W21-C03"
+        ],
+        "source_citation": "notes/module-6/week-21.md",
+        "lesson_anchor": "#lo-w21-03"
+      }
+    ]
+  }
+}

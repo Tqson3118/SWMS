@@ -1,0 +1,174 @@
+schema_version: 2.0.0
+package_id: package:psychology:w46
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 06-integration
+lesson: week-46-healthy-relationships
+learning_objectives:
+- id: LO-W46-01
+  bloom_level: Understand
+  statement: Phân tích tác động dịch tễ học và cơ chế sinh lý thần kinh của sự cô đơn mãn tính (Cacioppo, Holt-Lunstad) lên nguy cơ tử vong sớm và phản ứng miễn dịch.
+- id: LO-W46-02
+  bloom_level: Apply
+  statement: Phân biệt giữa Hỗ trợ xã hội cấu trúc và Hỗ trợ xã hội chức năng (Sheldon Cohen), đồng thời vận dụng 5 nhóm hành vi bảo trì quan hệ của Stafford & Canary vào đời sống thực tế.
+- id: LO-W46-03
+  bloom_level: Analyze
+  statement: Vận dụng Mô hình Đầu tư Quan hệ của Caryl Rusbult (Commitment = Satisfaction + Investments - Alternatives) để giải thích sự gắn kết và tính ổn định của các mối quan hệ lâu dài.
+- id: LO-W46-04
+  bloom_level: Evaluate
+  statement: Đánh giá cấu trúc các tầng mạng lưới xã hội theo Số Dunbar (5 - 15 - 50 - 150) và phản biện ảo tưởng về số lượng kết nối kỹ thuật số trong thời đại mạng xã hội.
+concepts:
+- id: roadmap:concept:psychology:w46-c46-01
+  name: Dịch Tễ Học & Sinh Lý Học Thần Kinh Của Sự Cô Đơn (Cacioppo & Holt-Lunstad)
+  claim_ids:
+  - C46-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w46-c46-02
+  name: Hỗ Trợ Xã Hội Cấu Trúc vs Chức Năng & Hiệu Ứng Đệm Stress (Cohen & Uchino)
+  claim_ids:
+  - C46-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w46-c46-03
+  name: Mô Hình Đầu Tư Quan Hệ & Cam Kết Gắn Bó (Caryl Rusbult)
+  claim_ids:
+  - C46-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w46-c46-04
+  name: 5 Hành Vi Bảo Trì Quan Hệ Thực Chứng (Stafford & Canary)
+  claim_ids:
+  - C46-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w46-c46-05
+  name: Giới Hạn Nhận Thức Xã Hội & Số Dunbar (Robin Dunbar)
+  claim_ids:
+  - C46-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+questions:
+- id: Q46-01
+  lo_ref: LO-W46-01
+  concept_id: roadmap:concept:psychology:w46-c46-01
+  claim_ids:
+  - C46-01
+- id: Q46-02
+  lo_ref: LO-W46-01
+  concept_id: roadmap:concept:psychology:w46-c46-01
+  claim_ids:
+  - C46-01
+- id: Q46-03
+  lo_ref: LO-W46-02
+  concept_id: roadmap:concept:psychology:w46-c46-02
+  claim_ids:
+  - C46-02
+- id: Q46-04
+  lo_ref: LO-W46-02
+  concept_id: roadmap:concept:psychology:w46-c46-02
+  claim_ids:
+  - C46-02
+- id: Q46-05
+  lo_ref: LO-W46-02
+  concept_id: roadmap:concept:psychology:w46-c46-02
+  claim_ids:
+  - C46-02
+- id: Q46-06
+  lo_ref: LO-W46-03
+  concept_id: roadmap:concept:psychology:w46-c46-03
+  claim_ids:
+  - C46-03
+- id: Q46-07
+  lo_ref: LO-W46-03
+  concept_id: roadmap:concept:psychology:w46-c46-03
+  claim_ids:
+  - C46-03
+- id: Q46-08
+  lo_ref: LO-W46-02
+  concept_id: roadmap:concept:psychology:w46-c46-04
+  claim_ids:
+  - C46-04
+- id: Q46-09
+  lo_ref: LO-W46-02
+  concept_id: roadmap:concept:psychology:w46-c46-04
+  claim_ids:
+  - C46-04
+- id: Q46-10
+  lo_ref: LO-W46-04
+  concept_id: roadmap:concept:psychology:w46-c46-05
+  claim_ids:
+  - C46-05
+- id: Q46-11
+  lo_ref: LO-W46-04
+  concept_id: roadmap:concept:psychology:w46-c46-05
+  claim_ids:
+  - C46-05
+- id: Q46-12
+  lo_ref: LO-W46-04
+  concept_id: roadmap:concept:psychology:w46-c46-05
+  claim_ids:
+  - C46-05
+units:
+- unit_id: roadmap:unit:psychology:w46
+  display_title: 'Tuần 46: Xây dựng & duy trì quan hệ xã hội bền vững'
+  sort_order: 46
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w46
+    path: notes/06-integration/week-46-healthy-relationships.md
+    sha256: b63ba137c0c5b6188aa89b150fd8fee4b4a9142bb77ef178946ee4d1e68fe347
+    byte_length: 42456
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w46
+    path: assessments/quizzes/week-46-quiz.md
+    question_count: 12
+    sha256: 329b48dc8d60e07a167a81af2c7dfa2aece0af66dd603e13b76dde4140e49ded
+    byte_length: 8405
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w46
+    path: assessments/answer-keys/week-46-answers.md
+    correct_count: 12
+    wrong_count: 36
+    sha256: 1c4955b0447785b84ae6e32977d42d2cd3f6c4bbffaded70bcfdd3e623b818e7
+    byte_length: 10240
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w46
+    path: flashcards/week-46.yaml
+    card_count: 8
+    sha256: 97e710510bf77d72e401d2937a19d42fd6b9357e4fa40e0a0b5777424baa8724
+    byte_length: 5764
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

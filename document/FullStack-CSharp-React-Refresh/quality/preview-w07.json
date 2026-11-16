@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:53:47Z",
+  "unit_id": "roadmap:unit:fscr:w07",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 07: LINQ, nullable và exception boundaries",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w07",
+    "title": "Tuần 07: LINQ, nullable và exception boundaries",
+    "content_markdown": "<h1>Tuần 07 — LINQ, nullable và exception boundaries</h1>\n<p>Chặng 2; 3 bài L07-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W07-01: Giải thích query deferred, chạy filter/projection/grouping và tránh enumerate thừa.</p>\n</li>\n<li>\n<p>LO-W07-02: Loại warnings null bằng guard đúng, không dùng null-forgiving để che lỗi.</p>\n</li>\n<li>\n<p>LO-W07-03: Đặt catch tại boundary, bảo toàn stack và phân biệt expected failures.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 06; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-07-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w07-01\"></a></p>\n<h2>Bài 1: LINQ deferred và materialization</h2>\n<p>LO-W07-01 · W07-C01</p>\n<p>Where/Select thường deferred: tạo pipeline chưa enumerate. ToList/ToArray materialize snapshot; Sum/Count/First cũng thực thi terminal operation. IEnumerable LINQ chạy trên .NET objects; IQueryable expression có thể được EF translate SQL, không tùy tiện gọi method custom trong query DB. Source list đổi trước enumerate có thể đổi kết quả; mỗi enumerate có thể lặp công việc hoặc IO tùy provider. GroupBy category rồi Sum AmountVnd tạo report; OrderBy/ThenBy giữ thứ tự xác định. First throw nếu không có element, FirstOrDefault trả default có thể null/0 nên caller phải phân biệt absence.</p>\n<p><a id=\"lo-w07-02\"></a></p>\n<h2>Bài 2: Nullable reference types</h2>\n<p>LO-W07-02 · W07-C02</p>\n<p>NRT là compiler analysis cho annotation string/string?, không tự cài runtime validation. Enable Nullable trong csproj; string? cho data có thể thiếu. if(value is null) guard làm flow analysis biết branch còn lại non-null. ?. access và ?? fallback cần semantics rõ; note null có thể hợp lệ, category missing thì không. ! chỉ thông báo compiler tin tác giả, không biến null thành object; dùng chỉ khi invariant thật đã chứng minh. DTO từ deserialization vẫn có thể thiếu field; API/domain guard runtime. Try-pattern giúp parse without expected exception, ví dụ DateOnly.TryParseExact với invariant culture.</p>\n<p><a id=\"lo-w07-03\"></a></p>\n<h2>Bài 3: Exceptions và error contract</h2>\n<p>LO-W07-03 · W07-C03</p>\n<p>Exception biểu diễn failure phá normal flow; validation expected có thể return result thay throw liên tục. Catch loại có thể xử lý; catch(Exception) ở global boundary ghi log và response generic, không nuốt lỗi. throw; giữ stack; throw ex; reset điểm stack nên tránh. finally dọn trạng thái/resource, using đảm bảo Dispose sau scope; không đặt return trong finally. Cancellation OperationCanceledException gắn token được coi cancellation, không lỗi500 mặc định. Domain không trả HTTP status; API adapter map Argument/validation/conflict theo contract. Log structured dữ liệu không nhạy cảm và exception, không token/note đầy đủ.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Bài toán: deferred query trước/sau sửa source.</li>\n<li>Query và snapshot có thời điểm khác nhau.</li>\n<li>Console:</li>\n</ol>\n<pre><code class=\"language-csharp\">var xs=new List&lt;long&gt;{50000,20000};\nvar q=xs.Where(x=&gt;x&gt;=30000);\nvar snapshot=q.ToList();\nxs.Add(30000);\nConsole.WriteLine(q.Sum()); // 80000\nConsole.WriteLine(snapshot.Sum()); // 50000\nstring? note=null;\nConsole.WriteLine(note?.Trim()??\"(không ghi chú)\");\n</code></pre>\n<ol>\n<li>Nếu source bất biến kết quả bằng nhau; đừng materialize mọi query sớm vì mất SQL composition sau này. Null note hợp lệ nhưng categoryId null không được fallback thành category của user khác.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>LINQ đọc gọn không bảo đảm query nhanh. Đếm Count rồi foreach có thể enumerate2 lần; materialize khi cần snapshot và hiểu memory. Async exception ở Task chỉ được quan sát khi await; fire-and-forget có thể mất error boundary.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>Group fixture theo category, order total giảm dần và kiểm []</p>\n<h3>Bài tập 2</h3>\n<p>Parse ngày yyyy-MM-dd và note optional; test ngày không tồn tại và null.</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>GroupBy category; Select g=&gt;new {Category=g.Key,Total=g.Sum(x=&gt;x.AmountVnd)}; OrderByDescending Total rồi ThenBy Category. Food80000,Travel20000; [] no rows.</p>\n<h3>Hướng giải 2</h3>\n<p>DateOnly.TryParseExact với CultureInfo.InvariantCulture/DateTimeStyles.None; '2026-02-30' invalid, '2026-10-01' valid; note?.Trim() cho null an toàn. Không dùng ! để lách guard.</p>\n<h2>Project task</h2>\n<p>Report domain LINQ có projection và null-aware import validation. Tạo error result {row,field,message} cho lỗi input; không nuốt exception IO.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w07.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Deferred demo q80000/snapshot50000 và giải thích thời điểm enumerate.</p>\n</li>\n<li>\n<p>[ ] Report đúng fixture, empty và sort tie deterministic.</p>\n</li>\n<li>\n<p>[ ] Nullable warnings quan trọng được giải bằng guard; invalid date không crash hoặc lưu sai.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Thu: 'When does this LINQ query execute?' Dùng deferred execution, materialize, nullable, boundary, stack trace.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/dotnet/standard/linq/deferred-execution-lazy-evaluation\">Deferred execution and lazy evaluation</a> — W07-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references\">Nullable reference types</a> — W07-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/dotnet/standard/exceptions/best-practices-for-exceptions\">Best practices for exceptions</a> — W07-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-07-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-07-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-07.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"week-06.md\">Tuần trước</a></p>\n<p><a href=\"week-08.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Deferred execution and lazy evaluation](https://learn.microsoft.com/en-us/dotnet/standard/linq/deferred-execution-lazy-evaluation)",
+      "[Nullable reference types](https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references)",
+      "[Best practices for exceptions](https://learn.microsoft.com/en-us/dotnet/standard/exceptions/best-practices-for-exceptions)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W07-01]",
+        "bloom_level": "Apply",
+        "statement": "Giải thích query deferred, chạy filter/projection/grouping và tránh enumerate thừa."
+      },
+      {
+        "id": "[LO-W07-02]",
+        "bloom_level": "Apply",
+        "statement": "Loại warnings null bằng guard đúng, không dùng null-forgiving để che lỗi."
+      },
+      {
+        "id": "[LO-W07-03]",
+        "bloom_level": "Apply",
+        "statement": "Đặt catch tại boundary, bảo toàn stack và phân biệt expected failures."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w07-c01",
+        "name": "LINQ deferred và materialization",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w07-c02",
+        "name": "Nullable reference types",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w07-c03",
+        "name": "Exceptions và error contract",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w07",
+    "title": "Trắc nghiệm Tuần 07: LINQ, nullable và exception boundaries",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w07:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "Tạo Where trên List có luôn chạy filter ngay không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Luôn copy source ngay"
+          },
+          {
+            "id": "B",
+            "text": "Luôn gọi DB"
+          },
+          {
+            "id": "C",
+            "text": "Luôn tạo thread"
+          },
+          {
+            "id": "D",
+            "text": "Thường chưa, tới enumeration"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Where pipeline thường deferred.",
+        "wrong_explanations": {
+          "A": "ToList mới materialize snapshot ở ví dụ.",
+          "B": "List LINQ không cần DB.",
+          "C": "Enumeration không tự tạo thread."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w07-c01",
+        "lesson_anchor": "#lo-w07-01",
+        "claim_ids": [
+          "W07-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w07:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "q deferred tạo từ50000/20000 rồi thêm30000; snapshot trước thêm tổng gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "50000"
+          },
+          {
+            "id": "B",
+            "text": "80000"
+          },
+          {
+            "id": "C",
+            "text": "20000"
+          },
+          {
+            "id": "D",
+            "text": "0"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Snapshot đã materialize phần đạt filter trước thêm.",
+        "wrong_explanations": {
+          "B": "80000 là q enumerate sau mutation.",
+          "C": "20000 không đạt filter>=30000.",
+          "D": "Snapshot có50000 nên không0."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w07-c01",
+        "lesson_anchor": "#lo-w07-01",
+        "claim_ids": [
+          "W07-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w07:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "NRT thay validation runtime không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Chỉ cần ! để an toàn"
+          },
+          {
+            "id": "B",
+            "text": "Không"
+          },
+          {
+            "id": "C",
+            "text": "Có cấm deserialization thiếu field"
+          },
+          {
+            "id": "D",
+            "text": "Có mọi null đều exception compile"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "NRT là annotation và compiler flow analysis.",
+        "wrong_explanations": {
+          "A": "! chỉ suppress phân tích, không tạo object.",
+          "C": "Input bên ngoài vẫn cần runtime guard.",
+          "D": "Warnings không áp mọi runtime path."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w07-c02",
+        "lesson_anchor": "#lo-w07-02",
+        "claim_ids": [
+          "W07-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w07:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "note?.Trim()??'' khi note=null trả gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "null vì ?? không hoạt động"
+          },
+          {
+            "id": "B",
+            "text": "Tạo string 'null'"
+          },
+          {
+            "id": "C",
+            "text": "Chuỗi rỗng"
+          },
+          {
+            "id": "D",
+            "text": "Throw luôn"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "?. cho null, ?? chọn fallback.",
+        "wrong_explanations": {
+          "A": "?? dùng fallback khi left null.",
+          "B": "Không tự convert thành chữ null.",
+          "D": "Conditional access tránh gọi Trim trên null."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w07-c02",
+        "lesson_anchor": "#lo-w07-02",
+        "claim_ids": [
+          "W07-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w07:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "Rethrow trong catch nên dùng gì để giữ stack?",
+        "options": [
+          {
+            "id": "A",
+            "text": "throw ex;"
+          },
+          {
+            "id": "B",
+            "text": "return success;"
+          },
+          {
+            "id": "C",
+            "text": "throw new Exception() không inner"
+          },
+          {
+            "id": "D",
+            "text": "throw;"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Rethrow giữ original exception stack.",
+        "wrong_explanations": {
+          "A": "throw ex có thể reset trace location.",
+          "B": "Return success che failure.",
+          "C": "Exception mới không inner mất nguyên nhân."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w07-c03",
+        "lesson_anchor": "#lo-w07-03",
+        "claim_ids": [
+          "W07-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w07:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "Ngày invalid nên xử lý ra sao ở import?",
+        "options": [
+          {
+            "id": "A",
+            "text": "TryParseExact và row/field error"
+          },
+          {
+            "id": "B",
+            "text": "Silently đổi thành hôm nay"
+          },
+          {
+            "id": "C",
+            "text": "! để hết warning"
+          },
+          {
+            "id": "D",
+            "text": "Catch mọi lỗi rồi bỏ dòng không báo"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Input expected invalid cần error rõ và không partial commit.",
+        "wrong_explanations": {
+          "B": "Đổi ngày làm sai data nghiệp vụ.",
+          "C": "! không parse/validate.",
+          "D": "Bỏ lỗi không báo gây mất dữ liệu."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w07-c03",
+        "lesson_anchor": "#lo-w07-03",
+        "claim_ids": [
+          "W07-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w07",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 07: LINQ, nullable và exception boundaries",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w07-001",
+        "concept_name": "Deferred query",
+        "front": "Tạo Where trên List có luôn chạy filter ngay không?",
+        "back": "Thường chưa, tới enumeration. Where pipeline thường deferred.",
+        "tags": [
+          "w07",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W07-C01"
+        ],
+        "source_citation": "notes/module-2/week-07.md",
+        "lesson_anchor": "#lo-w07-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w07-002",
+        "concept_name": "Snapshot result",
+        "front": "q deferred tạo từ50000/20000 rồi thêm30000; snapshot trước thêm tổng gì?",
+        "back": "50000. Snapshot đã materialize phần đạt filter trước thêm.",
+        "tags": [
+          "w07",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W07-C01"
+        ],
+        "source_citation": "notes/module-2/week-07.md",
+        "lesson_anchor": "#lo-w07-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w07-003",
+        "concept_name": "Nullable scope",
+        "front": "NRT thay validation runtime không?",
+        "back": "Không. NRT là annotation và compiler flow analysis.",
+        "tags": [
+          "w07",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W07-C02"
+        ],
+        "source_citation": "notes/module-2/week-07.md",
+        "lesson_anchor": "#lo-w07-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w07-004",
+        "concept_name": "Null guard",
+        "front": "note?.Trim()??'' khi note=null trả gì?",
+        "back": "Chuỗi rỗng. ?. cho null, ?? chọn fallback.",
+        "tags": [
+          "w07",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W07-C02"
+        ],
+        "source_citation": "notes/module-2/week-07.md",
+        "lesson_anchor": "#lo-w07-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w07-005",
+        "concept_name": "Stack preservation",
+        "front": "Rethrow trong catch nên dùng gì để giữ stack?",
+        "back": "throw;. Rethrow giữ original exception stack.",
+        "tags": [
+          "w07",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W07-C03"
+        ],
+        "source_citation": "notes/module-2/week-07.md",
+        "lesson_anchor": "#lo-w07-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w07-006",
+        "concept_name": "Expected parse failure",
+        "front": "Ngày invalid nên xử lý ra sao ở import?",
+        "back": "TryParseExact và row/field error. Input expected invalid cần error rõ và không partial commit.",
+        "tags": [
+          "w07",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W07-C03"
+        ],
+        "source_citation": "notes/module-2/week-07.md",
+        "lesson_anchor": "#lo-w07-03"
+      }
+    ]
+  }
+}

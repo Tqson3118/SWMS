@@ -1,0 +1,163 @@
+schema_version: 2.0.0
+package_id: package:psychology:w22
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 03-understanding-others
+lesson: week-22-conformity-obedience
+learning_objectives:
+- id: LO-W22-01
+  bloom_level: Understand
+  statement: Phân biệt ảnh hưởng xã hội chuẩn mực và ảnh hưởng xã hội thông tin theo
+    Deutsch & Gerard (1955).
+- id: LO-W22-02
+  bloom_level: Analyze
+  statement: Giải thích các yếu tố điều tiết sự tuân phục trong mô hình Milgram.
+- id: LO-W22-03
+  bloom_level: Evaluate
+  statement: Đánh giá các triệu chứng của tư duy tập thể và đề xuất biện pháp thúc
+    đẩy bất đồng xây dựng.
+concepts:
+- id: roadmap:concept:psychology:w22-conformity-types
+  name: Ảnh hưởng chuẩn mực vs Thông tin
+  claim_ids:
+  - C22-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w22-asch-paradigm
+  name: Thí nghiệm Asch & Người phản biện
+  claim_ids:
+  - C22-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w22-milgram-paradigm
+  name: Thí nghiệm Milgram về sự tuân phục
+  claim_ids:
+  - C22-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w22-deindividuation
+  name: Phi cá nhân hóa & Mô hình SIDE
+  claim_ids:
+  - C22-04
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w22-groupthink
+  name: Tư duy tập thể (Groupthink) & Phòng ngừa
+  claim_ids:
+  - C22-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+questions:
+- id: Q22-01
+  lo_ref: LO-W22-01
+  concept_id: roadmap:concept:psychology:w22-conformity-types
+  claim_ids:
+  - C22-01
+- id: Q22-02
+  lo_ref: LO-W22-01
+  concept_id: roadmap:concept:psychology:w22-asch-paradigm
+  claim_ids:
+  - C22-02
+- id: Q22-03
+  lo_ref: LO-W22-02
+  concept_id: roadmap:concept:psychology:w22-milgram-paradigm
+  claim_ids:
+  - C22-03
+- id: Q22-04
+  lo_ref: LO-W22-01
+  concept_id: roadmap:concept:psychology:w22-conformity-types
+  claim_ids:
+  - C22-01
+- id: Q22-05
+  lo_ref: LO-W22-02
+  concept_id: roadmap:concept:psychology:w22-milgram-paradigm
+  claim_ids:
+  - C22-03
+- id: Q22-06
+  lo_ref: LO-W22-03
+  concept_id: roadmap:concept:psychology:w22-deindividuation
+  claim_ids:
+  - C22-04
+- id: Q22-07
+  lo_ref: LO-W22-03
+  concept_id: roadmap:concept:psychology:w22-groupthink
+  claim_ids:
+  - C22-05
+- id: Q22-08
+  lo_ref: LO-W22-03
+  concept_id: roadmap:concept:psychology:w22-groupthink
+  claim_ids:
+  - C22-05
+- id: Q22-09
+  lo_ref: LO-W22-02
+  concept_id: roadmap:concept:psychology:w22-milgram-paradigm
+  claim_ids:
+  - C22-03
+- id: Q22-10
+  lo_ref: LO-W22-01
+  concept_id: roadmap:concept:psychology:w22-conformity-types
+  claim_ids:
+  - C22-01
+units:
+- unit_id: roadmap:unit:psychology:w22
+  display_title: 'Tuần 22: Áp Lực Nhóm, Tuân Phục & Quyền Lực'
+  sort_order: 22
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w22
+    path: notes/03-understanding-others/week-22-conformity-obedience.md
+    sha256: ef24a6d6c98330ead21a5cb7ef0bedd4baa9fba0e3a198681495ab2d3631edd2
+    byte_length: 14953
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w22
+    path: assessments/quizzes/week-22-quiz.md
+    question_count: 10
+    sha256: 2f90caa512bb297375f176e5ee01f46d06ed1d055e2f587647e4a8ffdb8c4f5c
+    byte_length: 8113
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w22
+    path: assessments/answer-keys/week-22-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: 03037a6f86f09b5c22deff1423218d5d020c8c051b05dc2e5d6a17cd7863ec39
+    byte_length: 8960
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w22
+    path: flashcards/week-22.yaml
+    card_count: 8
+    sha256: 609f7f4495357c2b674b975b0c12525508c21fa067af71036c4fb3ad1536d1db
+    byte_length: 5125
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

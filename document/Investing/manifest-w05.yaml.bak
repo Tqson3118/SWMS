@@ -1,0 +1,73 @@
+schema_version: "2.0.0"
+package_id: "package:investing:w05"
+subject_id: "roadmap:subject:investing"
+display_title: "Investing - Ph�n t�ch & Chi?n lu?c"
+source_status: "in_review"
+version: 1
+created_at: "2026-09-15T00:00:00Z"
+
+subject: "Investing"
+course: "Investing - 18 tu?n"
+module: "module-2"
+lesson: "week-05-phan-tich-co-ban-top-down-bottom-up"
+
+learning_objectives:
+  - id: "LO-W05-01"
+    bloom_level: "Understand"
+    statement: "D?nh nghia ph�n t�ch t? tr�n xu?ng (top-down), ph�n t�ch t? du?i l�n (bottom-up), ba t?ng ph�n t�ch vi m� - ng�nh - doanh nghi?p, v� khung nam l?c lu?ng c?nh tranh (Porter's Five Forces) b?ng c�ch n�u d�ng th? t? c�c t?ng, t�n Vi?t-Anh c?a c? nam l?c lu?ng, v� gi?i h?n 'khung t? ch?c c�u h?i, kh�ng ph?i d? b�o hay quy t?c sinh l?i'."
+  - id: "LO-W05-02"
+    bloom_level: "Apply"
+    statement: "�p d?ng khung v�o b? d? li?u gi? d?nh b?ng c�ch ph�n lo?i t?ng d?ng l?c doanh thu/bi�n l?i nhu?n v�o t?ng vi m�, t?ng ng�nh ho?c t?ng doanh nghi?p, l?p b?ng ch?m d?nh t�nh nam l?c lu?ng k�m l� do tr�ch t? d? ki?n gi? d?nh, v� t�nh l?i c�c t? s? t?ng doanh nghi?p (EPS, P/E, ROE, D/E) c?a W04 v?i don v? v� k? t�nh d?y d?."
+  - id: "LO-W05-03"
+    bloom_level: "Analyze"
+    statement: "Ph�n t�ch m?t k?ch b?n gi? d?nh b?ng c�ch t�ch d�ng k?t lu?n vi m� ? ng�nh ? doanh nghi?p th�nh c�c bu?c c� d? ki?n v� gi? d?nh ri�ng, d?i chi?u k?ch b?n ngh?ch, v� ph�n bi?t k?ch b?n (scenario) v?i d? b�o (forecast)."
+  - id: "LO-W05-04"
+    bloom_level: "Evaluate"
+    statement: "Ph?n bi?n c�c k?t lu?n ki?u 'GDP tang n�n th? tru?ng ch?c ch?n tang' ho?c 'P/E th?p hon m?t b?ng chung l� r?' b?ng c�ch ch? ra ph�p suy nh�n qu? thi?u b?ng ch?ng, l?i so s�nh ch�o ng�nh, s? t?n t?i c?a � NA, v� ghi d�ng tr?ng th�i 'chua th? k?t lu?n'."
+
+concepts:
+  - id: "roadmap:concept:investing:topdown-bottomup-framework"
+    name: "Hai hu?ng t? ch?c ph�n t�ch co b?n: top-down v� bottom-up"
+    claim_ids: ["W05-C01"]
+    evidence_label: "strong"
+    source_ledger_path: "quality/module-2-source-ledger.md"
+    safety_review: { reviewed: true, reviewer: "content-author-internal-check", date: "2026-09-15" }
+  - id: "roadmap:concept:investing:macro-industry-company-linkage"
+    name: "Li�n k?t vi m� - ng�nh - doanh nghi?p v� gi?i h?n suy lu?n nh�n qu? t? GDP"
+    claim_ids: ["W05-C02"]
+    evidence_label: "strong"
+    source_ledger_path: "quality/module-2-source-ledger.md"
+    safety_review: { reviewed: true, reviewer: "content-author-internal-check", date: "2026-09-15" }
+  - id: "roadmap:concept:investing:porter-five-forces"
+    name: "Nam l?c lu?ng c?nh tranh c?a Porter v� ch?m d?nh t�nh c?u tr�c ng�nh"
+    claim_ids: ["W05-C03"]
+    evidence_label: "strong"
+    source_ledger_path: "quality/module-2-source-ledger.md"
+    safety_review: { reviewed: true, reviewer: "content-author-internal-check", date: "2026-09-15" }
+  - id: "roadmap:concept:investing:valuation-comparability-limits"
+    name: "Gi?i h?n so s�nh d?nh gi�: P/E theo ng�nh, � NA v� worked example gi? d?nh"
+    claim_ids: ["W05-C04", "W05-C05"]
+    evidence_label: "moderate"
+    source_ledger_path: "quality/module-2-source-ledger.md"
+    safety_review: { reviewed: true, reviewer: "content-author-internal-check", date: "2026-09-15" }
+
+questions:
+  - { id: "Q05-01", lo_ref: "LO-W05-01", concept_id: "roadmap:concept:investing:topdown-bottomup-framework", claim_ids: ["W05-C01"] }
+  - { id: "Q05-02", lo_ref: "LO-W05-01", concept_id: "roadmap:concept:investing:porter-five-forces", claim_ids: ["W05-C03"] }
+  - { id: "Q05-03", lo_ref: "LO-W05-02", concept_id: "roadmap:concept:investing:porter-five-forces", claim_ids: ["W05-C03"] }
+  - { id: "Q05-04", lo_ref: "LO-W05-02", concept_id: "roadmap:concept:investing:topdown-bottomup-framework", claim_ids: ["W05-C01"] }
+  - { id: "Q05-05", lo_ref: "LO-W05-03", concept_id: "roadmap:concept:investing:macro-industry-company-linkage", claim_ids: ["W05-C02"] }
+  - { id: "Q05-06", lo_ref: "LO-W05-03", concept_id: "roadmap:concept:investing:macro-industry-company-linkage", claim_ids: ["W05-C02"] }
+  - { id: "Q05-07", lo_ref: "LO-W05-04", concept_id: "roadmap:concept:investing:macro-industry-company-linkage", claim_ids: ["W05-C02"] }
+  - { id: "Q05-08", lo_ref: "LO-W05-04", concept_id: "roadmap:concept:investing:valuation-comparability-limits", claim_ids: ["W05-C04"] }
+
+units:
+  - unit_id: "roadmap:unit:investing:w05"
+    display_title: "Tu?n 05: Ph�n t�ch co b?n - top-down v� bottom-up"
+    sort_order: 5
+    artifacts:
+      - { role: "lesson_theory", stable_id: "roadmap:lesson:investing:w05", path: "notes/module-2/week-05-phan-tich-co-ban-top-down-bottom-up.md", sha256: "430c6bc7beda6a6a5096918b6ffce8aae2522ec60f8005dec20ae64011c2309c", byte_length: 38268 }
+      - { role: "quiz_questions", stable_id: "roadmap:quiz:investing:w05", path: "assessments/quizzes/week-05-quiz.md", question_count: 8, sha256: "60485798333bebbb9551d821b0ee39f38264e1b1dd0d34f3c4ef5fb88389e940", byte_length: 5280 }
+      - { role: "quiz_answers", stable_id: "roadmap:answers:investing:w05", path: "assessments/answer-keys/week-05-answers.md", correct_count: 8, wrong_count: 24, sha256: "41e997cd92b1caf7d3003d0ce5cefeb7c5da11bae8ac674407e140531236ea8e", byte_length: 5130 }
+      - { role: "flashcard_deck", stable_id: "roadmap:deck:investing:w05", path: "flashcards/week-05.yaml", card_count: 8, sha256: "25993b0388b82164e03da85f5d45112fa75c7930fee32346fa30263a7473b8fa", byte_length: 6874 }
+      - { role: "source_ledger", path: "quality/module-2-source-ledger.md", sha256: "c5106df63119774044a1cab6da5a62ccd694f9d0333a3ae811a9e55bf1b9ebe0", byte_length: 46279 }

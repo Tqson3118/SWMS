@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:54:06Z",
+  "unit_id": "roadmap:unit:fscr:w26",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 26: Redis, cache-aside và consistency",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w26",
+    "title": "Tuần 26: Redis, cache-aside và consistency",
+    "content_markdown": "<h1>Tuần 26 — Redis, cache-aside và consistency</h1>\n<p>Chặng 7; 3 bài L26-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W26-01: Phân biệt cache với source of truth.</p>\n</li>\n<li>\n<p>LO-W26-02: Cập nhật SQL trước invalidation và hiểu race.</p>\n</li>\n<li>\n<p>LO-W26-03: Đo hit/miss và thiết kế cache outage fallback.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 25; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-26-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w26-01\"></a></p>\n<h2>Bài 1: Redis fundamentals</h2>\n<p>LO-W26-01 · W26-C01</p>\n<p>Redis lưu key/value in-memory với data structures và TTL; cache có thể evict/expire/outage nên SQL là source of truth cho money. SET key value EX60 đặt TTL; GETmiss cần fetchdatabase; DEL invalidates. Production cần private networking/auth/TLS theo provider, không expose6379. App reuse Redisconnection client theo documentedlifetime, không newconnection mỗi request. IDistributedCache abstraction string/bytes với AddStackExchangeRedisCache có sliding/absoluteexpiration; cachekey chứa schema version/internalUserId/month/filter. Không đặt cachevalue token hoặc fullpersonalnote nếu không cần. Deserialize cachedDTO cũng validate schema; corruption xử lý miss+logmetric.</p>\n<p><a id=\"lo-w26-02\"></a></p>\n<h2>Bài 2: Cache-aside và invalidation</h2>\n<p>LO-W26-02 · W26-C02</p>\n<p>Readmiss→querySQL→cacheTTL→return; hit trả cachedreport. Write commitSQL trước DEL affectedkeys; invalidating trước commit có thể repopulateolddata. Deleteaftercommit cũng vẫn race: reader đã queryold trước write rồi SETold sauDEL. TTL bounds stale chứ không immediateconsistency. Mức cơbản project chấp nhận stale tối đa60seconds cho report, edit/list đọcSQLfresh; UX refetch và Redisdown bypass. Stronger: storedgenerationversion transaction cùng expense write, keybygeneration và readerreadgeneration fresh từ SQL; readerold chỉ populateoldkey. Cần include allaffectedmonths/categories, PUTđổingày phải invalidateold/newmonth. Ghi limitations rõ, không hứa zero stale từ DEL.</p>\n<p><a id=\"lo-w26-03\"></a></p>\n<h2>Bài 3: Failure, stampede và evidence</h2>\n<p>LO-W26-03 · W26-C03</p>\n<p>Manymisses cùngkey gây stampede; processsingle-flight giảm work một replica, distributedlock có lease/tokenrelease semantics và không thayDBinvariant. TTLjitter giảm expiry đồng loạt, shortnegativecache chỉ cho safeowner-specificemptyreport. Cachefailure logmetric và fallbackSQL bounded, không fail moneywrite vì optionalcache. TTLmemorysize/cost đo bằng workload; hitrate cao không có nghĩa reportcorrect. SQL querycount so before/after, p95 và datafreshness cần cùng test environment. RedispersistenceRDB/AOF không biến cachedreport thành authoritativeledger. Requiredlab cache/fallback/TTL; distributedlocks và generationkeyimplementation tùychọn nếu ADR stale60s đủ.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Trong Redislab shell:</li>\n</ol>\n<pre><code class=\"language-text\">SET report:v1:alice:2026-10 \"100000\" EX 60\nGET report:v1:alice:2026-10\nTTL report:v1:alice:2026-10\nDEL report:v1:alice:2026-10\n</code></pre>\n<ol>\n<li>Alice shorthand trong CLI chỉdemo; project key dùng internalGUID, reportJSON có schema version. Bobkeymiss không đọcAlicekey.</li>\n<li>GETAlice miss→SQLtotal100000→SETTTL60, GETagainhit. CreateFood10000 commitSQL rồi invalidate; report kế tiếp 110000 khi không có race.</li>\n<li>Diễn race readeroldSET sauDEL; assert possible100000untilTTL, ghi stalecontract. Dừng Redis: reportSQL110000 và write thành công, logcacheerror không secret.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>Cache không sửa index/query lỗi; tối ưuSQL trước. Userqueryparam không được quyết cacheowner. Nếu yêu cầu immediate reportfreshness không chấp nhận TTL60s, chọn uncachedread hoặc generation/versionstrategy được test.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>PUT expense đổiOct sangNov cần invalidate gì?</p>\n<h3>Bài tập 2</h3>\n<p>Vì sao DELsaucommit vẫn có stale race?</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>CảOct vàNov keys của owner cùng budget/reportaffectedcategories. Queryoldvalues trước write, commit rồi invalidate; missedinvalidation có TTL bound nhưng cầntest.</p>\n<h3>Hướng giải 2</h3>\n<p>Reader lấy oldSQL trước commit, writercommit+DEL, readerSETold sauDEL. Timeline này cầnTTL/versionkey; DELkhông atomic với in-flightreader.</p>\n<h2>Project task</h2>\n<p>Thêm Redis monthlyreport cache owner-scoped TTL60s/fallback và cachemetrics. ADR nói rõ allowedstale; list/editmoney luônSQL.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w26.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Alice/Bobcachekeys riêng; hit/miss assertions total đúng, không globalfinancekey.</p>\n</li>\n<li>\n<p>[ ] Redisoutage reads/writes vẫn dùngSQL; no token/note trong cachelogs.</p>\n</li>\n<li>\n<p>[ ] Testold/newmonthinvalidation và lateSET race; TTL&lt;=60s, limitations được ghi thay vì claimzero stale.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Giải thích 'Cache invalidation is difficult because...' qua timeline reader/writer trong2 phút.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://redis.io/docs/latest/commands/set/\">SET with expiration</a> — W26-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside\">Cache-aside and consistency limitations</a> — W26-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/aspnet/core/performance/caching/distributed?view=aspnetcore-10.0\">Distributed cache abstraction and Redis</a> — W26-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-26-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-26-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-26.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"week-25.md\">Tuần trước</a></p>\n<p><a href=\"week-27.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[SET with expiration](https://redis.io/docs/latest/commands/set/)",
+      "[Cache-aside and consistency limitations](https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside)",
+      "[Distributed cache abstraction and Redis](https://learn.microsoft.com/en-us/aspnet/core/performance/caching/distributed?view=aspnetcore-10.0)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W26-01]",
+        "bloom_level": "Apply",
+        "statement": "Phân biệt cache với source of truth."
+      },
+      {
+        "id": "[LO-W26-02]",
+        "bloom_level": "Apply",
+        "statement": "Cập nhật SQL trước invalidation và hiểu race."
+      },
+      {
+        "id": "[LO-W26-03]",
+        "bloom_level": "Apply",
+        "statement": "Đo hit/miss và thiết kế cache outage fallback."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w26-c01",
+        "name": "Redis fundamentals",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w26-c02",
+        "name": "Cache-aside và invalidation",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w26-c03",
+        "name": "Failure, stampede và evidence",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w26",
+    "title": "Trắc nghiệm Tuần 26: Redis, cache-aside và consistency",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w26:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "Authoritative expenseamount nằm đâu?",
+        "options": [
+          {
+            "id": "A",
+            "text": "BrowserlocalStorage"
+          },
+          {
+            "id": "B",
+            "text": "Charttext"
+          },
+          {
+            "id": "C",
+            "text": "SQL database có constraints/transactions"
+          },
+          {
+            "id": "D",
+            "text": "RedisTTLcache"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Durableledger cần invariant và transaction.",
+        "wrong_explanations": {
+          "A": "Browserstate không authoritative server.",
+          "B": "Chart là presentation output.",
+          "D": "Cache có thể evict/expire/mất."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w26-c01",
+        "lesson_anchor": "#lo-w26-01",
+        "claim_ids": [
+          "W26-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w26:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Monthlycachekey cần phần nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Chỉ report"
+          },
+          {
+            "id": "B",
+            "text": "Chỉ month mọi user"
+          },
+          {
+            "id": "C",
+            "text": "UserIdquery chưa validate"
+          },
+          {
+            "id": "D",
+            "text": "Schema/user/month/filter"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Đủ identity/shape tránh trộn dữ liệu.",
+        "wrong_explanations": {
+          "A": "Globalkeylộ ownerdata.",
+          "B": "Monthkhông phân biệt principal.",
+          "C": "Client không được chọn scopeowner."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w26-c01",
+        "lesson_anchor": "#lo-w26-01",
+        "claim_ids": [
+          "W26-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w26:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "Invalidatecache vào thời điểm nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Sau SQLcommit rồi bỏ affectedkeys"
+          },
+          {
+            "id": "B",
+            "text": "Trước SQL write là đủ"
+          },
+          {
+            "id": "C",
+            "text": "Không bao giờ"
+          },
+          {
+            "id": "D",
+            "text": "Trước authcheck"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Tránh readerfillold khi DBchưa đổi.",
+        "wrong_explanations": {
+          "B": "Invalidatebeforecommit dễ refillold.",
+          "C": "Cache stale không bounded nếu thiếuTTL.",
+          "D": "Authphải enforce trước workowner."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w26-c02",
+        "lesson_anchor": "#lo-w26-02",
+        "claim_ids": [
+          "W26-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w26:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "DELsaucommit bảo đảm zerostale không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Có vì asyncawait"
+          },
+          {
+            "id": "B",
+            "text": "Không, late reader có thể SETold"
+          },
+          {
+            "id": "C",
+            "text": "Có luôn"
+          },
+          {
+            "id": "D",
+            "text": "Có nếu TTL60"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "In-flightreader không atomic vớidelete.",
+        "wrong_explanations": {
+          "A": "Await không khóa distributedread/write.",
+          "C": "Delete không chặn reader đang chạy.",
+          "D": "TTL chỉ boundsstaleness."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w26-c02",
+        "lesson_anchor": "#lo-w26-02",
+        "claim_ids": [
+          "W26-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w26:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "Redisoptionaldown nên xử lý sao?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Trả fakezero"
+          },
+          {
+            "id": "B",
+            "text": "Lặp connectvôhạn"
+          },
+          {
+            "id": "C",
+            "text": "Fallback SQL và metric/log bounded"
+          },
+          {
+            "id": "D",
+            "text": "Mất moneywrite"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Cache là optimization có degrade path.",
+        "wrong_explanations": {
+          "A": "Zero giả làm sai finance data.",
+          "B": "Unboundedretry gây latency/resourceexhaustion.",
+          "D": "Optionaldependency không ledgerboundary."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w26-c03",
+        "lesson_anchor": "#lo-w26-03",
+        "claim_ids": [
+          "W26-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w26:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "Nhiều miss cùngkey gây gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tự khóa SQL toàn cục"
+          },
+          {
+            "id": "B",
+            "text": "Tự refreshJWT"
+          },
+          {
+            "id": "C",
+            "text": "Không bao giờ load"
+          },
+          {
+            "id": "D",
+            "text": "Nhiều SQLreads đồng thời"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Cachemiss không tự coalesce work.",
+        "wrong_explanations": {
+          "A": "Cacheaside không tự distributedlock.",
+          "B": "Authrenewal khác reportcache.",
+          "C": "Coldkey có thể tăng DBload."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w26-c03",
+        "lesson_anchor": "#lo-w26-03",
+        "claim_ids": [
+          "W26-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w26",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 26: Redis, cache-aside và consistency",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w26-001",
+        "concept_name": "Truth source",
+        "front": "Authoritative expenseamount nằm đâu?",
+        "back": "SQL database có constraints/transactions. Durableledger cần invariant và transaction.",
+        "tags": [
+          "w26",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W26-C01"
+        ],
+        "source_citation": "notes/module-7/week-26.md",
+        "lesson_anchor": "#lo-w26-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w26-002",
+        "concept_name": "Key scope",
+        "front": "Monthlycachekey cần phần nào?",
+        "back": "Schema/user/month/filter. Đủ identity/shape tránh trộn dữ liệu.",
+        "tags": [
+          "w26",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W26-C01"
+        ],
+        "source_citation": "notes/module-7/week-26.md",
+        "lesson_anchor": "#lo-w26-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w26-003",
+        "concept_name": "Write order",
+        "front": "Invalidatecache vào thời điểm nào?",
+        "back": "Sau SQLcommit rồi bỏ affectedkeys. Tránh readerfillold khi DBchưa đổi.",
+        "tags": [
+          "w26",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W26-C02"
+        ],
+        "source_citation": "notes/module-7/week-26.md",
+        "lesson_anchor": "#lo-w26-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w26-004",
+        "concept_name": "DEL race",
+        "front": "DELsaucommit bảo đảm zerostale không?",
+        "back": "Không, late reader có thể SETold. In-flightreader không atomic vớidelete.",
+        "tags": [
+          "w26",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W26-C02"
+        ],
+        "source_citation": "notes/module-7/week-26.md",
+        "lesson_anchor": "#lo-w26-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w26-005",
+        "concept_name": "Cache outage",
+        "front": "Redisoptionaldown nên xử lý sao?",
+        "back": "Fallback SQL và metric/log bounded. Cache là optimization có degrade path.",
+        "tags": [
+          "w26",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W26-C03"
+        ],
+        "source_citation": "notes/module-7/week-26.md",
+        "lesson_anchor": "#lo-w26-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w26-006",
+        "concept_name": "Stampede",
+        "front": "Nhiều miss cùngkey gây gì?",
+        "back": "Nhiều SQLreads đồng thời. Cachemiss không tự coalesce work.",
+        "tags": [
+          "w26",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W26-C03"
+        ],
+        "source_citation": "notes/module-7/week-26.md",
+        "lesson_anchor": "#lo-w26-03"
+      }
+    ]
+  }
+}

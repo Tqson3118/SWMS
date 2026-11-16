@@ -1,0 +1,72 @@
+deck_id: deck-fscr-w02
+subject: FullStack-CSharp-React-Refresh
+lesson_id: week-02
+version: 1.0.0
+description: 'JavaScript: scope, closure, array và tiền'
+cards:
+- id: fc-fscr-w02-001
+  concept: Closure state
+  front: Closure có giữ khả năng đọc biến lexical sau hàm ngoài return không?
+  back: Có, khi function còn reachable. Lexical environment còn được closure tham chiếu.
+  source_lesson: notes/module-1/week-02.md
+  version: 1.0.0
+  claim_ids:
+  - W02-C01
+  tags:
+  - w02
+  - fullstack
+- id: fc-fscr-w02-002
+  concept: Const binding
+  front: const e={amount:1}; e.amount=2 có hợp lệ không?
+  back: Có. Binding không đổi, property vẫn mutable.
+  source_lesson: notes/module-1/week-02.md
+  version: 1.0.0
+  claim_ids:
+  - W02-C01
+  tags:
+  - w02
+  - fullstack
+- id: fc-fscr-w02-003
+  concept: Reduce initial
+  front: reduce cộng trên mảng rỗng với initial 0 trả gì?
+  back: 0. Initial được trả khi không có phần tử.
+  source_lesson: notes/module-1/week-02.md
+  version: 1.0.0
+  claim_ids:
+  - W02-C02
+  tags:
+  - w02
+  - fullstack
+- id: fc-fscr-w02-004
+  concept: Shallow copy
+  front: '[...xs] có clone sâu expense object không?'
+  back: Không, object bên trong còn chung reference. Spread tạo mảng mới nhưng không deep-copy element.
+  source_lesson: notes/module-1/week-02.md
+  version: 1.0.0
+  claim_ids:
+  - W02-C02
+  tags:
+  - w02
+  - fullstack
+- id: fc-fscr-w02-005
+  concept: Empty number
+  front: Vì sao check raw.trim() trước Number(raw)?
+  back: Chuỗi rỗng convert thành 0. 0 có thể che missing input nên cần guard riêng.
+  source_lesson: notes/module-1/week-02.md
+  version: 1.0.0
+  claim_ids:
+  - W02-C03
+  tags:
+  - w02
+  - fullstack
+- id: fc-fscr-w02-006
+  concept: Identity equality
+  front: Hai object riêng {a:1} === {a:1} cho gì?
+  back: false. Identity riêng nên false.
+  source_lesson: notes/module-1/week-02.md
+  version: 1.0.0
+  claim_ids:
+  - W02-C03
+  tags:
+  - w02
+  - fullstack

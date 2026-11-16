@@ -1,0 +1,141 @@
+schema_version: 2.0.0
+package_id: package:lifeskills:w11
+subject_id: roadmap:subject:lifeskills
+display_title: LifeSkills — Tình cảm, Giao tiếp & Kỹ năng sống
+source_status: in_review
+version: 7
+created_at: '2026-09-22T00:00:00Z'
+subject: LifeSkills
+course: Tự học LifeSkills 16 tuần
+module: module-3
+lesson: week-11-healthy-unhealthy-relationships
+learning_objectives:
+- id: LO-W11-01
+  bloom_level: Understand
+  statement: Liệt kê và phân biệt được các dấu hiệu quan hệ lành mạnh (Green flags) với các dấu hiệu cảnh báo nguy
+    cơ (Red flags) qua mô tả hành vi cụ thể.
+- id: LO-W11-02
+  bloom_level: Analyze
+  statement: Phân tích dữ kiện về kiểm soát, nguy cơ và dấu hiệu sửa chữa trong case, không suy ra chẩn đoán hoặc
+    ý định; phân biệt dấu hiệu mơ hồ với hành vi nghiêm trọng cần ưu tiên an toàn.
+- id: LO-W11-03
+  bloom_level: Apply
+  statement: Áp dụng **Quy tắc Quyết định An toàn (Safety Decision Rules)** để lập kế hoạch bảo vệ bản thân khi
+    nhận diện nguy cơ cao mà không đối đầu nguy hiểm trong tình huống giả định.
+- id: LO-W11-04
+  bloom_level: Evaluate
+  statement: Đánh giá được sự nguy hiểm của lời khuyên "phải đối đầu trực tiếp để làm rõ trắng đen" trong các mối
+    quan hệ có yếu tố đe dọa bạo lực hoặc thao túng tâm lý sâu.
+concepts:
+- id: roadmap:concept:lifeskills:w11:relationship-patterns
+  name: Mô thức lành mạnh, xung đột và kiểm soát
+  claim_ids:
+  - W11-C01
+  evidence_label: moderate
+  source_ledger_path: quality/module-3-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: 'Bounded definitions, card/assessment wording and safety limits reviewed after278/279/283, independent285/286
+      and actualroot288 corrections. See root284 current source classification: historical references retained as
+      unverified/background, authored practices not clinical efficacy. This is not full-source/week/learner/course
+      approval.'
+- id: roadmap:concept:lifeskills:w11:safety-decision-rules
+  name: Quy tắc quyết định an toàn trong quan hệ
+  claim_ids:
+  - W11-C02
+  evidence_label: preliminary
+  source_ledger_path: quality/module-3-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: 'Bounded definitions, card/assessment wording and safety limits reviewed after278/279/283, independent285/286
+      and actualroot288 corrections. See root284 current source classification: historical references retained as
+      unverified/background, authored practices not clinical efficacy. This is not full-source/week/learner/course
+      approval.'
+questions:
+- id: Q11-01
+  lo_ref: LO-W11-01
+  concept_id: roadmap:concept:lifeskills:w11:relationship-patterns
+  claim_ids:
+  - W11-C01
+- id: Q11-02
+  lo_ref: LO-W11-01
+  concept_id: roadmap:concept:lifeskills:w11:relationship-patterns
+  claim_ids:
+  - W11-C01
+- id: Q11-03
+  lo_ref: LO-W11-01
+  concept_id: roadmap:concept:lifeskills:w11:safety-decision-rules
+  claim_ids:
+  - W11-C02
+- id: Q11-04
+  lo_ref: LO-W11-01
+  concept_id: roadmap:concept:lifeskills:w11:safety-decision-rules
+  claim_ids:
+  - W11-C02
+- id: Q11-05
+  lo_ref: LO-W11-02
+  concept_id: roadmap:concept:lifeskills:w11:safety-decision-rules
+  claim_ids:
+  - W11-C02
+- id: Q11-06
+  lo_ref: LO-W11-02
+  concept_id: roadmap:concept:lifeskills:w11:relationship-patterns
+  claim_ids:
+  - W11-C01
+- id: Q11-07
+  lo_ref: LO-W11-03
+  concept_id: roadmap:concept:lifeskills:w11:safety-decision-rules
+  claim_ids:
+  - W11-C02
+- id: Q11-08
+  lo_ref: LO-W11-03
+  concept_id: roadmap:concept:lifeskills:w11:safety-decision-rules
+  claim_ids:
+  - W11-C02
+- id: Q11-09
+  lo_ref: LO-W11-04
+  concept_id: roadmap:concept:lifeskills:w11:safety-decision-rules
+  claim_ids:
+  - W11-C02
+- id: Q11-10
+  lo_ref: LO-W11-04
+  concept_id: roadmap:concept:lifeskills:w11:safety-decision-rules
+  claim_ids:
+  - W11-C02
+units:
+- unit_id: roadmap:unit:lifeskills:w11
+  display_title: 'Tuần 11: Quan hệ lành mạnh và không lành mạnh: Nhìn vào mô thức, ưu tiên an toàn'
+  sort_order: 11
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:lifeskills:w11
+    path: notes/module-3/week-11-healthy-unhealthy-relationships.md
+    sha256: 45083f092a24885522b97e5835895696cfd2cc2e4be9a6975e4d82092a5ff42d
+    byte_length: 32098
+  - role: quiz_questions
+    stable_id: roadmap:quiz:lifeskills:w11
+    path: assessments/quizzes/week-11-quiz.md
+    question_count: 10
+    sha256: fbe147ee05b2578c72961d8d32c5ca75c169b3164defd2f7c1ffc4d0c530c0d9
+    byte_length: 6414
+  - role: quiz_answers
+    stable_id: roadmap:answers:lifeskills:w11
+    path: assessments/answer-keys/week-11-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: cdedf3ba06084db0fadd1f9c842bf20d6ce964837a20a0493eb29e2fe58e8b10
+    byte_length: 12348
+  - role: flashcard_deck
+    stable_id: roadmap:deck:lifeskills:w11
+    path: flashcards/week-11.yaml
+    card_count: 15
+    sha256: f0ca3e68d4c98fc0a30285494761e42ce68762f45db7bb3e6b7747806ec48d12
+    byte_length: 10776
+  - role: source_ledger
+    path: quality/module-3-source-ledger.md
+    sha256: 891a8d7c2061c940e9bf6fb5709095b880851d4aa7fc9b5144eefb8bbb43cead
+    byte_length: 17083

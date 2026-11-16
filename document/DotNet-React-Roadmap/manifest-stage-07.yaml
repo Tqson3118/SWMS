@@ -1,0 +1,127 @@
+schema_version: 2.0.0
+package_id: package:dotnet-react:stage-07
+version: 2
+created_at: '2026-10-04T00:00:00Z'
+source_status: draft
+subject_id: roadmap:subject:dotnet-react
+display_title: Stage 07 React TypeScript state, effects, routes, and delivery manual activity
+learning_objectives:
+- id: LO-DOTNET-S07-01
+  bloom_level: Apply
+  statement: Build and document a React TypeScript expense interface with component, state, effect, route, and shared
+    API boundaries after Stage 06.
+- id: LO-DOTNET-S07-02
+  bloom_level: Analyze
+  statement: Record actual cancellation, runtime-data, UX, build, and end-to-end observations while preserving blockers
+    and delivery assumptions.
+concepts:
+- id: DOTNET-S07-C01
+  name: Components, controlled state, and effects
+  claim_ids:
+  - W07-C01
+  - W07-C02
+  - W07-C03
+  - W07-C04
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-07-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded mapping review parent143
+    date: '2026-10-04'
+    notes: Scratch learning-data and evidence boundaries reviewed; full stage sources/runtime/browser approval open.
+- id: DOTNET-S07-C02
+  name: Routes, shared state, and error boundaries
+  claim_ids:
+  - W07-C05
+  - W07-C06
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-07-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded mapping review parent143
+    date: '2026-10-04'
+    notes: Scratch learning-data and evidence boundaries reviewed; full stage sources/runtime/browser approval open.
+- id: DOTNET-S07-C03
+  name: Accessible delivery and safe AI use
+  claim_ids:
+  - W07-C07
+  - W07-C08
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-07-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded mapping review parent143
+    date: '2026-10-04'
+    notes: Scratch learning-data and evidence boundaries reviewed; full stage sources/runtime/browser approval open.
+units:
+- unit_id: roadmap:unit:dotnet-react:stage-07
+  display_title: Stage 07 React TypeScript state, effects, routes, and delivery manual activity
+  sort_order: 7
+  learning_objectives:
+  - id: LO-DOTNET-S07-01
+    bloom_level: Apply
+    statement: Build and document a React TypeScript expense interface with component, state, effect, route, and
+      shared API boundaries after Stage 06.
+  - id: LO-DOTNET-S07-02
+    bloom_level: Analyze
+    statement: Record actual cancellation, runtime-data, UX, build, and end-to-end observations while preserving
+      blockers and delivery assumptions.
+  concepts:
+  - id: DOTNET-S07-C01
+    name: Components, controlled state, and effects
+    claim_ids:
+    - W07-C01
+    - W07-C02
+    - W07-C03
+    - W07-C04
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-07-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root bounded mapping review parent143
+      date: '2026-10-04'
+      notes: Scratch learning-data and evidence boundaries reviewed; full stage sources/runtime/browser approval
+        open.
+  - id: DOTNET-S07-C02
+    name: Routes, shared state, and error boundaries
+    claim_ids:
+    - W07-C05
+    - W07-C06
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-07-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root bounded mapping review parent143
+      date: '2026-10-04'
+      notes: Scratch learning-data and evidence boundaries reviewed; full stage sources/runtime/browser approval
+        open.
+  - id: DOTNET-S07-C03
+    name: Accessible delivery and safe AI use
+    claim_ids:
+    - W07-C07
+    - W07-C08
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-07-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root bounded mapping review parent143
+      date: '2026-10-04'
+      notes: Scratch learning-data and evidence boundaries reviewed; full stage sources/runtime/browser approval
+        open.
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:dotnet-react:stage-07
+    path: 7.md
+    sha256: aeb09f5e01879f0adf95039eb74662f8d5cdb93488d0973b5a82293fe9e68067
+    byte_length: 11629
+  - role: activity_manual
+    stable_id: activity:dotnet:stage-07
+    path: activities/manual-stage-07.yaml
+    sha256: 289124dff7d7f16522e37be060423795dc5bd9c654059f25119e0ce15cefdb0b
+    byte_length: 4243
+  - role: source_ledger
+    stable_id: ledger:dotnet:stage-07
+    path: quality/stage-07-source-ledger.md
+    sha256: f2bab53895b5d5749fd7176de3c6a60fe5de68005fc9a042e0b129f9d07fc46b
+    byte_length: 4201
+external_resources: []

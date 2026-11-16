@@ -1,0 +1,1373 @@
+deck_id: roadmap:deck:ielts:phase3-month1
+subject: IELTS
+lesson_id: roadmap:lesson:ielts:phase3-month1
+version: 1.0.0
+description: Exact Front/Back copy of120 Anki CSV cards; native YAML adapter, no new facts or automatic mastery claims. Each24card
+  group maps to actual selected vocabulary cycle.
+cards:
+- id: ielts-p3-m1-c1-01
+  concept: Vocabulary Cycle1
+  front: trait
+  back: 'noun; nét đặc trưng, đặc điểm<br>/treɪt/<br>Example: The trait that I rely on most is conscientiousness.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-02
+  concept: Vocabulary Cycle1
+  front: personality
+  back: 'noun; tính cách (tổng thể)<br>/ˌpɜːsəˈnæləti/<br>Example: The personality that the fictional narrator describes is
+    curious and patient.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-03
+  concept: Vocabulary Cycle1
+  front: conscientious
+  back: 'adj; có tinh thần trách nhiệm, cẩn thận<br>/ˌkɒnʃiˈenʃəs/<br>Example: She is the kind of person who is conscientious
+    about small things.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-04
+  concept: Vocabulary Cycle1
+  front: introvert
+  back: 'noun; người hướng nội<br>/ˈɪntrəvɜːt/<br>Example: The introvert who sat at the back was listening to every word.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-05
+  concept: Vocabulary Cycle1
+  front: self-aware
+  back: 'adj; tự nhận thức<br>/ˌself əˈweə(r)/<br>Example: The self-aware volunteer is someone who acknowledges the limits
+    of her notes.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-06
+  concept: Vocabulary Cycle1
+  front: temperament
+  back: 'noun; khí chất, tính khí; cách cảm xúc và hành vi thường biểu hiện<br>/ˈtempərəmənt/ (also /ˈtemprəmənt/)<br>Example:
+    The calm temperament that the narrator describes belongs to a fictional character.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-07
+  concept: Vocabulary Cycle1
+  front: characteristic
+  back: 'noun; đặc trưng, nét riêng<br>/ˌkærəktəˈrɪstɪk/<br>Example: One characteristic that I value in friends is honesty.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-08
+  concept: Vocabulary Cycle1
+  front: mindset
+  back: 'noun; tư duy, lối nghĩ<br>/ˈmaɪndset/<br>Example: The mindset that Mira describes in her diary is open to revision.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-09
+  concept: Vocabulary Cycle1
+  front: extrovert
+  back: 'noun; người hướng ngoại<br>/ˈekstrəvɜːt/<br>Example: An extrovert who loves parties can still feel lonely.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-10
+  concept: Vocabulary Cycle1
+  front: agreeable
+  back: 'adj; dễ chịu, hòa thuận<br>/əˈɡriːəbəl/<br>Example: She is someone whose agreeable nature makes her easy to work
+    with.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-11
+  concept: Vocabulary Cycle1
+  front: neurotic
+  back: 'adj; hay lo lắng quá mức trong văn bản hư cấu; không gán nhãn người thật hay chẩn đoán<br>/njʊəˈrɒtɪk/<br>Example:
+    The word neurotic, which appears in this fictional text, describes excessive worry.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-12
+  concept: Vocabulary Cycle1
+  front: openness
+  back: 'noun; sự cởi mở, ham hiểu biết<br>/ˈəʊpənnəs/<br>Example: The openness that the fictional student describes includes
+    an interest in new ideas.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-13
+  concept: Vocabulary Cycle1
+  front: outgoing
+  back: 'adj; thân thiện, hoạt bát<br>/ˌaʊtˈɡəʊɪŋ/<br>Example: The outgoing student who sits in front asks the best questions.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-14
+  concept: Vocabulary Cycle1
+  front: reserved
+  back: 'adj; kín đáo, dè dặt<br>/rɪˈzɜːvd/<br>Example: The reserved colleague whom I sat next to turned out to be funny.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-15
+  concept: Vocabulary Cycle1
+  front: empathetic
+  back: 'adj; có khả năng đồng cảm<br>/ˌempəˈθetɪk/<br>Example: An empathetic listener is the friend who notices without being
+    told.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-16
+  concept: Vocabulary Cycle1
+  front: assertive
+  back: 'adj; dám nói thẳng, quyết đoán<br>/əˈsɜːtɪv/<br>Example: The assertive leader who I respect admits mistakes openly.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-17
+  concept: Vocabulary Cycle1
+  front: considerate
+  back: 'adjective; biết cân nhắc người khác<br>/kənˈsɪdərət/<br>Example: A considerate colleague asks before changing the
+    schedule.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-18
+  concept: Vocabulary Cycle1
+  front: dependable
+  back: 'adjective; đáng tin cậy<br>/dɪˈpendəbl/<br>Example: The assistant whom I trust is dependable.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-19
+  concept: Vocabulary Cycle1
+  front: flexible
+  back: 'adjective; linh hoạt<br>/ˈfleksəbl/<br>Example: We need a flexible plan that allows breaks.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-20
+  concept: Vocabulary Cycle1
+  front: impulsive
+  back: 'adjective; bốc đồng, ít cân nhắc trong hành động<br>/ɪmˈpʌlsɪv/<br>Example: It was an impulsive purchase which she
+    later regretted.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-21
+  concept: Vocabulary Cycle1
+  front: consistent
+  back: 'adjective; nhất quán<br>/kənˈsɪstənt/<br>Example: His notes show a consistent pattern across three meetings.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-22
+  concept: Vocabulary Cycle1
+  front: tendency
+  back: 'noun; khuynh hướng<br>/ˈtendənsi/<br>Example: A tendency is a pattern which may have exceptions.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-23
+  concept: Vocabulary Cycle1
+  front: context
+  back: 'noun; bối cảnh<br>/ˈkɒntekst/<br>Example: The context in which we meet can affect our impression.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c1-24
+  concept: Vocabulary Cycle1
+  front: assumption
+  back: 'noun; giả định<br>/əˈsʌmpʃən/<br>Example: An assumption is an idea which still needs checking.'
+  source_lesson: '#sec-ielts-phase-3-m1-c1-vocabulary-04-personality-cycle1-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle1
+- id: ielts-p3-m1-c2-01
+  concept: Vocabulary Cycle2
+  front: perceptive
+  back: 'adj; tinh ý, nhận ra điều người khác bỏ sót<br>/pəˈseptɪv/<br>Example: Mina, who is perceptive, noticed a pause in
+    the fictional interview.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-02
+  concept: Vocabulary Cycle2
+  front: tactful
+  back: 'adj; khéo léo, tránh làm người khác phật ý<br>/ˈtæktfəl/<br>Example: Nam, who is tactful, questioned the assumption
+    without embarrassing anyone.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-03
+  concept: Vocabulary Cycle2
+  front: attentive
+  back: 'adj; chú ý, để tâm<br>/əˈtentɪv/<br>Example: The attentive listener, who took brief notes, asked for clarification.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-04
+  concept: Vocabulary Cycle2
+  front: diplomatic
+  back: 'adj; ngoại giao, khéo xử lý bất đồng<br>/ˌdɪpləˈmætɪk/<br>Example: Tara, who is diplomatic, separated the claim from
+    the person.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-05
+  concept: Vocabulary Cycle2
+  front: compassionate
+  back: 'adj; giàu lòng trắc ẩn<br>/kəmˈpæʃənət/<br>Example: The compassionate tutor, who listened carefully, offered a pause.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-06
+  concept: Vocabulary Cycle2
+  front: observant
+  back: 'adj; tinh ý, giỏi nhận thấy chi tiết<br>/əbˈzɜːvənt/<br>Example: Linh, who is observant, recorded the exact wording
+    rather than guessing.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-07
+  concept: Vocabulary Cycle2
+  front: thoughtful
+  back: 'adj; chu đáo; có suy nghĩ kỹ<br>/ˈθɔːtfəl/<br>Example: The thoughtful reply, which included a question, kept the
+    discussion open.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-08
+  concept: Vocabulary Cycle2
+  front: insightful
+  back: 'adj; sâu sắc, đem lại hiểu biết hữu ích<br>/ɪnˈsaɪtfl/<br>Example: Her insightful comment, which was only a suggestion,
+    changed our outline.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-09
+  concept: Vocabulary Cycle2
+  front: reflective
+  back: 'adj; hay suy ngẫm<br>/rɪˈflektɪv/<br>Example: Mai, who is reflective, reviewed her wording after the meeting.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-10
+  concept: Vocabulary Cycle2
+  front: adaptable
+  back: 'adj; dễ thích nghi<br>/əˈdæptəbəl/<br>Example: The adaptable group, which changed its plan, kept the goal clear.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-11
+  concept: Vocabulary Cycle2
+  front: cooperative
+  back: 'adj; hợp tác<br>/kəʊˈɒpərətɪv/<br>Example: A cooperative partner, who shares the task, makes practice easier.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-12
+  concept: Vocabulary Cycle2
+  front: outspoken
+  back: 'adj; thẳng thắn, nói rõ ý kiến<br>/ˌaʊtˈspəʊkən/<br>Example: Nam, who is outspoken, explained his objection respectfully.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-13
+  concept: Vocabulary Cycle2
+  front: discreet
+  back: 'adj; kín đáo, thận trọng giữ thông tin<br>/dɪˈskriːt/<br>Example: The discreet mentor, whose notes stayed private,
+    asked permission first.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-14
+  concept: Vocabulary Cycle2
+  front: resilient
+  back: 'adj; có khả năng hồi phục sau khó khăn<br>/rɪˈzɪliənt/<br>Example: The resilient learner, who revised after feedback,
+    tried again.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-15
+  concept: Vocabulary Cycle2
+  front: self-conscious
+  back: 'adj; ngượng ngùng, quá để ý bản thân<br>/ˌself ˈkɒnʃəs/<br>Example: The self-conscious speaker, who paused often,
+    still completed the talk.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-16
+  concept: Vocabulary Cycle2
+  front: spontaneous
+  back: 'adj; tự phát, không chuẩn bị trước<br>/spɒnˈteɪniəs/<br>Example: Her spontaneous example, which was fictional, made
+    the rule memorable.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-17
+  concept: Vocabulary Cycle2
+  front: amiable
+  back: 'adj; thân thiện, dễ mến<br>/ˈeɪmiəbəl/<br>Example: An amiable colleague, who welcomed questions, made the meeting
+    easier.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-18
+  concept: Vocabulary Cycle2
+  front: approachable
+  back: 'adj; dễ gần, dễ nói chuyện<br>/əˈprəʊtʃəbəl/<br>Example: The approachable tutor, whose door was open, invited a second
+    attempt.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-19
+  concept: Vocabulary Cycle2
+  front: generous
+  back: 'adj; hào phóng; rộng lượng<br>/ˈdʒenərəs/<br>Example: The generous reply, which allowed another view, was useful.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-20
+  concept: Vocabulary Cycle2
+  front: loyal
+  back: 'adj; trung thành, trước sau như một<br>/ˈlɔɪəl/<br>Example: The loyal friend, who kept the fictional promise, returned
+    the notes.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-21
+  concept: Vocabulary Cycle2
+  front: earnest
+  back: 'adj; nghiêm túc, chân thành<br>/ˈɜːnɪst/<br>Example: Her earnest question, which sought clarification, was welcome.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-22
+  concept: Vocabulary Cycle2
+  front: tolerant
+  back: 'adj; khoan dung, chấp nhận khác biệt<br>/ˈtɒlərənt/<br>Example: The tolerant group, whose members disagreed, kept
+    listening.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-23
+  concept: Vocabulary Cycle2
+  front: warm
+  back: 'adj; ấm áp, thân thiện<br>/wɔːm/<br>Example: The warm greeting, which was fictional, reduced the awkwardness.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c2-24
+  concept: Vocabulary Cycle2
+  front: responsive
+  back: 'adj; phản hồi nhanh/phù hợp<br>/rɪˈspɒnsɪv/<br>Example: The responsive partner, who answered the concern, clarified
+    the plan.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-02-personality-cycle2-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle2
+- id: ielts-p3-m1-c3-01
+  concept: Vocabulary Cycle3
+  front: curious
+  back: 'adj; tò mò, muốn tìm hiểu<br>/ˈkjʊəriəs/<br>Example: The curious reader whose question was precise checked the source.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-02
+  concept: Vocabulary Cycle3
+  front: inquisitive
+  back: 'adj; ham hỏi, thích tìm hiểu<br>/ɪnˈkwɪzətɪv/<br>Example: The inquisitive class asked why the example was fictional.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-03
+  concept: Vocabulary Cycle3
+  front: reticent
+  back: 'adj; ít nói, không muốn bộc lộ<br>/ˈretɪsənt/<br>Example: The reticent learner, whose written ideas were detailed,
+    spoke later.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-04
+  concept: Vocabulary Cycle3
+  front: energetic
+  back: 'adj; tràn đầy năng lượng<br>/ˌenəˈdʒetɪk/<br>Example: Monday, when the energetic team met, felt lively.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-05
+  concept: Vocabulary Cycle3
+  front: cautious
+  back: 'adj; thận trọng<br>/ˈkɔːʃəs/<br>Example: The cautious writer whose claim lacked evidence softened it.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-06
+  concept: Vocabulary Cycle3
+  front: decisive
+  back: 'adj; quyết đoán<br>/dɪˈsaɪsɪv/<br>Example: The desk where the decisive editor worked was covered in drafts.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-07
+  concept: Vocabulary Cycle3
+  front: modest
+  back: 'adj; khiêm tốn; không phô trương<br>/ˈmɒdɪst/<br>Example: The modest speaker, whose answer was strong, invited another
+    view.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-08
+  concept: Vocabulary Cycle3
+  front: sociable
+  back: 'adj; thích giao tiếp, hòa đồng<br>/ˈsəʊʃəbəl/<br>Example: The sociable partner whose welcome eased the group started
+    the activity.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-09
+  concept: Vocabulary Cycle3
+  front: patient
+  back: 'adj; kiên nhẫn<br>/ˈpeɪʃənt/<br>Example: The patient mentor, whose pauses helped us think, waited.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-10
+  concept: Vocabulary Cycle3
+  front: diligent
+  back: 'adj; siêng năng, chăm chỉ<br>/ˈdɪlɪdʒənt/<br>Example: The diligent learner whose draft was complete checked each
+    comma.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-11
+  concept: Vocabulary Cycle3
+  front: humble
+  back: 'adj; khiêm nhường<br>/ˈhʌmbəl/<br>Example: The humble editor, who welcomed correction, changed the example.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-12
+  concept: Vocabulary Cycle3
+  front: candid
+  back: 'adj; thẳng thắn, chân thật<br>/ˈkændɪd/<br>Example: The candid note, which was fictional, admitted uncertainty.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-13
+  concept: Vocabulary Cycle3
+  front: guarded
+  back: 'adj; dè dặt, không bộc lộ nhiều<br>/ˈɡɑːdɪd/<br>Example: The guarded speaker whose answer was brief asked for time.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-14
+  concept: Vocabulary Cycle3
+  front: resourceful
+  back: 'adj; tháo vát, biết xoay xở<br>/rɪˈzɔːsfəl/<br>Example: The resourceful group found a quiet place where it could
+    practise.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-15
+  concept: Vocabulary Cycle3
+  front: steady
+  back: 'adj; đều đặn, vững vàng<br>/ˈstedi/<br>Example: The steady routine, whose aim was modest, supported revision.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-16
+  concept: Vocabulary Cycle3
+  front: versatile
+  back: 'adj; linh hoạt, đa năng<br>/ˈvɜːsətaɪl/<br>Example: The versatile learner used the strategy when the task changed.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-17
+  concept: Vocabulary Cycle3
+  front: independent
+  back: 'adj; độc lập<br>/ˌɪndɪˈpendənt/<br>Example: The independent learner whose plan was clear worked alone first.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-18
+  concept: Vocabulary Cycle3
+  front: lively
+  back: 'adj; sinh động, hoạt bát<br>/ˈlaɪvli/<br>Example: The lively room where the group met encouraged questions.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-19
+  concept: Vocabulary Cycle3
+  front: serious
+  back: 'adj; nghiêm túc<br>/ˈsɪəriəs/<br>Example: The serious editor, whose notes were concise, checked the wording.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-20
+  concept: Vocabulary Cycle3
+  front: playful
+  back: 'adj; vui nhộn, tinh nghịch<br>/ˈpleɪfəl/<br>Example: The playful example, which was fictional, made the distinction
+    clear.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-21
+  concept: Vocabulary Cycle3
+  front: calm
+  back: 'adj; bình tĩnh<br>/kɑːm/<br>Example: The day when she felt calm allowed careful revision.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-22
+  concept: Vocabulary Cycle3
+  front: trusting
+  back: 'adj; tin người, có lòng tin<br>/ˈtrʌstɪŋ/<br>Example: The trusting reader whose question was honest asked for evidence.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-23
+  concept: Vocabulary Cycle3
+  front: wary
+  back: 'adj; cảnh giác, dè chừng<br>/ˈweəri/<br>Example: The wary group checked the claim before sharing it.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c3-24
+  concept: Vocabulary Cycle3
+  front: mature
+  back: 'adj; chín chắn<br>/məˈtʃʊə/<br>Example: The mature response, which admitted uncertainty, ended the debate well.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-03-personality-cycle3-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle3
+- id: ielts-p3-m1-c4-01
+  concept: Vocabulary Cycle4
+  front: analytical
+  back: 'adj; có tính phân tích<br>/ˌænəˈlɪtɪkəl/<br>Example: Analysing the transcript, the analytical learner separated facts
+    from guesses.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-02
+  concept: Vocabulary Cycle4
+  front: methodical
+  back: 'adj; có phương pháp, tuần tự<br>/məˈθɒdɪkəl/<br>Example: Following a methodical plan, Mina checked one clause at
+    a time.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-03
+  concept: Vocabulary Cycle4
+  front: deliberate
+  back: 'adj; có chủ ý, cân nhắc kỹ<br>/dɪˈlɪbərət/<br>Example: Deliberately chosen, the example avoids a clinical label.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-04
+  concept: Vocabulary Cycle4
+  front: reactive
+  back: 'adj; phản ứng nhanh theo kích thích<br>/riˈæktɪv/<br>Example: Reacting to the criticism, the fictional speaker paused.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-05
+  concept: Vocabulary Cycle4
+  front: persistent
+  back: 'adj; kiên trì<br>/pəˈsɪstənt/<br>Example: Persisting after feedback, the learner revised the paragraph.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-06
+  concept: Vocabulary Cycle4
+  front: hesitant
+  back: 'adj; do dự<br>/ˈhezɪtənt/<br>Example: Hesitating before answering, Tara checked the wording.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-07
+  concept: Vocabulary Cycle4
+  front: composed
+  back: 'adj; bình tĩnh, điềm đạm<br>/kəmˈpəʊzd/<br>Example: Remaining composed, the tutor explained the comma rule.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-08
+  concept: Vocabulary Cycle4
+  front: measured
+  back: 'adj; chừng mực, có cân nhắc<br>/ˈmeʒəd/<br>Example: Using a measured tone, Nam disagreed without attacking anyone.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-09
+  concept: Vocabulary Cycle4
+  front: accommodating
+  back: 'adj; sẵn sàng điều chỉnh để đáp ứng người khác<br>/əˈkɒmədeɪtɪŋ/<br>Example: Being accommodating, the group changed
+    the order of tasks.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-10
+  concept: Vocabulary Cycle4
+  front: systematic
+  back: 'adj; có hệ thống<br>/ˌsɪstəˈmætɪk/<br>Example: Working systematically, the editor found the omitted object.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-11
+  concept: Vocabulary Cycle4
+  front: unrehearsed
+  back: 'adj; không tập dượt trước<br>/ˌʌnrɪˈhɜːst/<br>Example: Spoken unrehearsed, the example still had a clear subject.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-12
+  concept: Vocabulary Cycle4
+  front: rash
+  back: 'adj; hấp tấp, thiếu thận trọng<br>/ræʃ/<br>Example: Acting rashly, the fictional character changed the plan.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-13
+  concept: Vocabulary Cycle4
+  front: tranquil
+  back: 'adj; yên tĩnh, bình thản<br>/ˈtræŋkwɪl/<br>Example: Kept tranquil, the learner reread the sentence.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-14
+  concept: Vocabulary Cycle4
+  front: absorbed
+  back: 'adj; chăm chú, mải mê<br>/əbˈzɔːbd/<br>Example: Absorbed in the task, Mai ignored a distracting notification.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-15
+  concept: Vocabulary Cycle4
+  front: thorough
+  back: 'adj; kỹ lưỡng<br>/ˈθʌrə/<br>Example: Having been thorough, the reviewer found two dangling modifiers.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-16
+  concept: Vocabulary Cycle4
+  front: tentative
+  back: 'adj; còn dè dặt, tạm thời<br>/ˈtentətɪv/<br>Example: Tentatively phrased, the claim invites further checking.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-17
+  concept: Vocabulary Cycle4
+  front: regular
+  back: 'adj; đều đặn, theo quy luật<br>/ˈreɡjʊlə/<br>Example: Using a regular format, the profile was easy to compare.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-18
+  concept: Vocabulary Cycle4
+  front: inattentive
+  back: 'adj; thiếu chú ý<br>/ˌɪnəˈtentɪv/<br>Example: Left inattentive, the detail was missed by the fictional reader.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-19
+  concept: Vocabulary Cycle4
+  front: considered
+  back: 'adj; đã được cân nhắc<br>/kənˈsɪdəd/<br>Example: Considered carefully, the reply remains appropriately limited.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-20
+  concept: Vocabulary Cycle4
+  front: unfocused
+  back: 'adj; thiếu tập trung<br>/ʌnˈfəʊkəst/<br>Example: Becoming unfocused, the group took a short break.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-21
+  concept: Vocabulary Cycle4
+  front: reliable
+  back: 'adj; đáng tin cậy<br>/rɪˈlaɪəbəl/<br>Example: Checked twice, the reliable record contained no invented quote.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-22
+  concept: Vocabulary Cycle4
+  front: uncertain
+  back: 'adj; không chắc chắn<br>/ʌnˈsɜːtən/<br>Example: Uncertain about the attachment, I kept the full clause.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-23
+  concept: Vocabulary Cycle4
+  front: restrained
+  back: 'adj; kiềm chế, không thái quá<br>/rɪˈstreɪnd/<br>Example: Written with restraint, the conclusion avoids overclaiming.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c4-24
+  concept: Vocabulary Cycle4
+  front: efficient
+  back: 'adj; hiệu quả, ít lãng phí<br>/ɪˈfɪʃənt/<br>Example: Working efficiently, the editor shortened the paragraph without
+    losing meaning.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-04-personality-cycle4-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle4
+- id: ielts-p3-m1-c5-01
+  concept: Vocabulary Cycle5
+  front: agreeableness
+  back: 'noun; tính dễ hợp tác, hòa nhã<br>/əˈɡriːəbəlnəs/<br>Example: Agreeableness, which is only one label in this fictional
+    profile, is discussed cautiously.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-02
+  concept: Vocabulary Cycle5
+  front: extraversion
+  back: 'noun; tính hướng ngoại<br>/ˌekstrəˈvɜːʃən/<br>Example: Extraversion, whose meaning depends on context, is not the
+    same as constant confidence.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-03
+  concept: Vocabulary Cycle5
+  front: conscientiousness
+  back: 'noun; tính tận tâm, cẩn thận<br>/ˌkɒnʃiˈenʃəsnəs/<br>Example: Conscientiousness, which the worksheet describes as
+    careful work, is not a diagnosis.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-04
+  concept: Vocabulary Cycle5
+  front: neuroticism
+  back: 'noun; thuật ngữ mô tả xu hướng cảm xúc tiêu cực trong một số mô hình<br>/njʊəˈrɒtɪsɪzəm/<br>Example: Neuroticism,
+    whose label can sound negative, needs careful explanation in class.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-05
+  concept: Vocabulary Cycle5
+  front: imaginative
+  back: 'adj; giàu trí tưởng tượng<br>/ɪˈmædʒɪnətɪv/<br>Example: The imaginative writer, who invented the scenario, separated
+    fact from fiction.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-06
+  concept: Vocabulary Cycle5
+  front: disciplined
+  back: 'adj; có kỷ luật<br>/ˈdɪsəplɪnd/<br>Example: The disciplined learner, whose routine was simple, reviewed the evidence.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-07
+  concept: Vocabulary Cycle5
+  front: assertiveness
+  back: 'noun; sự quyết đoán, biết nêu nhu cầu<br>/əˈsɜːtɪvnəs/<br>Example: Assertiveness, which can be expressed politely,
+    is not aggression.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-08
+  concept: Vocabulary Cycle5
+  front: self-regulation
+  back: 'noun; khả năng tự điều chỉnh<br>/ˌself reɡjʊˈleɪʃən/<br>Example: Self-regulation, whose meaning we define for this
+    task, helps the fictional learner pause.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-09
+  concept: Vocabulary Cycle5
+  front: marker
+  back: 'noun; dấu hiệu/chỉ báo trong mô tả<br>/ˈmɑːkə/<br>Example: A marker that appears in one note still needs context.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-10
+  concept: Vocabulary Cycle5
+  front: dimension
+  back: 'noun; chiều/kích thước khái niệm<br>/daɪˈmenʃən/<br>Example: The dimension whose name is unfamiliar is explained
+    first.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-11
+  concept: Vocabulary Cycle5
+  front: construct
+  back: 'noun; khái niệm được xây dựng để nghiên cứu/đo lường<br>/ˈkɒnstrʌkt/<br>Example: A construct, which is defined for
+    the task, is not a person’s essence.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-12
+  concept: Vocabulary Cycle5
+  front: inventory
+  back: 'noun; bảng câu hỏi/bộ công cụ kiểm kê<br>/ˈɪnvəntri/<br>Example: The inventory that we used is fictional and brief.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-13
+  concept: Vocabulary Cycle5
+  front: scale
+  back: 'noun; thang đo; mức độ<br>/skeɪl/<br>Example: The scale, whose endpoints are labelled, is not a diagnosis.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-14
+  concept: Vocabulary Cycle5
+  front: profile
+  back: 'noun; hồ sơ/tổng hợp mô tả<br>/ˈprəʊfaɪl/<br>Example: The profile that the learner edited contains cautious language.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-15
+  concept: Vocabulary Cycle5
+  front: typology
+  back: 'noun; hệ thống phân loại kiểu<br>/taɪˈpɒlədʒi/<br>Example: A typology, which groups patterns, may simplify variation.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-16
+  concept: Vocabulary Cycle5
+  front: preference
+  back: 'noun; xu hướng lựa chọn/ưu tiên<br>/ˈprefərəns/<br>Example: The preference that she reported changed across contexts.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-17
+  concept: Vocabulary Cycle5
+  front: correlate
+  back: 'verb; có mối tương quan<br>/ˈkɒrəleɪt/<br>Example: Two fictional scores may correlate, which does not prove causation.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-18
+  concept: Vocabulary Cycle5
+  front: limitation
+  back: 'noun; giới hạn<br>/ˌlɪmɪˈteɪʃən/<br>Example: The limitation that the class identifies is the small fictional sample.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-19
+  concept: Vocabulary Cycle5
+  front: framework
+  back: 'noun; khung lý thuyết/phân tích<br>/ˈfreɪmwɜːk/<br>Example: The framework, whose terms are defined, guides the comparison.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-20
+  concept: Vocabulary Cycle5
+  front: evidence
+  back: 'noun; bằng chứng<br>/ˈevɪdəns/<br>Example: The evidence which the paragraph cites is only an invented example.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-21
+  concept: Vocabulary Cycle5
+  front: reliability
+  back: 'noun; độ tin cậy/nhất quán của đo lường<br>/rɪˌlaɪəˈbɪləti/<br>Example: Reliability, which needs a defined procedure,
+    is not assumed here.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-22
+  concept: Vocabulary Cycle5
+  front: validity
+  back: 'noun; độ giá trị/đo đúng điều cần đo<br>/vəˈlɪdəti/<br>Example: Validity, whose meaning is often misunderstood, requires
+    a clear purpose.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-23
+  concept: Vocabulary Cycle5
+  front: categorise
+  back: 'verb; phân loại<br>/ˈkætəɡəraɪz/<br>Example: The worksheet categorises examples that share a surface feature.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5
+- id: ielts-p3-m1-c5-24
+  concept: Vocabulary Cycle5
+  front: interpretation
+  back: 'noun; cách diễn giải<br>/ɪnˌtɜːprɪˈteɪʃən/<br>Example: The interpretation that the learner gives remains tentative.'
+  source_lesson: '#sec-ielts-phase-3-vocabulary-05-personality-cycle5-md'
+  version: 1.0.0
+  tags:
+  - ielts
+  - phase3
+  - month1
+  - cycle5

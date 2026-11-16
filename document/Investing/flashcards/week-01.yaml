@@ -1,0 +1,71 @@
+deck_id: "deck-investing-w01"
+subject: "Investing"
+lesson_id: "week-01-tien-te-lam-phat-lai-suat-tvm"
+version: "1.0.0"
+description: "Bộ thẻ truy xuất kiến thức W01. Nội dung giáo dục, không phải khuyến nghị đầu tư."
+
+cards:
+  - id: "fc-investing-w01-001"
+    version: "1.0.0"
+    concept: "Giá trị thời gian của tiền"
+    front: "TVM là gì?"
+    back: "Time Value of Money (TVM) là khung so sánh giá trị tiền ở các thời điểm khác nhau khi có tỷ lệ sinh lời hoặc chiết khấu phù hợp."
+    source_lesson: "Investing/notes/module-1/week-01-tien-te-lam-phat-lai-suat-tvm.md"
+    claim_ids: ["W01-C01"]
+    tags: ["tvm", "foundations"]
+  - id: "fc-investing-w01-002"
+    version: "1.0.0"
+    concept: "FV"
+    front: "Công thức FV của một khoản tiền duy nhất là gì?"
+    back: "FV = PV × (1 + r)^n; r và n phải cùng kỳ tính."
+    source_lesson: "Investing/notes/module-1/week-01-tien-te-lam-phat-lai-suat-tvm.md"
+    claim_ids: ["W01-C02"]
+    tags: ["fv", "formula"]
+  - id: "fc-investing-w01-003"
+    version: "1.0.0"
+    concept: "PV"
+    front: "PV khác FV thế nào?"
+    back: "PV là giá trị quy về đầu kỳ; FV là giá trị tại thời điểm kết thúc sau khi áp dụng rate và số kỳ."
+    source_lesson: "Investing/notes/module-1/week-01-tien-te-lam-phat-lai-suat-tvm.md"
+    claim_ids: ["W01-C01", "W01-C02"]
+    tags: ["pv", "tvm"]
+  - id: "fc-investing-w01-004"
+    version: "1.0.0"
+    concept: "EAR"
+    front: "EAR là gì và vì sao cần dùng nó?"
+    back: "Effective Annual Rate là lãi suất hiệu dụng năm: EAR = (1 + j/m)^m - 1. Dùng để so sánh nominal rates có tần suất ghép khác nhau, trước khi xét phí và rủi ro."
+    source_lesson: "Investing/notes/module-1/week-01-tien-te-lam-phat-lai-suat-tvm.md"
+    claim_ids: ["W01-C03"]
+    tags: ["ear", "compounding"]
+  - id: "fc-investing-w01-005"
+    version: "1.0.0"
+    concept: "Lãi suất thực"
+    front: "Công thức xấp xỉ của lãi suất thực là gì?"
+    back: "real ≈ nominal - inflation. Khi cần chính xác hơn: 1 + real = (1 + nominal)/(1 + inflation)."
+    source_lesson: "Investing/notes/module-1/week-01-tien-te-lam-phat-lai-suat-tvm.md"
+    claim_ids: ["W01-C04"]
+    tags: ["real-rate", "inflation"]
+  - id: "fc-investing-w01-006"
+    version: "1.0.0"
+    concept: "CPI"
+    front: "CPI đo điều gì và không đo chính xác điều gì?"
+    back: "CPI đo thay đổi trung bình theo thời gian của giá một giỏ hàng tiêu dùng đại diện; không nhất thiết trùng tỷ lệ tăng giá từng hộ trải nghiệm."
+    source_lesson: "Investing/notes/module-1/week-01-tien-te-lam-phat-lai-suat-tvm.md"
+    claim_ids: ["W01-C05"]
+    tags: ["cpi", "inflation"]
+  - id: "fc-investing-w01-007"
+    version: "1.0.0"
+    concept: "Đồng bộ kỳ tính"
+    front: "Lỗi rate/kỳ phổ biến trong công thức FV là gì?"
+    back: "Dùng lãi suất năm với n là số tháng hoặc dùng lãi suất tháng với n là số năm. Rate và n phải cùng kỳ, hoặc phải quy đổi trước."
+    source_lesson: "Investing/notes/module-1/week-01-tien-te-lam-phat-lai-suat-tvm.md"
+    claim_ids: ["W01-C02"]
+    tags: ["units", "formula"]
+  - id: "fc-investing-w01-008"
+    version: "1.0.0"
+    concept: "Giới hạn TVM"
+    front: "TVM không thể tự kết luận điều gì về một khoản đầu tư?"
+    back: "TVM không dự báo lợi nhuận tương lai, không loại bỏ rủi ro và không cho giá trị đúng duy nhất nếu rate, dòng tiền, phí, thuế hoặc thanh khoản chưa được xác định."
+    source_lesson: "Investing/notes/module-1/week-01-tien-te-lam-phat-lai-suat-tvm.md"
+    claim_ids: ["W01-C01", "W01-C06"]
+    tags: ["limitations", "safety"]

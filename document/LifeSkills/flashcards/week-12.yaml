@@ -1,0 +1,186 @@
+deck_id: deck-ls-w12
+subject: LifeSkills
+lesson_id: week-12-breakup-loss-grief
+version: 1.0.0
+description: 'Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng Tuần 12: Vượt qua Chia tay, Mất mát và Tiến trình Đau
+  buồn'
+cards:
+- id: fc-ls-w12-001
+  concept: Bản chất tâm lý học của nỗi đau chia tay
+  front: Bài học nên diễn đạt thế nào về cảm giác đau sau chia tay?
+  back: 'Đau sau chia tay có thể rất mạnh và có cả tác động cảm xúc, cơ thể, giấc ngủ; nghiên cứu nhật ký hỗ trợ
+    mô tả biến thiên cảm xúc, không chứng minh chia tay là cai nghiện chất, không cho phép suy ra vùng não hay dopamine
+    của một cá nhân. Ví dụ: Có thể ăn ngủ thất thường hoặc nhớ người cũ; không suy ra hormone/vùng não từ các dấu
+    hiệu này.'
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - neurobiology-of-breakup
+  - pain
+  - module-3
+- id: fc-ls-w12-002
+  concept: Mô hình 5 giai đoạn đau buồn (Kübler-Ross)
+  front: DABDA gồm năm nhãn nào, và vì sao không phải lịch phải hoàn thành?
+  back: Phủ nhận (Denial), tức giận (Anger), mặc cả (Bargaining), trầm uất (Depression), chấp nhận (Acceptance).
+    Đây là nhãn mô tả trong mô hình lịch sử, có thể bỏ qua/đi lại; “trầm uất” ở đây không tự chẩn đoán trầm cảm.
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - kubler-ross
+  - grief-stages
+  - module-3
+- id: fc-ls-w12-003
+  concept: Tính phi tuyến tính của tiến trình đau buồn
+  front: Hiểu lầm phổ biến nhất về tiến trình vượt qua đau buồn là gì?
+  back: 'Lầm tưởng đau buồn diễn ra theo đường thẳng từ bước 1 đến bước 5. Thực tế: cảm xúc có thể đi tới đi lui;
+    hôm nay nhẹ nhõm nhưng ngày mai lại nhớ hoặc buồn. Không có lịch hay tiến độ bắt buộc.'
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - non-linear-grief
+  - reality
+  - module-3
+- id: fc-ls-w12-004
+  concept: Mô hình tiến trình kép (Dual-Process Model - Stroebe & Schut)
+  front: Hai định hướng trong Dual Process Model là gì và có cần lịch luân phiên cố định không?
+  back: 'Định hướng mất mát: tiếc thương/nhớ; định hướng phục hồi: thích nghi sinh hoạt. Khung mô tả sự dao động,
+    không bắt buộc lịch, cân bằng hoàn hảo hoặc kết quả phục hồi; không dùng làm chẩn đoán. Ví dụ: Dành ít thời
+    gian nhận biết buồn rồi quay về bữa ăn/công việc khi phù hợp, không yêu cầu cân bằng.'
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - dual-process-model
+  - resilience
+  - module-3
+- id: fc-ls-w12-005
+  concept: Quy tắc Không liên lạc (No Contact Rule)
+  front: Low/no-contact có thể được cân nhắc khi nào và cần giới hạn gì?
+  back: 'Một số người tự nguyện giảm tín hiệu gợi nhắc sau chia tay hòa bình. Không mốc bắt buộc. Trách nhiệm chung
+    không buộc tiếp xúc trực tiếp với người gây hại; cân nhắc kênh an toàn, bên thứ ba hoặc pháp lý phù hợp. Ví
+    dụ: Nếu an toàn, chỉ trao đổi lịch bàn giao qua email/bên thứ ba; trách nhiệm không bắt buộc gặp trực tiếp.'
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - no-contact
+  - recovery
+  - module-3
+- id: fc-ls-w12-006
+  concept: Hành vi rình mò mạng xã hội người cũ (Pain Shopping)
+  front: Hiện tượng 'Pain Shopping' trên mạng xã hội gây hại thế nào cho tiến trình chữa lành?
+  back: Việc liên tục xem trang cá nhân người cũ có thể gợi lại cảm xúc hoặc làm tăng nhai lại suy nghĩ ở một số
+    người. Có thể thử tắt thông báo, giới hạn xem hoặc nhờ hỗ trợ; không khẳng định mỗi lần xem gây biến đổi dopamine/cortisol
+    hay kéo dài vô tận đau đớn.
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - pain-shopping
+  - digital-detox
+  - module-3
+- id: fc-ls-w12-007
+  concept: Lý tưởng hóa quá khứ (Euphoric Recall)
+  front: Bẫy tư duy 'Euphoric Recall' đánh lừa tâm trí người vừa chia tay ra sao?
+  back: 'Sau chia tay, một số người có thể nhớ nổi bật những kỷ niệm đẹp và bỏ sót thông tin trái chiều. Hãy xem
+    đây là một khả năng cần kiểm tra bằng ghi chép cân bằng, không phải quy luật về não bộ hay bằng chứng rằng người
+    cũ là “mảnh ghép duy nhất”. Ví dụ: Ghi cả chuyến đi vui và dữ kiện trái chiều đã bỏ sót; đây là cách kiểm tra
+    ký ức, không đọc ý định.'
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - euphoric-recall
+  - cognitive-bias
+  - module-3
+- id: fc-ls-w12-008
+  concept: Mất mát mơ hồ (Ambiguous Loss)
+  front: Ambiguous loss là cách mô tả gì trong tình huống ghosting, và có giới hạn nào?
+  back: Có thể mô tả mất mát khi người kia vẫn tồn tại nhưng quan hệ/lời giải thích không rõ. Một số người thấy
+    khó khép lại; không có hậu quả chắc chắn, không suy ra ý định và không ép người kia trả lời.
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - ambiguous-loss
+  - closure
+  - module-3
+- id: fc-ls-w12-009
+  concept: Tự tạo lời khép lại (Creating Self-Closure)
+  front: Có thể tự đặt ranh giới khi không có lời giải thích thế nào?
+  back: Ghi điều biết, điều chưa biết và lựa chọn của mình; có thể quyết định ngừng chờ. Im lặng là dữ kiện giao
+    tiếp, không chứng minh nguyên nhân, thiếu trách nhiệm hay không tương hợp. Không bảo đảm cảm giác khép lại.
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - self-closure
+  - acceptance
+  - module-3
+- id: fc-ls-w12-010
+  concept: Chăm sóc bản thân cơ bản (Foundational Self-Care)
+  front: Những lựa chọn tự chăm sóc cơ bản nào có thể cân nhắc sau mất mát?
+  back: 'Trong khả năng: ăn/uống, nghỉ, vận động nhẹ phù hợp, liên hệ người hỗ trợ an toàn. Không có quy định nghiêm
+    ngặt trong2 tuần hoặc bảo đảm tác dụng sinh lý; không thay chăm sóc y tế và không chờ thời hạn khi có nguy cơ.
+    Ví dụ: Nhờ người hỗ trợ một bữa ăn khi phù hợp, không áp lịch hồi phục.'
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - self-care
+  - biology
+  - module-3
+- id: fc-ls-w12-011
+  concept: Viết nhật ký xả cảm xúc (Expressive Writing)
+  front: Phương pháp viết giải tỏa cảm xúc của James Pennebaker áp dụng cho đau buồn ra sao?
+  back: Có thể thử viết trong khoảng thời gian ngắn về trải nghiệm và cảm xúc nếu thấy an toàn, rồi dừng khi quá
+    tải và chuyển sang hoạt động ổn định. Expressive writing có nghiên cứu trong một số bối cảnh, nhưng không bảo
+    đảm “xử lý sang chấn” và không thay thế trị liệu.
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - expressive-writing
+  - pennebaker
+  - module-3
+- id: fc-ls-w12-012
+  concept: Rối loạn đau buồn kéo dài (PGD) và ranh giới DSM-5-TR
+  front: Trang APA nêu những ranh giới nào cho PGD, thay vì chẩn đoán buồn sau chia tay?
+  back: 'PGD liên quan cái chết người thân; thời gian ít nhất12 tháng ở người lớn/6 tháng ở trẻ em-thanh thiếu niên,
+    cùng các yêu cầu chuyên môn về triệu chứng, suy giảm chức năng và văn hóa. Đây chỉ là tóm tắt ranh giới, không
+    bộ tiêu chí tự chẩn đoán; dấu hiệu nguy cơ cần hỗ trợ sớm. Ví dụ: Người lớn mất người thân10 tháng chưa đạt
+    mốc12 tháng PGD nhưng vẫn có thể cần hỗ trợ sớm; không chờ đủ thời hạn để tìm giúp đỡ.'
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - pgd
+  - dsm-5-tr
+  - clinical-boundaries
+  - module-3
+- id: fc-ls-w12-013
+  concept: Mối tình thay thế vội vã (Rebound Relationship)
+  front: Tại sao việc lao ngay vào một mối quan hệ mới (Rebound) sau chia tay có thể gây khó khăn cho một số người?
+  back: 'Dùng người mới để né cảm xúc có thể làm phức tạp quá trình thích nghi ở một số người; không phải mọi quan
+    hệ mới đều là rebound hay chắc chắn gây hại. Ví dụ: Cam kết lớn ngay để tránh ở một mình có thể đáng để cân
+    nhắc, không kết luận mọi quan hệ mới gây hại.'
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - rebound
+  - coping-traps
+  - module-3
+- id: fc-ls-w12-014
+  concept: Tìm lại bản sắc cá nhân độc lập
+  front: Những hoạt động nào có thể giúp khám phá lại sở thích/bản sắc riêng sau chia tay?
+  back: Có thể thử một sở thích, lớp học hoặc mục tiêu nhỏ do mình chọn rồi xem có phù hợp không. Không có yêu cầu
+    thành người mới/trọn vẹn/độc lập hoàn toàn, không bảo đảm chữa lành và có thể cần hỗ trợ.
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - identity-reconstruction
+  - growth
+  - module-3
+- id: fc-ls-w12-015
+  concept: Tăng trưởng hậu sang chấn (Post-Traumatic Growth)
+  front: Khái niệm Post-Traumatic Growth mở ra góc nhìn tích cực nào sau một cuộc chia tay đau đớn?
+  back: 'Một số người có thể nhận ra ranh giới hoặc ưu tiên mới sau nghịch cảnh; đây là khả năng, không phải kết
+    quả bảo đảm hay yêu cầu phải “trưởng thành” từ đau khổ. Ví dụ: Một số người nhận ra ranh giới muốn giữ trong
+    quan hệ sau này; không có nghĩa vụ biến đau khổ thành trưởng thành.'
+  source_lesson: LifeSkills/notes/module-3/week-12-breakup-loss-grief.md
+  version: 1.0.0
+  tags:
+  - post-traumatic-growth
+  - resilience
+  - module-3

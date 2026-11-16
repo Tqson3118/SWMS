@@ -1,0 +1,71 @@
+deck_id: "deck-inv-w13"
+subject: "Investing"
+lesson_id: "week-13-phan-tich-nganh-viet-nam"
+version: "1.1.0"
+description: "R5 deck ôn tập W13 về khung đọc ngành, provenance, phép tính giả định và giới hạn; giáo dục, không phải khuyến nghị đầu tư."
+
+cards:
+  - id: "fc-inv-w13-001"
+    concept: "Khung đọc ngành sáu lớp"
+    front: "Sáu lớp nào tạo thành quy trình đọc ngành trước khi kết luận?"
+    back: "Mô hình doanh thu; KPI hoạt động; chất lượng tài sản/dòng tiền; vốn và nghĩa vụ; rủi ro pháp lý/vận hành; dữ kiện phản chứng. Đây là khung sư phạm, không phải bộ KPI bắt buộc của SSC."
+    source_lesson: "Investing/notes/module-3/week-13-phan-tich-nganh-viet-nam.md#6-khung-sáu-lớp-để-đọc-một-ngành"
+    version: "1.1.0"
+    claim_ids: ["W13-C01"]
+    tags: ["sector-analysis", "framework", "module-3"]
+  - id: "fc-inv-w13-002"
+    concept: "Ngân hàng và bộ chỉ báo"
+    front: "Vì sao NIM, NPL, dự phòng và CAR nên được đọc cùng nhau?"
+    back: "Mỗi chỉ báo nhìn một phần: biên, chất lượng nợ, khả năng hấp thụ tổn thất và vốn. Cần cùng kỳ, cùng phạm vi và đúng định nghĩa; một tỷ lệ đơn lẻ không chứng minh an toàn toàn bộ."
+    source_lesson: "Investing/notes/module-3/week-13-phan-tich-nganh-viet-nam.md#7-đọc-bốn-ngành-mà-không-suy-diễn-quá-mức"
+    version: "1.1.0"
+    claim_ids: ["W13-C01"]
+    tags: ["banking", "asset-quality", "capital"]
+  - id: "fc-inv-w13-003"
+    concept: "GSO danh nghĩa và sau loại trừ giá"
+    front: "GSO quý I/2025 nêu 9,9% và 7,5%; hai tốc độ này khác nhau ở đâu?"
+    back: "9,9% là tăng theo giá hiện hành; 7,5% là tăng sau loại trừ yếu tố giá. Đây là thống kê toàn nền kinh tế, không phải doanh thu hay lợi nhuận của một doanh nghiệp."
+    source_lesson: "Investing/notes/module-3/week-13-phan-tich-nganh-viet-nam.md#7-đọc-bốn-ngành-mà-không-suy-diễn-quá-mức"
+    version: "1.1.0"
+    claim_ids: ["W13-C04"]
+    tags: ["consumer", "gso", "macro"]
+  - id: "fc-inv-w13-004"
+    concept: "Provenance trước so sánh"
+    front: "Năm trường provenance nào phải khóa trước khi so sánh KPI?"
+    back: "Kỳ báo cáo, ngày dữ liệu, đơn vị, phạm vi hợp nhất/riêng lẻ và định nghĩa KPI. Ghi thêm nguồn, ngày mở, nhãn fact/assumption và dữ kiện phản chứng để biết giới hạn."
+    source_lesson: "Investing/notes/module-3/week-13-phan-tich-nganh-viet-nam.md#5-abbreviations-provenance-và-giới-hạn-nguồn"
+    version: "1.1.0"
+    claim_ids: ["W13-C07"]
+    tags: ["source-check", "comparability", "governance"]
+  - id: "fc-inv-w13-005"
+    concept: "Bốn giai đoạn quantitative case"
+    front: "Một quantitative case W13 phải đi qua bốn giai đoạn nào?"
+    back: "Nêu câu hỏi và đơn vị; khóa bảng giả định; tính từng bước; chạy sensitivity/stress test rồi ghi known limits. Nếu thiếu kỳ, mẫu số hoặc phạm vi thì giữ kết quả ở trạng thái uncertain."
+    source_lesson: "Investing/notes/module-3/week-13-phan-tich-nganh-viet-nam.md#9-quantitative-cases-bốn-giai-đoạn-không-dùng-số-doanh-nghiệp-thật"
+    version: "1.1.0"
+    claim_ids: ["W13-C08"]
+    tags: ["calculation", "assumption", "stress-test"]
+  - id: "fc-inv-w13-006"
+    concept: "Tỷ lệ online giả định"
+    front: "Trong Case B, 168 tỷ trên 2.400 tỷ cho tỷ lệ online bao nhiêu?"
+    back: "168 / 2.400 x 100 = 7,0%. Đây là case giả định để luyện phép chia; không phải dữ liệu của doanh nghiệp thật, không phải margin, forecast hay khuyến nghị."
+    source_lesson: "Investing/notes/module-3/week-13-phan-tich-nganh-viet-nam.md#9-quantitative-cases-bốn-giai-đoạn-không-dùng-số-doanh-nghiệp-thật"
+    version: "1.1.0"
+    claim_ids: ["W13-C08"]
+    tags: ["consumer", "calculation", "hypothetical"]
+  - id: "fc-inv-w13-007"
+    concept: "SSC trong phạm vi W13"
+    front: "SSC hỗ trợ claim nào, và không hỗ trợ claim nào trong bài?"
+    back: "SSC hỗ trợ yêu cầu công bố/provenance trong văn bản đã mở. SSC không quy định một bộ KPI duy nhất, không xác nhận luận điểm mua bán và không bảo đảm các KPI cùng tên có cùng định nghĩa."
+    source_lesson: "Investing/notes/module-3/week-13-phan-tich-nganh-viet-nam.md#5-abbreviations-provenance-và-giới-hạn-nguồn"
+    version: "1.1.0"
+    claim_ids: ["W13-C07"]
+    tags: ["ssc", "disclosure", "limits"]
+  - id: "fc-inv-w13-008"
+    concept: "Known và uncertain"
+    front: "Sau stress test, điều gì vẫn phải ghi rõ thay vì biến thành kết luận chắc chắn?"
+    back: "Độ nhạy với giả định, giới hạn định nghĩa/phạm vi, dữ liệu tương lai và điều chưa biết. Số liệu lịch sử không xác nhận giá tương lai, thu tiền backlog, biên bền vững hay mức phù hợp với cá nhân."
+    source_lesson: "Investing/notes/module-3/week-13-phan-tich-nganh-viet-nam.md#10-known-uncertain-và-các-lỗi-phải-tránh"
+    version: "1.1.0"
+    claim_ids: ["W13-C08"]
+    tags: ["uncertainty", "risk", "disclaimer"]

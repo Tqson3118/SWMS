@@ -771,9 +771,20 @@ function ReviewPageContent() {
                 className="absolute inset-0 backface-hidden rotate-y-180 rounded-xl border border-border bg-bg-primary p-6 flex flex-col shadow-xs overflow-y-auto"
               >
                 <div className="flex items-center justify-between text-[11px] text-text-tertiary mb-3">
-                  <span>Đáp án · FSRS Stability {currentCard ? currentCard.stability.toFixed(1) : "0.0"}</span>
+                  <span>
+                    Đáp án ·{" "}
+                    {currentCard && currentCard.stability > 0
+                      ? `Độ nhớ ${currentCard.stability.toFixed(1)} ngày`
+                      : "Thẻ mới"}
+                  </span>
                   {currentCard?.cardType && (
-                    <span className="uppercase tracking-wide font-semibold">{currentCard.cardType}</span>
+                    <span className="px-2 py-0.5 rounded bg-bg-secondary border border-border text-[10px] font-medium text-text-secondary">
+                      {currentCard.cardType === "cloze"
+                        ? "Điền khuyết"
+                        : currentCard.cardType === "ai_generated"
+                        ? "Gợi ý AI"
+                        : "Thẻ cơ bản"}
+                    </span>
                   )}
                 </div>
 

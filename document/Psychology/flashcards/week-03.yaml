@@ -1,0 +1,113 @@
+deck_id: "deck-psy-w03"
+subject: "Psychology"
+lesson_id: "week-03-correlation-causation"
+version: "1.0.0"
+description: "Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng (Spaced Repetition - R5 Compliant) Tuần 03: Tương quan, Nhân quả, Độ tin cậy, Tái lập và Cách đọc một Tuyên bố Khoa học"
+
+cards:
+  - id: "fc-psy-w03-001"
+    concept: "Hệ số tương quan Pearson"
+    front: "Hệ số tương quan Pearson (r) phản ánh điều gì và khoảng giá trị của nó được giới hạn như thế nào?"
+    back: "Hệ số Pearson (r) đo lường độ mạnh và chiều hướng của mối quan hệ tuyến tính giữa hai biến số, có giá trị trong khoảng từ -1.00 đến +1.00. Giá trị tuyệt đối |r| càng gần 1.00 thì liên kết tuyến tính càng mạnh; r = 0 biểu thị không có tương quan tuyến tính."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-03-correlation-causation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C03-01"
+    tags:
+      - "statistics"
+      - "pearson-r"
+      - "correlation"
+
+  - id: "fc-psy-w03-002"
+    concept: "Tương quan thuận đối lập Tương quan nghịch"
+    front: "Phân biệt chiều hướng biến thiên của tương quan thuận (positive) và tương quan nghịch (negative); tại sao tương quan nghịch không đồng nghĩa với liên hệ yếu?"
+    back: "Tương quan thuận là hai biến cùng tăng hoặc cùng giảm; Tương quan nghịch là biến này tăng thì biến kia giảm. Dấu âm chỉ chiều hướng nghịch biến, không phản ánh độ yếu; r = -0.85 cho thấy liên hệ tuyến tính mạnh trong mẫu, không tự đảm bảo dự báo chính xác cho từng cá nhân."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-03-correlation-causation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C03-02"
+    tags:
+      - "statistics"
+      - "direction"
+      - "negative-correlation"
+
+  - id: "fc-psy-w03-003"
+    concept: "Tương quan không phải là nhân quả"
+    front: "Hai rào cản phương pháp luận cốt lõi nào ngăn cản việc suy luận quan hệ nhân quả từ một mối liên hệ tương quan?"
+    back: "Hai rào cản là: (1) Vấn đề biến thứ ba (third-variable / confounding) — có thể có một biến chung chưa đo lường liên quan đến cả hai biến, nhưng tương quan đơn độc không chứng minh biến cụ thể đó đang chi phối; và (2) Vấn đề chiều hướng tác động (directionality problem) — không thể xác định biến nào xảy ra trước và tác động lên biến nào."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-03-correlation-causation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C03-03"
+    tags:
+      - "critical-thinking"
+      - "causation"
+      - "third-variable"
+      - "directionality"
+
+  - id: "fc-psy-w03-004"
+    concept: "Tương quan ảo tưởng và thiên kiến xác nhận"
+    front: "Trong ví dụ một bác sĩ chỉ nhớ các đêm trăng tròn bận rộn, hiện tượng tương quan ảo tưởng là gì và thiên kiến nào có thể duy trì niềm tin đó?"
+    back: "Tương quan ảo tưởng là nhận thức về mối liên hệ mạnh hơn, khác hướng hoặc rõ hơn mức dữ liệu hỗ trợ. Trong ví dụ này, thiên kiến xác nhận có thể duy trì niềm tin khi người đó chú ý và nhớ các lần trùng hợp hơn các lần không phù hợp; đây là một khả năng trong ví dụ, không phải cơ chế duy nhất cho mọi trường hợp. OpenStax nêu ví dụ hẹp; Fiedler (2000) mô tả rộng hơn độ lệch có hệ thống trong các quan sát tuần tự, gồm phóng đại, giảm nhẹ, đảo chiều hoặc bóp méo."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-03-correlation-causation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C03-04"
+    tags:
+      - "cognitive-bias"
+      - "illusory-correlation"
+      - "confirmation-bias"
+
+  - id: "fc-psy-w03-005"
+    concept: "Độ tin cậy trong đo lường tâm lý học"
+    front: "Độ tin cậy (reliability) là gì và bao gồm các hình thức kiểm định phổ biến nào?"
+    back: "Độ tin cậy phản ánh tính nhất quán của công cụ trong điều kiện và khoảng thời gian cụ thể; test-retest chỉ cho thấy mức ổn định khi bối cảnh và đặc tính được đo phù hợp, không phải ổn định tuyệt đối. Ba dạng chính gồm test-retest, inter-rater và internal consistency/Cronbach's alpha. Alpha phụ thuộc số mục, mức liên hệ giữa mục và mẫu; ngưỡng thường dùng là quy ước theo bối cảnh, không tự chứng minh đơn hướng hay độ giá trị."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-03-correlation-causation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C03-05"
+    tags:
+      - "psychometrics"
+      - "reliability"
+      - "consistency"
+
+  - id: "fc-psy-w03-006"
+    concept: "Mối quan hệ giữa Độ tin cậy và Độ giá trị"
+    front: "Tại sao độ tin cậy (reliability) là điều kiện cần nhưng không đủ để một thang đo đạt được độ giá trị (validity)?"
+    back: "Vì một công cụ cần đủ nhất quán thì mới có cơ sở để đo lường; tuy nhiên một công cụ có thể đo sai lệch một cách ổn định (ví dụ chiếc cân luôn chỉ thừa 5kg). Nhất quán cao nhưng không đo đúng khái niệm thì vẫn có thể thiếu độ giá trị; một tiêu chí không đạt cũng không tự động kết luận mọi khía cạnh của công cụ đều vô giá trị."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-03-correlation-causation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C03-05"
+      - "C03-06"
+    tags:
+      - "psychometrics"
+      - "validity"
+      - "reliability-vs-validity"
+
+  - id: "fc-psy-w03-007"
+    concept: "Ý nghĩa và giới hạn của p-value theo ASA"
+    front: "Tuyên bố của Hiệp hội Thống kê Hoa Kỳ (ASA) năm 2016 cảnh báo điều gì về việc hiểu và sử dụng ngưỡng p < .05?"
+    back: "Giá trị p là xác suất thấy dữ liệu cực đoan ít nhất như vậy nếu H0 và các giả định của mô hình đã chọn đúng; nó không phải khoảng cách literal, xác suất H0 hay xác suất nhân quả. Nó cũng không phản ánh độ lớn hiệu ứng (effect size) hoặc tầm quan trọng thực tiễn; việc lạm dụng nhị phân p < .05 là sai lầm phương pháp luận."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-03-correlation-causation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C03-07"
+    tags:
+      - "statistics"
+      - "p-value"
+      - "asa-statement"
+      - "effect-size"
+
+  - id: "fc-psy-w03-008"
+    concept: "Khủng hoảng tái lập và giải pháp Khoa học Mở"
+    front: "Những cơ chế hệ thống nào được đề xuất hoặc có thể góp phần vào khủng hoảng tái lập, và preregistration giúp gì?"
+    back: "Thiên lệch xuất bản, p-hacking và HARKing là các cơ chế được đề xuất hoặc có thể góp phần, không phải nguyên nhân duy nhất đã được OSC xác lập cho mọi thất bại. Nosek et al. (2018) cho biết preregistration phân biệt dự đoán với giải thích hậu nghiệm bằng cách ghi trước câu hỏi và kế hoạch phân tích; lợi ích được nêu là “về nguyên tắc” và chưa đủ bằng chứng thực nghiệm để khẳng định nó tự bảo đảm tái lập. Khoa học Mở còn đề xuất Registered Reports và chia sẻ dữ liệu/vật liệu để tăng minh bạch."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-03-correlation-causation.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C03-08"
+    tags:
+      - "open-science"
+      - "replication-crisis"
+      - "preregistration"

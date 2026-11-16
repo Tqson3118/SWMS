@@ -1,0 +1,141 @@
+schema_version: 2.0.0
+package_id: package:lifeskills:w09
+subject_id: roadmap:subject:lifeskills
+display_title: LifeSkills — Tình cảm, Giao tiếp & Kỹ năng sống
+source_status: in_review
+version: 7
+created_at: '2026-09-22T00:00:00Z'
+subject: LifeSkills
+course: Tự học LifeSkills 16 tuần
+module: module-3
+lesson: week-09-attachment-adults
+learning_objectives:
+- id: LO-W09-01
+  bloom_level: Understand
+  statement: Mô tả hai chiều kích và các nhãn mô hình gắn bó ở người trưởng thành; dùng chúng để hỏi nhu cầu, không
+    chẩn đoán hoặc kết luận từ một hành vi.
+- id: LO-W09-02
+  bloom_level: Analyze
+  statement: Phân tích hành vi phản kháng (protest behavior) bằng dữ kiện và giả thuyết thay thế, rồi bộc lộ nhu
+    cầu an toàn một cách chủ động.
+- id: LO-W09-03
+  bloom_level: Apply
+  statement: Thực hành cấu trúc phản hồi an toàn khi đối phương kích hoạt cơ chế rút lui hoặc đòi hỏi dồn dập trong
+    tình huống giả định.
+- id: LO-W09-04
+  bloom_level: Evaluate
+  statement: Đánh giá được các giới hạn của lý thuyết gắn bó và từ chối việc sử dụng phong cách gắn bó để biện minh
+    cho các hành vi thao túng hoặc vi phạm ranh giới.
+concepts:
+- id: roadmap:concept:lifeskills:w09:adult-attachment
+  name: Mô hình gắn bó ở người trưởng thành
+  claim_ids:
+  - W09-C01
+  evidence_label: moderate
+  source_ledger_path: quality/module-3-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: 'Bounded definitions, card/assessment wording and safety limits reviewed after278/279/283, independent285/286
+      and actualroot288 corrections. See root284 current source classification: historical references retained as
+      unverified/background, authored practices not clinical efficacy. This is not full-source/week/learner/course
+      approval.'
+- id: roadmap:concept:lifeskills:w09:attachment-context
+  name: Giao tiếp tự nguyện và giới hạn thực hành theo bối cảnh
+  claim_ids:
+  - W09-C02
+  evidence_label: preliminary
+  source_ledger_path: quality/module-3-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: course-remediation-root
+    date: '2026-10-05'
+    notes: 'Bounded definitions, card/assessment wording and safety limits reviewed after278/279/283, independent285/286
+      and actualroot288 corrections. See root284 current source classification: historical references retained as
+      unverified/background, authored practices not clinical efficacy. This is not full-source/week/learner/course
+      approval.'
+questions:
+- id: Q09-01
+  lo_ref: LO-W09-01
+  concept_id: roadmap:concept:lifeskills:w09:adult-attachment
+  claim_ids:
+  - W09-C01
+- id: Q09-02
+  lo_ref: LO-W09-01
+  concept_id: roadmap:concept:lifeskills:w09:adult-attachment
+  claim_ids:
+  - W09-C01
+- id: Q09-03
+  lo_ref: LO-W09-01
+  concept_id: roadmap:concept:lifeskills:w09:adult-attachment
+  claim_ids:
+  - W09-C01
+- id: Q09-04
+  lo_ref: LO-W09-01
+  concept_id: roadmap:concept:lifeskills:w09:adult-attachment
+  claim_ids:
+  - W09-C01
+- id: Q09-05
+  lo_ref: LO-W09-02
+  concept_id: roadmap:concept:lifeskills:w09:attachment-context
+  claim_ids:
+  - W09-C02
+- id: Q09-06
+  lo_ref: LO-W09-02
+  concept_id: roadmap:concept:lifeskills:w09:attachment-context
+  claim_ids:
+  - W09-C02
+- id: Q09-07
+  lo_ref: LO-W09-02
+  concept_id: roadmap:concept:lifeskills:w09:attachment-context
+  claim_ids:
+  - W09-C02
+- id: Q09-08
+  lo_ref: LO-W09-03
+  concept_id: roadmap:concept:lifeskills:w09:attachment-context
+  claim_ids:
+  - W09-C02
+- id: Q09-09
+  lo_ref: LO-W09-04
+  concept_id: roadmap:concept:lifeskills:w09:adult-attachment
+  claim_ids:
+  - W09-C01
+- id: Q09-10
+  lo_ref: LO-W09-04
+  concept_id: roadmap:concept:lifeskills:w09:adult-attachment
+  claim_ids:
+  - W09-C01
+units:
+- unit_id: roadmap:unit:lifeskills:w09
+  display_title: 'Tuần 9: Gắn bó ở người trưởng thành: Mô hình làm việc, không phải nhãn chẩn đoán'
+  sort_order: 9
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:lifeskills:w09
+    path: notes/module-3/week-09-attachment-adults.md
+    sha256: 801f914bf3bd3c2dfec9b4357788b9aaa995e2749ca6cfd46f5bf160a05fcbca
+    byte_length: 28195
+  - role: quiz_questions
+    stable_id: roadmap:quiz:lifeskills:w09
+    path: assessments/quizzes/week-09-quiz.md
+    question_count: 10
+    sha256: f6eb3f7bcc386b8112277540aa6504686c60b4972d65a8dfff5cb995f43b3921
+    byte_length: 6221
+  - role: quiz_answers
+    stable_id: roadmap:answers:lifeskills:w09
+    path: assessments/answer-keys/week-09-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: 262928a6c0abe1d7bd7f7722298f024f3da2589d55fe8f23228950622641831d
+    byte_length: 10645
+  - role: flashcard_deck
+    stable_id: roadmap:deck:lifeskills:w09
+    path: flashcards/week-09.yaml
+    card_count: 15
+    sha256: 51b75bc9ed562780b9049ea506a7bbbdea395dd4e0fa324637f510479a078a4c
+    byte_length: 10129
+  - role: source_ledger
+    path: quality/module-3-source-ledger.md
+    sha256: 891a8d7c2061c940e9bf6fb5709095b880851d4aa7fc9b5144eefb8bbb43cead
+    byte_length: 17083

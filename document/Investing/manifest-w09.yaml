@@ -1,0 +1,114 @@
+schema_version: 2.0.0
+package_id: package:investing:w09
+subject_id: roadmap:subject:investing
+display_title: 'Investing — Tuần 09: Đầu tư giá trị, biên an toàn và phân tích định giá'
+source_status: in_review
+version: 4
+created_at: '2026-09-22T00:00:00Z'
+subject: Investing
+course: Investing — 18 tuần
+module: module-2
+lesson: week-09-dau-tu-gia-tri
+learning_objectives:
+- id: LO-W09-01
+  bloom_level: Understand
+  statement: 'Hiểu và trình bày các khái niệm nền tảng của Tuần 09: Đầu tư giá trị, biên an toàn và phân tích định
+    giá theo chuẩn mực học liệu.'
+- id: LO-W09-02
+  bloom_level: Apply
+  statement: 'Vận dụng các phương pháp và công thức tính toán thực tế trong tình huống đầu tư giả định của Tuần
+    09: Đầu tư giá trị, biên an toàn và phân tích định giá.'
+- id: LO-W09-03
+  bloom_level: Analyze
+  statement: 'Phân tích cơ chế vận hành, các yếu tố rủi ro và điều kiện biên của các công cụ trong Tuần 09: Đầu
+    tư giá trị, biên an toàn và phân tích định giá.'
+- id: LO-W09-04
+  bloom_level: Evaluate
+  statement: 'Đánh giá, phản biện các sai lầm phổ biến và xây dựng nguyên tắc quản trị kỷ luật cho Tuần 09: Đầu
+    tư giá trị, biên an toàn và phân tích định giá.'
+concepts:
+- id: roadmap:concept:investing:w09-core
+  name: 'Khái niệm cốt lõi và khung phân tích Tuần 09: Đầu tư giá trị, biên an toàn và phân tích định giá'
+  claim_ids:
+  - W09-C01
+  - W09-C02
+  evidence_label: strong
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-content-reviewer
+    date: '2026-09-22'
+questions:
+- id: Q09-01
+  lo_ref: LO-W09-01
+  concept_id: roadmap:concept:investing:w09-core
+  claim_ids:
+  - W09-C01
+- id: Q09-02
+  lo_ref: LO-W09-01
+  concept_id: roadmap:concept:investing:w09-core
+  claim_ids:
+  - W09-C01
+- id: Q09-03
+  lo_ref: LO-W09-02
+  concept_id: roadmap:concept:investing:w09-core
+  claim_ids:
+  - W09-C01
+- id: Q09-04
+  lo_ref: LO-W09-02
+  concept_id: roadmap:concept:investing:w09-core
+  claim_ids:
+  - W09-C01
+- id: Q09-05
+  lo_ref: LO-W09-03
+  concept_id: roadmap:concept:investing:w09-core
+  claim_ids:
+  - W09-C01
+- id: Q09-06
+  lo_ref: LO-W09-03
+  concept_id: roadmap:concept:investing:w09-core
+  claim_ids:
+  - W09-C01
+- id: Q09-07
+  lo_ref: LO-W09-04
+  concept_id: roadmap:concept:investing:w09-core
+  claim_ids:
+  - W09-C01
+- id: Q09-08
+  lo_ref: LO-W09-04
+  concept_id: roadmap:concept:investing:w09-core
+  claim_ids:
+  - W09-C01
+units:
+- unit_id: roadmap:unit:investing:w09
+  display_title: 'Tuần 09: Đầu tư giá trị, biên an toàn và phân tích định giá'
+  sort_order: 9
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:investing:w09
+    path: notes/module-2/week-09-dau-tu-gia-tri.md
+    sha256: e170e41342d0e58ef767a7d7f3ae04f827c5fdf06dadc7dbe84cf1ad6d2bf4f7
+    byte_length: 41439
+  - role: quiz_questions
+    stable_id: roadmap:quiz:investing:w09
+    path: assessments/quizzes/week-09-quiz.md
+    question_count: 8
+    sha256: 9f62c1fae0b30bf0c65cd372f42f03263bd374ba38454048e7acd7e298778305
+    byte_length: 5507
+  - role: quiz_answers
+    stable_id: roadmap:answers:investing:w09
+    path: assessments/answer-keys/week-09-answers.md
+    correct_count: 8
+    wrong_count: 24
+    sha256: c0c6bc42f4f26dc7c87ccb37820956f20709649d971a23f703a50182b6c88709
+    byte_length: 30836
+  - role: flashcard_deck
+    stable_id: roadmap:deck:investing:w09
+    path: flashcards/week-09.yaml
+    card_count: 8
+    sha256: 2902a0736667ca54c295f07e18c74845896f791c0d45f4d83709fc7d694a3f2d
+    byte_length: 8308
+  - role: source_ledger
+    path: quality/module-2-source-ledger.md
+    sha256: 382b083fba81fde11ccdaa51a4bfb45c3c6f754da7b2fa80dee110744cb6699b
+    byte_length: 46345

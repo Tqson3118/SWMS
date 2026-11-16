@@ -1,0 +1,195 @@
+schema_version: 2.0.0
+package_id: package:psychology:w11
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: approved
+version: 6
+created_at: '2026-09-16T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 02-understanding-self
+lesson: week-11-personality-big-five
+learning_objectives:
+- id: LO-W11-01
+  bloom_level: Understand
+  statement: Định nghĩa Tính cách; phân tích Giả thuyết từ vựng của Allport và phân
+    tích nhân tố của Cattell; phân biệt tiếp cận theo loại hình và theo đặc điểm.
+- id: LO-W11-02
+  bloom_level: Analyze
+  statement: Phân tích Mô hình Năm Yếu tố (Big Five/OCEAN) trên 5 chiều kích liên
+    tục độc lập; dẫn chứng tính phổ quát xuyên văn hóa và cơ sở di truyền hành vi
+    qua nghiên cứu sinh đôi Minnesota.
+- id: LO-W11-03
+  bloom_level: Evaluate
+  statement: Giải thích Tranh luận Con người - Tình huống của Mischel và Thuyết Tương
+    tác luận; phân biệt tình huống mạnh và tình huống yếu trong việc bộc lộ tính cách.
+- id: LO-W11-04
+  bloom_level: Apply
+  statement: 'Đánh giá phê phán các công cụ đo lường tính cách: MMPI-2, MBTI và trắc
+    nghiệm phóng chiếu; vận dụng Nguyên lý Trưởng thành của tính cách theo vòng đời.'
+concepts:
+- id: roadmap:concept:psychology:w11-lexical-allport-cattell
+  name: Định nghĩa Tính cách, Giả thuyết Từ vựng & Phân tích Nhân tố
+  claim_ids:
+  - C11-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w11-big-five-ocean
+  name: Mô hình Năm Yếu tố (Big Five/OCEAN) & Tính Phổ quát Xuyên Văn hóa
+  claim_ids:
+  - C11-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w11-behavioral-genetics-twins
+  name: Cơ sở Di truyền Hành vi & Nghiên cứu Sinh đôi Minnesota
+  claim_ids:
+  - C11-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w11-person-situation-interactionism
+  name: Tranh luận Con người - Tình huống & Thuyết Tương tác luận
+  claim_ids:
+  - C11-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w11-mmpi2-validity-scales
+  name: Bản kiểm kê MMPI-2 & Các Thang đo Tính Trung thực (L, F, K)
+  claim_ids:
+  - C11-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w11-mbti-critique
+  name: Phản biện Tâm trắc học đối với Trắc nghiệm MBTI
+  claim_ids:
+  - C11-06
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w11-projective-tests
+  name: Đánh giá Khoa học & Giới hạn của Trắc nghiệm Phóng chiếu
+  claim_ids:
+  - C11-07
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w11-maturity-principle
+  name: Nguyên lý Trưởng thành của Tính cách theo Vòng đời
+  claim_ids:
+  - C11-08
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+questions:
+- id: Q11-01
+  lo_ref: LO-W11-01
+  concept_id: roadmap:concept:psychology:w11-lexical-allport-cattell
+  claim_ids:
+  - C11-01
+- id: Q11-02
+  lo_ref: LO-W11-01
+  concept_id: roadmap:concept:psychology:w11-lexical-allport-cattell
+  claim_ids:
+  - C11-01
+- id: Q11-03
+  lo_ref: LO-W11-02
+  concept_id: roadmap:concept:psychology:w11-big-five-ocean
+  claim_ids:
+  - C11-02
+- id: Q11-04
+  lo_ref: LO-W11-02
+  concept_id: roadmap:concept:psychology:w11-big-five-ocean
+  claim_ids:
+  - C11-02
+- id: Q11-05
+  lo_ref: LO-W11-02
+  concept_id: roadmap:concept:psychology:w11-behavioral-genetics-twins
+  claim_ids:
+  - C11-03
+- id: Q11-06
+  lo_ref: LO-W11-03
+  concept_id: roadmap:concept:psychology:w11-person-situation-interactionism
+  claim_ids:
+  - C11-04
+- id: Q11-07
+  lo_ref: LO-W11-03
+  concept_id: roadmap:concept:psychology:w11-person-situation-interactionism
+  claim_ids:
+  - C11-04
+- id: Q11-08
+  lo_ref: LO-W11-04
+  concept_id: roadmap:concept:psychology:w11-mmpi2-validity-scales
+  claim_ids:
+  - C11-05
+- id: Q11-09
+  lo_ref: LO-W11-04
+  concept_id: roadmap:concept:psychology:w11-mbti-critique
+  claim_ids:
+  - C11-06
+- id: Q11-10
+  lo_ref: LO-W11-04
+  concept_id: roadmap:concept:psychology:w11-maturity-principle
+  claim_ids:
+  - C11-08
+units:
+- unit_id: roadmap:unit:psychology:w11
+  display_title: 'Tuần 11: Tính Cách và Mô Hình Big Five — Giá Trị và Giới Hạn Của
+    Trắc Nghiệm Tâm Lý'
+  sort_order: 11
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w11
+    path: notes/02-understanding-self/week-11-personality-big-five.md
+    sha256: 09bd80b062cbb2cb2247c28f571168a6d3b601cc798b0bce9da21580cf87feb7
+    byte_length: 52488
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w11
+    path: assessments/quizzes/week-11-quiz.md
+    question_count: 10
+    sha256: 1dbcce7708ff40250d649e691761f550eadd78dcf19ae039eda53d979d3b6c9b
+    byte_length: 10427
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w11
+    path: assessments/answer-keys/week-11-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: ba7703b936a8bd2e29d17bf1b7accfbf6fccec6847c20b392ea6a4098a40e25e
+    byte_length: 24610
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w11
+    path: flashcards/week-11.yaml
+    card_count: 8
+    sha256: 7e392769b5aa95f9acf6cf872efd191597ba7e8d1eb9db66da5f1e135fd95052
+    byte_length: 7764
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

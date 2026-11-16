@@ -1,0 +1,1479 @@
+{
+  "generated": "2026-09-30",
+  "scope": "Phase-1 and Phase-2 listening files only (64 files); Phase-0 guide excluded",
+  "count": 64,
+  "browser_playback_status": "Unverified: transcript alignment does not establish playback, audibility, duration or CEFR; course unready",
+  "files": [
+    {
+      "path": "IELTS/Phase-1/listening/cycle10-listening.md",
+      "phase": "IELTS",
+      "lines": 55,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260814"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "463e85bfee96b6b523e1c5735e7a60bc23ac3e0f4ad9a6fffb0ee374c86bc6d8",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-listening-batch11-parent-02/results.json, ielts-listening-batch11-parent-02/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "463e85bfee96b6b523e1c5735e7a60bc23ac3e0f4ad9a6fffb0ee374c86bc6d8"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle11-listening.md",
+      "phase": "IELTS",
+      "lines": 35,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241212"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "d150b95bfde843d99bdefbdd30b694fbf5fa7a341bfb1c702d16fb37583d5a21",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-listening-batch12-parent-03/results.json, ielts-listening-batch12-parent-03/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "d150b95bfde843d99bdefbdd30b694fbf5fa7a341bfb1c702d16fb37583d5a21"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle12-listening.md",
+      "phase": "IELTS",
+      "lines": 31,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241114",
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241114",
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260724"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": false,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "BBC Learning English page listed; page access/player/transcript requires direct check",
+        "review/retest file"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "0d120bffd2904e07ee6ac5189e9e6731fb41ac725077b4f06ac91d308f82ebd8",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-listening-batch12-parent-03/results.json, ielts-listening-batch12-parent-03/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "0d120bffd2904e07ee6ac5189e9e6731fb41ac725077b4f06ac91d308f82ebd8"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle14-listening.md",
+      "phase": "IELTS",
+      "lines": 35,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260724"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "4436dc3b4d362c9b81eb851e3752eb2e12bc1a2cf175df6b368f7f702e6a9a84",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-listening-batch13-parent03/results.json, ielts-listening-batch13-parent03/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "4436dc3b4d362c9b81eb851e3752eb2e12bc1a2cf175df6b368f7f702e6a9a84"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle15-listening.md",
+      "phase": "IELTS",
+      "lines": 35,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251113"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "03845900d72e3f63423bfb34d8fa1d9b3a0d50f19eef6fcd9cfb25f83cbe1806",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-listening-batch14-parent01/results.json, ielts-listening-batch14-parent01/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "03845900d72e3f63423bfb34d8fa1d9b3a0d50f19eef6fcd9cfb25f83cbe1806"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle16-listening.md",
+      "phase": "IELTS",
+      "lines": 35,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241121"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "90dd76ec58d6e4e3a9dd50d736bf282dff2c4daaca9a7f6041d6c7a4b111d253",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-phase30-parent95/results.json, ielts-phase30-parent95/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "90dd76ec58d6e4e3a9dd50d736bf282dff2c4daaca9a7f6041d6c7a4b111d253"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle17-listening.md",
+      "phase": "IELTS",
+      "lines": 35,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260731"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "df0a14b79a1449155521a99ca716970a9bd4882d930b81111dc418dabe82951f",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-phase30-parent95/results.json, ielts-phase30-parent95/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "df0a14b79a1449155521a99ca716970a9bd4882d930b81111dc418dabe82951f"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle18-listening.md",
+      "phase": "IELTS",
+      "lines": 31,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241121",
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241121",
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260731"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": false,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "BBC Learning English page listed; page access/player/transcript requires direct check",
+        "review/retest file"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "05fca9764577a10a94939988e7bc59946e13090def8994bde4cc58b6b7306334",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-phase30-parent95/results.json, ielts-phase30-parent95/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "05fca9764577a10a94939988e7bc59946e13090def8994bde4cc58b6b7306334"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle2-listening.md",
+      "phase": "IELTS",
+      "lines": 59,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260821",
+        "https://downloads.bbc.co.uk/learningenglish/realeasyenglish/260821_REE_coffee_download.mp3"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "critical current source-window review pending",
+      "notes": [
+        "legacy authored grammar remains clearly text-only",
+        "official BBC speaker-labelled transcript inspected; 4 complete grammatical units; used to target retained",
+        "no stable timestamps or verified duration; dictation uses meaning/structure self-check, not exact-word transcript scoring"
+      ],
+      "parent_review_status": "Historical count/hash is insufficient for current acceptance; baseline415 identifies missing/stale proof; reviews425/426 in progress",
+      "parent_review_date": "2026-10-01",
+      "current_sha256": "83c048a2b92ee6507d7cb5adb351214adbbd6546cfa3fb5a9c1faea6b53ac03f",
+      "source_alignment_status": "pending_current_source_window_review",
+      "observed_sha256_424": "b667f589a4996801361b930f66e1c787c0d89388fbc5c197a499f61f03ee8586",
+      "parent_review_evidence": "ielts-baseline415/results.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "b667f589a4996801361b930f66e1c787c0d89388fbc5c197a499f61f03ee8586"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle20-listening.md",
+      "phase": "IELTS",
+      "lines": 35,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260821"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "a9ff02eeb455532a112d447c4b986b05095df689a9240a12cf36d63af7720b5c",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-phase30-parent95/results.json, ielts-phase30-parent95/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "a9ff02eeb455532a112d447c4b986b05095df689a9240a12cf36d63af7720b5c"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle21-listening.md",
+      "phase": "IELTS",
+      "lines": 35,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251113"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "5c4b8d682b53e846b6aafae0e6008679de7cc16bcf65653e375ab2ae99c6e7e8",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-phase30-parent95/results.json, ielts-phase30-parent95/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "5c4b8d682b53e846b6aafae0e6008679de7cc16bcf65653e375ab2ae99c6e7e8"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle22-listening.md",
+      "phase": "IELTS",
+      "lines": 35,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260731"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "c3c6d6dc6dd91bcacc56577530ab36d3977a1262c747e68edc55a798043e8b12",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-phase31-parent120/results.json, ielts-phase31-parent120/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "c3c6d6dc6dd91bcacc56577530ab36d3977a1262c747e68edc55a798043e8b12"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle23-listening.md",
+      "phase": "IELTS",
+      "lines": 35,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251211"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "726dc9adf24eaa258a8ea3f1c81c5aca501dcbb27727ce2e20526e9379349cd3",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-phase31-parent120/results.json, ielts-phase31-parent120/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "726dc9adf24eaa258a8ea3f1c81c5aca501dcbb27727ce2e20526e9379349cd3"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle24-listening.md",
+      "phase": "IELTS",
+      "lines": 31,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260814",
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241212",
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260821"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": false,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "TED page listed; transcript/player claim requires direct page check",
+        "BBC Learning English page listed; page access/player/transcript requires direct check",
+        "review/retest file"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "0d3642cbdfa05b0518a54153d65dac05a2f4fa11f53c35e554276512aebb66bc",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-phase31-parent120/results.json, ielts-phase31-parent120/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "0d3642cbdfa05b0518a54153d65dac05a2f4fa11f53c35e554276512aebb66bc"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle3-listening.md",
+      "phase": "IELTS",
+      "lines": 40,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260814"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "critical current source-window review pending",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical count/hash is insufficient for current acceptance; baseline415 identifies missing/stale proof; reviews425/426 in progress",
+      "parent_review_date": "2026-10-02",
+      "current_sha256": "0e120c64eab675831a0a533804e4106fc32dcfed6f6c9242ee613748a168bd80",
+      "source_alignment_status": "pending_current_source_window_review",
+      "observed_sha256_424": "7df5a722023b24c80578e47eb3c89de4904c15b24422721f731602c9b3d10176",
+      "parent_review_evidence": "ielts-baseline415/results.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "7df5a722023b24c80578e47eb3c89de4904c15b24422721f731602c9b3d10176"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle4-listening.md",
+      "phase": "IELTS",
+      "lines": 40,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260828"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "critical current source-window review pending",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical count/hash is insufficient for current acceptance; baseline415 identifies missing/stale proof; reviews425/426 in progress",
+      "parent_review_date": "2026-10-02",
+      "current_sha256": "324de947238515a5d34ddae6975b193d8586b9e16bb28ae01816ed4f71a8be56",
+      "source_alignment_status": "pending_current_source_window_review",
+      "observed_sha256_424": "918563f4529b48fa70cd101e148b52fba9c4f5a5ca04ac2b90dba23005991eae",
+      "parent_review_evidence": "ielts-baseline415/results.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "918563f4529b48fa70cd101e148b52fba9c4f5a5ca04ac2b90dba23005991eae"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle5-listening.md",
+      "phase": "IELTS",
+      "lines": 40,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260814"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "7a73f75012e411e5aaa9d2d563758bf95fd80815ca90d1590f0babbe780daf9d",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-listening-batch10-parent-02/results.json, ielts-listening-batch10-parent-02/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "7a73f75012e411e5aaa9d2d563758bf95fd80815ca90d1590f0babbe780daf9d"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle6-listening.md",
+      "phase": "IELTS",
+      "lines": 91,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260828",
+        "https://downloads.bbc.co.uk/learningenglish/realeasyenglish/260828_REE_housework_transcript.pdf"
+      ],
+      "transcript_status_in_file": "Official BBC transcript PDF opened/read; source window printed pp.1-2; not word-for-word",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "Active prefix has four stem-dependent comprehension questions with hidden key; speaker order and PDF page window recorded.",
+        "Three contiguous source anchors total 18 quoted words; derived source text is bounded below 200 words.",
+        "Complete Phase35-parent215 bytes retained verbatim after visible legacy warning; legacy practice is not BBC transcript."
+      ],
+      "current_sha256": "15b202ada35ba3406e6a58faca69351cab0ffa8e55b0b8cde0a7a709d50c988e",
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-phase35-parent231/results.json, ielts-phase35-parent231/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "15b202ada35ba3406e6a58faca69351cab0ffa8e55b0b8cde0a7a709d50c988e"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle8-listening.md",
+      "phase": "IELTS",
+      "lines": 35,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241114"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "a423bd84943b4e5ba469c557fa09d14606d29a88f2142d6d82c7312bff988866",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-listening-batch10-parent-02/results.json, ielts-listening-batch10-parent-02/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "a423bd84943b4e5ba469c557fa09d14606d29a88f2142d6d82c7312bff988866"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/cycle9-listening.md",
+      "phase": "IELTS",
+      "lines": 35,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251225"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "current_sha256": "fd5aee13154bb9e1c535f3d6783d394cd28d3610a9e8c705e9aafc7f0b59874f",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-listening-batch11-parent-02/results.json, ielts-listening-batch11-parent-02/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "fd5aee13154bb9e1c535f3d6783d394cd28d3610a9e8c705e9aafc7f0b59874f"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/day01-feelings.md",
+      "phase": "IELTS",
+      "lines": 100,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260814",
+        "https://downloads.bbc.co.uk/learningenglish/realeasyenglish/260814_REE_grumpy_transcript.pdf"
+      ],
+      "transcript_status_in_file": "Official BBC transcript PDF opened/read; source window printed pp.1-3; not word-for-word",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "Active prefix has four stem-dependent comprehension questions with hidden key; speaker order and PDF page window recorded.",
+        "Three contiguous source anchors total 11 quoted words; derived source text is bounded below 200 words.",
+        "Complete Phase35-parent215 bytes retained verbatim after visible legacy warning; legacy practice is not BBC transcript."
+      ],
+      "current_sha256": "0c7134d6c6f3a3fd6cc92a3159b619b738440af2e597b0c7d09012f4b3887b8f",
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-phase35-parent231/results.json, ielts-phase35-parent231/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "0c7134d6c6f3a3fd6cc92a3159b619b738440af2e597b0c7d09012f4b3887b8f"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/day02-questions.md",
+      "phase": "IELTS",
+      "lines": 100,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260821",
+        "https://downloads.bbc.co.uk/learningenglish/realeasyenglish/260821_REE_coffee_transcript.pdf"
+      ],
+      "transcript_status_in_file": "Official BBC transcript PDF opened/read; source window printed pp.1-3; not word-for-word",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "Active prefix has four stem-dependent comprehension questions with hidden key; speaker order and PDF page window recorded.",
+        "Three contiguous source anchors total 15 quoted words; derived source text is bounded below 200 words.",
+        "Complete Phase35-parent215 bytes retained verbatim after visible legacy warning; legacy practice is not BBC transcript."
+      ],
+      "current_sha256": "2fa0f8fa9f913d90ec76e26ecc99f1e87685949d4ae9ee5f0d9a60c95bff12b5",
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-phase35-parent231/results.json, ielts-phase35-parent231/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "2fa0f8fa9f913d90ec76e26ecc99f1e87685949d4ae9ee5f0d9a60c95bff12b5"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/day03-my-feelings.md",
+      "phase": "IELTS",
+      "lines": 91,
+      "primary_urls": [
+        "https://downloads.bbc.co.uk/learningenglish/realeasyenglish/260807_REE_spicy_food_transcript.pdf"
+      ],
+      "transcript_status_in_file": "Official BBC PDF opened; not word-for-word notice recorded",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "Four active source-dependent paraphrase questions with hidden key; three hidden contiguous dictation anchors",
+        "Legacy suffix preserved byte-for-byte after visible warning and marker; authored WAV remains separate",
+        "20 quoted words from this source in the new prefix; derived summary under 200 words"
+      ],
+      "current_sha256": "0280e9a084a015498a57f74cab7a9317664a8d9590de369c34e67b88cb37cec8",
+      "source_window": "Printed pp.1-3: conversation, examples, and BBC vocabulary recap",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-root257/results.json, ielts-root257/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "0280e9a084a015498a57f74cab7a9317664a8d9590de369c34e67b88cb37cec8"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/day25-falling-in-love.md",
+      "phase": "IELTS",
+      "lines": 88,
+      "primary_urls": [
+        "https://downloads.bbc.co.uk/learningenglish/features/6min/241212_6_minute_english_making_mum_friends_transcript.pdf"
+      ],
+      "transcript_status_in_file": "Official BBC PDF opened; not word-for-word notice recorded",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "Four active source-dependent paraphrase questions with hidden key; three hidden contiguous dictation anchors",
+        "Legacy suffix preserved byte-for-byte after visible warning and marker; authored WAV remains separate",
+        "18 quoted words from this source in the new prefix; derived summary under 200 words"
+      ],
+      "current_sha256": "49fd4abfa41ee7642d3ea05d7fc1ed12ff4df2bbd9c605f337ad969e17414b00",
+      "source_window": "Printed pp.1-6: programme transcript and complete vocabulary page",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-root257/results.json, ielts-root257/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "49fd4abfa41ee7642d3ea05d7fc1ed12ff4df2bbd9c605f337ad969e17414b00"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/day26-past-questions.md",
+      "phase": "IELTS",
+      "lines": 88,
+      "primary_urls": [
+        "https://downloads.bbc.co.uk/learningenglish/features/6min/251225_6_minute_english_was_Christmas_better_in_the__past_transcript.pdf"
+      ],
+      "transcript_status_in_file": "Official BBC PDF opened; not word-for-word notice recorded",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "Four active source-dependent paraphrase questions with hidden key; three hidden contiguous dictation anchors",
+        "Legacy suffix preserved byte-for-byte after visible warning and marker; authored WAV remains separate",
+        "16 quoted words from this source in the new prefix; derived summary under 200 words"
+      ],
+      "current_sha256": "7dbddceb1fff7b2fc2b43aeb8445a09c4be91adf04239242099f2440b01f0145",
+      "source_window": "Printed pp.1-6: programme transcript and complete vocabulary page",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-root257/results.json, ielts-root257/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "7dbddceb1fff7b2fc2b43aeb8445a09c4be91adf04239242099f2440b01f0145"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/day27-first-date.md",
+      "phase": "IELTS",
+      "lines": 89,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241114"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "current_sha256": "47038ad45a0eae32a8369750a2539f5720779283e794e921fdce2bbd016d7e0d",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-root315/results.json, ielts-root315/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "47038ad45a0eae32a8369750a2539f5720779283e794e921fdce2bbd016d7e0d"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/day49-describing-people.md",
+      "phase": "IELTS",
+      "lines": 89,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260724"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "current_sha256": "49ef6ca7f1ff943a41a752b16a49dcf0a809b81f8bbaf264ba3500e34d7c293c",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-root315/results.json, ielts-root315/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "49ef6ca7f1ff943a41a752b16a49dcf0a809b81f8bbaf264ba3500e34d7c293c"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/day50-comparisons.md",
+      "phase": "IELTS",
+      "lines": 89,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260731"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "current_sha256": "624b0f131c479f2912dc5314f43875dbafe941955f1903013827a719de314f3c",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-root315/results.json, ielts-root315/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "624b0f131c479f2912dc5314f43875dbafe941955f1903013827a719de314f3c"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/day51-personality-interview.md",
+      "phase": "IELTS",
+      "lines": 87,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251113"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "current_sha256": "5142f306f3cc2f439faa5dec46ccde9716dfac78a126a7eeae65bd41005d9f0a",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "BBC transcript-only alignment; playback/level open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "initial341; rechecked396 exact current hash/source alignment",
+      "playback_verified": false,
+      "observed_current_sha256_443": "5142f306f3cc2f439faa5dec46ccde9716dfac78a126a7eeae65bd41005d9f0a"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/day73-body-language.md",
+      "phase": "IELTS",
+      "lines": 87,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/features/real-easy-english/260814"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "current_sha256": "3a2b267f07368a34077d1cae44c8898cc828c811c2ad1876854654fac73228d2",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "3a2b267f07368a34077d1cae44c8898cc828c811c2ad1876854654fac73228d2"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/day74-predictions.md",
+      "phase": "IELTS",
+      "lines": 87,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/features/real-easy-english/260821"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "current_sha256": "1de9f3c73f577df32553d7efca0fb63edd707605aecd8ca86da8eda36222e580",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "1de9f3c73f577df32553d7efca0fb63edd707605aecd8ca86da8eda36222e580"
+    },
+    {
+      "path": "IELTS/Phase-1/listening/day75-gestures.md",
+      "phase": "IELTS",
+      "lines": 87,
+      "primary_urls": [
+        "https://downloads.bbc.co.uk/learningenglish/features/6min/241114_6_minute_english_the_bond_between_sisters__transcript.pdf"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "current_sha256": "9abae099761c3bba4cc4941f131ef0cb3c075ba8c7d83cf4f9fa0e9f5d027aae",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "9abae099761c3bba4cc4941f131ef0cb3c075ba8c7d83cf4f9fa0e9f5d027aae"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle10-listening.md",
+      "phase": "IELTS",
+      "lines": 33,
+      "primary_urls": [
+        "https://learnenglish.britishcouncil.org/free-resources/listening/b1/making-decision?page=2",
+        "https://learnenglish.britishcouncil.org/free-resources/general/audio-series/bcsw/s1/episode-02-job-offer."
+      ],
+      "transcript_status_in_file": "route declared",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated"
+      ],
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_status": "Current text/source-window alignment only; source aggregate quotation/derivation and audio/level/course release separate",
+      "observed_sha256_424": "0bf30590db1564390165a81ed43e283a9bd0de3554e6a04cb189e5e2ce669a6d",
+      "parent_review_evidence": "Root actual BritishCouncil complete25speakerturns 2026-10-06 (official page Making a decision)",
+      "playback_verified": false,
+      "observed_current_sha256_443": "0bf30590db1564390165a81ed43e283a9bd0de3554e6a04cb189e5e2ce669a6d",
+      "current_sha256": "0bf30590db1564390165a81ed43e283a9bd0de3554e6a04cb189e5e2ce669a6d",
+      "parent_review_date": "2026-10-06"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle11-listening.md",
+      "phase": "IELTS",
+      "lines": 48,
+      "primary_urls": [
+        "https://www.ted.com/talks/daniel_kahneman_the_riddle_of_experience_vs_memory",
+        "https://www.ted.com/talks/daniel_kahneman_the_riddle_of_experience_vs_memory?view=transcript"
+      ],
+      "transcript_status_in_file": "route declared",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_status": "Current text/source-window alignment only; source aggregate quotation/derivation and audio/level/course release separate",
+      "observed_sha256_424": "5de9393a842c30c50524d937301a797b9f65ab274701bb204921bd5371e241e9",
+      "parent_review_evidence": "Root441 official TED fulltimedtranscript JSON plus root manual question/key/window comparison; root442 distinctsentence/endcue correction exactbefore/closedarchive",
+      "playback_verified": false,
+      "observed_current_sha256_443": "be30a29ee54c8ba4ea429eb323b413daa06e6afc2305d431a3887196ac451b51",
+      "current_sha256": "be30a29ee54c8ba4ea429eb323b413daa06e6afc2305d431a3887196ac451b51",
+      "parent_review_date": "2026-10-06"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle12-listening.md",
+      "phase": "IELTS",
+      "lines": 55,
+      "primary_urls": [
+        "https://www.ted.com/talks/sara_garofalo_the_psychology_behind_irrational_decisions",
+        "https://www.ted.com/talks/sara_garofalo_the_psychology_behind_irrational_decisions?view=transcript"
+      ],
+      "transcript_status_in_file": "Official transcript route and cue timestamps recorded; playback not performed by this worker",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "TED official player/transcript opened and cue window 00:08.9-01:46.6 recorded",
+        "prior authored sentences retained as text-only supplemental practice"
+      ],
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_status": "Current text/source-window alignment only; source aggregate quotation/derivation and audio/level/course release separate",
+      "observed_sha256_424": "816ebb3bf76a2acedd15a717a1de08f177b92ae064c560098afd838295f924ef",
+      "parent_review_evidence": "Root441 official TED fulltimedtranscript JSON plus root manual question/key/window comparison",
+      "playback_verified": false,
+      "observed_current_sha256_443": "816ebb3bf76a2acedd15a717a1de08f177b92ae064c560098afd838295f924ef",
+      "current_sha256": "816ebb3bf76a2acedd15a717a1de08f177b92ae064c560098afd838295f924ef",
+      "parent_review_date": "2026-10-06"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle14-listening.md",
+      "phase": "IELTS",
+      "lines": 47,
+      "primary_urls": [
+        "https://www.ted.com/talks/philip_zimbardo_the_psychology_of_evil",
+        "https://www.ted.com/talks/philip_zimbardo_the_psychology_of_evil?view=transcript"
+      ],
+      "transcript_status_in_file": "Official transcript route and cue timestamps recorded; playback not performed by this worker",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "TED official player/transcript opened; cue window 16:12.240-16:22.976 contains four sentence units",
+        "shadowing uses all four units; dictation repeats two actual units",
+        "segment includes references to violence/humiliation; learner may record blocked"
+      ],
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_status": "Current text/source-window alignment only; source aggregate quotation/derivation and audio/level/course release separate",
+      "observed_sha256_424": "8add6596d8f2a5dddbef553d59b0c9f16de90efec42439547c5161a02b184acf",
+      "parent_review_evidence": "Root441 official TED fulltimedtranscript JSON plus root manual question/key/window comparison; root442 distinctsentence/endcue correction exactbefore/closedarchive",
+      "playback_verified": false,
+      "observed_current_sha256_443": "923bcbdd3a3186d3366a69cd6dbf5b18034364090f07269646bb4c058fe8e0fc",
+      "current_sha256": "923bcbdd3a3186d3366a69cd6dbf5b18034364090f07269646bb4c058fe8e0fc",
+      "parent_review_date": "2026-10-06"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle15-listening.md",
+      "phase": "IELTS",
+      "lines": 48,
+      "primary_urls": [
+        "https://www.ted.com/talks/julia_dhar_how_to_disagree_productively_and_find_common_ground",
+        "https://www.ted.com/talks/julia_dhar_how_to_disagree_productively_and_find_common_ground?view=transcript"
+      ],
+      "transcript_status_in_file": "route declared",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_status": "Current text/source-window alignment only; source aggregate quotation/derivation and audio/level/course release separate",
+      "observed_sha256_424": "dec0eb3503e0e284a9016d5b19e52b9aac269b3194624c21022bfa3c1ca1363c",
+      "parent_review_evidence": "Root441 official TED fulltimedtranscript JSON plus root manual question/key/window comparison",
+      "playback_verified": false,
+      "observed_current_sha256_443": "dec0eb3503e0e284a9016d5b19e52b9aac269b3194624c21022bfa3c1ca1363c",
+      "current_sha256": "dec0eb3503e0e284a9016d5b19e52b9aac269b3194624c21022bfa3c1ca1363c",
+      "parent_review_date": "2026-10-06"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle16-listening.md",
+      "phase": "IELTS",
+      "lines": 56,
+      "primary_urls": [
+        "https://www.ted.com/talks/philip_zimbardo_the_psychology_of_evil",
+        "https://www.ted.com/talks/philip_zimbardo_the_psychology_of_evil/transcript"
+      ],
+      "transcript_status_in_file": "Official transcript route inspected; timestamped cue window recorded; playback not performed",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "Source window 02:46.000-03:10.000; 3 counted sentence units; shadowing 3 and repeated dictation 2 use only these units",
+        "Legacy authored sentences retained as text-only practice and flagged for critical revision; no blanket psychology claim certification",
+        "Real relative speaking link ../speaking/speaking-prompts-month3.md; no matching answer-key file"
+      ],
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_status": "Current text/source-window alignment only; source aggregate quotation/derivation and audio/level/course release separate",
+      "observed_sha256_424": "a2c6c35ec5762d1174f455e487423bbe0ca9df8b42aefdf6794a5f68aab78a2b",
+      "parent_review_evidence": "Root441 official TED fulltimedtranscript JSON plus root manual question/key/window comparison; root442 distinctsentence/endcue correction exactbefore/closedarchive",
+      "playback_verified": false,
+      "observed_current_sha256_443": "e8bc927f71afbb8378b8023fd74821d343e7a0a473ae8191601ec5557261f411",
+      "current_sha256": "e8bc927f71afbb8378b8023fd74821d343e7a0a473ae8191601ec5557261f411",
+      "parent_review_date": "2026-10-06"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle17-listening.md",
+      "phase": "IELTS",
+      "lines": 56,
+      "primary_urls": [
+        "https://www.ted.com/talks/julia_dhar_how_to_disagree_productively_and_find_common_ground",
+        "https://www.ted.com/talks/julia_dhar_how_to_disagree_productively_and_find_common_ground/transcript"
+      ],
+      "transcript_status_in_file": "Official transcript route inspected; timestamped cue window recorded; playback not performed",
+      "authored_practice_present": true,
+      "remediation_status": "critical current source-window review pending",
+      "notes": [
+        "Corrected source window 03:49.093-04:02.022; 3 complete sentence units (rebuttal, claim-response, without rebuttal)",
+        "Julia Dhar official duration 14:46; legacy authored conditionals retained as text-only practice",
+        "Real relative speaking link ../speaking/speaking-prompts-month3.md; no matching answer-key file"
+      ],
+      "source_alignment_status": "pending_current_source_window_review",
+      "parent_review_status": "Historical count/hash is insufficient for current acceptance; baseline415 identifies missing/stale proof; reviews425/426 in progress",
+      "observed_sha256_424": "daa5abb46d22fdff4bc84b33189995bfeee3104fa5fc6f4a6811d51a06ed95b2",
+      "parent_review_evidence": "ielts-baseline415/results.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "daa5abb46d22fdff4bc84b33189995bfeee3104fa5fc6f4a6811d51a06ed95b2"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle18-listening.md",
+      "phase": "IELTS",
+      "lines": 55,
+      "primary_urls": [
+        "https://www.ted.com/talks/julia_dhar_how_to_disagree_productively_and_find_common_ground",
+        "https://www.ted.com/talks/julia_dhar_how_to_disagree_productively_and_find_common_ground/transcript"
+      ],
+      "transcript_status_in_file": "Official transcript route inspected; timestamped cue window recorded; playback not performed",
+      "authored_practice_present": true,
+      "remediation_status": "critical current source-window review pending",
+      "notes": [
+        "Corrected source window 03:01.188-03:09.339; 2 complete grammatical sentence units",
+        "Julia Dhar official duration 14:46; comprehension bounded to complete common-ground sentences",
+        "Real relative speaking link ../speaking/speaking-prompts-month3.md and test link ../tests/test-18.md; no matching answer-key file"
+      ],
+      "source_alignment_status": "pending_current_source_window_review",
+      "parent_review_status": "Historical count/hash is insufficient for current acceptance; baseline415 identifies missing/stale proof; reviews425/426 in progress",
+      "observed_sha256_424": "b4a9c1d50ab2f2d69cbd99ece724f7f983dd78a0ddd2a25cd2b94936254facce",
+      "parent_review_evidence": "ielts-baseline415/results.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "b4a9c1d50ab2f2d69cbd99ece724f7f983dd78a0ddd2a25cd2b94936254facce"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle2-listening.md",
+      "phase": "IELTS",
+      "lines": 56,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260828"
+      ],
+      "transcript_status_in_file": "Official BBC page and transcript inspected; speaker-labelled block used; playback/timestamps not performed",
+      "authored_practice_present": true,
+      "remediation_status": "critical current source-window review pending",
+      "notes": [
+        "BBC speaker-labelled transcript block is explicitly 3 task groups, not an exact 3-sentence count; timestamps and stable duration unavailable",
+        "Legacy authored past-continuous sentences retained as text-only practice",
+        "Real relative speaking link ../speaking/speaking-prompts-month1.md; no matching answer-key file"
+      ],
+      "source_alignment_status": "pending_current_source_window_review",
+      "parent_review_status": "Historical count/hash is insufficient for current acceptance; baseline415 identifies missing/stale proof; reviews425/426 in progress",
+      "observed_sha256_424": "1e319378337d7dd2a40b95f67c50e6ad42b95c63ebafbe9b69b74726a748405c",
+      "parent_review_evidence": "ielts-baseline415/results.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "1e319378337d7dd2a40b95f67c50e6ad42b95c63ebafbe9b69b74726a748405c"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle20-listening.md",
+      "phase": "IELTS",
+      "lines": 57,
+      "primary_urls": [
+        "https://www.ted.com/talks/tristan_harris_how_a_handful_of_tech_companies_control_billions_of_minds_every_day",
+        "https://www.ted.com/talks/tristan_harris_how_a_handful_of_tech_companies_control_billions_of_minds_every_day?view=transcript"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "critical current source-window review pending",
+      "notes": [
+        "legacy authored grammar remains clearly text-only",
+        "official TED transcript inspected; 00:50.400-01:15.320, 3 complete sentence units, duration 16:51",
+        "browser playback not performed; no audibility claim"
+      ],
+      "source_alignment_status": "pending_current_source_window_review",
+      "parent_review_status": "Historical count/hash is insufficient for current acceptance; baseline415 identifies missing/stale proof; reviews425/426 in progress",
+      "observed_sha256_424": "50a45e931ed6cee3c88d3cfa36d5a70a29eff54c268efded3640f3694961d712",
+      "parent_review_evidence": "ielts-baseline415/results.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "50a45e931ed6cee3c88d3cfa36d5a70a29eff54c268efded3640f3694961d712"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle21-listening.md",
+      "phase": "IELTS",
+      "lines": 56,
+      "primary_urls": [
+        "https://www.ted.com/talks/matt_walker_sleep_is_your_superpower",
+        "https://www.ted.com/talks/matt_walker_sleep_is_your_superpower?view=transcript"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "critical current source-window review pending",
+      "notes": [
+        "legacy authored grammar remains clearly text-only",
+        "official TED transcript inspected; 06:08.621-06:36.329, 2 complete sentence units, duration 19:08; antecedent context checked at 05:46.871-06:03.496",
+        "legacy burnout claim preserved as incorrect quotation; corrected occupational-phenomenon teaching sentence linked to WHO",
+        "browser playback not performed; no audibility claim"
+      ],
+      "source_alignment_status": "pending_current_source_window_review",
+      "parent_review_status": "Historical count/hash is insufficient for current acceptance; baseline415 identifies missing/stale proof; reviews425/426 in progress",
+      "observed_sha256_424": "57785a066dfd922e390975a78dbc0ed33202ed4fe0fbe855f20b21f867b54d57",
+      "parent_review_evidence": "ielts-baseline415/results.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "57785a066dfd922e390975a78dbc0ed33202ed4fe0fbe855f20b21f867b54d57"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle22-listening.md",
+      "phase": "IELTS",
+      "lines": 59,
+      "primary_urls": [
+        "https://www.ted.com/talks/guy_winch_why_we_all_need_to_practice_emotional_first_aid",
+        "https://www.ted.com/talks/guy_winch_why_we_all_need_to_practice_emotional_first_aid?view=transcript"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "critical current source-window review pending",
+      "notes": [
+        "legacy authored grammar remains clearly text-only",
+        "official TED transcript inspected; 12:50.876-13:32.236, 5 complete sentence units, duration 17:14",
+        "browser playback not performed; no audibility claim"
+      ],
+      "source_alignment_status": "pending_current_source_window_review",
+      "parent_review_status": "Historical count/hash is insufficient for current acceptance; baseline415 identifies missing/stale proof; reviews425/426 in progress",
+      "observed_sha256_424": "4e1c4c2e7948bb4c0a773ed802844b8c140e8899a68c101237c3f865e0005216",
+      "parent_review_evidence": "ielts-baseline415/results.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "4e1c4c2e7948bb4c0a773ed802844b8c140e8899a68c101237c3f865e0005216"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle23-listening.md",
+      "phase": "IELTS",
+      "lines": 48,
+      "primary_urls": [
+        "https://www.ted.com/talks/ruth_chang_how_to_make_hard_choices",
+        "https://www.ted.com/talks/ruth_chang_how_to_make_hard_choices?view=transcript"
+      ],
+      "transcript_status_in_file": "route declared",
+      "authored_practice_present": true,
+      "remediation_status": "critical current source-window review pending",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "source_alignment_status": "pending_current_source_window_review",
+      "parent_review_status": "Historical count/hash is insufficient for current acceptance; baseline415 identifies missing/stale proof; reviews425/426 in progress",
+      "observed_sha256_424": "cf5169b3b65374b733f6bdc6db315787e16d7ac65d6abc30114eb0cd4560a0af",
+      "parent_review_evidence": "ielts-baseline415/results.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "cf5169b3b65374b733f6bdc6db315787e16d7ac65d6abc30114eb0cd4560a0af"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle24-listening.md",
+      "phase": "IELTS",
+      "lines": 56,
+      "primary_urls": [
+        "https://www.ted.com/talks/tristan_harris_how_a_handful_of_tech_companies_control_billions_of_minds_every_day",
+        "https://www.ted.com/talks/tristan_harris_how_a_handful_of_tech_companies_control_billions_of_minds_every_day?view=transcript"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "critical current source-window review pending",
+      "notes": [
+        "legacy authored grammar remains clearly text-only",
+        "official TED transcript inspected; 11:40.040-12:14.080, 2 complete speech sentence units, duration 16:51; cue 712040 applause excluded",
+        "browser playback not performed; no audibility claim"
+      ],
+      "parent_review_status": "Historical count/hash is insufficient for current acceptance; baseline415 identifies missing/stale proof; reviews425/426 in progress",
+      "parent_review_date": "2026-10-01",
+      "current_sha256": "7f36c9ef54c3281e50c6bb1a02db709ffabfe9245e8c3f1f4e5f9ab2c10793fe",
+      "source_alignment_status": "pending_current_source_window_review",
+      "observed_sha256_424": "e7906f06fbe8072280f0b10a2e25fd47d97a88e8515f89be83753a0b52959b20",
+      "parent_review_evidence": "ielts-baseline415/results.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "e7906f06fbe8072280f0b10a2e25fd47d97a88e8515f89be83753a0b52959b20"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle3-listening.md",
+      "phase": "IELTS",
+      "lines": 58,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251225"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "critical current source-window review pending",
+      "notes": [
+        "legacy authored grammar remains clearly text-only",
+        "official BBC transcript inspected; Daryl O'Connor speaker block has 4 complete grammatical units; page says transcript is not word-for-word",
+        "no stable timestamps, verified duration, or browser playback claim; dictation uses meaning/structure self-check, not exact-word transcript scoring"
+      ],
+      "parent_review_status": "Historical count/hash is insufficient for current acceptance; baseline415 identifies missing/stale proof; reviews425/426 in progress",
+      "parent_review_date": "2026-10-01",
+      "current_sha256": "bae486168078e58363d5b35e8e9994ed734998b18ccad50ab9be576c7418a12d",
+      "source_alignment_status": "pending_current_source_window_review",
+      "observed_sha256_424": "aba29272a9c1c1ae1f70dafe6d4c1397ad9b502d7ff5002abcbe22581c8f4cf1",
+      "parent_review_evidence": "ielts-baseline415/results.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "aba29272a9c1c1ae1f70dafe6d4c1397ad9b502d7ff5002abcbe22581c8f4cf1"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle4-listening.md",
+      "phase": "IELTS",
+      "lines": 71,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251211"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "Official BBC transcript PDF opened 2026-10-04; active section has 4 paraphrase comprehension items, hidden key, and 2 source dictation anchors; legacy suffix retained as authored non-transcript.",
+        "Primary text is a BBC PDF marked not word-for-word; no audio/video was downloaded or played."
+      ],
+      "current_sha256": "540b9b69a9780627d3e09f5034fdad3cb71a0ab5668ba6ef2f3aa743f9e4ce13",
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "line_count": 88,
+      "source_window": "Printed pp.1–3: Datshiane p.1; Neil and Claudia p.2; Georgie’s quiz answer p.3.",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-listening-batch08-parent-01/results.json, ielts-listening-batch08-parent-01/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "540b9b69a9780627d3e09f5034fdad3cb71a0ab5668ba6ef2f3aa743f9e4ce13"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle5-listening.md",
+      "phase": "IELTS",
+      "lines": 71,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251211"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "Official BBC transcript PDF opened 2026-10-04; active section has 4 paraphrase comprehension items, hidden key, and 1 source dictation anchor; legacy suffix retained as authored non-transcript.",
+        "Primary text is a BBC PDF marked not word-for-word; no audio/video was downloaded or played."
+      ],
+      "current_sha256": "94a4029549438f1bd0d73a2c1afb9d7db46dbd66059fbf39853b0e42c4c5dd13",
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "line_count": 88,
+      "source_window": "Printed pp.2–4: Claudia p.2 and p.3; Neil/Georgie care and vocabulary explanations pp.3–4.",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-listening-batch08-parent-01/results.json, ielts-listening-batch08-parent-01/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "94a4029549438f1bd0d73a2c1afb9d7db46dbd66059fbf39853b0e42c4c5dd13"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle6-listening.md",
+      "phase": "IELTS",
+      "lines": 67,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251225",
+        "https://ed.ted.com/lessons/the-psychology-behind-irrational-decisions-sara-garofalo",
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251225"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": false,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "Official BBC transcript PDF opened 2026-10-04; active section has 4 paraphrase comprehension items, hidden key, and 3 source dictation anchors; legacy review suffix retained as authored non-transcript.",
+        "Primary text is a BBC PDF marked not word-for-word; no audio/video was downloaded or played."
+      ],
+      "current_sha256": "f45feccab3d45ec90005500ab00798ba11547c7f78f2d2f4bca406be84b16de3",
+      "parent_review_status": "Historical source-text alignment reused at exact current bytes; playback/level open",
+      "parent_review_date": "2026-10-06",
+      "line_count": 86,
+      "source_window": "Printed pp.1–4: Neil p.1; Daryl p.2; Catherine p.3; Neil/Beth recap p.4.",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-baseline415 plus ielts-listening-batch08-parent-01/results.json, ielts-listening-batch08-parent-01/accepted-paths.json",
+      "playback_verified": false,
+      "observed_current_sha256_443": "f45feccab3d45ec90005500ab00798ba11547c7f78f2d2f4bca406be84b16de3"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle8-listening.md",
+      "phase": "IELTS",
+      "lines": 84,
+      "primary_urls": [
+        "https://www.ted.com/talks/daniel_kahneman_the_riddle_of_experience_vs_memory/transcript?language=en"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "current_sha256": "9995377126f5d80c1f9444119b873fd351a9a9986035337d68d0009caed6c098",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "9995377126f5d80c1f9444119b873fd351a9a9986035337d68d0009caed6c098"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/cycle9-listening.md",
+      "phase": "IELTS",
+      "lines": 81,
+      "primary_urls": [
+        "https://www.ted.com/talks/guy_winch_why_we_all_need_to_practice_emotional_first_aid"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "current_sha256": "c412fadd1275d85065c685f3b306818d4ab277b706bea4995f1427ca54a2c055",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "c412fadd1275d85065c685f3b306818d4ab277b706bea4995f1427ca54a2c055"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/day01-memory-stories.md",
+      "phase": "IELTS",
+      "lines": 87,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260828"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "current_sha256": "df76b3d4fbb6a473cf70c3f6c15e0f84cb496e06e3dd4423effe75a3ec91d209",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "df76b3d4fbb6a473cf70c3f6c15e0f84cb496e06e3dd4423effe75a3ec91d209"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/day02-past-actions.md",
+      "phase": "IELTS",
+      "lines": 87,
+      "primary_urls": [
+        "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-251225"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "current_sha256": "3f77954c201ca1addf9725e09e19d8ebea9e666039a7de32619d798082eed07a",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "BBC transcript-only alignment; playback/level open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "initial341; rechecked396 exact current hash/source alignment",
+      "playback_verified": false,
+      "observed_current_sha256_443": "3f77954c201ca1addf9725e09e19d8ebea9e666039a7de32619d798082eed07a"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/day03-childhood.md",
+      "phase": "IELTS",
+      "lines": 87,
+      "primary_urls": [
+        "https://downloads.bbc.co.uk/learningenglish/realeasyenglish/260724_REE_family_tree_transcript.pdf"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "current_sha256": "846a99ff316fce3f63b6613edca4efaf6bf0444c36467a69579f729bbfaf24b7",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "846a99ff316fce3f63b6613edca4efaf6bf0444c36467a69579f729bbfaf24b7"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/day25-two-systems.md",
+      "phase": "IELTS",
+      "lines": 87,
+      "primary_urls": [
+        "https://www.ted.com/talks/daniel_kahneman_the_riddle_of_experience_vs_memory/transcript?language=en"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "current_sha256": "9551ae074d50cd16a1596bf2c8d4448a462e3ee92f2e795422c2303b0eb4494d",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "9551ae074d50cd16a1596bf2c8d4448a462e3ee92f2e795422c2303b0eb4494d"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/day26-gut-feelings.md",
+      "phase": "IELTS",
+      "lines": 83,
+      "primary_urls": [
+        "https://www.ted.com/talks/barry_schwartz_on_the_paradox_of_choice"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check",
+        "BBC Learning English page listed; page access/player/transcript requires direct check"
+      ],
+      "current_sha256": "516bcc68714d8ecf6dbfe0e6a91c3f506ba7cfc22b1a6a69301bfa33b183ce91",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "516bcc68714d8ecf6dbfe0e6a91c3f506ba7cfc22b1a6a69301bfa33b183ce91"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/day27-decision-stories.md",
+      "phase": "IELTS",
+      "lines": 83,
+      "primary_urls": [
+        "https://www.ted.com/talks/ruth_chang_how_to_make_hard_choices"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "current_sha256": "d9fd20eeb8303992be091e70ac12a7463aa86f15db5a876a6706530b2bf2d5f4",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current question/key/anchor text alignment; playback/level open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-review396 complete official transcript bodies; root review424",
+      "playback_verified": false,
+      "observed_current_sha256_443": "d9fd20eeb8303992be091e70ac12a7463aa86f15db5a876a6706530b2bf2d5f4"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/day49-the-asch-experiment.md",
+      "phase": "IELTS",
+      "lines": 87,
+      "primary_urls": [
+        "https://www.ted.com/talks/philip_zimbardo_on_the_psychology_of_evil"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "current_sha256": "dc4d05c1b8eebf33901b50aa6cf1c9a6d884c461162b5e3ec2cc3044b8bc2824",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "dc4d05c1b8eebf33901b50aa6cf1c9a6d884c461162b5e3ec2cc3044b8bc2824"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/day50-obedience.md",
+      "phase": "IELTS",
+      "lines": 83,
+      "primary_urls": [
+        "https://www.ted.com/talks/philip_zimbardo_on_the_psychology_of_evil"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "current_sha256": "7e9b165922819991a5a5121476b596db8f9d4553e8fedf5e6ae1aca45fc681d1",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "7e9b165922819991a5a5121476b596db8f9d4553e8fedf5e6ae1aca45fc681d1"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/day51-persuasion.md",
+      "phase": "IELTS",
+      "lines": 83,
+      "primary_urls": [
+        "https://www.ted.com/talks/julia_dhar_how_to_disagree_productively_and_find_common_ground"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "current_sha256": "3043db40f36f481f3bf4bfe642129e3ceb643d1801e52195d5cc14a0e76adbc3",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current question/key/anchor text alignment; playback/level open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "ielts-review396 complete official transcript bodies; root review424",
+      "playback_verified": false,
+      "observed_current_sha256_443": "3043db40f36f481f3bf4bfe642129e3ceb643d1801e52195d5cc14a0e76adbc3"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/day73-habit-loops.md",
+      "phase": "IELTS",
+      "lines": 87,
+      "primary_urls": [
+        "https://www.ted.com/talks/tristan_harris_how_a_handful_of_tech_companies_control_billions_of_minds_every_day"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "current_sha256": "f435bb9f3384331667f0039da37e9ca30bdb392d71fcd97fdd5cbc6ef0f3f739",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "f435bb9f3384331667f0039da37e9ca30bdb392d71fcd97fdd5cbc6ef0f3f739"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/day74-dopamine.md",
+      "phase": "IELTS",
+      "lines": 131,
+      "primary_urls": [
+        "https://www.ted.com/talks/tristan_harris_how_a_handful_of_tech_companies_control_billions_of_minds_every_day"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "current_sha256": "bdb0cdaa222345b6c792e28a225865459c60617abe9912c98fd72f9a3619fff5",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "bdb0cdaa222345b6c792e28a225865459c60617abe9912c98fd72f9a3619fff5"
+    },
+    {
+      "path": "IELTS/Phase-2/listening/day75-self-control.md",
+      "phase": "IELTS",
+      "lines": 83,
+      "primary_urls": [
+        "https://www.ted.com/talks/guy_winch_why_we_all_need_to_practice_emotional_first_aid"
+      ],
+      "transcript_status_in_file": "Available",
+      "authored_practice_present": true,
+      "remediation_status": "text alignment accepted; aggregate limits/playback/fullcourse approval separate",
+      "notes": [
+        "contains authored/AI practice; source alignment must be separated",
+        "TED page listed; transcript/player claim requires direct page check"
+      ],
+      "current_sha256": "ec67f1fab5c42513f561a8a98b067bcc0d34be18c07c939bb1cffc4ce795352d",
+      "parent_review_date": "2026-10-06",
+      "parent_review_status": "Current primary transcript/questions/key/anchors only; actual playback and original adapted topic completion remain open",
+      "source_alignment_status": "accepted_current_text",
+      "parent_review_evidence": "root-current395; source353/366/372; root379; counts/preservation381",
+      "playback_verified": false,
+      "observed_current_sha256_443": "ec67f1fab5c42513f561a8a98b067bcc0d34be18c07c939bb1cffc4ce795352d"
+    }
+  ],
+  "last_reconciled": "2026-10-06",
+  "current_text_alignment_accepted": 52,
+  "current_text_alignment_pending": 12,
+  "course_ready": false,
+  "source_quotation_aggregate_status": "Critical full64 active-source aggregate review pending. P1cycles3/4 quote expanded paragraphs repeatedly; bounded cleanup439 requested. Text alignment is not a copyright/source-release certificate."
+}

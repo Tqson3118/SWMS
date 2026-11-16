@@ -1,0 +1,123 @@
+schema_version: 2.0.0
+package_id: package:dotnet-react:stage-06
+version: 2
+created_at: '2026-10-04T00:00:00Z'
+source_status: draft
+subject_id: roadmap:subject:dotnet-react
+display_title: Stage 06 browser frontend, DOM, fetch, and TypeScript manual activity
+learning_objectives:
+- id: LO-DOTNET-S06-01
+  bloom_level: Apply
+  statement: Build and document a semantic browser expense page with safe DOM, storage, fetch, and TypeScript boundaries
+    using the Stage 05 API contract.
+- id: LO-DOTNET-S06-02
+  bloom_level: Analyze
+  statement: Record actual responsive, fetch-state, runtime-validation, and error observations while distinguishing
+    unavailable and unverified work.
+concepts:
+- id: DOTNET-S06-C01
+  name: Semantic browser and responsive boundaries
+  claim_ids:
+  - W06-C01
+  - W06-C02
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-06-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded mapping review parent143
+    date: '2026-10-04'
+    notes: Scratch learning-data and evidence boundaries reviewed; full stage sources/runtime/browser approval open.
+- id: DOTNET-S06-C02
+  name: Fetch and TypeScript runtime evidence
+  claim_ids:
+  - W06-C03
+  - W06-C04
+  - W06-C05
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-06-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded mapping review parent143
+    date: '2026-10-04'
+    notes: Scratch learning-data and evidence boundaries reviewed; full stage sources/runtime/browser approval open.
+- id: DOTNET-S06-C03
+  name: Safe learning and AI checking
+  claim_ids:
+  - W06-C06
+  evidence_label: preliminary
+  source_ledger_path: quality/stage-06-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root bounded mapping review parent143
+    date: '2026-10-04'
+    notes: Scratch learning-data and evidence boundaries reviewed; full stage sources/runtime/browser approval open.
+units:
+- unit_id: roadmap:unit:dotnet-react:stage-06
+  display_title: Stage 06 browser frontend, DOM, fetch, and TypeScript manual activity
+  sort_order: 6
+  learning_objectives:
+  - id: LO-DOTNET-S06-01
+    bloom_level: Apply
+    statement: Build and document a semantic browser expense page with safe DOM, storage, fetch, and TypeScript
+      boundaries using the Stage 05 API contract.
+  - id: LO-DOTNET-S06-02
+    bloom_level: Analyze
+    statement: Record actual responsive, fetch-state, runtime-validation, and error observations while distinguishing
+      unavailable and unverified work.
+  concepts:
+  - id: DOTNET-S06-C01
+    name: Semantic browser and responsive boundaries
+    claim_ids:
+    - W06-C01
+    - W06-C02
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-06-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root bounded mapping review parent143
+      date: '2026-10-04'
+      notes: Scratch learning-data and evidence boundaries reviewed; full stage sources/runtime/browser approval
+        open.
+  - id: DOTNET-S06-C02
+    name: Fetch and TypeScript runtime evidence
+    claim_ids:
+    - W06-C03
+    - W06-C04
+    - W06-C05
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-06-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root bounded mapping review parent143
+      date: '2026-10-04'
+      notes: Scratch learning-data and evidence boundaries reviewed; full stage sources/runtime/browser approval
+        open.
+  - id: DOTNET-S06-C03
+    name: Safe learning and AI checking
+    claim_ids:
+    - W06-C06
+    evidence_label: preliminary
+    source_ledger_path: quality/stage-06-source-ledger.md
+    safety_review:
+      reviewed: true
+      reviewer: root bounded mapping review parent143
+      date: '2026-10-04'
+      notes: Scratch learning-data and evidence boundaries reviewed; full stage sources/runtime/browser approval
+        open.
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:dotnet-react:stage-06
+    path: 6.md
+    sha256: c2c11aae1eeccab6519287fa2725408ce80a5ea383412d932bf4d9fa4940a047
+    byte_length: 10146
+  - role: activity_manual
+    stable_id: activity:dotnet:stage-06
+    path: activities/manual-stage-06.yaml
+    sha256: aa82538f5339c06da13a7c53cb72f63b7752857b2aaddfceb23231ab442b961d
+    byte_length: 4565
+  - role: source_ledger
+    stable_id: ledger:dotnet:stage-06
+    path: quality/stage-06-source-ledger.md
+    sha256: 9feedc7bd8902296a98127a15afa06ebc5d288a4b2faaa290ecaa27157a8b732
+    byte_length: 3653
+external_resources: []

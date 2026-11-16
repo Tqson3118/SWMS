@@ -1,0 +1,112 @@
+deck_id: deck-ls-w14
+subject: LifeSkills
+lesson_id: week-14-decision-making
+version: 1.1.0
+description: 'Ôn tập W14: quy trình ra quyết định, bias và giới hạn của framework.'
+cards:
+- id: fc-ls-w14-001
+  concept: WRAP
+  front: WRAP gồm những bước nào?
+  back: Widen options (mở rộng), Reality-test assumptions (kiểm tra), Attain distance (tạo khoảng cách), Prepare to be wrong (chuẩn bị sai). Đây là khung ghi nhớ do tác giả đề xuất, không phải bảo đảm hiệu quả.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [wrap, decision-making, module-4]
+- id: fc-ls-w14-002
+  concept: Narrow framing
+  front: Narrow framing là gì và phá bằng câu hỏi nào?
+  back: Là nhốt mình vào lựa chọn có/không. Hỏi “còn phương án C, thử nhỏ hoặc giữ hiện trạng không?” để mở không gian phương án.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [framing, options, module-4]
+- id: fc-ls-w14-003
+  concept: Reality test và ooching
+  front: Ooching kiểm tra giả định như thế nào?
+  back: Thử quy mô nhỏ trước cam kết lớn, ví dụ làm bán thời gian một tháng trước khi đổi nghề. Chỉ là dữ kiện bổ sung; cần xét an toàn, pháp lý và khả năng thử.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [ooching, reality-test, module-4]
+- id: fc-ls-w14-004
+  concept: 10/10/10
+  front: 10/10/10 làm gì và giới hạn gì?
+  back: Hỏi ưu tiên/cảm xúc sau 10 phút, 10 tháng và 10 năm để tạo khoảng cách thời gian. Nó không dự báo chắc cảm xúc tương lai và không thay thế nghĩa vụ hiện tại.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [10-10-10, perspective, module-4]
+- id: fc-ls-w14-005
+  concept: Sunk cost
+  front: Sunk cost được xử lý bằng câu hỏi nào?
+  back: Chi phí đã mất không thu hồi được không nên quyết định tương lai. Hỏi “nếu bắt đầu hôm nay với nguồn lực còn lại, phương án nào đáng làm?” rồi tính chi phí và giá trị tương lai.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [sunk-cost, bias, module-4]
+- id: fc-ls-w14-006
+  concept: Confirmation bias
+  front: Confirmation bias là gì và một hàng rào là gì?
+  back: Tìm hoặc diễn giải bằng chứng hợp niềm tin sẵn có. Viết một bằng chứng có thể làm mình đổi ý hoặc mời người phản biện trước khi chốt.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [confirmation-bias, debiasing, module-4]
+- id: fc-ls-w14-007
+  concept: Premortem
+  front: Premortem thực hiện thế nào?
+  back: Giả định dự án đã thất bại, viết câu chuyện cụ thể, dấu hiệu sớm và hành động giảm rủi ro. Nó giúp nhìn rủi ro đã biết, không dự đoán mọi biến cố.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [premortem, risk, module-4]
+- id: fc-ls-w14-008
+  concept: Weighted decision matrix
+  front: Vì sao tổng điểm ma trận có trọng số không khách quan tuyệt đối?
+  back: Tiêu chí, trọng số, thang điểm và dữ liệu đều chứa phán đoán. Dùng ma trận để minh bạch so sánh, ghi thiếu dữ kiện và thử thay đổi trọng số để kiểm tra độ nhạy.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [decision-matrix, uncertainty, module-4]
+- id: fc-ls-w14-009
+  concept: Two-way và one-way door
+  front: Hai loại cửa quyết định khác nhau thế nào?
+  back: Two-way door dễ đảo ngược, có thể thử khi chi phí sai thấp; one-way door khó đảo ngược, cần dữ kiện, tham vấn và kiểm tra an toàn kỹ hơn. Không có tỷ lệ thông tin chung cho mọi việc.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [reversible, risk, module-4]
+- id: fc-ls-w14-010
+  concept: Analysis paralysis
+  front: Analysis paralysis là gì và xử lý ra sao?
+  back: Thu thập thông tin vô hạn dù lợi ích biên thấp. Đặt deadline, chuẩn đủ dùng và hỏi thông tin nào có thể đổi quyết định; không đồng nghĩa phải chọn vội.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [analysis-paralysis, satisficing, module-4]
+- id: fc-ls-w14-011
+  concept: Maximizer và satisficer
+  front: Maximizing và satisficing mô tả điều gì?
+  back: Maximizer tiếp tục tìm phương án tốt nhất; satisficer chọn phương án đạt chuẩn đã định. Đây là xu hướng mô tả trong thảo luận của Schwartz, không phải kết luận rằng một nhóm luôn hạnh phúc hơn.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [maximizer, satisficer, module-4]
+- id: fc-ls-w14-012
+  concept: HALT
+  front: HALT nhắc kiểm tra điều gì?
+  back: Hungry, Angry, Lonely, Tired — đói, giận, cô đơn, mệt. Đây là lời nhắc thực hành để trì hoãn hoặc xin hỗ trợ khi trạng thái làm giảm suy xét, không phải lệnh tuyệt đối hay điều trị.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [halt, self-check, module-4]
+- id: fc-ls-w14-013
+  concept: Overconfidence và tripwire
+  front: Tripwire giúp xử lý quá tự tin thế nào?
+  back: Ghi trước ngưỡng và hành động review, ví dụ chi phí vượt ngưỡng thì tạm dừng kiểm tra. Ngưỡng cần dựa dữ liệu và khả năng hành động, không tự chứng minh dự án thất bại.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [overconfidence, tripwire, module-4]
+- id: fc-ls-w14-014
+  concept: Tripwire
+  front: Một tripwire tốt cần những thành phần nào?
+  back: 'Tín hiệu đo được, ngưỡng, thời điểm xem xét và hành động cụ thể. Ví dụ: sau hai tuần ngủ dưới ngưỡng an toàn thì giảm ca và review lịch, thay vì cố vô hạn.'
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [tripwire, risk-control, module-4]
+- id: fc-ls-w14-015
+  concept: Resulting
+  front: Resulting cảnh báo lỗi đánh giá nào?
+  back: Đừng đánh giá quy trình chỉ từ kết quả vì may rủi có thể làm quyết định tốt thất bại. Review dữ kiện, giả định, tiêu chí và việc tuân thủ quy trình; vẫn dùng kết quả để cập nhật.
+  source_lesson: LifeSkills/notes/module-4/week-14-decision-making.md
+  version: 1.1.0
+  tags: [resulting, probabilistic-thinking, module-4]
+

@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:53:48Z",
+  "unit_id": "roadmap:unit:fscr:w08",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 08: Task, cancellation, disposal và DI",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w08",
+    "title": "Tuần 08: Task, cancellation, disposal và DI",
+    "content_markdown": "<h1>Tuần 08 — Task, cancellation, disposal và DI</h1>\n<p>Chặng 2; 3 bài L08-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W08-01: Viết async import, truyền cancellation và không block Task bằng Result.</p>\n</li>\n<li>\n<p>LO-W08-02: Hủy import trước commit, dispose stream và phân biệt timeout/cancellation.</p>\n</li>\n<li>\n<p>LO-W08-03: Đăng ký DI đúng lifetime và tránh singleton giữ scoped dependency.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 07; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-08-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w08-01\"></a></p>\n<h2>Bài 1: Task và async I/O</h2>\n<p>LO-W08-01 · W08-C01</p>\n<p>Task đại diện completion, không đồng nghĩa thread riêng. I/O-bound dùng API async và await; CPU-bound chỉ cân nhắc Task.Run ở client/console, ASP.NET không bọc IO Task.Run để tăng throughput giả. Không .Result/.Wait trong request vì block thread và có thể deadlock trong synchronization context khác. Return Task&lt;T&gt; thay async void trừ event handler; caller await và xử lý failure. Task.WhenAll không làm DbContext thread-safe; không chạy parallel operations chung instance. Async method chạy synchronous đến await chưa completed đầu tiên; giữ cancellation token truyền xuyên boundary. Đo throughput/latency trước đổi concurrency.</p>\n<p><a id=\"lo-w08-02\"></a></p>\n<h2>Bài 2: CancellationToken và resource</h2>\n<p>LO-W08-02 · W08-C02</p>\n<p>Cancellation hợp tác: token.ThrowIfCancellationRequested tại điểm hợp lý, truyền token vào ReadAsync/DB calls; caller request cancel không cưỡng chế mọi code dừng. catch OperationCanceledException khi token cancellation để báo 'đã hủy'; không nuốt rồi return success. using/await using gọi Dispose/DisposeAsync deterministic cho IDisposable/IAsyncDisposable dù exception; GC không thay đóng file/socket đúng lúc. Resource ownership: ai tạo có trách nhiệm dispose trừ contract khác; injected DbContext/HttpClientFactory thường container/factory quản lifecycle, không dispose tùy tiện. Hủy sau commit không rollback, trả operation status theo batchId. Timeout có giới hạn duration, khác caller cancel dù cùng cơ chế token có thể dùng linked source.</p>\n<p><a id=\"lo-w08-03\"></a></p>\n<h2>Bài 3: Dependency Injection lifetimes</h2>\n<p>LO-W08-03 · W08-C03</p>\n<p>DI đưa collaborator qua constructor; container xây graph và quản lifecycle. Transient mới mỗi resolution, scoped một instance mỗi scope (web request phổ biến), singleton một instance cho container. Scoped DbContext không thread-safe, một unit of work; singleton report cache không giữ trực tiếp scoped DbContext (captive dependency). Background job tạo scope cho từng job bằng IServiceScopeFactory; chưa cần implement ở console lab. Domain chỉ biết interface reader/importer cần thiết; concrete registered ở composition root. DI không thay encapsulation hoặc automatically thread safety. Kiểm tra scope validation ở Development; service singleton có mutable state cần synchronization hoặc tránh state.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Bài toán: đọc file fixture có thể hủy và đóng handle.</li>\n<li>Await IO, truyền token, using stream do hàm sở hữu.</li>\n<li>Console:</li>\n</ol>\n<pre><code class=\"language-csharp\">using var cts=new CancellationTokenSource();\nawait File.WriteAllTextAsync(\"fixture.txt\",\"50000\\n20000\\n30000\");\ncts.Cancel();\ntry { Console.WriteLine(await ReadAsync(\"fixture.txt\",cts.Token)); }\ncatch(OperationCanceledException) { Console.WriteLine(\"Đã hủy\"); }\nstatic async Task&lt;string&gt; ReadAsync(string path,CancellationToken token) {\n using var reader=new StreamReader(path);\n token.ThrowIfCancellationRequested();\n return await reader.ReadToEndAsync(token);\n}\n</code></pre>\n<ol>\n<li>Expected Đã hủy, file handle đóng. Bỏ cts.Cancel để đọc3 dòng. Import production validate tất cả rows rồi commit1 transaction W12/W16.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>DI lifetime không tương đương lifetime DB transaction. Một request có thể nhiều queries; transaction explicit cho multi-write. Cancellation token source phải dispose khi hàm tạo nó. Hủy read partial phải discard staging rows; import batch lớn giới hạn1000 nên chưa cần streaming DB partial commit.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>Viết SumAsync đọc dòng VND, hủy sau10 dòng trên file1000 dòng; không ghi DB.</p>\n<h3>Bài tập 2</h3>\n<p>Reader dùng scoped DbContext, Report singleton. Sửa DI và giải thích.</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>await read line token, TryParse long guard; token check mỗi lượt. Return tổng chỉ khi complete; catch cancellation bên caller, không expose partial như success. Tạo fixture có dòng invalid để test error row.</p>\n<h3>Hướng giải 2</h3>\n<p>Đổi Report scoped hoặc tạo scope per job nếu background. Không inject scoped reader vào singleton. Test2 scopes reader khác, cùng scope dùng chung; container dispose scoped resources.</p>\n<h2>Project task</h2>\n<p>Console import staging rows có cancellation, validation và tests; dependency reader qua constructor. Ghi ADR ngắn why scoped/why no async void. Tag phase2-domain.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w08.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Cancel trước khi đọc/giữa staging báo canceled, không trả success partial.</p>\n</li>\n<li>\n<p>[ ] Stream đóng cả success/error/cancel; run lại không file locked.</p>\n</li>\n<li>\n<p>[ ] Task được await; không .Result/async void cho service; DI không captive scoped.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Thu: 'Does async await create a new thread?' Trả lời rồi mô tả cancellation hợp tác và disposal.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/\">Task asynchronous programming model</a> — W08-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/dotnet/standard/threading/cancellation-in-managed-threads\">Cooperative cancellation</a> — W08-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection\">Service lifetimes and scopes</a> — W08-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-08-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-08-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-08.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"week-07.md\">Tuần trước</a></p>\n<p><a href=\"../module-3/week-09.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Task asynchronous programming model](https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/)",
+      "[Cooperative cancellation](https://learn.microsoft.com/en-us/dotnet/standard/threading/cancellation-in-managed-threads)",
+      "[Service lifetimes and scopes](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W08-01]",
+        "bloom_level": "Apply",
+        "statement": "Viết async import, truyền cancellation và không block Task bằng Result."
+      },
+      {
+        "id": "[LO-W08-02]",
+        "bloom_level": "Apply",
+        "statement": "Hủy import trước commit, dispose stream và phân biệt timeout/cancellation."
+      },
+      {
+        "id": "[LO-W08-03]",
+        "bloom_level": "Apply",
+        "statement": "Đăng ký DI đúng lifetime và tránh singleton giữ scoped dependency."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w08-c01",
+        "name": "Task và async I/O",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w08-c02",
+        "name": "CancellationToken và resource",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w08-c03",
+        "name": "Dependency Injection lifetimes",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w08",
+    "title": "Trắc nghiệm Tuần 08: Task, cancellation, disposal và DI",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w08:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "Task luôn là thread riêng không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Không"
+          },
+          {
+            "id": "B",
+            "text": "Có mỗi Task một OS thread"
+          },
+          {
+            "id": "C",
+            "text": "Chỉ Task<int> là thread"
+          },
+          {
+            "id": "D",
+            "text": "await tăng CPU core"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Task đại diện completion, có thể async IO không giữ thread chờ.",
+        "wrong_explanations": {
+          "B": "Mapping1:1 với OS thread sai.",
+          "C": "Generic chỉ biểu diễn result type.",
+          "D": "Await không tăng phần cứng."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w08-c01",
+        "lesson_anchor": "#lo-w08-01",
+        "claim_ids": [
+          "W08-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w08:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Tại sao tránh .Result trong web service?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Nó tự hủy token"
+          },
+          {
+            "id": "B",
+            "text": "Nó block thread và có rủi ro context/deadlock"
+          },
+          {
+            "id": "C",
+            "text": "Nó luôn trả null"
+          },
+          {
+            "id": "D",
+            "text": "Nó validate JWT"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Blocking giảm scalability và có context hazard.",
+        "wrong_explanations": {
+          "A": "Cancellation phải explicit.",
+          "C": "Result có thể đúng value nhưng cách chờ có vấn đề.",
+          "D": "Task.Result không xử auth."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w08-c01",
+        "lesson_anchor": "#lo-w08-01",
+        "claim_ids": [
+          "W08-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w08:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "Token cancel có cưỡng chế mọi function dừng không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Có rollback commit đã xong"
+          },
+          {
+            "id": "B",
+            "text": "Có dispose mọi object trong app"
+          },
+          {
+            "id": "C",
+            "text": "Không, code/API phải quan sát token"
+          },
+          {
+            "id": "D",
+            "text": "Có kill mọi thread"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Cancellation là cooperative contract.",
+        "wrong_explanations": {
+          "A": "Commit đã xong không tự undo.",
+          "B": "Resource cleanup cần lifecycle/using.",
+          "D": "Không thread abort toàn hệ thống."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w08-c02",
+        "lesson_anchor": "#lo-w08-02",
+        "claim_ids": [
+          "W08-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w08:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "using cho stream bảo đảm gì khi exception trong scope?",
+        "options": [
+          {
+            "id": "A",
+            "text": "GC chạy ngay toàn heap"
+          },
+          {
+            "id": "B",
+            "text": "Exception bị nuốt"
+          },
+          {
+            "id": "C",
+            "text": "File data luôn rollback"
+          },
+          {
+            "id": "D",
+            "text": "Dispose stream khi thoát scope"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Compiler cleanup gọi dispose cả exceptional exit.",
+        "wrong_explanations": {
+          "A": "Dispose không ép GC toàn heap.",
+          "B": "Exception vẫn propagate nếu không catch.",
+          "C": "Closing stream không transaction data rollback."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w08-c02",
+        "lesson_anchor": "#lo-w08-02",
+        "claim_ids": [
+          "W08-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w08:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "Scoped ở ASP.NET thường dùng instance ra sao?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Một instance mỗi request scope"
+          },
+          {
+            "id": "B",
+            "text": "Một instance toàn process"
+          },
+          {
+            "id": "C",
+            "text": "Mới mỗi dòng code"
+          },
+          {
+            "id": "D",
+            "text": "Một instance mỗi table"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Request scope là lifetime phổ biến.",
+        "wrong_explanations": {
+          "B": "Singleton mới container-wide.",
+          "C": "Transient per resolution, không per line.",
+          "D": "Table không DI scope."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w08-c03",
+        "lesson_anchor": "#lo-w08-03",
+        "claim_ids": [
+          "W08-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w08:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "Singleton giữ DbContext scoped nên xử lý thế nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Dispose DbContext ngay constructor"
+          },
+          {
+            "id": "B",
+            "text": "Đổi lifetime hoặc tạo scope đúng boundary job"
+          },
+          {
+            "id": "C",
+            "text": "Để mặc định vì singleton thread-safe"
+          },
+          {
+            "id": "D",
+            "text": "Khóa mọi HTTP request toàn app"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Tách lifetime tránh giữ resource ngoài scope.",
+        "wrong_explanations": {
+          "A": "Dispose constructor làm collaborator không dùng được.",
+          "C": "Singleton không bảo đảm dependency an toàn.",
+          "D": "Global lock che design sai và giảm throughput."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w08-c03",
+        "lesson_anchor": "#lo-w08-03",
+        "claim_ids": [
+          "W08-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w08",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 08: Task, cancellation, disposal và DI",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w08-001",
+        "concept_name": "Task meaning",
+        "front": "Task luôn là thread riêng không?",
+        "back": "Không. Task đại diện completion, có thể async IO không giữ thread chờ.",
+        "tags": [
+          "w08",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W08-C01"
+        ],
+        "source_citation": "notes/module-2/week-08.md",
+        "lesson_anchor": "#lo-w08-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w08-002",
+        "concept_name": "Blocking task",
+        "front": "Tại sao tránh .Result trong web service?",
+        "back": "Nó block thread và có rủi ro context/deadlock. Blocking giảm scalability và có context hazard.",
+        "tags": [
+          "w08",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W08-C01"
+        ],
+        "source_citation": "notes/module-2/week-08.md",
+        "lesson_anchor": "#lo-w08-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w08-003",
+        "concept_name": "Cooperative cancel",
+        "front": "Token cancel có cưỡng chế mọi function dừng không?",
+        "back": "Không, code/API phải quan sát token. Cancellation là cooperative contract.",
+        "tags": [
+          "w08",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W08-C02"
+        ],
+        "source_citation": "notes/module-2/week-08.md",
+        "lesson_anchor": "#lo-w08-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w08-004",
+        "concept_name": "Using ownership",
+        "front": "using cho stream bảo đảm gì khi exception trong scope?",
+        "back": "Dispose stream khi thoát scope. Compiler cleanup gọi dispose cả exceptional exit.",
+        "tags": [
+          "w08",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W08-C02"
+        ],
+        "source_citation": "notes/module-2/week-08.md",
+        "lesson_anchor": "#lo-w08-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w08-005",
+        "concept_name": "Scoped lifetime",
+        "front": "Scoped ở ASP.NET thường dùng instance ra sao?",
+        "back": "Một instance mỗi request scope. Request scope là lifetime phổ biến.",
+        "tags": [
+          "w08",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W08-C03"
+        ],
+        "source_citation": "notes/module-2/week-08.md",
+        "lesson_anchor": "#lo-w08-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w08-006",
+        "concept_name": "Captive dependency",
+        "front": "Singleton giữ DbContext scoped nên xử lý thế nào?",
+        "back": "Đổi lifetime hoặc tạo scope đúng boundary job. Tách lifetime tránh giữ resource ngoài scope.",
+        "tags": [
+          "w08",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W08-C03"
+        ],
+        "source_citation": "notes/module-2/week-08.md",
+        "lesson_anchor": "#lo-w08-03"
+      }
+    ]
+  }
+}

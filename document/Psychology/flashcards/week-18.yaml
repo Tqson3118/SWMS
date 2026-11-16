@@ -1,0 +1,78 @@
+deck_id: deck-psy-w18
+subject: Psychology
+lesson_id: week-18-attribution-fae
+version: 1.0.0
+description: Bộ thẻ ghi nhớ Tuần 18 về Lý thuyết Quy kết, FAE và Actor-Observer Bias.
+cards:
+- id: fc-psy-w18-001
+  concept: Quy kết nội tại vs Hoàn cảnh
+  front: Điểm khác biệt căn bản giữa quy kết nội tại (dispositional) và quy kết hoàn cảnh (situational) là gì?
+  back: Quy kết nội tại gán nguyên nhân cho tính cách, năng lực hoặc động cơ cá nhân; quy kết hoàn cảnh gán nguyên nhân cho môi trường, áp lực tình huống hoặc may rủi.
+  source_lesson: Psychology/notes/03-understanding-others/week-18-attribution-fae.md#31-quy-kết-là-gì-attribution-theory
+  version: 1.0.0
+  tags:
+  - w18
+  - attribution-theory
+- id: fc-psy-w18-002
+  concept: Thiên kiến quy kết cơ bản (FAE)
+  front: Thiên kiến quy kết cơ bản (Fundamental Attribution Error - FAE) được định nghĩa thế nào?
+  back: Xu hướng đánh giá quá cao các yếu tố tính cách nội tại và coi nhẹ sức mạnh của hoàn cảnh khi giải thích hành vi hoặc sai sót của người khác.
+  source_lesson: Psychology/notes/03-understanding-others/week-18-attribution-fae.md#32-thiên-kiến-quy-kết-cơ-bản-fundamental-attribution-error---fae
+  version: 1.0.0
+  tags:
+  - w18
+  - fae
+- id: fc-psy-w18-003
+  concept: Thí nghiệm Jones & Harris (1967)
+  front: Thí nghiệm bài luận Fidel Castro của Jones & Harris (1967) chứng minh điều gì về nhận thức xã hội?
+  back: Người đọc vẫn gán thái độ thân Castro cho tác giả ngay cả khi biết tác giả bị bắt buộc phải viết bài ủng hộ theo chỉ định của ban tổ chức.
+  source_lesson: Psychology/notes/03-understanding-others/week-18-attribution-fae.md#42-thí-nghiệm-kinh-điển-jones--harris-1967-và-thuật-ngữ-fae-ross-1977
+  version: 1.0.0
+  tags:
+  - w18
+  - jones-harris
+- id: fc-psy-w18-004
+  concept: Actor-Observer Bias
+  front: Thiên kiến Người hành động - Người quan sát (Actor-Observer Bias) giải thích hiện tượng tiêu chuẩn kép nào?
+  back: Ta quy kết hành vi của bản thân cho hoàn cảnh (vì ta nhìn ra môi trường), nhưng lại quy kết hành vi tương tự của người khác cho tính cách của họ (vì ta nhìn vào họ).
+  source_lesson: Psychology/notes/03-understanding-others/week-18-attribution-fae.md#33-thiên-kiến-người-hành-động---người-quan-sát--phục-vụ-bản-thân
+  version: 1.0.0
+  tags:
+  - w18
+  - actor-observer
+- id: fc-psy-w18-005
+  concept: Self-Serving Bias
+  front: Thiên kiến phục vụ bản thân (Self-Serving Bias) có chức năng tâm lý nào?
+  back: Bảo vệ lòng tự trọng (self-esteem) bằng cách gán thành công cho tài năng nội tại và đổ lỗi thất bại cho các yếu tố khách quan bên ngoài.
+  source_lesson: Psychology/notes/03-understanding-others/week-18-attribution-fae.md#33-thiên-kiến-người-hành-động---người-quan-sát--phục-vụ-bản-thân
+  version: 1.0.0
+  tags:
+  - w18
+  - self-serving
+- id: fc-psy-w18-006
+  concept: Mô hình 2 giai đoạn Gilbert
+  front: Vì sao trạng thái bận rộn hoặc mệt mỏi lại làm tăng nguy cơ mắc FAE theo Daniel Gilbert?
+  back: Giai đoạn 1 (gán tính cách) diễn ra tự động và tốn ít năng lượng; giai đoạn 2 (điều chỉnh hoàn cảnh) đòi hỏi nỗ lực có ý thức và bị gián đoạn dưới tải trọng nhận thức cao.
+  source_lesson: Psychology/notes/03-understanding-others/week-18-attribution-fae.md#43-mô-hình-2-giai-đoạn-của-daniel-gilbert-gilbert--malone-1995
+  version: 1.0.0
+  tags:
+  - w18
+  - gilbert-model
+- id: fc-psy-w18-007
+  concept: Mô hình đồng biến Kelley
+  front: Khi nào một hành vi được quy kết một cách logic cho HOÀN CẢNH theo mô hình Kelley?
+  back: Khi có Sự đồng thuận cao (ai cũng làm vậy), Tính phân biệt cao (chỉ làm vậy trong tình huống này), và Tính nhất quán cao (lần nào gặp bối cảnh đó cũng làm vậy).
+  source_lesson: Psychology/notes/03-understanding-others/week-18-attribution-fae.md#41-mô-hình-đồng-biến-của-harold-kelley-covariation-model
+  version: 1.0.0
+  tags:
+  - w18
+  - kelley-covariation
+- id: fc-psy-w18-008
+  concept: Văn hóa điều tiết FAE
+  front: Nghiên cứu của Choi et al. (1999) chỉ ra sự khác biệt văn hóa nào trong quy kết nguyên nhân?
+  back: Người thuộc văn hóa tập thể (Đông Á) có tư duy chỉnh thể, chú ý nhiều hơn đến bối cảnh tình huống và ít mắc FAE hơn người thuộc văn hóa cá nhân (Bắc Mỹ).
+  source_lesson: Psychology/notes/03-understanding-others/week-18-attribution-fae.md#44-sự-điều-tiết-của-văn-hóa-choi-nisbett--norenzayan-1999
+  version: 1.0.0
+  tags:
+  - w18
+  - cultural-attribution

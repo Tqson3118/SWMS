@@ -1,0 +1,153 @@
+deck_id: deck-pf-w07
+subject: PersonalFinance
+lesson_id: week-07-compound-interest-fire
+version: 1.1.0
+description: 'Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng Tuần 07: Lãi kép, Giá trị
+  thời gian của tiền và Đầu tư định kỳ'
+cards:
+- id: fc-pf-w07-001
+  concept: Bản chất của Lãi kép (Compound Interest)
+  front: Lãi kép là gì và khác biệt cốt lõi so với lãi đơn ở yếu tố nào?
+  back: Là hình thức mà tiền lãi phát sinh sau mỗi kỳ được gộp vào nợ gốc để tiếp
+    tục sinh lãi cho kỳ kế tiếp ('lãi mẹ đẻ lãi con'), tạo ra đường cong tăng trưởng
+    hàm số mũ theo thời gian.
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md
+  version: 1.0.0
+  tags:
+  - compound-interest
+  - math
+  - module-2
+- id: fc-pf-w07-002
+  concept: Công thức Lãi kép cơ bản
+  front: Nêu công thức tính giá trị tương lai FV với số tiền gốc PV, lãi suất r mỗi
+    năm, ghép lãi m lần/năm sau t năm?
+  back: FV = PV * (1 + r/m)^(m*t). Khi tần suất ghép lãi m càng lớn (hàng tháng, hàng
+    ngày), lãi suất thực hưởng (EAR) càng cao.
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md
+  version: 1.0.0
+  tags:
+  - formula
+  - tvm
+  - module-2
+- id: fc-pf-w07-003
+  concept: Quy tắc 72 (Rule of 72)
+  front: Quy tắc 72 dùng để ước tính nhanh đại lượng gì và cách tính ra sao?
+  back: 'Ước tính số năm cần thiết để một khoản tiền đầu tư tăng gấp đôi: Số năm =
+    72 / Lãi suất hàng năm (%). Ví dụ lãi 8%/năm thì mất xấp xỉ 72 / 8 = 9 năm.'
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md
+  version: 1.0.0
+  tags:
+  - rule-of-72
+  - mental-math
+  - module-2
+- id: fc-pf-w07-004
+  concept: "Thời gian trong mô hình lãi kép"
+  front: "Với vốn và lãi suất dương cố định, tăng số kỳ ảnh hưởng giá trị tương lai thế nào?"
+  back: "Trong mô hình P(1+r)^t, tăng t làm tăng giá trị tương lai. Không thể kết luận thời gian luôn quan trọng hơn vốn ban đầu; phải so cả P, r và đóng góp."
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md#kiểm-tra-mô-hình-và-giới-hạn-kết-quả
+  version: 1.1.0
+  tags: [w07, revised-content, review-required]
+- id: fc-pf-w07-005
+  concept: Lãi suất danh nghĩa vs Lãi suất thực (Real Rate)
+  front: Phương trình Fisher về mối liên hệ giữa lãi suất danh nghĩa, lạm phát và
+    lãi suất thực là gì?
+  back: 'Lãi suất thực ≈ Lãi suất danh nghĩa - Tỷ lệ lạm phát (công thức chính xác:
+    1 + r_real = (1 + r_nominal)/(1 + inflation)). Chỉ có lãi suất thực dương mới
+    gia tăng sức mua.'
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md
+  version: 1.0.0
+  tags:
+  - fisher-equation
+  - inflation
+  - module-2
+- id: fc-pf-w07-006
+  concept: Đầu tư định kỳ bình quân giá (DCA)
+  front: Chiến lược Dollar-Cost Averaging (DCA) hoạt động như thế nào trong thị trường
+    biến động?
+  back: Định kỳ đầu tư một số tiền cố định bất kể giá tài sản cao hay thấp; mua được
+    nhiều đơn vị hơn khi giá thấp và ít hơn khi giá cao. Không bảo đảm hạ giá vốn
+    so với mọi phương án, tránh thua lỗ hoặc có lợi nhuận; cần xét phí và chi phí cơ hội.
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md
+  version: 1.0.0
+  tags:
+  - dca
+  - strategy
+  - module-2
+- id: fc-pf-w07-007
+  concept: Chuỗi niên kim tích lũy đều đặn (Annuity FV)
+  front: Giá trị tương lai của chuỗi tiền gửi đều đặn A đồng cuối mỗi kỳ với lãi suất
+    i sau n kỳ tính bằng công thức nào?
+  back: FV = A * [((1 + i)^n - 1) / i]. Đây là công thức nền tảng để tính số tiền
+    tích lũy hưu trí hoặc mua nhà định kỳ.
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md
+  version: 1.0.0
+  tags:
+  - annuity
+  - future-value
+  - module-2
+- id: fc-pf-w07-008
+  concept: "Chi phí và giả định tích lũy"
+  front: "Trong mô hình minh họa, phí hàng năm ảnh hưởng giá trị tích lũy thế nào?"
+  back: "Nếu mô hình lấy lợi suất sau phí thấp hơn, giá trị P(1+r)^t thấp hơn. Mức giảm phụ thuộc vốn, lợi suất, phí và thời hạn; không có tỷ lệ mất 40–50% chung."
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md#kiểm-tra-mô-hình-và-giới-hạn-kết-quả
+  version: 1.1.0
+  tags: [w07, revised-content, review-required]
+- id: fc-pf-w07-009
+  concept: "Tái đầu tư và giới hạn mô hình"
+  front: "Rút cổ tức để chi tiêu có nghĩa giá tài sản chỉ tăng tuyến tính không?"
+  back: "Không. Rút cổ tức làm phần đó không được tái đầu tư; giá tài sản vẫn có thể tăng hoặc giảm. Không suy một dạng đường tăng trưởng chung từ quyết định rút cổ tức."
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md#kiểm-tra-mô-hình-và-giới-hạn-kết-quả
+  version: 1.1.0
+  tags: [w07, revised-content, review-required]
+- id: fc-pf-w07-010
+  concept: Lãi suất hiệu dụng hàng năm (EAR / APY)
+  front: Công thức chuyển đổi từ lãi suất danh nghĩa công bố APR sang lãi suất hiệu
+    dụng EAR là gì?
+  back: EAR = (1 + APR/m)^m - 1. Giúp so sánh chính xác giữa các sản phẩm tiền gửi
+    có kỳ hạn ghép lãi khác nhau (theo tháng, theo quý hay cuối kỳ).
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md
+  version: 1.0.0
+  tags:
+  - ear
+  - apr
+  - module-2
+- id: fc-pf-w07-011
+  concept: "Phạm vi mô hình lãi kép"
+  front: "Mô hình lãi nhập gốc có thể mô tả mọi hợp đồng tín dụng không?"
+  back: "Không. Phải đọc cơ chế tính lãi, thanh toán, phí và điều kiện hợp đồng. Phép tính lãi kép minh họa không chứng minh phá sản hoặc tự xác nhận quyền nhập lãi vào gốc."
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md#kiểm-tra-mô-hình-và-giới-hạn-kết-quả
+  version: 1.1.0
+  tags: [w07, revised-content, review-required]
+- id: fc-pf-w07-012
+  concept: "Thời hạn không bảo đảm kết quả"
+  front: "Đầu tư trên 10 năm có bảo đảm xác suất thua lỗ gần bằng 0 không?"
+  back: "Không. Thời gian dài không bảo đảm phục hồi hoặc có lãi; phải xét tài sản, phí, thị trường và khả năng đáp ứng chi tiêu. Bài không cung cấp xác suất thua lỗ phổ quát."
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md#kiểm-tra-mô-hình-và-giới-hạn-kết-quả
+  version: 1.1.0
+  tags: [w07, revised-content, review-required]
+- id: fc-pf-w07-013
+  concept: "Đóng góp và dòng tiền"
+  front: "Dừng đóng góp trong khủng hoảng có chắc bỏ lỡ giá thấp nhất không?"
+  back: "Không biết trước đáy hay phục hồi. Việc dừng làm giảm đóng góp so với kế hoạch, nhưng có thể cần thiết vì dòng tiền hoặc quỹ khẩn cấp; phải đánh giá hoàn cảnh."
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md#kiểm-tra-mô-hình-và-giới-hạn-kết-quả
+  version: 1.1.0
+  tags: [w07, revised-content, review-required]
+- id: fc-pf-w07-014
+  concept: Quy tắc dòng tiền chiết khấu (DCF) cá nhân
+  front: Giá trị hiện tại PV của một khoản tiền trong tương lai phản ánh điều gì đối
+    với người học?
+  back: 'Phản ánh số tiền cần có hôm nay để đạt được mục tiêu tương lai nếu được đem
+    đi đầu tư ở mức lãi suất chiết khấu kỳ vọng: PV = FV / (1 + r)^t.'
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md
+  version: 1.0.0
+  tags:
+  - dcf
+  - present-value
+  - module-2
+- id: fc-pf-w07-015
+  concept: "Các biến của kế hoạch"
+  front: "Khi lập kế hoạch tích lũy cần ghi những biến nào thay vì chỉ nhìn tuổi?"
+  back: "Vốn hiện có, khoản đóng góp, thời hạn, lợi suất giả định, phí, thuế, lạm phát và mục tiêu chi tiêu; tuổi không xác định một mình kết quả."
+  source_lesson: PersonalFinance/notes/module-3/week-07-compound-interest-fire.md#kiểm-tra-mô-hình-và-giới-hạn-kết-quả
+  version: 1.1.0
+  tags: [w07, revised-content, review-required]

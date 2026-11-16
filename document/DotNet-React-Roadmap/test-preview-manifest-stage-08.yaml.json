@@ -1,0 +1,88 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-07T11:23:25Z",
+  "unit_id": "roadmap:unit:dotnet-react:stage-08",
+  "subject_id": "roadmap:subject:dotnet-react",
+  "subject_title": "Stage 08 C# async import, cancellation, resources, and execution manual activity",
+  "unit_title": "Stage 08 C# async import, cancellation, resources, and execution manual activity",
+  "source_status": "draft",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:dotnet-react:stage-08",
+    "title": "Chặng 8: C# chuyên sâu và lập trình bất đồng bộ",
+    "content_markdown": "# Chặng 8: C# chuyên sâu và lập trình bất đồng bộ\n\nThời lượng tham khảo: 3–4 tuần. Điều kiện vào: đã hoàn thành Chặng 7 và có thể giải thích luồng click → React state → API → database của Sổ chi tiêu.\n\nChặng này không nhằm học thuộc mọi tính năng của C#. Mục tiêu là hiểu code đang chạy ở đâu, dữ liệu được sở hữu bởi ai, tài nguyên được giải phóng thế nào và một thao tác bất đồng bộ dừng ra sao.\n\n## Mục tiêu đạt được\n\n- Phân biệt value type/reference type trong tình huống thực tế; hiểu equality của class, record và collection.\n- Viết generic, delegate/lambda và LINQ mà không nhầm giữa việc xây query với việc thực thi query.\n- Dùng nullable, exception và Result/validation một cách có chủ đích.\n- Quản lý stream/file bằng using hoặc await using.\n- Viết tác vụ async có cancellation; giải thích được async không mặc định tạo thread mới.\n- Nhận diện state dùng chung và chọn cách bảo vệ nó thay vì thêm lock theo cảm tính.\n\n## Tuần 1: dữ liệu, kiểu và hàm\n\n### Buổi 1: value type, reference type và equality\n\nint, decimal, DateOnly, struct thường mang giá trị trực tiếp; class và array là object được tham chiếu. Đây là mô hình hữu ích để giải thích việc gán biến, truyền tham số và thay đổi object, nhưng không nên biến nó thành khẩu hiệu “value luôn nằm trên stack, reference luôn nằm trên heap”. Vị trí lưu trữ còn phụ thuộc vào runtime và cách biến được dùng.\n\n```csharp\npublic sealed record ExpenseKey(int CategoryId, DateOnly SpentOn);\n\nvar first = new ExpenseKey(2, new DateOnly(2026, 9, 22));\nvar second = new ExpenseKey(2, new DateOnly(2026, 9, 22));\n\nConsole.WriteLine(first == second); // record so s&#225;nh theo gi&#225; trị\n```\n\nSo sánh record theo giá trị không có nghĩa mọi class đều như vậy. Với entity EF Core, nên hiểu rõ identity của entity và cách Equals/GetHashCode ảnh hưởng tới collection. Bài tập: tạo hai object Expense có cùng field, thử Equals, rồi viết lý do vì sao entity không nên tùy tiện chuyển thành record.\n\n### Buổi 2: generic, delegate và lambda\n\nGeneric giúp viết logic dùng được cho nhiều kiểu mà vẫn giữ kiểm tra kiểu lúc compile. Delegate là một kiểu đại diện cho hàm; lambda là cách viết ngắn để tạo function value.\n\n```csharp\nstatic IEnumerable&lt;T&gt; WhereNotNull&lt;T&gt;(IEnumerable&lt;T?&gt; source)\n    where T : class\n{\n    foreach (var item in source)\n    {\n        if (item is not null) yield return item;\n    }\n}\n\nFunc&lt;ExpenseResponse, bool&gt; isLarge = item =&gt; item.Amount &gt;= 1_000_000m;\nvar largeItems = items.Where(isLarge);\n```\n\nBài tập: viết Map đơn giản nhận IEnumerable&lt;TSource&gt; và Func&lt;TSource, TResult&gt;, sau đó so sánh với LINQ Select. Không viết lại cả thư viện LINQ; mục tiêu là hiểu generic và delegate.\n\n## Tuần 2: LINQ, nullable và lỗi\n\n### Buổi 3: deferred execution\n\nCác toán tử LINQ như Where/Select thường chỉ xây pipeline. Query có thể chạy khi foreach, ToList, Count hoặc toán tử terminal khác được gọi.\n\n```csharp\nvar query = expenses\n    .Where(x =&gt; x.Amount &gt; 0)\n    .Select(x =&gt; x.Amount);\n\nexpenses.Add(new Expense { Amount = 50_000m });\n\nvar values = query.ToList(); // pipeline đọc dữ liệu ở thời điểm n&#224;y\n```\n\nNếu cần snapshot, gọi ToList ở ranh giới rõ ràng. Không gọi ToList vô thức sau mỗi bước vì sẽ tạo thêm bộ nhớ và có thể làm query database chạy sớm. Với EF Core, luôn phân biệt LINQ được dịch thành SQL với LINQ chạy trong memory; kiểm tra bằng log SQL hoặc ToQueryString ở môi trường học.\n\nBài tập: cho một danh sách expense, ghi lại thời điểm query được thực thi. Sau đó đổi nguồn thành IQueryable EF Core và chỉ ra đoạn nào còn được dịch sang SQL.\n\n### Buổi 4: nullable và exception boundary\n\nNullable reference types là cảnh báo ở compile time; chúng không tự kiểm tra JSON hoặc dữ liệu người dùng lúc chạy. Dữ liệu từ API/file/database vẫn cần validation runtime.\n\nQuy ước trong project:\n\n- Lỗi nhập liệu dự kiến trả về validation result hoặc 400 ở boundary API.\n- Resource không tồn tại trả 404.\n- Lỗi hệ thống cần được log và chuyển thành response an toàn; không nuốt exception bằng catch rỗng.\n- Không dùng exception làm flow bình thường cho mọi điều kiện có thể kiểm tra trước.\n\nBài tập: viết parser ngày tháng trả bool TryParse cho input người dùng; viết một hàm khác ném exception cho lỗi invariant không thể tiếp tục. Ghi rõ caller nào chịu trách nhiệm xử lý.\n\n## Tuần 3: tài nguyên, async và cancellation\n\n### Buổi 5: IDisposable và stream\n\nFile stream, database connection, response stream và một số resource khác cần được giải phóng. using bảo đảm Dispose được gọi khi rời khỏi scope; await using dùng cho resource có DisposeAsync.\n\n```csharp\nawait using var stream = File.OpenRead(path);\nusing var reader = new StreamReader(stream);\n\nwhile (await reader.ReadLineAsync(cancellationToken) is { } line)\n{\n    // parse một d&#242;ng, kh&#244;ng nạp cả file v&#224;o bộ nhớ\n}\n```\n\nBài tập: đọc một file CSV nhỏ trước, sau đó thử file lớn. So sánh ReadAllLines với đọc streaming; ghi lại trade-off bộ nhớ và độ đơn giản.\n\n### Buổi 6: async, cancellation và thread safety\n\nasync/await mô tả cách tiếp tục một công việc khi I/O hoàn tất; nó không đồng nghĩa với việc tạo một thread mới. Cancellation là tín hiệu hợp tác: caller yêu cầu dừng, còn callee phải truyền token xuống và kiểm tra tại các điểm phù hợp.\n\n```csharp\npublic static async Task&lt;int&gt; CountImportedRowsAsync(\n    string path,\n    CancellationToken cancellationToken)\n{\n    var count = 0;\n\n    await using var stream = File.OpenRead(path);\n    using var reader = new StreamReader(stream);\n\n    while (await reader.ReadLineAsync(cancellationToken) is not null)\n    {\n        cancellationToken.ThrowIfCancellationRequested();\n        count++;\n    }\n\n    return count;\n}\n```\n\nKhông dùng .Result/.Wait() để “đợi cho xong” trong web request. Không chia sẻ DbContext giữa các thread. Với counter dùng chung, chọn thiết kế không chia sẻ state, channel/queue hoặc primitive phù hợp; lock chỉ giải quyết một nhóm vấn đề nhỏ và không thể dùng quanh await.\n\nBài tập: thêm nút Hủy import vào frontend. API nhận CancellationToken; service dừng đọc file; UI chuyển về trạng thái cancelled thay vì báo lỗi chung.\n\n## Dự án chặng: import chi tiêu có thể hủy\n\nXây vertical slice mới từ file đến database:\n\n1. Tạo ExpenseImportRow chỉ chứa dữ liệu đầu vào và không nhận entity EF trực tiếp.\n2. Tạo IExpenseImporter trả IAsyncEnumerable&lt;ExpenseImportRow&gt;.\n3. Viết importer CSV; JSON có thể là bước mở rộng sau khi CSV chạy ổn.\n4. Validate từng dòng: categoryId, amount, ngày, note và dòng trùng.\n5. Nhận CancellationToken từ endpoint đến stream reader.\n6. Chỉ ghi database sau khi có chiến lược rõ: ghi theo batch hoặc đọc trước rồi xác nhận; không để một file lỗi một nửa mà người học không biết trạng thái.\n7. Trả báo cáo gồm số dòng đọc, số dòng hợp lệ, số dòng bỏ qua và lỗi theo dòng.\n\n### Dữ liệu biên bắt buộc\n\n- File rỗng, file chỉ có header, dòng thiếu cột.\n- Amount âm, decimal dùng dấu phẩy/chấm không đúng culture.\n- Ngày không hợp lệ, category không tồn tại, dòng trùng.\n- Hủy trước khi đọc, hủy giữa file và hủy sau khi đã ghi một batch.\n- File rất lớn hơn bộ nhớ dự kiến.\n\n### Checkpoint\n\nCụ đạt chặng khi có thể:\n\n- Giải thích chính xác query nào deferred, query nào đã chạy.\n- Chỉ ra boundary xử lý lỗi và resource được dispose ở đâu.\n- Chạy import với file lỗi và hủy giữa chừng mà không làm UI kẹt vô hạn.\n- Viết test tối thiểu cho parser và cancellation; phần test API đầy đủ được hệ thống hóa ở Chặng 13.\n\n## Interview checkpoint\n\nTự trả lời bằng lời, sau đó viết một ví dụ ngắn:\n\n1. async có tạo thread mới không? I/O-bound và CPU-bound khác nhau thế nào?\n2. Vì sao IQueryable không nên bị chuyển sang IEnumerable quá sớm?\n3. Vì sao gọi ToList làm thay đổi thời điểm chạy của LINQ?\n4. CancellationToken có tự dừng một method không?\n5. using và garbage collector giải quyết hai vấn đề nào khác nhau?\n6. Vì sao không dùng một DbContext đồng thời trên nhiều thread?\n7. record so sánh theo giá trị có phù hợp cho mọi EF entity không?\n8. Đọc đoạn import bị lỗi: cụ sẽ đặt log và test ở những boundary nào?\n\nBài debug có thời gian 25 phút: một import đọc được 10.000 dòng nhưng bấm Hủy vẫn tiếp tục ghi dữ liệu. Cụ phải tái hiện, giải thích token bị mất ở đâu và viết regression test trước khi sửa.\n\n## Tự chấm\n\n- 0: chỉ nhớ định nghĩa.\n- 1: chạy được ví dụ nhưng chưa giải thích được thời điểm thực thi.\n- 2: tự viết import, xử lý edge case và có test.\n- 3: giải thích được trade-off streaming/batch, cancellation và thread safety bằng code của chính mình.\n\n## Tài liệu chính thức\n\n- [Asynchronous programming with async and await](https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/)\n- [Iterate over collections with foreach](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/iteration-statements)\n- [Deferred execution and lazy evaluation](https://learn.microsoft.com/en-us/dotnet/standard/linq/deferred-execution-lazy-evaluation)\n- [Implement a Dispose method](https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose)\n- [Cancellation in managed threads](https://learn.microsoft.com/en-us/dotnet/standard/threading/cancellation-in-managed-threads)\n",
+    "source_citations": [
+      "`8.md`, objectives",
+      "Tuần 1 Buổi 1–2",
+      "`8.md`, Tuần 1 Buổi 3–4",
+      "`8.md`, Tuần 3 Buổi 5–6",
+      "project cancellation slice"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-DOTNET-S08-01]",
+        "bloom_level": "Apply",
+        "statement": "Build and explain a cancellable streaming expense import with explicit validation, resource, token and partial-batch boundaries after Stage 07."
+      },
+      {
+        "id": "[LO-DOTNET-S08-02]",
+        "bloom_level": "Analyze",
+        "statement": "Record actual type/equality, generic/delegate, deferred-query, runtime-error, cancellation, parser-test and timed-debug evidence while preserving blockers."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "DOTNET-S08-C01",
+        "name": "Types, generic functions, delegates, and execution state",
+        "evidence_label": "preliminary"
+      },
+      {
+        "id": "DOTNET-S08-C02",
+        "name": "Streaming resources and cooperative async cancellation",
+        "evidence_label": "preliminary"
+      },
+      {
+        "id": "DOTNET-S08-C03",
+        "name": "Import validation, partial commits, and honest test evidence",
+        "evidence_label": "preliminary"
+      }
+    ],
+    "external_resources": []
+  },
+  "activity": {
+    "stable_id": "activity:dotnet:stage-08",
+    "type": "manual",
+    "title": "Stage 08 C# async import, cancellation, resources, and execution evidence",
+    "instructions": "This single manual unit maps to DotNet-React-Roadmap/8.md. Complete Stage 07\nfirst and preserve the learner sequence Stage 07 -> Stage 08 -> Stage 09.\nWork in a learner-owned scratch project with learning data only. This is a\nguided learner-attestation activity, not runtime approval or a deployment\ngate. If a tool, SDK, database, or browser is unavailable, record the exact\nblocker and leave the corresponding evidence incomplete; a blocker earns no\npoint for that observation.\n\nBefore the import slice, demonstrate value/reference behavior with two\nequal record keys and two Expense class objects, then explain record value\nequality versus entity identity. Implement a generic Map over IEnumerable\nand a delegate/lambda example, and record the result. Build one deferred\nLINQ pipeline and one explicit snapshot; record when each executes. For an\nIQueryable/EF version, record actual SQL/log or ToQueryString evidence when\navailable and label unavailable translation evidence incomplete.\n\nRecord a nullable/runtime validation boundary and an expected-input error\nresult or 400 versus an invariant exception boundary. Read CSV as a stream\nwith using/await using and dispose the reader. Keep the importer contract\nseparate from EF entities: IExpenseImporter returns\nIAsyncEnumerable<ExpenseImportRow> and accepts CancellationToken. Do not\nshare a DbContext across threads or use .Result/.Wait() in a web request.\n\nImplement the CSV vertical slice. Validate categoryId, amount, date, note,\nculture and duplicate rows; report rows read, valid, skipped and errors by\nline. Exercise empty, header-only, missing-column, malformed, negative or\nwrongly-cultured amount, invalid date, unknown category, duplicate and large\nfiles. Record cancellation before reading, during reading, after a batch is\nwritten, and after completion when those observations are actually made.\nState whether the import is read-then-confirmed or batch-committed, the\nbatch size, and the exact partial-commit result/report after cancellation or\na row error. Do not imply all-or-nothing behavior without evidence.\n\nPropagate the token from endpoint to service, reader and database operation;\ncheck it at meaningful boundaries and distinguish cancellation from an\nordinary failure. Add a real frontend Hủy import button or equivalent user\naction. Record the click/event path that aborts or cancels the request, the\ntoken reaching the API/service/reader/database boundaries, and the UI\ntransition to cancelled. Exercise or record the no-hang behavior and the\ndistinction between cancellation and a normal error; if a browser or UI\npath is unavailable, record that exact blocker and leave this observation\nincomplete with zero points. Add focused parser, cancellation, resource-disposal and\nreport tests if the environment permits, recording command and actual\noutcome. Finish with a 35-minute timed code-reading/debug note covering\nasync continuation, deferred execution, null/error boundary, disposal,\nshared state and cancellation. Include expected versus observed results and\nexplicit blockers. Do not claim a compile, test, API, database or frontend\nresult that was not run.\n",
+    "expected_output": "A learner evidence note with equality/generic/delegate/map and deferred-versus-snapshot observations, runtime error boundaries, streaming/disposal and token propagation, frontend cancel action through API/service/reader/database to cancelled UI with no-hang/error distinction, CSV validation/partial-batch outcomes, focused test evidence, timed-debug reasoning, and explicit blockers.",
+    "completion_mode": "learner_attest",
+    "rubric": [
+      {
+        "criterion": "Type, delegate, generic, and execution evidence",
+        "evidence": "The note records actual value/reference/record equality, entity identity reasoning, generic Map and delegate/lambda output, and deferred versus snapshot execution including an EF translation boundary where available. Missing or blocked observations remain incomplete and earn no point.",
+        "max_points": 1
+      },
+      {
+        "criterion": "Runtime, resource, and async safety",
+        "evidence": "The note identifies nullable/runtime validation and exception boundaries, stream disposal, async continuation, propagated CancellationToken, no shared DbContext or blocking wait, and actual frontend Hủy action/event-to-request cancellation through API/service/reader/database to a cancelled UI state with no-hang and normal-error distinction. Missing or blocked browser/UI evidence remains incomplete and earns no point.",
+        "max_points": 1
+      },
+      {
+        "criterion": "CSV import and partial-batch behavior",
+        "evidence": "The note records actual parser contract, culture/category/date/duplicate validation, empty/header-only/missing-column/large-file cases, pre/mid/post-batch cancellation, and an explicit partial-commit strategy/report. Missing or blocked evidence remains incomplete and earns no point.",
+        "max_points": 1
+      },
+      {
+        "criterion": "Tests, debugging, and honest limits",
+        "evidence": "The note records parser/cancellation/resource/report tests and a timed code-reading/debug conclusion with commands and outcomes only when run; blockers are retained and do not earn points. Missing or blocked evidence remains incomplete and earns no point.",
+        "max_points": 1
+      }
+    ],
+    "resources": []
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:stage-08",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Stage 08 C# async import, cancellation, resources, and execution manual activity",
+    "card_count": 0,
+    "cards": []
+  }
+}

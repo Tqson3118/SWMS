@@ -1,0 +1,111 @@
+deck_id: deck-pf-w05
+subject: PersonalFinance
+lesson_id: week-05-bao-hiem-vietnam
+version: 1.1.0
+description: 'Sửa nội dung 02/10/2026: chỉ ôn kiến thức được dạy; giữ ID. Thay đổi ý nghĩa thẻ cần xem lại trước khi nhập và áp dụng tiến độ ôn cũ.'
+cards:
+- id: fc-pf-w05-001
+  concept: "Bản chất bảo hiểm"
+  front: "Bảo hiểm giúp quản lý rủi ro theo cách nào?"
+  back: "Chuyển giao một phần rủi ro tài chính theo phạm vi hợp đồng. Phí, quyền lợi, loại trừ và điều kiện chi trả phải được đọc cùng nhau."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#3-kiến-thức-cốt-lõi
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-002
+  concept: "BHYT và bảo hiểm thương mại"
+  front: "Có BHYT có nghĩa mọi chi phí y tế đều được thanh toán không?"
+  back: "Không. BHYT có nhóm đối tượng, mức hưởng và điều kiện theo quy định; bảo hiểm sức khỏe thương mại cũng có giới hạn riêng. Không suy ra mọi dịch vụ đều được chi trả."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#32-bảo-hiểm-sức-khỏe-health-insurance
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-003
+  concept: "Bảo hiểm tử kỳ"
+  front: "Tử kỳ khác gì với bảo vệ không giới hạn thời hạn?"
+  back: "Quyền lợi tử vong áp dụng trong thời hạn bảo hiểm và theo điều kiện hợp đồng. Quyền lợi thương tật hoặc quyền lợi bổ sung phải được quy định riêng."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#31-bảo-hiểm-nhân-thọ-life-insurance
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-004
+  concept: "Bảo vệ và tích lũy"
+  front: "Khi hợp đồng có phần tích lũy/đầu tư, phải kiểm tra gì?"
+  back: "Tách quyền lợi bảo vệ khỏi phần tích lũy, phí và giá trị hoàn lại. Không gọi giá trị minh họa là lợi nhuận bảo đảm nếu hợp đồng không quy định."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#41-cách-hoàn-thành-bảng-so-sánh-mô-hình-kiểm-tra-không-phải-khuyến-nghị-mua
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-005
+  concept: "Đọc hợp đồng"
+  front: "Trước khi ký hợp đồng, những phần nào cần đối chiếu?"
+  back: "Quyền lợi, loại trừ, thời gian chờ, khấu trừ, phí và thủ tục yêu cầu quyền lợi. Ghi đúng điều khoản thay vì suy từ lời quảng cáo."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#34-cách-đánh-giá-và-chọn-bảo-hiểm
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-006
+  concept: "Người phụ thuộc"
+  front: "Tại sao worksheet hỏi về người phụ thuộc?"
+  back: "Để xác định nhu cầu bảo vệ dòng tiền khi xảy ra rủi ro. Đây là bước thu thập nhu cầu, không tự quyết định mức bảo hiểm tối ưu."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#4-worksheet-thực-hành
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-007
+  concept: "So sánh quyền lợi"
+  front: "Hai gói có cùng quyền lợi tử vong 1 tỷ đồng đã tương đương chưa?"
+  back: "Chưa. Cần so thêm phí, quyền lợi khác, khấu trừ, thời gian chờ, loại trừ và khả năng duy trì hợp đồng."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#41-cách-hoàn-thành-bảng-so-sánh-mô-hình-kiểm-tra-không-phải-khuyến-nghị-mua
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-008
+  concept: "Khả năng đóng phí"
+  front: "Có tỷ lệ phí bảo hiểm tối ưu chung cho mọi người không?"
+  back: "Bài này không đưa ra tỷ lệ chung. Cần xem ngân sách, nhu cầu và khả năng đóng phí dài hạn trong kịch bản của mình."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#42-tự-đánh-giá-worksheet-4-mức-quan-sát-được
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-009
+  concept: "Thời gian chờ"
+  front: "Có thể dùng một số ngày chờ chung cho mọi hợp đồng không?"
+  back: "Không. Phải đọc thời gian chờ và điều kiện của quyền lợi cụ thể trong hợp đồng; không suy từ tên loại bảo hiểm."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#34-cách-đánh-giá-và-chọn-bảo-hiểm
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-010
+  concept: "Điều khoản loại trừ"
+  front: "Điều khoản loại trừ mô tả điều gì?"
+  back: "Các trường hợp ngoài phạm vi chi trả theo hợp đồng. Danh sách cụ thể cần đọc trong hợp đồng đó, không mặc nhiên giống mọi sản phẩm."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#7-glossary
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-011
+  concept: "Bảo hiểm sức khỏe"
+  front: "Bảo hiểm sức khỏe tự nguyện tự động bao phủ mọi bệnh viện tư không?"
+  back: "Không. Cần đối chiếu mạng lưới, phạm vi và giới hạn của hợp đồng thực tế; không suy quyền lợi từ tên sản phẩm."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#32-bảo-hiểm-sức-khỏe-health-insurance
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-012
+  concept: "Quyền lợi minh họa"
+  front: "Quyền lợi bệnh hiểm nghèo 300 triệu trong worksheet là gì?"
+  back: "Dữ kiện giả định để tập đọc bảng so sánh, không phải báo giá hay quyền lợi hiện hành của một công ty cụ thể."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#41-cách-hoàn-thành-bảng-so-sánh-mô-hình-kiểm-tra-không-phải-khuyến-nghị-mua
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-013
+  concept: "Hai loại bảo hiểm xe"
+  front: "TNDS bắt buộc và thân vỏ tự nguyện bảo vệ cùng một đối tượng không?"
+  back: "Không. Bài phân biệt trách nhiệm đối với bên thứ ba/hành khách với thiệt hại vật chất của xe được bảo hiểm. Biểu phí nền Nghị định 67/2023 và phạm vi hiện hành phải được đọc cùng điều kiện, ngày hiệu lực và chứng nhận cụ thể."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#33-bảo-hiểm-xe-cơ-giới-phân-biệt-bắt-buộc-và-tự-nguyện-m2-c06
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-014
+  concept: "Kết luận có điều kiện"
+  front: "Tại sao chưa thể chọn gói A chỉ vì phí thấp hơn?"
+  back: "Gói A có thể khác về khấu trừ, loại trừ, thời gian chờ và quyền lợi. Bảng chưa đủ thông tin thì kết luận phải để mở."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#41-cách-hoàn-thành-bảng-so-sánh-mô-hình-kiểm-tra-không-phải-khuyến-nghị-mua
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]
+- id: fc-pf-w05-015
+  concept: "Rà soát hợp đồng"
+  front: "Khi nhu cầu thay đổi, nên làm bước kiểm tra nào?"
+  back: "Khi nhu cầu hoặc điều kiện thay đổi, rà soát quyền lợi, loại trừ, chi phí, khấu trừ và khả năng đóng phí theo hợp đồng hiện tại. Không tự động mua/hủy chỉ vì có gói mới."
+  source_lesson: PersonalFinance/notes/module-2/week-05-bao-hiem-vietnam.md#6-action-steps
+  version: 1.1.0
+  tags: [w05, revised-content, review-required]

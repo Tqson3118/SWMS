@@ -1,0 +1,111 @@
+deck_id: "deck-psy-w46"
+subject: "Psychology"
+lesson_id: "week-46-healthy-relationships"
+version: "1.0.0"
+description: "Bộ thẻ ôn tập Tuần 46: Xây dựng & duy trì quan hệ xã hội bền vững"
+
+cards:
+  - id: "fc-psy-w46-001"
+    concept: "Dịch tễ học cô đơn & Tỷ lệ tử vong sớm (Holt-Lunstad et al., 2010)"
+    front: "Nghiên cứu của Holt-Lunstad et al. (2010) so sánh mức độ nguy hại của sự cô đơn mãn tính với yếu tố sức khỏe nào?"
+    back: "Tác động tiêu cực của cô lập xã hội tương đương với việc hút 15 điếu thuốc lá mỗi ngày hoặc nghiện rượu nặng, nguy hiểm hơn cả béo phì và thiếu vận động."
+    source_lesson: "Psychology/notes/06-integration/week-46-healthy-relationships.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C46-01"
+    tags:
+      - "loneliness"
+      - "epidemiology"
+      - "mortality-risk"
+
+  - id: "fc-psy-w46-002"
+    concept: "Cơ chế sinh lý thần kinh của cô đơn (John Cacioppo)"
+    front: "Mô hình tiến hóa của Cacioppo giải thích cơ chế tàn phá thể chất của sự cô đơn mãn tính như thế nào?"
+    back: "Cô đơn kích hoạt báo động đe dọa sinh tồn ngoài bầy đàn, kích thích trục HPA tiết cortisol kéo dài, ức chế gene kháng virus và kích hoạt gene tiền viêm mãn tính toàn thân."
+    source_lesson: "Psychology/notes/06-integration/week-46-healthy-relationships.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C46-01"
+    tags:
+      - "cacioppo"
+      - "social-neuroscience"
+      - "hpa-axis"
+      - "inflammation"
+
+  - id: "fc-psy-w46-003"
+    concept: "Hỗ trợ cấu trúc vs Hỗ trợ chức năng (Sheldon Cohen, 2004)"
+    front: "Phân biệt Hỗ trợ xã hội cấu trúc (Structural) và Hỗ trợ xã hội chức năng (Functional)?"
+    back: "Cấu trúc phản ánh quy mô và sự tồn tại của mạng lưới liên kết (số lượng bạn bè); Chức năng phản ánh các dạng giúp đỡ cụ thể (cảm xúc, công cụ/vật chất, thông tin)."
+    source_lesson: "Psychology/notes/06-integration/week-46-healthy-relationships.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C46-02"
+    tags:
+      - "social-support"
+      - "structural-support"
+      - "functional-support"
+
+  - id: "fc-psy-w46-004"
+    concept: "Perceived Support vs Received Support (Uchino, 2009)"
+    front: "Tại sao Cảm nhận về sự sẵn sàng hỗ trợ (Perceived support) lại dự báo sức khỏe tốt hơn Thực tế nhận hỗ trợ (Received support)?"
+    back: "Perceived support đệm giảm stress mà không tốn chi phí tâm lý; trong khi Received support đôi khi làm suy giảm lòng tự trọng và gây cảm giác phụ thuộc hoặc mang nợ."
+    source_lesson: "Psychology/notes/06-integration/week-46-healthy-relationships.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C46-02"
+    tags:
+      - "perceived-support"
+      - "received-support"
+      - "stress-buffering"
+
+  - id: "fc-psy-w46-005"
+    concept: "Mô hình Đầu tư Quan hệ (Rusbult Investment Model, 1983)"
+    front: "Công thức xác định mức độ Cam kết ($Commitment$) trong mô hình của Caryl Rusbult là gì?"
+    back: "Cam kết = Mức độ thỏa mãn (Satisfaction) + Quy mô đầu tư tích lũy (Investments) - Chất lượng các lựa chọn thay thế (Alternatives)."
+    source_lesson: "Psychology/notes/06-integration/week-46-healthy-relationships.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C46-03"
+    tags:
+      - "rusbult"
+      - "investment-model"
+      - "commitment"
+
+  - id: "fc-psy-w46-006"
+    concept: "Vai trò của Khoản đầu tư tích lũy trong sự bền vững quan hệ"
+    front: "Tại sao các cặp đôi lâu năm vẫn duy trì cam kết bền vững ngay cả khi cảm xúc thỏa mãn tạm thời suy giảm?"
+    back: "Bởi các khoản đầu tư tích lũy (Investments - con cái, thời gian, tài sản, kỷ niệm) không thể lấy lại nếu chia tay, kết hợp với các lựa chọn bên ngoài kém hấp dẫn."
+    source_lesson: "Psychology/notes/06-integration/week-46-healthy-relationships.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C46-03"
+    tags:
+      - "investments"
+      - "relationship-stability"
+      - "sunk-costs"
+
+  - id: "fc-psy-w46-007"
+    concept: "5 Hành vi bảo trì quan hệ thực chứng (Stafford & Canary, 1991)"
+    front: "Năm nhóm hành vi bảo trì quan hệ chính theo Stafford & Canary là gì?"
+    back: "1. Tích cực (Positivity); 2. Cởi mở chia sẻ (Openness); 3. Tái khẳng định cam kết (Assurances); 4. Chia sẻ mạng lưới bạn bè (Social networks); 5. San sẻ trách nhiệm việc chung (Sharing tasks)."
+    source_lesson: "Psychology/notes/06-integration/week-46-healthy-relationships.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C46-04"
+    tags:
+      - "relationship-maintenance"
+      - "stafford-canary"
+      - "behaviors"
+
+  - id: "fc-psy-w46-008"
+    concept: "Số Dunbar & Các tầng vòng tròn xã hội (Robin Dunbar)"
+    front: "Khái niệm Số Dunbar (150) và cấu trúc phân tầng vòng tròn xã hội là gì?"
+    back: "Trần nhận thức tối đa cho quan hệ xã hội ổn định là ~150 người, phân tầng thành: Nhóm hỗ trợ cốt lõi (~5), Nhóm cảm thông sâu (~15), Bạn bè thân (~50), và Nhóm mở rộng (~150)."
+    source_lesson: "Psychology/notes/06-integration/week-46-healthy-relationships.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C46-05"
+    tags:
+      - "dunbars-number"
+      - "social-brain"
+      - "social-network-layers"

@@ -1,0 +1,114 @@
+schema_version: 2.0.0
+package_id: package:investing:w13
+subject_id: roadmap:subject:investing
+display_title: 'Investing — Tuần 13: Phân tích ngành và chu kỳ kinh tế tại thị trường Việt Nam'
+source_status: in_review
+version: 5
+created_at: '2026-09-22T00:00:00Z'
+subject: Investing
+course: Investing — 18 tuần
+module: module-3
+lesson: week-13-phan-tich-nganh-viet-nam
+learning_objectives:
+- id: LO-W13-01
+  bloom_level: Understand
+  statement: 'Hiểu và trình bày các khái niệm nền tảng của Tuần 13: Phân tích ngành và chu kỳ kinh tế tại thị trường
+    Việt Nam theo chuẩn mực học liệu.'
+- id: LO-W13-02
+  bloom_level: Apply
+  statement: 'Vận dụng các phương pháp và công thức tính toán thực tế trong tình huống đầu tư giả định của Tuần
+    13: Phân tích ngành và chu kỳ kinh tế tại thị trường Việt Nam.'
+- id: LO-W13-03
+  bloom_level: Analyze
+  statement: 'Phân tích cơ chế vận hành, các yếu tố rủi ro và điều kiện biên của các công cụ trong Tuần 13: Phân
+    tích ngành và chu kỳ kinh tế tại thị trường Việt Nam.'
+- id: LO-W13-04
+  bloom_level: Evaluate
+  statement: 'Đánh giá, phản biện các sai lầm phổ biến và xây dựng nguyên tắc quản trị kỷ luật cho Tuần 13: Phân
+    tích ngành và chu kỳ kinh tế tại thị trường Việt Nam.'
+concepts:
+- id: roadmap:concept:investing:w13-core
+  name: 'Khái niệm cốt lõi và khung phân tích Tuần 13: Phân tích ngành và chu kỳ kinh tế tại thị trường Việt Nam'
+  claim_ids:
+  - W13-C01
+  - W13-C02
+  evidence_label: strong
+  source_ledger_path: quality/module-3-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-content-reviewer
+    date: '2026-09-22'
+questions:
+- id: Q13-01
+  lo_ref: LO-W13-01
+  concept_id: roadmap:concept:investing:w13-core
+  claim_ids:
+  - W13-C01
+- id: Q13-02
+  lo_ref: LO-W13-01
+  concept_id: roadmap:concept:investing:w13-core
+  claim_ids:
+  - W13-C01
+- id: Q13-03
+  lo_ref: LO-W13-02
+  concept_id: roadmap:concept:investing:w13-core
+  claim_ids:
+  - W13-C01
+- id: Q13-04
+  lo_ref: LO-W13-02
+  concept_id: roadmap:concept:investing:w13-core
+  claim_ids:
+  - W13-C01
+- id: Q13-05
+  lo_ref: LO-W13-03
+  concept_id: roadmap:concept:investing:w13-core
+  claim_ids:
+  - W13-C01
+- id: Q13-06
+  lo_ref: LO-W13-03
+  concept_id: roadmap:concept:investing:w13-core
+  claim_ids:
+  - W13-C01
+- id: Q13-07
+  lo_ref: LO-W13-04
+  concept_id: roadmap:concept:investing:w13-core
+  claim_ids:
+  - W13-C01
+- id: Q13-08
+  lo_ref: LO-W13-04
+  concept_id: roadmap:concept:investing:w13-core
+  claim_ids:
+  - W13-C01
+units:
+- unit_id: roadmap:unit:investing:w13
+  display_title: 'Tuần 13: Phân tích ngành và chu kỳ kinh tế tại thị trường Việt Nam'
+  sort_order: 13
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:investing:w13
+    path: notes/module-3/week-13-phan-tich-nganh-viet-nam.md
+    sha256: fece1c7d9236c6e30a66b24e5f700e77270de2c8a2e5be70ebc8f50340ba3b0c
+    byte_length: 23816
+  - role: quiz_questions
+    stable_id: roadmap:quiz:investing:w13
+    path: assessments/quizzes/week-13-quiz.md
+    question_count: 8
+    sha256: f7e53e3752898f04c9f40bd9f5d3e05eda270e95d0269f005828a922fcb6f120
+    byte_length: 3192
+  - role: quiz_answers
+    stable_id: roadmap:answers:investing:w13
+    path: assessments/answer-keys/week-13-answers.md
+    correct_count: 8
+    wrong_count: 24
+    sha256: 4b3c3fdff1c068b8cd050f6210e5082fff687d84061878ec4500a8d60a32a4b9
+    byte_length: 9154
+  - role: flashcard_deck
+    stable_id: roadmap:deck:investing:w13
+    path: flashcards/week-13.yaml
+    card_count: 8
+    sha256: 261c9b6d11de9b80530aeb07c8f4795e518d3e5a8ed7234b1d290dddfd94582a
+    byte_length: 5408
+  - role: source_ledger
+    path: quality/module-3-source-ledger.md
+    sha256: 3f377205c9603f3706cc228b8c40265ccd3d72089af8656ceff703232e5039d2
+    byte_length: 29280

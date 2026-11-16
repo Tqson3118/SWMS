@@ -1,0 +1,39 @@
+schema_version: "2.0.0"
+package_id: "package:personal-finance:w07"
+subject_id: "roadmap:subject:personal-finance"
+display_title: "T�i Ch�nh C� Nh�n Th?c H�nh"
+source_status: "in_review"
+version: 1
+created_at: "2026-09-15T00:00:00Z"
+subject: "T�i ch�nh c� nh�n"
+course: "T�i ch�nh c� nh�n th?c h�nh"
+module: "module-3"
+lesson: "week-07-compound-interest-fire"
+learning_objectives:
+  - {id: "LO-PF-W07-01", bloom_level: "Apply", statement: "T�nh l�i k�p v� gi� tr? tuong lai."}
+  - {id: "LO-PF-W07-02", bloom_level: "Analyze", statement: "Gi?i th�ch l?m ph�t v� quy t?c 72."}
+  - {id: "LO-PF-W07-03", bloom_level: "Evaluate", statement: "D�nh gi� FIRE theo b?i c?nh v� r?i ro."}
+  - {id: "LO-PF-W07-04", bloom_level: "Evaluate", statement: "Gi?i h?n h�a quy t?c r�t 4% nhu historical heuristic."}
+concepts:
+  - {id: "roadmap:concept:pf:compound-interest", name: "L�i k�p", claim_ids: ["M3-C01", "M3-C02"], evidence_label: "medium", source_ledger_path: "quality/module-3-source-ledger.md"}
+  - {id: "roadmap:concept:pf:fire-withdrawal", name: "FIRE v� 4% rule", claim_ids: ["M3-C03", "M3-C04"], evidence_label: "medium", source_ledger_path: "quality/module-3-source-ledger.md"}
+questions:
+  - {id: "Q01", lo_ref: "LO-PF-W07-01", concept_id: "roadmap:concept:pf:compound-interest", claim_ids: ["M3-C01"]}
+  - {id: "Q02", lo_ref: "LO-PF-W07-02", concept_id: "roadmap:concept:pf:compound-interest", claim_ids: ["M3-C02"]}
+  - {id: "Q03", lo_ref: "LO-PF-W07-04", concept_id: "roadmap:concept:pf:fire-withdrawal", claim_ids: ["M3-C03"]}
+  - {id: "Q04", lo_ref: "LO-PF-W07-03", concept_id: "roadmap:concept:pf:fire-withdrawal", claim_ids: ["M3-C03"]}
+  - {id: "Q05", lo_ref: "LO-PF-W07-03", concept_id: "roadmap:concept:pf:fire-withdrawal", claim_ids: ["M3-C04"]}
+  - {id: "Q06", lo_ref: "LO-PF-W07-01", concept_id: "roadmap:concept:pf:compound-interest", claim_ids: ["M3-C01"]}
+  - {id: "Q07", lo_ref: "LO-PF-W07-03", concept_id: "roadmap:concept:pf:fire-withdrawal", claim_ids: ["M3-C04"]}
+  - {id: "Q08", lo_ref: "LO-PF-W07-02", concept_id: "roadmap:concept:pf:compound-interest", claim_ids: []}
+  - {id: "Q09", lo_ref: "LO-PF-W07-02", concept_id: "roadmap:concept:pf:compound-interest", claim_ids: []}
+  - {id: "Q10", lo_ref: "LO-PF-W07-03", concept_id: "roadmap:concept:pf:fire-withdrawal", claim_ids: ["M3-C04"]}
+units:
+  - unit_id: "roadmap:unit:pf:w07"
+    display_title: "Tu?n 07: L�i k�p v� FIRE"
+    sort_order: 7
+    artifacts:
+      - {role: "lesson_theory", stable_id: "roadmap:lesson:pf:w07", path: "notes/module-3/week-07-compound-interest-fire.md", sha256: "ab4ec83328cb752b1d90de3f0a08bbd92b535be3e88e30551ed49b0577768463", byte_length: 7528}
+      - {role: "quiz_questions", stable_id: "roadmap:quiz:pf:w07", path: "assessments/quizzes/week-07-quiz.md", question_count: 10, sha256: "33f7187a6aa24a9844aabe14c6dd517cc18f7f86db6f07d987fd7e7475f8fa2c", byte_length: 2714}
+      - {role: "quiz_answers", stable_id: "roadmap:answers:pf:w07", path: "assessments/answer-keys/week-07-answers.md", correct_count: 10, wrong_count: 30, sha256: "cc481d86213ef89e7ca71896fbc7b68c28431e1542a4858a329a39e49e221955", byte_length: 3762}
+      - {role: "source_ledger", path: "quality/module-3-source-ledger.md", sha256: "d039c3af311bbb4e7bfdb046878801784df51b0c83bcb4f90f9fb7c184ed0e47", byte_length: 7551}

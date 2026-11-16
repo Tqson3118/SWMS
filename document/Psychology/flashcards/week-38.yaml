@@ -1,0 +1,111 @@
+deck_id: "deck-psy-w38"
+subject: "Psychology"
+lesson_id: "week-38-what-is-disorder"
+version: "1.0.0"
+description: "Bộ thẻ ôn tập Tuần 38: Nhập môn Rối loạn Tâm lý & Tiêu chí 4Ds"
+
+cards:
+  - id: "fc-psy-w38-001"
+    concept: "Định nghĩa Rối loạn Tâm thần (DSM-5-TR)"
+    front: "Theo DSM-5-TR (APA, 2022), Rối loạn Tâm thần được định nghĩa chính thức như thế nào?"
+    back: "Là một hội chứng lâm sàng đặc trưng bởi sự rối loạn có ý nghĩa trong nhận thức, cảm xúc hoặc hành vi, phản ánh sự rối loạn chức năng nội tại (dysfunction) và gây ra đau khổ (distress) hoặc suy giảm hoạt động (disability) đáng kể."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-38-what-is-disorder.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C38-01"
+    tags:
+      - "mental-disorder"
+      - "dsm-5-tr"
+      - "definition"
+
+  - id: "fc-psy-w38-002"
+    concept: "Thuyết Harmful Dysfunction (Wakefield, 1992)"
+    front: "Hai điều kiện bắt buộc trong Thuyết Rối loạn Gây hại (Harmful Dysfunction) của Jerome Wakefield là gì?"
+    back: "1. Dysfunction (Khách quan): Thất bại chức năng tự nhiên của một cơ chế tâm lý/sinh học tiến hóa; 2. Harm (Chuẩn mực xã hội): Sự thất bại đó gây tác hại tiêu cực, đau khổ hoặc suy giảm hoạt động cho cá nhân theo giá trị văn hóa."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-38-what-is-disorder.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C38-01"
+    tags:
+      - "wakefield"
+      - "harmful-dysfunction"
+      - "philosophy-of-psychiatry"
+
+  - id: "fc-psy-w38-003"
+    concept: "Khung Tiêu chí 4Ds (Comer & Comer)"
+    front: "Bốn chữ D trong khung tiêu chí sàng lọc bất thường của Comer & Comer (2021) là gì?"
+    back: "1. Deviance (Khác biệt chuẩn mực); 2. Distress (Đau khổ cá nhân); 3. Dysfunction (Rối loạn/suy giảm chức năng sống); 4. Danger (Nguy hiểm cho bản thân hoặc người khác)."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-38-what-is-disorder.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C38-02"
+    tags:
+      - "4ds"
+      - "comer"
+      - "clinical-assessment"
+
+  - id: "fc-psy-w38-004"
+    concept: "Ranh giới của Deviance (Khác biệt)"
+    front: "Tại sao sự khác biệt chuẩn mực (Deviance) đơn thuần không bao giờ đủ để coi là rối loạn tâm thần?"
+    back: "Vì chuẩn mực xã hội thay đổi theo văn hóa và thời đại; nếu chỉ dựa vào deviance sẽ dẫn đến việc lạm quyền y tế hóa để đàn áp người bất đồng quan điểm, người có lối sống thiểu số hoặc các nghệ sĩ sáng tạo lập dị."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-38-what-is-disorder.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C38-02"
+    tags:
+      - "deviance"
+      - "social-norms"
+      - "destigmatization"
+
+  - id: "fc-psy-w38-005"
+    concept: "Phê phán DSM-5 của Allen Frances (2013)"
+    front: "Lời cảnh báo lớn nhất của bác sĩ Allen Frances trong cuốn sách 'Saving Normal' là gì?"
+    back: "Cảnh báo nguy cơ Lạm phát chẩn đoán (Diagnostic Inflation) và Y tế hóa quá mức (Medicalization) của DSM-5, biến các phản ứng đau buồn và căng thẳng bình thường của đời sống thành bệnh lý để tiêu thụ thuốc hướng thần."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-38-what-is-disorder.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C38-03"
+    tags:
+      - "frances"
+      - "dsm-5"
+      - "overdiagnosis"
+      - "medicalization"
+
+  - id: "fc-psy-w38-006"
+    concept: "Thí nghiệm Rosenhan (1973)"
+    front: "Thí nghiệm 'On Being Sane in Insane Places' của David Rosenhan (1973) đã phơi bày điều gì?"
+    back: "Phơi bày sự nguy hiểm của 'Hiệu ứng dán nhãn bệnh lý' (Labeling bias): một khi nhãn bệnh tâm thần được gắn vào một người, mọi hành vi bình thường của họ đều bị nhân viên y tế diễn giải lại thành triệu chứng bệnh hoạn."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-38-what-is-disorder.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C38-03"
+    tags:
+      - "rosenhan"
+      - "labeling-bias"
+      - "psychiatric-hospitals"
+
+  - id: "fc-psy-w38-007"
+    concept: "Mô hình Sinh - Tâm - Xã hội (George Engel, 1977)"
+    front: "Luận điểm cốt lõi của Mô hình Sinh học - Tâm lý - Xã hội (Biopsychosocial Model) là gì?"
+    back: "Sức khỏe và bệnh tật tâm trí là kết quả tương tác phức hợp không thể tách rời giữa 3 trục: yếu tố sinh học thần kinh (gen, nơ-ron), yếu tố tâm lý (nhận thức, cảm xúc, sang chấn) và yếu tố môi trường xã hội (nghèo đói, văn hóa, gia đình)."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-38-what-is-disorder.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C38-04"
+    tags:
+      - "biopsychosocial"
+      - "engel"
+      - "holistic-psychiatry"
+
+  - id: "fc-psy-w38-008"
+    concept: "Mô hình Cơ địa - Căng thẳng (Diathesis-Stress)"
+    front: "Mô hình Diathesis-Stress giải thích cơ chế khởi phát rối loạn tâm thần như thế nào?"
+    back: "Rối loạn tâm thần khởi phát khi có sự hội tụ giữa: Cơ địa nhạy cảm tiềm ẩn bên trong (Diathesis: gen hoặc vết hằn ấu thơ) tương tác với Tác nhân căng thẳng môi trường sống (Stress); người có cơ địa càng cao thì chỉ cần stress nhỏ để phát bệnh."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-38-what-is-disorder.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C38-05"
+    tags:
+      - "diathesis-stress"
+      - "etiology"
+      - "vulnerability"

@@ -1,0 +1,184 @@
+deck_id: deck-ls-w11
+subject: LifeSkills
+lesson_id: week-11-healthy-unhealthy-relationships
+version: 1.0.0
+description: 'Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng Tuần 11: Nhận diện Mối quan hệ Lành mạnh vs Độc hại và
+  An toàn Cá nhân'
+cards:
+- id: fc-ls-w11-001
+  concept: Định nghĩa Mối quan hệ Độc hại (Toxic Relationship)
+  front: Phân biệt mẫu tương tác gây hại với bất đồng mơ hồ thông thường thế nào?
+  back: Có thể xem mẫu kiểm soát/sợ hãi/xói mòn tự chủ theo bối cảnh; không dùng “toxic” làm chẩn đoán. Một lần
+    bạo lực, cưỡng ép tình dục, stalking hoặc đe dọa đã đủ để ưu tiên hỗ trợ an toàn, không chờ mẫu lặp.
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - toxic-relationship
+  - identification
+  - module-3
+- id: fc-ls-w11-002
+  concept: Hiện tượng Thao túng tâm lý (Gaslighting)
+  front: Gaslighting là gì và nạn nhân thường có biểu hiện tâm lý đặc trưng nào?
+  back: 'Là hình thức lạm dụng tâm lý khiến nạn nhân nghi ngờ chính trí nhớ, khả năng phán đoán và sự tỉnh táo của
+    mình (''Em nhớ nhầm rồi, anh chưa từng nói thế'', ''Em bị hoang tưởng à''). Ví dụ: Một người nhiều lần bác bỏ
+    sự kiện đã xảy ra khiến người kia hoài nghi trí nhớ; không gán mọi bất đồng là gaslighting.'
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - gaslighting
+  - psychological-abuse
+  - module-3
+- id: fc-ls-w11-003
+  concept: Dội bom tình cảm (Love Bombing)
+  front: Hiện tượng Love Bombing giai đoạn đầu một mối quan hệ có bản chất là gì?
+  back: Là việc tràn ngập đối phương bằng quà tặng, lời khen ngợi thần thánh hóa và cam kết tương lai quá mức quá
+    nhanh có thể tạo áp lực hoặc phụ thuộc; không thể suy ra ý định từ cường độ ban đầu, nên quan sát ranh giới
+    và sự nhất quán.
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - love-bombing
+  - manipulation-tactics
+  - module-3
+- id: fc-ls-w11-004
+  concept: Bánh xe Quyền lực và Kiểm soát (Power & Control Wheel)
+  front: Trong mô hình Duluth, một mẫu kiểm soát có thể giúp giải thích điều gì về bạo lực trong quan hệ?
+  back: Mô hình nhấn mạnh quyền lực và kiểm soát như một động lực của một số mẫu bạo lực; không dùng nó để giải
+    thích mọi sự cố hay thay thế đánh giá nguy cơ cụ thể.
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - power-and-control
+  - duluth-model
+  - module-3
+- id: fc-ls-w11-005
+  concept: Chiến thuật Cô lập xã hội (Isolation)
+  front: Kẻ thao túng cô lập nạn nhân khỏi gia đình và bạn bè bằng cách nào?
+  back: 'Bằng cách gieo rắc sự nghi ngờ về bạn bè của bạn (''họ ghen ăn tức ở với tình yêu của chúng mình''), gây
+    khó dễ mỗi khi bạn đi gặp người thân, khiến bạn chỉ còn dựa vào một mình họ. Ví dụ: Mỗi lần bạn gặp gia đình
+    đều bị gây khó dễ; giữ kênh hỗ trợ chỉ khi an toàn, không tự đối đầu nguy hiểm.'
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - isolation
+  - control
+  - module-3
+- id: fc-ls-w11-006
+  concept: Minh họa giáo dục về pha tương tác gây hại
+  front: Bản minh họa giáo dục bốn pha có những tên nào và giới hạn gì?
+  back: Căng thẳng; sự cố; hòa giải/xin lỗi; tạm yên. Đây là minh họa, không xác nhận bốn pha là nguyên bản Walker
+    khi chưa kiểm tra nguồn. Không phổ quát, không chờ đủ pha trước khi tìm an toàn.
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - cycle-of-abuse
+  - walker-model
+  - module-3
+- id: fc-ls-w11-007
+  concept: Dấu hiệu Cờ xanh (Green Flags)
+  front: Những dấu hiệu 'Cờ xanh' nào gợi ý một mối quan hệ đang có hành vi lành mạnh?
+  back: 'Tôn trọng ranh giới khi bạn nói ''Không'', giao tiếp minh bạch không úp mở, vui mừng chân thành với thành
+    công của bạn, và có khả năng nhận sai cũng như sửa chữa hành vi. Ví dụ: Người kia tôn trọng lời từ chối và thay
+    đổi hành vi sau xin lỗi; một cờ xanh không bảo đảm cả quan hệ an toàn.'
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - green-flags
+  - healthy-relating
+  - module-3
+- id: fc-ls-w11-008
+  concept: Hiện tượng Dính mắc do Sang chấn (Trauma Bonding)
+  front: Tại sao nạn nhân rất khó rời bỏ một kẻ lạm dụng độc hại?
+  back: Dutton & Painter (1993) thử nghiệm giả thuyết rằng chênh lệch quyền lực và đối xử tốt-xấu xen kẽ có thể liên hệ
+    với gắn kết sau quan hệ bạo hành trong một mẫu 75 phụ nữ. Đây không phải chẩn đoán, quy luật cho mọi người hay
+    “nghiện hóa chất thần kinh”; ưu tiên hỗ trợ an toàn.
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - trauma-bonding
+  - intermittent-reinforcement
+  - module-3
+- id: fc-ls-w11-009
+  concept: Nguyên tắc Lựa chọn Kép (Dual-Option Rule)
+  front: Một phép kiểm tra sự tôn trọng trong tương tác an toàn có thể là gì?
+  back: Người tham gia có thể đồng ý hoặc từ chối mà không bị đe dọa/trừng phạt; ví dụ từ chối chia sẻ vị trí được
+    tôn trọng. Đây là câu hỏi giáo dục, không “thử” quy tắc trong nguy hiểm và không bảo đảm toàn bộ quan hệ an
+    toàn.
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - dual-option-rule
+  - consent
+  - module-3
+- id: fc-ls-w11-010
+  concept: Dấu hiệu kiểm soát tài chính (Financial Abuse)
+  front: Những hành vi nào có thể cho thấy kiểm soát tài chính?
+  back: Ví dụ giữ thẻ, kiểm soát chi thiết yếu hoặc cấm đi làm nhằm hạn chế tự chủ. Cần đọc quyền thỏa thuận/bối
+    cảnh và nguy cơ, không tự chuyển tiền/giấy tờ nếu tăng rủi ro; có thể hỏi dịch vụ hỗ trợ phù hợp.
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - financial-abuse
+  - control
+  - module-3
+- id: fc-ls-w11-011
+  concept: Kế hoạch thoát hiểm an toàn (Safety Plan)
+  front: Những yếu tố nào có thể cân nhắc trong Kế hoạch Thoát hiểm, tùy nguy cơ và nguồn lực?
+  back: 'Có thể cân nhắc giấy tờ, tiền, chìa khóa, thiết bị và nơi an toàn khi làm vậy không tăng nguy cơ; không
+    mục nào bắt buộc cho mọi người và nên hỏi dịch vụ chuyên môn. Ví dụ: Thống nhất một kênh liên lạc an toàn với
+    người hỗ trợ nếu có thể; không yêu cầu giấy tờ/tiền như điều kiện.'
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - safety-planning
+  - protection
+  - module-3
+- id: fc-ls-w11-012
+  concept: Đường dây nóng hỗ trợ khẩn cấp tại Việt Nam
+  front: Bài học liệt kê những nguồn điện thoại hỗ trợ nào tại Việt Nam, và cần lưu ý gì?
+  back: Trang chính thức xác nhận 111 là Tổng đài Quốc gia Bảo vệ Trẻ em và có nhiệm vụ liên quan mua bán người;
+    dùng cho đúng phạm vi. 1900 969 680 và 096 306 1414 chỉ là số lịch sử chưa xác minh trong lần rà soát này, không
+    dùng như giới thiệu vận hành; nguy cơ trước mắt cần dịch vụ khẩn cấp địa phương.
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - hotline-vietnam
+  - emergency-resources
+  - module-3
+- id: fc-ls-w11-013
+  concept: Bảo vệ thông tin số khi chuẩn bị rời đi
+  front: Khi nghi ngờ phần mềm gián điệp hoặc định vị, vì sao cần cân nhắc thiết bị và bước kiểm tra an toàn?
+  back: Phần mềm theo dõi hoặc chia sẻ vị trí có thể bị lạm dụng để kiểm soát. Nếu nghi ngờ, thay đổi cài đặt trên
+    thiết bị an toàn có thể làm đối phương nhận ra; cân nhắc dùng thiết bị khác, không xóa bằng chứng vội, và hỏi
+    dịch vụ hỗ trợ về bước an toàn phù hợp.
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - digital-safety
+  - stalkerware
+  - module-3
+- id: fc-ls-w11-014
+  concept: Quy tắc 'Đá xám' (Gray Rock Method)
+  front: Phương pháp Gray Rock có thể được cân nhắc thế nào khi buộc phải tiếp xúc với người hay kéo cuộc nói chuyện
+    vào tranh cãi?
+  back: Trong một số tình huống phải tiếp xúc, trả lời ngắn, trung tính và chỉ về việc cần làm có thể giảm thông
+    tin tranh cãi. Gray Rock không phải quy tắc an toàn đã được kiểm chứng cho mọi trường hợp; nếu có đe dọa, stalking
+    hoặc bạo lực, ưu tiên kế hoạch an toàn và hỗ trợ chuyên môn.
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - gray-rock
+  - coping-tactics
+  - module-3
+- id: fc-ls-w11-015
+  concept: Tái thiết lập lòng tự tôn sau quan hệ độc hại
+  front: Những lựa chọn hỗ trợ nào có thể cân nhắc sau quan hệ gây hại?
+  back: Khi an toàn và phù hợp, có thể tìm người tin cậy, phục hồi một hoạt động riêng hoặc hỏi chuyên gia. Không
+    có một bước quan trọng nhất, lịch chữa lành hay bảo đảm; trách nhiệm gây hại không thuộc người bị hại.
+  source_lesson: LifeSkills/notes/module-3/week-11-healthy-unhealthy-relationships.md
+  version: 1.0.0
+  tags:
+  - healing
+  - recovery
+  - self-compassion
+  - module-3

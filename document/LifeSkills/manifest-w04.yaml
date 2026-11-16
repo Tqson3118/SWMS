@@ -1,0 +1,129 @@
+schema_version: 2.0.0
+package_id: package:lifeskills:w04
+subject_id: roadmap:subject:lifeskills
+display_title: LifeSkills — Tình cảm, Giao tiếp & Kỹ năng sống
+source_status: in_review
+version: 7
+created_at: '2026-09-22T00:00:00Z'
+subject: LifeSkills
+course: Tự học LifeSkills 16 tuần
+module: module-1
+lesson: week-04-boundaries
+learning_objectives:
+- id: LO-W04-01
+  bloom_level: Understand
+  statement: 'Phân biệt được 5 loại ranh giới cá nhân phổ biến (Thể lý, Cảm xúc, Thời gian/Năng lượng, Vật chất/Tài
+    chính, và Thông tin/Hội thoại) cùng 3 mức độ ranh giới: Cứng nhắc (Rigid), Lỏng lẻo (Porous), và Lành mạnh (Healthy).'
+- id: LO-W04-02
+  bloom_level: Apply
+  statement: Áp dụng công thức 4 bước thiết lập ranh giới rõ ràng (Mô tả hành vi cụ thể → Nêu tác động → Tuyên bố
+    ranh giới → Nêu hệ quả bảo vệ) vào một tình huống công việc hoặc đời sống thường nhật.
+- id: LO-W04-03
+  bloom_level: Apply
+  statement: Nhận diện các hình thức phản kháng ranh giới phổ biến (thao túng cảm giác tội lỗi - guilt-tripping,
+    im lặng trừng phạt - silent treatment, vượt ranh giới ngầm) và thực hành kỹ thuật "Đĩa hát xước" (Broken Record)
+    để giữ vững ranh giới mà không leo thang xung đột.
+- id: LO-W04-04
+  bloom_level: Evaluate
+  statement: Đánh giá bối cảnh bất cân bằng quyền lực (sếp - nhân viên, quan hệ gia đình truyền thống) để lựa chọn
+    chiến lược ranh giới an toàn, có phương án dự phòng (safety branching) và tìm kiếm hỗ trợ khi cần thiết.
+concepts:
+- id: roadmap:concept:lifeskills:w04:boundary-types
+  name: Các loại ranh giới và sự đồng thuận
+  claim_ids:
+  - W04-C01
+  evidence_label: moderate
+  source_ledger_path: quality/module-1-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded-content-safety163-164
+    date: '2026-10-04'
+    notes: Bounded conditional practice/referral review only; source/body limits remain in_review in the ledger.
+      No complete week/source/course approval.
+- id: roadmap:concept:lifeskills:w04:boundary-safety
+  name: Kịch bản giao tiếp và nhánh an toàn
+  claim_ids:
+  - W04-C01
+  - W04-C02
+  evidence_label: moderate
+  source_ledger_path: quality/module-1-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded-content-safety163-164
+    date: '2026-10-04'
+    notes: Bounded conditional practice/referral review only; source/body limits remain in_review in the ledger.
+      No complete week/source/course approval.
+questions:
+- id: Q04-01
+  lo_ref: LO-W04-01
+  concept_id: roadmap:concept:lifeskills:w04:boundary-types
+  claim_ids:
+  - W04-C01
+- id: Q04-02
+  lo_ref: LO-W04-01
+  concept_id: roadmap:concept:lifeskills:w04:boundary-types
+  claim_ids:
+  - W04-C01
+- id: Q04-03
+  lo_ref: LO-W04-02
+  concept_id: roadmap:concept:lifeskills:w04:boundary-types
+  claim_ids:
+  - W04-C01
+- id: Q04-04
+  lo_ref: LO-W04-02
+  concept_id: roadmap:concept:lifeskills:w04:boundary-types
+  claim_ids:
+  - W04-C01
+- id: Q04-05
+  lo_ref: LO-W04-03
+  concept_id: roadmap:concept:lifeskills:w04:boundary-safety
+  claim_ids:
+  - W04-C01
+- id: Q04-06
+  lo_ref: LO-W04-03
+  concept_id: roadmap:concept:lifeskills:w04:boundary-safety
+  claim_ids:
+  - W04-C01
+- id: Q04-07
+  lo_ref: LO-W04-04
+  concept_id: roadmap:concept:lifeskills:w04:boundary-safety
+  claim_ids:
+  - W04-C01
+- id: Q04-08
+  lo_ref: LO-W04-04
+  concept_id: roadmap:concept:lifeskills:w04:boundary-safety
+  claim_ids:
+  - W04-C02
+units:
+- unit_id: roadmap:unit:lifeskills:w04
+  display_title: 'Tuần 4: Ranh giới cá nhân: Đồng thuận, giao tiếp quyết đoán và an toàn'
+  sort_order: 4
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:lifeskills:w04
+    path: notes/module-1/week-04-boundaries.md
+    sha256: 92a1a10c3a2d08188e8368376c5d55893d2c3682d70dfb1c3c763835d07bed48
+    byte_length: 25126
+  - role: quiz_questions
+    stable_id: roadmap:quiz:lifeskills:w04
+    path: assessments/quizzes/week-04-quiz.md
+    question_count: 8
+    sha256: 083b275a643b66b542f3cf4066d19fce73c509514f466af91a8ee6ef65654b0a
+    byte_length: 6348
+  - role: quiz_answers
+    stable_id: roadmap:answers:lifeskills:w04
+    path: assessments/answer-keys/week-04-answers.md
+    correct_count: 8
+    wrong_count: 24
+    sha256: 839bb8beb5b2455d9210ce0abc4bb03ebef8fc6bcc47ffd35583a251466b81c9
+    byte_length: 11806
+  - role: flashcard_deck
+    stable_id: roadmap:deck:lifeskills:w04
+    path: flashcards/week-04.yaml
+    card_count: 15
+    sha256: cfdb04d87d19c30c80bc2cc8df552565a58e5f7dcd23c165d1ec4ea5c8e1619b
+    byte_length: 9931
+  - role: source_ledger
+    path: quality/module-1-source-ledger.md
+    sha256: fac2e7ec5356c8f45b603b1679a4246e5c24ecfdd94a11286bfbe5ada641aae7
+    byte_length: 13379

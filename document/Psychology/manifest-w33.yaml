@@ -1,0 +1,174 @@
+schema_version: 2.0.0
+package_id: package:psychology:w33
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 04-love-relationships
+lesson: week-33-healthy-patterns-warning-signs
+learning_objectives:
+- id: LO-W33-01
+  bloom_level: Understand
+  statement: Nhận diện các đặc trưng của mối quan hệ lành mạnh, các hình thái bạo lực và cơ chế gaslighting.
+- id: LO-W33-02
+  bloom_level: Apply
+  statement: Thực hiện các biện pháp an toàn và nhận biết lộ trình tìm kiếm hỗ trợ chuyên nghiệp khi có dấu hiệu bạo lực.
+- id: LO-W33-03
+  bloom_level: Analyze
+  statement: Phân tích sự khác biệt giữa bạo lực tình huống và khủng bố thân mật, cùng các biểu hiện kiểm soát cưỡng bách.
+- id: LO-W33-04
+  bloom_level: Evaluate
+  statement: Đánh giá giới hạn của việc gán nhãn và phân biệt rạch ròi giữa quan hệ khó khăn với mối quan hệ nguy hiểm.
+concepts:
+- id: roadmap:concept:psychology:w33-c33-01
+  name: Phân loại Bạo lực tình huống vs Khủng bố thân mật (Johnson)
+  claim_ids:
+  - C33-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w33-c33-02
+  name: Kiểm soát cưỡng bách (Coercive Control) & Cô lập (Stark)
+  claim_ids:
+  - C33-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w33-c33-03
+  name: Cơ chế Gaslighting & Thao túng nhận thức thực tại (Sweet, Abramson)
+  claim_ids:
+  - C33-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w33-c33-04
+  name: Mô hình Quan hệ bình đẳng (Equality Wheel) & Ranh giới lành mạnh (Duluth, Olson)
+  claim_ids:
+  - C33-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w33-c33-05
+  name: Đánh giá nguy cơ tử vong & Kế hoạch an toàn (Campbell)
+  claim_ids:
+  - C33-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+questions:
+- id: Q33-01
+  lo_ref: LO-W33-01
+  concept_id: roadmap:concept:psychology:w33-c33-04
+  claim_ids:
+  - C33-04
+- id: Q33-02
+  lo_ref: LO-W33-03
+  concept_id: roadmap:concept:psychology:w33-c33-02
+  claim_ids:
+  - C33-02
+- id: Q33-03
+  lo_ref: LO-W33-04
+  concept_id: roadmap:concept:psychology:w33-c33-02
+  claim_ids:
+  - C33-02
+- id: Q33-04
+  lo_ref: LO-W33-01
+  concept_id: roadmap:concept:psychology:w33-c33-03
+  claim_ids:
+  - C33-03
+- id: Q33-05
+  lo_ref: LO-W33-01
+  concept_id: roadmap:concept:psychology:w33-c33-04
+  claim_ids:
+  - C33-04
+- id: Q33-06
+  lo_ref: LO-W33-03
+  concept_id: roadmap:concept:psychology:w33-c33-01
+  claim_ids:
+  - C33-01
+- id: Q33-07
+  lo_ref: LO-W33-03
+  concept_id: roadmap:concept:psychology:w33-c33-01
+  claim_ids:
+  - C33-01
+- id: Q33-08
+  lo_ref: LO-W33-03
+  concept_id: roadmap:concept:psychology:w33-c33-02
+  claim_ids:
+  - C33-02
+- id: Q33-09
+  lo_ref: LO-W33-02
+  concept_id: roadmap:concept:psychology:w33-c33-05
+  claim_ids:
+  - C33-05
+- id: Q33-10
+  lo_ref: LO-W33-01
+  concept_id: roadmap:concept:psychology:w33-c33-01
+  claim_ids:
+  - C33-01
+- id: Q33-11
+  lo_ref: LO-W33-01
+  concept_id: roadmap:concept:psychology:w33-c33-04
+  claim_ids:
+  - C33-04
+- id: Q33-12
+  lo_ref: LO-W33-04
+  concept_id: roadmap:concept:psychology:w33-c33-05
+  claim_ids:
+  - C33-05
+units:
+- unit_id: roadmap:unit:psychology:w33
+  display_title: 'Tuần 33: Healthy patterns, warning signs'
+  sort_order: 33
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w33
+    path: notes/04-love-relationships/week-33-healthy-patterns-warning-signs.md
+    sha256: 806d518d0f2031d164023d9bdeeb31c329d87ee72fa5b20d465ca8d22237d764
+    byte_length: 12201
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w33
+    path: assessments/quizzes/week-33-quiz.md
+    question_count: 12
+    sha256: b33979ec18cbecd161a1446438d1de52c0bfe57b4194df9010d5986d393d6684
+    byte_length: 5213
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w33
+    path: assessments/answer-keys/week-33-answers.md
+    correct_count: 12
+    wrong_count: 36
+    sha256: ac75c66dbc922a37e4f0c9ed82ddc5c9c6c40a7000ff398fd2bc8dc3e75e4173
+    byte_length: 6131
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w33
+    path: flashcards/week-33.yaml
+    card_count: 8
+    sha256: 967cf9177c25ac316523b644fb352ca1652133e9e8403dda332333b005cdbb36
+    byte_length: 4790
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

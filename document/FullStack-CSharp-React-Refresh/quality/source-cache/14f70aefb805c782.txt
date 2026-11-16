@@ -1,0 +1,90 @@
+ 
+ Display an Actual Execution Plan - SQL Server | Microsoft Learn
+ Skip to main content
+ Skip to Ask Learn chat experience
+This browser is no longer supported.
+ Upgrade to Microsoft Edge to take advantage of the latest features, security updates, and technical support.
+ Download Microsoft Edge
+ More info about Internet Explorer and Microsoft Edge
+ Table of contents 
+ Exit editor mode
+ Ask Learn
+ Ask Learn
+ Reading mode
+ Table of contents
+ Read in English
+ Add
+ Add to Plans
+ Edit
+ Copy Markdown
+ Print
+ Note
+ Access to this page requires authorization. You can try signing in or changing directories.
+ Access to this page requires authorization. You can try changing directories.
+Display an actual execution plan
+ Feedback
+ Summarize this article for me
+ In this article
+Applies to: 
+ SQL Server 
+ Azure SQL Database 
+ Azure SQL Managed Instance 
+ SQL analytics endpoint in Microsoft Fabric 
+ Warehouse in Microsoft Fabric 
+ SQL database in Microsoft Fabric
+This article describes how to generate actual graphical execution plans by using SQL Server Management Studio. The SQL Database Engine generates actual execution plans after the T-SQL queries or batches finish executing. The generated execution plan shows the actual query execution plan that the SQL Server Database Engine used to execute the queries. An actual execution plan contains runtime information, such as actual resource usage metrics and runtime warnings (if any).
+To use this feature, you must have the appropriate permissions to execute the Transact-SQL queries for which you're generating a graphical execution plan. You must also have the SHOWPLAN permission for all databases referenced by the query.
+Include an execution plan for a query during execution
+On the SQL Server Management Studio toolbar, select Database Engine Query. You can also open an existing query and display the estimated execution plan by selecting the Open File toolbar button and locating the existing query.
+Enter the query for which you want to display the actual execution plan.
+On the Query menu, select Include Actual Execution Plan or select the Include Actual Execution Plan toolbar button.
+Execute the query by selecting the Execute toolbar button. The plan used by the query optimizer is displayed on the Execution Plan tab in the results pane.
+Pause the mouse over the logical and physical operators to view the description and properties of the operators in the displayed ToolTip, including properties of the overall execution plan, by selecting the root node operator, the SELECT node.
+Alternatively, you can view operator properties in the Properties window. If Properties isn't visible, right-click an operator and select Properties. Select an operator to view its properties.
+You can alter the display of the execution plan by right-clicking the execution plan and selecting Zoom In, Zoom Out, Custom Zoom, or Zoom to Fit. Zoom In and Zoom Out allow you to zoom in or out on the execution plan, while Custom Zoom allows you to define your own zoom, such as zooming at 80 percent. Zoom to Fit magnifies the execution plan to fit the result pane. Alternatively, use a combination of the CTRL key and your mouse wheel to activate dynamic zoom.
+To navigate the display of the execution plan, use the vertical and horizontal scroll bars, or select and hold on any blank area of the execution plan, and drag your mouse. Alternatively, select and hold the plus (+) sign in the right lower corner of the execution plan window, to display a miniature map of the entire execution plan.
+Note
+Alternatively, use SET STATISTICS XML to return execution plan information for each statement after executing it. If used in SQL Server Management Studio, the Results tab has a link to open the execution plan in graphical format.
+For more information, see Query Profiling Infrastructure.
+Remarks
+To retrieve an actual execution plan for dedicated SQL pools (formerly SQL DW) and dedicated SQL pools in Azure Synapse Analytics, use different commands. For more information, see Monitor your Azure Synapse Analytics dedicated SQL pool workload using DMVs.
+Related content
+Execution plan overview
+Query processing architecture guide
+Display the Estimated Execution Plan
+Feedback
+ Was this page helpful?
+ Yes
+ No
+ No
+ Need help with this topic?
+ Want to try using Ask Learn to clarify or guide you through this topic?
+ Ask Learn
+ Ask Learn
+ Suggest a fix? 
+ Additional resources
+ Last updated on 
+ 2026-08-11
+In this article
+ Was this page helpful?
+ Need help with this topic?
+ Want to try using Ask Learn to clarify or guide you through this topic?
+ Ask Learn
+ Ask Learn
+ Suggest a fix? 
+ en-us
+ Your Privacy Choices
+ Theme
+ Light 
+ Dark 
+ High contrast 
+ AI Disclaimer
+ Previous Versions
+ Blog
+ Contribute
+ Privacy
+ Consumer Health Privacy
+ Terms of Use
+ Trademarks
+© Microsoft 2026
+ 

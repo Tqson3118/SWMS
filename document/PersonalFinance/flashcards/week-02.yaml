@@ -1,0 +1,84 @@
+deck_id: "deck-pf-w02"
+subject: "PersonalFinance"
+lesson_id: "week-02-income-cashflow"
+version: "1.0.0"
+description: "Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng Tuần 02: Thu nhập, Chi tiêu và Quản lý Dòng tiền cá nhân"
+
+cards:
+  - id: "fc-pf-w02-001"
+    concept: "Thu nhập chủ động (Active Income)"
+    front: "Thu nhập chủ động là gì và đâu là rủi ro giới hạn lớn nhất của nguồn thu này?"
+    back: "Theo khung vận hành của khóa học, đây là dòng tiền gắn với thời gian, sức lao động và sự hiện diện hiện tại (tiền lương, tiền công, thù lao). Giới hạn thường gặp là thời gian hữu hạn và rủi ro gián đoạn khi hoàn cảnh thay đổi; đây không phải khẳng định hiệu quả phổ quát từ toàn văn giáo trình."
+    source_lesson: "PersonalFinance/notes/module-1/week-02-income-cashflow.md"
+    version: "1.0.0"
+    claim_ids:
+      - "M1-C08"
+    tags:
+      - "income"
+      - "active-income"
+      - "module-1"
+
+  - id: "fc-pf-w02-002"
+    concept: "Thu nhập thụ động (Passive Income)"
+    front: "Thế nào là thu nhập thụ động thực chất trong tài chính cá nhân?"
+    back: "Theo khung vận hành của khóa học, đây là dòng tiền định kỳ gắn với tài sản hoặc sản phẩm trí tuệ đã tạo trước đó, với mức lao động vận hành hiện tại không toàn thời gian (ví dụ tiền thuê, cổ tức, bản quyền)."
+    source_lesson: "PersonalFinance/notes/module-1/week-02-income-cashflow.md"
+    version: "1.0.0"
+    claim_ids:
+      - "M1-C08"
+    tags:
+      - "income"
+      - "passive-income"
+      - "module-1"
+
+  - id: "fc-pf-w02-003"
+    concept: "Thu nhập danh mục (Portfolio Income)"
+    front: "Thu nhập danh mục (Lãi vốn) khác biệt như thế nào so với thu nhập thụ động cổ tức?"
+    back: "Theo khung vận hành của khóa học, thu nhập danh mục là chênh lệch dương đã thực hiện khi chuyển nhượng tài sản (Capital Gains). Khác với cổ tức là dòng tiền phân phối định kỳ, lãi vốn chỉ thành tiền khi giao dịch bán hoàn tất."
+    source_lesson: "PersonalFinance/notes/module-1/week-02-income-cashflow.md"
+    version: "1.0.0"
+    claim_ids:
+      - "M1-C08"
+    tags:
+      - "income"
+      - "portfolio-income"
+      - "module-1"
+
+  - id: "fc-pf-w02-004"
+    concept: "Ma trận chi tiêu 3 tầng (Three-Tier Expense Matrix)"
+    front: "Nêu tên và tiêu chí phân loại của 3 tầng chi tiêu cá nhân hàng tháng."
+    back: "Đây là khung vận hành của khóa học: 1. Cố định bắt buộc: lịch/định kỳ tương đối ổn định hoặc nghĩa vụ hợp đồng (tiền nhà, khoản trả nợ định kỳ). 2. Biến đổi thiết yếu: nhu cầu thiết yếu nhưng số tiền biến động theo sử dụng (ăn uống tự nấu, điện nước, xăng xe). 3. Tùy ý linh hoạt: chi theo sở thích, có thể hoãn hoặc giảm theo hoàn cảnh. Trả nợ gốc là dòng tiền ra nhưng không đồng nghĩa toàn bộ là tiêu dùng."
+    source_lesson: "PersonalFinance/notes/module-1/week-02-income-cashflow.md"
+    version: "1.0.0"
+    claim_ids:
+      - "M1-C09"
+    tags:
+      - "expenses"
+      - "budgeting-foundations"
+      - "module-1"
+
+  - id: "fc-pf-w02-005"
+    concept: "Dòng tiền ròng cá nhân (Net Cash Flow)"
+    front: "Nêu công thức tính Dòng tiền ròng cá nhân và ý nghĩa của trạng thái dòng tiền âm."
+    back: "Theo chỉ số tiền mặt của khóa học, Net Cash Flow = Inflow thực nhận sau thuế - toàn bộ Outflow trong kỳ. Trả nợ gốc và chuyển tiền sang tài sản khác đều làm giảm tiền mặt kỳ này dù có thể thay đổi tài sản ròng; chỉ số âm cho thấy kỳ đó cần tài trợ bằng tiền dự trữ hoặc nguồn khác."
+    source_lesson: "PersonalFinance/notes/module-1/week-02-income-cashflow.md"
+    version: "1.0.0"
+    claim_ids:
+      - "M1-C10"
+    tags:
+      - "cash-flow"
+      - "calculation"
+      - "module-1"
+
+  - id: "fc-pf-w02-006"
+    concept: "Tỷ lệ tiết kiệm ròng (Savings Rate)"
+    front: "Nêu công thức vận hành của Tỷ lệ tiết kiệm ròng và cách diễn giải đúng phạm vi của chỉ số."
+    back: "Tỷ lệ tiền mặt giữ lại = (Net Cash Flow / Tổng thu nhập thực nhận sau thuế) × 100%. Đây là chỉ số theo dõi dòng tiền trong kỳ, không tự nó đo mức tăng tài sản ròng; các mốc 10%–20% chỉ là mục tiêu minh họa theo hoàn cảnh, không phải chuẩn hiệu quả phổ quát."
+    source_lesson: "PersonalFinance/notes/module-1/week-02-income-cashflow.md"
+    version: "1.0.0"
+    claim_ids:
+      - "M1-C10"
+    tags:
+      - "savings-rate"
+      - "metrics"
+      - "module-1"

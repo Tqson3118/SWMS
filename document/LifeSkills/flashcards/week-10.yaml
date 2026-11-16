@@ -1,0 +1,186 @@
+deck_id: deck-ls-w10
+subject: LifeSkills
+lesson_id: week-10-love-languages-maintenance
+version: 1.0.0
+description: 'Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng Tuần 10: Duy trì Mối quan hệ và 5 Ngôn ngữ Yêu thương'
+cards:
+- id: fc-ls-w10-001
+  concept: Năm ngôn ngữ yêu thương (Gary Chapman)
+  front: Năm ngôn ngữ tình yêu căn bản theo mô hình của Gary Chapman là gì?
+  back: '1. Lời khẳng định (Words of Affirmation); 2. Thời gian chất lượng (Quality Time); 3. Quà tặng chu đáo (Receiving
+    Gifts); 4. Hành động giúp đỡ (Acts of Service); 5. Đụng chạm thể lý (Physical Touch). Ví dụ: Hỏi “lúc này bạn
+    muốn lời động viên hay cùng làm việc?” rồi tôn trọng phản hồi. Các nhóm là heuristic lịch sử, không bài test
+    hay danh mục buộc chọn một nhãn.'
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - love-languages
+  - framework
+  - module-3
+- id: fc-ls-w10-002
+  concept: Hiểu lầm về ngôn ngữ yêu thương
+  front: Vì sao khác sở thích quan tâm không tự chứng minh hai người không hợp nhau?
+  back: Những nhãn Chapman chỉ là heuristic. Có thể hỏi nhu cầu hiện tại, thử một cách quan tâm tự nguyện rồi xin
+    phản hồi; không coi học “ngôn ngữ” là nghĩa vụ của mọi tình yêu trưởng thành.
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - misconceptions
+  - relationship-skills
+  - module-3
+- id: fc-ls-w10-003
+  concept: Lời khẳng định (Words of Affirmation)
+  front: Khi một người nói họ thích lời khẳng định, có thể hỏi và phản hồi thế nào?
+  back: Hỏi họ thấy lời động viên nào phù hợp rồi công nhận cụ thể, chân thành, ví dụ cảm ơn nỗ lực. Không dự đoán
+    mức tổn thương từ nhãn và không dùng lời khen để che lấp bất công/lạm dụng.
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - words-of-affirmation
+  - validation
+  - module-3
+- id: fc-ls-w10-004
+  concept: Thời gian chất lượng (Quality Time)
+  front: Khái niệm 'Thời gian chất lượng' đòi hỏi yếu tố cốt lõi nào?
+  back: 'Sự chú ý và cách hiện diện do hai bên cùng chọn: không bị xao nhãng bởi điện thoại, cùng tham gia hoạt
+    động chung hoặc trò chuyện sâu sắc lắng nghe nhau. Ví dụ: Chọn một cuộc trò chuyện10–15 phút hoặc hoạt động
+    chung nếu cả hai muốn; không áp đặt thời lượng/sự hiện diện liên tục.'
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - quality-time
+  - presence
+  - module-3
+- id: fc-ls-w10-005
+  concept: Tài khoản cảm xúc (Emotional Bank Account - Gottman)
+  front: Khái niệm 'Tài khoản cảm xúc' trong mối quan hệ vận hành như thế nào?
+  back: Mỗi hành động quan tâm, lắng nghe, chăm sóc là một khoản gửi tiền (Deposit); mỗi lời chỉ trích, thất hứa,
+    thờ ơ là một khoản rút tiền (Withdrawal). Đây là ẩn dụ để nói về mẫu tương tác; thâm hụt không tự dự đoán khủng
+    hoảng và không đo được “số dư” của quan hệ.
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - emotional-bank-account
+  - gottman
+  - module-3
+- id: fc-ls-w10-006
+  concept: Con số 5:1 được trích dẫn trong lịch sử
+  front: Một tỷ lệ tương tác tích cực/tiêu cực thường được trích dẫn trong một số công trình Gottman nên được hiểu
+    thế nào?
+  back: Tỷ lệ 5:1 là con số được trích dẫn trong lịch sử nhưng chưa được xác minh trong gói này; có thể dùng như
+    lời nhắc ghi nhận điều tích cực, không phải mức tối thiểu, dự báo hay quy luật phổ quát.
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - gottman-ratio
+  - research
+  - module-3
+- id: fc-ls-w10-007
+  concept: Nghi thức kết nối (Rituals of Connection)
+  front: Nghi thức kết nối là gì, và giới hạn của cách nói “cặp đôi hạnh phúc luôn duy trì” là gì?
+  back: Là những thói quen lặp lại có ý nghĩa (nụ hôn tạm biệt, cuộc trò chuyện ngắn, buổi hẹn) có thể giúp một
+    số cặp đôi tạo nhịp kết nối. Không phải cặp đôi nào cũng luôn duy trì được hoặc cần cùng một nghi thức; đây
+    là gợi ý thực hành, không phải điều kiện hạnh phúc.
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - rituals-of-connection
+  - habits
+  - module-3
+- id: fc-ls-w10-008
+  concept: Lời mời kết nối (Bids for Connection)
+  front: John Gottman định nghĩa 'Bid for Connection' là gì và 3 cách phản ứng với nó?
+  back: 'Là lời mời kết nối như “Hôm nay mệt quá”. Ba hướng phản hồi thực hành: hướng về (Turning towards) — hỏi
+    han hoặc chú ý, ví dụ “Bạn muốn kể thêm không?”; quay đi (Turning away) — không đáp/chuyển chú ý; chống lại
+    (Turning against) — đáp hostile/châm chọc, ví dụ “Lại than nữa à?”. Đây là nhóm hành vi quan sát được, không
+    tự chứng minh hiệu quả và không cho phép suy ra ý định từ một lần.'
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - bids-for-connection
+  - responsiveness
+  - module-3
+- id: fc-ls-w10-009
+  concept: Hành động giúp đỡ (Acts of Service)
+  front: Điểm mấu chốt để một hành động giúp đỡ thực sự truyền tải tình yêu là gì?
+  back: 'Hành động phải xuất phát từ sự tự nguyện và thấu hiểu nhu cầu thực tế của đối phương, chứ không phải làm
+    với thái độ miễn cưỡng hay để kể công tích điểm. Ví dụ: Hỏi rồi nhận trọn việc giặt từ đầu đến cuối nếu hai
+    bên đồng ý; không kể công hay làm thay khi người kia không muốn.'
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - acts-of-service
+  - generosity
+  - module-3
+- id: fc-ls-w10-010
+  concept: Đụng chạm thể lý không mang tính tình dục
+  front: Ý nghĩa của những đụng chạm phi tình dục (Non-sexual physical touch) trong duy trì tình yêu là gì?
+  back: Một cái nắm tay, cái ôm hoặc xoa lưng có thể là cách biểu đạt quan tâm khi cả hai đồng ý và thấy thoải mái.
+    Không có thời lượng, hormone hay tác dụng sinh lý cố định áp dụng cho mọi người; hãy hỏi trước và tôn trọng
+    quyền từ chối.
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - physical-touch
+  - safety
+  - module-3
+- id: fc-ls-w10-011
+  concept: Bảo dưỡng định kỳ mối quan hệ (Relationship Check-in)
+  front: Một check-in tùy chọn do bài gợi ý có thể gồm những bước nào?
+  back: Một vài điều biết ơn; một vấn đề muốn bàn; một hành động nhỏ tiếp theo. Chọn thời lượng/tần suất phù hợp,
+    dừng hoặc hoãn khi không an toàn. Đây là mẫu thực hành tác giả, không chứng nhận nguyên bản State of the Union
+    hay protocol30 phút.
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - relationship-check-in
+  - proactive-care
+  - module-3
+- id: fc-ls-w10-012
+  concept: Chấp nhận những vấn đề vĩnh viễn (Perpetual Problems)
+  front: Theo một ước tính thường được trích dẫn trong nghiên cứu của Gottman, nhiều xung đột lặp lại thuộc loại
+    nào và nên hiểu con số đó ra sao?
+  back: Nhiều xung đột lặp lại có thể liên quan đến khác biệt dai dẳng về thói quen. Con số 69% được trích dẫn trong
+    lịch sử nhưng chưa được xác minh trong gói này; không dùng nó để dự đoán hay định mệnh hóa một cặp đôi. Mục
+    tiêu thực hành là đối thoại và thương lượng, không mặc định phải chịu đựng.
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - perpetual-problems
+  - acceptance
+  - module-3
+- id: fc-ls-w10-013
+  concept: Tránh bẫy 'Người quen thuộc là đồ có sẵn'
+  front: Coi việc chăm sóc là hiển nhiên có thể là lời nhắc kiểm tra điều gì?
+  back: Có thể hỏi lại nhu cầu và ghi nhận những việc thường ngày, ví dụ cảm ơn một việc đã làm. “Familiarity trap”
+    là cách gọi thực hành, không chứng minh nguyên nhân xói mòn hoặc quan hệ chắc chắn nguội lạnh.
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - familiarity-trap
+  - gratitude
+  - module-3
+- id: fc-ls-w10-014
+  concept: Khơi dậy tính mới mẻ (Novelty) trong tình yêu lâu năm
+  front: Một cách thực hành có thể giúp tạo thêm cơ hội kết nối mới mẻ trong mối tình lâu năm là gì?
+  back: Cùng chọn một hoạt động mới mà cả hai tự nguyện và thấy an toàn, rồi hỏi lại trải nghiệm có dễ chịu hay
+    tạo áp lực không. Đây là gợi ý thực hành, không phải cách “tái kích hoạt dopamine” hay bảo đảm khôi phục đam
+    mê.
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - novelty
+  - dopamine
+  - passion
+  - module-3
+- id: fc-ls-w10-015
+  concept: Đo lường sức khỏe mối quan hệ
+  front: Một dấu hiệu có thể đáng chú ý để hỏi lại nhu cầu trong mối quan hệ là gì?
+  back: Sự thờ ơ hoặc im lặng kéo dài (Apathy) có thể cho thấy cần hỏi lại nhu cầu; không xếp dấu hiệu này trên
+    bạo lực, stalking, đe dọa hoặc nguy cơ an toàn.
+  source_lesson: LifeSkills/notes/module-3/week-10-love-languages-maintenance.md
+  version: 1.0.0
+  tags:
+  - warning-signs
+  - apathy
+  - module-3

@@ -1,0 +1,139 @@
+<h1>Tuần 02 — JavaScript: scope, closure, array và tiền</h1>
+<p>Chặng 1; 3 bài L02-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>
+<h2>Mục tiêu và tiên quyết</h2>
+<ul>
+<li>
+<p>LO-W02-01: Dự đoán scope/closure và viết factory quản lý ngân sách.</p>
+</li>
+<li>
+<p>LO-W02-02: Dùng map/filter/reduce/find/some với mảng rỗng và không mutate input.</p>
+</li>
+<li>
+<p>LO-W02-03: Validate số tiền nguyên và viết hàm thuần cho fixture báo cáo.</p>
+</li>
+</ul>
+<p>Tiên quyết: Đạt gate tuần 01; dùng lại fixture và commit trước.</p>
+<h2>Chẩn đoán và phân bổ thời gian</h2>
+<p>Làm <a href="../../assessments/quizzes/week-02-quiz.md">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>
+<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>
+<p><a id="lo-w02-01"></a></p>
+<h2>Bài 1: Scope và closure</h2>
+<p>LO-W02-01 · W02-C01</p>
+<p>let/const có block scope; var có function scope và dễ gây callback dùng chung biến vòng lặp. const cấm gán lại binding, không làm object immutable. Closure là function kèm lexical environment nơi được tạo; environment còn được dùng sau function ngoài return. Factory tạo hai counter có state riêng. Closure giữ reference tới biến, không luôn đóng băng một value tại thời điểm tạo; callback chạy sau có thể thấy value mới. Trước let/const initialization có temporal dead zone; không dựa vào hoisting để gọi biến chưa khởi tạo. Parameter/local scope che biến ngoài cùng tên; rename rõ nghĩa trước debug. Dùng debugger Scope để quan sát, không đoán bằng log duy nhất.</p>
+<p><a id="lo-w02-02"></a></p>
+<h2>Bài 2: Array methods và immutability</h2>
+<p>LO-W02-02 · W02-C02</p>
+<p>map biến đổi mỗi phần tử và trả mảng cùng số phần tử; filter giữ phần tử thỏa predicate; reduce gom với initial value; find trả phần tử đầu hoặc undefined; some trả boolean tồn tại. forEach dùng side effect và trả undefined, không thay map. sort mặc định so string và mutate; tạo bản sao [...items].sort((a,b)=&gt;a.amountVnd-b.amountVnd). Spread mảng chỉ copy shallow: object bên trong vẫn chung reference, nên update expense bằng map và object spread. Tổng dùng reduce((s,e)=&gt;s+e.amountVnd,0), mảng rỗng -&gt;0. Optional result từ find phải kiểm tra trước property access. Viết loop trước rồi so array method để hiểu callback, không ép mọi bài vào reduce khó đọc.</p>
+<p><a id="lo-w02-03"></a></p>
+<h2>Bài 3: Validation, equality và dữ liệu</h2>
+<p>LO-W02-03 · W02-C03</p>
+<p>Input form luôn có thể là string. Number('') là 0 nên check trim rỗng trước convert. Number.isSafeInteger(amount) &amp;&amp; amount&gt;0 &amp;&amp; amount&lt;=1000000000 là guard tiền VND. == có coercion, === so kiểu và value nên mặc định chọn ===; object === so identity, không deep value. Hàm thuần không sửa input và output phụ thuộc input: filter/report dễ test. Giữ spentOn string yyyy-MM-dd cho ngày chi, không parse UTC date rồi hiển thị theo timezone khi chỉ cần ngày. Boundary validation phải phân biệt null/missing/empty. Tổng vượt safe integer cần reject hoặc hợp đồng representation khác; core giới hạn dữ liệu và backend checked long, không âm thầm mất chính xác.</p>
+<h2>Ví dụ giải từng bước</h2>
+<ol>
+<li>Bài toán: Alice Food 50000 và 30000, Travel 20000. Báo cáo Food.</li>
+<li>Dùng filter cho membership, reduce cộng tiền; closure giữ limit.</li>
+<li>Chạy trong DevTools:</li>
+</ol>
+<pre><code class="language-javascript">const xs = [
+ {id:&quot;a&quot;,category:&quot;Food&quot;,amountVnd:50000},
+ {id:&quot;b&quot;,category:&quot;Travel&quot;,amountVnd:20000},
+ {id:&quot;c&quot;,category:&quot;Food&quot;,amountVnd:30000}
+];
+const sum = xs.filter(x=&gt;x.category===&quot;Food&quot;).reduce((s,x)=&gt;s+x.amountVnd,0);
+function makeBudget(limit) { return total =&gt; Math.max(0,total-limit); }
+const foodOver = makeBudget(70000);
+console.log(sum,foodOver(sum)); // 80000 10000
+const changed = xs.map(x=&gt;x.id===&quot;a&quot;?{...x,amountVnd:60000}:x);
+console.log(xs[0].amountVnd,changed[0].amountVnd); // 50000 60000
+</code></pre>
+<ol>
+<li>Đổi filter thành Unknown -&gt; total 0; check original không đổi. Hai makeBudget(70000)/(90000) cho kết quả 10000/0 trên 80000.</li>
+</ol>
+<h2>Đào sâu và lỗi thường gặp</h2>
+<p>Giữ callback chỉ một trách nhiệm. Mutate object trong map vẫn mutate input dù mảng mới. Closure dùng lâu có thể giữ dữ liệu lớn còn reachable; xóa event listener/cache khi không cần. Tổng 0 không đồng nghĩa có dữ liệu: report UI cần empty state riêng.</p>
+<h2>Bài tập thực hành</h2>
+<h3>Bài tập 1</h3>
+<p>Viết totalByCategory(xs,name) và kiểm tra []/unknown/fixture.</p>
+<h3>Bài tập 2</h3>
+<p>Viết parseAmount cho '', '  ', '1.5', '-1', '50000', 'Infinity'.</p>
+<h2>Hướng dẫn giải bài tập</h2>
+<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>
+<h3>Hướng giải 1</h3>
+<p>filter theo category === name rồi reduce với 0. [] và unknown -&gt;0, Food -&gt;80000. Thử input trước/sau bằng JSON.stringify để phát hiện mutation.</p>
+<h3>Hướng giải 2</h3>
+<p>trim rỗng reject; Number; safe integer/positive/max. Chỉ 50000 được nhận; báo lỗi field. Không parseInt('1.5') vì biến dữ liệu sai thành 1.</p>
+<h2>Project task</h2>
+<p>Thêm module hàm tính total/category/budget và unit-like assertions console cho fixture. UI chưa gọi network. Hàm domain JS độc lập DOM để tuần 3 tái dùng.</p>
+<p>Theo <a href="../../project-spec.md">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w02.md của repo học viên. Không lưu secret.</p>
+<h2>Acceptance và rubric</h2>
+<ul>
+<li>
+<p>[ ] Fixture total 100000; Food 80000; excess Food 10000; [] total 0.</p>
+</li>
+<li>
+<p>[ ] Update một dòng tạo mảng/object mới, input gốc 50000 không đổi.</p>
+</li>
+<li>
+<p>[ ] Guard nhận 50000 và chặn rỗng, phần thập phân, âm, NaN/Infinity và trên max.</p>
+</li>
+<li>
+<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>
+</li>
+<li>
+<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Tiêu chí</th>
+<th>0 Chưa đạt</th>
+<th>1 Đang phát triển</th>
+<th>2 Đạt</th>
+<th>3 Vững</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hiểu cơ chế</td>
+<td>Không giải thích</td>
+<td>Lặp tên API</td>
+<td>Nói input/output và cơ chế tuần</td>
+<td>So sánh phương án và điều kiện biên</td>
+</tr>
+<tr>
+<td>Practice</td>
+<td>Chưa chạy</td>
+<td>Chỉ happy path</td>
+<td>Đúng output và edge cases</td>
+<td>Tự thêm regression có ý nghĩa</td>
+</tr>
+<tr>
+<td>Project</td>
+<td>Chưa có feature</td>
+<td>Copy chưa chứng minh</td>
+<td>Mọi gate tuần có evidence</td>
+<td>Tái hiện/sửa lỗi không xem lời giải</td>
+</tr>
+</tbody>
+</table>
+<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>
+<h2>English và ôn tập</h2>
+<p>Đọc closure và indexed collections. Thu: 'Why does const not make this expense immutable?' Giải thích map, filter, reduce bằng một câu mỗi hàm.</p>
+<p><a href="../../english-practice.md">Nhịp 30–60 phút/ngày</a></p>
+<h2>Nguồn và kiểm chứng</h2>
+<ul>
+<li>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures">Lexical scoping and closure</a> — W02-C01; primary. HTTP: 200; section xem ledger.</p>
+</li>
+<li>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array methods and copying</a> — W02-C02; primary. HTTP: 200; section xem ledger.</p>
+</li>
+<li>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isSafeInteger">Number.isSafeInteger</a> — W02-C03; primary. HTTP: 200; section xem ledger.</p>
+</li>
+</ul>
+<h2>Liên kết ôn tập và tuần liên quan</h2>
+<p><a href="../../assessments/quizzes/week-02-quiz.md">Quiz</a> · <a href="../../assessments/answer-keys/week-02-answers.md">Đáp án</a> · <a href="../../flashcards/week-02.yaml">Flashcards</a> · <a href="../../quality/source-ledger.md">Ledger</a></p>
+<p><a href="week-01.md">Tuần trước</a></p>
+<p><a href="week-03.md">Tuần tiếp</a></p>

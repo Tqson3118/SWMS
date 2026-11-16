@@ -1,0 +1,110 @@
+deck_id: "deck-psy-w44"
+subject: "Psychology"
+lesson_id: "week-44-psychology-work-learning"
+version: "1.0.0"
+description: "Bộ thẻ ôn tập Tuần 44: Tâm lý học học tập, hiệu suất công việc & trì hoãn"
+
+cards:
+  - id: "fc-psy-w44-001"
+    concept: "Bản chất của Trì hoãn (Procrastination as Emotion Dysregulation)"
+    front: "Bản chất tâm lý học cốt lõi của sự trì hoãn (Sirois & Pychyl, 2013) là gì?"
+    back: "Trì hoãn không phải là quản lý thời gian kém, mà là sự thất bại trong điều hòa cảm xúc ngắn hạn: cá nhân ưu tiên xoa dịu tâm trạng tiêu cực trước mắt (lo âu, sợ thất bại) bất chấp cái giá dài hạn."
+    source_lesson: "Psychology/notes/06-integration/week-44-psychology-work-learning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C44-01"
+    tags:
+      - "procrastination"
+      - "emotion-regulation"
+      - "self-regulation"
+
+  - id: "fc-psy-w44-002"
+    concept: "Thực hành Truy xuất kiến thức (Retrieval Practice)"
+    front: "Tại sao Thực hành truy xuất (Retrieval Practice / Active Recall) vượt trội hơn việc đọc lại thụ động?"
+    back: "Việc nỗ lực gợi nhớ kiến thức từ trí nhớ dài hạn (Desirable Difficulty) củng cố trực tiếp đường dẫn thần kinh synapse, giúp thông tin lưu giữ bền vững gấp nhiều lần so với việc đọc lại (Dunlosky et al., 2013)."
+    source_lesson: "Psychology/notes/06-integration/week-44-psychology-work-learning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C44-02"
+    tags:
+      - "retrieval-practice"
+      - "testing-effect"
+      - "evidence-based-learning"
+
+  - id: "fc-psy-w44-003"
+    concept: "Lặp lại ngắt quãng (Spaced Repetition)"
+    front: "Nguyên lý vận hành của Lặp lại ngắt quãng (Spaced Repetition) trong học tập?"
+    back: "Phân bổ các buổi ôn tập ngắt quãng qua các khoảng thời gian tăng dần; sự quên đi một phần giữa các quãng nghỉ tạo điều kiện để não bộ tái củng cố ký ức vững chắc hơn nhiều so với nhồi nhét một lần."
+    source_lesson: "Psychology/notes/06-integration/week-44-psychology-work-learning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C44-02"
+    tags:
+      - "spaced-repetition"
+      - "distributed-practice"
+      - "memory"
+
+  - id: "fc-psy-w44-004"
+    concept: "Thuyết Động lực Thời gian (Temporal Motivation Theory - TMT)"
+    front: "Công thức Thuyết Động lực Thời gian của Piers Steel (2007) giải thích hiện tượng bùng nổ hành vi gần hạn chót ra sao?"
+    back: "Động lực tỉ lệ nghịch với Khoảng cách thời gian (Delay). Khi hạn chót còn xa, Delay lớn triệt tiêu động lực; khi hạn chót cận kề, Delay tiệm cận 0 khiến mẫu số giảm mạnh, làm động lực hành động tăng vọt."
+    source_lesson: "Psychology/notes/06-integration/week-44-psychology-work-learning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C44-03"
+    tags:
+      - "temporal-motivation-theory"
+      - "tmt"
+      - "deadlines"
+
+  - id: "fc-psy-w44-005"
+    concept: "Dư lượng chú ý (Attention Residue - Sophie Leroy)"
+    front: "Hiện tượng 'Dư lượng chú ý' (Attention Residue) là gì và tác hại của nó đối với hiệu suất?"
+    back: "Khi chuyển từ tác vụ này sang tác vụ khác, một phần nguồn lực chú ý vẫn bị kẹt lại ở tác vụ cũ, làm suy giảm trí nhớ làm việc và chất lượng tư duy phản biện, chứng minh sự nguy hại của làm việc đa nhiệm."
+    source_lesson: "Psychology/notes/06-integration/week-44-psychology-work-learning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C44-04"
+    tags:
+      - "attention-residue"
+      - "multitasking"
+      - "cognitive-load"
+
+  - id: "fc-psy-w44-006"
+    concept: "Làm việc sâu (Deep Work - Cal Newport)"
+    front: "Làm việc sâu (Deep Work) được định nghĩa thế nào và yêu cầu điều kiện gì?"
+    back: "Là hoạt động chuyên môn đòi hỏi tập trung cao độ, không bị phân tâm vào một nhiệm vụ nhận thức phức tạp, yêu cầu các khối thời gian đơn nhiệm (Monotasking 60–90 phút) và loại bỏ hoàn toàn thông báo."
+    source_lesson: "Psychology/notes/06-integration/week-44-psychology-work-learning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C44-04"
+    tags:
+      - "deep-work"
+      - "monotasking"
+      - "flow"
+
+  - id: "fc-psy-w44-007"
+    concept: "Ba chiều kích của Hội chứng Kiệt sức (Burnout - Maslach)"
+    front: "Ba chiều kích cấu thành Hội chứng Kiệt sức Nghề nghiệp theo Christina Maslach (2016) là gì?"
+    back: "1. Kiệt quệ thể xác và cảm xúc (Exhaustion); 2. Hoài nghi và mất nhân cách hóa với công việc (Cynicism/Depersonalization); 3. Cảm giác suy giảm thành tựu và năng lực bản thân (Inefficacy)."
+    source_lesson: "Psychology/notes/06-integration/week-44-psychology-work-learning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C44-05"
+    tags:
+      - "burnout"
+      - "maslach"
+      - "workplace-health"
+
+  - id: "fc-psy-w44-008"
+    concept: "Mô hình Đòi hỏi - Nguồn lực Công việc (JD-R Model)"
+    front: "Nguyên nhân cốt lõi gây ra Burnout theo Mô hình JD-R (Bakker & Demerouti, 2007) là gì?"
+    back: "Là sự mất cân đối cấu trúc kinh niên giữa Đòi hỏi công việc (quá tải, áp lực) và Nguồn lực công việc (quyền tự chủ, hỗ trợ xã hội, thời gian phục hồi). Phòng ngừa đòi hỏi tái cấu trúc hệ thống công việc."
+    source_lesson: "Psychology/notes/06-integration/week-44-psychology-work-learning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C44-05"
+    tags:
+      - "jd-r-model"
+      - "job-resources"
+      - "organizational-psychology"

@@ -1,0 +1,181 @@
+deck_id: deck-ls-w09
+subject: LifeSkills
+lesson_id: week-09-attachment-adults
+version: 1.0.0
+description: 'Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng Tuần 09: Thuyết Gắn bó trong Mối quan hệ Người trưởng
+  thành'
+cards:
+- id: fc-ls-w09-001
+  concept: Bốn phong cách gắn bó người lớn
+  front: Bốn nhãn mô tả vùng trên hai chiều kích gắn bó người trưởng thành là gì?
+  back: 'Trong mô hình hai chiều kích: Secure = lo âu thấp/né tránh thấp; Anxious-Preoccupied = cao/thấp; Dismissive-Avoidant
+    = thấp/cao; Fearful-Avoidant = cao/cao. Đây là vùng liên tục phụ thuộc mô hình/công cụ/bối cảnh, không chẩn
+    đoán hoặc đồng nghĩa phân loại Disorganized. Ví dụ: Một kết quả tự báo cáo lo âu cao/né tránh thấp được mô tả
+    gần vùng preoccupied trong mô hình này.'
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - attachment-theory
+  - typology
+  - module-3
+- id: fc-ls-w09-002
+  concept: Hai trục kích thước gắn bó
+  front: Hai trục tâm lý cơ bản dùng để đo lường phong cách gắn bó người lớn là gì?
+  back: Trục Lo âu về mối quan hệ (Attachment Anxiety - nỗi sợ bị từ chối/bỏ rơi) và Trục Né tránh sự thân mật (Attachment
+    Avoidance - sự e dè với mức độ gần gũi cảm xúc).
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - attachment-dimensions
+  - psychology
+  - module-3
+- id: fc-ls-w09-003
+  concept: Đặc điểm của Gắn bó An toàn (Secure)
+  front: Trong mô hình, vùng gắn bó an toàn mô tả khuynh hướng nào?
+  back: 'Mức lo âu và né tránh thấp có thể đi cùng thoải mái hơn với gần gũi và tìm hỗ trợ; không bảo đảm người
+    đó luôn bình tĩnh, nói rõ nhu cầu hoặc không sợ bị phán xét. Không suy ra từ một hành vi. Ví dụ: Có thể nói
+    “mình cần được lắng nghe”; không dùng câu nói để chẩn đoán vùng.'
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - secure-attachment
+  - healthy-relating
+  - module-3
+- id: fc-ls-w09-004
+  concept: Đặc điểm của Gắn bó Lo âu (Anxious)
+  front: Trong mô hình, lo âu gắn bó và một số hành vi tìm trấn an có thể được mô tả thế nào?
+  back: Lo âu cao mô tả lo bị từ chối/bỏ rơi. Một số người có thể tìm trấn an dồn dập; nhắn nhiều hay kiểm tra không
+    tự chứng minh kiểu gắn bó, động cơ hay quyền kiểm soát người khác.
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - anxious-attachment
+  - protest-behavior
+  - module-3
+- id: fc-ls-w09-005
+  concept: Đặc điểm của Gắn bó Né tránh (Dismissive-Avoidant)
+  front: Chiến lược tự vệ nổi bật (Deactivating strategies) của người gắn bó né tránh là gì?
+  back: Có thể nhấn mạnh độc lập, kìm nén cảm xúc hoặc tạo khoảng cách khi thấy gần gũi gây áp lực; đây là mô tả
+    khuynh hướng theo bối cảnh, không phải bản chất hay dự đoán cho mọi người.
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - avoidant-attachment
+  - deactivating-strategies
+  - module-3
+- id: fc-ls-w09-006
+  concept: Cái bẫy Lo âu - Né tránh (Anxious-Avoidant Trap)
+  front: Chu kỳ tương tác tiêu cực điển hình giữa một người Lo âu và một người Né tránh diễn ra sao?
+  back: Người Lo âu cảm thấy bị xa cách → dồn ép đòi kết nối → Người Né tránh cảm thấy ngột ngạt → rút lui xa hơn
+    → Người Lo âu hoảng loạn công kích mạnh hơn.
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - anxious-avoidant-trap
+  - relationship-dynamics
+  - module-3
+- id: fc-ls-w09-007
+  concept: Gắn bó Lo âu - Né tránh (Fearful-Avoidant)
+  front: Vùng Fearful-Avoidant trên hai chiều kích mô tả điều gì và có giới hạn nào?
+  back: 'Lo âu cao cùng né tránh cao có thể mô tả vừa muốn gần gũi vừa khó thoải mái với gần gũi. Không kết luận
+    nội tâm, sang chấn hoặc hành vi của cá nhân từ nhãn; tên gọi phụ thuộc mô hình. Ví dụ: Một người tự báo cáo
+    vừa muốn gần gũi vừa khó thoải mái với gần gũi, nhưng cần xem bối cảnh.'
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - fearful-avoidant
+  - trauma
+  - module-3
+- id: fc-ls-w09-008
+  concept: Khái niệm 'An toàn có được' (Earned Security)
+  front: 'Có thể kết luận từ tuổi thơ rằng một người sẽ chuyển hóa thành gắn bó an toàn khi trưởng thành không?'
+  back: 'Không. Trong bài, earned security chỉ là một nhãn phản tư về cảm giác an toàn có thể được mô tả khác nhau
+    giữa hoàn cảnh hoặc theo thời gian. Dùng để hỏi về hỗ trợ và tương tác; không khẳng định tuổi thơ, tự phản tỉnh,
+    kỹ năng hay quan hệ nào gây ra thay đổi và không phải chẩn đoán.'
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - earned-security
+  - growth
+  - module-3
+- id: fc-ls-w09-009
+  concept: Chiến lược điều hòa cho người Gắn bó Lo âu
+  front: Khi cảm thấy đối phương phản hồi tin nhắn chậm, người gắn bó lo âu nên thực hành bước nào trước?
+  back: Thực hành tự xoa dịu (Self-soothing), hít thở sâu, tách bạch dữ kiện khách quan khỏi kịch bản 'họ sắp bỏ
+    rơi mình', và kiềm chế hành vi gọi điện dồn dập.
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - self-soothing
+  - regulation
+  - module-3
+- id: fc-ls-w09-010
+  concept: Chiến lược điều hòa cho người Gắn bó Né tránh
+  front: Khi cảm thấy muốn đóng băng và bỏ đi trong cuộc nói chuyện thân mật, người né tránh nên làm gì?
+  back: 'Nếu an toàn, có thể nói: ''Mình đang quá tải, mình cần 20 phút để bình tâm rồi chúng ta sẽ tiếp tục'',
+    thay vì biến mất. Nếu có đe dọa, cưỡng ép hoặc nguy cơ bạo lực, ưu tiên rời đi và hỗ trợ an toàn; không cần
+    báo trước, hứa thời điểm quay lại hay tiếp tục liên lạc.'
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - communication
+  - mindfulness
+  - module-3
+- id: fc-ls-w09-011
+  concept: Vai trò của Gắn bó như một chiếc La bàn
+  front: Thuyết gắn bó nên được dùng làm công cụ gì và không nên dùng làm gì?
+  back: Dùng như la bàn định hướng tự hiểu mình và thông cảm cho đối phương. Không dùng làm cái cớ để bào chữa cho
+    hành vi độc hại ('Tôi né tránh bẩm sinh nên tôi có quyền im lặng').
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - compass
+  - responsibility
+  - module-3
+- id: fc-ls-w09-012
+  concept: Giới hạn suy luận sinh học
+  front: Vì sao không thể suy ra hormone hoặc cơ chế não từ một phản ứng trong quan hệ?
+  back: 'Hành vi nhắn tin, cảm giác bất an hay an toàn không đo hormone/hoạt động não. Bài này không xác minh cơ
+    chế sinh học; hãy ghi hành vi, hỏi nhu cầu và bối cảnh thay vì chẩn đoán sinh học. Ví dụ: Nhắn tin chậm không
+    cho biết “hormone thấp”; hỏi họ có đang bận hoặc cần không gian.'
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - inference-limits
+  - attachment
+  - module-3
+- id: fc-ls-w09-013
+  concept: Mô hình làm việc nội tâm (Internal Working Models)
+  front: Mô hình làm việc nội tâm gợi ý những kỳ vọng nào, và vì sao không phải định mệnh?
+  back: Khung nói về kỳ vọng giá trị bản thân và độ tin cậy/sẵn sàng hỗ trợ của người khác. Ví dụ kiểm tra giả thuyết
+    “họ bận” thay vì coi im lặng là từ chối. Kỳ vọng có thể cập nhật, không quyết định toàn bộ quan hệ hoặc ý định
+    người kia.
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - internal-working-model
+  - bowlby
+  - module-3
+- id: fc-ls-w09-014
+  concept: Giao tiếp nhu cầu gắn bó rõ ràng
+  front: Một cách nói nhu cầu cụ thể, tôn trọng đồng thuận có thể là gì?
+  back: Có thể nói “mình cần một cái ôm, bạn có sẵn lòng không?” rồi tôn trọng câu trả lời. Đây là thực hành tùy
+    chọn, không phân loại ai là an toàn/lo âu theo giọng nói và không buộc người kia đáp ứng.
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - direct-communication
+  - clarity
+  - module-3
+- id: fc-ls-w09-015
+  concept: Tạo dựng bến đỗ an toàn (Safe Haven & Secure Base)
+  front: Safe Haven và Secure Base khác nhau thế nào?
+  back: 'Safe Haven: tìm an ủi/hỗ trợ khi khó khăn, ví dụ nhờ lắng nghe sau ngày buồn. Secure Base: hỗ trợ để tự
+    khám phá, ví dụ động viên thử lớp học rồi để người kia tự chọn. Không bắt buộc một người đáp ứng mọi hỗ trợ
+    hoặc biến hỗ trợ thành kiểm soát.'
+  source_lesson: LifeSkills/notes/module-3/week-09-attachment-adults.md
+  version: 1.0.0
+  tags:
+  - safe-haven
+  - secure-base
+  - module-3

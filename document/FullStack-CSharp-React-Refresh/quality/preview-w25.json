@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:54:05Z",
+  "unit_id": "roadmap:unit:fscr:w25",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 25: HTTP, rate limiting và practical design",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w25",
+    "title": "Tuần 25: HTTP, rate limiting và practical design",
+    "content_markdown": "<h1>Tuần 25 — HTTP, rate limiting và practical design</h1>\n<p>Chặng 7; 3 bài L25-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W25-01: Theo vết request và phân biệt retry-safe operations.</p>\n</li>\n<li>\n<p>LO-W25-02: Giới hạn theo validated identity và kiểm429.</p>\n</li>\n<li>\n<p>LO-W25-03: Định nghĩa nhu cầu trước vẽ kiến trúc.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 24; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-25-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w25-01\"></a></p>\n<h2>Bài 1: HTTP và latency budget</h2>\n<p>LO-W25-01 · W25-C01</p>\n<p>Request browser quaDNS/TLS/proxy đếnAPI, rồi SQL/cache; latency tổng gồm network,queue,compute vàIO. HTTP keep-alive/reuse giảm kết nối, nhưng không chữa query chậm. GETsafe/idempotent, PUT/DELETE idempotent theo effect; POSTimport chỉ retry-safe theo idempotency contract. Status429/503 khác400/401; retry bounded với exponentialbackoff+jitter cho transient failure, không retryinvalidinput. Timeoutdeadline từ client đếnserver phải hợp lý; CancellationToken chuyển xuốngIO, không bảo đảm rollbackcommit. Authfinancialresponse private/no-store theo endpoint policy; publiccache/CDN không được dùng chung ownerdata. Đọc trace trước tối ưu, không đoán cache là câu trả lời mọi lỗi.</p>\n<p><a id=\"lo-w25-02\"></a></p>\n<h2>Bài 2: Rate limiter</h2>\n<p>LO-W25-02 · W25-C02</p>\n<p>Fixedwindow reset theo window, tokenbucket cho burst, concurrencylimiter giới hạn số in-flight chứ không requests/time. Chọn policy theo endpoint cost và loadtest. Partition theo internaluser được validated auth, anonymous theo remoteIP đángtin/controlledfallback; không lấy UserIdquerystring. UseRouting trước endpointlimiter và authentication trước identitypartition. QueueLimit0 để reject ngay tronglab; RejectionStatusCode429 mặc định framework có thể khác nên cấu hình rõ. Retry-After khi lease có metadata; client delay bounded. Limiter in-process không global acrossreplicas; distributedquota/gateway cần thiết nếu yêu cầu global. Không coi limiterapp là đủ DDoSprotection.</p>\n<p><a id=\"lo-w25-03\"></a></p>\n<h2>Bài 3: Capacity và design communication</h2>\n<p>LO-W25-03 · W25-C03</p>\n<p>Design bắt đầu functionalrequirements (expenses/budgets/import), nonfunctional(ownerprivacy,correctmoney,availability,latency) và assumptions. Ví dụ lab1000users,10%active,2req/minactive≈3.33RPSaverage; burst10x≈33.3RPS, đây là giả định để test, không data thực. Data estimate rows/user/day×users×days×avgbytes và indexes/backupsoverhead. Vẽ modularmonolithAPI+SQL+Redisoptional, không microserviceschỉ vì phỏng vấn. Chọn trade-off giữa stale cache và freshness, syncimport&lt;=1000 và asyncjobs. Ghi decision,alternative,evidence,triggerđổi; explain bottleneckSQLCPU/IO/network dựa metrics.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Lab fixedwindow global chỉ minh họa, chưa identitypartition production:</li>\n</ol>\n<pre><code class=\"language-csharp\">using Microsoft.AspNetCore.RateLimiting;\nusing System.Threading.RateLimiting;\nvar b=WebApplication.CreateBuilder(args);\nb.Services.AddRateLimiter(o=&gt;{\n o.RejectionStatusCode=StatusCodes.Status429TooManyRequests;\n o.AddFixedWindowLimiter(\"lab\",x=&gt;{\n  x.PermitLimit=3;x.Window=TimeSpan.FromMinutes(1);x.QueueLimit=0;\n });\n});\nvar app=b.Build();app.UseRouting();app.UseRateLimiter();\napp.MapGet(\"/api/ping\",()=&gt;Results.Ok()).RequireRateLimiting(\"lab\");\napp.Run();\n</code></pre>\n<ol>\n<li>Gọi4 lần nhanh trong cùng window:200/200/200/429; windowboundary có thể reset nên logtimestamp và repeatwithinwindow.</li>\n<li>Project chuyển partition theo validatedinternaluser và assert Alicequota không tiêu Bobquota.</li>\n<li>Chạy1replica rồi2replica: per-processpolicy không bảo đảm global3requests. Ghi trade-off thay vì claimdistributedlimit.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>Không loadtest publicservice của người khác; lab chỉlocalhost/staging học viên. Header X-Forwarded-For chỉ tin knownproxy; blindly trust spoofedheader phá IPlimit. Numericquota3/min là lab, không productionrecommendation.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>Server trả 400 invalid amount, client nên retry exponential không?</p>\n<h3>Bài tập 2</h3>\n<p>Tính RPS cho1000users,100active,2requests/min và burst10x.</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>Không, input phải sửa. Retry transient429/503 theo policy và Retry-After; POST phải idempotent mới retry khi chưa rõ commit.</p>\n<h3>Hướng giải 2</h3>\n<p>100×2/60=3.33average; burst≈33.3. Nêu giả định phân bố và đo p95 dưới load thay vì hứa capacity.</p>\n<h2>Project task</h2>\n<p>Thêm rate limiting imports/report theo owner, consistent429 và ADR latency/capacity; UI message429/retry bounded.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w25.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Samewindow quota vượt trả429; Alice/Bobpartitions độc lập và không do clientUserId.</p>\n</li>\n<li>\n<p>[ ] Client không retry400/401 vô hạn; transientretry bounded có jitter/idempotency.</p>\n</li>\n<li>\n<p>[ ] ADR có assumptions,RPSestimate,trace/load evidence và ghi in-process limit scope.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Designinterview10 phút: yêu cầu, giả định, sơ đồ, bottleneck, failure, trade-off; thu lại 5 phút chính.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods\">Safe and idempotent method semantics</a> — W25-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit?view=aspnetcore-10.0\">Algorithms, policies and middleware order</a> — W25-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/azure/architecture/framework/performance-efficiency/capacity-planning\">Capacity planning</a> — W25-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-25-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-25-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-25.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"../module-6/week-24.md\">Tuần trước</a></p>\n<p><a href=\"week-26.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Safe and idempotent method semantics](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods)",
+      "[Algorithms, policies and middleware order](https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit?view=aspnetcore-10.0)",
+      "[Capacity planning](https://learn.microsoft.com/en-us/azure/architecture/framework/performance-efficiency/capacity-planning)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W25-01]",
+        "bloom_level": "Apply",
+        "statement": "Theo vết request và phân biệt retry-safe operations."
+      },
+      {
+        "id": "[LO-W25-02]",
+        "bloom_level": "Apply",
+        "statement": "Giới hạn theo validated identity và kiểm429."
+      },
+      {
+        "id": "[LO-W25-03]",
+        "bloom_level": "Apply",
+        "statement": "Định nghĩa nhu cầu trước vẽ kiến trúc."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w25-c01",
+        "name": "HTTP và latency budget",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w25-c02",
+        "name": "Rate limiter",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w25-c03",
+        "name": "Capacity và design communication",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w25",
+    "title": "Trắc nghiệm Tuần 25: HTTP, rate limiting và practical design",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w25:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "HTTP400invalidamount nên retry tự động không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Có vì GET luôn"
+          },
+          {
+            "id": "B",
+            "text": "Không, sửa input"
+          },
+          {
+            "id": "C",
+            "text": "Có mãi đến200"
+          },
+          {
+            "id": "D",
+            "text": "Có bằng tokenmới"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Validationfailure không transient.",
+        "wrong_explanations": {
+          "A": "Request này invalid không retrymagic.",
+          "C": "Repeatedinvalidpayload không chữa lỗi.",
+          "D": "Token không sửa amountpolicy."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w25-c01",
+        "lesson_anchor": "#lo-w25-01",
+        "claim_ids": [
+          "W25-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w25:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Ownerfinance report có được sharedpubliccache không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Có vì JWTdecode"
+          },
+          {
+            "id": "B",
+            "text": "Có nếu JSONnhỏ"
+          },
+          {
+            "id": "C",
+            "text": "Không, dùng private/no-store policy phù hợp"
+          },
+          {
+            "id": "D",
+            "text": "Có cùngURL mọi user"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Sharedcache có thể lộ dữ liệu giữa users.",
+        "wrong_explanations": {
+          "A": "Decode token không partitioncache.",
+          "B": "Payloadsize không securityboundary.",
+          "D": "URLkhông đủ identityscope."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w25-c01",
+        "lesson_anchor": "#lo-w25-01",
+        "claim_ids": [
+          "W25-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w25:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "Lab muốn rate reject429 cần gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Luôn framework429 mặc định"
+          },
+          {
+            "id": "B",
+            "text": "Trả 200 warning"
+          },
+          {
+            "id": "C",
+            "text": "Chỉ log quota"
+          },
+          {
+            "id": "D",
+            "text": "Đặt RejectionStatusCode=429"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Cấu hình rõ responsecontract.",
+        "wrong_explanations": {
+          "A": "Không giả định defaultstatus tương đương.",
+          "B": "200che errorsemantics.",
+          "C": "Log không báo client rejection."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w25-c02",
+        "lesson_anchor": "#lo-w25-02",
+        "claim_ids": [
+          "W25-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w25:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "Limiter memory trên 2 replicas có globalquota không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Không, mỗi process giữ state riêng"
+          },
+          {
+            "id": "B",
+            "text": "Có tự syncRedis"
+          },
+          {
+            "id": "C",
+            "text": "Có loadbalancer cộng count"
+          },
+          {
+            "id": "D",
+            "text": "Có vì cùng code"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Statein-process không shared.",
+        "wrong_explanations": {
+          "B": "Framework không tự dùng Redis.",
+          "C": "LBroute không tự aggregatequota.",
+          "D": "Cùng source không sharedmemory."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w25-c02",
+        "lesson_anchor": "#lo-w25-02",
+        "claim_ids": [
+          "W25-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w25:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "100active×2req/min tương đương RPS nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "0.033RPS"
+          },
+          {
+            "id": "B",
+            "text": "Khoảng3.33"
+          },
+          {
+            "id": "C",
+            "text": "200RPS"
+          },
+          {
+            "id": "D",
+            "text": "12000RPS"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "200requests/min chia60seconds.",
+        "wrong_explanations": {
+          "A": "Chia thêm100 sai đơn vị.",
+          "C": "200 là requests/min chưa đổi đơn vị.",
+          "D": "Nhân60 sai khi đổi min→second."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w25-c03",
+        "lesson_anchor": "#lo-w25-03",
+        "claim_ids": [
+          "W25-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w25:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "Trước chọn microservices nên làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Thêm mọi queue"
+          },
+          {
+            "id": "B",
+            "text": "Bỏ ownerprivacy"
+          },
+          {
+            "id": "C",
+            "text": "Làm rõ requirements/constraints và đo bottleneck"
+          },
+          {
+            "id": "D",
+            "text": "Vẽ 20 services ngay"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Nhu cầu/evidence dẫn architecture.",
+        "wrong_explanations": {
+          "A": "Queue không giải mọi bottleneck.",
+          "B": "Privacy là requirement project cốt lõi.",
+          "D": "Distributedcomplexity cần lý do."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w25-c03",
+        "lesson_anchor": "#lo-w25-03",
+        "claim_ids": [
+          "W25-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w25",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 25: HTTP, rate limiting và practical design",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w25-001",
+        "concept_name": "Retry semantics",
+        "front": "HTTP400invalidamount nên retry tự động không?",
+        "back": "Không, sửa input. Validationfailure không transient.",
+        "tags": [
+          "w25",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W25-C01"
+        ],
+        "source_citation": "notes/module-7/week-25.md",
+        "lesson_anchor": "#lo-w25-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w25-002",
+        "concept_name": "Privacy headers",
+        "front": "Ownerfinance report có được sharedpubliccache không?",
+        "back": "Không, dùng private/no-store policy phù hợp. Sharedcache có thể lộ dữ liệu giữa users.",
+        "tags": [
+          "w25",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W25-C01"
+        ],
+        "source_citation": "notes/module-7/week-25.md",
+        "lesson_anchor": "#lo-w25-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w25-003",
+        "concept_name": "429 setup",
+        "front": "Lab muốn rate reject429 cần gì?",
+        "back": "Đặt RejectionStatusCode=429. Cấu hình rõ responsecontract.",
+        "tags": [
+          "w25",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W25-C02"
+        ],
+        "source_citation": "notes/module-7/week-25.md",
+        "lesson_anchor": "#lo-w25-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w25-004",
+        "concept_name": "Distributed quota",
+        "front": "Limiter memory trên 2 replicas có globalquota không?",
+        "back": "Không, mỗi process giữ state riêng. Statein-process không shared.",
+        "tags": [
+          "w25",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W25-C02"
+        ],
+        "source_citation": "notes/module-7/week-25.md",
+        "lesson_anchor": "#lo-w25-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w25-005",
+        "concept_name": "Capacity math",
+        "front": "100active×2req/min tương đương RPS nào?",
+        "back": "Khoảng3.33. 200requests/min chia60seconds.",
+        "tags": [
+          "w25",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W25-C03"
+        ],
+        "source_citation": "notes/module-7/week-25.md",
+        "lesson_anchor": "#lo-w25-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w25-006",
+        "concept_name": "Design choice",
+        "front": "Trước chọn microservices nên làm gì?",
+        "back": "Làm rõ requirements/constraints và đo bottleneck. Nhu cầu/evidence dẫn architecture.",
+        "tags": [
+          "w25",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W25-C03"
+        ],
+        "source_citation": "notes/module-7/week-25.md",
+        "lesson_anchor": "#lo-w25-03"
+      }
+    ]
+  }
+}

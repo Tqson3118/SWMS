@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:53:44Z",
+  "unit_id": "roadmap:unit:fscr:w05",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 05: C# value/reference, OOP và invariants",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w05",
+    "title": "Tuần 05: C# value/reference, OOP và invariants",
+    "content_markdown": "<h1>Tuần 05 — C# value/reference, OOP và invariants</h1>\n<p>Chặng 2; 3 bài L05-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W05-01: Dự đoán copy/alias, phân biệt identity/value equality và sửa shared mutation.</p>\n</li>\n<li>\n<p>LO-W05-02: Tạo domain Expense bảo vệ amount/note và giải thích interface/composition.</p>\n</li>\n<li>\n<p>LO-W05-03: Viết domain có guard số tiền và unit tests cho biên.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 04; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-05-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w05-01\"></a></p>\n<h2>Bài 1: Value, reference và equality</h2>\n<p>LO-W05-01 · W05-C01</p>\n<p>Value type assignment copy value; reference type assignment copy reference nên hai biến có thể trỏ cùng object. Không kết luận value luôn stack/reference luôn heap: storage phụ thuộc context, boxing/fields/closures. Struct chứa reference vẫn copy reference field shallow. string là reference type immutable nên thay chuỗi tạo giá trị mới, không sửa cùng chuỗi. Class mặc định Equals thường identity trừ override; record dùng value-based equality cho members, nhưng collection member không tự deep compare nội dung. == có thể overload nên phải đọc type. Dùng debugger xem hai biến trước/sau mutate; lựa chọn class/record/struct theo semantics và kích thước, không theo mẹo stack nhanh.</p>\n<p><a id=\"lo-w05-02\"></a></p>\n<h2>Bài 2: OOP và encapsulation</h2>\n<p>LO-W05-02 · W05-C02</p>\n<p>Encapsulation gom state với quy tắc thay đổi; private setter tránh caller bỏ qua validation. Constructor/factory kiểm tra invariants, method Rename/ChangeAmount biểu diễn hành vi. Inheritance dùng khi subtype thực sự substitutable; composition ghép collaborator thường dễ test hơn. Interface là contract hành vi, không phải nơi mặc định đặt mọi implementation. Polymorphism gọi đúng implementation qua interface mà caller không biết concrete type. Domain không biết HTTP/DbContext/React; lỗi domain được API map sang status sau. SOLID thực dụng: một lý do thay đổi, dependency hướng vào policy, thêm rule qua boundary có nhu cầu; không xây 10 layer cho CRUD nhỏ.</p>\n<p><a id=\"lo-w05-03\"></a></p>\n<h2>Bài 3: Money/date và test đầu tiên</h2>\n<p>LO-W05-03 · W05-C03</p>\n<p>Theo project-spec: long AmountVnd nguyên 1..1e9, DateOnly SpentOn, note tối đa200. checked bắt overflow khi cộng long; decimal phù hợp tính tỷ lệ hoặc đa tiền tệ về sau, không dùng double cho decimal currency. Truyền ngày vào nghiệp vụ thay gọi DateTime.Now rải rác để test deterministic. Unit test kiểm tra behavior: 1 hợp lệ,0/âm/trênmax invalid, note trim. Arrange input, Act gọi domain, Assert expected. Không test lại auto-property getter như tiêu chí hiểu OOP. Xunit Assert.Throws cho guard lỗi; fixture string/Guid cố định, không random làm expected khó tái hiện.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Bài toán: class alias so với struct copy.</li>\n<li>Dự đoán output trước chạy; Type không quyết định đơn giản vị trí memory.</li>\n<li>Program.cs console:</li>\n</ol>\n<pre><code class=\"language-csharp\">var a=new Box { Amount=1 }; var b=a; b.Amount=2;\nvar x=new Money(1); var y=x; y=new Money(2);\nConsole.WriteLine($\"{a.Amount} {x.Amount} {y.Amount}\"); // 2 1 2\npublic sealed class Box { public long Amount {get;set;} }\npublic readonly record struct Money(long Amount);\n</code></pre>\n<p>Domain trong Expense.Domain:</p>\n<pre><code class=\"language-csharp\">public sealed class Expense {\n public long AmountVnd {get;private set;}\n public Expense(long amount) =&gt; ChangeAmount(amount);\n public void ChangeAmount(long amount) {\n  if(amount&lt;=0||amount&gt;1_000_000_000L) throw new ArgumentOutOfRangeException(nameof(amount));\n  AmountVnd=amount;\n }\n}\n</code></pre>\n<ol>\n<li>Expected new Expense(0) throw; new Expense(50000) hợp lệ. Mở rộng DateOnly/note theo spec, không xóa guard để test xanh.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>Boxing value type vào object tạo boxed copy; sửa biến gốc không tự sửa boxed value. Record with copy cũng shallow đối với reference member. Invariant cần tồn tại cả domain và boundary, vì DB/import có thể gọi domain từ đường khác.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>Thêm note trim&lt;=200 và test whitespace/201 ký tự.</p>\n<h3>Bài tập 2</h3>\n<p>Thay Report kế thừa DbContext bằng ReportService nhận IExpenseReader; giải thích.</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>Chuẩn hóa note?.Trim(); nếu Length&gt;200 trả validation/throw theo domain contract. Whitespace thành chuỗi rỗng hoặc null quyết định nhất quán; test không vượt200 và không mất note hợp lệ.</p>\n<h3>Hướng giải 2</h3>\n<p>ReportService sử dụng reader theo composition, không phải một DbContext. Interface chỉ có dữ liệu cần đọc; mock trả fixture, report total100000. Domain không phụ thuộc EF.</p>\n<h2>Project task</h2>\n<p>Tạo Expense.Domain và console nhập fixture, guard money/date/note. Chạy unit tests biên; console report total100000. Giữ JS UI ở commit cũ.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w05.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Tự dự đoán và giải thích output2/1/2 cùng class alias/struct copy.</p>\n</li>\n<li>\n<p>[ ] Domain chặn0/âm/trên1e9/note201; nhận fixture; tests xanh.</p>\n</li>\n<li>\n<p>[ ] Console total100000, domain không reference ASP.NET/EF.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Thu: 'What is copied when I assign a class variable?' Đọc value types và encapsulation, ghi invariant/reference/equality.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/value-types\">Value types and copying</a> — W05-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/object-oriented/\">Encapsulation, inheritance and polymorphism</a> — W05-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-csharp-with-xunit\">Unit testing C# with xUnit</a> — W05-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-05-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-05-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-05.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"../module-1/week-04.md\">Tuần trước</a></p>\n<p><a href=\"week-06.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Value types and copying](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/value-types)",
+      "[Encapsulation, inheritance and polymorphism](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/object-oriented/)",
+      "[Unit testing C# with xUnit](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-csharp-with-xunit)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W05-01]",
+        "bloom_level": "Apply",
+        "statement": "Dự đoán copy/alias, phân biệt identity/value equality và sửa shared mutation."
+      },
+      {
+        "id": "[LO-W05-02]",
+        "bloom_level": "Apply",
+        "statement": "Tạo domain Expense bảo vệ amount/note và giải thích interface/composition."
+      },
+      {
+        "id": "[LO-W05-03]",
+        "bloom_level": "Apply",
+        "statement": "Viết domain có guard số tiền và unit tests cho biên."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w05-c01",
+        "name": "Value, reference và equality",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w05-c02",
+        "name": "OOP và encapsulation",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w05-c03",
+        "name": "Money/date và test đầu tiên",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w05",
+    "title": "Trắc nghiệm Tuần 05: C# value/reference, OOP và invariants",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w05:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "b=a với a class rồi b.Amount=2 thường đổi a.Amount không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Class luôn copy từng field"
+          },
+          {
+            "id": "B",
+            "text": "Có, nếu cùng instance"
+          },
+          {
+            "id": "C",
+            "text": "Không vì assignment deep clone"
+          },
+          {
+            "id": "D",
+            "text": "Chỉ khi dùng static"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Hai biến giữ reference tới cùng instance.",
+        "wrong_explanations": {
+          "A": "Field copy không phải default class assignment.",
+          "C": "Assignment class không tự clone.",
+          "D": "Alias không cần static."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w05-c01",
+        "lesson_anchor": "#lo-w05-01",
+        "claim_ids": [
+          "W05-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w05:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Có nên khẳng định value type luôn nằm stack không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Chỉ enum luôn vậy"
+          },
+          {
+            "id": "B",
+            "text": "C# cấm value field trong class"
+          },
+          {
+            "id": "C",
+            "text": "Không"
+          },
+          {
+            "id": "D",
+            "text": "Có bất kể boxing/field"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Storage phụ thuộc context; boxing/fields có thể ở heap.",
+        "wrong_explanations": {
+          "A": "Enum cũng là value type, không quy định mọi storage.",
+          "B": "Class có value fields hợp lệ.",
+          "D": "Boxing là phản ví dụ cho khẳng định tuyệt đối."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w05-c01",
+        "lesson_anchor": "#lo-w05-01",
+        "claim_ids": [
+          "W05-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w05:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "Setter amount public bỏ guard nguy cơ gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Tự tăng performance chắc chắn"
+          },
+          {
+            "id": "B",
+            "text": "Tự bảo đảm OOP"
+          },
+          {
+            "id": "C",
+            "text": "Tự tạo transaction"
+          },
+          {
+            "id": "D",
+            "text": "Caller tạo trạng thái invalid"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Setter có thể bỏ quy tắc domain.",
+        "wrong_explanations": {
+          "A": "Performance không thay invariant.",
+          "B": "OOP không chỉ có class/public property.",
+          "C": "Setter không có atomic transaction mặc định."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w05-c02",
+        "lesson_anchor": "#lo-w05-02",
+        "claim_ids": [
+          "W05-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w05:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "ReportService dùng reader hợp với quan hệ nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Has-a qua composition"
+          },
+          {
+            "id": "B",
+            "text": "Is-a DbContext"
+          },
+          {
+            "id": "C",
+            "text": "Kế thừa React component"
+          },
+          {
+            "id": "D",
+            "text": "Không cần boundary nào"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Service cần collaborator reader, không phải reader subtype.",
+        "wrong_explanations": {
+          "B": "Report không substitutable DbContext.",
+          "C": "Hai runtime không có inheritance như vậy.",
+          "D": "Boundary có ích khi IO cần test/đổi."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w05-c02",
+        "lesson_anchor": "#lo-w05-02",
+        "claim_ids": [
+          "W05-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w05:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "Core lưu tiền VND theo spec bằng gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "int không cần giới hạn"
+          },
+          {
+            "id": "B",
+            "text": "long nguyên có guard"
+          },
+          {
+            "id": "C",
+            "text": "double rồi bỏ phần lẻ"
+          },
+          {
+            "id": "D",
+            "text": "string tùy ý"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Long nguyên tránh rounding cho VND và guard miền.",
+        "wrong_explanations": {
+          "A": "Int dễ overflow tổng và vẫn cần guard.",
+          "C": "Double có rounding, bỏ phần lẻ che input invalid.",
+          "D": "String tùy ý không có numeric invariant."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w05-c03",
+        "lesson_anchor": "#lo-w05-03",
+        "claim_ids": [
+          "W05-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w05:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "Test nào kiểm tra domain rule?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Chỉ file tồn tại"
+          },
+          {
+            "id": "B",
+            "text": "Chỉ tên class đúng"
+          },
+          {
+            "id": "C",
+            "text": "Amount0 bị chặn,50000 được nhận"
+          },
+          {
+            "id": "D",
+            "text": "Chỉ getter trả value mặc định"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Kiểm tra behavior và boundary thật.",
+        "wrong_explanations": {
+          "A": "File tồn tại không chứng minh behavior.",
+          "B": "Naming không chứng minh domain đúng.",
+          "D": "Getter thường không kiểm rule validation."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w05-c03",
+        "lesson_anchor": "#lo-w05-03",
+        "claim_ids": [
+          "W05-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w05",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 05: C# value/reference, OOP và invariants",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w05-001",
+        "concept_name": "Reference copy",
+        "front": "b=a với a class rồi b.Amount=2 thường đổi a.Amount không?",
+        "back": "Có, nếu cùng instance. Hai biến giữ reference tới cùng instance.",
+        "tags": [
+          "w05",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W05-C01"
+        ],
+        "source_citation": "notes/module-2/week-05.md",
+        "lesson_anchor": "#lo-w05-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w05-002",
+        "concept_name": "Value storage",
+        "front": "Có nên khẳng định value type luôn nằm stack không?",
+        "back": "Không. Storage phụ thuộc context; boxing/fields có thể ở heap.",
+        "tags": [
+          "w05",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W05-C01"
+        ],
+        "source_citation": "notes/module-2/week-05.md",
+        "lesson_anchor": "#lo-w05-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w05-003",
+        "concept_name": "Encapsulation",
+        "front": "Setter amount public bỏ guard nguy cơ gì?",
+        "back": "Caller tạo trạng thái invalid. Setter có thể bỏ quy tắc domain.",
+        "tags": [
+          "w05",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W05-C02"
+        ],
+        "source_citation": "notes/module-2/week-05.md",
+        "lesson_anchor": "#lo-w05-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w05-004",
+        "concept_name": "Composition",
+        "front": "ReportService dùng reader hợp với quan hệ nào?",
+        "back": "Has-a qua composition. Service cần collaborator reader, không phải reader subtype.",
+        "tags": [
+          "w05",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W05-C02"
+        ],
+        "source_citation": "notes/module-2/week-05.md",
+        "lesson_anchor": "#lo-w05-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w05-005",
+        "concept_name": "VND representation",
+        "front": "Core lưu tiền VND theo spec bằng gì?",
+        "back": "long nguyên có guard. Long nguyên tránh rounding cho VND và guard miền.",
+        "tags": [
+          "w05",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W05-C03"
+        ],
+        "source_citation": "notes/module-2/week-05.md",
+        "lesson_anchor": "#lo-w05-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w05-006",
+        "concept_name": "Meaningful test",
+        "front": "Test nào kiểm tra domain rule?",
+        "back": "Amount0 bị chặn,50000 được nhận. Kiểm tra behavior và boundary thật.",
+        "tags": [
+          "w05",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W05-C03"
+        ],
+        "source_citation": "notes/module-2/week-05.md",
+        "lesson_anchor": "#lo-w05-03"
+      }
+    ]
+  }
+}

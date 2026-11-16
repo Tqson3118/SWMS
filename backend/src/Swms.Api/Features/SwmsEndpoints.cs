@@ -132,6 +132,7 @@ public static class SwmsEndpoints
     {
         if (Interlocked.CompareExchange(ref _sqliteMigrationRun, 1, 0) != 0) return;
         if (!db.Database.IsSqlite()) return;
+        try { await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA temp_store=MEMORY; PRAGMA busy_timeout=5000;"); } catch { }
         try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE lessons ADD COLUMN content_markdown TEXT;"); } catch { }
         try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE lessons ADD COLUMN video_url TEXT;"); } catch { }
         try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE lessons ADD COLUMN estimated_minutes INTEGER NOT NULL DEFAULT 5;"); } catch { }
@@ -160,6 +161,7 @@ public static class SwmsEndpoints
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> NotebookOccLocks = new(StringComparer.OrdinalIgnoreCase);
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> FlashcardSyncLocks = new(StringComparer.OrdinalIgnoreCase);
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> AiQuotaLocks = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly SemaphoreSlim SqliteFlashcardWriteLock = new(1, 1);
 
     public static void MapSwmsEndpoints(this WebApplication app)
     {
@@ -3093,62 +3095,71 @@ public static class SwmsEndpoints
         fcGroup.MapPost("/", async (CreateFlashcardRequest req, HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
-            var now = DateTimeOffset.UtcNow;
-
-            var card = new Flashcard
+            var isSqlite = db.Database.IsSqlite();
+            if (isSqlite) await SqliteFlashcardWriteLock.WaitAsync();
+            try
             {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                LessonId = req.LessonId,
-                DocumentId = req.DocumentId,
-                AnnotationId = req.AnnotationId,
-                CardType = string.IsNullOrWhiteSpace(req.CardType) ? "cloze" : req.CardType,
-                SourceTitleSnapshot = req.SourceTitleSnapshot ?? "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp",
-                SourceQuoteSnapshot = req.SourceQuoteSnapshot ?? req.FrontText,
-                FrontAstJson = JsonSerializer.Serialize(new { text = req.FrontText }),
-                BackAstJson = JsonSerializer.Serialize(new { text = req.BackText }),
-                Stability = 0.0,
-                Difficulty = 0.0,
-                Reps = 0,
-                Lapses = 0,
-                State = 0,
-                IsArchived = false,
-                DueAt = now,
-                CreatedAt = now,
-                UpdatedAt = now
-            };
+                var now = DateTimeOffset.UtcNow;
 
-            db.Flashcards.Add(card);
-
-            if (req.TagNames is { Count: > 0 })
-            {
-                foreach (var rawTag in req.TagNames.Where(t => !string.IsNullOrWhiteSpace(t)))
+                var card = new Flashcard
                 {
-                    var cleanName = rawTag.Trim().TrimStart('#');
-                    var tag = await db.Tags.FirstOrDefaultAsync(t => t.UserId == userId && t.Name == cleanName);
-                    if (tag == null)
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    LessonId = req.LessonId,
+                    DocumentId = req.DocumentId,
+                    AnnotationId = req.AnnotationId,
+                    CardType = string.IsNullOrWhiteSpace(req.CardType) ? "cloze" : req.CardType,
+                    SourceTitleSnapshot = req.SourceTitleSnapshot ?? "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp",
+                    SourceQuoteSnapshot = req.SourceQuoteSnapshot ?? req.FrontText,
+                    FrontAstJson = JsonSerializer.Serialize(new { text = req.FrontText }),
+                    BackAstJson = JsonSerializer.Serialize(new { text = req.BackText }),
+                    Stability = 0.0,
+                    Difficulty = 0.0,
+                    Reps = 0,
+                    Lapses = 0,
+                    State = 0,
+                    IsArchived = false,
+                    DueAt = now,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                };
+
+                db.Flashcards.Add(card);
+
+                if (req.TagNames is { Count: > 0 })
+                {
+                    foreach (var rawTag in req.TagNames.Where(t => !string.IsNullOrWhiteSpace(t)))
                     {
-                        tag = new Tag
+                        var cleanName = rawTag.Trim().TrimStart('#');
+                        var tag = await db.Tags.FirstOrDefaultAsync(t => t.UserId == userId && t.Name == cleanName);
+                        if (tag == null)
                         {
-                            Id = Guid.NewGuid(),
-                            UserId = userId,
-                            Name = cleanName,
-                            ColorKey = "blue"
-                        };
-                        db.Tags.Add(tag);
+                            tag = new Tag
+                            {
+                                Id = Guid.NewGuid(),
+                                UserId = userId,
+                                Name = cleanName,
+                                ColorKey = "blue"
+                            };
+                            db.Tags.Add(tag);
+                        }
+                        db.FlashcardTags.Add(new FlashcardTag { FlashcardId = card.Id, TagId = tag.Id });
                     }
-                    db.FlashcardTags.Add(new FlashcardTag { FlashcardId = card.Id, TagId = tag.Id });
                 }
-            }
 
-            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user != null && user.OnboardingStep < 3)
+                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user != null && user.OnboardingStep < 3)
+                {
+                    user.OnboardingStep = 3;
+                }
+
+                await db.SaveChangesAsync();
+                return Results.Ok(card);
+            }
+            finally
             {
-                user.OnboardingStep = 3;
+                if (isSqlite) SqliteFlashcardWriteLock.Release();
             }
-
-            await db.SaveChangesAsync();
-            return Results.Ok(card);
         });
 
         // Soft-Delete Flashcard (Decision D & ADR-004): Sets is_archived = true, preserving flashcard_reviews!
@@ -3256,9 +3267,13 @@ public static class SwmsEndpoints
         {
             var userId = ResolveUserId(http);
             var syncLock = FlashcardSyncLocks.GetOrAdd(userId.ToString("N"), _ => new SemaphoreSlim(1, 1));
+            var isSqlite = db.Database.IsSqlite();
             await syncLock.WaitAsync();
             try
             {
+                if (isSqlite) await SqliteFlashcardWriteLock.WaitAsync();
+                try
+                {
                 var serverNow = DateTimeOffset.UtcNow;
                 var fsrsParams = await db.UserFsrsParameters.FirstOrDefaultAsync(p => p.UserId == userId);
                 var weights = fsrsParams?.Weights ?? FsrsV5Engine.DefaultWeights;
@@ -3401,6 +3416,11 @@ public static class SwmsEndpoints
                     userActivated = user?.IsActivated ?? true,
                     results = syncedResults
                 });
+                }
+                finally
+                {
+                    if (isSqlite) SqliteFlashcardWriteLock.Release();
+                }
             }
             finally
             {
@@ -4085,13 +4105,19 @@ public static class SwmsEndpoints
         }
         else if (!documentId.HasValue)
         {
-            targetCourseIds = await db.Courses
+            var hasAnyUserCard = await db.Flashcards
                 .AsNoTracking()
-                .Where(c => c.Visibility == "public" &&
-                            c.IsPublished &&
-                            c.Slug.StartsWith("document-course-"))
-                .Select(c => c.Id)
-                .ToListAsync();
+                .AnyAsync(f => f.UserId == userId && !f.IsArchived);
+            if (!hasAnyUserCard)
+            {
+                targetCourseIds = await db.Courses
+                    .AsNoTracking()
+                    .Where(c => c.Visibility == "public" &&
+                                c.IsPublished &&
+                                c.Slug.StartsWith("document-course-"))
+                    .Select(c => c.Id)
+                    .ToListAsync();
+            }
         }
 
         if (targetCourseIds.Count == 0)

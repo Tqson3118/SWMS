@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="d74dd20c-bc29-4d10-bf38-feae1d8d13f5" name="Administrator@DESKTOP-C0K1LT1 2026-10-07 01:25:55" runUser="DESKTOP-C0K1LT1\Administrator" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-07T01:25:55.0854482+07:00" queuing="2026-10-07T01:25:55.0854486+07:00" start="2026-10-07T01:25:53.2593641+07:00" finish="2026-10-07T01:25:56.3845492+07:00" />
+  <TestSettings name="default" id="25cabb77-67b9-4cd3-92ba-3c4dc4d73d7d">
+    <Deployment runDeploymentRoot="Administrator_DESKTOP-C0K1LT1_2026-10-07_01_25_55" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="5b194a57-8639-401d-9f30-1a42aac51dd9" testId="a32465fd-be7e-57cf-1e2a-477a746c2a12" testName="ExpenseSqlGuided.Tests.SqlTests.Transaction_is_visible_inside_then_rollback_restores_previous_count" computerName="DESKTOP-C0K1LT1" duration="00:00:00.4087321" startTime="2026-10-07T01:25:55.1069691+07:00" endTime="2026-10-07T01:25:55.1069692+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5b194a57-8639-401d-9f30-1a42aac51dd9" />
+    <UnitTestResult executionId="b26209a5-4493-404c-8e89-e7b754df7314" testId="19a561e4-6613-e1b3-7c28-0421ca1992a0" testName="ExpenseSqlGuided.Tests.SqlTests.Invalid_database_names_are_rejected_before_any_connection" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0014572" startTime="2026-10-07T01:25:56.3135189+07:00" endTime="2026-10-07T01:25:56.3135190+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b26209a5-4493-404c-8e89-e7b754df7314" />
+    <UnitTestResult executionId="0ffe7f2c-ee18-4b11-9693-161ee07882a0" testId="8afdfa2b-3de7-5397-2cd4-2ae2f420dc95" testName="ExpenseSqlGuided.Tests.SqlTests.Creating_existing_generated_database_fails_without_reuse" computerName="DESKTOP-C0K1LT1" duration="00:00:00.3651190" startTime="2026-10-07T01:25:56.3117736+07:00" endTime="2026-10-07T01:25:56.3117737+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0ffe7f2c-ee18-4b11-9693-161ee07882a0" />
+    <UnitTestResult executionId="7325ac2c-662e-4f90-8378-b40029205fe6" testId="af489777-4230-6f3f-5dbc-78ed8f6f271c" testName="ExpenseSqlGuided.Tests.SqlTests.Crud_is_parameterized_update_changes_values_delete_removes_and_pages_are_stable" computerName="DESKTOP-C0K1LT1" duration="00:00:00.4274111" startTime="2026-10-07T01:25:55.5348258+07:00" endTime="2026-10-07T01:25:55.5348259+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7325ac2c-662e-4f90-8378-b40029205fe6" />
+    <UnitTestResult executionId="2bb1b933-efb3-4945-9ed6-89003aaa4f92" testId="a457c869-3e32-c0ee-a53a-6ffca39fdb2e" testName="ExpenseSqlGuided.Tests.SqlTests.Raw_schema_enforces_exact_null_negative_fk_unique_and_referenced_delete_errors" computerName="DESKTOP-C0K1LT1" duration="00:00:00.4219385" startTime="2026-10-07T01:25:54.6979835+07:00" endTime="2026-10-07T01:25:54.6979836+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2bb1b933-efb3-4945-9ed6-89003aaa4f92" />
+    <UnitTestResult executionId="964b18ac-658d-45cc-b07a-4c9d42882df5" testId="6b434497-74a5-053c-c7de-d877c75100e2" testName="ExpenseSqlGuided.Tests.SqlTests.Monthly_totals_separate_month_and_year" computerName="DESKTOP-C0K1LT1" duration="00:00:00.5646852" startTime="2026-10-07T01:25:54.2748477+07:00" endTime="2026-10-07T01:25:54.2748698+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="964b18ac-658d-45cc-b07a-4c9d42882df5" />
+    <UnitTestResult executionId="74854233-f4ee-4360-ba35-14f926ea3d9b" testId="7638bf49-8a90-59b3-1e19-05e30e7a0946" testName="ExpenseSqlGuided.Tests.SqlTests.Domain_validation_rejects_rounding_overflow_and_length_before_provider" computerName="DESKTOP-C0K1LT1" duration="00:00:00.4110736" startTime="2026-10-07T01:25:55.9462459+07:00" endTime="2026-10-07T01:25:55.9462462+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="74854233-f4ee-4360-ba35-14f926ea3d9b" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ExpenseSqlGuided.Tests.SqlTests.Raw_schema_enforces_exact_null_negative_fk_unique_and_referenced_delete_errors" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-sql\tests\expensesqlguided.tests\bin\debug\net10.0\expensesqlguided.tests.dll" id="a457c869-3e32-c0ee-a53a-6ffca39fdb2e">
+      <Execution id="2bb1b933-efb3-4945-9ed6-89003aaa4f92" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-sql\tests\ExpenseSqlGuided.Tests\bin\Debug\net10.0\ExpenseSqlGuided.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseSqlGuided.Tests.SqlTests" name="Raw_schema_enforces_exact_null_negative_fk_unique_and_referenced_delete_errors" />
+    </UnitTest>
+    <UnitTest name="ExpenseSqlGuided.Tests.SqlTests.Invalid_database_names_are_rejected_before_any_connection" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-sql\tests\expensesqlguided.tests\bin\debug\net10.0\expensesqlguided.tests.dll" id="19a561e4-6613-e1b3-7c28-0421ca1992a0">
+      <Execution id="b26209a5-4493-404c-8e89-e7b754df7314" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-sql\tests\ExpenseSqlGuided.Tests\bin\Debug\net10.0\ExpenseSqlGuided.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseSqlGuided.Tests.SqlTests" name="Invalid_database_names_are_rejected_before_any_connection" />
+    </UnitTest>
+    <UnitTest name="ExpenseSqlGuided.Tests.SqlTests.Transaction_is_visible_inside_then_rollback_restores_previous_count" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-sql\tests\expensesqlguided.tests\bin\debug\net10.0\expensesqlguided.tests.dll" id="a32465fd-be7e-57cf-1e2a-477a746c2a12">
+      <Execution id="5b194a57-8639-401d-9f30-1a42aac51dd9" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-sql\tests\ExpenseSqlGuided.Tests\bin\Debug\net10.0\ExpenseSqlGuided.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseSqlGuided.Tests.SqlTests" name="Transaction_is_visible_inside_then_rollback_restores_previous_count" />
+    </UnitTest>
+    <UnitTest name="ExpenseSqlGuided.Tests.SqlTests.Monthly_totals_separate_month_and_year" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-sql\tests\expensesqlguided.tests\bin\debug\net10.0\expensesqlguided.tests.dll" id="6b434497-74a5-053c-c7de-d877c75100e2">
+      <Execution id="964b18ac-658d-45cc-b07a-4c9d42882df5" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-sql\tests\ExpenseSqlGuided.Tests\bin\Debug\net10.0\ExpenseSqlGuided.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseSqlGuided.Tests.SqlTests" name="Monthly_totals_separate_month_and_year" />
+    </UnitTest>
+    <UnitTest name="ExpenseSqlGuided.Tests.SqlTests.Creating_existing_generated_database_fails_without_reuse" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-sql\tests\expensesqlguided.tests\bin\debug\net10.0\expensesqlguided.tests.dll" id="8afdfa2b-3de7-5397-2cd4-2ae2f420dc95">
+      <Execution id="0ffe7f2c-ee18-4b11-9693-161ee07882a0" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-sql\tests\ExpenseSqlGuided.Tests\bin\Debug\net10.0\ExpenseSqlGuided.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseSqlGuided.Tests.SqlTests" name="Creating_existing_generated_database_fails_without_reuse" />
+    </UnitTest>
+    <UnitTest name="ExpenseSqlGuided.Tests.SqlTests.Crud_is_parameterized_update_changes_values_delete_removes_and_pages_are_stable" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-sql\tests\expensesqlguided.tests\bin\debug\net10.0\expensesqlguided.tests.dll" id="af489777-4230-6f3f-5dbc-78ed8f6f271c">
+      <Execution id="7325ac2c-662e-4f90-8378-b40029205fe6" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-sql\tests\ExpenseSqlGuided.Tests\bin\Debug\net10.0\ExpenseSqlGuided.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseSqlGuided.Tests.SqlTests" name="Crud_is_parameterized_update_changes_values_delete_removes_and_pages_are_stable" />
+    </UnitTest>
+    <UnitTest name="ExpenseSqlGuided.Tests.SqlTests.Domain_validation_rejects_rounding_overflow_and_length_before_provider" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-sql\tests\expensesqlguided.tests\bin\debug\net10.0\expensesqlguided.tests.dll" id="7638bf49-8a90-59b3-1e19-05e30e7a0946">
+      <Execution id="74854233-f4ee-4360-ba35-14f926ea3d9b" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-sql\tests\ExpenseSqlGuided.Tests\bin\Debug\net10.0\ExpenseSqlGuided.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseSqlGuided.Tests.SqlTests" name="Domain_validation_rejects_rounding_overflow_and_length_before_provider" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="a32465fd-be7e-57cf-1e2a-477a746c2a12" executionId="5b194a57-8639-401d-9f30-1a42aac51dd9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="19a561e4-6613-e1b3-7c28-0421ca1992a0" executionId="b26209a5-4493-404c-8e89-e7b754df7314" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8afdfa2b-3de7-5397-2cd4-2ae2f420dc95" executionId="0ffe7f2c-ee18-4b11-9693-161ee07882a0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="af489777-4230-6f3f-5dbc-78ed8f6f271c" executionId="7325ac2c-662e-4f90-8378-b40029205fe6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a457c869-3e32-c0ee-a53a-6ffca39fdb2e" executionId="2bb1b933-efb3-4945-9ed6-89003aaa4f92" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6b434497-74a5-053c-c7de-d877c75100e2" executionId="964b18ac-658d-45cc-b07a-4c9d42882df5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7638bf49-8a90-59b3-1e19-05e30e7a0946" executionId="74854233-f4ee-4360-ba35-14f926ea3d9b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="7" executed="7" passed="7" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.12)&#xD;
+[xUnit.net 00:00:00.07]   Discovering: ExpenseSqlGuided.Tests&#xD;
+[xUnit.net 00:00:00.09]   Discovered:  ExpenseSqlGuided.Tests&#xD;
+[xUnit.net 00:00:00.09]   Starting:    ExpenseSqlGuided.Tests&#xD;
+Database tru?c khi t?o: RoadmapSql735_27d58bf1e5714ec49b5d5b595d7826fd&#xD;
+Database tru?c khi t?o: RoadmapSql735_c350ed231a514003a5a8878ba6ba2642&#xD;
+Database tru?c khi t?o: RoadmapSql735_22808b5bd40f48f3a213ee2d56150dff&#xD;
+Database tru?c khi t?o: RoadmapSql735_c7134d513c954baabe77ad75da6dd273&#xD;
+Database tru?c khi t?o: RoadmapSql735_57971602b53049b397e19c7664d21560&#xD;
+Database tru?c khi t?o: RoadmapSql735_b2c95b64cb174006a04ef1f7fd99a41c&#xD;
+Database tru?c khi t?o: RoadmapSql735_b2c95b64cb174006a04ef1f7fd99a41c&#xD;
+[xUnit.net 00:00:02.74]   Finished:    ExpenseSqlGuided.Tests&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

@@ -1,0 +1,737 @@
+
+ Event bubbling - Learn web development | MDN
+ Skip to main content
+ Skip to search
+ MDN
+ HTML
+ HTML: Markup language
+ HTML reference
+ Elements
+ Global attributes
+ Attributes
+ See all…
+ HTML guides
+ Responsive images
+ HTML cheatsheet
+ Date & time formats
+ See all…
+ Markup languages
+ SVG
+ MathML
+ XML
+ CSS
+ CSS: Styling language
+ CSS reference
+ Properties
+ Selectors
+ At-rules
+ Values
+ See all…
+ CSS guides
+ Box model
+ Animations
+ Flexbox
+ Colors
+ See all…
+ Layout cookbook
+ Column layouts
+ Centering an element
+ Card component
+ See all…
+ JavaScriptJS
+ JavaScript: Scripting language
+ JS reference
+ Standard built-in objects
+ Expressions & operators
+ Statements & declarations
+ Functions
+ See all…
+ JS guides
+ Control flow & error handling
+ Loops and iteration
+ Working with objects
+ Using classes
+ See all…
+ Web APIs
+ Web APIs: Programming interfaces
+ Web API reference
+ File system API
+ Fetch API
+ Geolocation API
+ HTML DOM API
+ Push API
+ Service worker API
+ See all…
+ Web API guides
+ Using the Web animation API
+ Using the Fetch API
+ Working with the History API
+ Using the Web speech API
+ Using web workers
+ All
+ All web technology
+ Technologies
+ Accessibility
+ HTTP
+ URI
+ Web extensions
+ WebAssembly
+ WebDriver
+ See all…
+ Topics
+ Media
+ Performance
+ Privacy
+ Security
+ Progressive web apps
+ Learn
+ Learn web development
+ Frontend developer course
+ Getting started modules
+ Core modules
+ MDN Curriculum
+ Check out the video course from Scrimba, our partner
+ Learn HTML
+ Structuring content with HTML module
+ Learn CSS
+ CSS styling basics module
+ CSS layout module
+ Learn JavaScript
+ Dynamic scripting with JavaScript module
+ Tools
+ Discover our tools
+ Playground
+ HTTP Observatory
+ Border-image generator
+ Border-radius generator
+ Box-shadow generator
+ Color format converter
+ Color mixer
+ Shape generator
+ About
+ Get to know MDN better
+ About MDN
+ Advertise with us
+ Community
+ MDN on GitHub
+ Blog
+ Toggle sidebar
+ Learn
+ Core learning modules
+ JavaScript
+ Event bubbling
+ Theme
+ OS default
+ Light
+ Dark
+ English (US)
+ Remember language
+ Learn more
+ Deutsch
+ English (US)
+ Français
+ 日本語
+ 한국어
+ Português (do Brasil)
+ Русский
+ 中文 (简体)
+Event bubbling
+ Previous 
+ Overview: Dynamic scripting with JavaScript
+ Next 
+We've seen that a web page is composed of elements — headings, paragraphs of text, images, buttons, and so on — and that you can listen for events that happen to these elements. For example, you could add a listener to a button, and it will run when the user clicks the button.
+We've also seen that these elements can be nested inside each other: for example, a <button> could be placed inside a <div> element. In this case we'd call the <div> element a parent element, and the <button> a child element.
+In this chapter we'll look at event bubbling — this is what happens when you add an event listener to a parent element, and the user clicks the child element.
+ Prerequisites:
+ An understanding of HTML and the fundamentals of CSS, familiarity with JavaScript basics as covered in previous lessons.
+ Learning outcomes:
+Event delegation, achieved via event bubbling or event capture.
+Stopping event delegation with stopPropagation().
+Accessing event targets from the event object.
+In this article
+ Introducing event bubbling
+ Event capture
+ Event delegation
+ target and currentTarget
+ Summary
+ See also
+Introducing event bubbling
+Let's introduce and define event bubbling by way of an example.
+Setting a listener on a parent element
+Consider a web page like this:
+html
+<div id="container">
+ <button>Click me!</button>
+</div>
+<pre id="output"></pre>
+Here the button is inside another element, a <div> element. We say that the <div> element here is the parent of the element it contains. What happens if we add a click event handler to the parent, then click the button?
+js
+const output = document.querySelector("#output");
+function handleClick(e) {
+ output.textContent += `You clicked on a ${e.currentTarget.tagName} element\n`;
+}
+const container = document.querySelector("#container");
+container.addEventListener("click", handleClick);
+You'll see that the parent fires a click event when the user clicks the button:
+You clicked on a DIV element
+This makes sense: the button is inside the <div>, so when you click the button you're also implicitly clicking the element it is inside.
+Bubbling example
+What happens if we add event listeners to the button and the parent?
+html
+<body>
+ <div id="container">
+ <button>Click me!</button>
+ </div>
+ <pre id="output"></pre>
+</body>
+Let's try adding click event handlers to the button, its parent (the <div>), and the <body> element that contains both of them:
+js
+const output = document.querySelector("#output");
+function handleClick(e) {
+ output.textContent += `You clicked on a ${e.currentTarget.tagName} element\n`;
+}
+const container = document.querySelector("#container");
+const button = document.querySelector("button");
+document.body.addEventListener("click", handleClick);
+container.addEventListener("click", handleClick);
+button.addEventListener("click", handleClick);
+You'll see that all three elements fire a click event when the user clicks the button:
+You clicked on a BUTTON element
+You clicked on a DIV element
+You clicked on a BODY element
+In this case:
+the click on the button fires first.
+followed by the click on its parent (the <div> element).
+followed by the click on the <div> element's parent (the <body> element).
+We describe this by saying that the event bubbles up from the innermost element that was clicked.
+This behavior can be useful and can also cause unexpected problems. In the next sections, we'll see a problem that it causes, and find the solution.
+Video player example
+In this example our page contains a video, which is hidden initially, and a button labeled "Display video". We want the following interaction:
+When the user clicks the "Display video" button, show the box containing the video, but don't start playing the video yet.
+When the user clicks on the video, start playing the video.
+When the user clicks anywhere in the box outside the video, hide the box.
+The HTML looks like this:
+html
+<button>Display video</button>
+<div class="hidden">
+ <video>
+ <source src="/shared-assets/videos/flower.webm" type="video/webm" />
+ <p>
+ Your browser doesn't support HTML video. Here is a
+ <a href="rabbit320.mp4">link to the video</a> instead.
+ </p>
+ </video>
+</div>
+It includes:
+a <button> element.
+a <div> element which initially has a class="hidden" attribute.
+a <video> element nested inside the <div> element.
+We're using CSS to hide elements with the "hidden" class set.
+div {
+ width: 100%;
+ height: 100%;
+ background-color: #eeeeee;
+}
+.hidden {
+ display: none;
+}
+div video {
+ padding: 40px;
+ display: block;
+ width: 400px;
+ margin: 40px auto;
+}
+The JavaScript looks like this:
+js
+const btn = document.querySelector("button");
+const box = document.querySelector("div");
+const video = document.querySelector("video");
+btn.addEventListener("click", () => box.classList.remove("hidden"));
+video.addEventListener("click", () => video.play());
+box.addEventListener("click", () => box.classList.add("hidden"));
+This adds three 'click' event listeners:
+one on the <button>, which shows the <div> that contains the <video>.
+one on the <video>, which starts playing the video.
+one on the <div>, which hides the video.
+Let's see how this works:
+You should see that when you click the button, the box and the video it contains are shown. But then when you click the video, the video starts to play, but the box is hidden again!
+The video is inside the <div> — it is part of it — so clicking the video runs both the event handlers, causing this behavior.
+Fixing the problem with stopPropagation()
+As we saw in the last section, event bubbling can sometimes create problems, but there is a way to prevent it.
+The Event object has a function available on it called stopPropagation() which, when called inside an event handler, prevents the event from bubbling up to any other elements.
+We can fix our current problem by changing the JavaScript to this:
+js
+const btn = document.querySelector("button");
+const box = document.querySelector("div");
+const video = document.querySelector("video");
+btn.addEventListener("click", () => box.classList.remove("hidden"));
+video.addEventListener("click", (event) => {
+ event.stopPropagation();
+ video.play();
+});
+box.addEventListener("click", () => box.classList.add("hidden"));
+All we're doing here is calling stopPropagation() on the event object in the handler for the <video> element's 'click' event. This will stop that event from bubbling up to the box. Now try clicking the button and then the video:
+<button>Display video</button>
+<div class="hidden">
+ <video>
+ <source src="/shared-assets/videos/flower.webm" type="video/webm" />
+ <p>
+ Your browser doesn't support HTML video. Here is a
+ <a href="rabbit320.mp4">link to the video</a> instead.
+ </p>
+ </video>
+</div>
+div {
+ width: 100%;
+ height: 100%;
+ background-color: #eeeeee;
+}
+.hidden {
+ display: none;
+}
+div video {
+ padding: 40px;
+ display: block;
+ width: 400px;
+ margin: 40px auto;
+}
+Event capture
+An alternative form of event propagation is event capture. This is like event bubbling but the order is reversed: instead of the event firing first on the innermost element targeted, and then on successively less nested elements, the event fires first on the least nested element, and then on successively more nested elements, until the target is reached.
+Event capture is disabled by default. To enable it you have to pass the capture option in addEventListener().
+This example is just like the bubbling example we saw earlier, except that we have used the capture option:
+html
+<body>
+ <div id="container">
+ <button>Click me!</button>
+ </div>
+ <pre id="output"></pre>
+</body>
+js
+const output = document.querySelector("#output");
+function handleClick(e) {
+ output.textContent += `You clicked on a ${e.currentTarget.tagName} element\n`;
+}
+const container = document.querySelector("#container");
+const button = document.querySelector("button");
+document.body.addEventListener("click", handleClick, { capture: true });
+container.addEventListener("click", handleClick, { capture: true });
+button.addEventListener("click", handleClick);
+In this case, the order of messages is reversed: the <body> event handler fires first, followed by the <div> event handler, followed by the <button> event handler:
+You clicked on a BODY element
+You clicked on a DIV element
+You clicked on a BUTTON element
+Why bother with both capturing and bubbling? In the bad old days, when browsers were much less cross-compatible than now, Netscape only used event capturing, and Internet Explorer used only event bubbling. When the W3C decided to try to standardize the behavior and reach a consensus, they ended up with this system that included both, which is what modern browsers implement.
+By default almost all event handlers are registered in the bubbling phase, and this makes more sense most of the time.
+Event delegation
+In the last section, we looked at a problem caused by event bubbling and how to fix it. Event bubbling isn't just annoying, though: it can be very useful. In particular, it enables event delegation. In this practice, when we want some code to run when the user interacts with any one of a large number of child elements, we set the event listener on their parent and have events that happen on them bubble up to their parent rather than having to set the event listener on every child individually.
+Let's go back to our first example,
+where we set the background color of the whole page when the user clicked a button. Suppose that instead, the page is divided into 16 tiles, and we want to set each tile to a random color when the user clicks that tile.
+Here's the HTML:
+html
+<div id="container">
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+ <div class="tile"></div>
+</div>
+We have a little CSS, to set the size and position of the tiles:
+css
+#container {
+ display: grid;
+ grid-template-columns: repeat(4, 1fr);
+ grid-auto-rows: 100px;
+}
+Now in JavaScript, we could add a click event handler for every tile. But a much simpler and more efficient option is to set the click event handler on the parent, and rely on event bubbling to ensure that the handler is executed when the user clicks on a tile:
+js
+function random(number) {
+ return Math.floor(Math.random() * number);
+}
+function bgChange() {
+ const rndCol = `rgb(${random(255)} ${random(255)} ${random(255)})`;
+ return rndCol;
+}
+const container = document.querySelector("#container");
+container.addEventListener("click", (event) => {
+ event.target.style.backgroundColor = bgChange();
+});
+The output is as follows (try clicking around on it):
+Note:
+In this example, we're using event.target to get the element that was the target of the event (that is, the innermost element). If we wanted to access the element that handled this event (in this case the container) we could use event.currentTarget.
+Note:
+See useful-eventtarget.html for the full source code; also see it running live here.
+target and currentTarget
+If you look closely at the examples we've introduced in this page, you'll see that we're using two different properties of the event object to access the element that was clicked. In Setting a listener on a parent element we're using event.currentTarget. However, in Event delegation, we're using event.target.
+The difference is that target refers to the element on which the event was initially fired, while currentTarget refers to the element to which this event handler has been attached.
+While target remains the same while an event bubbles up, currentTarget will be different for event handlers that are attached to different elements in the hierarchy.
+We can see this if we slightly adapt the Bubbling example above. We're using the same HTML as before:
+html
+<body>
+ <div id="container">
+ <button>Click me!</button>
+ </div>
+ <pre id="output"></pre>
+</body>
+The JavaScript is almost the same, except we're logging both target and currentTarget:
+js
+const output = document.querySelector("#output");
+function handleClick(e) {
+ const logTarget = `Target: ${e.target.tagName}`;
+ const logCurrentTarget = `Current target: ${e.currentTarget.tagName}`;
+ output.textContent += `${logTarget}, ${logCurrentTarget}\n`;
+}
+const container = document.querySelector("#container");
+const button = document.querySelector("button");
+document.body.addEventListener("click", handleClick);
+container.addEventListener("click", handleClick);
+button.addEventListener("click", handleClick);
+Note that when we click the button, target is the button element every time, whether the event handler is attached to the button itself, to the <div>, or to the <body>. However currentTarget identifies the element whose event handler we are currently running:
+The target property is commonly used in event delegation, as seen in our Event delegation example above.
+Summary
+You should now know all you need to know about web events at this early stage. As mentioned, events are not really part of the core JavaScript language — they are defined in browser Web APIs.
+In the next article, we'll give you some tests that you can use to check how well you've understood and retained all the information we've given you on events.
+See also
+domevents.dev
+A useful interactive playground app that enables learning about the behavior of the DOM Event system through exploration.
+DOM events
+A comprehensive guide for understanding and handling events.
+Event order
+An excellently detailed discussion of capturing and bubbling by Peter-Paul Koch.
+ Previous 
+ Overview: Dynamic scripting with JavaScript
+ Next 
+ Help improve MDN
+ Was this page helpful to you?
+ Yes
+ No
+ Learn how to contribute 
+ This page was last modified on Oct 19, 2025 by MDN contributors.
+ View this page on GitHub • Report a problem with this content
+ Filter sidebar
+ Clear filter input
+Learn web development
+MDN curriculum
+Getting started modules
+Environment setup
+Installing software
+Browsing the web
+Code editors
+Dealing with files
+Command line
+Your first website
+What will it look like?
+Creating the content
+Styling the content
+Adding interactivity
+Publishing
+Web standards
+How the web works
+The web standards model
+How browsers load websites
+Soft skills
+Research and learning
+Collaboration and teamwork
+Workflows and processes
+Finding a job
+Core modules
+Structuring content with HTML
+Basic HTML syntax
+Web page metadata
+Headings and paragraphs
+Emphasis and importance
+Lists
+Test: HTML text basics
+Advanced text features
+Test: Advanced HTML text
+Challenge: Letter markup
+Structuring documents
+Creating links
+Test: Links
+Challenge: Bird watching site
+Images
+Test: Images
+Video and audio
+Test: Audio and video
+Challenge: Splash page
+Table basics
+Table accessibility
+Challenge: Planet data table
+Forms and buttons
+Test: Forms and buttons
+Challenge: Feedback form
+Debugging HTML
+Test: HTML tests index
+Additional tutorials
+Vector graphics
+Embedding technologies
+CSS styling basics
+What is CSS?
+CSS getting started
+Challenge: Biography page
+Basic selectors
+Attribute selectors
+Pseudo-classes and elements
+Combinators
+Test: Selectors
+Box model
+Test: Box model
+Handling conflicts
+Test: Cascade
+Challenge: Fixing blog styles
+Values and units
+Test: Values and units
+Sizing
+Test: Sizing
+Backgrounds and borders
+Test: Backgrounds and borders
+Overflow
+Test: Overflow
+Challenge: Sizing and decorating
+Images, media, forms
+Test: Images and forms
+Styling tables
+Challenge: Styling color scheme search
+Debugging CSS
+Test: Styling basics tests index
+Additional tutorials
+Advanced styling effects
+Cascade layers
+Multiple text directions
+Organizing your CSS
+CSS text styling
+Text and font fundamentals
+Styling lists
+Styling links
+Web fonts
+Challenge: Community school homepage
+CSS layout
+Introduction
+Floats
+Test: Floats
+Positioning
+Test: Positioning
+Flexbox
+Test: Flexbox
+CSS grid layout
+Test: CSS grid
+Challenge: Fundamental layout
+Responsive web design
+Media queries
+Test: RWD & media queries
+Challenge: mobile-first
+Test: Layout tests index
+Additional tutorials
+Multiple-column layout
+Practical positioning examples
+Legacy layout methods
+Supporting older browsers
+Dynamic scripting with JavaScript
+What is JavaScript?
+JavaScript walkthrough
+Troubleshooting
+Variables
+Test: Variables
+Numbers and operators
+Test: Math
+Strings
+String methods
+Test: Strings
+Arrays
+Test: Arrays
+Challenge: Story generator
+Conditionals
+Test: Conditionals
+Loops
+Test: Loops
+Functions
+Build your own function
+Function return values
+Test: Functions
+Events
+Event bubbling
+Test: Events
+Objects
+Test: Objects
+DOM scripting
+Challenge: Image gallery
+Network requests
+JSON
+Test: JSON
+Challenge: House data UI
+Debugging and error handling
+Test: JavaScript tests index
+JavaScript frameworks and libraries
+Introduction
+Framework features
+React getting started
+React ToDo app
+React components
+React events and state
+React editing, filtering, conditional UI
+React accessibility
+React resources
+Accessibility
+What is accessibility?
+Accessibility tools
+Accessible HTML
+Test: HTML a11y
+Accessible CSS and JS
+Test: CSS/JS a11y
+WAI-ARIA
+Test: WAI-ARIA
+Accessible multimedia
+Mobile accessibility
+Challenge: A11y debugging
+Test: A11y tests index
+Design for developers
+Version control
+Extension modules
+Advanced JavaScript objects
+Object prototypes
+Object-oriented programming
+Classes in JavaScript
+Test: Object-oriented JavaScript
+Object building practice
+Challenge: Bouncing balls features
+Test: OOJS tests index
+Client-side web APIs
+Introduction
+Video and audio
+Drawing graphics
+Client-side storage
+Third-party APIs
+Asynchronous JavaScript
+Introduction
+Using promises
+Implementing promise-based APIs
+Introducing workers
+Challenge: Animation sequence
+Web forms
+Your first form
+How to structure a web form
+Basic native form controls
+The HTML5 input types
+Other form controls
+Styling web forms
+Advanced form styling
+Customizable selects
+Customizable listboxes
+UI pseudo-classes
+Client-side form validation
+Sending form data
+Additional tutorials
+Custom form controls
+JS form submission
+Forms in legacy browsers
+UI methods & controls
+Understanding client-side tools
+Overview
+Package management
+Sample toolchain
+Deploying our app
+Server-side websites
+First steps
+Introduction
+Client-server overview
+Server-side frameworks
+Website security
+Django (Python)
+Django introduction
+Dev environment setup
+1: Local library tutorial
+2: Skeleton website
+3: Models
+4: Django admin site
+5: Home page
+6: Generic list and detail views
+7: Sessions framework
+8: Authentication and permissions
+9: Forms
+10: Testing
+11: Deploying
+Django security
+Challenge: Django blog
+Express (Node.js)
+Express/Node introduction
+Dev environment setup
+1: Local library tutorial
+2: Skeleton website
+3: Using databases with Mongoose
+4: Routes and controllers
+5: Displaying data
+6: Working with forms
+7: Deploying
+Additional tutorials
+Apache .htaccess
+Server MIME type config
+Plain Node.js server
+Web performance
+The "why" of web performance
+What is web performance?
+Perceived performance
+Measuring performance
+Multimedia: Images
+Multimedia: video
+Performant JavaScript
+Performant HTML
+Performant CSS
+Performance business case
+Best practices & tips
+Testing
+Introduction
+Testing strategies
+Common HTML and CSS problems
+Feature detection
+Automated testing
+Automation environment setup
+Further resources
+How to solve common problems
+Common CSS problems
+Common HTML problems
+Common JavaScript problems
+Design and accessibility
+Tools and setup
+Web mechanics
+About
+Resources for educators
+Changelog
+ MDN
+ Your blueprint for a better internet.
+ MDN
+ About
+ Blog
+ Mozilla careers
+ Advertise with us
+ MDN Plus
+ Product help
+ Contribute
+ MDN Community
+ Community resources
+ Writing guidelines
+ MDN Discord
+ MDN on GitHub
+ Developers
+ Web technologies
+ Learn web development
+ Guides
+ Tutorials
+ Glossary
+ Hacks blog
+ Mozilla
+ Website Privacy Notice
+ Telemetry Settings
+ Legal
+ Community Participation Guidelines
+ Portions of this content are ©1998–2026 by individual mozilla.org contributors. Content available under a Creative Commons license.
+ 

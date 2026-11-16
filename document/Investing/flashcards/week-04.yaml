@@ -1,0 +1,71 @@
+deck_id: "deck-investing-w04"
+subject: "Investing"
+lesson_id: "week-04-chi-so-tai-chinh-co-ban"
+version: "1.0.0"
+description: "Bộ thẻ truy xuất kiến thức W04. Nội dung giáo dục, không phải khuyến nghị đầu tư."
+
+cards:
+  - id: "fc-investing-w04-001"
+    version: "1.0.0"
+    concept: "EPS cơ bản"
+    front: "Công thức EPS cơ bản (basic) là gì và vì sao mẫu số dùng số cổ phiếu bình quân gia quyền?"
+    back: "EPS cơ bản = (Lợi nhuận ròng − Cổ tức cổ phiếu ưu đãi) / Số cổ phiếu phổ thông bình quân gia quyền trong kỳ (OpenStax 6.27; SEC mô tả rút gọn: tổng lợi nhuận ròng chia số cổ phiếu đang lưu hành). Mẫu số bình quân gia quyền vì số cổ phiếu thay đổi khi phát hành thêm hoặc mua lại — OpenStax minh họa: 600 cổ phiếu 3 tháng + 1.600 cổ phiếu 9 tháng = 1.350 cổ phiếu bình quân."
+    source_lesson: "Investing/notes/module-1/week-04-chi-so-tai-chinh-co-ban.md"
+    claim_ids: ["W04-C02"]
+    tags: ["eps", "weighted-average-shares"]
+  - id: "fc-investing-w04-002"
+    version: "1.0.0"
+    concept: "EPS cơ bản vs pha loãng"
+    front: "EPS pha loãng (diluted EPS) khác EPS cơ bản ở đâu?"
+    back: "Công ty đại chúng phải báo cáo cả basic và diluted trên mặt income statement (OpenStax 6.5; IAS 33 yêu cầu trình bày với tầm quan trọng ngang nhau). Diluted tính thêm các công cụ có khả năng làm giảm EPS cơ bản (chứng khoán chuyển đổi, quyền chọn, warrant); IAS 33 định nghĩa dilution là mức giảm tiềm năng của EPS hoặc tăng tiềm năng của lỗ trên mỗi cổ phần, và đặt nguyên tắc cho cả tử số (earnings) lẫn mẫu số (số cổ phiếu bình quân gia quyền trong kỳ)."
+    source_lesson: "Investing/notes/module-1/week-04-chi-so-tai-chinh-co-ban.md"
+    claim_ids: ["W04-C02"]
+    tags: ["diluted-eps", "ias-33"]
+  - id: "fc-investing-w04-003"
+    version: "1.0.0"
+    concept: "P/E"
+    front: "P/E tính thế nào và đọc kết quả ra sao?"
+    back: "P/E = Giá mỗi cổ phiếu / EPS (SEC: ví dụ 20 USD / 2 USD = 10 lần — cổ phiếu bán với 10 lần lợi nhuận). Kết quả 18,51 lần nghĩa là nhà đầu tư trả 18,51 đồng giá để đổi 1 đồng lợi nhuận (OpenStax 6.31). Lưu ý: phân biệt trailing/TTM (EPS 12 tháng đã báo cáo) và forward (EPS dự phóng); tử số là giá tại một thời điểm, mẫu số là lợi nhuận cả một kỳ."
+    source_lesson: "Investing/notes/module-1/week-04-chi-so-tai-chinh-co-ban.md"
+    claim_ids: ["W04-C04"]
+    tags: ["pe-ratio", "ttm", "forward-pe"]
+  - id: "fc-investing-w04-004"
+    version: "1.0.0"
+    concept: "P/B và BVPS"
+    front: "BVPS và P/B tính theo công thức nào?"
+    back: "BVPS = (Tổng vốn chủ sở hữu − Vốn ưu đãi) / Tổng số cổ phiếu lưu hành; P/B = Giá mỗi cổ phiếu / BVPS (OpenStax 6.33). Book value là giá trị 'trên giấy' theo thực hành kế toán, còn giá thị trường do cung–cầu quyết định — hai con số thường khác nhau và so sánh chúng không tự động cho kết luận đắt/rẻ."
+    source_lesson: "Investing/notes/module-1/week-04-chi-so-tai-chinh-co-ban.md"
+    claim_ids: ["W04-C04"]
+    tags: ["pb-ratio", "bvps"]
+  - id: "fc-investing-w04-005"
+    version: "1.0.0"
+    concept: "ROE và ROA"
+    front: "ROE và ROA khác nhau thế nào về tử số và mẫu số?"
+    back: "ROE = Lợi nhuận ròng (sau cổ tức ưu đãi) / Vốn chủ sở hữu bình quân — đo hiệu quả dùng vốn cổ đông; ROA = Lợi nhuận ròng / Tổng tài sản bình quân — đo hiệu quả dùng toàn bộ tài sản (OpenStax 6.37–6.42). Mẫu số bình quân = (số dư đầu kỳ + số dư cuối kỳ) / 2; mức chấp nhận được do chuẩn ngành quyết định."
+    source_lesson: "Investing/notes/module-1/week-04-chi-so-tai-chinh-co-ban.md"
+    claim_ids: ["W04-C05"]
+    tags: ["roe", "roa", "average-balance"]
+  - id: "fc-investing-w04-006"
+    version: "1.0.0"
+    concept: "DuPont"
+    front: "Phương pháp DuPont tách ROE thành những thành phần nào?"
+    back: "ROE = Biên lợi nhuận (Net Income/Net Sales) × Vòng quay tổng tài sản (Net Sales/Total Assets) × Hệ số nhân vốn chủ (Average Total Assets/Average Stockholders' Equity) (OpenStax 6.45–6.48). Hệ số nhân vốn chủ là thành phần đòn bẩy: công ty dùng nhiều nợ sẽ có vốn chủ nhỏ hơn nên ROE bị đẩy lên, dù hiệu quả kinh doanh không đổi — vì vậy ROE cao chưa tự động là quản lý giỏi."
+    source_lesson: "Investing/notes/module-1/week-04-chi-so-tai-chinh-co-ban.md"
+    claim_ids: ["W04-C05"]
+    tags: ["dupont", "equity-multiplier", "leverage"]
+  - id: "fc-investing-w04-007"
+    version: "1.0.0"
+    concept: "D/E"
+    front: "D/E = 1,5 lần (hoặc 2:1) có ý nghĩa gì?"
+    back: "D/E = Tổng nợ phải trả / Tổng vốn chủ sở hữu (SEC; OpenStax 6.23). D/E = 2:1 nghĩa là công ty có 2 đồng nợ cho mỗi 1 đồng cổ đông đầu tư; 1,5:1 nghĩa là mỗi 1 đồng vốn chủ đi kèm 1,5 đồng nợ. Biến thể Debt-to-Assets = (nợ ngắn hạn + nợ dài hạn)/tổng tài sản; nếu > 1,0 thì nợ nhiều hơn tài sản, tức vốn chủ âm (OpenStax 6.21–6.22)."
+    source_lesson: "Investing/notes/module-1/week-04-chi-so-tai-chinh-co-ban.md"
+    claim_ids: ["W04-C06"]
+    tags: ["debt-to-equity", "leverage"]
+  - id: "fc-investing-w04-008"
+    version: "1.0.0"
+    concept: "Mẫu số 0/âm và EPS âm"
+    front: "Phải làm gì khi EPS âm hoặc vốn chủ sở hữu bằng 0/âm?"
+    back: "EPS âm: P/E là số âm và không dùng để so sánh mức giá — Damodaran (01/2026) ghi NA cho trailing P/E của các ngành phần lớn công ty lỗ; EPS âm phản ánh quá khứ, không dự báo tương lai (OpenStax: Amazon 1997 EPS −1,27 USD). Vốn chủ bằng 0: BVPS = 0, P/B chia cho 0 — không xác định. Vốn chủ âm (debt-to-assets > 1,0): D/E, P/B ra số âm, không diễn giải được như đòn bẩy bình thường. Cách ghi đúng: 'NA — mẫu số 0/âm', nêu dữ kiện còn thiếu thay vì ép so sánh."
+    source_lesson: "Investing/notes/module-1/week-04-chi-so-tai-chinh-co-ban.md"
+    claim_ids: ["W04-C03"]
+    tags: ["negative-eps", "not-meaningful", "safety"]

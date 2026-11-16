@@ -1,0 +1,51 @@
+deck_id: "deck-ls-w01"
+subject: "LifeSkills"
+lesson_id: "week-01-self-awareness"
+version: "1.0.0"
+description: "Thẻ truy hồi chủ động cho self-awareness, Johari Window và strengths theo bối cảnh."
+
+cards:
+  - id: "fc-ls-w01-001"
+    concept: "Self-awareness"
+    front: "Self-awareness khác với việc tự gán cho mình một nhãn cố định như thế nào?"
+    back: "Self-awareness là quan sát trạng thái, hành vi, ưu tiên và bối cảnh của mình trong khi giữ giới hạn suy luận. Một trạng thái hoặc hành vi không tự định nghĩa toàn bộ con người."
+    source_lesson: "LifeSkills/notes/module-1/week-01-self-awareness.md#31-bốn-lớp-để-suy-nghĩ-rõ-hơn"
+    version: "1.0.0"
+    claim_ids: ["W01-C01"]
+    tags: ["self-awareness", "self-knowledge", "module-1"]
+
+  - id: "fc-ls-w01-002"
+    concept: "Dữ kiện và diễn giải"
+    front: "Trong phân tích một tình huống, vì sao cần tách dữ kiện quan sát được khỏi diễn giải?"
+    back: "Dữ kiện có thể kiểm tra, còn diễn giải là ý nghĩa hoặc ý định ta gán vào dữ kiện. Tách hai lớp giúp tạo giả thuyết thay thế và tránh kết luận chắc chắn từ một dấu hiệu."
+    source_lesson: "LifeSkills/notes/module-1/week-01-self-awareness.md#31-bốn-lớp-để-suy-nghĩ-rõ-hơn"
+    version: "1.0.0"
+    claim_ids: ["W01-C01"]
+    tags: ["evidence", "alternative-hypothesis", "module-1"]
+
+  - id: "fc-ls-w01-003"
+    concept: "Johari Window"
+    front: "Johari Window nên được dùng như công cụ gì, và không nên được dùng như công cụ gì?"
+    back: "Đây là heuristic để tổ chức câu hỏi về thông tin mình/người khác biết hoặc chưa biết, feedback và disclosure. Nó không phải bài test chẩn đoán, không đo giá trị con người và không buộc người học phải chia sẻ."
+    source_lesson: "LifeSkills/notes/module-1/week-01-self-awareness.md#41-johari-window-dùng-như-bản-đồ-câu-hỏi-không-phải-nhãn-w01-c02"
+    version: "1.0.0"
+    claim_ids: ["W01-C02"]
+    tags: ["johari-window", "feedback", "consent"]
+
+  - id: "fc-ls-w01-004"
+    concept: "Strengths theo bối cảnh"
+    front: "Một strength cần được xem xét theo những câu hỏi bối cảnh nào?"
+    back: "Hỏi strength hữu ích khi nào, có chi phí nào, và cần điều chỉnh gì trong bối cảnh cụ thể. Strength không phải nhãn bản chất và dùng nhiều hơn không bảo đảm kết quả tốt hơn."
+    source_lesson: "LifeSkills/notes/module-1/week-01-self-awareness.md#42-giá-trị-và-strengths-không-phải-bản-án-về-con-người"
+    version: "1.0.0"
+    claim_ids: ["W01-C02"]
+    tags: ["strengths", "context", "limitations"]
+
+  - id: "fc-ls-w01-005"
+    concept: "Feedback có consent"
+    front: "Một lời mời feedback an toàn cần có những đặc điểm nào?"
+    back: "Hỏi trước người kia có sẵn sàng không, mô tả hành vi cụ thể thay vì nhãn, nói rõ phạm vi và cho phép họ từ chối. Feedback vẫn có thể sai nên cần được phản biện và đặt trong bối cảnh."
+    source_lesson: "LifeSkills/notes/module-1/week-01-self-awareness.md#41-johari-window-dùng-như-bản-đồ-câu-hỏi-không-phải-nhãn-w01-c02"
+    version: "1.0.0"
+    claim_ids: ["W01-C01", "W01-C02"]
+    tags: ["feedback", "consent", "communication"]

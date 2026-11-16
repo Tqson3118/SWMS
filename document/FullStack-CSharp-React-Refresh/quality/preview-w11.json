@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:53:51Z",
+  "unit_id": "roadmap:unit:fscr:w11",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 11: Index, execution plan, pagination và N+1",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w11",
+    "title": "Tuần 11: Index, execution plan, pagination và N+1",
+    "content_markdown": "<h1>Tuần 11 — Index, execution plan, pagination và N+1</h1>\n<p>Chặng 3; 3 bài L11-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W11-01: Thiết kế index cho owner/date và đo reads/write tradeoff.</p>\n</li>\n<li>\n<p>LO-W11-02: Đọc actual plan, row estimates, lookup/sort và logical reads.</p>\n</li>\n<li>\n<p>LO-W11-03: Viết stable paging và nhận diện N+1 ở SQL/EF contract.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 10; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-11-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w11-01\"></a></p>\n<h2>Bài 1: Index design</h2>\n<p>LO-W11-01 · W11-C01</p>\n<p>B-tree index giúp tìm/range/order bằng key phù hợp; composite key order quan trọng. Query WHERE UserId=@u AND SpentOn&gt;=@from AND SpentOn&lt;@to ORDER BY SpentOn DESC,Id DESC có candidate(UserId,SpentOn DESC,Id DESC) INCLUDE(AmountVnd,CategoryId). Included columns giúp cover projection, không tham gia ordering key. Index tăng storage và write maintenance; không tạo mọi column index. SARGable date range so column trực tiếp tốt hơn YEAR(SpentOn)=... làm khó seek. Scan có thể đúng cho small table/manyrows, không gọi mọi scan là lỗi. Statistics/cardinality estimate ảnh hưởng lựa chọn plan.</p>\n<p><a id=\"lo-w11-02\"></a></p>\n<h2>Bài 2: Basic execution plan và đo lường</h2>\n<p>LO-W11-02 · W11-C02</p>\n<p>SQL Server SSMS bật Include Actual Execution Plan và SET STATISTICS IO,TIME ON. Actual rows so estimated rows để thấy estimation lệch; Index Seek vẫn có thể đọc nhiều rows/lookup, không chỉ nhìn icon. Key Lookup nhiều lần/sort spill có thể đáng chú ý; cost% là estimate relative, không latency thực. Dùng dataset100000 expense giả, query shape/parameters cố định, warm/cold state ghi rõ, chạy nhiều lượt báo median/p95 và logical reads. So before/after cùng data, không hứa50ms mọi máy. Kiểm functional output unchanged trước nhận optimization.</p>\n<p><a id=\"lo-w11-03\"></a></p>\n<h2>Bài 3: Pagination và query round trips</h2>\n<p>LO-W11-03 · W11-C03</p>\n<p>OFFSET/FETCH hỗ trợ page number nhưng page sâu skip nhiều rows; luôn ORDER BY ổn định có unique tie-breaker Id. Concurrent inserts có thể làm offset lặp/missing giữa các request; keyset cursor dùng (SpentOn,Id) after tuple theo sort để next page nhất quán hơn, nhưng không tự snapshot mọi data changes. N+1 là 1 query list rồi 1 query per row/category, tăng round trips; project DTO join/projection hoặc eager load có chủ đích, không Include mọi graph. Filter/paging trước materialize, giới hạn pageSize&lt;=100. TotalCount thêm query là2 không phải N+1; cần đếm cùng filter.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Bài toán: xem trang đầu owner/date, không lấy toàn DB.</li>\n<li>Parameter và stable ordering.</li>\n<li>Trên schema project đã seed:</li>\n</ol>\n<pre><code class=\"language-sql\">DECLARE @UserId uniqueidentifier='11111111-1111-1111-1111-111111111111';\nDECLARE @From date='20261001',@To date='20261101';\nSELECT Id,CategoryId,AmountVnd,SpentOn\nFROM dbo.Expenses\nWHERE UserId=@UserId AND SpentOn&gt;=@From AND SpentOn&lt;@To\nORDER BY SpentOn DESC,Id DESC\nOFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY;\n-- Tạo sau khi đã lưu plan/IO trước:\nCREATE INDEX IX_Expenses_User_Date_Id\nON dbo.Expenses(UserId,SpentOn DESC,Id DESC) INCLUDE(AmountVnd,CategoryId);\n</code></pre>\n<ol>\n<li>Seed Alice với Guid này; expected3 rows descending dates. Index tạo1lần trong migration/script có guard về sau; don't blindly rerun CREATE INDEX. Data3rows chưa chứng minh hiệu năng, cần 100000 rows fixture.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>NoSQL cũng cần indexes, không thoát query design. N+1 còn xảy ra trong API loop tự fetch child; đo count queries/requests, không chỉ SQL string. Tối ưu có bằng chứng không thay ownership/date filters.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>3 expense cùng spentOn; phân trang1item/trang, test ties.</p>\n<h3>Bài tập 2</h3>\n<p>100 expenses mỗi row gọi category query; sửa và đo.</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>ORDER BY SpentOn DESC,Id DESC, unique Id phá ties. Ghi IDs mỗi trang trước mutation; không lặp/missing trên fixed dataset. Với concurrent inserts thử keyset và mô tả snapshot hạn chế.</p>\n<h3>Hướng giải 2</h3>\n<p>JOIN/projection DTO lấy categoryName cùng expenses; query count1(list)+1(count) thay101. Nếu endpoint cần nhiều graph test split-query số roundtrips cố định, tránh Include bừa.</p>\n<h2>Project task</h2>\n<p>Endpoint query contract và SQL scripts có owner/date filters, stable page và baseline plan100000rows. Chuẩn bị EF projection tuần14.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w11.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Fixed dataset/tied dates phân trang không duplicate/missing; pageSize0/101 bị chặn.</p>\n</li>\n<li>\n<p>[ ] N+1 case100rows từ 101 queries xuống&lt;=2 cho list+count; output đúng.</p>\n</li>\n<li>\n<p>[ ] Lưu before/after actual plan/logical reads/dataset/version; giải thích write cost index.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Thu: 'Can an index seek still be slow?' Nói workload, logical reads, round trip, keyset, tie-breaker.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-index-design-guide\">Index design guide</a> — W11-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/sql/relational-databases/performance/display-an-actual-execution-plan\">Display an actual execution plan</a> — W11-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/ef/core/performance/efficient-querying\">Pagination, projection and lazy loading N+1</a> — W11-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-11-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-11-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-11.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"week-10.md\">Tuần trước</a></p>\n<p><a href=\"week-12.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Index design guide](https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-index-design-guide)",
+      "[Display an actual execution plan](https://learn.microsoft.com/en-us/sql/relational-databases/performance/display-an-actual-execution-plan)",
+      "[Pagination, projection and lazy loading N+1](https://learn.microsoft.com/en-us/ef/core/performance/efficient-querying)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W11-01]",
+        "bloom_level": "Apply",
+        "statement": "Thiết kế index cho owner/date và đo reads/write tradeoff."
+      },
+      {
+        "id": "[LO-W11-02]",
+        "bloom_level": "Apply",
+        "statement": "Đọc actual plan, row estimates, lookup/sort và logical reads."
+      },
+      {
+        "id": "[LO-W11-03]",
+        "bloom_level": "Apply",
+        "statement": "Viết stable paging và nhận diện N+1 ở SQL/EF contract."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w11-c01",
+        "name": "Index design",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w11-c02",
+        "name": "Basic execution plan và đo lường",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w11-c03",
+        "name": "Pagination và query round trips",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w11",
+    "title": "Trắc nghiệm Tuần 11: Index, execution plan, pagination và N+1",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w11:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "Thêm index có tradeoff gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Mọi query luôn nhanh hơn"
+          },
+          {
+            "id": "B",
+            "text": "Write không đổi bất kể index"
+          },
+          {
+            "id": "C",
+            "text": "Không cần stats"
+          },
+          {
+            "id": "D",
+            "text": "Read có thể nhanh hơn, write/storage tốn hơn"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Index maintenance/storage đổi workload cost.",
+        "wrong_explanations": {
+          "A": "Không index nào tối ưu mọi query.",
+          "B": "Every applicable write maintenance có chi phí.",
+          "C": "Statistics ảnh hưởng optimizer."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w11-c01",
+        "lesson_anchor": "#lo-w11-01",
+        "claim_ids": [
+          "W11-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w11:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Filter tháng nên thử form nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "SpentOn>=from AND SpentOn<to"
+          },
+          {
+            "id": "B",
+            "text": "YEAR(SpentOn)=y luôn seek tối ưu"
+          },
+          {
+            "id": "C",
+            "text": "Format date thành text rồi compare"
+          },
+          {
+            "id": "D",
+            "text": "Bỏ UserId để nhanh"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Range trên column phù hợp index.",
+        "wrong_explanations": {
+          "B": "Function trên column có thể làm khó seek.",
+          "C": "Formatting thêm computation/semantics sai.",
+          "D": "Bỏ owner phá security."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w11-c01",
+        "lesson_anchor": "#lo-w11-01",
+        "claim_ids": [
+          "W11-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w11:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "Index Seek đủ chứng minh query nhanh chưa?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Chỉ screenshot không dataset"
+          },
+          {
+            "id": "B",
+            "text": "Chưa, xem reads/rows/lookup/timing"
+          },
+          {
+            "id": "C",
+            "text": "Đủ icon là guarantee"
+          },
+          {
+            "id": "D",
+            "text": "Chỉ cost% chắc chắn latency"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Seek có thể lấy nhiều rows và costly lookups.",
+        "wrong_explanations": {
+          "A": "Dataset/conditions cần để reproduce.",
+          "C": "Icon không total work.",
+          "D": "Cost% estimate không thời gian thực."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w11-c02",
+        "lesson_anchor": "#lo-w11-02",
+        "claim_ids": [
+          "W11-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w11:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "Scan small table luôn cần sửa không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Có đổi thành NoSQL luôn"
+          },
+          {
+            "id": "B",
+            "text": "Có thêm100indexes"
+          },
+          {
+            "id": "C",
+            "text": "Không, có thể plan hợp lý"
+          },
+          {
+            "id": "D",
+            "text": "Có mọi scan là bug"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Optimizer có thể chọn scan rẻ cho small/manyrows.",
+        "wrong_explanations": {
+          "A": "Đổi DB không thay workload evidence.",
+          "B": "Index bừa tăng write/storage.",
+          "D": "Khẳng định tuyệt đối sai."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w11-c02",
+        "lesson_anchor": "#lo-w11-02",
+        "claim_ids": [
+          "W11-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w11:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "ORDER BY date có ties thì thêm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Random() mỗi query"
+          },
+          {
+            "id": "B",
+            "text": "Không cần ORDER BY"
+          },
+          {
+            "id": "C",
+            "text": "Chỉ tăng pageSize"
+          },
+          {
+            "id": "D",
+            "text": "Unique Id tie-breaker"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Unique secondary key ổn định fixed data.",
+        "wrong_explanations": {
+          "A": "Random phá thứ tự.",
+          "B": "SQL output không bảo đảm order mặc định.",
+          "C": "Page size không giải tie order."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w11-c03",
+        "lesson_anchor": "#lo-w11-03",
+        "claim_ids": [
+          "W11-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w11:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "List100rows rồi fetch category từngrow nên sửa gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Projection/JOIN theo dữ liệu cần, đo query count"
+          },
+          {
+            "id": "B",
+            "text": "Tăng timeout vô hạn"
+          },
+          {
+            "id": "C",
+            "text": "Load toàn DB vào memory"
+          },
+          {
+            "id": "D",
+            "text": "Thêm index frontend"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Giảm round trips và tải fields hợp lý.",
+        "wrong_explanations": {
+          "B": "Timeout không bỏ 101 calls.",
+          "C": "Toàn DB không scale/security boundary.",
+          "D": "Frontend index không giảm backend query count."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w11-c03",
+        "lesson_anchor": "#lo-w11-03",
+        "claim_ids": [
+          "W11-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w11",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 11: Index, execution plan, pagination và N+1",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w11-001",
+        "concept_name": "Index cost",
+        "front": "Thêm index có tradeoff gì?",
+        "back": "Read có thể nhanh hơn, write/storage tốn hơn. Index maintenance/storage đổi workload cost.",
+        "tags": [
+          "w11",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W11-C01"
+        ],
+        "source_citation": "notes/module-3/week-11.md",
+        "lesson_anchor": "#lo-w11-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w11-002",
+        "concept_name": "SARGable date",
+        "front": "Filter tháng nên thử form nào?",
+        "back": "SpentOn>=from AND SpentOn<to. Range trên column phù hợp index.",
+        "tags": [
+          "w11",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W11-C01"
+        ],
+        "source_citation": "notes/module-3/week-11.md",
+        "lesson_anchor": "#lo-w11-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w11-003",
+        "concept_name": "Plan evidence",
+        "front": "Index Seek đủ chứng minh query nhanh chưa?",
+        "back": "Chưa, xem reads/rows/lookup/timing. Seek có thể lấy nhiều rows và costly lookups.",
+        "tags": [
+          "w11",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W11-C02"
+        ],
+        "source_citation": "notes/module-3/week-11.md",
+        "lesson_anchor": "#lo-w11-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w11-004",
+        "concept_name": "Small scan",
+        "front": "Scan small table luôn cần sửa không?",
+        "back": "Không, có thể plan hợp lý. Optimizer có thể chọn scan rẻ cho small/manyrows.",
+        "tags": [
+          "w11",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W11-C02"
+        ],
+        "source_citation": "notes/module-3/week-11.md",
+        "lesson_anchor": "#lo-w11-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w11-005",
+        "concept_name": "Stable paging",
+        "front": "ORDER BY date có ties thì thêm gì?",
+        "back": "Unique Id tie-breaker. Unique secondary key ổn định fixed data.",
+        "tags": [
+          "w11",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W11-C03"
+        ],
+        "source_citation": "notes/module-3/week-11.md",
+        "lesson_anchor": "#lo-w11-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w11-006",
+        "concept_name": "N+1 fix",
+        "front": "List100rows rồi fetch category từngrow nên sửa gì?",
+        "back": "Projection/JOIN theo dữ liệu cần, đo query count. Giảm round trips và tải fields hợp lý.",
+        "tags": [
+          "w11",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W11-C03"
+        ],
+        "source_citation": "notes/module-3/week-11.md",
+        "lesson_anchor": "#lo-w11-03"
+      }
+    ]
+  }
+}

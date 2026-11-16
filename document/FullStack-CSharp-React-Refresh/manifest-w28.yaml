@@ -1,0 +1,117 @@
+schema_version: 2.0.0
+package_id: package:fscr:w28
+subject_id: roadmap:subject:fullstack-csharp-react-refresh
+display_title: FullStack C# + React Refresh
+source_status: in_review
+version: 1
+created_at: '2026-10-03T09:21:35Z'
+subject: FullStack C# + React Refresh
+course: FullStack C# + React Refresh
+module: phase-7-week-28
+lesson: week-28
+source_ledger_path: quality/ledger-w28.md
+learning_objectives:
+- id: LO-W28-01
+  bloom_level: Apply
+  statement: Giải thích Big-O và chọn structures cho bài thực tế.
+- id: LO-W28-02
+  bloom_level: Apply
+  statement: Kết nối câu hỏi với project evidence và trade-offs.
+- id: LO-W28-03
+  bloom_level: Apply
+  statement: Tạo evidence đủ để ứng tuyển và có kế hoạch sửa gaps.
+concepts:
+- id: concept:fscr:w28-c01
+  name: DSA hợp lý
+  claim_ids:
+  - W28-C01
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w28.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w28-c02
+  name: Practical interview answers
+  claim_ids:
+  - W28-C02
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w28.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w28-c03
+  name: Portfolio và application gate
+  claim_ids:
+  - W28-C03
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w28.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+questions:
+- id: Q28-01
+  lo_ref: LO-W28-01
+  concept_id: concept:fscr:w28-c01
+  claim_ids:
+  - W28-C01
+- id: Q28-02
+  lo_ref: LO-W28-01
+  concept_id: concept:fscr:w28-c01
+  claim_ids:
+  - W28-C01
+- id: Q28-03
+  lo_ref: LO-W28-02
+  concept_id: concept:fscr:w28-c02
+  claim_ids:
+  - W28-C02
+- id: Q28-04
+  lo_ref: LO-W28-02
+  concept_id: concept:fscr:w28-c02
+  claim_ids:
+  - W28-C02
+- id: Q28-05
+  lo_ref: LO-W28-03
+  concept_id: concept:fscr:w28-c03
+  claim_ids:
+  - W28-C03
+- id: Q28-06
+  lo_ref: LO-W28-03
+  concept_id: concept:fscr:w28-c03
+  claim_ids:
+  - W28-C03
+units:
+- unit_id: roadmap:unit:fscr:w28
+  display_title: 'Tuần 28: DSA, interviews và job application readiness'
+  sort_order: 28
+  artifacts:
+  - role: lesson_theory
+    path: notes/module-7/week-28.html
+    sha256: ecabbed3f1a1de7918373c9138de025fd39acdcf471615d8981266847252e3f3
+    byte_length: 9057
+    stable_id: roadmap:lesson:fscr:w28
+  - role: quiz_questions
+    path: assessments/quizzes/week-28-quiz.md
+    sha256: f241a8f3f53305b5a3291a945146b6b675844c7dfae33fb45847bd15c0a6eb46
+    byte_length: 1250
+    stable_id: roadmap:quiz:fscr:w28
+    question_count: 6
+  - role: quiz_answers
+    path: assessments/answer-keys/week-28-answers.md
+    sha256: 49f78a744c486275d5be47bf008aec1d5ff8012428ca81b0d46464006806c746
+    byte_length: 3910
+    stable_id: roadmap:answers:fscr:w28
+    correct_count: 6
+    wrong_count: 18
+  - role: flashcard_deck
+    path: flashcards/week-28.yaml
+    sha256: 31b8b70e86afded133c83587975276860081540c1cd524697a3e88caa2acb888
+    byte_length: 1963
+    stable_id: roadmap:deck:fscr:w28
+    card_count: 6
+  - role: source_ledger
+    path: quality/ledger-w28.md
+    sha256: e9e70b6addad82e0ee6d9bb817593a38407e8460be6191f55f45c7f4848f4b69
+    byte_length: 787

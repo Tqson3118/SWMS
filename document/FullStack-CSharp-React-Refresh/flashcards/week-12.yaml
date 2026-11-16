@@ -1,0 +1,72 @@
+deck_id: deck-fscr-w12
+subject: FullStack-CSharp-React-Refresh
+lesson_id: week-12
+version: 1.0.0
+description: Transactions, concurrency và data correctness
+cards:
+- id: fc-fscr-w12-001
+  concept: Atomicity
+  front: 2writes nghiệp vụ cần all-or-nothing thì làm gì?
+  back: Cùng transaction boundary. Transaction chung cho phép rollback unit.
+  source_lesson: notes/module-3/week-12.md
+  version: 1.0.0
+  claim_ids:
+  - W12-C01
+  tags:
+  - w12
+  - fullstack
+- id: fc-fscr-w12-002
+  concept: External boundary
+  front: SQL transaction có tự rollback email đã gửi không?
+  back: Không. DB transaction chỉ bảo vệ resource tham gia.
+  source_lesson: notes/module-3/week-12.md
+  version: 1.0.0
+  claim_ids:
+  - W12-C01
+  tags:
+  - w12
+  - fullstack
+- id: fc-fscr-w12-003
+  concept: Rowversion semantics
+  front: SQL Server rowversion là gì?
+  back: Binary concurrency version, không thời gian. Token hỗ trợ detect stale write.
+  source_lesson: notes/module-3/week-12.md
+  version: 1.0.0
+  claim_ids:
+  - W12-C02
+  tags:
+  - w12
+  - fullstack
+- id: fc-fscr-w12-004
+  concept: Lost update guard
+  front: UPDATE với oldversion mismatch có affectedrows gì?
+  back: 0. Predicate version không match nên không write.
+  source_lesson: notes/module-3/week-12.md
+  version: 1.0.0
+  claim_ids:
+  - W12-C02
+  tags:
+  - w12
+  - fullstack
+- id: fc-fscr-w12-005
+  concept: Idempotency hash
+  front: Same key/different payload nên xử lý gì?
+  back: 409 conflict. Key đã đại diện operation khác nên conflict.
+  source_lesson: notes/module-3/week-12.md
+  version: 1.0.0
+  claim_ids:
+  - W12-C03
+  tags:
+  - w12
+  - fullstack
+- id: fc-fscr-w12-006
+  concept: Exists race
+  front: Check exists trước insert đã đủ chống concurrent duplicate chưa?
+  back: Chưa, cần unique/atomicity. Hai transaction có thể cùng thấy missing.
+  source_lesson: notes/module-3/week-12.md
+  version: 1.0.0
+  claim_ids:
+  - W12-C03
+  tags:
+  - w12
+  - fullstack

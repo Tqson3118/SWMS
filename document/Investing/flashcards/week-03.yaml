@@ -1,0 +1,71 @@
+deck_id: "deck-investing-w03"
+subject: "Investing"
+lesson_id: "week-03-bao-cao-tai-chinh"
+version: "1.0.0"
+description: "Bộ thẻ truy xuất kiến thức W03. Nội dung giáo dục, không phải khuyến nghị đầu tư."
+
+cards:
+  - id: "fc-investing-w03-001"
+    version: "1.0.0"
+    concept: "Balance Sheet"
+    front: "Bảng cân đối kế toán (Balance Sheet) phản ánh điều gì?"
+    back: "Tài sản, nợ phải trả và vốn chủ sở hữu tại một thời điểm cố định — ảnh chụp nhanh (snapshot) tại ngày khóa sổ; không cho thấy dòng vào/ra của các khoản mục trong kỳ."
+    source_lesson: "Investing/notes/module-1/week-03-bao-cao-tai-chinh.md"
+    claim_ids: ["W03-C01", "W03-C02"]
+    tags: ["balance-sheet", "financial-statements"]
+  - id: "fc-investing-w03-002"
+    version: "1.0.0"
+    concept: "Income Statement"
+    front: "Báo cáo kết quả kinh doanh (Income Statement) phản ánh điều gì?"
+    back: "Doanh thu, chi phí và lợi nhuận (hoặc lỗ) ròng trong một khoảng thời gian (kỳ kế toán); đi từ doanh thu trừ dần chi phí đến bottom line. Revenue − Expenses = Net Income."
+    source_lesson: "Investing/notes/module-1/week-03-bao-cao-tai-chinh.md"
+    claim_ids: ["W03-C01"]
+    tags: ["income-statement", "financial-statements"]
+  - id: "fc-investing-w03-003"
+    version: "1.0.0"
+    concept: "Phương trình kế toán"
+    front: "Phương trình kế toán là gì và ý nghĩa của vốn chủ sở hữu?"
+    back: "Assets = Liabilities + Equity; mọi tài sản được tài trợ bằng nợ hoặc vốn chủ. Vốn chủ sở hữu là phần tiền còn lại nếu công ty bán toàn bộ tài sản và trả hết mọi nợ (SEC)."
+    source_lesson: "Investing/notes/module-1/week-03-bao-cao-tai-chinh.md"
+    claim_ids: ["W03-C02"]
+    tags: ["accounting-equation", "equity"]
+  - id: "fc-investing-w03-004"
+    version: "1.0.0"
+    concept: "Thời điểm vs thời kỳ"
+    front: "Báo cáo nào đo tại thời điểm, báo cáo nào đo theo thời kỳ?"
+    back: "Balance Sheet đo tại một thời điểm (snapshot); Income Statement và Cash Flow Statement đo theo một khoảng thời gian (kỳ báo cáo, ví dụ 12 tháng). Không trộn số dư thời điểm với dòng chảy thời kỳ khi so sánh."
+    source_lesson: "Investing/notes/module-1/week-03-bao-cao-tai-chinh.md"
+    claim_ids: ["W03-C01"]
+    tags: ["period-vs-point", "financial-statements"]
+  - id: "fc-investing-w03-005"
+    version: "1.0.0"
+    concept: "Ba nhóm dòng tiền"
+    front: "Cash Flow Statement phân dòng tiền thành những nhóm nào?"
+    back: "Ba nhóm: hoạt động kinh doanh (operating — thu từ bán hàng, chi mua tồn kho, trả lương/điện nước, lãi vay, thuế); hoạt động đầu tư (investing — mua/bán tài sản dài hạn); hoạt động tài chính (financing — huy động từ vay nợ/cổ phiếu, trả nợ gốc, chia cổ tức)."
+    source_lesson: "Investing/notes/module-1/week-03-bao-cao-tai-chinh.md"
+    claim_ids: ["W03-C03"]
+    tags: ["cash-flow", "classification"]
+  - id: "fc-investing-w03-006"
+    version: "1.0.0"
+    concept: "Phân loại CapEx"
+    front: "Chi tiền mua máy móc mở rộng nhà máy thuộc dòng tiền nào?"
+    back: "Hoạt động đầu tư (investing) vì liên quan tài sản dài hạn. Trả nợ gốc, phát hành cổ phiếu/vay nợ và chia cổ tức thuộc hoạt động tài chính (financing); thu từ bán hàng và chi phí vận hành thuộc hoạt động kinh doanh (operating)."
+    source_lesson: "Investing/notes/module-1/week-03-bao-cao-tai-chinh.md"
+    claim_ids: ["W03-C03"]
+    tags: ["capex", "classification"]
+  - id: "fc-investing-w03-007"
+    version: "1.0.0"
+    concept: "Dồn tích vs tiền mặt"
+    front: "Kế toán dồn tích khác kế toán tiền chỗ nào và vì sao cần báo cáo lưu chuyển tiền tệ?"
+    back: "Dồn tích ghi nhận doanh thu/chi phí khi giao dịch phát sinh (ví dụ giao hàng), không phải khi trao đổi tiền; kế toán tiền chỉ ghi khi thu/chi. Vì các báo cáo chính lập theo dồn tích, cần báo cáo lưu chuyển tiền tệ để đối chiếu lợi nhuận với tiền thực nhận, cộng lại các khoản phi tiền mặt như khấu hao."
+    source_lesson: "Investing/notes/module-1/week-03-bao-cao-tai-chinh.md"
+    claim_ids: ["W03-C03"]
+    tags: ["accrual", "cash-basis", "depreciation"]
+  - id: "fc-investing-w03-008"
+    version: "1.0.0"
+    concept: "Lợi nhuận không phải tiền mặt"
+    front: "Vì sao không đánh giá doanh nghiệp chỉ bằng một con số lợi nhuận kế toán?"
+    back: "Lợi nhuận theo dồn tích liên quan nhưng không tương đương với dòng tiền (SEC); chịu tác động của ước tính và chính sách kế toán trong thuyết minh; phải thu tăng nhanh hơn doanh thu là dấu hiệu doanh thu chưa thành tiền. Cần kết hợp cả ba báo cáo; định nghĩa asset, liability, equity, income, expenses được khung IFRS Conceptual Framework 2018 đặt ra."
+    source_lesson: "Investing/notes/module-1/week-03-bao-cao-tai-chinh.md"
+    claim_ids: ["W03-C03", "W03-C04"]
+    tags: ["limitations", "footnotes", "safety"]

@@ -1,0 +1,72 @@
+deck_id: deck-fscr-w13
+subject: FullStack-CSharp-React-Refresh
+lesson_id: week-13
+version: 1.0.0
+description: REST, middleware, DI và API errors
+cards:
+- id: fc-fscr-w13-001
+  concept: Create response
+  front: POST tạo resource thành công trả gì?
+  back: 201 và Location. Created có URI rõ cho resource.
+  source_lesson: notes/module-4/week-13.md
+  version: 1.0.0
+  claim_ids:
+  - W13-C01
+  tags:
+  - w13
+  - fullstack
+- id: fc-fscr-w13-002
+  concept: Owner DTO
+  front: Client UserId quyết owner có đúng không?
+  back: Không, owner từ validated principal. Type/binding không cấp quyền chọn owner.
+  source_lesson: notes/module-4/week-13.md
+  version: 1.0.0
+  claim_ids:
+  - W13-C01
+  tags:
+  - w13
+  - fullstack
+- id: fc-fscr-w13-003
+  concept: Middleware order
+  front: Authentication đứng đâu so authorization?
+  back: Trước authorization. Principal phải có trước kiểm quyền.
+  source_lesson: notes/module-4/week-13.md
+  version: 1.0.0
+  claim_ids:
+  - W13-C02
+  tags:
+  - w13
+  - fullstack
+- id: fc-fscr-w13-004
+  concept: CORS
+  front: CORS có thay ownership không?
+  back: Không. Browser policy không app business security.
+  source_lesson: notes/module-4/week-13.md
+  version: 1.0.0
+  claim_ids:
+  - W13-C02
+  tags:
+  - w13
+  - fullstack
+- id: fc-fscr-w13-005
+  concept: Error contract
+  front: Unexpected exception production nên trả gì?
+  back: 500 generic ProblemDetails. Status failure và trace đủ nối log.
+  source_lesson: notes/module-4/week-13.md
+  version: 1.0.0
+  claim_ids:
+  - W13-C03
+  tags:
+  - w13
+  - fullstack
+- id: fc-fscr-w13-006
+  concept: Logging
+  front: Log nên giữ gì?
+  back: Operation/ID/trace, không secrets. Đủ diagnosis, giảm personal data.
+  source_lesson: notes/module-4/week-13.md
+  version: 1.0.0
+  claim_ids:
+  - W13-C03
+  tags:
+  - w13
+  - fullstack

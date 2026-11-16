@@ -1,0 +1,164 @@
+schema_version: 2.0.0
+package_id: package:psychology:w23
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 03-understanding-others
+lesson: week-23-prejudice-conflict
+learning_objectives:
+- id: LO-W23-01
+  bloom_level: Understand
+  statement: 'Phân biệt rạch ròi ba thành tố trong mô hình ABC: Rập khuôn, Định kiến,
+    và Phân biệt đối xử.'
+- id: LO-W23-02
+  bloom_level: Analyze
+  statement: Phân tích cơ chế tâm lý của Khuếch tán trách nhiệm và Phớt lờ đa số trong
+    Hiệu ứng người ngoài cuộc.
+- id: LO-W23-03
+  bloom_level: Apply
+  statement: Ứng dụng Giả thuyết Tiếp xúc của Allport và thiết lập Mục tiêu chung
+    cấp cao để chuyển hóa xung đột.
+concepts:
+- id: roadmap:concept:psychology:w23-abc-model
+  name: Mô hình ABC (Stereotype, Prejudice, Discrimination)
+  claim_ids:
+  - C23-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w23-minimal-group
+  name: Mô hình nhóm tối thiểu & Bản sắc xã hội
+  claim_ids:
+  - C23-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w23-bystander-effect
+  name: Hiệu ứng người ngoài cuộc & Khuếch tán trách nhiệm
+  claim_ids:
+  - C23-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w23-realistic-conflict
+  name: Thuyết Xung đột Thực tế & Thí nghiệm Robbers Cave
+  claim_ids:
+  - C23-04
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w23-contact-hypothesis
+  name: Giả thuyết Tiếp xúc của Allport & Mục tiêu chung cấp cao
+  claim_ids:
+  - C23-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+questions:
+- id: Q23-01
+  lo_ref: LO-W23-01
+  concept_id: roadmap:concept:psychology:w23-abc-model
+  claim_ids:
+  - C23-01
+- id: Q23-02
+  lo_ref: LO-W23-01
+  concept_id: roadmap:concept:psychology:w23-minimal-group
+  claim_ids:
+  - C23-02
+- id: Q23-03
+  lo_ref: LO-W23-02
+  concept_id: roadmap:concept:psychology:w23-bystander-effect
+  claim_ids:
+  - C23-03
+- id: Q23-04
+  lo_ref: LO-W23-02
+  concept_id: roadmap:concept:psychology:w23-bystander-effect
+  claim_ids:
+  - C23-03
+- id: Q23-05
+  lo_ref: LO-W23-03
+  concept_id: roadmap:concept:psychology:w23-realistic-conflict
+  claim_ids:
+  - C23-04
+- id: Q23-06
+  lo_ref: LO-W23-03
+  concept_id: roadmap:concept:psychology:w23-contact-hypothesis
+  claim_ids:
+  - C23-05
+- id: Q23-07
+  lo_ref: LO-W23-01
+  concept_id: roadmap:concept:psychology:w23-abc-model
+  claim_ids:
+  - C23-01
+- id: Q23-08
+  lo_ref: LO-W23-02
+  concept_id: roadmap:concept:psychology:w23-bystander-effect
+  claim_ids:
+  - C23-03
+- id: Q23-09
+  lo_ref: LO-W23-03
+  concept_id: roadmap:concept:psychology:w23-realistic-conflict
+  claim_ids:
+  - C23-04
+- id: Q23-10
+  lo_ref: LO-W23-03
+  concept_id: roadmap:concept:psychology:w23-contact-hypothesis
+  claim_ids:
+  - C23-05
+units:
+- unit_id: roadmap:unit:psychology:w23
+  display_title: 'Tuần 23: Định Kiến, Xung Đột Nhóm & Hợp Tác'
+  sort_order: 23
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w23
+    path: notes/03-understanding-others/week-23-prejudice-conflict.md
+    sha256: 261da6fe12b8c02283525f665f14a95188679b5d8206838a66a0317968554cc7
+    byte_length: 19153
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w23
+    path: assessments/quizzes/week-23-quiz.md
+    question_count: 10
+    sha256: 2c716048134b02dc1b57d7554735e3626ac3b5f323f0a38cdebddc81b358f5f8
+    byte_length: 8135
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w23
+    path: assessments/answer-keys/week-23-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: ed22423f17d84804b02d0e411fdfe8f7951676d0834fea50d0be3552ea56f1fc
+    byte_length: 10127
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w23
+    path: flashcards/week-23.yaml
+    card_count: 8
+    sha256: 869d141214174a43b5bcee3244079462fc8d266c67416c0ace15a7018272081c
+    byte_length: 5484
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

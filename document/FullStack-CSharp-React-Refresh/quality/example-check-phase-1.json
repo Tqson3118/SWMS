@@ -1,0 +1,21 @@
+{
+  "phase": 1,
+  "passed": true,
+  "errors": [],
+  "results": [
+    {
+      "week": 2,
+      "output": "80000 10000\n50000 60000\n",
+      "expected": [
+        "80000 10000",
+        "50000 60000"
+      ]
+    },
+    {
+      "week": 4,
+      "output": "A\nB\nP\nT\ncount 3\nHTTP404 rejected; microtask order passed\n",
+      "expected": "A,B,P,T; count3; HTTP404 reject"
+    }
+  ],
+  "scope": "selected runnable worked examples; not complete learner project, SQL/provider/React/Docker/cloud tests"
+}

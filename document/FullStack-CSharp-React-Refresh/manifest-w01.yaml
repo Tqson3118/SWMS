@@ -1,0 +1,117 @@
+schema_version: 2.0.0
+package_id: package:fscr:w01
+subject_id: roadmap:subject:fullstack-csharp-react-refresh
+display_title: FullStack C# + React Refresh
+source_status: in_review
+version: 1
+created_at: '2026-10-03T09:21:35Z'
+subject: FullStack C# + React Refresh
+course: FullStack C# + React Refresh
+module: phase-1-week-01
+lesson: week-01
+source_ledger_path: quality/ledger-w01.md
+learning_objectives:
+- id: LO-W01-01
+  bloom_level: Apply
+  statement: Dựng form và danh sách khoản chi dùng semantic elements, label và bàn phím.
+- id: LO-W01-02
+  bloom_level: Apply
+  statement: Giải thích box model và chọn Flexbox/Grid cho layout chi tiêu.
+- id: LO-W01-03
+  bloom_level: Apply
+  statement: Kiểm tra UI ở 320/768/1280px, zoom và keyboard; sửa lỗi overflow.
+concepts:
+- id: concept:fscr:w01-c01
+  name: Semantic HTML và form
+  claim_ids:
+  - W01-C01
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w01.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w01-c02
+  name: Box model, Flexbox, Grid
+  claim_ids:
+  - W01-C02
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w01.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w01-c03
+  name: Responsive và accessibility
+  claim_ids:
+  - W01-C03
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w01.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+questions:
+- id: Q01-01
+  lo_ref: LO-W01-01
+  concept_id: concept:fscr:w01-c01
+  claim_ids:
+  - W01-C01
+- id: Q01-02
+  lo_ref: LO-W01-01
+  concept_id: concept:fscr:w01-c01
+  claim_ids:
+  - W01-C01
+- id: Q01-03
+  lo_ref: LO-W01-02
+  concept_id: concept:fscr:w01-c02
+  claim_ids:
+  - W01-C02
+- id: Q01-04
+  lo_ref: LO-W01-02
+  concept_id: concept:fscr:w01-c02
+  claim_ids:
+  - W01-C02
+- id: Q01-05
+  lo_ref: LO-W01-03
+  concept_id: concept:fscr:w01-c03
+  claim_ids:
+  - W01-C03
+- id: Q01-06
+  lo_ref: LO-W01-03
+  concept_id: concept:fscr:w01-c03
+  claim_ids:
+  - W01-C03
+units:
+- unit_id: roadmap:unit:fscr:w01
+  display_title: 'Tuần 01: HTML/CSS và giao diện có thể sử dụng'
+  sort_order: 1
+  artifacts:
+  - role: lesson_theory
+    path: notes/module-1/week-01.html
+    sha256: 52ffa44240d3f27baaebf189206dc2f1b5affff37a154fd09d606381cca438a1
+    byte_length: 9964
+    stable_id: roadmap:lesson:fscr:w01
+  - role: quiz_questions
+    path: assessments/quizzes/week-01-quiz.md
+    sha256: 3110233811d3d06b4cefc019dd48b3a96ff3cf109b187482e95922c6a7ddf6b0
+    byte_length: 1206
+    stable_id: roadmap:quiz:fscr:w01
+    question_count: 6
+  - role: quiz_answers
+    path: assessments/answer-keys/week-01-answers.md
+    sha256: f20e878bbc50e7028fc50bc8cee4c50c4a0b134724a2a4084eef9c431a1aabd4
+    byte_length: 4118
+    stable_id: roadmap:answers:fscr:w01
+    correct_count: 6
+    wrong_count: 18
+  - role: flashcard_deck
+    path: flashcards/week-01.yaml
+    sha256: 60a3e90ce34d370cc31bce65418c7b8c04df8ebd77a77e4238a647bbad6d32ff
+    byte_length: 2028
+    stable_id: roadmap:deck:fscr:w01
+    card_count: 6
+  - role: source_ledger
+    path: quality/ledger-w01.md
+    sha256: 7b08906d41af65fd5fe92cf523d56eee55c981ff533573be1f99ddf9feabee90
+    byte_length: 669

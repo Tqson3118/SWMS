@@ -1,0 +1,117 @@
+schema_version: 2.0.0
+package_id: package:fscr:w14
+subject_id: roadmap:subject:fullstack-csharp-react-refresh
+display_title: FullStack C# + React Refresh
+source_status: in_review
+version: 1
+created_at: '2026-10-03T09:21:35Z'
+subject: FullStack C# + React Refresh
+course: FullStack C# + React Refresh
+module: phase-4-week-14
+lesson: week-14
+source_ledger_path: quality/ledger-w14.md
+learning_objectives:
+- id: LO-W14-01
+  bloom_level: Apply
+  statement: Map keys/relationships/rowversion và owner-scoped projection.
+- id: LO-W14-02
+  bloom_level: Apply
+  statement: Review/apply migration trên DB lab có dữ liệu mà giữ fixture.
+- id: LO-W14-03
+  bloom_level: Apply
+  statement: Validate DTO/domain/DB và map stale update sang409.
+concepts:
+- id: concept:fscr:w14-c01
+  name: DbContext và relationships
+  claim_ids:
+  - W14-C01
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w14.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w14-c02
+  name: Migration và upgrade
+  claim_ids:
+  - W14-C02
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w14.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w14-c03
+  name: Validation và concurrency
+  claim_ids:
+  - W14-C03
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w14.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+questions:
+- id: Q14-01
+  lo_ref: LO-W14-01
+  concept_id: concept:fscr:w14-c01
+  claim_ids:
+  - W14-C01
+- id: Q14-02
+  lo_ref: LO-W14-01
+  concept_id: concept:fscr:w14-c01
+  claim_ids:
+  - W14-C01
+- id: Q14-03
+  lo_ref: LO-W14-02
+  concept_id: concept:fscr:w14-c02
+  claim_ids:
+  - W14-C02
+- id: Q14-04
+  lo_ref: LO-W14-02
+  concept_id: concept:fscr:w14-c02
+  claim_ids:
+  - W14-C02
+- id: Q14-05
+  lo_ref: LO-W14-03
+  concept_id: concept:fscr:w14-c03
+  claim_ids:
+  - W14-C03
+- id: Q14-06
+  lo_ref: LO-W14-03
+  concept_id: concept:fscr:w14-c03
+  claim_ids:
+  - W14-C03
+units:
+- unit_id: roadmap:unit:fscr:w14
+  display_title: 'Tuần 14: EF Core mapping, migrations và validation'
+  sort_order: 14
+  artifacts:
+  - role: lesson_theory
+    path: notes/module-4/week-14.html
+    sha256: 5741f7311aaa7c0ac5128afba480045f71a2bcee8b396a887f3fab8b63fba987
+    byte_length: 8389
+    stable_id: roadmap:lesson:fscr:w14
+  - role: quiz_questions
+    path: assessments/quizzes/week-14-quiz.md
+    sha256: 4adc4b60c6abcb418eb39e108b2bdf3ba4d2af08c9a4a6fecf5ac98407b9fb2a
+    byte_length: 1095
+    stable_id: roadmap:quiz:fscr:w14
+    question_count: 6
+  - role: quiz_answers
+    path: assessments/answer-keys/week-14-answers.md
+    sha256: a3443e9531b4383f4c0e2dc795956fc80f3d8647c12328673fc3e76bc0335b28
+    byte_length: 3784
+    stable_id: roadmap:answers:fscr:w14
+    correct_count: 6
+    wrong_count: 18
+  - role: flashcard_deck
+    path: flashcards/week-14.yaml
+    sha256: b9c25c78f5683c2dea14af581000eac0e90834f3287202c7a6e17355a0818b4f
+    byte_length: 1899
+    stable_id: roadmap:deck:fscr:w14
+    card_count: 6
+  - role: source_ledger
+    path: quality/ledger-w14.md
+    sha256: 06ec5e58139426e34606d3f1316ac702f88da88866cd79e765fe07e85e228b5a
+    byte_length: 603

@@ -1,0 +1,78 @@
+deck_id: deck-psy-w17
+subject: Psychology
+lesson_id: week-17-social-cognition
+version: 1.0.0
+description: Bộ thẻ ghi nhớ Tuần 17 về Nhận thức xã hội, Lược đồ và Hình thành ấn tượng.
+cards:
+- id: fc-psy-w17-001
+  concept: Lược đồ xã hội (Social Schema)
+  front: Lược đồ xã hội (social schema) vận hành theo cơ chế xử lý thông tin nào?
+  back: Vận hành theo xử lý từ trên xuống (top-down processing), sử dụng tri thức và kỳ vọng có sẵn để lọc, diễn giải và ghi nhớ thông tin xã hội mới.
+  source_lesson: Psychology/notes/03-understanding-others/week-17-social-cognition.md#31-nhận-thức-xã-hội-là-gì
+  version: 1.0.0
+  tags:
+  - w17
+  - social-schema
+- id: fc-psy-w17-002
+  concept: Lát cắt mỏng của hành vi (Thin Slices)
+  front: Nghiên cứu của Ambady & Rosenthal (1992) chỉ ra quan sát hành vi dưới 30 giây có thể đo lường chính xác điều gì và không đo được điều gì?
+  back: Dự báo tốt phong cách biểu cảm liên cá nhân (tương quan r ≈ .76 với đánh giá cuối kỳ), nhưng KHÔNG đo được năng lực chuyên môn sâu hay tính liêm chính đạo đức.
+  source_lesson: Psychology/notes/03-understanding-others/week-17-social-cognition.md#32-lát-cắt-mỏng-của-hành-vi-thin-slices-of-behavior
+  version: 1.0.0
+  tags:
+  - w17
+  - thin-slices
+- id: fc-psy-w17-003
+  concept: Hiệu ứng Hào quang (Halo Effect)
+  front: Hiệu ứng hào quang (halo effect) được định nghĩa như thế nào trong tâm lý học?
+  back: Xu hướng một đặc tính tích cực nổi bật (như ngoại hình ưa nhìn) làm lan tỏa giả định tích cực sang các đặc tính độc lập khác (như thông minh, đáng tin cậy).
+  source_lesson: Psychology/notes/03-understanding-others/week-17-social-cognition.md#33-hiệu-ứng-hào-quang--hiệu-ứng-thứ-tự-ưu-tiên
+  version: 1.0.0
+  tags:
+  - w17
+  - halo-effect
+- id: fc-psy-w17-004
+  concept: Hiệu ứng Thứ tự Ưu tiên (Primacy Effect)
+  front: Thí nghiệm của Solomon Asch (1946) chứng minh điều gì về thứ tự thông tin khi miêu tả tính cách?
+  back: Thông tin tiếp nhận đầu tiên đóng vai trò tạo khung ngữ cảnh, chi phối cách hiểu và trọng số của toàn bộ thông tin tiếp theo trong chuỗi.
+  source_lesson: Psychology/notes/03-understanding-others/week-17-social-cognition.md#33-hiệu-ứng-hào-quang--hiệu-ứng-thứ-tự-ưu-tiên
+  version: 1.0.0
+  tags:
+  - w17
+  - primacy-effect
+- id: fc-psy-w17-005
+  concept: Tự quán triệt nhận thức (Cognitive Awareness)
+  front: Phát hiện then chốt của Nisbett & Wilson (1977) về nhận thức của người tham gia khi chịu tác động của Halo Effect là gì?
+  back: Con người thường không nhận thức được quá trình nhận thức của chính mình; người tham gia kiên quyết phủ nhận việc phong thái giáo sư ảnh hưởng đến đánh giá ngoại hình.
+  source_lesson: Psychology/notes/03-understanding-others/week-17-social-cognition.md#43-nghiên-cứu-hiệu-ứng-hào-quang-nisbett--wilson-1977
+  version: 1.0.0
+  tags:
+  - w17
+  - nisbett-wilson
+- id: fc-psy-w17-006
+  concept: Tiên tri tự ứng nghiệm (Self-Fulfilling Prophecy)
+  front: Thiên kiến xác nhận trong tương tác xã hội (Snyder & Swann, 1978) dẫn đến hệ quả gì?
+  back: Người quan sát hành xử theo kỳ vọng ban đầu, vô tình định hướng đối phương phản ứng đúng như kỳ vọng, biến giả định ban đầu thành hiện thực giả tạo.
+  source_lesson: Psychology/notes/03-understanding-others/week-17-social-cognition.md#44-thiên-kiến-xác-nhận--lời-tiên-tri-tự-ứng-nghiệm-snyder--swann-1978
+  version: 1.0.0
+  tags:
+  - w17
+  - confirmation-bias
+- id: fc-psy-w17-007
+  concept: Kẻ hà tiện nhận thức (Cognitive Miser)
+  front: Thuật ngữ 'Cognitive Miser' (Fiske & Taylor) mô tả đặc tính căn bản nào của não bộ?
+  back: Não bộ luôn tìm cách tiết kiệm năng lượng nhận thức bằng cách ưu tiên các đường tắt tư duy (heuristics) và lược đồ thay vì phân tích cặn kẽ mọi dữ kiện.
+  source_lesson: Psychology/notes/03-understanding-others/week-17-social-cognition.md#41-lược-đồ-xã-hội-và-xử-lý-từ-trên-xuống-top-down-social-cognition
+  version: 1.0.0
+  tags:
+  - w17
+  - cognitive-miser
+- id: fc-psy-w17-008
+  concept: Kiểm soát thiên kiến trong tuyển dụng
+  front: Biện pháp thực tế hiệu quả nhất để ngăn chặn Halo Effect trong đánh giá ứng viên là gì?
+  back: Tách biệt các tiêu chí đánh giá, áp dụng chấm bài thi năng lực ẩn danh và sử dụng bảng tiêu chí cấu trúc cố định trước khi tiếp xúc trực tiếp.
+  source_lesson: Psychology/notes/03-understanding-others/week-17-social-cognition.md#34-bảng-so-sánh-các-thiên-kiến-hình-thành-ấn-tượng
+  version: 1.0.0
+  tags:
+  - w17
+  - bias-control

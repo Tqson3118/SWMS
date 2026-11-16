@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="03cc6084-7370-4240-b117-53c78193c99b" name="Administrator@DESKTOP-C0K1LT1 2026-10-07 21:55:48" runUser="DESKTOP-C0K1LT1\Administrator" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-07T21:55:48.3304732+07:00" queuing="2026-10-07T21:55:48.3304736+07:00" start="2026-10-07T21:55:45.5694928+07:00" finish="2026-10-07T21:55:48.3352488+07:00" />
+  <TestSettings name="default" id="23e982cc-2d43-4397-a5f1-d03f7368a386">
+    <Deployment runDeploymentRoot="Administrator_DESKTOP-C0K1LT1_2026-10-07_21_55_48" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="e6e8761b-371a-4720-987c-7978934a67c9" testId="fbf01328-db9f-af0e-58a8-c243517807f7" testName="ExpenseImportPersistence.Tests.PersistenceTests.File_and_row_caps_are_rejected_without_sql_effect" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1144603" startTime="2026-10-07T21:55:48.1315419+07:00" endTime="2026-10-07T21:55:48.2462909+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e6e8761b-371a-4720-987c-7978934a67c9" />
+    <UnitTestResult executionId="430afa6c-9200-472a-8ed0-6903c38d59c1" testId="1ee28183-ffdc-05b4-7ccf-d20040d6b5a0" testName="ExpenseImportPersistence.Tests.PersistenceTests.Valid_import_applies_owned_schema_and_persists_exact_money_date_fk_and_note" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1528793" startTime="2026-10-07T21:55:47.8530572+07:00" endTime="2026-10-07T21:55:48.0061969+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="430afa6c-9200-472a-8ed0-6903c38d59c1" />
+    <UnitTestResult executionId="4436267e-ca50-4b66-9075-f44c321e4af3" testId="7f8f8f54-c5ec-8ceb-ffa7-edadc7d966f9" testName="ExpenseImportPersistence.Tests.PersistenceTests.Exact_duplicates_are_the_only_errors_that_still_commit_unique_rows" computerName="DESKTOP-C0K1LT1" duration="00:00:01.3814410" startTime="2026-10-07T21:55:46.1428322+07:00" endTime="2026-10-07T21:55:47.5315963+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4436267e-ca50-4b66-9075-f44c321e4af3" />
+    <UnitTestResult executionId="e13661db-e5bc-4ef2-b2da-9c64c653663b" testId="16323aa4-663c-49ed-3c81-6ba914d63e94" testName="ExpenseImportPersistence.Tests.PersistenceTests.Cancellation_before_read_and_before_commit_leave_zero_rows" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1951089" startTime="2026-10-07T21:55:47.5399611+07:00" endTime="2026-10-07T21:55:47.7284915+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e13661db-e5bc-4ef2-b2da-9c64c653663b" />
+    <UnitTestResult executionId="a70276ab-de2c-418c-82bb-2a161e4188a4" testId="8b571678-13ec-5d71-ae67-824613aaeb4a" testName="ExpenseImportPersistence.Tests.PersistenceTests.Precommit_fault_rolls_back_rows_and_postcommit_cancellation_reports_committed" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1247252" startTime="2026-10-07T21:55:48.0063227+07:00" endTime="2026-10-07T21:55:48.1314205+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a70276ab-de2c-418c-82bb-2a161e4188a4" />
+    <UnitTestResult executionId="940ee303-ffc3-4d94-bd23-c700b4d50481" testId="72e2e037-0383-23db-b5ea-416eb0253c77" testName="ExpenseImportPersistence.Tests.PersistenceTests.Validation_error_rejects_every_row_before_sql_effect" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1241486" startTime="2026-10-07T21:55:47.7295349+07:00" endTime="2026-10-07T21:55:47.8529390+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="940ee303-ffc3-4d94-bd23-c700b4d50481" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ExpenseImportPersistence.Tests.PersistenceTests.Precommit_fault_rolls_back_rows_and_postcommit_cancellation_reports_committed" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-persistence\bin\debug\net10.0\expenseimportpersistence.dll" id="8b571678-13ec-5d71-ae67-824613aaeb4a">
+      <Execution id="a70276ab-de2c-418c-82bb-2a161e4188a4" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-persistence\bin\Debug\net10.0\ExpenseImportPersistence.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ExpenseImportPersistence.Tests.PersistenceTests" name="Precommit_fault_rolls_back_rows_and_postcommit_cancellation_reports_committed" />
+    </UnitTest>
+    <UnitTest name="ExpenseImportPersistence.Tests.PersistenceTests.File_and_row_caps_are_rejected_without_sql_effect" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-persistence\bin\debug\net10.0\expenseimportpersistence.dll" id="fbf01328-db9f-af0e-58a8-c243517807f7">
+      <Execution id="e6e8761b-371a-4720-987c-7978934a67c9" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-persistence\bin\Debug\net10.0\ExpenseImportPersistence.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ExpenseImportPersistence.Tests.PersistenceTests" name="File_and_row_caps_are_rejected_without_sql_effect" />
+    </UnitTest>
+    <UnitTest name="ExpenseImportPersistence.Tests.PersistenceTests.Validation_error_rejects_every_row_before_sql_effect" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-persistence\bin\debug\net10.0\expenseimportpersistence.dll" id="72e2e037-0383-23db-b5ea-416eb0253c77">
+      <Execution id="940ee303-ffc3-4d94-bd23-c700b4d50481" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-persistence\bin\Debug\net10.0\ExpenseImportPersistence.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ExpenseImportPersistence.Tests.PersistenceTests" name="Validation_error_rejects_every_row_before_sql_effect" />
+    </UnitTest>
+    <UnitTest name="ExpenseImportPersistence.Tests.PersistenceTests.Exact_duplicates_are_the_only_errors_that_still_commit_unique_rows" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-persistence\bin\debug\net10.0\expenseimportpersistence.dll" id="7f8f8f54-c5ec-8ceb-ffa7-edadc7d966f9">
+      <Execution id="4436267e-ca50-4b66-9075-f44c321e4af3" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-persistence\bin\Debug\net10.0\ExpenseImportPersistence.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ExpenseImportPersistence.Tests.PersistenceTests" name="Exact_duplicates_are_the_only_errors_that_still_commit_unique_rows" />
+    </UnitTest>
+    <UnitTest name="ExpenseImportPersistence.Tests.PersistenceTests.Valid_import_applies_owned_schema_and_persists_exact_money_date_fk_and_note" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-persistence\bin\debug\net10.0\expenseimportpersistence.dll" id="1ee28183-ffdc-05b4-7ccf-d20040d6b5a0">
+      <Execution id="430afa6c-9200-472a-8ed0-6903c38d59c1" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-persistence\bin\Debug\net10.0\ExpenseImportPersistence.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ExpenseImportPersistence.Tests.PersistenceTests" name="Valid_import_applies_owned_schema_and_persists_exact_money_date_fk_and_note" />
+    </UnitTest>
+    <UnitTest name="ExpenseImportPersistence.Tests.PersistenceTests.Cancellation_before_read_and_before_commit_leave_zero_rows" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-persistence\bin\debug\net10.0\expenseimportpersistence.dll" id="16323aa4-663c-49ed-3c81-6ba914d63e94">
+      <Execution id="e13661db-e5bc-4ef2-b2da-9c64c653663b" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-persistence\bin\Debug\net10.0\ExpenseImportPersistence.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ExpenseImportPersistence.Tests.PersistenceTests" name="Cancellation_before_read_and_before_commit_leave_zero_rows" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="fbf01328-db9f-af0e-58a8-c243517807f7" executionId="e6e8761b-371a-4720-987c-7978934a67c9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1ee28183-ffdc-05b4-7ccf-d20040d6b5a0" executionId="430afa6c-9200-472a-8ed0-6903c38d59c1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7f8f8f54-c5ec-8ceb-ffa7-edadc7d966f9" executionId="4436267e-ca50-4b66-9075-f44c321e4af3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="16323aa4-663c-49ed-3c81-6ba914d63e94" executionId="e13661db-e5bc-4ef2-b2da-9c64c653663b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8b571678-13ec-5d71-ae67-824613aaeb4a" executionId="a70276ab-de2c-418c-82bb-2a161e4188a4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="72e2e037-0383-23db-b5ea-416eb0253c77" executionId="940ee303-ffc3-4d94-bd23-c700b4d50481" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="6" executed="6" passed="6" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)&#xD;
+[xUnit.net 00:00:00.09]   Discovering: ExpenseImportPersistence&#xD;
+[xUnit.net 00:00:00.13]   Discovered:  ExpenseImportPersistence&#xD;
+[xUnit.net 00:00:00.15]   Starting:    ExpenseImportPersistence&#xD;
+RoadmapImport915 database before create: RoadmapImport915_0d28ef17382746b5a3c1f1f773f31807&#xD;
+RoadmapImport915 database before create: RoadmapImport915_8e7d464e32a545e4b3fc5dfefafda558&#xD;
+RoadmapImport915 database before create: RoadmapImport915_d2216866910342808f07c46a6794190b&#xD;
+RoadmapImport915 database before create: RoadmapImport915_7e4df11ffacc45fa8fe5738178e03760&#xD;
+RoadmapImport915 database before create: RoadmapImport915_81469c917cf34fe0b912bb672e16294b&#xD;
+RoadmapImport915 database before create: RoadmapImport915_88379bfcbf1645e2b624a3e4a510f1d1&#xD;
+[xUnit.net 00:00:02.28]   Finished:    ExpenseImportPersistence&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

@@ -1,0 +1,196 @@
+deck_id: deck-pf-w08
+subject: PersonalFinance
+lesson_id: week-08-investment-channels-vn
+version: 1.0.0
+description: 'Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng Tuần 08: Tổng quan các
+  Kênh Đầu tư tại Việt Nam'
+cards:
+- id: fc-pf-w08-001
+  concept: Bốn kênh tài sản đầu tư truyền thống tại VN
+  front: Kể tên 4 kênh tài sản đầu tư phổ biến nhất tại thị trường Việt Nam?
+  back: 1. Tiền gửi tiết kiệm ngân hàng; 2. Vàng (vàng miếng SJC, nhẫn trơn); 3. Bất
+    động sản (đất nền, nhà phố, chung cư); 4. Chứng khoán (cổ phiếu, trái phiếu, chứng
+    chỉ quỹ).
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - asset-classes
+  - vietnam
+  - module-3
+- id: fc-pf-w08-002
+  concept: Đặc điểm kênh Tiền gửi tiết kiệm
+  front: Ưu điểm và nhược điểm lớn nhất của kênh tiền gửi ngân hàng tại Việt Nam là
+    gì?
+  back: 'Ưu điểm: An toàn vốn cực cao, thanh khoản tốt, được bảo hiểm tiền gửi theo
+    quy định; Nhược điểm: Lợi suất thực thấp, chỉ nhỉnh hơn lạm phát nhẹ, khó gia
+    tăng tài sản đột phá.'
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - bank-deposit
+  - liquidity
+  - module-3
+- id: fc-pf-w08-003
+  concept: Đặc tính kênh Vàng tại Việt Nam
+  front: Vai trò chính của vàng trong danh mục tài chính cá nhân là gì?
+  back: Là tài sản phòng thủ chống khủng hoảng địa chính trị, phòng ngừa rủi ro mất
+    giá tiền tệ; vàng không tự tạo ra dòng tiền (không có cổ tức hay tiền thuê) và
+    có chênh lệch giá mua-bán cao.
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - gold
+  - hedging
+  - module-3
+- id: fc-pf-w08-004
+  concept: Kênh Bất động sản tại Việt Nam
+  front: Những rào cản và rủi ro lớn nhất khi tham gia kênh đầu tư bất động sản là
+    gì?
+  back: Yêu cầu vốn khởi điểm lớn, tính thanh khoản thấp (mất nhiều tháng/năm để bán),
+    rủi ro quy hoạch pháp lý và rủi ro đòn bẩy tài chính nếu dùng vốn vay quá mức.
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - real-estate
+  - illiquidity
+  - module-3
+- id: fc-pf-w08-005
+  concept: Kênh Cổ phiếu (Thị trường Chứng khoán)
+  front: Bản chất quyền sở hữu khi mua cổ phiếu niêm yết là gì?
+  back: Nhà đầu tư trở thành cổ đông sở hữu một phần doanh nghiệp, được hưởng lợi
+    từ sự tăng giá cổ phiếu và nhận cổ tức chia từ lợi nhuận kinh doanh, đi kèm rủi
+    ro biến động giá ngắn hạn.
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - stocks
+  - ownership
+  - module-3
+- id: fc-pf-w08-006
+  concept: Chứng chỉ Quỹ mở (Mutual Funds)
+  front: Tại sao quỹ mở là lựa chọn phù hợp cho nhà đầu tư cá nhân ít kinh nghiệm
+    và bận rộn?
+  back: Được quản lý chuyên nghiệp bởi các chuyên gia tài chính, tự động đa dạng hóa
+    danh mục hàng chục mã cổ phiếu/trái phiếu, vốn khởi điểm linh hoạt chỉ từ vài
+    trăm nghìn đồng.
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - mutual-funds
+  - diversification
+  - module-3
+- id: fc-pf-w08-007
+  concept: Quỹ Hoán đổi Danh mục (ETF) nội địa
+  front: Cơ chế vận hành và ưu điểm phí của các quỹ ETF như VN30, VNFinLead là gì?
+  back: Quỹ đầu tư thụ động mô phỏng chỉ số thị trường, giao dịch mua bán trực tiếp
+    trên sàn chứng khoán như cổ phiếu, phí quản lý rất thấp (0.5-0.8%/năm) và minh
+    bạch danh mục hàng ngày.
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - etf
+  - passive-investing
+  - module-3
+- id: fc-pf-w08-008
+  concept: Trái phiếu Doanh nghiệp tại Việt Nam
+  front: Rủi ro tín dụng và thanh khoản của trái phiếu doanh nghiệp riêng lẻ cần lưu
+    ý gì?
+  back: Trái phiếu doanh nghiệp không phải tiền gửi tiết kiệm; nếu doanh nghiệp vỡ
+    nợ, người nắm giữ trái phiếu có nguy cơ mất vốn; cần đánh giá tài sản bảo đảm
+    và dòng tiền trả nợ của tổ chức phát hành.
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - corporate-bonds
+  - credit-risk
+  - module-3
+- id: fc-pf-w08-009
+  concept: Tam giác Bất khả thi trong Đầu tư
+  front: Mối quan hệ đánh đổi giữa ba yếu tố Lợi nhuận, Rủi ro và Thanh khoản là gì?
+  back: 'Không tồn tại tài sản nào đồng thời thỏa mãn: Lợi nhuận cao, Rủi ro thấp
+    và Thanh khoản tức thì. Nếu một kênh hứa hẹn lợi nhuận cao mà không có rủi ro,
+    đó 100% là lừa đảo.'
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - trilemma
+  - risk-return
+  - module-3
+- id: fc-pf-w08-010
+  concept: Khái niệm Tài sản Tạo dòng tiền (Cashflow Assets)
+  front: Phân biệt tài sản tạo dòng tiền và tài sản đầu cơ tăng giá?
+  back: Tài sản tạo dòng tiền sinh ra thu nhập định kỳ đều đặn (nhà cho thuê, cổ phiếu
+    trả cổ tức tiền mặt, trái phiếu nhận coupon); Tài sản đầu cơ chỉ có lãi khi bán
+    lại cho người khác với giá cao hơn.
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - cashflow
+  - speculation
+  - module-3
+- id: fc-pf-w08-011
+  concept: Rủi ro lừa đảo tài chính Ponzi/BO tại VN
+  front: Các dấu hiệu nhận biết một mô hình huy động vốn đa cấp hoặc sàn giao dịch
+    ngoại hối ảo lừa đảo?
+  back: Cam kết bao lỗ, cam kết lãi suất cố định phi lý 20-30%/tháng, trả hoa hồng
+    cao khi lôi kéo người mới, không có giấy phép của Ngân hàng Nhà nước hoặc Ủy ban
+    Chứng khoán Nhà nước.
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - scam-prevention
+  - ponzi
+  - module-3
+- id: fc-pf-w08-012
+  concept: Hệ số P/E toàn thị trường VN-Index
+  front: Ý nghĩa của chỉ số P/E của thị trường chứng khoán Việt Nam trong việc xác
+    định vùng giá đắt/rẻ?
+  back: P/E là tỷ số giá trên lợi nhuận; P/E thị trường ở mức 10-12 là vùng định giá
+    rẻ trong lịch sử, còn mức >18-20 là vùng định giá nóng cần thận trọng.
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - pe-ratio
+  - valuation
+  - module-3
+- id: fc-pf-w08-013
+  concept: Tính mùa vụ và Chu kỳ kinh tế
+  front: Kênh đầu tư nào thường tăng trưởng tốt trong giai đoạn đầu của chu kỳ hồi
+    phục kinh tế?
+  back: Cổ phiếu và bất động sản thường bứt phá mạnh trong giai đoạn lãi suất thấp
+    và chính sách tiền tệ nới lỏng thúc đẩy sản xuất kinh doanh.
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - economic-cycles
+  - asset-rotation
+  - module-3
+- id: fc-pf-w08-014
+  concept: Đa dạng hóa danh mục tài sản cá nhân
+  front: Mục tiêu cốt lõi của việc phân bổ tài sản vào nhiều kênh đầu tư khác nhau
+    là gì?
+  back: Giảm thiểu sự sụt giảm tài sản nghiêm trọng khi một thị trường đơn lẻ gặp
+    khủng hoảng (ví dụ thị trường BĐS đóng băng thì kênh tiền gửi hoặc vàng vẫn hỗ
+    trợ thanh khoản).
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - diversification
+  - portfolio
+  - module-3
+- id: fc-pf-w08-015
+  concept: Rào cản pháp lý và chứng chỉ hành nghề
+  front: Nhà đầu tư cá nhân có quyền tự mở tài khoản và giao dịch trên những sàn nào
+    tại VN?
+  back: Được phép giao dịch hợp pháp trên Sở Giao dịch Chứng khoán Việt Nam (HOSE,
+    HNX, UPCoM) thông qua các công ty chứng khoán được cấp phép. Tài sản mã hóa
+    chỉ thuộc phạm vi thí điểm 5 năm theo Nghị quyết 05/2025/NQ-CP khi đáp ứng
+    điều kiện và tổ chức được Bộ Tài chính cấp phép; thí điểm không biến chúng
+    thành tiền pháp định. Không suy ra quyền cung cấp dịch vụ từ nhãn crypto hay
+    forex.
+  source_lesson: PersonalFinance/notes/module-3/week-08-investment-channels-vn.md
+  version: 1.0.0
+  tags:
+  - legal-framework
+  - compliance
+  - module-3

@@ -1,0 +1,71 @@
+deck_id: "deck-inv-w08"
+subject: "Investing"
+lesson_id: "week-08-danh-muc-phan-bo-tai-san-mpt"
+version: "1.0.0"
+description: "Bộ thẻ truy xuất kiến thức W08. Nội dung giáo dục, không phải khuyến nghị đầu tư. Asset allocation, diversification, MPT và Sharpe là khung mô tả trên đầu vào ước lượng — không có bảo đảm lợi nhuận, không có danh mục tối ưu chung cho mọi người."
+
+cards:
+  - id: "fc-inv-w08-001"
+    version: "1.0.0"
+    concept: "Phân bổ tài sản và đa dạng hóa"
+    front: "Investor.gov (SEC) định nghĩa phân bổ tài sản (asset allocation) và đa dạng hóa (diversification) thế nào, và vì sao phân bổ là quyết định cá nhân?"
+    back: "SEC 'Asset Allocation and Diversification': asset allocation là chia vốn đầu tư giữa các nhóm tài sản như cổ phiếu, trái phiếu và tiền mặt; 'The asset allocation decision is a personal one' — thay đổi theo time horizon (số tháng/năm/thập kỷ dự định đầu tư) và risk tolerance (khả năng và sự sẵn lòng mất một phần hoặc toàn bộ vốn gốc để đổi lợi nhuận tiềm năng cao hơn). Diversification là 'the practice of spreading money among different investments to reduce risk' — 'Don't put all your eggs in one basket'; hai tầng: giữa các nhóm tài sản và bên trong từng nhóm (nhiều mã, nhiều ngành). SEC cảnh báo quỹ (mutual fund/ETF) hẹp một ngành không tự động tạo đa dạng hóa — phải kiểm tra top holdings của từng quỹ. SEC không gợi ý tỷ trọng nào; bài học không khuyến nghị mức phân bổ nào."
+    source_lesson: "Investing/notes/module-2/week-08-danh-muc-phan-bo-tai-san-mpt.md"
+    claim_ids: ["W08-C01"]
+    tags: ["asset-allocation", "diversification", "sec", "risk-tolerance", "time-horizon"]
+  - id: "fc-inv-w08-002"
+    version: "1.0.0"
+    concept: "Tái cân bằng danh mục"
+    front: "Tái cân bằng (rebalancing) hoạt động thế nào theo SEC, và phải đọc đúng những giới hạn nào?"
+    back: "SEC: theo thời gian một số khoản tăng nhanh hơn, 'push your holdings out of alignment with your investment goals and change the risk level of your portfolio' — tỷ trọng trôi làm mức rủi ro danh mục đổi; rebalancing là đưa danh mục về tỷ trọng ban đầu. Ví dụ SEC: bắt đầu 60% cổ phiếu, tăng lên 80% → bán bớt cổ phiếu và/hoặc thêm tiền vào nhóm khác. 'Rebalancing forces you to buy low and sell high' dù 'may not be easy'. Hai cách lịch: định kỳ (mỗi 6 hoặc 12 tháng) hoặc theo ngưỡng %; SEC: 'tends to work best when done relatively infrequently'; quỹ ngày mục tiêu tự tái cân bằng theo hướng thận trọng hơn. Giới hạn: mỗi lần tái cân bằng phát sinh phí và chênh lệch khớp (W06–W07; mức phí tại Việt Nam chưa được xác minh trong phiên); mô tả là tài liệu giáo dục SEC Hoa Kỳ, không bảo đảm nhánh thắng so với giữ nguyên — ví dụ giả định 4.4: danh mục 100.000.000 VND 60/40 trôi thành 64,77%/35,23%, bán 5.520.000 VND cổ phiếu để về 60/40."
+    source_lesson: "Investing/notes/module-2/week-08-danh-muc-phan-bo-tai-san-mpt.md"
+    claim_ids: ["W08-C01"]
+    tags: ["rebalancing", "sec", "drift", "costs", "not-a-guarantee"]
+  - id: "fc-inv-w08-003"
+    version: "1.0.0"
+    concept: "Tương quan và rủi ro danh mục"
+    front: "Hệ số tương quan (correlation) tác động thế nào tới rủi ro danh mục, và dữ liệu minh họa của OpenStax là gì?"
+    back: "OpenStax: hệ số tương quan đo hai biến cùng biến động thế nào, từ +1 (cùng chiều hoàn hảo) đến −1 (ngược chiều hoàn hảo); 'Combining stocks that are not perfectly positively correlated in a portfolio decreases risk'. CFA 2026: rủi ro danh mục hai tài sản phụ thuộc tỷ trọng, độ lệch chuẩn và tương quan (hoặc hiệp phương sai); khi số tài sản tăng, tương quan càng trở thành yếu tố quyết định rủi ro danh mục; 'Combining assets with low correlations reduces portfolio risk'. Dữ liệu OpenStax trích là cổ phiếu Hoa Kỳ 2011–2020: DAL–LUV (cùng ngành hàng không) 0,87; DAL–XOM 0,35; DAL–CVS 0,79; danh mục 50/50 DAL–XOM có độ lệch chuẩn 30,43%/năm so với 51,90%/năm của riêng DAL (nhưng lợi nhuận trung bình 11,03% so với 22,40% — phân tán có cái giá). Giới hạn: dữ liệu lịch sử Hoa Kỳ một cửa sổ 10 năm, không áp cho thị trường Việt Nam; bài học không có tương quan nào của mã Việt Nam."
+    source_lesson: "Investing/notes/module-2/week-08-danh-muc-phan-bo-tai-san-mpt.md"
+    claim_ids: ["W08-C02"]
+    tags: ["correlation", "covariance", "portfolio-risk", "cfa", "openstax", "us-data"]
+  - id: "fc-inv-w08-004"
+    version: "1.0.0"
+    concept: "E(Rp) và độ lệch chuẩn danh mục"
+    front: "Công thức lợi nhuận kỳ vọng và độ lệch chuẩn danh mục hai tài sản là gì, và vai của tương quan khác nhau ra sao?"
+    back: "E(Rp) = w₁·E(R₁) + w₂·E(R₂) — luôn là trung bình trọng số, KHÔNG phụ thuộc tương quan; đơn vị %/kỳ (ví dụ %/năm). σp² = w₁²σ₁² + w₂²σ₂² + 2·w₁·w₂·ρ₁₂·σ₁·σ₂, với hiệp phương sai cov₁₂ = ρ₁₂·σ₁·σ₂; σp = √σp² (%/năm). Ba tính chất: (1) tương quan chỉ tác động lên rủi ro, không đổi E(Rp); (2) khi ρ = +1 thì σp = w₁σ₁ + w₂σ₂ — đúng trung bình trọng số, không có lợi ích phân tán; khi ρ < +1 thì σp nhỏ hơn trung bình trọng số; (3) phân tán đưa σp tiến về sàn rủi ro hệ thống chứ không về 0. Ví dụ giả định 4.2: X 12%/năm, σ 25%; Y 5%/năm, σ 8%; tỷ trọng 60/40 → E(Rp) = 9,2%/năm; σp = 18,20% (ρ = +1), 15,95% (ρ = 0,2), 14,70% (ρ = −0,2). Yêu cầu bắt buộc: mọi đại lượng cùng kỳ tính; đầu vào là giả định khai báo."
+    source_lesson: "Investing/notes/module-2/week-08-danh-muc-phan-bo-tai-san-mpt.md"
+    claim_ids: ["W08-C02", "W08-C06"]
+    tags: ["expected-return", "variance", "standard-deviation", "formula", "units"]
+  - id: "fc-inv-w08-005"
+    version: "1.0.0"
+    concept: "Markowitz 1952 và biên hiệu quả"
+    front: "Markowitz (1952) đặt nền cho MPT thế nào, và vì sao 'tối ưu' của mô hình không phải là bảo đảm?"
+    back: "Markowitz (1952), 'Portfolio Selection' (Journal of Finance 7(1): 77–91): quá trình chọn danh mục có hai giai đoạn — từ quan sát/kinh nghiệm đến 'beliefs about the future performances' của chứng khoán, rồi từ niềm tin đó đến chọn danh mục; bác bỏ quy tắc 'maximize discounted return' vì 'a rule of behavior which does not imply the superiority of diversification must be rejected both as a hypothesis and as a maxim'; chấp nhận quy tắc E–V: 'expected return a desirable thing and variance of return an undesirable thing'. CFA 2026 bổ sung kết cấu: minimum-variance frontier, global minimum-variance portfolio và efficient frontier — tập hợp danh mục lợi nhuận kỳ vọng cao nhất tại mỗi mức rủi ro; nhà đầu tư ngại rủi ro chọn theo đánh đổi rủi ro–lợi nhuận. Giới hạn: đầu vào là ước lượng/niềm tin — sửa E, σ hoặc ρ là biên và danh mục 'tối ưu' dịch chuyển (ví dụ 4.5); chọn điểm trên biên phụ thuộc mức ngại rủi ro từng người; không nguồn đã mở khẳng định danh mục trên biên lịch sử tiếp tục hiệu quả; phí/thuế/khớp lệnh nằm ngoài công thức E–V thuần túy."
+    source_lesson: "Investing/notes/module-2/week-08-danh-muc-phan-bo-tai-san-mpt.md"
+    claim_ids: ["W08-C03"]
+    tags: ["mpt", "markowitz", "efficient-frontier", "e-v-rule", "estimation-error"]
+  - id: "fc-inv-w08-006"
+    version: "1.0.0"
+    concept: "Tỷ số Sharpe"
+    front: "Tỷ số Sharpe tính thế nào theo OpenStax và tại sao nó là thước đo tương đối chứ không tuyệt đối?"
+    back: "OpenStax mục 15.4: 'The Sharpe ratio is computed as a portfolio's risk premium divided by the standard deviation of the portfolio's return': Sharpe = (Rp − Rf)/σp; risk premium Rp − Rf là 'the basic reward for bearing risk'; mẫu số σp là 'units of risk'. Ví dụ của nguồn: danh mục 20%/năm, Rf 3%/năm, σ 26%/năm → Sharpe = 17/26 ≈ 0,65. Đọc vai: 'reward-to-risk ratio' nhưng 'relative measures of investment performance' — 'there is not an absolute number that indicates whether an investment performance is good or bad'; phải so với quản trị viên khác hoặc benchmark. Cảnh báo: tử và mẫu cùng kỳ tính (%/năm); Rf là giả định của người tính; Sharpe lịch sử mô tả quá khứ, không bảo đảm. Ví dụ giả định 4.3: danh mục E(Rp) 9,2%/năm, σp 15,95%/năm, Rf 3%/năm → (9,2 − 3)/15,95 ≈ 0,39, so với X riêng lẻ 9/25 = 0,36 và Y 2/8 = 0,25 — xếp hạng chỉ đúng trong tập giả định đó."
+    source_lesson: "Investing/notes/module-2/week-08-danh-muc-phan-bo-tai-san-mpt.md"
+    claim_ids: ["W08-C04"]
+    tags: ["sharpe-ratio", "risk-premium", "relative-measure", "formula"]
+  - id: "fc-inv-w08-007"
+    version: "1.0.0"
+    concept: "Rủi ro hệ thống và phi hệ thống"
+    front: "Rủi ro phi hệ thống (unsystematic) khác rủi ro hệ thống (systematic) thế nào, và bao nhiêu mã là đủ đa dạng hóa?"
+    back: "OpenStax 15.2: unsystematic (firm-specific) risk gắn với sự kiện một công ty — ví dụ kiện trách nhiệm sản phẩm, phát minh sản phẩm mới, phát hiện bất thường kế toán; 'Portfolio diversification protects you from being significantly impacted by unsystematic risk'. Systematic risk là 'the risk of holding the market portfolio' — tác động toàn thị trường (chính sách tiền tệ và lãi suất, địa chính trị, bão lớn, đại dịch) và 'cannot be eliminated through diversification'; tồn tại sàn rủi ro dưới đó đa dạng hóa không xuyên qua được. Về số lượng mã: 'There is not an exact number that all financial managers agree on' — tương quan quan trọng hơn số đếm (15 mã tương quan cao cho lợi ích ít hơn 10 mã tương quan thấp); tập trung một ngành là không đa dạng; nguồn ghi nhận quan điểm trích trong sách rằng khoảng một chục mã có thể tạo danh mục phân tán hợp lý và dẫn nghiên cứu Statman (1987). Đúng vai: các con số là mô tả thực hành trong nguồn giáo dục, không phải ngưỡng chuẩn; 'số mã tối ưu' — chưa thể kết luận."
+    source_lesson: "Investing/notes/module-2/week-08-danh-muc-phan-bo-tai-san-mpt.md"
+    claim_ids: ["W08-C05"]
+    tags: ["systematic-risk", "unsystematic-risk", "diversification", "portfolio-size"]
+  - id: "fc-inv-w08-008"
+    version: "1.0.0"
+    concept: "Lỗi ước lượng và giới hạn kết luận"
+    front: "Lỗi ước lượng (estimation error) làm gì với kết quả 'tối ưu' của MPT, và những khẳng định nào phải ghi 'chưa thể kết luận'?"
+    back: "Đầu vào của MPT là E(R), σ, ρ ước lượng từ lịch sử hoặc giả định — Markowitz gọi giai đoạn một là 'beliefs about the future performances'. Ví dụ 4.5 (giả định): sửa σ_X từ 25% lên 30%/năm và E(R_X) từ 12% xuống 9%/năm, giữ ρ = 0,2 → E(Rp) 60/40 từ 9,2% xuống 7,4%/năm; σp² = 0,36×900 + 10,24 + 23,04 = 357,28 (%²) → σp ≈ 18,90%/năm; Sharpe từ ≈ 0,39 xuống ≈ 0,23. Hai thay đổi vừa phải làm kết quả 'tối ưu' dịch chuyển mạnh — mô hình không sai, đầu vào sai kế thừa sai số. Phải ghi 'chưa thể kết luận': tỷ trọng phân bổ tối ưu cho ai đó (SEC: quyết định cá nhân); '60/40 bảo đảm lợi nhuận' (sai vai — không có bảo đảm); số mã 'đủ' chuẩn hóa (OpenStax: không có con số chính xác được mọi bên thống nhất); độ ổn định của tương quan theo thời gian và tại Việt Nam (không nguồn đã mở); danh mục trên biên lịch sử có tiếp tục hiệu quả (không nguồn đã mở). Bài học không tạo dự báo và không khuyến nghị tỷ trọng nào."
+    source_lesson: "Investing/notes/module-2/week-08-danh-muc-phan-bo-tai-san-mpt.md"
+    claim_ids: ["W08-C03", "W08-C06"]
+    tags: ["estimation-error", "mpt", "not-yet-concluded", "safety"]

@@ -1,0 +1,81 @@
+deck_id: deck-ls-w02
+subject: LifeSkills
+lesson_id: week-02-emotional-intelligence
+version: 1.0.0
+description: Thẻ truy hồi chủ động cho Emotional Intelligence (EQ), mô hình 4 nhánh Mayer-Salovey, chuỗi cảm xúc
+  và mô hình điều hòa James Gross.
+cards:
+- id: fc-ls-w02-001
+  concept: Mô hình năng lực EQ (Mayer-Salovey)
+  front: Bốn nhánh năng lực cốt lõi cấu thành Trí tuệ cảm xúc theo mô hình Mayer-Salovey là gì?
+  back: 1. Nhận thức cảm xúc (Perceiving); 2. Sử dụng cảm xúc hỗ trợ tư duy (Using); 3. Hiểu cảm xúc (Understanding);
+    4. Quản lý cảm xúc (Managing). EQ là nhóm năng lực xử lý thông tin, không phải tính cách cố định.
+  source_lesson: LifeSkills/notes/module-1/week-02-emotional-intelligence.md#31-mô-hình-năng-lực-4-nhánh-của-mayer-salovey-ability-model
+  version: 1.0.0
+  claim_ids:
+  - W02-C01
+  tags:
+  - eq
+  - ability-model
+  - mayer-salovey
+  - module-1
+- id: fc-ls-w02-002
+  concept: Chuỗi tiến trình cảm xúc
+  front: Bản đồ giáo dục bốn mắt xích của bài học gồm những gì, và appraisal được dùng để phân tích thế nào?
+  back: Tác nhân kích hoạt (Trigger) → Đánh giá nhận thức (Cognitive Appraisal) → Kích hoạt sinh lý & Thôi thúc
+    hành vi (Arousal & Urge) → Hành động (Action). Đánh giá nhận thức (Appraisal) là một trọng tâm để phân tích
+    loại và cường độ cảm xúc cùng với cơ thể, bối cảnh và lịch sử cá nhân.
+  source_lesson: LifeSkills/notes/module-1/week-02-emotional-intelligence.md#32-chuỗi-cảm-xúc-từ-kích-hoạt-đến-hành-vi
+  version: 1.0.0
+  claim_ids:
+  - W02-C04
+  tags:
+  - emotion-chain
+  - cognitive-appraisal
+  - psychology
+  - module-1
+- id: fc-ls-w02-003
+  concept: Tái đánh giá nhận thức (Cognitive Reappraisal)
+  front: Cognitive Reappraisal theo mô hình James Gross là gì, và tổng quan được báo cáo ở mức nào?
+  back: Là chiến lược thay đổi cách diễn giải hoặc góc nhìn về tình huống trước khi cảm xúc bộc phát hoàn toàn.
+    Theo tổng quan Gross (2002), reappraisal thường làm giảm trải nghiệm và biểu hiện cảm xúc; không nên diễn giải
+    thành cơ chế thần kinh hay bảo đảm hiệu quả cho mọi người.
+  source_lesson: LifeSkills/notes/module-1/week-02-emotional-intelligence.md#33-mô-hình-tiến-trình-điều-hòa-cảm-xúc-james-gross
+  version: 1.0.0
+  claim_ids:
+  - W02-C02
+  tags:
+  - reappraisal
+  - emotion-regulation
+  - gross-model
+  - module-1
+- id: fc-ls-w02-004
+  concept: Đè nén biểu cảm (Expressive Suppression)
+  front: Expressive Suppression là gì, và các kết quả Gross được báo cáo trong phạm vi nào?
+  back: Là cố gắng kìm nén biểu hiện bên ngoài của cảm xúc khi cơ thể đã bị kích hoạt. Tổng quan Gross (2002) cho
+    thấy suppression có thể không làm giảm trải nghiệm cảm xúc, có thể làm suy giảm trí nhớ và làm tăng đáp ứng
+    sinh lý trong các nghiên cứu được xem xét; đây không phải quy luật cho mọi người.
+  source_lesson: LifeSkills/notes/module-1/week-02-emotional-intelligence.md#33-mô-hình-tiến-trình-điều-hòa-cảm-xúc-james-gross
+  version: 1.0.0
+  claim_ids:
+  - W02-C02
+  tags:
+  - suppression
+  - stress
+  - limitations
+  - module-1
+- id: fc-ls-w02-005
+  concept: Độ hạt cảm xúc (Emotional Granularity)
+  front: Độ hạt cảm xúc mô tả điều gì, và bài tập gọi tên trong bài học được dùng với giới hạn nào?
+  back: Độ hạt cảm xúc là mức độ cụ thể, phân biệt trong báo cáo trải nghiệm cảm xúc (Barrett2004). Bài tập gọi
+    tên do tác giả thiết kế để thử mô tả trải nghiệm và cân nhắc phản hồi; không phải can thiệp đã được nguồn này
+    kiểm định, không hứa hiệu quả hoặc cơ chế thần kinh.
+  source_lesson: LifeSkills/notes/module-1/week-02-emotional-intelligence.md#41-bánh-xe-cảm-xúc-và-mở-rộng-vốn-từ-vựng-cảm-xúc-emotional-granularity
+  version: 1.0.0
+  claim_ids:
+  - W02-C04
+  tags:
+  - granularity
+  - authored-practice
+  - limitations
+  - module-1

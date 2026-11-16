@@ -1,0 +1,214 @@
+schema_version: 2.0.0
+package_id: package:psychology:w03
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 18
+created_at: '2026-09-14T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 01-scientific-foundations
+lesson: week-03-correlation-causation
+learning_objectives:
+- id: LO-W03-01
+  bloom_level: Understand
+  statement: Định nghĩa và giải thích ý nghĩa toán học của hệ số tương quan Pearson
+    (r), phân biệt chiều hướng và độ mạnh, khẳng định giá trị tương quan nghịch không
+    đồng nghĩa với không có mối liên hệ.
+- id: LO-W03-02
+  bloom_level: Analyze
+  statement: 'Phân tích bản chất ngụy biện khi đồng nhất tương quan với nhân quả;
+    chỉ ra và giải thích cơ chế của hai trở ngại phương pháp luận cốt lõi: Vấn đề
+    biến thứ ba và Vấn đề chiều hướng tác động.'
+- id: LO-W03-03
+  bloom_level: Analyze
+  statement: Phân biệt và đánh giá mối quan hệ giữa Độ tin cậy và Độ giá trị; chứng
+    minh vì sao độ tin cậy là điều kiện cần nhưng không đủ cho độ giá trị.
+- id: LO-W03-04
+  bloom_level: Evaluate
+  statement: 'Đánh giá phản biện các công bố khoa học: hiểu đúng ý nghĩa của ngưỡng
+    thống kê p < .05 và kích thước hiệu ứng theo khuyến nghị của ASA; nhận diện các
+    cơ chế được đề xuất có thể góp phần vào khủng hoảng tái lập và các giải pháp của
+    phong trào Khoa học Mở.'
+concepts:
+- id: roadmap:concept:psychology:w03-pearson-r
+  name: Hệ số tương quan Pearson
+  claim_ids:
+  - C03-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w03-correlation-direction
+  name: Tương quan thuận vs Tương quan nghịch
+  claim_ids:
+  - C03-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w03-causation-fallacy
+  name: 'Tương quan vs Nhân quả: Biến thứ ba & Chiều hướng'
+  claim_ids:
+  - C03-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w03-illusory-correlation
+  name: Tương quan ảo tưởng & Thiên kiến xác nhận
+  claim_ids:
+  - C03-04
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w03-reliability
+  name: Độ tin cậy trong đo lường tâm lý học
+  claim_ids:
+  - C03-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w03-validity
+  name: Độ giá trị & Mối quan hệ với độ tin cậy
+  claim_ids:
+  - C03-06
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w03-p-value-asa
+  name: Ý nghĩa p-value & Tuyên bố ASA
+  claim_ids:
+  - C03-07
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+- id: roadmap:concept:psychology:w03-open-science
+  name: Khủng hoảng tái lập & Phong trào Khoa học Mở
+  claim_ids:
+  - C03-08
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-14'
+questions:
+- id: Q03-01
+  lo_ref: LO-W03-01
+  concept_id: roadmap:concept:psychology:w03-pearson-r
+  claim_ids:
+  - C03-01
+  - C03-02
+- id: Q03-02
+  lo_ref: LO-W03-01
+  concept_id: roadmap:concept:psychology:w03-correlation-direction
+  claim_ids:
+  - C03-01
+  - C03-02
+- id: Q03-03
+  lo_ref: LO-W03-02
+  concept_id: roadmap:concept:psychology:w03-causation-fallacy
+  claim_ids:
+  - C03-03
+- id: Q03-04
+  lo_ref: LO-W03-02
+  concept_id: roadmap:concept:psychology:w03-causation-fallacy
+  claim_ids:
+  - C03-03
+- id: Q03-05
+  lo_ref: LO-W03-02
+  concept_id: roadmap:concept:psychology:w03-illusory-correlation
+  claim_ids:
+  - C03-04
+- id: Q03-06
+  lo_ref: LO-W03-03
+  concept_id: roadmap:concept:psychology:w03-validity
+  claim_ids:
+  - C03-05
+  - C03-06
+- id: Q03-07
+  lo_ref: LO-W03-03
+  concept_id: roadmap:concept:psychology:w03-validity
+  claim_ids:
+  - C03-05
+  - C03-06
+- id: Q03-08
+  lo_ref: LO-W03-04
+  concept_id: roadmap:concept:psychology:w03-p-value-asa
+  claim_ids:
+  - C03-07
+- id: Q03-09
+  lo_ref: LO-W03-04
+  concept_id: roadmap:concept:psychology:w03-open-science
+  claim_ids:
+  - C03-08
+- id: Q03-10
+  lo_ref: LO-W03-04
+  concept_id: roadmap:concept:psychology:w03-open-science
+  claim_ids:
+  - C03-08
+- id: Q03-11
+  lo_ref: LO-W03-01
+  concept_id: roadmap:concept:psychology:w03-pearson-r
+  claim_ids:
+  - C03-01
+  - C03-02
+- id: Q03-12
+  lo_ref: LO-W03-03
+  concept_id: roadmap:concept:psychology:w03-reliability
+  claim_ids:
+  - C03-05
+  - C03-06
+units:
+- unit_id: roadmap:unit:psychology:w03
+  display_title: 'Tuần 03: Tương quan, Nhân quả, Độ tin cậy, Tái lập và Cách đọc một
+    Tuyên bố Khoa học'
+  sort_order: 3
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w03
+    path: notes/01-scientific-foundations/week-03-correlation-causation.md
+    sha256: a65005cff8af28dbf5183c2420d44d5501fd78b6c4c9965b5096d9ac55ac4f84
+    byte_length: 59166
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w03
+    path: assessments/quizzes/week-03-quiz.md
+    question_count: 12
+    sha256: a6092dbbf186f24bf13f480defa603f0c8082d4e6ac2138eacd554da5bd579b6
+    byte_length: 11962
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w03
+    path: assessments/answer-keys/week-03-answers.md
+    correct_count: 12
+    wrong_count: 36
+    sha256: 79efaf58fd1ce50060a92b9db798172c697a78ca6a805d508b9aab01ebfcf5cc
+    byte_length: 25853
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w03
+    path: flashcards/week-03.yaml
+    card_count: 8
+    sha256: 754b45e95d1c30f3a80c252ea0b26bbb5d0fdea21c8155ba92974ac11a6ba3b1
+    byte_length: 8240
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

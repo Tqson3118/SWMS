@@ -1,0 +1,221 @@
+schema_version: 2.0.0
+package_id: package:psychology:w13
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: draft
+version: 7
+created_at: '2026-09-16T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 02-understanding-self
+lesson: week-13-values-meaning
+learning_objectives:
+- id: LO-W13-01
+  bloom_level: Understand
+  statement: Định nghĩa giá trị sống theo lý thuyết giá trị cơ bản của Schwartz (trans-situational,
+    thứ bậc ưu tiên, cấu trúc tròn 10 giá trị); tóm lược mối nối giáo trình giữa động
+    lực và mức tự siêu việt (self-transcendence).
+- id: LO-W13-02
+  bloom_level: Analyze
+  statement: Phân biệt khát vọng nội tại và ngoại tại theo Kasser & Ryan; giải thích
+    kết quả phân tích gộp về tương quan giữa chủ nghĩa vật chất và wellbeing với đúng
+    phạm vi tương quan.
+- id: LO-W13-03
+  bloom_level: Apply
+  statement: Vận dụng khung ý nghĩa ba thành tố (coherence, purpose, significance/mattering)
+    để nhận diện thành tố đang thiếu trong tình huống giả định; dự đoán hành vi dựa
+    trên niềm tin về đam mê (fixed vs growth theory of interest).
+- id: LO-W13-04
+  bloom_level: Evaluate
+  statement: 'Đánh giá giới hạn bằng chứng của các nghiên cứu giá trị/ý nghĩa: tính
+    tương quan của dữ liệu dọc purpose–tử vong, giới hạn mẫu WEIRD, biến thiên văn
+    hóa thứ bậc giá trị, và phản biện mô hình pop psychology (sơ đồ ikigai 4 vòng
+    tròn).'
+concepts:
+- id: roadmap:concept:psychology:w13-schwartz-basic-values
+  name: Định nghĩa giá trị sống và Thuyết giá trị cơ bản của Schwartz
+  claim_ids:
+  - C13-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w13-materialism-wellbeing
+  name: 'Chủ nghĩa vật chất và wellbeing: tương quan từ Kasser & Ryan (1993) và Dittmar
+    et al. (2014)'
+  claim_ids:
+  - C13-02
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w13-meaning-tripartite
+  name: 'Ý nghĩa cuộc sống ba thành tố: coherence, purpose, significance/mattering'
+  claim_ids:
+  - C13-03
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w13-purpose-mortality
+  name: Purpose in life dự báo sống còn (Hill & Turiano, 2014) và giới hạn bằng chứng
+  claim_ids:
+  - C13-04
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w13-implicit-theories-of-interest
+  name: 'Niềm tin về đam mê: fixed vs growth theory of interest (O''Keefe, Dweck &
+    Walton, 2018)'
+  claim_ids:
+  - C13-05
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w13-openstax-backbone
+  name: 'Backbone giáo trình OpenStax 10.1 & 14.5: motivation, self-transcendence,
+    meaningful life'
+  claim_ids:
+  - C13-06
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w13-ikigai-venn-debunk
+  name: Phản biện sơ đồ ikigai 4 vòng tròn (remix phương Tây 2011–2014)
+  claim_ids:
+  - C13-07
+  evidence_label: preliminary
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w13-cultural-value-priorities
+  name: Biến thiên văn hóa của thứ bậc ưu tiên giá trị
+  claim_ids:
+  - C13-08
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+- id: roadmap:concept:psychology:w13-intrinsic-extrinsic-aspirations
+  name: Phân loại khát vọng nội tại/ngoại tại theo Kasser & Ryan (1996)
+  claim_ids:
+  - C13-09
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-16'
+questions:
+- id: Q13-01
+  lo_ref: LO-W13-01
+  concept_id: roadmap:concept:psychology:w13-schwartz-basic-values
+  claim_ids:
+  - C13-01
+- id: Q13-02
+  lo_ref: LO-W13-01
+  concept_id: roadmap:concept:psychology:w13-openstax-backbone
+  claim_ids:
+  - C13-06
+- id: Q13-03
+  lo_ref: LO-W13-03
+  concept_id: roadmap:concept:psychology:w13-meaning-tripartite
+  claim_ids:
+  - C13-03
+- id: Q13-04
+  lo_ref: LO-W13-03
+  concept_id: roadmap:concept:psychology:w13-meaning-tripartite
+  claim_ids:
+  - C13-03
+- id: Q13-05
+  lo_ref: LO-W13-02
+  concept_id: roadmap:concept:psychology:w13-intrinsic-extrinsic-aspirations
+  claim_ids:
+  - C13-09
+- id: Q13-06
+  lo_ref: LO-W13-02
+  concept_id: roadmap:concept:psychology:w13-materialism-wellbeing
+  claim_ids:
+  - C13-02
+- id: Q13-07
+  lo_ref: LO-W13-03
+  concept_id: roadmap:concept:psychology:w13-implicit-theories-of-interest
+  claim_ids:
+  - C13-05
+- id: Q13-08
+  lo_ref: LO-W13-01
+  concept_id: roadmap:concept:psychology:w13-schwartz-basic-values
+  claim_ids:
+  - C13-01
+- id: Q13-09
+  lo_ref: LO-W13-04
+  concept_id: roadmap:concept:psychology:w13-purpose-mortality
+  claim_ids:
+  - C13-04
+- id: Q13-10
+  lo_ref: LO-W13-04
+  concept_id: roadmap:concept:psychology:w13-cultural-value-priorities
+  claim_ids:
+  - C13-08
+- id: Q13-11
+  lo_ref: LO-W13-04
+  concept_id: roadmap:concept:psychology:w13-ikigai-venn-debunk
+  claim_ids:
+  - C13-07
+- id: Q13-12
+  lo_ref: LO-W13-04
+  concept_id: roadmap:concept:psychology:w13-purpose-mortality
+  claim_ids:
+  - C13-04
+units:
+- unit_id: roadmap:unit:psychology:w13
+  display_title: 'Tuần 13: Giá Trị Sống, Ý Nghĩa Cuộc Sống và Mục Tiêu Cá Nhân'
+  sort_order: 13
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w13
+    path: notes/02-understanding-self/week-13-values-meaning.md
+    sha256: f925ddcf0e003270fedb03b068e29fc9aa3c58ca0b5601a6281979ec2ce915c4
+    byte_length: 51900
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w13
+    path: assessments/quizzes/week-13-quiz.md
+    question_count: 12
+    sha256: 2e7f7c91be111b9b1ea00e3ddf0560b189ce879b3e3351f7fa5d3b55e008706a
+    byte_length: 11156
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w13
+    path: assessments/answer-keys/week-13-answers.md
+    correct_count: 12
+    wrong_count: 36
+    sha256: d47cf8e445d65012ad28cae742ed8ff96d1102112134a2e38d0cc56790e79b0c
+    byte_length: 31740
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w13
+    path: flashcards/week-13.yaml
+    card_count: 9
+    sha256: 46010e2efe995a3a932924c3479fc7558c89dd402b4453f7dc1737dfce4f3cd0
+    byte_length: 8896
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

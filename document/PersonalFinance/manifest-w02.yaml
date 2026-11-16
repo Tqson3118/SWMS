@@ -1,0 +1,170 @@
+schema_version: 2.0.0
+package_id: package:personal-finance:w02
+subject_id: roadmap:subject:personal-finance
+display_title: Tài Chính Cá Nhân Thực Hành
+source_status: reviewed
+version: 14
+created_at: '2026-09-13T00:00:00Z'
+subject: Tài chính cá nhân
+course: Tài chính cá nhân thực hành
+module: module-1
+lesson: week-02-income-cashflow
+learning_objectives:
+- id: LO-PF-W02-01
+  bloom_level: Analyze
+  statement: 'Phân loại chính xác các dòng thu nhập của một cá nhân thành 3 nhóm chức năng: Thu nhập chủ
+    động (Active Income), Thu nhập thụ động (Passive Income), và Thu nhập danh mục / Lãi vốn (Portfolio
+    Income).'
+- id: LO-PF-W02-02
+  bloom_level: Analyze
+  statement: 'Phân loại các khoản chi tiêu hàng tháng theo Cấu trúc 3 tầng: Tầng 1 Cố định bắt buộc, Tầng
+    2 Biến đổi thiết yếu, và Tầng 3 Tùy ý linh hoạt.'
+- id: LO-PF-W02-03
+  bloom_level: Apply
+  statement: Tính dòng tiền ròng và tỷ lệ tiền mặt giữ lại trên dữ liệu thực nhận sau thuế; phân biệt
+    dòng tiền với tiêu dùng và thay đổi tài sản ròng.
+- id: LO-PF-W02-04
+  bloom_level: Evaluate
+  statement: Nhận diện khoản chi định kỳ và xây dựng phương án điều chỉnh minh họa theo khả năng; tính
+    tác động, không coi20% là chuẩn bắt buộc hay kết quả được bảo đảm.
+concepts:
+- id: roadmap:concept:pf:three-income-sources
+  name: 'Ba nguồn thu nhập cá nhân: Chủ động, Thụ động & Danh mục'
+  claim_ids:
+  - W02-C08
+  evidence_label: preliminary
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-authored-scope577
+    date: '2026-10-06'
+    notes: Course operational definitions and arithmetic reviewed; no textbook-body or efficacy approval
+- id: roadmap:concept:pf:three-tier-expense-matrix
+  name: Ma trận phân loại chi tiêu 3 tầng (Three-Tier Expense Matrix)
+  claim_ids:
+  - W02-C09
+  evidence_label: preliminary
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-authored-scope577
+    date: '2026-10-06'
+    notes: Course operational definitions and arithmetic reviewed; no textbook-body or efficacy approval
+- id: roadmap:concept:pf:cashflow-kpis
+  name: Chỉ số tiền mặt trong kỳ, phân biệt với tài sản ròng
+  claim_ids:
+  - W02-C10
+  - W02-CAUTH-12
+  evidence_label: preliminary
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-authored-scope577
+    date: '2026-10-06'
+    notes: Course operational definitions and arithmetic reviewed; no textbook-body or efficacy approval
+- id: roadmap:concept:pf:cash-leaks-intervention
+  name: Nhận diện điểm rò rỉ dòng tiền và thiết kế can thiệp hành vi
+  claim_ids:
+  - W02-C11
+  evidence_label: preliminary
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-authored-scope577
+    date: '2026-10-06'
+    notes: Course operational definitions and arithmetic reviewed; no textbook-body or efficacy approval
+questions:
+- id: Q01
+  lo_ref: LO-PF-W02-01
+  concept_id: roadmap:concept:pf:three-income-sources
+  claim_ids:
+  - W02-C08
+- id: Q02
+  lo_ref: LO-PF-W02-01
+  concept_id: roadmap:concept:pf:three-income-sources
+  claim_ids:
+  - W02-C08
+- id: Q03
+  lo_ref: LO-PF-W02-02
+  concept_id: roadmap:concept:pf:three-tier-expense-matrix
+  claim_ids:
+  - W02-C09
+- id: Q04
+  lo_ref: LO-PF-W02-02
+  concept_id: roadmap:concept:pf:three-tier-expense-matrix
+  claim_ids:
+  - W02-C09
+- id: Q05
+  lo_ref: LO-PF-W02-03
+  concept_id: roadmap:concept:pf:cashflow-kpis
+  claim_ids:
+  - W02-C10
+- id: Q06
+  lo_ref: LO-PF-W02-03
+  concept_id: roadmap:concept:pf:cashflow-kpis
+  claim_ids:
+  - W02-C10
+- id: Q07
+  lo_ref: LO-PF-W02-04
+  concept_id: roadmap:concept:pf:cash-leaks-intervention
+  claim_ids:
+  - W02-C11
+- id: Q08
+  lo_ref: LO-PF-W02-04
+  concept_id: roadmap:concept:pf:cash-leaks-intervention
+  claim_ids:
+  - W02-C11
+- id: Q09
+  lo_ref: LO-PF-W02-03
+  concept_id: roadmap:concept:pf:cashflow-kpis
+  claim_ids:
+  - W02-C10
+  - W02-CAUTH-12
+- id: Q10
+  lo_ref: LO-PF-W02-04
+  concept_id: roadmap:concept:pf:cash-leaks-intervention
+  claim_ids:
+  - W02-C11
+units:
+- unit_id: roadmap:unit:pf:w02
+  display_title: 'Tuần 02: Thu Nhập, Chi Tiêu Và Quản Lý Dòng Tiền'
+  sort_order: 2
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:pf:w02
+    path: notes/module-1/week-02-income-cashflow.md
+    sha256: 89790d550865c3651107fb0e0575b9de1a598820f8b26d11ee40a84604cb47d0
+    byte_length: 62542
+  - role: quiz_questions
+    stable_id: roadmap:quiz:pf:w02
+    path: assessments/quizzes/week-02-quiz.md
+    question_count: 10
+    sha256: ee409276e52a437d34f2799036673e68923cc3b88a3c2733e33bedf7c3e920e4
+    byte_length: 10855
+  - role: quiz_answers
+    stable_id: roadmap:answers:pf:w02
+    path: assessments/answer-keys/week-02-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: 78ab1a59377dfe3b71545f373726a728ad41f358a5b25b7c95e2913c4955215a
+    byte_length: 32647
+  - role: flashcard_deck
+    stable_id: roadmap:deck:pf:w02
+    path: flashcards/week-02.yaml
+    card_count: 6
+    sha256: 3e8878b0fb6103522295fada1254bb3a40286df5c51786afafab4bcc161d64cd
+    byte_length: 5072
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: 88778ca2b2273d9c7c5cbe5550fccf00743e4594cceb618e17293a4fc40d42fd
+    byte_length: 19567
+external_resources:
+- resource_id: ext-pf-w02-cashflow-tracker
+  title: CFPB consumer finance resources
+  url: https://www.consumerfinance.gov/consumer-tools/credit-cards/
+  type: reference
+  requirement_level: optional
+  task_description: Nhập dữ liệu thu nhập thực nhận và các khoản chi tiêu thực tế trong 30 ngày của chị
+    Mai để tự động tính Dòng tiền ròng (Net Cash Flow) và Tỷ lệ tiết kiệm ròng (Savings Rate).
+  return_step: Đọc thêm về quản lý tín dụng; bài học cung cấp đủ công thức và ví dụ để tự tính, không
+    phụ thuộc URL này.

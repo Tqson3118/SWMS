@@ -1,0 +1,217 @@
+schema_version: 2.0.0
+package_id: package:psychology:w05
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: approved
+version: 8
+created_at: '2026-09-15T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 01-scientific-foundations
+lesson: week-05-sensation-perception
+learning_objectives:
+- id: LO-W05-01
+  bloom_level: Understand
+  statement: Phân biệt rạch ròi giữa Cảm giác (sensation - thụ cảm và chuyển đổi tín
+    hiệu) và Tri giác (perception - tổ chức và diễn giải ý nghĩa); nêu định nghĩa
+    ngưỡng tuyệt đối và định luật Weber về ngưỡng sai biệt (JND).
+- id: LO-W05-02
+  bloom_level: Analyze
+  statement: Phân tích Thuyết phát hiện tín hiệu trong môi trường có tạp âm và hiện
+    tượng thích ứng cảm giác; so sánh xử lý từ dưới lên (Bottom-up) với xử lý từ trên
+    xuống (Top-down) và hiện tượng mù không chú ý.
+- id: LO-W05-03
+  bloom_level: Apply
+  statement: Mô tả cấu trúc giải phẫu và cơ chế thụ cảm thị giác (que vs nón, fovea,
+    thuyết ba màu và thuyết quá trình đối lập), thính giác (màng đáy ốc tai), và Thuyết
+    kiểm soát cổng đau trong xúc giác.
+- id: LO-W05-04
+  bloom_level: Evaluate
+  statement: Đánh giá các nguyên tắc Gestalt về tổ chức tri giác (Hình - Nền, Gần
+    gũi, Tương đồng, Tiếp diễn liên tục, Đóng kín) và giải thích căn nguyên trực giác
+    bị đánh lừa bởi ảo giác và bối cảnh.
+concepts:
+- id: roadmap:concept:psychology:w05-sensation-perception
+  name: Cảm giác vs Tri giác & Quá trình Transduction
+  claim_ids:
+  - C05-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-15'
+- id: roadmap:concept:psychology:w05-webers-law
+  name: Ngưỡng tuyệt đối, Ngưỡng sai biệt & Định luật Weber
+  claim_ids:
+  - C05-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-15'
+- id: roadmap:concept:psychology:w05-signal-detection
+  name: Thuyết Phát hiện Tín hiệu & Quyết định Tâm lý
+  claim_ids:
+  - C05-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-15'
+- id: roadmap:concept:psychology:w05-sensory-adaptation
+  name: Thích ứng cảm giác & Giải phóng tài nguyên chú ý
+  claim_ids:
+  - C05-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-15'
+- id: roadmap:concept:psychology:w05-top-down-processing
+  name: Xử lý từ trên xuống & Tâm thế tri giác
+  claim_ids:
+  - C05-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-15'
+- id: roadmap:concept:psychology:w05-inattentional-blindness
+  name: Hiện tượng Mù không chú ý (Simons & Chabris)
+  claim_ids:
+  - C05-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-15'
+- id: roadmap:concept:psychology:w05-rods-and-cones
+  name: Tế bào hình que vs Tế bào hình nón & Hoàng điểm Fovea
+  claim_ids:
+  - C05-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-15'
+- id: roadmap:concept:psychology:w05-opponent-process
+  name: Thuyết quá trình đối lập Hering & Hiện tượng Ảnh dư
+  claim_ids:
+  - C05-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-15'
+- id: roadmap:concept:psychology:w05-gate-control-theory
+  name: Thuyết Kiểm soát Cổng Đau (Melzack & Wall, 1965)
+  claim_ids:
+  - C05-07
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-15'
+- id: roadmap:concept:psychology:w05-gestalt-closure
+  name: Các nguyên tắc Gestalt & Quy luật Đóng kín
+  claim_ids:
+  - C05-08
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-academic-reviewer
+    date: '2026-09-15'
+questions:
+- id: Q05-01
+  lo_ref: LO-W05-01
+  concept_id: roadmap:concept:psychology:w05-sensation-perception
+  claim_ids:
+  - C05-01
+- id: Q05-02
+  lo_ref: LO-W05-01
+  concept_id: roadmap:concept:psychology:w05-webers-law
+  claim_ids:
+  - C05-02
+- id: Q05-03
+  lo_ref: LO-W05-02
+  concept_id: roadmap:concept:psychology:w05-signal-detection
+  claim_ids:
+  - C05-03
+- id: Q05-04
+  lo_ref: LO-W05-02
+  concept_id: roadmap:concept:psychology:w05-sensory-adaptation
+  claim_ids:
+  - C05-03
+- id: Q05-05
+  lo_ref: LO-W05-02
+  concept_id: roadmap:concept:psychology:w05-top-down-processing
+  claim_ids:
+  - C05-04
+- id: Q05-06
+  lo_ref: LO-W05-02
+  concept_id: roadmap:concept:psychology:w05-inattentional-blindness
+  claim_ids:
+  - C05-04
+- id: Q05-07
+  lo_ref: LO-W05-03
+  concept_id: roadmap:concept:psychology:w05-rods-and-cones
+  claim_ids:
+  - C05-05
+- id: Q05-08
+  lo_ref: LO-W05-03
+  concept_id: roadmap:concept:psychology:w05-opponent-process
+  claim_ids:
+  - C05-05
+- id: Q05-09
+  lo_ref: LO-W05-03
+  concept_id: roadmap:concept:psychology:w05-gate-control-theory
+  claim_ids:
+  - C05-07
+- id: Q05-10
+  lo_ref: LO-W05-04
+  concept_id: roadmap:concept:psychology:w05-gestalt-closure
+  claim_ids:
+  - C05-08
+units:
+- unit_id: roadmap:unit:psychology:w05
+  display_title: 'Tuần 05: Cảm giác, Tri giác và Các Giới hạn của Trực giác'
+  sort_order: 5
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w05
+    path: notes/01-scientific-foundations/week-05-sensation-perception.md
+    sha256: 226cf23e967067bb3d9c73d0f57d154d80a55d67bd5c103d84bcfdd4052932b9
+    byte_length: 55309
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w05
+    path: assessments/quizzes/week-05-quiz.md
+    question_count: 10
+    sha256: 707bb5a0ede525b70c4039e081714143606f1aa1e7a5e85ab02c518d125d8dcd
+    byte_length: 8614
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w05
+    path: assessments/answer-keys/week-05-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: 885552e56811023442ae894e32f64c12a46c56599c6cdcd426dc8fba7be55e6f
+    byte_length: 22886
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w05
+    path: flashcards/week-05.yaml
+    card_count: 8
+    sha256: ff84fbce851cd50962460fc1d486639d4f0c5c3091cc1a72da421a2fef4a4156
+    byte_length: 6631
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

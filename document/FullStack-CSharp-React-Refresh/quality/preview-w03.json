@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:53:42Z",
+  "unit_id": "roadmap:unit:fscr:w03",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 03: DOM, sự kiện, modules và persistence nhỏ",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w03",
+    "title": "Tuần 03: DOM, sự kiện, modules và persistence nhỏ",
+    "content_markdown": "<h1>Tuần 03 — DOM, sự kiện, modules và persistence nhỏ</h1>\n<p>Chặng 1; 3 bài L03-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W03-01: Xử lý submit, render an toàn và event delegation cho list.</p>\n</li>\n<li>\n<p>LO-W03-02: Tách domain/storage/view module và hiểu import/export qua HTTP.</p>\n</li>\n<li>\n<p>LO-W03-03: Lưu/đọc JSON có guard và recovery khi dữ liệu hỏng.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 02; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-03-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w03-01\"></a></p>\n<h2>Bài 1: DOM và event flow</h2>\n<p>LO-W03-01 · W03-C01</p>\n<p>DOM là cây object browser biểu diễn document. querySelector có thể null; tải module sau markup hoặc dùng module deferred rồi kiểm tra type. Event đi capture -&gt; target -&gt; bubble; handler form submit nhận cả click nút và Enter. preventDefault chặn hành vi mặc định như reload, không chặn propagation. Delegation đặt một handler trên list, dùng event.target.closest('button[data-id]') và kiểm tra phần tử thuộc list; không gắn lặp handler sau mỗi render. textContent render text user, createElement tạo node; innerHTML với note chưa tin cậy có thể XSS. State là mảng expense; DOM là projection, không lấy text tiền đã format để tính tổng.</p>\n<p><a id=\"lo-w03-02\"></a></p>\n<h2>Bài 2: ES modules và boundary</h2>\n<p>LO-W03-02 · W03-C02</p>\n<p>File module export named functions, import đúng tên và đường dẫn có extension trong browser. script type=module có scope riêng, chạy deferred, strict mode; không ngầm đưa function vào window cho onclick inline. Modules phân boundary: money.js tính toán, storage.js persist, view.js render, app.js wiring. Không tạo circular dependency app&lt;-&gt;domain; truyền callback hoặc dữ liệu qua function. Named export và default export khác cú pháp import, không rename nhầm. File:// có hạn chế origin và module nên dùng HTTP local server. MIME/path lỗi xuất hiện Network/Console; sửa URL thay vì mở browser bỏ bảo mật. Mỗi module chỉ giữ side effects cần thiết và test domain không cần document.</p>\n<p><a id=\"lo-w03-03\"></a></p>\n<h2>Bài 3: localStorage và lỗi dữ liệu</h2>\n<p>LO-W03-03 · W03-C03</p>\n<p>localStorage key/value đều string, tồn tại qua reload nhưng có thể bị xóa hoặc bị người dùng/XSS sửa. JSON.parse throw khi format sai, còn JSON hợp lệ chưa chắc đúng schema. Đọc key null thì default []; parse xong kiểm tra array và fields từng item. try/catch phải phân biệt storage unavailable/quota và dữ liệu hỏng; hiển thị lỗi, không giả vờ đã lưu. Chỉ ghi sau domain validate; dùng schemaVersion để migration sau này. Không lưu JWT/secret trong localStorage. UUID bằng crypto.randomUUID cho item tạm, id ổn định khi edit/delete. Khi reload, render từ state phục hồi, tổng tính từ data chứ không từ DOM. Persistence JS là lab thay thế bằng API từ tuần 13.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Bài toán: submit amount một lần, không reload, note '&lt;b&gt;x&lt;/b&gt;' hiện nguyên văn.</li>\n<li>Tách validate/state khỏi render; không dùng innerHTML.</li>\n<li>app.js là script module, HTML tuần 1 cần input note name=note:</li>\n</ol>\n<pre><code class=\"language-javascript\">const form=document.querySelector(\"#expense-form\");\nconst message=document.querySelector(\"#message\");\nif(!(form instanceof HTMLFormElement)||!message) throw new Error(\"Thiếu markup\");\nlet expenses=[];\nform.addEventListener(\"submit\",event=&gt;{\n event.preventDefault();\n const data=new FormData(form);\n const raw=String(data.get(\"amountVnd\")??\"\").trim();\n const value=Number(raw);\n if(!raw||!Number.isSafeInteger(value)||value&lt;=0||value&gt;1e9){\n  message.textContent=\"Số tiền không hợp lệ\"; return;\n }\n expenses=[...expenses,{id:crypto.randomUUID(),amountVnd:value}];\n message.textContent=\"Đã thêm \"+expenses.length+\" khoản\";\n});\n</code></pre>\n<ol>\n<li>Add 50000 hai lần -&gt; count 2, page không reload. Thêm category/date/note theo project-spec trước gọi đây là feature đủ.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>preventDefault không thay validation; event delegation cần guard target Element. JSON parse thành công không thay schema validation. Tránh lặp listeners gây double-submit: wiring một lần, render chỉ thay nodes. Storage version migration chỉ áp dữ liệu lab; backup trước biến đổi.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>Tạo money.js export total; app.js import và tính fixture. Cố ý sai đường dẫn rồi debug.</p>\n<h3>Bài tập 2</h3>\n<p>Đặt key expense-lab='bad json', reload. Thiết kế recover mà không crash.</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>export function total(xs){return xs.reduce((s,x)=&gt;s+x.amountVnd,0)}; import {total} from './money.js'. Expected100000; Network404 khi path sai; sửa path/case, không đổi sang global.</p>\n<h3>Hướng giải 2</h3>\n<p>try JSON.parse; catch báo dữ liệu hỏng, chọn xóa key lab sau khi người dùng xác nhận hoặc dùng mảng rỗng trong memory. JSON {} phải bị schema guard chặn dù parse không throw.</p>\n<h2>Project task</h2>\n<p>CRUD JS add/edit/delete bằng stable id, form/category/date/note đầy đủ; render text; persist array có schema guard. Có error/empty state, recovery và fixture.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w03.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Add/edit/delete fixture cập nhật tổng đúng và reload còn dữ liệu.</p>\n</li>\n<li>\n<p>[ ] Note '&lt;img src=x onerror=alert(1)&gt;' hiển thị text, không chạy script.</p>\n</li>\n<li>\n<p>[ ] Key thiếu/hỏng/sai shape không crash; submit không reload hoặc thêm hai lần.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Thu: 'What is the difference between preventDefault and stopping propagation?' Viết 5 câu về module boundary và storage errors.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Event_bubbling\">Event bubbling and delegation</a> — W03-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules\">JavaScript modules</a> — W03-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage\">localStorage description</a> — W03-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-03-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-03-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-03.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"week-02.md\">Tuần trước</a></p>\n<p><a href=\"week-04.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Event bubbling and delegation](https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Event_bubbling)",
+      "[JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)",
+      "[localStorage description](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W03-01]",
+        "bloom_level": "Apply",
+        "statement": "Xử lý submit, render an toàn và event delegation cho list."
+      },
+      {
+        "id": "[LO-W03-02]",
+        "bloom_level": "Apply",
+        "statement": "Tách domain/storage/view module và hiểu import/export qua HTTP."
+      },
+      {
+        "id": "[LO-W03-03]",
+        "bloom_level": "Apply",
+        "statement": "Lưu/đọc JSON có guard và recovery khi dữ liệu hỏng."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w03-c01",
+        "name": "DOM và event flow",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w03-c02",
+        "name": "ES modules và boundary",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w03-c03",
+        "name": "localStorage và lỗi dữ liệu",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w03",
+    "title": "Trắc nghiệm Tuần 03: DOM, sự kiện, modules và persistence nhỏ",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w03:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "preventDefault trên submit chặn gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Mọi event bubbling"
+          },
+          {
+            "id": "B",
+            "text": "Mọi lỗi validation"
+          },
+          {
+            "id": "C",
+            "text": "Mọi request mạng trong app"
+          },
+          {
+            "id": "D",
+            "text": "Hành vi mặc định gửi/reload"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Nó hủy default nếu event cancelable.",
+        "wrong_explanations": {
+          "A": "stopPropagation mới kiểm soát propagation.",
+          "B": "Validation là luật riêng, không được bảo đảm bởi preventDefault.",
+          "C": "Không phải firewall của ứng dụng."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w03-c01",
+        "lesson_anchor": "#lo-w03-01",
+        "claim_ids": [
+          "W03-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w03:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Render note chưa tin cậy nên dùng gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "textContent"
+          },
+          {
+            "id": "B",
+            "text": "innerHTML trực tiếp"
+          },
+          {
+            "id": "C",
+            "text": "eval note"
+          },
+          {
+            "id": "D",
+            "text": "document.write note"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Text không diễn giải note thành HTML.",
+        "wrong_explanations": {
+          "B": "innerHTML có thể đưa markup/script nguy hiểm vào DOM.",
+          "C": "eval thực thi input, nguy hiểm.",
+          "D": "document.write diễn giải HTML và có side effects lớn."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w03-c01",
+        "lesson_anchor": "#lo-w03-01",
+        "claim_ids": [
+          "W03-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w03:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "Named export total import đúng thế nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Đọc window.total luôn có"
+          },
+          {
+            "id": "B",
+            "text": "import {total} from './money.js'"
+          },
+          {
+            "id": "C",
+            "text": "import total from './money.js' nếu không default"
+          },
+          {
+            "id": "D",
+            "text": "require trong browser module mặc định"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Braces đọc named binding.",
+        "wrong_explanations": {
+          "A": "Module scope không gắn window.",
+          "C": "Default import cần default export.",
+          "D": "require không API ES module browser tự có."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w03-c02",
+        "lesson_anchor": "#lo-w03-02",
+        "claim_ids": [
+          "W03-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w03:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "Tại sao dùng HTTP server local cho module?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Để khỏi cần import"
+          },
+          {
+            "id": "B",
+            "text": "Để tắt strict mode"
+          },
+          {
+            "id": "C",
+            "text": "Để origin/MIME/path hoạt động như web"
+          },
+          {
+            "id": "D",
+            "text": "Để tự cung cấp mọi API"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Browser module tải theo cơ chế web/origin.",
+        "wrong_explanations": {
+          "A": "Import vẫn là boundary cần khai báo.",
+          "B": "Module vẫn strict mode.",
+          "D": "Server static không tự sinh API nghiệp vụ."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w03-c02",
+        "lesson_anchor": "#lo-w03-02",
+        "claim_ids": [
+          "W03-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w03:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "JSON.parse('{}') thành công có đủ nhận expenses không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Có vì JSON luôn array"
+          },
+          {
+            "id": "B",
+            "text": "Có vì browser kiểm tra domain"
+          },
+          {
+            "id": "C",
+            "text": "Chỉ cần rename key"
+          },
+          {
+            "id": "D",
+            "text": "Không, phải validate shape"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Syntax JSON không đảm bảo array/schema.",
+        "wrong_explanations": {
+          "A": "Object không phải array.",
+          "B": "Browser không biết domain expense.",
+          "C": "Đổi key không sửa dữ liệu sai."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w03-c03",
+        "lesson_anchor": "#lo-w03-03",
+        "claim_ids": [
+          "W03-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w03:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "localStorage phù hợp lab này cho gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Expense giả lập đã validate"
+          },
+          {
+            "id": "B",
+            "text": "Secret signing key"
+          },
+          {
+            "id": "C",
+            "text": "JWT dài hạn như chuẩn an toàn"
+          },
+          {
+            "id": "D",
+            "text": "Password plaintext"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Dữ liệu lab không nhạy cảm, có recovery.",
+        "wrong_explanations": {
+          "B": "Signing key không được đưa browser.",
+          "C": "Storage đọc được bởi JS/XSS, không mặc định an toàn.",
+          "D": "Password plaintext không được lưu."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w03-c03",
+        "lesson_anchor": "#lo-w03-03",
+        "claim_ids": [
+          "W03-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w03",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 03: DOM, sự kiện, modules và persistence nhỏ",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w03-001",
+        "concept_name": "Default behavior",
+        "front": "preventDefault trên submit chặn gì?",
+        "back": "Hành vi mặc định gửi/reload. Nó hủy default nếu event cancelable.",
+        "tags": [
+          "w03",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W03-C01"
+        ],
+        "source_citation": "notes/module-1/week-03.md",
+        "lesson_anchor": "#lo-w03-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w03-002",
+        "concept_name": "Safe text",
+        "front": "Render note chưa tin cậy nên dùng gì?",
+        "back": "textContent. Text không diễn giải note thành HTML.",
+        "tags": [
+          "w03",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W03-C01"
+        ],
+        "source_citation": "notes/module-1/week-03.md",
+        "lesson_anchor": "#lo-w03-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w03-003",
+        "concept_name": "Module import",
+        "front": "Named export total import đúng thế nào?",
+        "back": "import {total} from './money.js'. Braces đọc named binding.",
+        "tags": [
+          "w03",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W03-C02"
+        ],
+        "source_citation": "notes/module-1/week-03.md",
+        "lesson_anchor": "#lo-w03-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w03-004",
+        "concept_name": "Module hosting",
+        "front": "Tại sao dùng HTTP server local cho module?",
+        "back": "Để origin/MIME/path hoạt động như web. Browser module tải theo cơ chế web/origin.",
+        "tags": [
+          "w03",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W03-C02"
+        ],
+        "source_citation": "notes/module-1/week-03.md",
+        "lesson_anchor": "#lo-w03-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w03-005",
+        "concept_name": "JSON validation",
+        "front": "JSON.parse('{}') thành công có đủ nhận expenses không?",
+        "back": "Không, phải validate shape. Syntax JSON không đảm bảo array/schema.",
+        "tags": [
+          "w03",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W03-C03"
+        ],
+        "source_citation": "notes/module-1/week-03.md",
+        "lesson_anchor": "#lo-w03-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w03-006",
+        "concept_name": "Storage security",
+        "front": "localStorage phù hợp lab này cho gì?",
+        "back": "Expense giả lập đã validate. Dữ liệu lab không nhạy cảm, có recovery.",
+        "tags": [
+          "w03",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W03-C03"
+        ],
+        "source_citation": "notes/module-1/week-03.md",
+        "lesson_anchor": "#lo-w03-03"
+      }
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+schema_version: 2.0.0
+package_id: package:swm:sample-fullstack-roadmap
+title: "Lộ trình Mẫu Chuẩn SWM: Thiết kế API .NET & Frontend React Thực chiến"
+slug: "lo-trinh-mau-chuan-swm-fullstack"
+description: "Gói lộ trình mẫu được biên soạn chuẩn cho Studxy: cấu trúc rõ ràng, bảng biểu Markdown, code block, callout thực hành, accordion tự kiểm tra (<details>), thẻ FSRS và bài trắc nghiệm."
+subject: "CongNgheThongTin"
+version: 1.0.0
+chapters:
+  - title: "Chương 1: Tư duy Kiến trúc & Dữ liệu Nền tảng"
+    sort_order: 1
+    lessons:
+      - title: "Bài 1: Bản đồ Lộ trình & Nguyên tắc Học Chủ động"
+        slug: "bai-1-ban-do-lo-trinh"
+        sort_order: 1
+        file: "lessons/01_tong_quan_va_lo_trinh.md"
+      - title: "Bài 2: Thiết kế Domain Model, Validation & HTTP Contract"
+        slug: "bai-2-domain-va-api"
+        sort_order: 2
+        file: "lessons/02_thiet_ke_domain_va_api_chuan.md"
+  - title: "Chương 2: Giao diện Bền vững, Hiệu năng & Ôn tập FSRS"
+    sort_order: 2
+    lessons:
+      - title: "Bài 3: Quản trị State React & Chống Stale Request"
+        slug: "bai-3-react-state-chong-stale"
+        sort_order: 3
+        file: "lessons/03_quan_tri_state_react_va_ux.md"
+      - title: "Bài 4: Checklist Hoàn thiện UI, Kiểm thử & Hệ thống FSRS"
+        slug: "bai-4-checklist-va-on-tap"
+        sort_order: 4
+        file: "lessons/04_kiem_thu_deploy_va_fsrs.md"

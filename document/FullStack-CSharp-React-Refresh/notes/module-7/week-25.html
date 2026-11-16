@@ -1,0 +1,140 @@
+<h1>Tuần 25 — HTTP, rate limiting và practical design</h1>
+<p>Chặng 7; 3 bài L25-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>
+<h2>Mục tiêu và tiên quyết</h2>
+<ul>
+<li>
+<p>LO-W25-01: Theo vết request và phân biệt retry-safe operations.</p>
+</li>
+<li>
+<p>LO-W25-02: Giới hạn theo validated identity và kiểm429.</p>
+</li>
+<li>
+<p>LO-W25-03: Định nghĩa nhu cầu trước vẽ kiến trúc.</p>
+</li>
+</ul>
+<p>Tiên quyết: Đạt gate tuần 24; dùng lại fixture và commit trước.</p>
+<h2>Chẩn đoán và phân bổ thời gian</h2>
+<p>Làm <a href="../../assessments/quizzes/week-25-quiz.md">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>
+<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>
+<p><a id="lo-w25-01"></a></p>
+<h2>Bài 1: HTTP và latency budget</h2>
+<p>LO-W25-01 · W25-C01</p>
+<p>Request browser quaDNS/TLS/proxy đếnAPI, rồi SQL/cache; latency tổng gồm network,queue,compute vàIO. HTTP keep-alive/reuse giảm kết nối, nhưng không chữa query chậm. GETsafe/idempotent, PUT/DELETE idempotent theo effect; POSTimport chỉ retry-safe theo idempotency contract. Status429/503 khác400/401; retry bounded với exponentialbackoff+jitter cho transient failure, không retryinvalidinput. Timeoutdeadline từ client đếnserver phải hợp lý; CancellationToken chuyển xuốngIO, không bảo đảm rollbackcommit. Authfinancialresponse private/no-store theo endpoint policy; publiccache/CDN không được dùng chung ownerdata. Đọc trace trước tối ưu, không đoán cache là câu trả lời mọi lỗi.</p>
+<p><a id="lo-w25-02"></a></p>
+<h2>Bài 2: Rate limiter</h2>
+<p>LO-W25-02 · W25-C02</p>
+<p>Fixedwindow reset theo window, tokenbucket cho burst, concurrencylimiter giới hạn số in-flight chứ không requests/time. Chọn policy theo endpoint cost và loadtest. Partition theo internaluser được validated auth, anonymous theo remoteIP đángtin/controlledfallback; không lấy UserIdquerystring. UseRouting trước endpointlimiter và authentication trước identitypartition. QueueLimit0 để reject ngay tronglab; RejectionStatusCode429 mặc định framework có thể khác nên cấu hình rõ. Retry-After khi lease có metadata; client delay bounded. Limiter in-process không global acrossreplicas; distributedquota/gateway cần thiết nếu yêu cầu global. Không coi limiterapp là đủ DDoSprotection.</p>
+<p><a id="lo-w25-03"></a></p>
+<h2>Bài 3: Capacity và design communication</h2>
+<p>LO-W25-03 · W25-C03</p>
+<p>Design bắt đầu functionalrequirements (expenses/budgets/import), nonfunctional(ownerprivacy,correctmoney,availability,latency) và assumptions. Ví dụ lab1000users,10%active,2req/minactive≈3.33RPSaverage; burst10x≈33.3RPS, đây là giả định để test, không data thực. Data estimate rows/user/day×users×days×avgbytes và indexes/backupsoverhead. Vẽ modularmonolithAPI+SQL+Redisoptional, không microserviceschỉ vì phỏng vấn. Chọn trade-off giữa stale cache và freshness, syncimport&lt;=1000 và asyncjobs. Ghi decision,alternative,evidence,triggerđổi; explain bottleneckSQLCPU/IO/network dựa metrics.</p>
+<h2>Ví dụ giải từng bước</h2>
+<ol>
+<li>Lab fixedwindow global chỉ minh họa, chưa identitypartition production:</li>
+</ol>
+<pre><code class="language-csharp">using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+var b=WebApplication.CreateBuilder(args);
+b.Services.AddRateLimiter(o=&gt;{
+ o.RejectionStatusCode=StatusCodes.Status429TooManyRequests;
+ o.AddFixedWindowLimiter(&quot;lab&quot;,x=&gt;{
+  x.PermitLimit=3;x.Window=TimeSpan.FromMinutes(1);x.QueueLimit=0;
+ });
+});
+var app=b.Build();app.UseRouting();app.UseRateLimiter();
+app.MapGet(&quot;/api/ping&quot;,()=&gt;Results.Ok()).RequireRateLimiting(&quot;lab&quot;);
+app.Run();
+</code></pre>
+<ol>
+<li>Gọi4 lần nhanh trong cùng window:200/200/200/429; windowboundary có thể reset nên logtimestamp và repeatwithinwindow.</li>
+<li>Project chuyển partition theo validatedinternaluser và assert Alicequota không tiêu Bobquota.</li>
+<li>Chạy1replica rồi2replica: per-processpolicy không bảo đảm global3requests. Ghi trade-off thay vì claimdistributedlimit.</li>
+</ol>
+<h2>Đào sâu và lỗi thường gặp</h2>
+<p>Không loadtest publicservice của người khác; lab chỉlocalhost/staging học viên. Header X-Forwarded-For chỉ tin knownproxy; blindly trust spoofedheader phá IPlimit. Numericquota3/min là lab, không productionrecommendation.</p>
+<h2>Bài tập thực hành</h2>
+<h3>Bài tập 1</h3>
+<p>Server trả 400 invalid amount, client nên retry exponential không?</p>
+<h3>Bài tập 2</h3>
+<p>Tính RPS cho1000users,100active,2requests/min và burst10x.</p>
+<h2>Hướng dẫn giải bài tập</h2>
+<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>
+<h3>Hướng giải 1</h3>
+<p>Không, input phải sửa. Retry transient429/503 theo policy và Retry-After; POST phải idempotent mới retry khi chưa rõ commit.</p>
+<h3>Hướng giải 2</h3>
+<p>100×2/60=3.33average; burst≈33.3. Nêu giả định phân bố và đo p95 dưới load thay vì hứa capacity.</p>
+<h2>Project task</h2>
+<p>Thêm rate limiting imports/report theo owner, consistent429 và ADR latency/capacity; UI message429/retry bounded.</p>
+<p>Theo <a href="../../project-spec.md">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w25.md của repo học viên. Không lưu secret.</p>
+<h2>Acceptance và rubric</h2>
+<ul>
+<li>
+<p>[ ] Samewindow quota vượt trả429; Alice/Bobpartitions độc lập và không do clientUserId.</p>
+</li>
+<li>
+<p>[ ] Client không retry400/401 vô hạn; transientretry bounded có jitter/idempotency.</p>
+</li>
+<li>
+<p>[ ] ADR có assumptions,RPSestimate,trace/load evidence và ghi in-process limit scope.</p>
+</li>
+<li>
+<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>
+</li>
+<li>
+<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Tiêu chí</th>
+<th>0 Chưa đạt</th>
+<th>1 Đang phát triển</th>
+<th>2 Đạt</th>
+<th>3 Vững</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hiểu cơ chế</td>
+<td>Không giải thích</td>
+<td>Lặp tên API</td>
+<td>Nói input/output và cơ chế tuần</td>
+<td>So sánh phương án và điều kiện biên</td>
+</tr>
+<tr>
+<td>Practice</td>
+<td>Chưa chạy</td>
+<td>Chỉ happy path</td>
+<td>Đúng output và edge cases</td>
+<td>Tự thêm regression có ý nghĩa</td>
+</tr>
+<tr>
+<td>Project</td>
+<td>Chưa có feature</td>
+<td>Copy chưa chứng minh</td>
+<td>Mọi gate tuần có evidence</td>
+<td>Tái hiện/sửa lỗi không xem lời giải</td>
+</tr>
+</tbody>
+</table>
+<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>
+<h2>English và ôn tập</h2>
+<p>Designinterview10 phút: yêu cầu, giả định, sơ đồ, bottleneck, failure, trade-off; thu lại 5 phút chính.</p>
+<p><a href="../../english-practice.md">Nhịp 30–60 phút/ngày</a></p>
+<h2>Nguồn và kiểm chứng</h2>
+<ul>
+<li>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods">Safe and idempotent method semantics</a> — W25-C01; primary. HTTP: 200; section xem ledger.</p>
+</li>
+<li>
+<p><a href="https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit?view=aspnetcore-10.0">Algorithms, policies and middleware order</a> — W25-C02; primary. HTTP: 200; section xem ledger.</p>
+</li>
+<li>
+<p><a href="https://learn.microsoft.com/en-us/azure/architecture/framework/performance-efficiency/capacity-planning">Capacity planning</a> — W25-C03; primary. HTTP: 200; section xem ledger.</p>
+</li>
+</ul>
+<h2>Liên kết ôn tập và tuần liên quan</h2>
+<p><a href="../../assessments/quizzes/week-25-quiz.md">Quiz</a> · <a href="../../assessments/answer-keys/week-25-answers.md">Đáp án</a> · <a href="../../flashcards/week-25.yaml">Flashcards</a> · <a href="../../quality/source-ledger.md">Ledger</a></p>
+<p><a href="../module-6/week-24.md">Tuần trước</a></p>
+<p><a href="week-26.md">Tuần tiếp</a></p>

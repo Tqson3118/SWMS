@@ -1,0 +1,155 @@
+schema_version: 2.0.0
+package_id: package:personal-finance:w11
+subject_id: roadmap:subject:personal-finance
+display_title: Tài chính cá nhân thực hành
+source_status: reviewed
+version: 11
+created_at: '2026-09-15T00:00:00Z'
+subject: Tài chính cá nhân
+course: Tài chính cá nhân thực hành
+module: module-4
+lesson: week-11-retirement-and-social-insurance
+learning_objectives:
+- id: LO-PF-W11-01
+  bloom_level: Understand
+  statement: Trình bày các chế độ hưu trí và BHXH trong phạm vi luật hiện hành.
+- id: LO-PF-W11-02
+  bloom_level: Apply
+  statement: Tính lương hưu minh họa với giả định rõ ràng.
+- id: LO-PF-W11-03
+  bloom_level: Understand
+  statement: Nhận biết bảo hiểm hưu trí bổ sung.
+- id: LO-PF-W11-04
+  bloom_level: Evaluate
+  statement: Lập kế hoạch hưu trí kết hợp BHXH và tiết kiệm.
+concepts:
+- id: roadmap:concept:pf:social-insurance
+  name: BHXH và tỷ lệ hưởng
+  claim_ids:
+  - M4-C05
+  - M4-C06
+  - W11-NAT-05
+  - W11-NAT-06
+  evidence_label: strong
+  source_ledger_path: quality/module-4-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded-insurance-retirement64
+    date: '2026-10-03'
+    notes: Bounded statutory review of Law on Social Insurance No. 41/2024/QH15, contribution rates (8%
+      employee pension fund, 10.5% total mandatory), maximum 75% pension rate, reference salary cap mechanism,
+      and voluntary maternity allowance.
+- id: roadmap:concept:pf:retirement-age
+  name: Tuổi nghỉ hưu
+  claim_ids:
+  - M4-C07
+  - M4-C08
+  evidence_label: strong
+  source_ledger_path: quality/module-4-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded-insurance-retirement64
+    date: '2026-10-03'
+    notes: Bounded statutory review of Labor Code No. 45/2019/QH14 (Art. 169) and Decree 135/2020/ND-CP
+      retirement roadmaps for male workers (61y3m in 2025, 62 in 2028) and female workers (60 in 2035).
+- id: roadmap:concept:pf:w11-sunk-cost
+  name: Cách lập luận chi phí chìm
+  claim_ids:
+  - M4-C11
+  evidence_label: moderate
+  source_ledger_path: quality/module-4-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded-insurance-retirement64
+    date: '2026-10-03'
+    notes: Bounded review of behavioral economics sunk cost fallacy (Arkes & Blumer 1985) applied to financial
+      and social insurance decision making.
+questions:
+- id: Q01
+  lo_ref: LO-PF-W11-01
+  concept_id: roadmap:concept:pf:social-insurance
+  claim_ids:
+  - M4-C05
+- id: Q02
+  lo_ref: LO-PF-W11-02
+  concept_id: roadmap:concept:pf:social-insurance
+  claim_ids:
+  - M4-C06
+- id: Q03
+  lo_ref: LO-PF-W11-01
+  concept_id: roadmap:concept:pf:retirement-age
+  claim_ids:
+  - M4-C07
+- id: Q04
+  lo_ref: LO-PF-W11-01
+  concept_id: roadmap:concept:pf:social-insurance
+  claim_ids:
+  - M4-C05
+- id: Q05
+  lo_ref: LO-PF-W11-01
+  concept_id: roadmap:concept:pf:social-insurance
+  claim_ids:
+  - M4-C05
+- id: Q06
+  lo_ref: LO-PF-W11-02
+  concept_id: roadmap:concept:pf:social-insurance
+  claim_ids:
+  - M4-C06
+- id: Q07
+  lo_ref: LO-PF-W11-04
+  concept_id: roadmap:concept:pf:w11-sunk-cost
+  claim_ids:
+  - M4-C11
+- id: Q08
+  lo_ref: LO-PF-W11-02
+  concept_id: roadmap:concept:pf:social-insurance
+  claim_ids:
+  - M4-C06
+- id: Q09
+  lo_ref: LO-PF-W11-01
+  concept_id: roadmap:concept:pf:retirement-age
+  claim_ids:
+  - M4-C08
+- id: Q10
+  lo_ref: LO-PF-W11-03
+  concept_id: roadmap:concept:pf:social-insurance
+  claim_ids:
+  - M4-C06
+- id: Q11
+  lo_ref: LO-PF-W11-01
+  concept_id: roadmap:concept:pf:social-insurance
+  claim_ids:
+  - W11-NAT-06
+units:
+- unit_id: roadmap:unit:pf:w11
+  display_title: 'Lesson 11: Hưu trí và Bảo hiểm Xã hội (BHXH) Việt Nam'
+  sort_order: 11
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:pf:w11
+    path: notes/module-4/week-11-retirement-and-social-insurance.md
+    sha256: 6cc7cc17b24af3cff7aaab6d9a82227c14ddf7f0647b4c7d9b6eb0f9d1cce5fa
+    byte_length: 15821
+  - role: quiz_questions
+    stable_id: roadmap:quiz:pf:w11
+    path: assessments/quizzes/week-11-quiz.md
+    question_count: 11
+    sha256: 37147488b797a21fe4236212a67ff98cb2e4d6606ed114e39905daddf16928f8
+    byte_length: 3115
+  - role: quiz_answers
+    stable_id: roadmap:answers:pf:w11
+    path: assessments/answer-keys/week-11-answers.md
+    correct_count: 11
+    wrong_count: 33
+    sha256: aa7ebec01ad102ce7d9aa3a6610ac4ae80140e6812af9bc641127d76523ed68d
+    byte_length: 14323
+  - role: source_ledger
+    path: quality/module-4-source-ledger.md
+    sha256: ca97768377c40c0e838ce6933d0aef1dc06f8d9c14a1a7862813b7fc677a0071
+    byte_length: 21932
+  - role: flashcard_deck
+    stable_id: deck-pf-w11
+    path: flashcards/week-11.yaml
+    byte_length: 10083
+    sha256: db897f6139a40a1a626a58f7053e24431121b024330de1bf547ca597d1896c54
+    card_count: 15

@@ -1,0 +1,595 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="01c16820-a43d-493d-b71e-e191c772d3cb" name="Administrator@DESKTOP-C0K1LT1 2026-10-08 15:25:19" runUser="DESKTOP-C0K1LT1\Administrator" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-08T15:25:19.8260291+07:00" queuing="2026-10-08T15:25:19.8260295+07:00" start="2026-10-08T15:25:16.8021633+07:00" finish="2026-10-08T15:25:20.2016899+07:00" />
+  <TestSettings name="default" id="aa5f80bc-786c-4ff1-b074-af97dc67f970">
+    <Deployment runDeploymentRoot="Administrator_DESKTOP-C0K1LT1_2026-10-08_15_25_19" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="b5283b32-0061-4a3a-b947-4a50edef592f" testId="35bf80bd-3504-9d90-4d76-3d9d6df25ac0" testName="Stage8IntegrationApiTests.BoundaryTests.Mid_parser_cancellation_returns_cancelled_dto_and_leaves_zero_rows" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1237438" startTime="2026-10-08T15:25:19.2424019+07:00" endTime="2026-10-08T15:25:19.3657135+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b5283b32-0061-4a3a-b947-4a50edef592f" />
+    <UnitTestResult executionId="08da1954-6d1d-47b7-907c-44d21dcd59f3" testId="24f8c6f5-5f4d-b00e-8e5a-795439e86b7f" testName="Stage8IntegrationApiTests.BoundaryTests.Before_upload_cancellation_returns_cancelled_dto_and_leaves_zero_rows" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1254825" startTime="2026-10-08T15:25:19.5076591+07:00" endTime="2026-10-08T15:25:19.6333461+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="08da1954-6d1d-47b7-907c-44d21dcd59f3" />
+    <UnitTestResult executionId="7de2ecfa-8866-4d7a-9d5b-d482349d9c32" testId="4325c838-bc6f-52f3-d200-ccf57fd534f2" testName="Stage8IntegrationApiTests.BoundaryTests.Precommit_cancellation_returns_cancelled_dto_and_leaves_zero_rows" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1384351" startTime="2026-10-08T15:25:19.1112219+07:00" endTime="2026-10-08T15:25:19.2414980+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7de2ecfa-8866-4d7a-9d5b-d482349d9c32" />
+    <UnitTestResult executionId="80118a09-1d2f-4069-bde9-02ddb0e6911d" testId="f7d6b04e-de28-3682-3ef3-275f047b04f7" testName="Stage8IntegrationApiTests.ApiTests.File_limit_is_actual_bytes" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0150541" startTime="2026-10-08T15:25:19.9537878+07:00" endTime="2026-10-08T15:25:19.9691253+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="80118a09-1d2f-4069-bde9-02ddb0e6911d" />
+    <UnitTestResult executionId="895a1b3d-3a90-40d3-90f9-e65d57b15e1a" testId="fba7bae2-7cd5-4bf7-58f6-30bddc26404c" testName="Stage8IntegrationApiTests.ApiTests.Row_limit_is_rejected_without_effect" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0131619" startTime="2026-10-08T15:25:19.7933548+07:00" endTime="2026-10-08T15:25:19.8065681+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="895a1b3d-3a90-40d3-90f9-e65d57b15e1a" />
+    <UnitTestResult executionId="add4e280-f06b-49a3-9fe2-fcbb5b99d236" testId="8f65ec41-29ab-4e78-9b19-651f5fc83d23" testName="Stage8IntegrationApiTests.ApiTests.Valid_max_money_and_get_preserve_strings" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0080465" startTime="2026-10-08T15:25:20.1146991+07:00" endTime="2026-10-08T15:25:20.1228392+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="add4e280-f06b-49a3-9fe2-fcbb5b99d236" />
+    <UnitTestResult executionId="9c3306af-a62e-4ef4-8ac7-8072c9b7a191" testId="03ff29b2-3c02-ac5c-937b-d320db2ffcf6" testName="Stage8IntegrationApiTests.BoundaryTests.Mid_upload_cancellation_returns_cancelled_dto_and_leaves_zero_rows" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1418773" startTime="2026-10-08T15:25:19.6334610+07:00" endTime="2026-10-08T15:25:19.7755571+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9c3306af-a62e-4ef4-8ac7-8072c9b7a191" />
+    <UnitTestResult executionId="15369c2a-2473-4761-8109-9fe1720d0d36" testId="db12b056-c87f-0b45-2425-e68eb8aa393a" testName="Stage8IntegrationApiTests.ApiTests.Instructor_precommit_cancellation_is_safe_and_leaves_zero_rows" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1467600" startTime="2026-10-08T15:25:19.8134205+07:00" endTime="2026-10-08T15:25:19.9536314+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="15369c2a-2473-4761-8109-9fe1720d0d36" />
+    <UnitTestResult executionId="35d8fd04-23d7-4016-8710-477a9e38559d" testId="9416932d-48cf-d794-23f1-7f0a6da1369d" testName="Stage8IntegrationApiTests.ApiTests.Missing_empty_and_header_only_are_explicit_safe_rejections" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0084844" startTime="2026-10-08T15:25:20.1229913+07:00" endTime="2026-10-08T15:25:20.1316628+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="35d8fd04-23d7-4016-8710-477a9e38559d" />
+    <UnitTestResult executionId="66e56e96-d0a7-4288-8863-899e4bd9b8f1" testId="ba61c6d5-9fef-450c-3f77-c2a60ca552c7" testName="Stage8IntegrationApiTests.ApiTests.Instructor_postcommit_and_diagnostic_failures_preserve_committed_status" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1354099" startTime="2026-10-08T15:25:19.9693176+07:00" endTime="2026-10-08T15:25:20.1047908+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="66e56e96-d0a7-4288-8863-899e4bd9b8f1" />
+    <UnitTestResult executionId="7eab2275-d6ed-46e5-afcc-7c48fbee5c77" testId="3c703b80-dfb1-008b-ff8f-62d35d23f48d" testName="Stage8IntegrationApiTests.BoundaryTests.Unknown_after_commit_simulation_returns_safe_unknown_and_observer_sees_row" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1414658" startTime="2026-10-08T15:25:19.3658664+07:00" endTime="2026-10-08T15:25:19.5075295+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7eab2275-d6ed-46e5-afcc-7c48fbee5c77" />
+    <UnitTestResult executionId="36073a9a-210a-4e23-aa1f-447f58e62c00" testId="9e0bb7fd-0755-b877-4baf-c01df40f476c" testName="Stage8IntegrationApiTests.ApiTests.Duplicate_only_commits_unique_rows" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0093174" startTime="2026-10-08T15:25:20.1049318+07:00" endTime="2026-10-08T15:25:20.1144770+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="36073a9a-210a-4e23-aa1f-447f58e62c00" />
+    <UnitTestResult executionId="c0ca35cb-a094-4f27-a146-00adccc66406" testId="e2e17031-e19e-02fd-dfaa-ef3da607b019" testName="Stage8IntegrationApiTests.ApiTests.Listen_url_must_be_loopback_with_ephemeral_port" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010608" startTime="2026-10-08T15:25:19.7918457+07:00" endTime="2026-10-08T15:25:19.7930258+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c0ca35cb-a094-4f27-a146-00adccc66406" />
+    <UnitTestResult executionId="4ad229be-4f94-4839-967d-3f03cd95f861" testId="f769b68c-2ac1-36aa-503a-5bfeb0616040" testName="Stage8IntegrationApiTests.ApiTests.Malformed_mixed_batch_has_safe_line_error_and_zero_new_effects" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0139330" startTime="2026-10-08T15:25:19.7775631+07:00" endTime="2026-10-08T15:25:19.7916729+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4ad229be-4f94-4839-967d-3f03cd95f861" />
+    <UnitTestResult executionId="88570fc8-84d0-47c9-ae2f-04e1adc21ccf" testId="2ded89e7-0861-3f67-8f14-447d71606924" testName="Stage8IntegrationApiTests.BoundaryTests.After_confirmed_commit_cancellation_remains_committed" computerName="DESKTOP-C0K1LT1" duration="00:00:00.7086675" startTime="2026-10-08T15:25:18.3858673+07:00" endTime="2026-10-08T15:25:19.1018825+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="88570fc8-84d0-47c9-ae2f-04e1adc21ccf" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Stage8IntegrationApiTests.BoundaryTests.Before_upload_cancellation_returns_cancelled_dto_and_leaves_zero_rows" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="24f8c6f5-5f4d-b00e-8e5a-795439e86b7f">
+      <Execution id="08da1954-6d1d-47b7-907c-44d21dcd59f3" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.BoundaryTests" name="Before_upload_cancellation_returns_cancelled_dto_and_leaves_zero_rows" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.ApiTests.Missing_empty_and_header_only_are_explicit_safe_rejections" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="9416932d-48cf-d794-23f1-7f0a6da1369d">
+      <Execution id="35d8fd04-23d7-4016-8710-477a9e38559d" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.ApiTests" name="Missing_empty_and_header_only_are_explicit_safe_rejections" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.BoundaryTests.Unknown_after_commit_simulation_returns_safe_unknown_and_observer_sees_row" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="3c703b80-dfb1-008b-ff8f-62d35d23f48d">
+      <Execution id="7eab2275-d6ed-46e5-afcc-7c48fbee5c77" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.BoundaryTests" name="Unknown_after_commit_simulation_returns_safe_unknown_and_observer_sees_row" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.ApiTests.File_limit_is_actual_bytes" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="f7d6b04e-de28-3682-3ef3-275f047b04f7">
+      <Execution id="80118a09-1d2f-4069-bde9-02ddb0e6911d" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.ApiTests" name="File_limit_is_actual_bytes" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.ApiTests.Listen_url_must_be_loopback_with_ephemeral_port" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="e2e17031-e19e-02fd-dfaa-ef3da607b019">
+      <Execution id="c0ca35cb-a094-4f27-a146-00adccc66406" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.ApiTests" name="Listen_url_must_be_loopback_with_ephemeral_port" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.ApiTests.Malformed_mixed_batch_has_safe_line_error_and_zero_new_effects" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="f769b68c-2ac1-36aa-503a-5bfeb0616040">
+      <Execution id="4ad229be-4f94-4839-967d-3f03cd95f861" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.ApiTests" name="Malformed_mixed_batch_has_safe_line_error_and_zero_new_effects" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.BoundaryTests.Mid_upload_cancellation_returns_cancelled_dto_and_leaves_zero_rows" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="03ff29b2-3c02-ac5c-937b-d320db2ffcf6">
+      <Execution id="9c3306af-a62e-4ef4-8ac7-8072c9b7a191" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.BoundaryTests" name="Mid_upload_cancellation_returns_cancelled_dto_and_leaves_zero_rows" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.ApiTests.Instructor_postcommit_and_diagnostic_failures_preserve_committed_status" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="ba61c6d5-9fef-450c-3f77-c2a60ca552c7">
+      <Execution id="66e56e96-d0a7-4288-8863-899e4bd9b8f1" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.ApiTests" name="Instructor_postcommit_and_diagnostic_failures_preserve_committed_status" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.BoundaryTests.After_confirmed_commit_cancellation_remains_committed" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="2ded89e7-0861-3f67-8f14-447d71606924">
+      <Execution id="88570fc8-84d0-47c9-ae2f-04e1adc21ccf" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.BoundaryTests" name="After_confirmed_commit_cancellation_remains_committed" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.ApiTests.Row_limit_is_rejected_without_effect" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="fba7bae2-7cd5-4bf7-58f6-30bddc26404c">
+      <Execution id="895a1b3d-3a90-40d3-90f9-e65d57b15e1a" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.ApiTests" name="Row_limit_is_rejected_without_effect" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.ApiTests.Valid_max_money_and_get_preserve_strings" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="8f65ec41-29ab-4e78-9b19-651f5fc83d23">
+      <Execution id="add4e280-f06b-49a3-9fe2-fcbb5b99d236" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.ApiTests" name="Valid_max_money_and_get_preserve_strings" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.BoundaryTests.Precommit_cancellation_returns_cancelled_dto_and_leaves_zero_rows" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="4325c838-bc6f-52f3-d200-ccf57fd534f2">
+      <Execution id="7de2ecfa-8866-4d7a-9d5b-d482349d9c32" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.BoundaryTests" name="Precommit_cancellation_returns_cancelled_dto_and_leaves_zero_rows" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.ApiTests.Duplicate_only_commits_unique_rows" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="9e0bb7fd-0755-b877-4baf-c01df40f476c">
+      <Execution id="36073a9a-210a-4e23-aa1f-447f58e62c00" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.ApiTests" name="Duplicate_only_commits_unique_rows" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.BoundaryTests.Mid_parser_cancellation_returns_cancelled_dto_and_leaves_zero_rows" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="35bf80bd-3504-9d90-4d76-3d9d6df25ac0">
+      <Execution id="b5283b32-0061-4a3a-b947-4a50edef592f" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.BoundaryTests" name="Mid_parser_cancellation_returns_cancelled_dto_and_leaves_zero_rows" />
+    </UnitTest>
+    <UnitTest name="Stage8IntegrationApiTests.ApiTests.Instructor_precommit_cancellation_is_safe_and_leaves_zero_rows" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-08-integration\api\bin\debug\net10.0\stage8integrationapi.dll" id="db12b056-c87f-0b45-2425-e68eb8aa393a">
+      <Execution id="15369c2a-2473-4761-8109-9fe1720d0d36" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\bin\Debug\net10.0\Stage8IntegrationApi.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Stage8IntegrationApiTests.ApiTests" name="Instructor_precommit_cancellation_is_safe_and_leaves_zero_rows" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="35bf80bd-3504-9d90-4d76-3d9d6df25ac0" executionId="b5283b32-0061-4a3a-b947-4a50edef592f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="24f8c6f5-5f4d-b00e-8e5a-795439e86b7f" executionId="08da1954-6d1d-47b7-907c-44d21dcd59f3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4325c838-bc6f-52f3-d200-ccf57fd534f2" executionId="7de2ecfa-8866-4d7a-9d5b-d482349d9c32" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f7d6b04e-de28-3682-3ef3-275f047b04f7" executionId="80118a09-1d2f-4069-bde9-02ddb0e6911d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fba7bae2-7cd5-4bf7-58f6-30bddc26404c" executionId="895a1b3d-3a90-40d3-90f9-e65d57b15e1a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8f65ec41-29ab-4e78-9b19-651f5fc83d23" executionId="add4e280-f06b-49a3-9fe2-fcbb5b99d236" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="03ff29b2-3c02-ac5c-937b-d320db2ffcf6" executionId="9c3306af-a62e-4ef4-8ac7-8072c9b7a191" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="db12b056-c87f-0b45-2425-e68eb8aa393a" executionId="15369c2a-2473-4761-8109-9fe1720d0d36" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9416932d-48cf-d794-23f1-7f0a6da1369d" executionId="35d8fd04-23d7-4016-8710-477a9e38559d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ba61c6d5-9fef-450c-3f77-c2a60ca552c7" executionId="66e56e96-d0a7-4288-8863-899e4bd9b8f1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3c703b80-dfb1-008b-ff8f-62d35d23f48d" executionId="7eab2275-d6ed-46e5-afcc-7c48fbee5c77" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9e0bb7fd-0755-b877-4baf-c01df40f476c" executionId="36073a9a-210a-4e23-aa1f-447f58e62c00" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e2e17031-e19e-02fd-dfaa-ef3da607b019" executionId="c0ca35cb-a094-4f27-a146-00adccc66406" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f769b68c-2ac1-36aa-503a-5bfeb0616040" executionId="4ad229be-4f94-4839-967d-3f03cd95f861" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2ded89e7-0861-3f67-8f14-447d71606924" executionId="88570fc8-84d0-47c9-ae2f-04e1adc21ccf" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="15" executed="15" passed="15" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)&#xD;
+[xUnit.net 00:00:00.08]   Discovering: Stage8IntegrationApi&#xD;
+[xUnit.net 00:00:00.11]   Discovered:  Stage8IntegrationApi&#xD;
+[xUnit.net 00:00:00.13]   Starting:    Stage8IntegrationApi&#xD;
+RoadmapImport915 database before create: RoadmapImport915_37937959920c4d05a1738679f19ad1da&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Stage8IntegrationApi&#xD;
+DN54_LISTENING=http://127.0.0.1:0&#xD;
+RoadmapImport915 database before create: RoadmapImport915_68132d0b29ef4fcdb9505c1296e711da&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:0&#xD;
+DN54_LISTENING=http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Stage8IntegrationApi&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="b16f1c5b-1940-48ee-8f59-b95418ad0271" 274&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 200 - application/json;+charset=utf-8 450.9547ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 40.3566ms&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+RoadmapImport915 database before create: RoadmapImport915_d345486832fa4011b76c9856b3e6a006&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:0&#xD;
+DN54_LISTENING=http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Stage8IntegrationApi&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="39c59c97-efe1-4ea3-b3c5-9378e1cef726" 274&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.JsonResult[1]&#xD;
+      Setting HTTP status code 499.&#xD;
+info: Microsoft.AspNetCore.Http.Result.JsonResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 499 - application/json;+charset=utf-8 19.6918ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 2.6537ms&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+RoadmapImport915 database before create: RoadmapImport915_897f6f0ec9e14272b0d6d7c77bb720b4&#xD;
+DN54_LISTENING=http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Stage8IntegrationApi&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="4e9ec2cc-ae91-4259-b939-78f30cf25fe6" 274&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.JsonResult[1]&#xD;
+      Setting HTTP status code 499.&#xD;
+info: Microsoft.AspNetCore.Http.Result.JsonResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 499 - application/json;+charset=utf-8 4.4563ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 2.1463ms&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+RoadmapImport915 database before create: RoadmapImport915_bcc217a678974a9e8b8f718fc21826e5&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:0&#xD;
+DN54_LISTENING=http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Stage8IntegrationApi&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="c4f76f4b-76a2-4183-95e0-8418d4db15f1" 276&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult[1]&#xD;
+      Setting HTTP status code 500.&#xD;
+info: Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult[3]&#xD;
+      Writing value of type 'ProblemDetails' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 500 - application/problem+json 20.5453ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 2.0413ms&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+RoadmapImport915 database before create: RoadmapImport915_be80030b37c54c11ad209a8f4563bc0d&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:0&#xD;
+DN54_LISTENING=http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Stage8IntegrationApi&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="58ebe7fa-c2f7-4748-af97-5ffe8ba66576" 274&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.JsonResult[1]&#xD;
+      Setting HTTP status code 499.&#xD;
+info: Microsoft.AspNetCore.Http.Result.JsonResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 499 - application/json;+charset=utf-8 2.8435ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 2.2795ms&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+RoadmapImport915 database before create: RoadmapImport915_24df428a68bf43b3bb222546c871b583&#xD;
+DN54_LISTENING=http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Stage8IntegrationApi&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="89dac660-9a1e-4b83-a9fd-050294e0f7a1" 100268&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.JsonResult[1]&#xD;
+      Setting HTTP status code 499.&#xD;
+info: Microsoft.AspNetCore.Http.Result.JsonResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 499 - application/json;+charset=utf-8 13.5211ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 2.7677ms&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 5.3517ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="dba630f3-f115-435d-9901-bb8d94c04db5" 292&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[1]&#xD;
+      Setting HTTP status code 400.&#xD;
+info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 400 - application/json;+charset=utf-8 2.1062ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 1.1647ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 1.5840ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="82e1294f-a3a6-4bd1-adad-55f821d28502" 22271&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[1]&#xD;
+      Setting HTTP status code 400.&#xD;
+info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 400 - application/json;+charset=utf-8 6.7747ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 1.2020ms&#xD;
+RoadmapImport915 database before create: RoadmapImport915_95c641e657ac43e4ab40a246122d17f1&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Stage8IntegrationApi&#xD;
+DN54_LISTENING=http://127.0.0.1:0&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="9c81a68a-413f-4bb0-9479-5bbf17598030" 274&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+fail: Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware[1]&#xD;
+      An unhandled exception has occurred while executing the request.&#xD;
+      System.OperationCanceledException: The operation was canceled.&#xD;
+         at Stage8IntegrationApiTests.ApiTests.&lt;&gt;c.&lt;Instructor_precommit_cancellation_is_safe_and_leaves_zero_rows&gt;b__9_1(CancellationToken _) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\ApiTests.cs:line 27&#xD;
+         at ExpenseImportPersistence.ExpenseImportService.ImportAsync(String path, CsvImportOptions options, CancellationToken cancellationToken, ImportHooks hooks) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-persistence\src\ExpenseImportService.cs:line 62&#xD;
+         at ExpenseImportPersistence.ExpenseImportService.ImportAsync(String path, CsvImportOptions options, CancellationToken cancellationToken, ImportHooks hooks) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-persistence\src\ExpenseImportService.cs:line 73&#xD;
+         at ExpenseImportPersistence.ExpenseImportService.ImportAsync(String path, CsvImportOptions options, CancellationToken cancellationToken, ImportHooks hooks) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-persistence\src\ExpenseImportService.cs:line 73&#xD;
+         at ExpenseImportPersistence.ExpenseImportService.ImportAsync(String path, CsvImportOptions options, CancellationToken cancellationToken, ImportHooks hooks) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-persistence\src\ExpenseImportService.cs:line 79&#xD;
+         at Program.&lt;&gt;c__DisplayClass0_0.&lt;&lt;&lt;Main&gt;$&gt;b__4&gt;d.MoveNext() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Program.cs:line 58&#xD;
+      --- End of stack trace from previous location ---&#xD;
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)&#xD;
+         at Microsoft.AspNetCore.Routing.EndpointMiddleware.&lt;Invoke&gt;g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)&#xD;
+         at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 500 - text/plain;+charset=utf-8 19.7728ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 2.6194ms&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="5da1b9c8-0c87-4709-93a7-9670bb589583" 1048795&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[1]&#xD;
+      Setting HTTP status code 400.&#xD;
+info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 400 - application/json;+charset=utf-8 10.2221ms&#xD;
+RoadmapImport915 database before create: RoadmapImport915_f9d98ee2926f4c34a0554d33b0a0437d&#xD;
+DN54_LISTENING=http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[14]&#xD;
+      Now listening on: http://127.0.0.1:0&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-08-integration\api\Stage8IntegrationApi&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="129bc0d7-0155-4853-bae8-1ebf10230890" 277&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 200 - application/json;+charset=utf-8 10.0155ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 2.6293ms&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="694ac04c-666d-46fa-92ff-9b0f822f2b0c" 289&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 200 - application/json;+charset=utf-8 7.7269ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="945b85d1-3d90-44aa-809d-b2eecf0dbb0a" 286&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 200 - application/json;+charset=utf-8 3.7807ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 GET http://localhost/api/v1/expenses - - -&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'List`1' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: GET /api/v1/expenses'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 GET http://localhost/api/v1/expenses - 200 - application/json;+charset=utf-8 0.9764ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="fb3d2518-9b81-41ef-9519-753eb9ae4d9b" 84&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[1]&#xD;
+      Setting HTTP status code 400.&#xD;
+info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 400 - application/json;+charset=utf-8 0.4858ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - application/json;+charset=utf-8 2&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[1]&#xD;
+      Setting HTTP status code 400.&#xD;
+info: Microsoft.AspNetCore.Http.Result.BadRequestObjectResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 400 - application/json;+charset=utf-8 0.1363ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="9846dc36-23dd-4b1e-b25e-e8ead6ee5ddc" 218&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 200 - application/json;+charset=utf-8 2.9845ms&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]&#xD;
+      Request starting HTTP/1.1 POST http://localhost/api/v1/expenses/import - multipart/form-data;+boundary="a21576d0-b011-48a3-bc35-23c90100cb43" 249&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]&#xD;
+      Executing endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[1]&#xD;
+      Setting HTTP status code 200.&#xD;
+info: Microsoft.AspNetCore.Http.Result.OkObjectResult[3]&#xD;
+      Writing value of type 'ImportResponse' as Json.&#xD;
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]&#xD;
+      Executed endpoint 'HTTP: POST /api/v1/expenses/import'&#xD;
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]&#xD;
+      Request finished HTTP/1.1 POST http://localhost/api/v1/expenses/import - 200 - application/json;+charset=utf-8 2.0082ms&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+[xUnit.net 00:00:02.95]   Finished:    Stage8IntegrationApi&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

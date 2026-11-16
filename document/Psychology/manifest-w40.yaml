@@ -1,0 +1,174 @@
+schema_version: 2.0.0
+package_id: package:psychology:w40
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 05-development-mental-health
+lesson: week-40-trauma-bipolar-psychosis
+learning_objectives:
+- id: LO-W40-01
+  bloom_level: Understand
+  statement: Phân biệt phản ứng căng thẳng cấp tính với PTSD theo DSM-5-TR; mô tả 4 cụm triệu chứng lâm sàng và cơ chế sinh học thần kinh của ký ức chấn thương.
+- id: LO-W40-02
+  bloom_level: Analyze
+  statement: So sánh động học lâm sàng của Rối loạn Lưỡng cực I và II; bác bỏ định kiến Pop Psychology coi biến đổi khí sắc ngắn hạn trong ngày là rối loạn lưỡng cực.
+- id: LO-W40-03
+  bloom_level: Understand
+  statement: Phân loại rạch ròi giữa Triệu chứng dương tính và âm tính trong Phổ Tâm thần Phân liệt; giải thích vai trò của mạng lưới dopamine và glutamate.
+- id: LO-W40-04
+  bloom_level: Evaluate
+  statement: Đánh giá bằng chứng dịch tễ học thực nghiệm bác bỏ định kiến liên kết bệnh tâm thần nặng với bạo lực xã hội; vận dụng nguyên tắc Mô hình Phục hồi.
+concepts:
+- id: roadmap:concept:psychology:w40-c40-01
+  name: Phổ Chấn Thương Tâm Lý & Tiêu Chuẩn Chẩn Đoán PTSD (DSM-5-TR)
+  claim_ids:
+  - C40-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w40-c40-02
+  name: Cơ Sở Sinh Học Thần Kinh Của Ký Ức Chấn Thương (LeDoux & Van der Kolk)
+  claim_ids:
+  - C40-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w40-c40-03
+  name: Phân Biệt Lâm Sàng Rối Loạn Lưỡng Cực I & II (DSM-5-TR)
+  claim_ids:
+  - C40-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w40-c40-04
+  name: Phổ Tâm Thần Phân Liệt - Triệu Chứng Dương Tính vs Âm Tính & Thuyết Dopamine
+  claim_ids:
+  - C40-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+- id: roadmap:concept:psychology:w40-c40-05
+  name: Đạo Đức, Chống Kỳ Thị & Mô Hình Phục Hồi (Recovery Model)
+  claim_ids:
+  - C40-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-generated-provenance377/review.md.
+units:
+- unit_id: roadmap:unit:psychology:w40
+  display_title: 'Tuần 40: Chấn thương Tâm lý, Rối loạn Lưỡng cực & Phổ Tâm thần Phân liệt'
+  sort_order: 40
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w40
+    path: notes/05-development-mental-health/week-40-trauma-bipolar-psychosis.md
+    sha256: 3cd489a3c65b22b4e12080ed0ddc87817d1112221385975d9e94808a76f3c0a4
+    byte_length: 49138
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w40
+    path: assessments/quizzes/week-40-quiz.md
+    question_count: 12
+    sha256: b02fe749b99bab50489b9109b49651d7ac8a0b1a3f65fa56e3f82ca4d3e42a27
+    byte_length: 10227
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w40
+    path: assessments/answer-keys/week-40-answers.md
+    correct_count: 12
+    wrong_count: 36
+    sha256: ec9057f27a77cb2931049ca7d000ab725f163bbb5ed64cb120d606780c4efd6e
+    byte_length: 9896
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w40
+    path: flashcards/week-40.yaml
+    card_count: 8
+    sha256: dbb06eb8b66b9f00c439c54cf5731873ba214cb397ac91aa78604c17a61e33ca
+    byte_length: 6970
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606
+questions:
+- id: Q40-01
+  lo_ref: LO-W40-01
+  concept_id: roadmap:concept:psychology:w40-c40-01
+  claim_ids:
+  - C40-01
+- id: Q40-02
+  lo_ref: LO-W40-01
+  concept_id: roadmap:concept:psychology:w40-c40-01
+  claim_ids:
+  - C40-01
+- id: Q40-03
+  lo_ref: LO-W40-01
+  concept_id: roadmap:concept:psychology:w40-c40-02
+  claim_ids:
+  - C40-02
+- id: Q40-04
+  lo_ref: LO-W40-01
+  concept_id: roadmap:concept:psychology:w40-c40-02
+  claim_ids:
+  - C40-02
+- id: Q40-05
+  lo_ref: LO-W40-02
+  concept_id: roadmap:concept:psychology:w40-c40-03
+  claim_ids:
+  - C40-03
+- id: Q40-06
+  lo_ref: LO-W40-02
+  concept_id: roadmap:concept:psychology:w40-c40-03
+  claim_ids:
+  - C40-03
+- id: Q40-07
+  lo_ref: LO-W40-02
+  concept_id: roadmap:concept:psychology:w40-c40-03
+  claim_ids:
+  - C40-03
+- id: Q40-08
+  lo_ref: LO-W40-03
+  concept_id: roadmap:concept:psychology:w40-c40-04
+  claim_ids:
+  - C40-04
+- id: Q40-09
+  lo_ref: LO-W40-03
+  concept_id: roadmap:concept:psychology:w40-c40-04
+  claim_ids:
+  - C40-04
+- id: Q40-10
+  lo_ref: LO-W40-03
+  concept_id: roadmap:concept:psychology:w40-c40-04
+  claim_ids:
+  - C40-04
+- id: Q40-11
+  lo_ref: LO-W40-04
+  concept_id: roadmap:concept:psychology:w40-c40-05
+  claim_ids:
+  - C40-05
+- id: Q40-12
+  lo_ref: LO-W40-04
+  concept_id: roadmap:concept:psychology:w40-c40-05
+  claim_ids:
+  - C40-05

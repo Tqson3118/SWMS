@@ -1,0 +1,78 @@
+deck_id: deck-psy-w21
+subject: Psychology
+lesson_id: week-21-attitudes-persuasion
+version: 1.0.0
+description: Bộ thẻ ghi nhớ Tuần 21 về Bất hòa nhận thức, Thuyết phục và Ảnh hưởng xã hội.
+cards:
+- id: fc-psy-w21-001
+  concept: Bất hòa nhận thức (Cognitive Dissonance)
+  front: Bất hòa nhận thức (Festinger, 1957) xuất hiện trong điều kiện nào và não bộ phản ứng ra sao?
+  back: Xuất hiện khi hành vi mâu thuẫn với niềm tin; não kích hoạt vùng dACC và thùy đảo (tương tự nỗi đau thể xác), thúc đẩy cá nhân tự thay đổi thái độ để hợp lý hóa hành vi.
+  source_lesson: Psychology/notes/03-understanding-others/week-21-attitudes-persuasion.md#31-bất-hòa-nhận-thức-cognitive-dissonance
+  version: 1.0.0
+  tags:
+  - w21
+  - cognitive-dissonance
+- id: fc-psy-w21-002
+  concept: Thí nghiệm 1 USD vs 20 USD (Festinger & Carlsmith)
+  front: Vì sao nhóm nhận 1 USD lại đổi thái độ khen ngợi trò chơi xoay chốt gỗ nhiều hơn nhóm nhận 20 USD?
+  back: Nhóm 20 USD có lý do bên ngoài hiển nhiên để nói dối; nhóm 1 USD thiếu lý do biện minh bên ngoài, buộc phải tự đổi thái độ nội tâm để không cảm thấy mình là kẻ dối trá rẻ rúng.
+  source_lesson: Psychology/notes/03-understanding-others/week-21-attitudes-persuasion.md#31-bất-hòa-nhận-thức-cognitive-dissonance
+  version: 1.0.0
+  tags:
+  - w21
+  - festinger-carlsmith
+- id: fc-psy-w21-003
+  concept: Mô hình ELM (Hai tuyến thuyết phục)
+  front: Hai điều kiện bắt buộc để một thông điệp được xử lý qua Tuyến Trung Tâm (Central Route) là gì?
+  back: Động lực nhận thức cao (vấn đề thiết thân với cá nhân) VÀ Năng lực nhận thức đầy đủ (có thời gian, hiểu biết, không bị phân tâm).
+  source_lesson: Psychology/notes/03-understanding-others/week-21-attitudes-persuasion.md#32-mô-hình-khả-năng-suy-ngẫm-elaboration-likelihood-model---elm
+  version: 1.0.0
+  tags:
+  - w21
+  - elm-model
+- id: fc-psy-w21-004
+  concept: Độ bền vững thái độ qua Tuyến Trung Tâm
+  front: Thái độ thay đổi qua Tuyến Trung Tâm có ưu điểm gì so với Tuyến Ngoại Vi theo Petty & Wegener (1999)?
+  back: Bền vững lâu dài hơn theo thời gian, có khả năng kháng cự phản biện tốt hơn và dự báo hành vi thực tế nhất quán hơn nhiều so với cảm xúc bề mặt của tuyến ngoại vi.
+  source_lesson: Psychology/notes/03-understanding-others/week-21-attitudes-persuasion.md#34-bảng-so-sánh-hai-tuyến-thuyết-phục-của-elm
+  version: 1.0.0
+  tags:
+  - w21
+  - central-route-durability
+- id: fc-psy-w21-005
+  concept: Nguyên lý Đáp ứng Tương hỗ (Reciprocity)
+  front: Nguyên lý tương hỗ của Cialdini vận hành dựa trên cơ chế tâm lý nào?
+  back: Khi nhận một món quà hoặc ân huệ nhỏ (kể cả không yêu cầu), con người cảm thấy có nghĩa vụ đạo đức phải đền đáp lại, khiến họ dễ đồng ý với yêu cầu tiếp theo.
+  source_lesson: Psychology/notes/03-understanding-others/week-21-attitudes-persuasion.md#33-các-vũ-khí-ảnh-hưởng-xã-hội-của-robert-cialdini
+  version: 1.0.0
+  tags:
+  - w21
+  - reciprocity
+- id: fc-psy-w21-006
+  concept: Nguyên lý Khan hiếm (Scarcity)
+  front: Chiêu thức 'chỉ còn 2 sản phẩm cuối cùng' kích hoạt lối tắt tư duy nào ở người tiêu dùng?
+  back: Kích hoạt nguyên lý khan hiếm và nỗi sợ bỏ lỡ (FOMO); não bộ tự động đánh đồng sự khan hiếm với giá trị cao và thôi thúc quyết định bốc đồng qua tuyến ngoại vi.
+  source_lesson: Psychology/notes/03-understanding-others/week-21-attitudes-persuasion.md#33-các-vũ-khí-ảnh-hưởng-xã-hội-của-robert-cialdini
+  version: 1.0.0
+  tags:
+  - w21
+  - scarcity
+- id: fc-psy-w21-007
+  concept: Kháng cự tâm lý (Psychological Reactance)
+  front: Kháng cự tâm lý (Brehm, 1981) xuất hiện khi nào và dẫn đến hệ quả gì trong thuyết phục?
+  back: Xuất hiện khi một người cảm thấy quyền tự do lựa chọn bị xâm phạm hoặc áp đặt; dẫn đến phản ứng tức giận và xu hướng làm điều ngược lại (hiệu ứng boomerang).
+  source_lesson: Psychology/notes/03-understanding-others/week-21-attitudes-persuasion.md#43-kháng-cự-tâm-lý-psychological-reactance---brehm--brehm-1981
+  version: 1.0.0
+  tags:
+  - w21
+  - psychological-reactance
+- id: fc-psy-w21-008
+  concept: Ranh giới Thuyết phục vs Thao túng
+  front: Tiêu chí cốt lõi phân định giữa thuyết phục đạo đức và thao túng tâm lý là gì?
+  back: Thuyết phục dựa trên sự minh bạch dữ kiện và tôn trọng quyền tự do lựa chọn; thao túng dựa trên sự bóp méo thông tin, tạo áp lực ngầm và trục lợi từ đối phương.
+  source_lesson: Psychology/notes/03-understanding-others/week-21-attitudes-persuasion.md#46-ranh-giới-an-toàn-sư-phạm
+  version: 1.0.0
+  tags:
+  - w21
+  - ethics-persuasion

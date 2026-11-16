@@ -1,0 +1,113 @@
+deck_id: "deck-psy-w07"
+subject: "Psychology"
+lesson_id: "week-07-learning-conditioning"
+version: "1.0.0"
+description: "Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng (Spaced Repetition - R5 Compliant) Tuần 07: Học tập và Điều kiện hóa"
+
+cards:
+  - id: "fc-psy-w07-001"
+    concept: "Định nghĩa Học tập và phân biệt với Phản xạ & Bản năng"
+    front: "Định nghĩa Học tập (Learning) trong tâm lý học và phân biệt với Phản xạ bẩm sinh và Bản năng ra sao?"
+    back: "Học tập là sự biến đổi tương đối bền vững về hành vi hoặc tiềm năng hành vi do kinh nghiệm tạo ra. Nó khác phản xạ (phản ứng tự động đơn lẻ qua tủy sống) và bản năng (chuỗi hành vi bẩm sinh phức tạp của loài không qua trải nghiệm cá nhân)."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-07-learning-conditioning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C07-01"
+    tags:
+      - "learning"
+      - "reflexes"
+      - "instincts"
+
+  - id: "fc-psy-w07-002"
+    concept: "Cơ chế và các thành tố Điều kiện hóa Cổ điển Pavlov"
+    front: "Nêu 5 thành tố cơ bản trong cơ chế Điều kiện hóa Cổ điển (Classical Conditioning) của Pavlov?"
+    back: "Gồm: Kích thích không điều kiện (UCS - thức ăn), Phản xạ không điều kiện (UCR - tiết nước bọt tự nhiên), Kích thích trung tính (NS - tiếng chuông ban đầu), Kích thích có điều kiện (CS - chuông sau khi ghép cặp) và Phản xạ có điều kiện (CR - tiết nước bọt trước chuông)."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-07-learning-conditioning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C07-02"
+    tags:
+      - "classical-conditioning"
+      - "pavlov"
+      - "stimulus-response"
+
+  - id: "fc-psy-w07-003"
+    concept: "Các quy luật điều kiện hóa: Dập tắt, Hồi phục tự phát, Khái quát hóa và Phân biệt"
+    front: "Giải thích ngắn gọn 4 quy luật: Dập tắt, Hồi phục tự phát, Khái quát hóa và Phân biệt kích thích?"
+    back: "Dập tắt: CR suy giảm và biến mất khi CS xuất hiện không kèm UCS. Hồi phục tự phát: CR tái xuất hiện sau thời gian nghỉ dù không ghép cặp mới. Khái quát hóa: phản ứng với kích thích tương tự CS. Phân biệt: chỉ phản ứng với đúng CS mục tiêu."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-07-learning-conditioning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C07-03"
+    tags:
+      - "extinction"
+      - "spontaneous-recovery"
+      - "generalization"
+      - "discrimination"
+
+  - id: "fc-psy-w07-004"
+    concept: "Định luật Hiệu ứng Thorndike và nguyên lý Điều kiện hóa Thao tác"
+    front: "Định luật Hiệu ứng (Law of Effect) của Thorndike phát biểu gì và mở đường cho lý thuyết nào của Skinner?"
+    back: "Hành vi kèm hệ quả thỏa mãn có xu hướng lặp lại; hành vi kèm hệ quả khó chịu có xu hướng giảm đi. Luận điểm này là nền móng để Skinner xây dựng lý thuyết Điều kiện hóa Thao tác (Operant Conditioning) giải thích hành vi chủ động."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-07-learning-conditioning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C07-04"
+    tags:
+      - "thorndike"
+      - "law-of-effect"
+      - "operant-conditioning"
+
+  - id: "fc-psy-w07-005"
+    concept: "Ma trận 4 hệ quả thao tác: Củng cố vs Trừng phạt (Tích cực & Tiêu cực)"
+    front: "Phân biệt 4 hệ quả thao tác: Củng cố tích cực/tiêu cực và Trừng phạt tích cực/tiêu cực?"
+    back: "Củng cố luôn làm TĂNG hành vi: Tích cực (thêm kích thích dễ chịu), Tiêu cực (loại bỏ kích thích khó chịu). Trừng phạt luôn làm GIẢM hành vi: Tích cực (thêm kích thích khó chịu), Tiêu cực (tước bỏ kích thích dễ chịu)."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-07-learning-conditioning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C07-05"
+    tags:
+      - "reinforcement"
+      - "punishment"
+      - "skinner"
+      - "operant-matrix"
+
+  - id: "fc-psy-w07-006"
+    concept: "Bốn lịch trình củng cố (FR, VR, FI, VI) và kỹ thuật Shaping"
+    front: "Đặc điểm đáp ứng của 4 lịch trình củng cố ngắt quãng và kỹ thuật Shaping là gì?"
+    back: "FR: tốc độ cao có ngắt quãng sau thưởng; VR: tốc độ cao nhất và bền dập tắt nhất (cờ bạc); FI: tạo mô hình vỏ sò; VI: đáp ứng đều đặn bền bỉ. Shaping: củng cố các bước xấp xỉ liên tiếp để tạo lập hành vi phức tạp."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-07-learning-conditioning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C07-06"
+    tags:
+      - "schedules-of-reinforcement"
+      - "variable-ratio"
+      - "shaping"
+
+  - id: "fc-psy-w07-007"
+    concept: "Học tập tiềm ẩn và Bản đồ nhận thức của Tolman"
+    front: "Nghiên cứu mê cung chuột của Edward Tolman chứng minh Học tập tiềm ẩn và Bản đồ nhận thức ra sao?"
+    back: "Chuột không được thưởng vẫn âm thầm hình thành bản đồ nhận thức (cognitive map) về mê cung trong tâm trí. Khi có thức ăn thưởng ở ngày 11, chúng chạy nhanh vượt bậc, chứng minh học tập tiềm ẩn (latent learning) diễn ra mà không cần củng cố tức thời."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-07-learning-conditioning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C07-07"
+    tags:
+      - "tolman"
+      - "cognitive-map"
+      - "latent-learning"
+
+  - id: "fc-psy-w07-008"
+    concept: "Thuyết học tập xã hội Bandura và Thí nghiệm Búp bê Bobo"
+    front: "Thí nghiệm Búp bê Bobo của Albert Bandura chứng minh điều gì và 4 tiến trình nhận thức của học tập quan sát là gì?"
+    back: "Chứng minh con người có thể học và bắt chước hành vi qua quan sát mô hình (modeling) mà không cần tự trải nghiệm trực tiếp. 4 tiến trình nhận thức: Chú ý (Attention), Ghi nhớ (Retention), Tái tạo vận động (Reproduction) và Động lực (Motivation qua củng cố/trừng phạt gián tiếp)."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-07-learning-conditioning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C07-08"
+    tags:
+      - "bandura"
+      - "bobo-doll"
+      - "observational-learning"
+      - "modeling"

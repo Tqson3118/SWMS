@@ -1,0 +1,114 @@
+schema_version: 2.0.0
+package_id: package:investing:w10
+subject_id: roadmap:subject:investing
+display_title: 'Investing — Tuần 10: Chiến lược đầu tư tăng trưởng, Index Fund, ETF và DCA'
+source_status: in_review
+version: 4
+created_at: '2026-09-22T00:00:00Z'
+subject: Investing
+course: Investing — 18 tuần
+module: module-2
+lesson: week-10-growth-index-etf-dca
+learning_objectives:
+- id: LO-W10-01
+  bloom_level: Understand
+  statement: 'Hiểu và trình bày các khái niệm nền tảng của Tuần 10: Chiến lược đầu tư tăng trưởng, Index Fund, ETF
+    và DCA theo chuẩn mực học liệu.'
+- id: LO-W10-02
+  bloom_level: Apply
+  statement: 'Vận dụng các phương pháp và công thức tính toán thực tế trong tình huống đầu tư giả định của Tuần
+    10: Chiến lược đầu tư tăng trưởng, Index Fund, ETF và DCA.'
+- id: LO-W10-03
+  bloom_level: Analyze
+  statement: 'Phân tích cơ chế vận hành, các yếu tố rủi ro và điều kiện biên của các công cụ trong Tuần 10: Chiến
+    lược đầu tư tăng trưởng, Index Fund, ETF và DCA.'
+- id: LO-W10-04
+  bloom_level: Evaluate
+  statement: 'Đánh giá, phản biện các sai lầm phổ biến và xây dựng nguyên tắc quản trị kỷ luật cho Tuần 10: Chiến
+    lược đầu tư tăng trưởng, Index Fund, ETF và DCA.'
+concepts:
+- id: roadmap:concept:investing:w10-core
+  name: 'Khái niệm cốt lõi và khung phân tích Tuần 10: Chiến lược đầu tư tăng trưởng, Index Fund, ETF và DCA'
+  claim_ids:
+  - W10-C01
+  - W10-C02
+  evidence_label: strong
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-content-reviewer
+    date: '2026-09-22'
+questions:
+- id: Q10-01
+  lo_ref: LO-W10-01
+  concept_id: roadmap:concept:investing:w10-core
+  claim_ids:
+  - W10-C01
+- id: Q10-02
+  lo_ref: LO-W10-01
+  concept_id: roadmap:concept:investing:w10-core
+  claim_ids:
+  - W10-C01
+- id: Q10-03
+  lo_ref: LO-W10-02
+  concept_id: roadmap:concept:investing:w10-core
+  claim_ids:
+  - W10-C01
+- id: Q10-04
+  lo_ref: LO-W10-02
+  concept_id: roadmap:concept:investing:w10-core
+  claim_ids:
+  - W10-C01
+- id: Q10-05
+  lo_ref: LO-W10-03
+  concept_id: roadmap:concept:investing:w10-core
+  claim_ids:
+  - W10-C01
+- id: Q10-06
+  lo_ref: LO-W10-03
+  concept_id: roadmap:concept:investing:w10-core
+  claim_ids:
+  - W10-C01
+- id: Q10-07
+  lo_ref: LO-W10-04
+  concept_id: roadmap:concept:investing:w10-core
+  claim_ids:
+  - W10-C01
+- id: Q10-08
+  lo_ref: LO-W10-04
+  concept_id: roadmap:concept:investing:w10-core
+  claim_ids:
+  - W10-C01
+units:
+- unit_id: roadmap:unit:investing:w10
+  display_title: 'Tuần 10: Chiến lược đầu tư tăng trưởng, Index Fund, ETF và DCA'
+  sort_order: 10
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:investing:w10
+    path: notes/module-2/week-10-growth-index-etf-dca.md
+    sha256: 53497a952995dff955f8f33c335b57ca5d059b7b7f78db73edef8459406a3f6e
+    byte_length: 57403
+  - role: quiz_questions
+    stable_id: roadmap:quiz:investing:w10
+    path: assessments/quizzes/week-10-quiz.md
+    question_count: 8
+    sha256: a55c744d67ed477131110f43ee1af1381f869679e68b22e30ccde96fc6eea058
+    byte_length: 5847
+  - role: quiz_answers
+    stable_id: roadmap:answers:investing:w10
+    path: assessments/answer-keys/week-10-answers.md
+    correct_count: 8
+    wrong_count: 24
+    sha256: 16ddd74bf1ca6ea8cbba30fc704b9a8464618aab74659bbc160316c0668c366c
+    byte_length: 34436
+  - role: flashcard_deck
+    stable_id: roadmap:deck:investing:w10
+    path: flashcards/week-10.yaml
+    card_count: 8
+    sha256: d8c1f6020485522bb3c4f69262e38d84c5142c98ea47bc50b08835eb16ac73c6
+    byte_length: 9117
+  - role: source_ledger
+    path: quality/module-2-source-ledger.md
+    sha256: 382b083fba81fde11ccdaa51a4bfb45c3c6f754da7b2fa80dee110744cb6699b
+    byte_length: 46345

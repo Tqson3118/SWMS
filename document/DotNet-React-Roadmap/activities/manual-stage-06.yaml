@@ -1,0 +1,101 @@
+stable_id: activity:dotnet:stage-06
+type: manual
+title: Stage 06 browser frontend, DOM, fetch, and TypeScript evidence
+instructions: 'This bounded activity maps to DotNet-React-Roadmap/6.md. Complete Stage 05
+
+  first so the API contract and endpoint behavior are known; this activity is
+
+  a learner-attestation task, not a full Stage 06 gate.
+
+
+  Work in a learner-owned scratch frontend and use only learning data. Record
+
+  the actual Node/npm versions, local server origin, and API origin without
+
+  recording secrets. TypeScript must be built/transpiled before browser use;
+
+  if tooling or a browser is unavailable, record the blocker and leave the
+
+  corresponding evidence incomplete.
+
+
+  Build a semantic expense page with header/main/section/form, associated
+
+  labels, inputs, notification area, list/table, and total. Record a keyboard
+
+  submit and an empty/invalid form observation. Use Flexbox/Grid and a media
+
+  query for layout; inspect 320px, 768px, and a wide viewport and record what
+
+  actually changes. Treat breakpoints as design choices, not universal rules.
+
+
+  Implement DOM event handling with explicit element/null checks, FormData,
+
+  createElement, and textContent for user data. Record one submit flow and one
+
+  missing-element or invalid-input boundary. Do not use innerHTML with
+
+  untrusted values. Keep modules separate and exercise localStorage with
+
+  JSON.stringify/JSON.parse, missing-key, and malformed-JSON handling; do not
+
+  place tokens or other sensitive data in localStorage.
+
+
+  Connect fetch to the Stage 05 API. Record actual loading, success, empty,
+
+  error, 404, network/abort, and malformed-response behavior where exercised.
+
+  Remember that fetch resolves for HTTP 404/500 and rejects for network,
+
+  abort, or URL/CORS failures; read a response body once. Configure CORS or a
+
+  proxy explicitly and record the chosen origin boundary.
+
+
+  Define TypeScript request/response types using categoryId for requests and
+
+  categoryName for responses. Add runtime checks for unknown JSON before using
+
+  it; interfaces and type assertions do not validate server data. Record the
+
+  actual type/build command and result only if run. Keep a short README with
+
+  real run instructions and a table of observed outcomes; do not invent any.
+
+
+  A recorded blocker preserves an honest incomplete result; it does not earn the point for the corresponding unperformed
+  observation. Complete each positive rubric item only with actual evidence.
+
+
+  Before the DOM work, exercise array map/filter/reduce on the expense data. Record expected versus observed totals
+  for an empty array and zero-valued amounts, and one filter/sort case without mutating the original data unexpectedly.
+
+  '
+expected_output: A learner evidence note with semantic markup/keyboard and responsive observations, DOM and localStorage
+  boundary records, actual fetch state/error observations, runtime JSON validation, TypeScript build evidence, and
+  explicit blockers.
+completion_mode: learner_attest
+rubric:
+- criterion: Semantic markup and responsive evidence
+  evidence: The note identifies semantic form/list structure, keyboard interaction, associated labels, and observed
+    layout behavior at the chosen viewport widths. Missing or blocked required evidence remains incomplete and earns
+    no point.
+  max_points: 1
+- criterion: DOM, module, and storage safety
+  evidence: The note records null checks, safe text rendering, module boundaries, and actual missing/malformed localStorage
+    behavior without storing secrets. It also records actual array transformation checks, including empty/zero totals
+    and a filter/sort boundary. Missing or blocked required evidence remains incomplete and earns no point.
+  max_points: 1
+- criterion: Fetch and TypeScript contract evidence
+  evidence: The note records real fetch loading/success/empty/error observations, distinguishes HTTP responses from
+    rejected requests, and shows runtime checks for unknown JSON plus the shared categoryId/categoryName contract.
+    Missing or blocked required evidence remains incomplete and earns no point.
+  max_points: 1
+- criterion: Reproducible limits
+  evidence: The note records actual versions/build or server commands and outcomes, preserves failures as incomplete,
+    and does not claim browser or API behavior that was not observed. Missing or blocked required evidence remains
+    incomplete and earns no point.
+  max_points: 1
+resources: []

@@ -1,0 +1,66 @@
+deck_id: "deck-inv-w18"
+subject: "Investing"
+lesson_id: "week-18-ips-ca-nhan"
+version: "1.0.0"
+description: "R5 deck W18 về IPS, risk capacity/tolerance, ràng buộc, SAA, tái cân bằng và phân biệt điểm phần trăm với phần trăm giá trị nắm giữ; giả định giáo dục, không phải khuyến nghị."
+
+cards:
+  - id: "fc-inv-w18-001"
+    version: "1.0.0"
+    concept: "IPS boundary"
+    front: "IPS là gì và nó KHÔNG phải là gì?"
+    back: "IPS là văn bản quản trị nội bộ nêu mục tiêu, ràng buộc, phân bổ mục tiêu, quy tắc tái cân bằng, lịch rà soát và điều kiện sửa đổi. IPS KHÔNG dự báo lợi nhuận, KHÔNG phải cam kết kết quả, KHÔNG phải hồ sơ nộp cơ quan thuế và KHÔNG bảo đảm không bao giờ lỗ. Đây là khung giáo dục, không phải chuẩn pháp lý."
+    source_lesson: "Investing/notes/module-4/week-18-ips-ca-nhan.md#4-deep-dive-ips-là-gì-và-các-cấu-phần"
+    tags: ["ips", "governance", "discipline"]
+  - id: "fc-inv-w18-002"
+    version: "1.0.0"
+    concept: "Risk capacity vs tolerance"
+    front: "Risk capacity và risk tolerance/willingness khác nhau thế nào?"
+    back: "Risk capacity là khả năng tài chính khách quan để gánh thua lỗ: thu nhập, quỹ khẩn cấp, tuổi, chân trời, tỷ lệ nợ, nhu cầu rút tiền. Risk tolerance/willingness là mức sẵn sàng tâm lý trước biến động và sụt giảm. Khi hai yếu tố lệch nhau, phân bổ hợp lý thường bị giới hạn bởi mức THẤP HƠN để tránh bán tháo ở đáy."
+    source_lesson: "Investing/notes/module-4/week-18-ips-ca-nhan.md#4-deep-dive-ips-là-gì-và-các-cấu-phần"
+    tags: ["risk-capacity", "risk-tolerance", "behavior"]
+  - id: "fc-inv-w18-003"
+    version: "1.0.0"
+    concept: "Constraints"
+    front: "Khung ràng buộc đầu tư (constraints) trong IPS gồm những nhóm nào?"
+    back: "Năm nhóm khung: thanh khoản (liquidity), chân trời thời gian (time horizon), thuế (taxes), pháp lý/quy định (legal/regulatory) và hoàn cảnh riêng biệt (unique circumstances). Nhu cầu thanh khoản quyết định tỷ trọng tài sản phải giữ ở dạng dễ chuyển thành tiền. Đây là khung phân loại giáo dục, không phải trích dẫn đã xác minh."
+    source_lesson: "Investing/notes/module-4/week-18-ips-ca-nhan.md#4-deep-dive-ips-là-gì-và-các-cấu-phần"
+    tags: ["constraints", "liquidity", "tax"]
+  - id: "fc-inv-w18-004"
+    version: "1.0.0"
+    concept: "Strategic Asset Allocation"
+    front: "SAA (Strategic Asset Allocation) là gì và cần ghi kèm gì?"
+    back: "SAA là tỷ trọng mục tiêu dài hạn cho từng lớp tài sản, gắn với mục tiêu và mức chấp nhận rủi ro. SAA không phải tỷ trọng tối ưu duy nhất; nó là assumption có thể điều chỉnh khi hoàn cảnh đổi. Phải ghi rõ lớp tài sản, kỳ tính, đơn vị và band tái cân bằng."
+    source_lesson: "Investing/notes/module-4/week-18-ips-ca-nhan.md#4-deep-dive-ips-là-gì-và-các-cấu-phần"
+    tags: ["saa", "asset-allocation", "assumption"]
+  - id: "fc-inv-w18-005"
+    version: "1.0.0"
+    concept: "Percentage point vs percentage of holdings"
+    front: "Phân biệt 'điểm phần trăm' và 'phần trăm giá trị đang nắm giữ' khi tái cân bằng?"
+    back: "Điểm phần trăm là chênh lệch tỷ trọng tính trên TỔNG danh mục; phần trăm giá trị nắm giữ là số tiền giao dịch chia cho giá trị KHOẢN đang có. Ví dụ: cổ phiếu 67,42% so với mục tiêu 60% lệch +7,42 điểm phần trăm; bán 184.800.000/1.680.000.000 ≈ 11,00% giá trị cổ phiếu đang nắm. Hai con số này không bằng nhau."
+    source_lesson: "Investing/notes/module-4/week-18-ips-ca-nhan.md#giai-đoạn-4--điểm-phần-trăm-so-với-phần-trăm-giá-trị-đang-nắm-giữ"
+    claim_ids: ["W18-C03"]
+    tags: ["rebalancing", "percentage-point", "units"]
+  - id: "fc-inv-w18-006"
+    version: "1.0.0"
+    concept: "Rebalancing calculation"
+    front: "Trong ví dụ W18, số tiền tái cân bằng được tính thế nào?"
+    back: "Tổng danh mục sau một năm giả định là 2.492.000.000 VND. Cổ phiếu mục tiêu 60% = 1.495.200.000, cần bán 1.680.000.000 − 1.495.200.000 = 184.800.000 VND. Trái phiếu mục tiêu 30% = 747.600.000, cần mua 135.600.000. Tiền mặt mục tiêu 10% = 249.200.000, cần thêm 49.200.000. Đối soát: 184.800.000 = 135.600.000 + 49.200.000."
+    source_lesson: "Investing/notes/module-4/week-18-ips-ca-nhan.md#giai-đoạn-3--tính-số-tiền-tái-cân-bằng-về-đúng-saa"
+    claim_ids: ["W18-C02"]
+    tags: ["rebalancing", "calculation", "vnd"]
+  - id: "fc-inv-w18-007"
+    version: "1.0.0"
+    concept: "Rebalancing trigger"
+    front: "Tái cân bằng theo ngưỡng (corridor) khác theo lịch (calendar) thế nào?"
+    back: "Corridor rebalancing kích hoạt khi tỷ trọng lệch khỏi band (ví dụ ±5 điểm phần trăm), phản ứng theo biến động thực tế. Calendar rebalancing kiểm tra theo kỳ hạn cố định (ví dụ 6 tháng/lần). Cả hai vẫn có thể phát sinh phí và thuế; không phương pháp nào loại bỏ chi phí hay dự đoán đáy."
+    source_lesson: "Investing/notes/module-4/week-18-ips-ca-nhan.md#4-deep-dive-ips-là-gì-và-các-cấu-phần"
+    claim_ids: ["W18-C03"]
+    tags: ["rebalancing", "corridor", "calendar"]
+  - id: "fc-inv-w18-008"
+    version: "1.0.0"
+    concept: "Pending source boundary"
+    front: "Xử lý phần thuế/phí và sản phẩm cụ thể còn pending thế nào?"
+    back: "Không dùng mức thuế, phí, điều kiện pháp lý hoặc sản phẩm cụ thể như verified nếu chưa mở và đọc nguồn authoritative. Khung IPS CFA đã được source-check trong W18-C01; phần thuế/phí và sản phẩm cụ thể vẫn pending nếu chưa có văn bản/prospectus đúng phạm vi. Ghi locator, ngày hiệu lực và phạm vi trước khi nâng trạng thái; không biến pending thành fact."
+    source_lesson: "Investing/notes/module-4/week-18-ips-ca-nhan.md#9-known-uncertain-và-pending"
+    tags: ["pending", "sources", "tax"]

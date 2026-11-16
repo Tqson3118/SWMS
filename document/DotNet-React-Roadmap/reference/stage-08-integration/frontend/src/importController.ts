@@ -1,0 +1,27 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { getExpenses, importExpenses, ImportApiError, ImportResponse, ExpenseDto } from './api';
+export type UiState = 'idle' | 'uploading' | 'committed' | 'cancelled' | 'rejected' | 'unknown' | 'unconfirmed';
+export function useImportController() {
+  const [file, setFile] = useState<File | null>(null); const [state, setState] = useState<UiState>('idle'); const [response, setResponse] = useState<ImportResponse | null>(null); const [message, setMessage] = useState(''); const [pending, setPending] = useState(false); const [expenses, setExpenses] = useState<ExpenseDto[]>([]); const [listMessage, setListMessage] = useState(''); const [needsReconciliation, setNeedsReconciliation] = useState(false);
+  const active = useRef<{ controller: AbortController; generation: number } | null>(null); const listActive = useRef<{ controller: AbortController; generation: number } | null>(null); const mounted = useRef(true); const generation = useRef(0); const listGeneration = useRef(0);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      active.current?.controller.abort();
+      active.current = null;
+      listActive.current?.controller.abort();
+      listActive.current = null;
+      generation.current += 1;
+      listGeneration.current += 1;
+    };
+  }, []);
+  const choose = useCallback((next: File | null) => { if (active.current || needsReconciliation) return; setFile(next); setResponse(null); setMessage(''); setState('idle'); }, [needsReconciliation]);
+  const cancel = useCallback(() => { const request = active.current; if (!request) return; request.controller.abort(); active.current = null; generation.current += 1; setPending(false); setNeedsReconciliation(true); setState('unconfirmed'); setMessage('Đã ngắt kết nối; kết quả trên máy chủ chưa được xác nhận. Làm mới chỉ để đối chiếu, không tự kết luận.'); }, []);
+  const refresh = useCallback(async () => { if (!mounted.current) return; listActive.current?.controller.abort(); const controller = new AbortController(); const current = ++listGeneration.current; listActive.current = { controller, generation: current }; setListMessage('Đang làm mới danh sách…'); try { const result = await getExpenses(controller.signal); if (!mounted.current || listActive.current?.generation !== current) return; setExpenses(result); setListMessage(needsReconciliation ? 'Đã làm mới để đối chiếu; cần quyết định rõ ràng trước lần nhập mới.' : 'Đã làm mới danh sách.'); } catch (error) { if (error instanceof DOMException && error.name === 'AbortError') return; if (mounted.current && listActive.current?.generation === current) setListMessage('Không thể làm mới danh sách bằng dữ liệu tin cậy.'); } finally { if (listActive.current?.generation === current) listActive.current = null; } }, [needsReconciliation]);
+  const decideReconciliation = useCallback(() => { if (!needsReconciliation) return; setNeedsReconciliation(false); setFile(null); setResponse(null); setState('idle'); setMessage('Đã xác nhận đối chiếu thủ công; hãy chọn tệp mới một cách có chủ ý.'); }, [needsReconciliation]);
+  const start = useCallback(async () => { if (!file || active.current || needsReconciliation || !mounted.current) return; const controller = new AbortController(); const current = ++generation.current; active.current = { controller, generation: current }; setPending(true); setState('uploading'); setMessage('Đang nhập tệp…'); try { const result = await importExpenses(file, controller.signal); if (!mounted.current || active.current?.generation !== current || controller.signal.aborted) return; setResponse(result); const nextState = result.status === 'committed' || result.status === 'committed-with-postcommit-error' ? 'committed' : result.status; setState(nextState); setNeedsReconciliation(result.status === 'unknown'); setMessage(result.status === 'unknown' ? 'Kết quả chưa xác nhận; làm mới chỉ để đối chiếu thủ công.' : result.status === 'cancelled' ? 'Máy chủ đã hủy nhập; không có dòng nào được ghi.' : result.status === 'rejected' ? 'Tệp bị từ chối; không có dòng nào được ghi.' : ''); } catch (error) { if (!mounted.current || active.current?.generation !== current) return; if (error instanceof DOMException && error.name === 'AbortError') { setState('unconfirmed'); setNeedsReconciliation(true); setMessage('Kết quả trên máy chủ chưa được xác nhận; không tự động thử lại.'); } else if (error instanceof ImportApiError && error.response) { setResponse(error.response); const nextState = error.response.status === 'committed' || error.response.status === 'committed-with-postcommit-error' ? 'committed' : error.response.status; setState(nextState); setNeedsReconciliation(error.response.status === 'unknown'); setMessage(error.response.status === 'unknown' ? 'Kết quả chưa xác nhận; làm mới chỉ để đối chiếu thủ công.' : error.response.status === 'cancelled' ? 'Máy chủ đã hủy nhập; không có dòng nào được ghi.' : error.response.status === 'rejected' ? 'Tệp bị từ chối; không có dòng nào được ghi.' : ''); } else { setState('unconfirmed'); setNeedsReconciliation(true); setMessage('Không thể xác nhận kết quả trên máy chủ; làm mới chỉ để đối chiếu thủ công.'); } } finally { if (active.current?.generation === current) { active.current = null; setPending(false); } } }, [file, needsReconciliation]);
+  return { file, state, response, message, choose, start, cancel, refresh, decideReconciliation, expenses, listMessage, busy: pending, needsReconciliation };
+}
+
+

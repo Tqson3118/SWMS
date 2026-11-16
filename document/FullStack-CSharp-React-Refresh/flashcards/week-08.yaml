@@ -1,0 +1,72 @@
+deck_id: deck-fscr-w08
+subject: FullStack-CSharp-React-Refresh
+lesson_id: week-08
+version: 1.0.0
+description: Task, cancellation, disposal và DI
+cards:
+- id: fc-fscr-w08-001
+  concept: Task meaning
+  front: Task luôn là thread riêng không?
+  back: Không. Task đại diện completion, có thể async IO không giữ thread chờ.
+  source_lesson: notes/module-2/week-08.md
+  version: 1.0.0
+  claim_ids:
+  - W08-C01
+  tags:
+  - w08
+  - fullstack
+- id: fc-fscr-w08-002
+  concept: Blocking task
+  front: Tại sao tránh .Result trong web service?
+  back: Nó block thread và có rủi ro context/deadlock. Blocking giảm scalability và có context hazard.
+  source_lesson: notes/module-2/week-08.md
+  version: 1.0.0
+  claim_ids:
+  - W08-C01
+  tags:
+  - w08
+  - fullstack
+- id: fc-fscr-w08-003
+  concept: Cooperative cancel
+  front: Token cancel có cưỡng chế mọi function dừng không?
+  back: Không, code/API phải quan sát token. Cancellation là cooperative contract.
+  source_lesson: notes/module-2/week-08.md
+  version: 1.0.0
+  claim_ids:
+  - W08-C02
+  tags:
+  - w08
+  - fullstack
+- id: fc-fscr-w08-004
+  concept: Using ownership
+  front: using cho stream bảo đảm gì khi exception trong scope?
+  back: Dispose stream khi thoát scope. Compiler cleanup gọi dispose cả exceptional exit.
+  source_lesson: notes/module-2/week-08.md
+  version: 1.0.0
+  claim_ids:
+  - W08-C02
+  tags:
+  - w08
+  - fullstack
+- id: fc-fscr-w08-005
+  concept: Scoped lifetime
+  front: Scoped ở ASP.NET thường dùng instance ra sao?
+  back: Một instance mỗi request scope. Request scope là lifetime phổ biến.
+  source_lesson: notes/module-2/week-08.md
+  version: 1.0.0
+  claim_ids:
+  - W08-C03
+  tags:
+  - w08
+  - fullstack
+- id: fc-fscr-w08-006
+  concept: Captive dependency
+  front: Singleton giữ DbContext scoped nên xử lý thế nào?
+  back: Đổi lifetime hoặc tạo scope đúng boundary job. Tách lifetime tránh giữ resource ngoài scope.
+  source_lesson: notes/module-2/week-08.md
+  version: 1.0.0
+  claim_ids:
+  - W08-C03
+  tags:
+  - w08
+  - fullstack

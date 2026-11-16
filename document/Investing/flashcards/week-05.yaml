@@ -1,0 +1,71 @@
+deck_id: "deck-investing-w05"
+subject: "Investing"
+lesson_id: "week-05-phan-tich-co-ban-top-down-bottom-up"
+version: "1.0.0"
+description: "Bộ thẻ truy xuất kiến thức W05. Nội dung giáo dục, không phải khuyến nghị đầu tư."
+
+cards:
+  - id: "fc-investing-w05-001"
+    version: "1.0.0"
+    concept: "Top-down"
+    front: "Hướng dự báo từ trên xuống (top-down) đi theo trình tự nào và bản chất là gì?"
+    back: "Đi từ dự báo kinh tế vĩ mô → dự báo ngành → dự báo từng doanh nghiệp và tài sản cụ thể (CFA 2026, Equity Valuation: Applications and Processes). Bản chất là cách tổ chức dự báo/phân tích trong quy trình định giá — không phải quy tắc sinh lời, không phải dự báo chắc chắn."
+    source_lesson: "Investing/notes/module-2/week-05-phan-tich-co-ban-top-down-bottom-up.md"
+    claim_ids: ["W05-C01"]
+    tags: ["top-down", "framework"]
+  - id: "fc-investing-w05-002"
+    version: "1.0.0"
+    concept: "Bottom-up"
+    front: "Hướng từ dưới lên (bottom-up) tổng hợp theo chiều nào và còn phải đối chiếu bối cảnh không?"
+    back: "Tổng hợp từ dự báo từng doanh nghiệp → ngành → có thể lên tiếp vĩ mô (CFA 2026). Tập trung chất lượng doanh nghiệp nhưng không 'mù vĩ mô': theo CFA, dùng cả đối tượng dự báo từ trên xuống lẫn từ dưới lên giúp phát hiện giả định ngầm hoặc lỗi của một hướng đơn lẻ."
+    source_lesson: "Investing/notes/module-2/week-05-phan-tich-co-ban-top-down-bottom-up.md"
+    claim_ids: ["W05-C01"]
+    tags: ["bottom-up", "framework"]
+  - id: "fc-investing-w05-003"
+    version: "1.0.0"
+    concept: "GDP"
+    front: "GDP là gì và vì sao không được dùng GDP để suy ra giá cổ phiếu?"
+    back: "GDP (tổng sản phẩm quốc nội) là giá trị mọi hàng hóa và dịch vụ cuối cùng được sản xuất trong phạm vi một quốc gia trong một năm; gồm tiêu dùng, đầu tư, chi tiêu chính phủ và xuất khẩu ròng (OpenStax Macro 3e, 6.1). GDP là thước đo sản lượng của một kỳ — không phải công cụ dự báo giá thị trường; tương quan lịch sử giữa GDP và giá cổ phiếu không tự động là quan hệ nhân quả. Kết luận đúng: 'chưa thể kết luận'."
+    source_lesson: "Investing/notes/module-2/week-05-phan-tich-co-ban-top-down-bottom-up.md"
+    claim_ids: ["W05-C02"]
+    tags: ["gdp", "macro", "no-causal-claim"]
+  - id: "fc-investing-w05-004"
+    version: "1.0.0"
+    concept: "Cách dùng số vĩ mô hợp lệ"
+    front: "Số vĩ mô được dùng hợp lệ ở bước nào trong phân tích ngành?"
+    back: "Đối chiếu metrics ngành với xu hướng kinh tế rộng trong suy thoái/phục hồi để đánh giá độ trưởng thành, độ nhạy chu kỳ (sensitivity to business cycles) và mức cạnh tranh của ngành (CFA Industry and Competitive Analysis). Nghĩa là số vĩ mô giúp phân loại 'ngành nhạy với chu kỳ/lãi suất thế nào' — không giúp dự đoán điểm giá."
+    source_lesson: "Investing/notes/module-2/week-05-phan-tich-co-ban-top-down-bottom-up.md"
+    claim_ids: ["W05-C02"]
+    tags: ["macro", "industry", "cycle-sensitivity"]
+  - id: "fc-investing-w05-005"
+    version: "1.0.0"
+    concept: "Năm lực lượng cạnh tranh"
+    front: "Porter's Five Forces gồm những lực lượng nào?"
+    back: "(1) Mối đe dọa từ đối thủ mới gia nhập (threat of new entrants) — 'đặt trần tiềm năng lợi nhuận ngành'; (2) quyền thương lượng của nhà cung cấp (bargaining power of suppliers); (3) quyền thương lượng của khách hàng (bargaining power of buyers); (4) mối đe dọa từ sản phẩm thay thế (threat of substitutes); (5) cạnh tranh nội ngành (rivalry among existing competitors). Khung đọc cấu trúc cạnh tranh và cách giá trị kinh tế được chia trong ngành (Porter 1979; HBS Institute for Strategy and Competitiveness; HBR 01/2008). Kết quả chấm là định tính phụ thuộc dữ kiện đưa vào."
+    source_lesson: "Investing/notes/module-2/week-05-phan-tich-co-ban-top-down-bottom-up.md"
+    claim_ids: ["W05-C03"]
+    tags: ["porter", "five-forces", "industry-structure"]
+  - id: "fc-investing-w05-006"
+    version: "1.0.0"
+    concept: "Rivalry gay gắt"
+    front: "Dữ kiện nào khiến cạnh tranh nội ngành (rivalry) gay gắt theo HBS?"
+    back: "Đối thủ nhiều hoặc cỡ tương đương; tăng trưởng ngành chậm; chi phí cố định cao (kích thích giảm giá); rào cản thoát lui cao; cam kết với ngành mạnh; mục tiêu/cách cạnh tranh khác nhau. Rivalry gay gắt 'đè giá xuống hoặc xói mòn lợi nhuận bằng chi phí cạnh tranh'."
+    source_lesson: "Investing/notes/module-2/week-05-phan-tich-co-ban-top-down-bottom-up.md"
+    claim_ids: ["W05-C03"]
+    tags: ["rivalry", "five-forces"]
+  - id: "fc-investing-w05-007"
+    version: "1.0.0"
+    concept: "Tầng doanh nghiệp"
+    front: "Tầng doanh nghiệp trong phân tích cơ bản dùng đầu vào gì và đọc kết quả thế nào?"
+    back: "Các tỷ số từ báo cáo tài chính (W04): EPS (VND/cổ phần, một kỳ), P/E (lần; giá tại một ngày chia EPS cả kỳ), ROE (%, mẫu số bình quân), D/E (lần, tại một thời điểm). Đọc là đầu vào đặt câu hỏi, không phải kết luận: ví dụ ROE 75% có thể phần lớn đến từ đòn bẩy (DuPont — hệ số nhân vốn chủ ~2,86 lần). Intrinsic value theo CFA là giá trị trong giả định 'hiểu đầy đủ hoàn hảo' — thực tế chỉ ước lượng."
+    source_lesson: "Investing/notes/module-2/week-05-phan-tich-co-ban-top-down-bottom-up.md"
+    claim_ids: ["W05-C01", "W05-C04"]
+    tags: ["company-layer", "ratios", "dupont"]
+  - id: "fc-investing-w05-008"
+    version: "1.0.0"
+    concept: "Không có ngưỡng P/E phổ quát"
+    front: "Bảng P/E theo ngành của Damodaran (01/2026, Hoa Kỳ) dạy gì về ngưỡng 'đắt/rẻ'?"
+    back: "Current P/E trải từ 6,38 lần (Broadcasting) đến 335,27 lần (Drugs (Pharmaceutical)); Chemical (Diversified) có 100% công ty lỗ nên trailing P/E ghi NA. Không tồn tại ngưỡng P/E dùng chung mọi ngành; so sánh phải cùng ngành, cùng loại P/E (trailing/forward), cùng kỳ. Dữ liệu là Hoa Kỳ tại một thời điểm — không suy ra mức chuẩn cho thị trường Việt Nam."
+    source_lesson: "Investing/notes/module-2/week-05-phan-tich-co-ban-top-down-bottom-up.md"
+    claim_ids: ["W05-C04"]
+    tags: ["pe-ratio", "industry", "not-meaningful", "safety"]

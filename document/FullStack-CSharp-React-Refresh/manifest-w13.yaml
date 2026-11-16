@@ -1,0 +1,117 @@
+schema_version: 2.0.0
+package_id: package:fscr:w13
+subject_id: roadmap:subject:fullstack-csharp-react-refresh
+display_title: FullStack C# + React Refresh
+source_status: in_review
+version: 1
+created_at: '2026-10-03T09:21:35Z'
+subject: FullStack C# + React Refresh
+course: FullStack C# + React Refresh
+module: phase-4-week-13
+lesson: week-13
+source_ledger_path: quality/ledger-w13.md
+learning_objectives:
+- id: LO-W13-01
+  bloom_level: Apply
+  statement: Thiết kế routes/methods/status/DTO theo contract chi tiêu.
+- id: LO-W13-02
+  bloom_level: Apply
+  statement: Theo vết middleware và cấu hình DI/CORS đúng boundary.
+- id: LO-W13-03
+  bloom_level: Apply
+  statement: Trả errors nhất quán, truy trace và không lộ secrets.
+concepts:
+- id: concept:fscr:w13-c01
+  name: HTTP và REST contract
+  claim_ids:
+  - W13-C01
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w13.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w13-c02
+  name: Pipeline và DI
+  claim_ids:
+  - W13-C02
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w13.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w13-c03
+  name: ProblemDetails và logging
+  claim_ids:
+  - W13-C03
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w13.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+questions:
+- id: Q13-01
+  lo_ref: LO-W13-01
+  concept_id: concept:fscr:w13-c01
+  claim_ids:
+  - W13-C01
+- id: Q13-02
+  lo_ref: LO-W13-01
+  concept_id: concept:fscr:w13-c01
+  claim_ids:
+  - W13-C01
+- id: Q13-03
+  lo_ref: LO-W13-02
+  concept_id: concept:fscr:w13-c02
+  claim_ids:
+  - W13-C02
+- id: Q13-04
+  lo_ref: LO-W13-02
+  concept_id: concept:fscr:w13-c02
+  claim_ids:
+  - W13-C02
+- id: Q13-05
+  lo_ref: LO-W13-03
+  concept_id: concept:fscr:w13-c03
+  claim_ids:
+  - W13-C03
+- id: Q13-06
+  lo_ref: LO-W13-03
+  concept_id: concept:fscr:w13-c03
+  claim_ids:
+  - W13-C03
+units:
+- unit_id: roadmap:unit:fscr:w13
+  display_title: 'Tuần 13: REST, middleware, DI và API errors'
+  sort_order: 13
+  artifacts:
+  - role: lesson_theory
+    path: notes/module-4/week-13.html
+    sha256: 7eb4a0602a07c4210ad8c1217e8449ec38c5a97329389ff4101a9ab56f5789ac
+    byte_length: 8693
+    stable_id: roadmap:lesson:fscr:w13
+  - role: quiz_questions
+    path: assessments/quizzes/week-13-quiz.md
+    sha256: 3362a6bc94325023de9c573339af14d213c680a6c479101cc11d096f34a855f8
+    byte_length: 1156
+    stable_id: roadmap:quiz:fscr:w13
+    question_count: 6
+  - role: quiz_answers
+    path: assessments/answer-keys/week-13-answers.md
+    sha256: 366cd0be2e39f0ca24b09e9ee60f6dc47ed391e5adb9e1f76f42ce76b9ff8a10
+    byte_length: 3781
+    stable_id: roadmap:answers:fscr:w13
+    correct_count: 6
+    wrong_count: 18
+  - role: flashcard_deck
+    path: flashcards/week-13.yaml
+    sha256: d6d466bf5bcb4e96a29ee39db5b524dadfee7e28b2909c64e1e991d2c55515e4
+    byte_length: 1860
+    stable_id: roadmap:deck:fscr:w13
+    card_count: 6
+  - role: source_ledger
+    path: quality/ledger-w13.md
+    sha256: 30ea9ea543887a45cc7ac1ea2c845877c6c4753df4aa9c30c779e553373c12c3
+    byte_length: 616

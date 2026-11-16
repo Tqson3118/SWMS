@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:53:56Z",
+  "unit_id": "roadmap:unit:fscr:w16",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 16: API tests và atomic/idempotent import",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w16",
+    "title": "Tuần 16: API tests và atomic/idempotent import",
+    "content_markdown": "<h1>Tuần 16 — API tests và atomic/idempotent import</h1>\n<p>Chặng 4; 3 bài L16-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W16-01: Test HTTP/EF/SQL riêng với WebApplicationFactory và DBisolated.</p>\n</li>\n<li>\n<p>LO-W16-02: Implement batch validation/key/hash/transaction và cancellation đúng.</p>\n</li>\n<li>\n<p>LO-W16-03: Tái hiện failure qua traceID và kiểm behavior quan trọng.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 15; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-16-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w16-01\"></a></p>\n<h2>Bài 1: Unit và integration</h2>\n<p>LO-W16-01 · W16-C01</p>\n<p>UnitpureDomain nhanh, fakeIO; integration chạy middleware/controller/EF/provider. WebApplicationFactory&lt;Program&gt;testhost; Program publicpartial cho top-levelentrypoint. Mvc.Testing10 compatibleAPI. DBExpenseTestisolated, fixtureIDs cố định, không connectionshared/prod. SQLServerlab/container testrowversion/FK/transaction, EFInMemory không proof. Fakeauthenticationhandler chỉTest để testownership nhanh, JWTsignature suite riêng với realbearerlocaltestkey. Assert status/body/DBeffect, không mockeverycall để mirrorimplementation. Resetdata chỉ ownedtestfixture, không blanketDROPDB.</p>\n<p><a id=\"lo-w16-02\"></a></p>\n<h2>Bài 2: Atomic import và retry</h2>\n<p>LO-W16-02 · W16-C02</p>\n<p>ClientparseCSV quote-aware thành JSONrows, servervalidateagain max1000/allmoney/date/categoryownership; collect row errors trước write. Hash normalized payload canonical order không raw JSON property order. UNIQUE(UserId,key) và requesthash/result trong transaction cùng expenses+completedbatch. Samekey/hash return previous result;different hash → 409. Faultsauwrite1 rollbackwholeunit. Cancel before commit discard staging/rollback;sau commit querybatchstatus. Execution strategy retry wrap toàn transaction nếu enabled, không blind repeat writes. Contextfault/requestscope kết thúc đúng; không reuse invalid context vôhạn.</p>\n<p><a id=\"lo-w16-03\"></a></p>\n<h2>Bài 3: Regression và trace diagnosis</h2>\n<p>LO-W16-03 · W16-C03</p>\n<p>Ma trận happy/empty/invalid/wrongowner/stale/idempotent/fault/cancel; privacy checkAlice/Bob/report. Logoperation/batchID/trace, không token/fullnote. Faultinject qua testDI chỉTest, không debugendpointproduction. Clientstatus -&gt;trace -&gt;serverlog -&gt;SQL/querycount để phân failureauth/domain/constraint/network. Fixeddata và isolatedDB tránh flaky; không randomsleep làm sync. Coverage cao không thay security/atomicity assertions. Pass chứng minh cases đã chạy, không khẳng định hếtbug. Report evidence ghi commit/environment/testcase/result.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Bài toán: invalid amount không ghi DB.</li>\n<li>Unitguard và integration effect kiểm hai layer.</li>\n<li>Xunitunit sau domainWeek5:</li>\n</ol>\n<pre><code class=\"language-csharp\">[Fact]\npublic void ZeroAmountIsRejected(){\n Assert.Throws&lt;ArgumentOutOfRangeException&gt;(()=&gt;new Expense(0));\n}\n</code></pre>\n<p>Integrationpattern: factoryhost+Aliceprincipal+ownedcategory -&gt;POSTamount0 -&gt;assert400/errorfield và countbefore==after. Import2valid+1invalid -&gt;400row3,0newrows. Fault giữa writes -&gt;500generic,0partial. Retry3validsamekey -&gt;1batch/3rows.\n4. Tests dùng DBtestisolated và clearfixture mình sở hữu; không API thật/sharedDB.</p>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>ẢnhUI không chứng minh chữ kýJWT; unitmock không chứng minhFK. Securitybranches/faulttransactioncritical dù linecoveragecao. Đừng skiptestfail hoặc hạ assertion để gọi phase complete.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>MatrixGETempty/invalidPOST/wrong-owner DELETE/stalePUT?</p>\n<h3>Bài tập 2</h3>\n<p>2concurrentimportsamekey3rows expect?</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>200items[],400noeffect,404Alicedataunchanged,409firstwriterretained. Assert status+shape+DB.</p>\n<h3>Hướng giải 2</h3>\n<p>Unique arbitration,onecompletedbatch/3rows. Documentin-progressreply/retrypath;different hash → 409,boundedretry. Không 6 rows.</p>\n<h2>Project task</h2>\n<p>Hoàn thiệnintegration/atomicimport và HTTPexamples,querycounts/faultreport. Tagphase4-api sauchecks.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w16.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Regression dùng relationalisolatedDB cho constraints/rowversion/rollback.</p>\n</li>\n<li>\n<p>[ ] Retry3validsamekey3rows/1batch;invalid/faultbeforecommit0partial.</p>\n</li>\n<li>\n<p>[ ] Trace nối request/log,không secrets; mọi featuretrước vẫn pass.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Thu: 'What can this integration test prove that a unit test cannot?'</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-10.0\">Integration test setup</a> — W16-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/ef/core/saving/transactions\">Atomic transactions, savepoints and rollback</a> — W16-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency\">Execution strategies and transactions</a> — W16-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-16-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-16-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-16.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"week-15.md\">Tuần trước</a></p>\n<p><a href=\"../module-5/week-17.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Integration test setup](https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-10.0)",
+      "[Atomic transactions, savepoints and rollback](https://learn.microsoft.com/en-us/ef/core/saving/transactions)",
+      "[Execution strategies and transactions](https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W16-01]",
+        "bloom_level": "Apply",
+        "statement": "Test HTTP/EF/SQL riêng với WebApplicationFactory và DBisolated."
+      },
+      {
+        "id": "[LO-W16-02]",
+        "bloom_level": "Apply",
+        "statement": "Implement batch validation/key/hash/transaction và cancellation đúng."
+      },
+      {
+        "id": "[LO-W16-03]",
+        "bloom_level": "Apply",
+        "statement": "Tái hiện failure qua traceID và kiểm behavior quan trọng."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w16-c01",
+        "name": "Unit và integration",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w16-c02",
+        "name": "Atomic import và retry",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w16-c03",
+        "name": "Regression và trace diagnosis",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w16",
+    "title": "Trắc nghiệm Tuần 16: API tests và atomic/idempotent import",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w16:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "Unitmock đủ chứng minh FKSQL chưa?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Chưa"
+          },
+          {
+            "id": "B",
+            "text": "Đủ100%coverage"
+          },
+          {
+            "id": "C",
+            "text": "Đủmocksuccess"
+          },
+          {
+            "id": "D",
+            "text": "Đủmigrationfile"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Provider behavior cần actual relational test.",
+        "wrong_explanations": {
+          "B": "Coverage không DBsemantics.",
+          "C": "Mock chỉ giả định của tác giảtest.",
+          "D": "File chưa apply/test."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w16-c01",
+        "lesson_anchor": "#lo-w16-01",
+        "claim_ids": [
+          "W16-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w16:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Integration DB nên dùng gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Randomconnection không record"
+          },
+          {
+            "id": "B",
+            "text": "Isolated lab DB và owned fixtures"
+          },
+          {
+            "id": "C",
+            "text": "Productiondefault"
+          },
+          {
+            "id": "D",
+            "text": "SharedfriendDB"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Deterministic và tránh external writes.",
+        "wrong_explanations": {
+          "A": "Không record khó reproduce.",
+          "C": "Testwrites không prod.",
+          "D": "Sharedstate gây risk/flaky."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w16-c01",
+        "lesson_anchor": "#lo-w16-01",
+        "claim_ids": [
+          "W16-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w16:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "Batch 3 rows, 1 invalid all-or-nothing làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Đổi0thành1"
+          },
+          {
+            "id": "B",
+            "text": "Bỏownership"
+          },
+          {
+            "id": "C",
+            "text": "Báo row error và0newrows"
+          },
+          {
+            "id": "D",
+            "text": "Lưu 2 rows silent"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Validate whole batch trước write.",
+        "wrong_explanations": {
+          "A": "Sửa âm thầm sai ý nghĩa.",
+          "B": "Owner critical không optional.",
+          "D": "Partial trái contract."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w16-c02",
+        "lesson_anchor": "#lo-w16-02",
+        "claim_ids": [
+          "W16-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w16:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "Samekey/hash 3 rows retry tạo tổng mấy expense?",
+        "options": [
+          {
+            "id": "A",
+            "text": "6"
+          },
+          {
+            "id": "B",
+            "text": "9"
+          },
+          {
+            "id": "C",
+            "text": "0"
+          },
+          {
+            "id": "D",
+            "text": "3"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Mộtoperationeffect duy nhất.",
+        "wrong_explanations": {
+          "A": "Duplicate hai lần trái idempotency.",
+          "B": "Triplicate cũng sai.",
+          "C": "Firstsuccess phải lưu3."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w16-c02",
+        "lesson_anchor": "#lo-w16-02",
+        "claim_ids": [
+          "W16-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w16:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "Fault debug endpoint deploy public không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Không"
+          },
+          {
+            "id": "B",
+            "text": "Có đểdemo"
+          },
+          {
+            "id": "C",
+            "text": "Có nameshort"
+          },
+          {
+            "id": "D",
+            "text": "Có 500 generic"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Giữtest-only dependency/injection.",
+        "wrong_explanations": {
+          "B": "Demo không là lý do gây public crash.",
+          "C": "Tên không permission.",
+          "D": "Errorgeneric không làmroutecần thiết."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w16-c03",
+        "lesson_anchor": "#lo-w16-03",
+        "claim_ids": [
+          "W16-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w16:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "ẢnhUI đủ chứng minh bad signature → 401 không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Đủ React compile"
+          },
+          {
+            "id": "B",
+            "text": "Không,cần real auth test"
+          },
+          {
+            "id": "C",
+            "text": "Đủspinner"
+          },
+          {
+            "id": "D",
+            "text": "Đủhidebutton"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "UI không server crypto validation.",
+        "wrong_explanations": {
+          "A": "Compilefrontend khôngbearerbackend.",
+          "C": "Loading không auth.",
+          "D": "HidebypassHTTP."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w16-c03",
+        "lesson_anchor": "#lo-w16-03",
+        "claim_ids": [
+          "W16-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w16",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 16: API tests và atomic/idempotent import",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w16-001",
+        "concept_name": "Provider proof",
+        "front": "Unitmock đủ chứng minh FKSQL chưa?",
+        "back": "Chưa. Provider behavior cần actual relational test.",
+        "tags": [
+          "w16",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W16-C01"
+        ],
+        "source_citation": "notes/module-4/week-16.md",
+        "lesson_anchor": "#lo-w16-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w16-002",
+        "concept_name": "DB isolation",
+        "front": "Integration DB nên dùng gì?",
+        "back": "Isolated lab DB và owned fixtures. Deterministic và tránh external writes.",
+        "tags": [
+          "w16",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W16-C01"
+        ],
+        "source_citation": "notes/module-4/week-16.md",
+        "lesson_anchor": "#lo-w16-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w16-003",
+        "concept_name": "Invalid import",
+        "front": "Batch 3 rows, 1 invalid all-or-nothing làm gì?",
+        "back": "Báo row error và0newrows. Validate whole batch trước write.",
+        "tags": [
+          "w16",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W16-C02"
+        ],
+        "source_citation": "notes/module-4/week-16.md",
+        "lesson_anchor": "#lo-w16-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w16-004",
+        "concept_name": "Retry count",
+        "front": "Samekey/hash 3 rows retry tạo tổng mấy expense?",
+        "back": "3. Mộtoperationeffect duy nhất.",
+        "tags": [
+          "w16",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W16-C02"
+        ],
+        "source_citation": "notes/module-4/week-16.md",
+        "lesson_anchor": "#lo-w16-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w16-005",
+        "concept_name": "Fault boundary",
+        "front": "Fault debug endpoint deploy public không?",
+        "back": "Không. Giữtest-only dependency/injection.",
+        "tags": [
+          "w16",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W16-C03"
+        ],
+        "source_citation": "notes/module-4/week-16.md",
+        "lesson_anchor": "#lo-w16-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w16-006",
+        "concept_name": "Auth evidence",
+        "front": "ẢnhUI đủ chứng minh bad signature → 401 không?",
+        "back": "Không,cần real auth test. UI không server crypto validation.",
+        "tags": [
+          "w16",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W16-C03"
+        ],
+        "source_citation": "notes/module-4/week-16.md",
+        "lesson_anchor": "#lo-w16-03"
+      }
+    ]
+  }
+}

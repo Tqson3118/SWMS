@@ -1,0 +1,107 @@
+deck_id: "deck-psy-w05"
+subject: "Psychology"
+lesson_id: "week-05-sensation-perception"
+version: "1.0.0"
+description: "Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng (Spaced Repetition - R5 Compliant) Tuần 05: Cảm giác, Tri giác và Các Giới hạn của Trực giác"
+
+cards:
+  - id: "fc-psy-w05-001"
+    concept: "Phân biệt Cảm giác và Tri giác"
+    front: "Phân biệt rạch ròi giữa Cảm giác (Sensation) và Tri giác (Perception)? Quá trình Transduction là gì?"
+    back: "Cảm giác là quá trình thụ thể tiếp nhận kích thích vật lý/hóa học và chuyển đổi thành xung điện thần kinh (transduction). Tri giác là quá trình tâm lý tại vỏ não nhằm tổ chức, nhận diện và gán ý nghĩa cho các tín hiệu cảm giác đó."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-05-sensation-perception.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C05-01"
+    tags:
+      - "sensation"
+      - "perception"
+      - "transduction"
+
+  - id: "fc-psy-w05-002"
+    concept: "Ngưỡng Tuyệt đối và Định luật Weber"
+    front: "Định nghĩa Ngưỡng tuyệt đối và phát biểu Định luật Weber về Ngưỡng sai biệt (JND)?"
+    back: "Ngưỡng tuyệt đối là cường độ kích thích tối thiểu phát hiện được trong 50% số lần thử. Định luật Weber: Ngưỡng sai biệt nhận biết được luôn là một tỷ lệ phần trăm không đổi (ΔI/I = k) so với cường độ kích thích ban đầu, không phải một lượng cố định."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-05-sensation-perception.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C05-02"
+    tags:
+      - "psychophysics"
+      - "absolute-threshold"
+      - "webers-law"
+
+  - id: "fc-psy-w05-003"
+    concept: "Thuyết Phát hiện Tín hiệu và Thích ứng Cảm giác"
+    front: "Bốn khả năng kết quả trong Thuyết Phát hiện Tín hiệu là gì và hiện tượng Thích ứng cảm giác diễn ra ra sao?"
+    back: "4 kết quả: Hit (bắt đúng), Miss (bỏ sót), False Alarm (báo động giả), Correct Rejection (từ chối đúng). Thích ứng cảm giác là sự suy giảm đáp ứng của thụ thể trước một kích thích không đổi kéo dài (như quen mùi nước hoa sau vài phút)."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-05-sensation-perception.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C05-03"
+    tags:
+      - "signal-detection"
+      - "sensory-adaptation"
+
+  - id: "fc-psy-w05-004"
+    concept: "Xử lý Dưới lên vs Trên xuống và Mù Không Chú ý"
+    front: "So sánh Xử lý từ dưới lên (Bottom-up) với Xử lý từ trên xuống (Top-down)? Hiện tượng Mù không chú ý là gì?"
+    back: "Bottom-up đi từ dữ liệu cảm giác thô lên não; Top-down được dẫn dắt bởi kinh nghiệm, kỳ vọng và bối cảnh. Mù không chú ý (inattentional blindness) là hiện tượng hoàn toàn không nhìn thấy vật thể lộ liễu ngay trước mắt do tài nguyên chú ý bị chiếm dụng bởi tác vụ khác."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-05-sensation-perception.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C05-04"
+    tags:
+      - "bottom-up"
+      - "top-down"
+      - "inattentional-blindness"
+
+  - id: "fc-psy-w05-005"
+    concept: "Tế bào hình que vs Tế bào hình nón trên võng mạc"
+    front: "So sánh cấu trúc và chức năng của Tế bào hình que (Rods) và Tế bào hình nón (Cones) trên võng mạc?"
+    back: "Tế bào que (~120 triệu) nhạy với ánh sáng yếu, phân bố ở ngoại vi, không màu. Tế bào nón (~6 triệu) tập trung ở hoàng điểm fovea, chịu trách nhiệm cho thị lực sắc nét ban ngày và thụ cảm màu sắc (3 loại nón S, M, L)."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-05-sensation-perception.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C05-05"
+    tags:
+      - "vision"
+      - "retina"
+      - "rods-and-cones"
+
+  - id: "fc-psy-w05-006"
+    concept: "Thuyết Ba màu và Thuyết Quá trình Đối lập"
+    front: "Thuyết ba màu Young-Helmholtz và Thuyết các quá trình đối lập Hering giải thích thụ cảm màu sắc ra sao?"
+    back: "Thuyết ba màu giải thích ở tầng võng mạc: 3 loại tế bào nón nhạy với bước sóng lam, lục, đỏ. Thuyết quá trình đối lập giải thích ở tế bào hạch và thể gối ngoài: mã hóa theo các cặp đối kháng (Đỏ-Xanh lá, Vàng-Xanh lam, Đen-Trắng), giải thích hiện tượng ảnh dư âm tính."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-05-sensation-perception.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C05-05"
+    tags:
+      - "color-vision"
+      - "trichromatic-theory"
+      - "opponent-process"
+
+  - id: "fc-psy-w05-007"
+    concept: "Thuyết Kiểm soát Cổng Đau (Gate-Control Theory)"
+    front: "Cơ chế đóng và mở cổng dẫn truyền tín hiệu đau trong Thuyết Kiểm soát Cổng (Melzack & Wall, 1965) hoạt động thế nào?"
+    back: "Cổng thần kinh ở sừng sau tủy sống mở khi nhận tín hiệu đau từ sợi thần kinh nhỏ; đóng lại khi nhận kích thích cơ học vô hại từ sợi thần kinh lớn (như khi xoa bóp) hoặc nhận tín hiệu ức chế từ trên não (tập trung, tinh thần lạc quan, giải phóng endorphin)."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-05-sensation-perception.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C05-07"
+    tags:
+      - "pain-perception"
+      - "gate-control-theory"
+
+  - id: "fc-psy-w05-008"
+    concept: "Các nguyên tắc Gestalt về tổ chức tri giác"
+    front: "Nêu 5 nguyên tắc Gestalt cơ bản trong việc tổ chức các kích thích thị giác thành một chỉnh thể có nghĩa?"
+    back: "Gồm: 1. Hình - Nền (Figure-Ground); 2. Gần gũi (Proximity); 3. Tương đồng (Similarity); 4. Tiếp diễn liên tục (Good Continuation); 5. Đóng kín (Closure - não bộ tự điền khuyết các khoảng trống để tạo hình dạng hoàn chỉnh)."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-05-sensation-perception.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C05-08"
+    tags:
+      - "gestalt-principles"
+      - "perceptual-organization"

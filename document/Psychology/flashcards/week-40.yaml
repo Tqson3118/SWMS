@@ -1,0 +1,113 @@
+deck_id: "deck-psy-w40"
+subject: "Psychology"
+lesson_id: "week-40-trauma-bipolar-psychosis"
+version: "1.0.0"
+description: "Bộ thẻ ôn tập Tuần 40: Chấn thương Tâm lý, Rối loạn Lưỡng cực & Phổ Tâm thần Phân liệt"
+
+cards:
+  - id: "fc-psy-w40-001"
+    concept: "Tiêu chuẩn chẩn đoán PTSD theo DSM-5-TR"
+    front: "Tiêu chuẩn chẩn đoán cốt lõi của Rối loạn Căng thẳng Sau Sang chấn (PTSD) theo DSM-5-TR bao gồm những yếu tố thời gian và cụm triệu chứng nào?"
+    back: "Triệu chứng phải kéo dài trên 1 tháng (ít nhất 30 ngày) kể từ sau sự kiện sang chấn, bao gồm 4 cụm: (1) Xâm nhập/hồi tưởng, (2) Né tránh kích thích, (3) Biến đổi tiêu cực nhận thức & khí sắc, (4) Tăng kích thích thần kinh, gây suy giảm chức năng rõ rệt."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-40-trauma-bipolar-psychosis.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C40-01"
+    tags:
+      - "ptsd"
+      - "trauma"
+      - "dsm-5-tr"
+
+  - id: "fc-psy-w40-002"
+    concept: "Phân biệt PTSD với Rối loạn Căng thẳng Cấp tính (ASD)"
+    front: "Ranh giới thời gian then chốt phân biệt giữa Rối loạn Căng thẳng Cấp tính (ASD) và PTSD là gì?"
+    back: "ASD khởi phát và kéo dài từ 3 ngày đến tối đa 1 tháng sau biến cố sang chấn. Nếu các triệu chứng vẫn tồn tại dai dẳng vượt quá 1 tháng (sau 30 ngày), chẩn đoán sẽ chuyển sang PTSD."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-40-trauma-bipolar-psychosis.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C40-01"
+    tags:
+      - "ptsd"
+      - "asd"
+      - "diagnosis"
+
+  - id: "fc-psy-w40-003"
+    concept: "Cơ sở sinh học thần kinh của Ký ức Chấn thương"
+    front: "Ba cấu trúc não bộ chính tương tác như thế nào để tạo nên hiện tượng hồi tưởng chấn thương (flashback) theo LeDoux & Van der Kolk?"
+    back: "Hạch hạnh nhân (amygdala) tăng hoạt dữ dội phát tín hiệu sợ hãi sinh tồn; Vỏ não trước trán (mPFC) giảm hoạt làm mất khả năng ức chế từ trên xuống; Hải mã (hippocampus) suy giảm mã hóa bối cảnh thời gian/không gian, khiến ký ức bị trải nghiệm như đang diễn ra ở hiện tại."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-40-trauma-bipolar-psychosis.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C40-02"
+    tags:
+      - "neurobiology"
+      - "amygdala"
+      - "mpfc"
+      - "hippocampus"
+
+  - id: "fc-psy-w40-004"
+    concept: "Phân biệt Lâm sàng Bipolar I và Bipolar II"
+    front: "Tiêu chuẩn chẩn đoán phân biệt bắt buộc giữa Rối loạn Lưỡng cực I (Bipolar I) và Bipolar II theo DSM-5-TR là gì?"
+    back: "Bipolar I bắt buộc phải có ít nhất một Giai đoạn Hưng cảm toàn phát (Manic Episode: kéo dài >= 7 ngày hoặc phải nhập viện cấp cứu/loạn thần). Bipolar II chỉ có giai đoạn Hưng cảm nhẹ (Hypomania: kéo dài >= 4 ngày, không loạn thần, không nhập viện) xen kẽ Trầm cảm chủ yếu."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-40-trauma-bipolar-psychosis.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C40-03"
+    tags:
+      - "bipolar"
+      - "mania"
+      - "hypomania"
+      - "dsm-5-tr"
+
+  - id: "fc-psy-w40-005"
+    concept: "Phản biện Pop Psychology về Rối loạn Lưỡng cực"
+    front: "Vì sao việc gán nhãn 'lưỡng cực' cho những cơn thay đổi tâm trạng vui buồn theo giờ trong ngày là sai lầm khoa học?"
+    back: "Dao động tâm trạng trong ngày là phản ứng bình thường thích nghi với hoàn cảnh sống. Các pha hưng cảm và trầm cảm thực sự của Bipolar kéo dài nhiều ngày hoặc nhiều tuần liên tục, có bản chất nội sinh thần kinh sinh học và phá hủy chức năng sống nghiêm trọng."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-40-trauma-bipolar-psychosis.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C40-03"
+    tags:
+      - "pop-psychology"
+      - "bipolar-myths"
+      - "clinical-facts"
+
+  - id: "fc-psy-w40-006"
+    concept: "Phân loại Triệu chứng Tâm thần Phân liệt: Dương tính vs Âm tính"
+    front: "Sự khác biệt bản chất giữa Triệu chứng Dương tính và Triệu chứng Âm tính trong Phổ Tâm thần Phân liệt là gì?"
+    back: "Triệu chứng Dương tính là sự dư thừa/méo mó chức năng tâm thần bình thường (ảo giác, hoang tưởng, ngôn ngữ vô tổ chức). Triệu chứng Âm tính là sự mất mát/thiếu hụt chức năng bình thường (cùn mòn cảm xúc, mất ý chí, nghèo nàn ngôn ngữ, rút lui xã hội)."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-40-trauma-bipolar-psychosis.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C40-04"
+    tags:
+      - "schizophrenia"
+      - "positive-symptoms"
+      - "negative-symptoms"
+
+  - id: "fc-psy-w40-007"
+    concept: "Giả thuyết Dopamine Phiên bản III (Howes & Kapur, 2009)"
+    front: "Khái niệm 'Sự gán ý nghĩa sai lệch' (Aberrant Salience) giải thích cơ chế hình thành hoang tưởng như thế nào?"
+    back: "Rối loạn phóng thích dopamine tiền synap khiến các kích thích trung tính ngẫu nhiên bị não bộ gán ý nghĩa nổi bật bất thường; bệnh nhân sau đó xây dựng hoang tưởng như một nỗ lực nhận thức nhằm hợp lý hóa những kích thích bị gán ý nghĩa quá mức đó."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-40-trauma-bipolar-psychosis.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C40-04"
+    tags:
+      - "dopamine"
+      - "aberrant-salience"
+      - "neurobiology"
+
+  - id: "fc-psy-w40-008"
+    concept: "Mô hình Phục hồi & Chống kỳ thị Bệnh tâm thần nặng"
+    front: "Bằng chứng dịch tễ học và Mô hình Phục hồi (Recovery Model) khẳng định điều gì về người mắc rối loạn tâm thần nặng?"
+    back: "Hơn 90-95% người bệnh tâm thần nặng không bạo lực và có nguy cơ trở thành nạn nhân bạo lực cao hơn người bình thường; Mô hình Phục hồi tập trung vào việc khôi phục hy vọng, quyền tự quyết và xây dựng cuộc sống có ý nghĩa trong cộng đồng thay vì chỉ điều trị triệu chứng y khoa."
+    source_lesson: "Psychology/notes/05-development-mental-health/week-40-trauma-bipolar-psychosis.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C40-05"
+    tags:
+      - "recovery-model"
+      - "stigma"
+      - "epidemiology"
+      - "ethics"

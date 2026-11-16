@@ -1,0 +1,142 @@
+schema_version: 2.0.0
+package_id: package:investing:w12
+subject_id: roadmap:subject:investing
+display_title: 'Investing — Tuần 12: Mở tài khoản, cơ chế khớp lệnh, biểu phí và thuế tại Việt Nam'
+source_status: in_review
+version: 6
+created_at: '2026-09-22T00:00:00Z'
+subject: Investing
+course: Investing — 18 tuần
+module: module-3
+lesson: week-12-tai-khoan-lenh-phi-thue-vn
+learning_objectives:
+- id: LO-W12-01
+  bloom_level: Understand
+  statement: 'Hiểu và trình bày các khái niệm nền tảng của Tuần 12: Mở tài khoản, cơ chế khớp lệnh, biểu phí và
+    thuế tại Việt Nam theo chuẩn mực học liệu.'
+- id: LO-W12-02
+  bloom_level: Apply
+  statement: 'Vận dụng các phương pháp và công thức tính toán thực tế trong tình huống đầu tư giả định của Tuần
+    12: Mở tài khoản, cơ chế khớp lệnh, biểu phí và thuế tại Việt Nam.'
+- id: LO-W12-03
+  bloom_level: Analyze
+  statement: 'Phân tích cơ chế vận hành, các yếu tố rủi ro và điều kiện biên của các công cụ trong Tuần 12: Mở tài
+    khoản, cơ chế khớp lệnh, biểu phí và thuế tại Việt Nam.'
+- id: LO-W12-04
+  bloom_level: Evaluate
+  statement: 'Đánh giá, phản biện các sai lầm phổ biến và xây dựng nguyên tắc quản trị kỷ luật cho Tuần 12: Mở tài
+    khoản, cơ chế khớp lệnh, biểu phí và thuế tại Việt Nam.'
+concepts:
+- id: roadmap:concept:investing:w12-core
+  name: 'Khái niệm cốt lõi và khung phân tích Tuần 12: Mở tài khoản, cơ chế khớp lệnh, biểu phí và thuế tại Việt
+    Nam'
+  claim_ids:
+  - W12-C01
+  - W12-C02
+  - W12-C03
+  - W12-C04
+  - W12-C05
+  - W12-C06
+  - W12-C07
+  - W12-C08
+  evidence_label: strong
+  source_ledger_path: quality/module-3-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: independent-content-reviewer
+    date: '2026-09-22'
+questions:
+- id: Q12-01
+  lo_ref: LO-W12-01
+  concept_id: roadmap:concept:investing:w12-core
+  claim_ids:
+  - W12-C01
+- id: Q12-02
+  lo_ref: LO-W12-01
+  concept_id: roadmap:concept:investing:w12-core
+  claim_ids:
+  - W12-C01
+- id: Q12-03
+  lo_ref: LO-W12-02
+  concept_id: roadmap:concept:investing:w12-core
+  claim_ids:
+  - W12-C01
+- id: Q12-04
+  lo_ref: LO-W12-02
+  concept_id: roadmap:concept:investing:w12-core
+  claim_ids:
+  - W12-C02
+- id: Q12-05
+  lo_ref: LO-W12-03
+  concept_id: roadmap:concept:investing:w12-core
+  claim_ids:
+  - W12-C03
+  - W12-C04
+- id: Q12-06
+  lo_ref: LO-W12-03
+  concept_id: roadmap:concept:investing:w12-core
+  claim_ids:
+  - W12-C03
+  - W12-C04
+- id: Q12-07
+  lo_ref: LO-W12-04
+  concept_id: roadmap:concept:investing:w12-core
+  claim_ids:
+  - W12-C05
+  - W12-C06
+  - W12-C07
+  - W12-C08
+- id: Q12-08
+  lo_ref: LO-W12-04
+  concept_id: roadmap:concept:investing:w12-core
+  claim_ids:
+  - W12-C01
+  - W12-C02
+- id: Q12-09
+  lo_ref: LO-W12-03
+  concept_id: roadmap:concept:investing:w12-core
+  claim_ids:
+  - W12-C05
+  - W12-C06
+  - W12-C07
+- id: Q12-10
+  lo_ref: LO-W12-03
+  concept_id: roadmap:concept:investing:w12-core
+  claim_ids:
+  - W12-C05
+  - W12-C06
+  - W12-C07
+  - W12-C08
+units:
+- unit_id: roadmap:unit:investing:w12
+  display_title: 'Tuần 12: Mở tài khoản, cơ chế khớp lệnh, biểu phí và thuế tại Việt Nam'
+  sort_order: 12
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:investing:w12
+    path: notes/module-3/week-12-tai-khoan-lenh-phi-thue-vn.md
+    sha256: 948760f5c1099722460ccc314db42c3e75c0e17d754aaa8f55e145032fcc7ffa
+    byte_length: 24552
+  - role: quiz_questions
+    stable_id: roadmap:quiz:investing:w12
+    path: assessments/quizzes/week-12-quiz.md
+    question_count: 10
+    sha256: be1b8e7d71a4c56e254fd9b1eba86db373a959a045f7e4dcd78b20877ab8c66d
+    byte_length: 5821
+  - role: quiz_answers
+    stable_id: roadmap:answers:investing:w12
+    path: assessments/answer-keys/week-12-answers.md
+    correct_count: 8
+    wrong_count: 24
+    sha256: 611fd572accf58e6a0789d882976e2e5b6b5126f69b4acb51280bb617cf39dcb
+    byte_length: 15159
+  - role: flashcard_deck
+    stable_id: roadmap:deck:investing:w12
+    path: flashcards/week-12.yaml
+    card_count: 9
+    sha256: 88530c4153c77f517dcc1a91cd9cb77130831daedfc80ab3c1df4002143563e1
+    byte_length: 8706
+  - role: source_ledger
+    path: quality/module-3-source-ledger.md
+    sha256: 3f377205c9603f3706cc228b8c40265ccd3d72089af8656ceff703232e5039d2
+    byte_length: 29280

@@ -7,8 +7,8 @@ import {
   LayoutDashboard,
   BookOpen,
   Brain,
-  GraduationCap,
-  FolderOpen,
+  FileText,
+  NotebookPen,
   Settings,
   Search,
   ChevronLeft,
@@ -22,6 +22,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { deduplicateCourses, getCourseId, getCourseProgress } from "@/lib/course-helpers";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -45,24 +46,31 @@ interface RecentCourse {
 const NAV_ITEMS: NavItem[] = [
   {
     href: "/app",
-    label: "Tổng quan",
+    label: "Hôm nay",
     icon: LayoutDashboard,
   },
   {
-    href: "/app/library",
-    label: "Thư viện",
-    icon: FolderOpen,
+    href: "/app/courses",
+    label: "Khóa học",
+    icon: BookOpen,
+    matchPrefix: true,
+  },
+  {
+    href: "/app/documents",
+    label: "Tài liệu",
+    icon: FileText,
+    matchPrefix: true,
+  },
+  {
+    href: "/app/notes",
+    label: "Sổ tay",
+    icon: NotebookPen,
     matchPrefix: true,
   },
   {
     href: "/app/review",
     label: "Ôn tập",
     icon: Brain,
-  },
-  {
-    href: "/app/studio",
-    label: "Studio",
-    icon: GraduationCap,
     matchPrefix: true,
   },
 ];
@@ -103,13 +111,16 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         setUserName(data.user?.fullName ?? "Học viên");
         setUserEmail(data.user?.email ?? "");
 
-        // Extract recent courses (top 5)
-        const courses = data.courses ?? [];
+        // Extract recent courses (top 4, deduplicated)
+        const rawCourses = Array.isArray(data.courses) ? data.courses : [];
+        const uniqueCourses = deduplicateCourses(
+          rawCourses as Record<string, unknown>[]
+        );
         setRecentCourses(
-          courses.slice(0, 5).map((c: Record<string, unknown>) => ({
-            id: String(c.courseId || c.id || ""),
+          uniqueCourses.slice(0, 4).map((c) => ({
+            id: getCourseId(c),
             title: String(c.title || "Khóa học"),
-            progress: Number(c.progressPercent ?? c.progress ?? 0),
+            progress: getCourseProgress(c),
           }))
         );
       }
@@ -297,7 +308,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         {!collapsed && (
           <div className="pt-2">
             <Link
-              href="/app/studio/create"
+              href="/app/courses/new"
               className="flex items-center gap-2.5 h-8 px-2.5 rounded-md text-sm text-text-tertiary hover:text-accent hover:bg-accent-subtle transition font-medium"
             >
               <Plus className="w-4 h-4 shrink-0" />
@@ -346,6 +357,8 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           <LayoutGrid className="w-4 h-4 shrink-0" />
           {!collapsed && <span className="truncate">Workspace Classic</span>}
         </Link>
+
+        {/* Footer Bottom: Settings & User Profile */}
 
         {/* Settings */}
         <Link

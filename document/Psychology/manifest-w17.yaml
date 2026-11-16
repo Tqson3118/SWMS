@@ -1,0 +1,164 @@
+schema_version: 2.0.0
+package_id: package:psychology:w17
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 03-understanding-others
+lesson: week-17-social-cognition
+learning_objectives:
+- id: LO-W17-01
+  bloom_level: Understand
+  statement: Giải thích cơ chế hình thành ấn tượng xã hội qua lý thuyết lược đồ và
+    xử lý thông tin từ trên xuống.
+- id: LO-W17-02
+  bloom_level: Analyze
+  statement: Phân tích các nghiên cứu về lát cắt mỏng của hành vi và chỉ rõ các điều
+    kiện bối cảnh mà phán đoán nhanh thất bại.
+- id: LO-W17-03
+  bloom_level: Apply
+  statement: Nhận diện hiệu ứng hào quang và hiệu ứng thứ tự ưu tiên trong giao tiếp
+    xã hội và công việc.
+concepts:
+- id: roadmap:concept:psychology:w17-social-schema
+  name: Lược đồ xã hội (Social Schema)
+  claim_ids:
+  - C17-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w17-thin-slices
+  name: Lát cắt mỏng của hành vi (Thin Slices)
+  claim_ids:
+  - C17-02
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w17-halo-effect
+  name: Hiệu ứng Hào quang (Halo Effect)
+  claim_ids:
+  - C17-03
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w17-primacy-effect
+  name: Hiệu ứng Thứ tự Ưu tiên (Primacy Effect)
+  claim_ids:
+  - C17-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w17-confirmation-bias
+  name: Thiên kiến xác nhận xã hội
+  claim_ids:
+  - C17-05
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+questions:
+- id: Q17-01
+  lo_ref: LO-W17-01
+  concept_id: roadmap:concept:psychology:w17-social-schema
+  claim_ids:
+  - C17-01
+- id: Q17-02
+  lo_ref: LO-W17-02
+  concept_id: roadmap:concept:psychology:w17-thin-slices
+  claim_ids:
+  - C17-02
+- id: Q17-03
+  lo_ref: LO-W17-03
+  concept_id: roadmap:concept:psychology:w17-halo-effect
+  claim_ids:
+  - C17-03
+- id: Q17-04
+  lo_ref: LO-W17-03
+  concept_id: roadmap:concept:psychology:w17-primacy-effect
+  claim_ids:
+  - C17-04
+- id: Q17-05
+  lo_ref: LO-W17-01
+  concept_id: roadmap:concept:psychology:w17-primacy-effect
+  claim_ids:
+  - C17-04
+- id: Q17-06
+  lo_ref: LO-W17-03
+  concept_id: roadmap:concept:psychology:w17-confirmation-bias
+  claim_ids:
+  - C17-05
+- id: Q17-07
+  lo_ref: LO-W17-02
+  concept_id: roadmap:concept:psychology:w17-halo-effect
+  claim_ids:
+  - C17-03
+- id: Q17-08
+  lo_ref: LO-W17-03
+  concept_id: roadmap:concept:psychology:w17-halo-effect
+  claim_ids:
+  - C17-03
+- id: Q17-09
+  lo_ref: LO-W17-01
+  concept_id: roadmap:concept:psychology:w17-social-schema
+  claim_ids:
+  - C17-01
+- id: Q17-10
+  lo_ref: LO-W17-02
+  concept_id: roadmap:concept:psychology:w17-thin-slices
+  claim_ids:
+  - C17-02
+units:
+- unit_id: roadmap:unit:psychology:w17
+  display_title: 'Tuần 17: Nhận Thức Xã Hội & Cách Ta Hình Thành Ấn Tượng'
+  sort_order: 17
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w17
+    path: notes/03-understanding-others/week-17-social-cognition.md
+    sha256: a096162e7f0b711d03ddc8daccd08435f80a3600e8c77b079f23f24308b8a6d0
+    byte_length: 16018
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w17
+    path: assessments/quizzes/week-17-quiz.md
+    question_count: 10
+    sha256: 7caa365c8bab7174bbc0b5c549b1cd48a2225596742cc5da585ab23ed8d3d90e
+    byte_length: 8720
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w17
+    path: assessments/answer-keys/week-17-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: de615320332115836089a4de62a87237abcc7e65f01835e106b109c13fccc0e6
+    byte_length: 10430
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w17
+    path: flashcards/week-17.yaml
+    card_count: 8
+    sha256: ba41c1a27de5f40ceed82027dc50ce8320a0d2854215f0365f0b620a5ca3257a
+    byte_length: 5251
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

@@ -1,0 +1,103 @@
+deck_id: "deck-psy-w32"
+subject: "Psychology"
+lesson_id: "week-32-jealousy-trust-betrayal"
+version: "1.0.0"
+description: "Bộ thẻ ôn tập Tuần 32: Ghen tuông, lòng tin, phản bội và bất an"
+
+cards:
+  - id: "fc-psy-w32-001"
+    concept: "Jealousy vs. Envy"
+    front: "Phân biệt giữa Jealousy (Ghen tuông) và Envy (Đố kỵ)."
+    back: "Jealousy: Sợ mất thứ mình đang có (người yêu) vào tay người thứ ba. Envy: Mong muốn có được thứ mà người khác đang sở hữu."
+    source_lesson: "Psychology/notes/04-love-relationships/week-32-jealousy-trust-betrayal.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C32-01"
+    tags:
+      - "jealousy"
+      - "envy"
+
+  - id: "fc-psy-w32-002"
+    concept: "Trust Model"
+    front: "3 thành phần của lòng tin theo Rempel, Holmes & Zanna (1985) là gì?"
+    back: "(1) Predictability: Có thể dự đoán dựa trên quá khứ. (2) Dependability: Sự đáng tin cậy về nhân cách. (3) Faith: Niềm tin vào thiện ý tương lai dù không có bằng chứng."
+    source_lesson: "Psychology/notes/04-love-relationships/week-32-jealousy-trust-betrayal.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C32-02"
+    tags:
+      - "trust"
+      - "models"
+
+  - id: "fc-psy-w32-003"
+    concept: "Evolutionary Perspective on Jealousy"
+    front: "Quan điểm tiến hóa của Buss (1992) về ghen tuông ở nam và nữ khác nhau như thế nào?"
+    back: "Nam giới ghen tuông tình dục nhiều hơn (sợ nuôi con người khác). Nữ giới ghen tuông tình cảm nhiều hơn (sợ mất nguồn lực bảo vệ)."
+    source_lesson: "Psychology/notes/04-love-relationships/week-32-jealousy-trust-betrayal.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C32-03"
+    tags:
+      - "evolution"
+      - "jealousy"
+
+  - id: "fc-psy-w32-004"
+    concept: "Critique of Evolutionary Jealousy"
+    front: "Phản biện chính đối với quan điểm của Buss về ghen tuông là gì?"
+    back: "DeSteno (2002) và Harris (2003) cho rằng sự khác biệt giới tính có thể là do phương pháp đo lường (ép buộc chọn lựa) và các định kiến văn hóa hơn là do bản năng sinh học."
+    source_lesson: "Psychology/notes/04-love-relationships/week-32-jealousy-trust-betrayal.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C32-03"
+      - "C32-05"
+    tags:
+      - "evolution"
+      - "critique"
+
+  - id: "fc-psy-w32-005"
+    concept: "Shattered Assumptions"
+    front: "Khái niệm 'Shattered assumptions' của Janoff-Bulman trong bối cảnh bị phản bội nghĩa là gì?"
+    back: "Sự phản bội phá vỡ những niềm tin/giả định cơ bản nhất của một người rằng thế giới này an toàn, có thể dự đoán và những người thân yêu sẽ không làm hại họ."
+    source_lesson: "Psychology/notes/04-love-relationships/week-32-jealousy-trust-betrayal.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C32-06"
+    tags:
+      - "betrayal"
+      - "trauma"
+
+  - id: "fc-psy-w32-006"
+    concept: "Attachment and Jealousy"
+    front: "Kiểu gắn bó nào có liên quan mật thiết nhất đến mức độ ghen tuông cao?"
+    back: "Gắn bó lo âu (Anxious attachment), vì họ có nỗi sợ bị bỏ rơi sâu sắc và thường xuyên cảnh giác với các mối đe dọa tiềm tàng."
+    source_lesson: "Psychology/notes/04-love-relationships/week-32-jealousy-trust-betrayal.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C32-04"
+    tags:
+      - "attachment"
+      - "jealousy"
+
+  - id: "fc-psy-w32-007"
+    concept: "Danger Signs of Jealousy"
+    front: "Khi nào ghen tuông không còn là cảm xúc bình thường mà trở nên nguy hiểm?"
+    back: "Khi nó chuyển thành các hành vi kiểm soát, cô lập đối tác khỏi mạng lưới xã hội, theo dõi hoặc đe dọa. Lúc này cần sự can thiệp của chuyên gia."
+    source_lesson: "Psychology/notes/04-love-relationships/week-32-jealousy-trust-betrayal.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C32-06"
+    tags:
+      - "warning-signs"
+      - "safety"
+
+  - id: "fc-psy-w32-008"
+    concept: "Rebuilding Trust"
+    front: "Điều kiện tiên quyết để tái xây dựng lòng tin sau phản bội là gì?"
+    back: "Sự minh bạch tuyệt đối và tính nhất quán (predictability & dependability) trong thời gian dài từ phía người đã phản bội, cùng với sự sẵn sàng hợp tác của người bị tổn thương."
+    source_lesson: "Psychology/notes/04-love-relationships/week-32-jealousy-trust-betrayal.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C32-06"
+    tags:
+      - "trust"
+      - "repair"

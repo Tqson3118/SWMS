@@ -1,0 +1,135 @@
+deck_id: "deck-psy-w13"
+subject: "Psychology"
+lesson_id: "week-13-values-meaning"
+version: "1.0.0"
+description: "Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng (Spaced Repetition - R5 Compliant) Tuần 13: Giá Trị Sống, Ý Nghĩa Cuộc Sống và Mục Tiêu Cá Nhân"
+
+cards:
+  - id: "fc-psy-w13-001"
+    concept: "Định nghĩa giá trị sống và cấu trúc 10 giá trị cơ bản của Schwartz"
+    front: "Giá trị sống (values) theo Schwartz có đặc điểm nhận diện nào, và 10 giá trị cơ bản được tổ chức theo cấu trúc gì?"
+    back: "Giá trị là niềm tin về mục tiêu đáng mong muốn, vượt qua hành động và tình huống cụ thể (trans-situational), làm chuẩn mực và được xếp theo thứ bậc mức quan trọng tương đối. 10 giá trị cơ bản (Self-Direction, Stimulation, Hedonism, Achievement, Power, Security, Conformity, Tradition, Benevolence, Universalism) nằm trong cấu trúc tròn: giá trị kề nhau tương hợp động lực, giá trị đối diện nhau xung đột động lực."
+    source_lesson: "Psychology/notes/02-understanding-self/week-13-values-meaning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C13-01"
+    tags:
+      - "values"
+      - "schwartz"
+      - "basic-values"
+      - "circular-structure"
+      - "value-priorities"
+
+  - id: "fc-psy-w13-002"
+    concept: "Khát vọng nội tại vs ngoại tại theo Kasser & Ryan (1996)"
+    front: "Khát vọng nội tại (intrinsic aspirations) và khát vọng ngoại tại (extrinsic aspirations) gồm những lĩnh vực nào?"
+    back: "Nội tại: tự chấp nhận bản thân (self-acceptance), quan hệ thân thiết (affiliation), cống hiến cộng đồng (community feeling), sức khỏe thể chất (physical fitness) — có giá trị tự thân. Ngoại tại: thành công tài chính (financial success), diện mạo hấp dẫn (appealing appearance), được công nhận xã hội (social recognition) — phụ thuộc đánh giá bên ngoài. Phân loại được hỗ trợ bằng phân tích nhân tố."
+    source_lesson: "Psychology/notes/02-understanding-self/week-13-values-meaning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C13-09"
+    tags:
+      - "intrinsic-aspirations"
+      - "extrinsic-aspirations"
+      - "kasser-ryan"
+      - "goals"
+
+  - id: "fc-psy-w13-003"
+    concept: "Chủ nghĩa vật chất và wellbeing: phân tích gộp Dittmar và cộng sự (2014)"
+    front: "Phân tích gộp của Dittmar và cộng sự (2014) cho thấy gì về quan hệ giữa chủ nghĩa vật chất và wellbeing, và giới hạn của kết luận là gì?"
+    back: "Từ 753 effect sizes ở 259 mẫu độc lập: chủ nghĩa vật chất liên hệ với wellbeing thấp hơn (r = -.19; ρ = -.24 cho thước đo giá trị/niềm tin vật chất đa chiều); mạnh nhất ở hành vi tiêu dùng rủi ro và tự đánh giá tiêu cực. Giới hạn: tổng hợp chủ yếu nghiên cứu tương quan — không chứng minh nhân quả; nói về mức ưu tiên tương đối, không phải 'có tiền là bất hạnh'."
+    source_lesson: "Psychology/notes/02-understanding-self/week-13-values-meaning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C13-02"
+    tags:
+      - "materialism"
+      - "wellbeing"
+      - "meta-analysis"
+      - "correlation-not-causation"
+
+  - id: "fc-psy-w13-004"
+    concept: "Ba thành tố của ý nghĩa cuộc sống (Martela & Steger, 2016; George & Park, 2016)"
+    front: "Khung tam phân của ý nghĩa cuộc sống gồm ba thành tố nào và chúng khác nhau ra sao?"
+    back: "1) Coherence — cảm nhận cuộc đời có thể hiểu được, 'making sense'; 2) Purpose — cảm nhận có mục tiêu cốt lõi và định hướng; 3) Significance/Mattering — cảm nhận cuộc sống có giá trị nội tại, đáng sống. Tách ba thành tố giúp nhận diện nguyên nhân khác nhau của cảm giác 'vô nghĩa': bối rối, trôi dạt hay trống rỗng."
+    source_lesson: "Psychology/notes/02-understanding-self/week-13-values-meaning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C13-03"
+    tags:
+      - "meaning-in-life"
+      - "coherence"
+      - "purpose"
+      - "significance"
+      - "mattering"
+
+  - id: "fc-psy-w13-005"
+    concept: "Purpose in life và nguy cơ tử vong (Hill & Turiano, 2014)"
+    front: "Nghiên cứu Hill & Turiano (2014) cho thấy purpose in life liên hệ ra sao với sống còn, và phải đọc kết quả này với giới hạn nào?"
+    back: "Trên dữ liệu MIDUS (N = 6,163; theo dõi 14 năm): mỗi +1 SD purpose liên hệ nguy cơ tử vong thấp hơn ~15% (HR = 0.85; 95% CI [0.78, 0.93]). Giới hạn: nghiên cứu dọc quan sát — không chứng minh nhân quả; thước đo purpose chỉ 3 item (α = .36); mẫu ~91% White Hoa Kỳ (WEIRD)."
+    source_lesson: "Psychology/notes/02-understanding-self/week-13-values-meaning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C13-04"
+    tags:
+      - "purpose"
+      - "mortality"
+      - "longitudinal"
+      - "weird-samples"
+
+  - id: "fc-psy-w13-006"
+    concept: "Niềm tin về đam mê: fixed theory vs growth theory (O'Keefe, Dweck & Walton, 2018)"
+    front: "Implicit theories of interest là gì và niềm tin 'đam mê là để tìm ra' dự đoán hành vi như thế nào?"
+    back: "Fixed theory: sở thích là đặc tính cài sẵn, phải 'tìm ra'. Growth theory: sở thích được phát triển qua đầu tư. Năm nghiên cứu (2 thực nghiệm có phân bổ ngẫu nhiên) cho thấy fixed theory đi kèm: ít hứng thú với lĩnh vực mới, mong đợi động lực vô hạn, và hứng thú sụt mạnh hơn khi gặp khó khăn trong lĩnh vực sở thích."
+    source_lesson: "Psychology/notes/02-understanding-self/week-13-values-meaning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C13-05"
+    tags:
+      - "passion"
+      - "implicit-theories-of-interest"
+      - "fixed-vs-growth"
+      - "okeefe-dweck-walton"
+
+  - id: "fc-psy-w13-007"
+    concept: "Mối nối giá trị — mục tiêu và mức tự siêu việt (OpenStax 10.1)"
+    front: "Giá trị sống giúp chọn mục tiêu như thế nào, và self-transcendence trong giáo trình OpenStax là gì?"
+    back: "Giá trị là hệ tiêu chuẩn ưu tiên vượt qua tình huống, nên đóng vai trò 'tít lề' các mục tiêu: khi hai mục tiêu xung đột, giá trị ưu tiên cao hơn là tiêu chí phân xử. OpenStax Psychology 2e (10.1) ghi nhận Maslow bổ sung mức self-transcendence trên self-actualization — hướng tới ý nghĩa và mục tiêu vượt ra ngoài lợi ích bản thân (Koltko-Rivera, 2006)."
+    source_lesson: "Psychology/notes/02-understanding-self/week-13-values-meaning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C13-01"
+      - "C13-06"
+    tags:
+      - "values-to-goals"
+      - "self-transcendence"
+      - "openstax"
+      - "motivation"
+
+  - id: "fc-psy-w13-008"
+    concept: "Sơ đồ 'ikigai 4 vòng tròn' là remix phương Tây (đối tượng phản biện)"
+    front: "Nguồn gốc thật của sơ đồ Venn 4 vòng tròn được lan truyền là 'ikigai của Nhật' là gì?"
+    back: "Đó là diagram 'Purpose' của Andres Zuzunaga (2011); blogger Marc Winn (2014) đổi chữ 'Purpose' thành 'ikigai' — chính Winn thừa nhận 'I changed one word on a diagram'. Khái niệm ikigai trong nghiên cứu Nhật (gốc Kamiya Mieko, 1966) khác về nội dung. Sơ đồ không có bằng chứng thực nghiệm làm 'công thức ý nghĩa' cho mọi người."
+    source_lesson: "Psychology/notes/02-understanding-self/week-13-values-meaning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C13-07"
+    tags:
+      - "ikigai"
+      - "pop-psychology"
+      - "debunked"
+      - "venn-diagram"
+
+  - id: "fc-psy-w13-009"
+    concept: "Biến thiên văn hóa của thứ bậc ưu tiên giá trị"
+    front: "Thứ bậc ưu tiên giá trị khác nhau giữa các cá nhân và các xã hội đến mức nào theo Schwartz?"
+    back: "Mức ưu tiên giá trị khác nhau mạnh giữa các cá nhân; ngược lại, thứ bậc giá trị trung bình của các nhóm xã hội khá tương đồng giữa các nền văn hóa. Không được suy từ 'văn hóa tập thể' xuống 'mọi người Việt Nam đều coi trọng X' — thứ bậc cụ thể của từng người cần mô tả của người trong cuộc."
+    source_lesson: "Psychology/notes/02-understanding-self/week-13-values-meaning.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C13-08"
+    tags:
+      - "cultural-variation"
+      - "value-hierarchy"
+      - "cross-cultural"
+      - "collectivism"

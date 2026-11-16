@@ -1,0 +1,117 @@
+schema_version: 2.0.0
+package_id: package:fscr:w06
+subject_id: roadmap:subject:fullstack-csharp-react-refresh
+display_title: FullStack C# + React Refresh
+source_status: in_review
+version: 1
+created_at: '2026-10-03T09:21:35Z'
+subject: FullStack C# + React Refresh
+course: FullStack C# + React Refresh
+module: phase-2-week-06
+lesson: week-06
+source_ledger_path: quality/ledger-w06.md
+learning_objectives:
+- id: LO-W06-01
+  bloom_level: Apply
+  statement: Chọn collection theo truy cập, duplicate và chi phí trung bình.
+- id: LO-W06-02
+  bloom_level: Apply
+  statement: Viết generic helper có constraint và phân biệt compile/runtime safety.
+- id: LO-W06-03
+  bloom_level: Apply
+  statement: Dùng Func/Action/Predicate để lọc và kiểm tra captured state.
+concepts:
+- id: concept:fscr:w06-c01
+  name: List, Dictionary, HashSet
+  claim_ids:
+  - W06-C01
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w06.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w06-c02
+  name: Generics và constraints
+  claim_ids:
+  - W06-C02
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w06.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w06-c03
+  name: Delegate, lambda và callback
+  claim_ids:
+  - W06-C03
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w06.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+questions:
+- id: Q06-01
+  lo_ref: LO-W06-01
+  concept_id: concept:fscr:w06-c01
+  claim_ids:
+  - W06-C01
+- id: Q06-02
+  lo_ref: LO-W06-01
+  concept_id: concept:fscr:w06-c01
+  claim_ids:
+  - W06-C01
+- id: Q06-03
+  lo_ref: LO-W06-02
+  concept_id: concept:fscr:w06-c02
+  claim_ids:
+  - W06-C02
+- id: Q06-04
+  lo_ref: LO-W06-02
+  concept_id: concept:fscr:w06-c02
+  claim_ids:
+  - W06-C02
+- id: Q06-05
+  lo_ref: LO-W06-03
+  concept_id: concept:fscr:w06-c03
+  claim_ids:
+  - W06-C03
+- id: Q06-06
+  lo_ref: LO-W06-03
+  concept_id: concept:fscr:w06-c03
+  claim_ids:
+  - W06-C03
+units:
+- unit_id: roadmap:unit:fscr:w06
+  display_title: 'Tuần 06: Collections, generics và delegates'
+  sort_order: 6
+  artifacts:
+  - role: lesson_theory
+    path: notes/module-2/week-06.html
+    sha256: 11488a60bd43ae1f5e5c07ecd266b39f696ff0bae4c867aa02a3e79be6b341e7
+    byte_length: 8896
+    stable_id: roadmap:lesson:fscr:w06
+  - role: quiz_questions
+    path: assessments/quizzes/week-06-quiz.md
+    sha256: 47ec8e30bd3b2b453834f854a4e96b1a44147698ea77e22086ec3de46461d02c
+    byte_length: 1340
+    stable_id: roadmap:quiz:fscr:w06
+    question_count: 6
+  - role: quiz_answers
+    path: assessments/answer-keys/week-06-answers.md
+    sha256: fcaa2465cabcfb1942e6bf44622c269ed34cfb5a1c4a987285dacc3453688a83
+    byte_length: 4091
+    stable_id: roadmap:answers:fscr:w06
+    correct_count: 6
+    wrong_count: 18
+  - role: flashcard_deck
+    path: flashcards/week-06.yaml
+    sha256: 2890c9d12f71aabb3dd79b45a47022dce9ee4df23dac6dcb9bce6950e9322877
+    byte_length: 2124
+    stable_id: roadmap:deck:fscr:w06
+    card_count: 6
+  - role: source_ledger
+    path: quality/ledger-w06.md
+    sha256: 12965e16f6477d1d9cdddf979656c567a5666a503893484a2548227c23bfec5a
+    byte_length: 637

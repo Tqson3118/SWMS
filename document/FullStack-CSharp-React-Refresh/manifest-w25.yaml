@@ -1,0 +1,117 @@
+schema_version: 2.0.0
+package_id: package:fscr:w25
+subject_id: roadmap:subject:fullstack-csharp-react-refresh
+display_title: FullStack C# + React Refresh
+source_status: in_review
+version: 1
+created_at: '2026-10-03T09:21:35Z'
+subject: FullStack C# + React Refresh
+course: FullStack C# + React Refresh
+module: phase-7-week-25
+lesson: week-25
+source_ledger_path: quality/ledger-w25.md
+learning_objectives:
+- id: LO-W25-01
+  bloom_level: Apply
+  statement: Theo vết request và phân biệt retry-safe operations.
+- id: LO-W25-02
+  bloom_level: Apply
+  statement: Giới hạn theo validated identity và kiểm429.
+- id: LO-W25-03
+  bloom_level: Apply
+  statement: Định nghĩa nhu cầu trước vẽ kiến trúc.
+concepts:
+- id: concept:fscr:w25-c01
+  name: HTTP và latency budget
+  claim_ids:
+  - W25-C01
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w25.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w25-c02
+  name: Rate limiter
+  claim_ids:
+  - W25-C02
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w25.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w25-c03
+  name: Capacity và design communication
+  claim_ids:
+  - W25-C03
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w25.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+questions:
+- id: Q25-01
+  lo_ref: LO-W25-01
+  concept_id: concept:fscr:w25-c01
+  claim_ids:
+  - W25-C01
+- id: Q25-02
+  lo_ref: LO-W25-01
+  concept_id: concept:fscr:w25-c01
+  claim_ids:
+  - W25-C01
+- id: Q25-03
+  lo_ref: LO-W25-02
+  concept_id: concept:fscr:w25-c02
+  claim_ids:
+  - W25-C02
+- id: Q25-04
+  lo_ref: LO-W25-02
+  concept_id: concept:fscr:w25-c02
+  claim_ids:
+  - W25-C02
+- id: Q25-05
+  lo_ref: LO-W25-03
+  concept_id: concept:fscr:w25-c03
+  claim_ids:
+  - W25-C03
+- id: Q25-06
+  lo_ref: LO-W25-03
+  concept_id: concept:fscr:w25-c03
+  claim_ids:
+  - W25-C03
+units:
+- unit_id: roadmap:unit:fscr:w25
+  display_title: 'Tuần 25: HTTP, rate limiting và practical design'
+  sort_order: 25
+  artifacts:
+  - role: lesson_theory
+    path: notes/module-7/week-25.html
+    sha256: c2461eee198d336a846a24c37c333592d092a145c512dfd0245342ac897807a6
+    byte_length: 8791
+    stable_id: roadmap:lesson:fscr:w25
+  - role: quiz_questions
+    path: assessments/quizzes/week-25-quiz.md
+    sha256: e327a84d3fe1ff78187c44783a37c68979053bed29aeca0839a64fbd972f15e2
+    byte_length: 1248
+    stable_id: roadmap:quiz:fscr:w25
+    question_count: 6
+  - role: quiz_answers
+    path: assessments/answer-keys/week-25-answers.md
+    sha256: 5bf725de6da1c4605086238eaa3028bff3e8026f4805ca9defbf4eaf54287ec5
+    byte_length: 3859
+    stable_id: roadmap:answers:fscr:w25
+    correct_count: 6
+    wrong_count: 18
+  - role: flashcard_deck
+    path: flashcards/week-25.yaml
+    sha256: 6a2d3522f25de7bb0218a71e557dad8b9d25d22fbbd027a8186bc3ee238558fb
+    byte_length: 1970
+    stable_id: roadmap:deck:fscr:w25
+    card_count: 6
+  - role: source_ledger
+    path: quality/ledger-w25.md
+    sha256: d138ac35016fc21f24ba7d3a396dfb2b9913303ca44d356171b439eb7d101033
+    byte_length: 697

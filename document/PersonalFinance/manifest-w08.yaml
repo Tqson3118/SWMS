@@ -1,0 +1,149 @@
+schema_version: 2.0.0
+package_id: package:personal-finance:w08
+subject_id: roadmap:subject:personal-finance
+display_title: Tài chính cá nhân thực hành
+source_status: reviewed
+version: 15
+created_at: '2026-09-15T00:00:00Z'
+subject: Tài chính cá nhân
+course: Tài chính cá nhân thực hành
+module: module-3
+lesson: week-08-investment-channels-vn
+learning_objectives:
+- id: LO-PF-W08-01
+  bloom_level: Understand
+  statement: Phân biệt các kênh đầu tư tại Việt Nam.
+- id: LO-PF-W08-02
+  bloom_level: Analyze
+  statement: So sánh rủi ro, lợi nhuận và thanh khoản.
+- id: LO-PF-W08-03
+  bloom_level: Evaluate
+  statement: Đánh giá phân bổ theo mục tiêu và khả năng chịu rủi ro.
+- id: LO-PF-W08-04
+  bloom_level: Understand
+  statement: Nhận biết giới hạn pháp lý của thị trường và thanh toán.
+concepts:
+- id: roadmap:concept:pf:deposit-insurance
+  name: Tiền gửi và bảo hiểm tiền gửi
+  claim_ids:
+  - M3-C05
+  evidence_label: moderate
+  source_ledger_path: quality/module-3-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded-investment-channels-and-legal-review61
+    date: '2026-10-03'
+    notes: Bounded review of deposit insurance limit (125 million VND including principal and interest
+      per depositor per insured institution under Decision 32/2021/QD-TTg, verified against DIV bulletin
+      67/Q1-2025). Not full course approval or upload readiness.
+- id: roadmap:concept:pf:securities-market
+  name: Thị trường chứng khoán
+  claim_ids:
+  - M3-C06
+  evidence_label: moderate
+  source_ledger_path: quality/module-3-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded-investment-channels-and-legal-review61
+    date: '2026-10-03'
+    notes: Bounded review of securities market regulatory framework under Law on Securities No. 54/2019/QH14
+      (State Securities Commission, Ministry of Finance, HOSE/HNX/UPCoM). Not full course approval or
+      upload readiness.
+- id: roadmap:concept:pf:crypto-law
+  name: Crypto và phương tiện thanh toán
+  claim_ids:
+  - M3-C11
+  evidence_label: moderate
+  source_ledger_path: quality/module-3-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: root-bounded-investment-channels-and-legal-review61
+    date: '2026-10-03'
+    notes: Bounded review of crypto-asset pilot under Resolution 05/2025/NQ-CP (effective 09/09/2025,
+      5-year pilot, Ministry of Finance licensing, VND settlement) distinguishing digital/crypto assets
+      from legal tender and payment instruments under Civil Code 2015 and Decree 52/2024/ND-CP. Not full
+      course approval or upload readiness.
+questions:
+- id: Q01
+  lo_ref: LO-PF-W08-01
+  concept_id: roadmap:concept:pf:deposit-insurance
+  claim_ids:
+  - M3-C05
+- id: Q02
+  lo_ref: LO-PF-W08-02
+  concept_id: roadmap:concept:pf:deposit-insurance
+  claim_ids:
+  - M3-C05
+- id: Q03
+  lo_ref: LO-PF-W08-02
+  concept_id: roadmap:concept:pf:deposit-insurance
+  claim_ids:
+  - M3-C05
+- id: Q04
+  lo_ref: LO-PF-W08-01
+  concept_id: roadmap:concept:pf:deposit-insurance
+  claim_ids:
+  - M3-C05
+- id: Q05
+  lo_ref: LO-PF-W08-03
+  concept_id: roadmap:concept:pf:securities-market
+  claim_ids:
+  - M3-C06
+- id: Q06
+  lo_ref: LO-PF-W08-04
+  concept_id: roadmap:concept:pf:crypto-law
+  claim_ids:
+  - M3-C11
+- id: Q07
+  lo_ref: LO-PF-W08-04
+  concept_id: roadmap:concept:pf:securities-market
+  claim_ids:
+  - M3-C06
+- id: Q08
+  lo_ref: LO-PF-W08-02
+  concept_id: roadmap:concept:pf:securities-market
+  claim_ids:
+  - M3-C06
+- id: Q09
+  lo_ref: LO-PF-W08-03
+  concept_id: roadmap:concept:pf:securities-market
+  claim_ids:
+  - M3-C06
+- id: Q10
+  lo_ref: LO-PF-W08-04
+  concept_id: roadmap:concept:pf:securities-market
+  claim_ids:
+  - M3-C06
+units:
+- unit_id: roadmap:unit:pf:w08
+  display_title: 'Bài 8: Các kênh đầu tư tại Việt Nam'
+  sort_order: 8
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:pf:w08
+    path: notes/module-3/week-08-investment-channels-vn.md
+    sha256: 8d6b38199ff7cd127ef3dff50683dbb4f7a534e43ec41ada9915bf1ec0d4b1a7
+    byte_length: 9808
+  - role: quiz_questions
+    stable_id: roadmap:quiz:pf:w08
+    path: assessments/quizzes/week-08-quiz.md
+    question_count: 10
+    sha256: 45e3a54f593f2d9a465ebc7ba181e4413f5af12991b8c584b5eb869eb9686959
+    byte_length: 2569
+  - role: quiz_answers
+    stable_id: roadmap:answers:pf:w08
+    path: assessments/answer-keys/week-08-answers.md
+    correct_count: 10
+    wrong_count: 30
+    sha256: bc9054cac859a1be18e5f6266185fe3dc011847b658b37a66225dfb5b13f5154
+    byte_length: 12122
+  - role: source_ledger
+    path: quality/module-3-source-ledger.md
+    sha256: 14a271a1d1721b17af02c8e401b4580b59114702c67f0a0268a63343501f6cdc
+    byte_length: 29532
+  - role: flashcard_deck
+    stable_id: deck-pf-w08
+    path: flashcards/week-08.yaml
+    byte_length: 9564
+    sha256: cfa788f868ab3aa34951eae4e5f7d8de6f44b74c80c658f4c81122ba15316ca6
+    card_count: 15

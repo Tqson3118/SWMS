@@ -1,0 +1,123 @@
+deck_id: deck-pf-w03
+subject: PersonalFinance
+lesson_id: week-03-budgeting-rules
+version: 1.0.0
+description: 'Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng Tuần 03: Các Quy tắc Thiết lập và Tối ưu Ngân
+  sách Cá nhân'
+cards:
+- id: fc-pf-w03-001
+  concept: Mục tiêu tài chính SMART
+  front: Nêu ý nghĩa5chữ cái trong bản diễn giải SMART của bài (khác nguyên văn Doran1981) khi ứng dụng
+    vào lập ngân sách.
+  back: S (Specific - Cụ thể, định danh rõ mục đích), M (Measurable - Đo lường được bằng số tiền VND cụ
+    thể), A (Achievable - Khả thi với dòng tiền ròng hiện tại), R (Relevant - Phù hợp với ưu tiên an toàn
+    cuộc sống), T (Time-bound - Có kỳ hạn hoàn thành rõ ràng).
+  source_lesson: PersonalFinance/notes/module-1/week-03-budgeting-rules.md
+  version: 1.0.0
+  claim_ids:
+  - M1-C13
+  tags:
+  - smart-goals
+  - budgeting
+  - module-1
+- id: fc-pf-w03-002
+  concept: Quy tắc ngân sách 50/30/20
+  front: Nêu ba nhóm và tỷ lệ trong bài tập ngân sách tham khảo50/30/20; tỷ lệ có bắt buộc cho mọi gia
+    đình không?
+  back: Mẫu tham khảo:50% Needs (thiết yếu),30% Wants (mong muốn),20% cho mục tiêu tiết kiệm/trả nợ. Đối
+    chiếu nghĩa vụ và khả năng chi trả rồi điều chỉnh; CFPB dùng bài tập giáo dục và cho phép chọn quy
+    tắc cá nhân, không bảo đảm hiệu quả.
+  source_lesson: PersonalFinance/notes/module-1/week-03-budgeting-rules.md
+  version: 1.0.0
+  claim_ids:
+  - M1-C14
+  tags:
+  - budgeting-rules
+  - 50-30-20
+  - module-1
+- id: fc-pf-w03-003
+  concept: Tiêu chí phân định Needs vs Wants
+  front: Trong khung phân loại do khóa biên soạn, phép thử cắt chi1–2tháng có đủ để xác định Needs/Wants
+    không?
+  back: Không. Đây là câu hỏi gợi ý để rà soát sức khỏe,chỗ ở,công việc; cần xét nghĩa vụ,người phụ thuộc
+    và nhu cầu dài hạn. Phân loại phải theo hoàn cảnh.
+  source_lesson: PersonalFinance/notes/module-1/week-03-budgeting-rules.md
+  version: 1.0.0
+  claim_ids:
+  - M1-C17
+  tags:
+  - needs-vs-wants
+  - decision-framework
+  - module-1
+- id: fc-pf-w03-004
+  concept: Ngân sách 0-đồng (Zero-Based Budgeting)
+  front: Nêu phương trình cốt lõi và nguyên lý hoạt động của phương pháp Ngân sách 0-đồng.
+  back: 'Theo cách diễn giải do khóa biên soạn: tiền hiện có, đang sẵn sàng phân bổ − tổng phân bổ (chi
+    tiêu + tiết kiệm + đầu tư) = 0. Chỉ gán nhiệm vụ cho tiền đã nhận; thu nhập dự kiến chưa nhận chưa
+    là tiền có thể phân bổ. Có thể điều chỉnh phân bổ khi thông tin hoặc nhu cầu thay đổi. Đây là phạm
+    vi thực hành được mô tả trong hướng dẫn YNAB, không là bảo đảm hiệu quả.'
+  source_lesson: PersonalFinance/notes/module-1/week-03-budgeting-rules.md
+  version: 1.0.0
+  claim_ids:
+  - M1-C15
+  tags:
+  - zero-based-budgeting
+  - cash-allocation
+  - module-1
+- id: fc-pf-w03-005
+  concept: Hệ thống 6 Chiếc Lọ (Jars System)
+  front: Nêu tên gọi và tỷ lệ tham chiếu của 6 chiếc lọ trong hệ thống ngân sách của T. Harv Eker.
+  back: '1. NEC (Thiết yếu: 55%), 2. FFA (Tự do tài chính: 10%), 3. LTSS (Tiết kiệm dài hạn: 10%), 4.
+    EDU (Học tập: 10%), 5. PLAY (Hưởng thụ: 10%), 6. GIVE (Cho đi: 5%). Đây là tỷ lệ tham khảo; PLAY không
+    bắt buộc tiêu hết và mọi tỷ lệ cần điều chỉnh theo nghĩa vụ/an toàn.'
+  source_lesson: PersonalFinance/notes/module-1/week-03-budgeting-rules.md
+  version: 1.0.0
+  claim_ids:
+  - M1-C16
+  tags:
+  - jars-system
+  - budgeting-methods
+  - module-1
+- id: fc-pf-w03-006
+  concept: Xử lý Ngân sách sinh tồn (Survival Budgeting)
+  front: Theo khung thực hành do khóa biên soạn, khi hạn mức mẫu không đủ chi thiết yếu cần rà soát gì?
+  back: Rà soát Needs và nghĩa vụ thực tế; tính phần còn lại rồi chọn khoản tích lũy vừa khả năng,có thể
+    giảm/tạm dừng nếu thiếu tiền thiết yếu. Xem xét hỗ trợ,lịch thanh toán và thay đổi chi phí/thu nhập
+    khả thi. Không có tỷ lệ hay kết quả thu nhập được bảo đảm.
+  source_lesson: PersonalFinance/notes/module-1/week-03-budgeting-rules.md
+  version: 1.0.0
+  claim_ids:
+  - M1-C17
+  tags:
+  - survival-budget
+  - infeasible-budget
+  - module-1
+- id: fc-pf-w03-007
+  concept: Nguyên tắc hoán đổi chi tiêu (The Trade-Off Rule)
+  front: Khi một khoản chi thiết yếu bất ngờ tăng thêm trong tháng, ngân sách cần được điều chỉnh như
+    thế nào?
+  back: Ưu tiên xem xét cắt giảm nhóm Mong muốn linh hoạt (Wants). Nếu vẫn thiếu, cân nhắc Savings, quỹ
+    đệm và thời điểm mục tiêu theo an toàn, nghĩa vụ và khả năng chi trả (nguyên tắc do khóa biên soạn;
+    CFPB chỉ hỗ trợ theo dõi/điều chỉnh tùy hoàn cảnh, không là tỷ lệ bắt buộc).
+  source_lesson: PersonalFinance/notes/module-1/week-03-budgeting-rules.md
+  version: 1.0.0
+  claim_ids:
+  - M1-C18
+  tags:
+  - budget-adjustment
+  - trade-off
+  - module-1
+- id: fc-pf-w03-008
+  concept: Chiến lược Trả cho mình trước (Pay Yourself First)
+  front: Thế nào là nguyên tắc Trả cho mình trước và cơ chế thực thi tự động hóa có thể dùng?
+  back: Là nguyên tắc trích một khoản tiết kiệm/đầu tư vừa khả năng trước khi chi tiêu; có thể dùng auto-debit
+    sau khi kiểm tra số dư, phí và nhu cầu thiết yếu, không mặc định 20% (chiến lược do khóa biên soạn;
+    CFPB chỉ hỗ trợ tiết kiệm tùy hoàn cảnh, không chứng minh hiệu quả tuyệt đối).
+  source_lesson: PersonalFinance/notes/module-1/week-03-budgeting-rules.md
+  version: 1.0.0
+  claim_ids:
+  - M1-C18
+  tags:
+  - pay-yourself-first
+  - automation
+  - module-1

@@ -1,0 +1,151 @@
+schema_version: 2.0.0
+package_id: package:investing:w05
+subject_id: roadmap:subject:investing
+display_title: Investing - Phân tích & Chiến lược
+source_status: in_review
+version: 4
+created_at: '2026-09-15T00:00:00Z'
+subject: Investing
+course: Investing - 18 tuần
+module: module-2
+lesson: week-05-phan-tich-co-ban-top-down-bottom-up
+learning_objectives:
+- id: LO-W05-01
+  bloom_level: Understand
+  statement: Định nghĩa phân tích từ trên xuống (top-down), phân tích từ dưới lên (bottom-up), ba tầng
+    phân tích vĩ mô - ngành - doanh nghiệp, và khung năm lực lượng cạnh tranh (Porter's Five Forces) bằng
+    cách nêu đúng thứ tự các tầng, tên Việt-Anh của cả năm lực lượng, và giới hạn 'khung tổ chức câu hỏi,
+    không phải dự báo hay quy tắc sinh lời'.
+- id: LO-W05-02
+  bloom_level: Apply
+  statement: Áp dụng khung vào bộ dữ liệu giả định bằng cách phân loại từng động lực doanh thu/biên lợi
+    nhuận vào tầng vĩ mô, tầng ngành hoặc tầng doanh nghiệp, lập bảng chấm định tính năm lực lượng kèm
+    lý do trích từ dữ kiện giả định, và tính lại các tỷ số tầng doanh nghiệp (EPS, P/E, ROE, D/E) của
+    W04 với đơn vị và kỳ tính đầy đủ.
+- id: LO-W05-03
+  bloom_level: Analyze
+  statement: Phân tích một kịch bản giả định bằng cách tách dòng kết luận vĩ mô → ngành → doanh nghiệp
+    thành các bước có dữ kiện và giả định riêng, đối chiếu kịch bản nghịch, và phân biệt kịch bản (scenario)
+    với dự báo (forecast).
+- id: LO-W05-04
+  bloom_level: Evaluate
+  statement: Phản biện các kết luận kiểu 'GDP tăng nên thị trường chắc chắn tăng' hoặc 'P/E thấp hơn mặt
+    bằng chung là rẻ' bằng cách chỉ ra phép suy nhân quả thiếu bằng chứng, lỗi so sánh chéo ngành, sự
+    tồn tại của ô NA, và ghi đúng trạng thái 'chưa thể kết luận'.
+concepts:
+- id: roadmap:concept:investing:two-approaches
+  name: 'Hai hướng tổ chức phân tích cơ bản: top-down và bottom-up'
+  claim_ids:
+  - W05-C01
+  evidence_label: strong
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: content-author-internal-check
+    date: '2026-09-15'
+- id: roadmap:concept:investing:macro-industry-link
+  name: Liên kết vĩ mô - ngành - doanh nghiệp và giới hạn suy luận nhân quả từ GDP
+  claim_ids:
+  - W05-C02
+  - W05-C04
+  evidence_label: strong
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: content-author-internal-check
+    date: '2026-09-15'
+- id: roadmap:concept:investing:five-forces
+  name: Năm lực lượng cạnh tranh của Michael Porter (Porter's Five Forces)
+  claim_ids:
+  - W05-C03
+  evidence_label: strong
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: content-author-internal-check
+    date: '2026-09-15'
+- id: roadmap:concept:investing:scenario-analysis
+  name: Phân tích kịch bản và liên kết tầng doanh nghiệp qua worked example
+  claim_ids:
+  - W05-C04
+  - W05-C05
+  evidence_label: moderate
+  source_ledger_path: quality/module-2-source-ledger.md
+  safety_review:
+    reviewed: true
+    reviewer: content-author-internal-check
+    date: '2026-09-15'
+questions:
+- id: Q05-01
+  lo_ref: LO-W05-01
+  concept_id: roadmap:concept:investing:two-approaches
+  claim_ids:
+  - W05-C01
+- id: Q05-02
+  lo_ref: LO-W05-01
+  concept_id: roadmap:concept:investing:five-forces
+  claim_ids:
+  - W05-C03
+- id: Q05-03
+  lo_ref: LO-W05-02
+  concept_id: roadmap:concept:investing:macro-industry-link
+  claim_ids:
+  - W05-C02
+- id: Q05-04
+  lo_ref: LO-W05-02
+  concept_id: roadmap:concept:investing:five-forces
+  claim_ids:
+  - W05-C03
+- id: Q05-05
+  lo_ref: LO-W05-02
+  concept_id: roadmap:concept:investing:scenario-analysis
+  claim_ids:
+  - W05-C05
+- id: Q05-06
+  lo_ref: LO-W05-03
+  concept_id: roadmap:concept:investing:scenario-analysis
+  claim_ids:
+  - W05-C05
+- id: Q05-07
+  lo_ref: LO-W05-04
+  concept_id: roadmap:concept:investing:macro-industry-link
+  claim_ids:
+  - W05-C02
+- id: Q05-08
+  lo_ref: LO-W05-04
+  concept_id: roadmap:concept:investing:macro-industry-link
+  claim_ids:
+  - W05-C04
+units:
+- unit_id: roadmap:unit:investing:w05
+  display_title: 'Tuần 05: Phân tích cơ bản — Top-down, Bottom-up và Năm lực lượng cạnh tranh'
+  sort_order: 5
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:investing:w05
+    path: notes/module-2/week-05-phan-tich-co-ban-top-down-bottom-up.md
+    sha256: 60b309160292122fdc7c72acaa465bb0f69443ccff98e29468a94fd19792eb20
+    byte_length: 40029
+  - role: quiz_questions
+    stable_id: roadmap:quiz:investing:w05
+    path: assessments/quizzes/week-05-quiz.md
+    question_count: 8
+    sha256: 60485798333bebbb9551d821b0ee39f38264e1b1dd0d34f3c4ef5fb88389e940
+    byte_length: 5280
+  - role: quiz_answers
+    stable_id: roadmap:answers:investing:w05
+    path: assessments/answer-keys/week-05-answers.md
+    correct_count: 8
+    wrong_count: 24
+    sha256: 5e66ee7fb44ba12f4dd154dd351caa4ce26069f7823322a3bdde8772f27fe45f
+    byte_length: 12542
+  - role: flashcard_deck
+    stable_id: roadmap:deck:investing:w05
+    path: flashcards/week-05.yaml
+    card_count: 8
+    sha256: 25993b0388b82164e03da85f5d45112fa75c7930fee32346fa30263a7473b8fa
+    byte_length: 6874
+  - role: source_ledger
+    path: quality/module-2-source-ledger.md
+    sha256: 382b083fba81fde11ccdaa51a4bfb45c3c6f754da7b2fa80dee110744cb6699b
+    byte_length: 46345

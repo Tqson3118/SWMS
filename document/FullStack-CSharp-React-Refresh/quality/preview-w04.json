@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:53:43Z",
+  "unit_id": "roadmap:unit:fscr:w04",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 04: Promises, fetch và event loop",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w04",
+    "title": "Tuần 04: Promises, fetch và event loop",
+    "content_markdown": "<h1>Tuần 04 — Promises, fetch và event loop</h1>\n<p>Chặng 1; 3 bài L04-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W04-01: Theo vết resolve/reject và xử lý lỗi async đúng boundary.</p>\n</li>\n<li>\n<p>LO-W04-02: Tách lỗi HTTP/network/abort và hiển thị loading/error/empty.</p>\n</li>\n<li>\n<p>LO-W04-03: Dự đoán sync/microtask/timer order và dùng Network tab đọc response.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 03; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-04-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w04-01\"></a></p>\n<h2>Bài 1: Promise và async/await</h2>\n<p>LO-W04-01 · W04-C01</p>\n<p>Promise đại diện kết quả sẽ có: pending -&gt; fulfilled/rejected một lần. then trả Promise mới; callback trả value thì chain fulfilled, throw thì rejected. async function luôn trả Promise; await tạm dừng function async chờ settle, không khóa browser main thread đang làm công việc khác. try/catch bắt rejection tại await; gọi async không await rồi try/catch ngoài không bắt theo cách mong đợi. Promise.all chạy các operations đã khởi tạo và reject khi một input reject; không tự hủy phần còn lại. Với import cần giới hạn concurrency, không map1000 request vô hạn. finally reset loading, không nuốt lỗi rồi coi success.</p>\n<p><a id=\"lo-w04-02\"></a></p>\n<h2>Bài 2: Fetch, HTTP và cancellation</h2>\n<p>LO-W04-02 · W04-C02</p>\n<p>fetch resolve Response cả khi HTTP400/500; phải check response.ok. JSON parse cũng async và có thể lỗi khi body sai; đọc body một lần. DELETE204 không có JSON. CORS là browser policy do server cho origin đọc response, không thay auth; no-cors trả opaque response không cứu API. AbortController.signal hủy request client, backend vẫn có thể commit trước đó, nên không suy ra server không ghi. Request mới có thể trả trước request cũ; abort previous và/hoặc dùng sequence guard để tránh stale UI. Luôn set loading trước request, clear finally chỉ nếu còn current request. Empty array là success rỗng, khác error.</p>\n<p><a id=\"lo-w04-03\"></a></p>\n<h2>Bài 3: Event loop và debugging network</h2>\n<p>LO-W04-03 · W04-C03</p>\n<p>Call stack chạy synchronous code tới hết lượt. Promise reactions/continuation await vào microtask queue; timer callback vào task queue khi đủ thời gian, không đảm bảo chính xác ms. Sau task, microtasks drain trước task tiếp và cơ hội render; loop CPU nặng vẫn block dù nằm trong async function trước await. Ví dụ log A, setTimeout T0, Promise.then P, log B -&gt; A,B,P,T trong môi trường browser đơn giản này. fetch do browser/network tiến hành, Promise callback vẫn chạy trên JS execution context. DevTools Network xem method/status/request body/response/timing; 401 khác CORS/network error. Không log bearer token khi chụp evidence.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Bài toán: tải mock expenses và không coi 404 là thành công.</li>\n<li>Dùng file fixture.json trên static server với array hợp lệ.</li>\n<li>Chạy:</li>\n</ol>\n<pre><code class=\"language-javascript\">async function loadExpenses(url,signal){\n const r=await fetch(url,{signal});\n if(!r.ok) throw new Error(\"HTTP \"+r.status);\n const data=await r.json();\n if(!Array.isArray(data)) throw new Error(\"Sai shape\");\n return data;\n}\nconst controller=new AbortController();\nloadExpenses(\"./fixture.json\",controller.signal)\n .then(xs=&gt;console.log(\"count\",xs.length))\n .catch(e=&gt;console.log(e.name===\"AbortError\"?\"Đã hủy\":e.message));\nconsole.log(\"A\");\nsetTimeout(()=&gt;console.log(\"T\"),0);\nPromise.resolve().then(()=&gt;console.log(\"P\"));\nconsole.log(\"B\");\n</code></pre>\n<ol>\n<li>Expected order đồng bộ A,B rồi P,T (log network count phụ thuộc thời gian). Rename URL -&gt; HTTP404; fixture [] -&gt; success count0; JSON sai -&gt; parse error. Không so thứ tự count với timer.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>await không biến CPU work thành background thread; long loop vẫn làm UI giật. Promise.all fail-fast không rollback. Network offline/CORS có thể đều hiện TypeError trong JS nên đọc Network/server logs để chẩn đoán. Abort khi POST đã commit phải tra operation ID thay tự retry không idempotency.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>Tạo load state idle/loading/success/error; test file [] và URL404.</p>\n<h3>Bài tập 2</h3>\n<p>Search A chậm 200ms, B nhanh20ms; hiển thị kết quả mới nhất.</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>State loading trước await; success data sau parse/guard; [] hiện 'Chưa có khoản chi'; catch error message; finally reset. Test 404 không được render success và không spinner mãi.</p>\n<h3>Hướng giải 2</h3>\n<p>Tăng sequence mỗi search; callback chỉ set state nếu id===current. Abort previous để giảm công việc nhưng guard vẫn cần vì response có thể đã đến. Expected cuối UI B.</p>\n<h2>Project task</h2>\n<p>JS UI tải fixture JSON bằng fetch, có loading/error/empty, retry button và cancel. Giữ CRUD local mock; chưa gửi API giả làm production. Tag phase1-js.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w04.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Test fixture 3/[]/JSON sai/404/offline có state đúng và loading kết thúc.</p>\n</li>\n<li>\n<p>[ ] Request cũ không ghi đè request mới trong test delayed A/B.</p>\n</li>\n<li>\n<p>[ ] Giải thích A,B,P,T; không gọi await là tạo thread hay rollback request.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Thu: 'Why does fetch not reject on HTTP 404?' Dùng promise, rejection, response, microtask, cancellation trong 5 câu.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises\">Promise chaining and error handling</a> — W04-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch\">Checking response status and canceling a request</a> — W04-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model\">Job queue and event loop</a> — W04-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-04-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-04-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-04.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"week-03.md\">Tuần trước</a></p>\n<p><a href=\"../module-2/week-05.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Promise chaining and error handling](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises)",
+      "[Checking response status and canceling a request](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)",
+      "[Job queue and event loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W04-01]",
+        "bloom_level": "Apply",
+        "statement": "Theo vết resolve/reject và xử lý lỗi async đúng boundary."
+      },
+      {
+        "id": "[LO-W04-02]",
+        "bloom_level": "Apply",
+        "statement": "Tách lỗi HTTP/network/abort và hiển thị loading/error/empty."
+      },
+      {
+        "id": "[LO-W04-03]",
+        "bloom_level": "Apply",
+        "statement": "Dự đoán sync/microtask/timer order và dùng Network tab đọc response."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w04-c01",
+        "name": "Promise và async/await",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w04-c02",
+        "name": "Fetch, HTTP và cancellation",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w04-c03",
+        "name": "Event loop và debugging network",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w04",
+    "title": "Trắc nghiệm Tuần 04: Promises, fetch và event loop",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w04:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "async function return 3 cho caller nhận gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Promise fulfilled với 3"
+          },
+          {
+            "id": "B",
+            "text": "Số3 trực tiếp không Promise"
+          },
+          {
+            "id": "C",
+            "text": "Thread mới"
+          },
+          {
+            "id": "D",
+            "text": "undefined luôn"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Async bao return value trong Promise.",
+        "wrong_explanations": {
+          "B": "Caller cần await/then để lấy value.",
+          "C": "async không mặc định tạo thread.",
+          "D": "Return3 không tự thành undefined."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w04-c01",
+        "lesson_anchor": "#lo-w04-01",
+        "claim_ids": [
+          "W04-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w04:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Một Promise reject trong Promise.all có tự hủy mọi request khác không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Có chuyển mọi result thành []"
+          },
+          {
+            "id": "B",
+            "text": "Không"
+          },
+          {
+            "id": "C",
+            "text": "Có tự AbortController"
+          },
+          {
+            "id": "D",
+            "text": "Có rollback database"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Fail-fast không điều khiển cancellation operations khác.",
+        "wrong_explanations": {
+          "A": "Rejection là lỗi, không mảng rỗng mặc định.",
+          "C": "Abort phải nối explicit signal.",
+          "D": "Promise không tự có transaction DB."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w04-c01",
+        "lesson_anchor": "#lo-w04-01",
+        "claim_ids": [
+          "W04-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w04:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "fetch trả HTTP404 thì cần làm gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Dùng no-cors để đọc mọi response"
+          },
+          {
+            "id": "B",
+            "text": "Parse JSON hai lần"
+          },
+          {
+            "id": "C",
+            "text": "Check response.ok rồi throw/handle"
+          },
+          {
+            "id": "D",
+            "text": "Chờ catch luôn tự bắt404"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "HTTP response resolve nên check status.",
+        "wrong_explanations": {
+          "A": "Opaque response không mở quyền đọc.",
+          "B": "Body stream chỉ đọc một lần theo cách này.",
+          "D": "Fetch không reject chỉ vì404."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w04-c02",
+        "lesson_anchor": "#lo-w04-02",
+        "claim_ids": [
+          "W04-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w04:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "Hủy POST phía browser chứng minh DB không ghi chưa?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Chắc chắn không ghi"
+          },
+          {
+            "id": "B",
+            "text": "Luôn undo commit"
+          },
+          {
+            "id": "C",
+            "text": "JWT tự bị thu hồi"
+          },
+          {
+            "id": "D",
+            "text": "Chưa, server có thể đã commit"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Client cancellation không có rollback guarantee.",
+        "wrong_explanations": {
+          "A": "Network abort có thể đến sau write.",
+          "B": "Commit không tự undo bởi fetch.",
+          "C": "Abort không liên quan token revocation."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w04-c02",
+        "lesson_anchor": "#lo-w04-02",
+        "claim_ids": [
+          "W04-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w04:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "A sync, timer T, Promise.then P, B sync thường log gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "A B P T"
+          },
+          {
+            "id": "B",
+            "text": "A T P B"
+          },
+          {
+            "id": "C",
+            "text": "P A B T"
+          },
+          {
+            "id": "D",
+            "text": "A B T P"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Stack xong A/B rồi microtask P trước task T.",
+        "wrong_explanations": {
+          "B": "Timer không chen giữa sync cùng lượt.",
+          "C": "Promise reaction không trước sync đang chạy.",
+          "D": "Microtask drain trước timer task ở ví dụ."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w04-c03",
+        "lesson_anchor": "#lo-w04-03",
+        "claim_ids": [
+          "W04-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w04:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "Loop nặng trước await có block UI không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Không nếu return Promise"
+          },
+          {
+            "id": "B",
+            "text": "Có"
+          },
+          {
+            "id": "C",
+            "text": "Không vì async luôn background"
+          },
+          {
+            "id": "D",
+            "text": "Chỉ khi var"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "JS CPU vẫn chạy main execution cho tới yield.",
+        "wrong_explanations": {
+          "A": "Promise wrapper không đổi nơi loop thực thi.",
+          "C": "Async không tự offload CPU.",
+          "D": "var/let không quyết định CPU scheduling."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w04-c03",
+        "lesson_anchor": "#lo-w04-03",
+        "claim_ids": [
+          "W04-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w04",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 04: Promises, fetch và event loop",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w04-001",
+        "concept_name": "Async return",
+        "front": "async function return 3 cho caller nhận gì?",
+        "back": "Promise fulfilled với 3. Async bao return value trong Promise.",
+        "tags": [
+          "w04",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W04-C01"
+        ],
+        "source_citation": "notes/module-1/week-04.md",
+        "lesson_anchor": "#lo-w04-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w04-002",
+        "concept_name": "Promise all",
+        "front": "Một Promise reject trong Promise.all có tự hủy mọi request khác không?",
+        "back": "Không. Fail-fast không điều khiển cancellation operations khác.",
+        "tags": [
+          "w04",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W04-C01"
+        ],
+        "source_citation": "notes/module-1/week-04.md",
+        "lesson_anchor": "#lo-w04-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w04-003",
+        "concept_name": "HTTP failure",
+        "front": "fetch trả HTTP404 thì cần làm gì?",
+        "back": "Check response.ok rồi throw/handle. HTTP response resolve nên check status.",
+        "tags": [
+          "w04",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W04-C02"
+        ],
+        "source_citation": "notes/module-1/week-04.md",
+        "lesson_anchor": "#lo-w04-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w04-004",
+        "concept_name": "Abort semantics",
+        "front": "Hủy POST phía browser chứng minh DB không ghi chưa?",
+        "back": "Chưa, server có thể đã commit. Client cancellation không có rollback guarantee.",
+        "tags": [
+          "w04",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W04-C02"
+        ],
+        "source_citation": "notes/module-1/week-04.md",
+        "lesson_anchor": "#lo-w04-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w04-005",
+        "concept_name": "Event order",
+        "front": "A sync, timer T, Promise.then P, B sync thường log gì?",
+        "back": "A B P T. Stack xong A/B rồi microtask P trước task T.",
+        "tags": [
+          "w04",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W04-C03"
+        ],
+        "source_citation": "notes/module-1/week-04.md",
+        "lesson_anchor": "#lo-w04-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w04-006",
+        "concept_name": "CPU work",
+        "front": "Loop nặng trước await có block UI không?",
+        "back": "Có. JS CPU vẫn chạy main execution cho tới yield.",
+        "tags": [
+          "w04",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W04-C03"
+        ],
+        "source_citation": "notes/module-1/week-04.md",
+        "lesson_anchor": "#lo-w04-03"
+      }
+    ]
+  }
+}

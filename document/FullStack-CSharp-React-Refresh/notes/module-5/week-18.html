@@ -1,0 +1,145 @@
+<h1>Tuần 18 — Hooks, routing và API lifecycle</h1>
+<p>Chặng 5; 3 bài L18-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>
+<h2>Mục tiêu và tiên quyết</h2>
+<ul>
+<li>
+<p>LO-W18-01: Đồng bộ external API mà không tạo vòng lặp.</p>
+</li>
+<li>
+<p>LO-W18-02: Tạo navigation và deep link có thể tải lại.</p>
+</li>
+<li>
+<p>LO-W18-03: Chặn stale result và hiển thị loading/error/empty.</p>
+</li>
+</ul>
+<p>Tiên quyết: Đạt gate tuần 17; dùng lại fixture và commit trước.</p>
+<h2>Chẩn đoán và phân bổ thời gian</h2>
+<p>Làm <a href="../../assessments/quizzes/week-18-quiz.md">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>
+<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>
+<p><a id="lo-w18-01"></a></p>
+<h2>Bài 1: Effects và lifecycle</h2>
+<p>LO-W18-01 · W18-C01</p>
+<p>Effect chạy sau commit để đồng bộ external system. Event submit POST thuộc event handler; total derive thuộc render, không cần effect. Dependencies gồm các reactive values effect đọc; bỏ dependency để 'chỉ chạy một lần' tạo stale closure. Effect không khai báo async vì return phải là cleanup hoặc undefined; đặt async function bên trong rồi gọi. Cleanup abort/ignore request cũ trước effect mới và unmount. Strict Mode Development có chu kỳ setup-cleanup-setup để phát hiện thiếu cleanup; không tắt chỉ để giấu bug. useRef giữ controller/request id mà thay đổi không render; useMemo chỉ tối ưu khi có bằng chứng.</p>
+<p><a id="lo-w18-02"></a></p>
+<h2>Bài 2: Routes và URL state</h2>
+<p>LO-W18-02 · W18-C02</p>
+<p>Dùng React Router declarative BrowserRouter, Routes, Route với react-router theo docs phiên bản đã khóa; routes /expenses, /budgets, /reports, /login và catch-all. Link đổi URL mà không full reload. Query string chứa filter tháng/page cho bookmark; state input tạm thời có thể local. Khi đổi from/to hoặc category, reset page về1. Refresh /expenses cần host fallback index.html cho SPA, nhưng /api route phải đến backend. Route guard giúp UX khi chưa login; server vẫn enforce authorization. Không hard-code localhost trong production; cấu hình public API base URL theo environment.</p>
+<p><a id="lo-w18-03"></a></p>
+<h2>Bài 3: Request state machine</h2>
+<p>LO-W18-03 · W18-C03</p>
+<p>API helper kiểm response.ok vì fetch không reject chỉ do404/500; 204 trả undefined không gọi json. Loading hiển thị progress; success có items empty khác error. Union {status:'loading'|'error'|'success'} tránh các boolean mâu thuẫn. GET dựa filter cần abort và ignore để response tháng cũ không ghi đè tháng mới. Không show AbortError như lỗi cho user. Parse ProblemDetails an toàn và display message generic/field error; giữ traceId để báo lỗi. DTO không có runtime trust do TypeScript. Kiểm Number.isSafeInteger cho totals; abort network không chứng minh mutation server đã rollback.</p>
+<h2>Ví dụ giải từng bước</h2>
+<ol>
+<li>Trong component list import useEffect/useState; state union để dữ liệu không xuất hiện ở error.</li>
+<li>Core effect, apiUrl là URL GET đã chứa filter; decodeList là guard tự viết tuần17:</li>
+</ol>
+<pre><code class="language-tsx">useEffect(() =&gt; {
+ const ac = new AbortController(); let active = true;
+ setView({status:'loading'});
+ async function load() {
+  try {
+   const r=await fetch(apiUrl,{signal:ac.signal});
+   if(!r.ok) throw new Error(`HTTP ${r.status}`);
+   const data=decodeList(await r.json());
+   if(active) setView({status:'success',data});
+  } catch(e) {
+   if(active &amp;&amp; !ac.signal.aborted)
+    setView({status:'error',message:e instanceof Error?e.message:'Request failed'});
+  }
+ }
+ void load();
+ return ()=&gt;{active=false;ac.abort();};
+},[apiUrl]);
+</code></pre>
+<ol>
+<li>Throttle DevTools: Oct chậm, Nov nhanh; đổi filter trước Oct xong. Cuối chỉ hiển thị Nov.</li>
+<li>GET Bob items=[] hiển thị empty CTA;500 hiển thị retry; không gộp thành 'no expenses'.</li>
+</ol>
+<h2>Đào sâu và lỗi thường gặp</h2>
+<p>Abort giảm công việc nhưng ignore bảo vệ state khi request đã gần hoàn thành. Không thêm rows vào effect dependencies nếu effect setRows mỗi lần. Router state không cache server data. Thư viện query cache là tùy chọn sau khi đã hiểu race/keys/invalidation.</p>
+<h2>Bài tập thực hành</h2>
+<h3>Bài tập 1</h3>
+<p>Thiết kế xử lý DELETE204 trong api helper.</p>
+<h3>Bài tập 2</h3>
+<p>Filter mới page5 không có items nhưng có totalCount. Sửa UX.</p>
+<h2>Hướng dẫn giải bài tập</h2>
+<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>
+<h3>Hướng giải 1</h3>
+<p>Nếu status===204 return undefined trước json; các status khác check ok và content type. Sau delete refetch list đúng filter/page.</p>
+<h3>Hướng giải 2</h3>
+<p>Reset page1 khi filter thay đổi; khi xóa item cuối trang, tính lại page hợp lệ rồi fetch. Empty state chỉ khi filter không có kết quả.</p>
+<h2>Project task</h2>
+<p>Nối list/pagination/filter React tới API của tuần14–16; thêm routing và GET state machine; lưu filter URL để chia sẻ link.</p>
+<p>Theo <a href="../../project-spec.md">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w18.md của repo học viên. Không lưu secret.</p>
+<h2>Acceptance và rubric</h2>
+<ul>
+<li>
+<p>[ ] Refresh deep link /expenses?month=2026-10 hoạt động; back/forward phục hồi filter.</p>
+</li>
+<li>
+<p>[ ] Test Oct/Nov responses đảo thứ tự không ghi đè mới; unmount không update state.</p>
+</li>
+<li>
+<p>[ ] Loading,500 retry,Bob empty và success có giao diện riêng; DELETE204 không JSON error.</p>
+</li>
+<li>
+<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>
+</li>
+<li>
+<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Tiêu chí</th>
+<th>0 Chưa đạt</th>
+<th>1 Đang phát triển</th>
+<th>2 Đạt</th>
+<th>3 Vững</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hiểu cơ chế</td>
+<td>Không giải thích</td>
+<td>Lặp tên API</td>
+<td>Nói input/output và cơ chế tuần</td>
+<td>So sánh phương án và điều kiện biên</td>
+</tr>
+<tr>
+<td>Practice</td>
+<td>Chưa chạy</td>
+<td>Chỉ happy path</td>
+<td>Đúng output và edge cases</td>
+<td>Tự thêm regression có ý nghĩa</td>
+</tr>
+<tr>
+<td>Project</td>
+<td>Chưa có feature</td>
+<td>Copy chưa chứng minh</td>
+<td>Mọi gate tuần có evidence</td>
+<td>Tái hiện/sửa lỗi không xem lời giải</td>
+</tr>
+</tbody>
+</table>
+<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>
+<h2>English và ôn tập</h2>
+<p>Đọc Effects docs15 phút; nói 'A stale closure is...' và mô tả cleanup bằng sơ đồ lời nói.</p>
+<p><a href="../../english-practice.md">Nhịp 30–60 phút/ngày</a></p>
+<h2>Nguồn và kiểm chứng</h2>
+<ul>
+<li>
+<p><a href="https://react.dev/learn/synchronizing-with-effects">Cleanup, dependencies and development remount</a> — W18-C01; primary. HTTP: 200; section xem ledger.</p>
+</li>
+<li>
+<p><a href="https://reactrouter.com/start/declarative/routing">BrowserRouter, Routes and nested routes</a> — W18-C02; primary. HTTP: 200; section xem ledger.</p>
+</li>
+<li>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch">Response status and cancellation</a> — W18-C03; primary. HTTP: 200; section xem ledger.</p>
+</li>
+</ul>
+<h2>Liên kết ôn tập và tuần liên quan</h2>
+<p><a href="../../assessments/quizzes/week-18-quiz.md">Quiz</a> · <a href="../../assessments/answer-keys/week-18-answers.md">Đáp án</a> · <a href="../../flashcards/week-18.yaml">Flashcards</a> · <a href="../../quality/source-ledger.md">Ledger</a></p>
+<p><a href="week-17.md">Tuần trước</a></p>
+<p><a href="week-19.md">Tuần tiếp</a></p>

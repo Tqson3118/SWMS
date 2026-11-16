@@ -1,0 +1,477 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="66e5a48d-05c9-4c21-a183-e64533854810" name="Administrator@DESKTOP-C0K1LT1 2026-10-07 15:42:38" runUser="DESKTOP-C0K1LT1\Administrator" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-07T15:42:38.8127282+07:00" queuing="2026-10-07T15:42:38.8127285+07:00" start="2026-10-07T15:42:36.4932459+07:00" finish="2026-10-07T15:42:38.9713600+07:00" />
+  <TestSettings name="default" id="1b4a77b4-6fa8-42ed-89a5-3d014594f349">
+    <Deployment runDeploymentRoot="Administrator_DESKTOP-C0K1LT1_2026-10-07_15_42_38" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="8deae568-2971-4f54-84bc-f6b73384d9be" testId="79349b34-2ae5-cc1c-6398-ccfa28dd2a4a" testName="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_WithPaginationAndDateFilter_ReturnsFilteredSubset" computerName="DESKTOP-C0K1LT1" duration="00:00:00.3760627" startTime="2026-10-07T15:42:38.5784302+07:00" endTime="2026-10-07T15:42:38.5784522+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8deae568-2971-4f54-84bc-f6b73384d9be" />
+    <UnitTestResult executionId="e60e2850-693b-421d-9b4f-7c8cb1b9af54" testId="5a8c9055-d40f-8b2b-1acf-c6ae716109ee" testName="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_InvalidPageOrPageSize_ReturnsProblemDetails" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0030924" startTime="2026-10-07T15:42:38.7953072+07:00" endTime="2026-10-07T15:42:38.7953073+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e60e2850-693b-421d-9b4f-7c8cb1b9af54" />
+    <UnitTestResult executionId="3ee91bcb-3b0b-4543-81d5-ddc417b0d3a3" testId="5b9c85c7-9506-aaa7-dea1-38da2b0b680c" testName="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_NonExistentCategoryId_ReturnsValidationProblemDetails" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0034472" startTime="2026-10-07T15:42:38.8010117+07:00" endTime="2026-10-07T15:42:38.8010118+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3ee91bcb-3b0b-4543-81d5-ddc417b0d3a3" />
+    <UnitTestResult executionId="f91889b4-873d-4bd2-a1ed-b8e4a18f8772" testId="a7d8b884-6c75-7690-985b-4d0fb9f67cad" testName="ExpenseApi.Tests.ExpensesControllerTests.UnexpectedProviderFailure_ReturnsSafeProblemDetailsWithoutStackOrSecret" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0129556" startTime="2026-10-07T15:42:38.8707639+07:00" endTime="2026-10-07T15:42:38.8707644+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f91889b4-873d-4bd2-a1ed-b8e4a18f8772" />
+    <UnitTestResult executionId="5b215fbf-fcfe-4225-a874-9a835dc837c6" testId="5a3731ce-66be-54f7-f993-fabfc2896efb" testName="ExpenseApi.Tests.ExpensesControllerTests.GetSummary_InvalidMonth_ReturnsProblemDetails" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0018253" startTime="2026-10-07T15:42:38.9025348+07:00" endTime="2026-10-07T15:42:38.9025349+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5b215fbf-fcfe-4225-a874-9a835dc837c6" />
+    <UnitTestResult executionId="e0470191-4dd1-40e8-b7f7-5fe782ae6e2a" testId="5ab6cd31-5381-0449-a30e-c9e24363d2e5" testName="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_UnknownId_Returns404" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0173608" startTime="2026-10-07T15:42:38.7367745+07:00" endTime="2026-10-07T15:42:38.7367746+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e0470191-4dd1-40e8-b7f7-5fe782ae6e2a" />
+    <UnitTestResult executionId="c00423f5-dc0b-479c-9bfe-9889689538c3" testId="bad098c6-eb96-ccc5-a887-a301f269a95f" testName="ExpenseApi.Tests.ExpensesControllerTests.GetSummary_ValidYearAndMonth_ReturnsCategoryBreakdownAndTotals" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0379472" startTime="2026-10-07T15:42:38.8575145+07:00" endTime="2026-10-07T15:42:38.8575146+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c00423f5-dc0b-479c-9bfe-9889689538c3" />
+    <UnitTestResult executionId="fa6632e1-b65f-4ac4-a8e4-6eb39cb113e0" testId="fa8c6343-c037-9b6c-5a32-d28f41a9ef08" testName="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_ValidData_Returns201CreatedAndPersists" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0088172" startTime="2026-10-07T15:42:38.7606539+07:00" endTime="2026-10-07T15:42:38.7606540+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fa6632e1-b65f-4ac4-a8e4-6eb39cb113e0" />
+    <UnitTestResult executionId="a2171127-01c5-44d2-81b9-a56079278c94" testId="514f3575-858f-06a6-8e6f-00544d9384e1" testName="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_WithDefaultPagination_ReturnsPagedResultAndCategoryName" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0101432" startTime="2026-10-07T15:42:38.8193336+07:00" endTime="2026-10-07T15:42:38.8193339+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a2171127-01c5-44d2-81b9-a56079278c94" />
+    <UnitTestResult executionId="a0b6b482-bd58-4fa0-8764-05372ca33131" testId="b4b9c35c-3d92-93d6-147d-74000ebf1e33" testName="ExpenseApi.Tests.ExpensesControllerTests.EfMigrations_AreAppliedAndSeededRowsSurvive" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0262243" startTime="2026-10-07T15:42:38.7872452+07:00" endTime="2026-10-07T15:42:38.7872453+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a0b6b482-bd58-4fa0-8764-05372ca33131" />
+    <UnitTestResult executionId="f9bc1551-2057-4745-800e-4ac2fe91b987" testId="6b5e6f33-9db4-3e36-fe9b-541d7370c7e3" testName="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_MissingDate_Returns400AndPreservesOriginal" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0095592" startTime="2026-10-07T15:42:38.8088960+07:00" endTime="2026-10-07T15:42:38.8088961+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f9bc1551-2057-4745-800e-4ac2fe91b987" />
+    <UnitTestResult executionId="70b455cf-96c0-4878-a729-a70b2c9a0a59" testId="8100b2ea-6c83-cda2-8e82-9f1bf94b8a6f" testName="ExpenseApi.Tests.ExpensesControllerTests.GetCategories_ReturnsAllCategories" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0144772" startTime="2026-10-07T15:42:38.7515507+07:00" endTime="2026-10-07T15:42:38.7515509+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="70b455cf-96c0-4878-a729-a70b2c9a0a59" />
+    <UnitTestResult executionId="fac0ebd5-6bdd-4fa5-a03e-9598b5728119" testId="3269175b-7fe8-b725-b8a0-1fa806de6a9b" testName="ExpenseApi.Tests.ExpensesControllerTests.DeleteExpense_ExistingId_Returns204NoContent_Then404OnSecondDelete" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0292516" startTime="2026-10-07T15:42:38.9004278+07:00" endTime="2026-10-07T15:42:38.9004279+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fac0ebd5-6bdd-4fa5-a03e-9598b5728119" />
+    <UnitTestResult executionId="7e280f2b-6b9e-4cee-8ec0-9f536242aa88" testId="cb264711-9f54-e87b-0ecb-be3c2c3d7a45" testName="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_ZeroAmountAndDateMinimumAreValid" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0044551" startTime="2026-10-07T15:42:38.7919764+07:00" endTime="2026-10-07T15:42:38.7919765+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7e280f2b-6b9e-4cee-8ec0-9f536242aa88" />
+    <UnitTestResult executionId="021e5254-3e35-41c1-aae4-859111166852" testId="05d83ffe-cbaf-f84e-aef4-22e79367768e" testName="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_ValidData_Returns200AndPersistsChanges" computerName="DESKTOP-C0K1LT1" duration="00:00:00.1244433" startTime="2026-10-07T15:42:38.7041187+07:00" endTime="2026-10-07T15:42:38.7041188+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="021e5254-3e35-41c1-aae4-859111166852" />
+    <UnitTestResult executionId="d4c1210c-3359-4ed0-b39b-045b317551f5" testId="b6b57798-4291-113c-61af-f58199d45e43" testName="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_InvalidAmountOrDefaultDate_ReturnsValidationProblemDetails" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0146283" startTime="2026-10-07T15:42:38.7190013+07:00" endTime="2026-10-07T15:42:38.7190014+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d4c1210c-3359-4ed0-b39b-045b317551f5" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.UnexpectedProviderFailure_ReturnsSafeProblemDetailsWithoutStackOrSecret" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="a7d8b884-6c75-7690-985b-4d0fb9f67cad">
+      <Execution id="f91889b4-873d-4bd2-a1ed-b8e4a18f8772" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="UnexpectedProviderFailure_ReturnsSafeProblemDetailsWithoutStackOrSecret" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.DeleteExpense_ExistingId_Returns204NoContent_Then404OnSecondDelete" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="3269175b-7fe8-b725-b8a0-1fa806de6a9b">
+      <Execution id="fac0ebd5-6bdd-4fa5-a03e-9598b5728119" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="DeleteExpense_ExistingId_Returns204NoContent_Then404OnSecondDelete" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_ValidData_Returns201CreatedAndPersists" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="fa8c6343-c037-9b6c-5a32-d28f41a9ef08">
+      <Execution id="fa6632e1-b65f-4ac4-a8e4-6eb39cb113e0" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PostExpense_ValidData_Returns201CreatedAndPersists" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_ZeroAmountAndDateMinimumAreValid" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="cb264711-9f54-e87b-0ecb-be3c2c3d7a45">
+      <Execution id="7e280f2b-6b9e-4cee-8ec0-9f536242aa88" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PostExpense_ZeroAmountAndDateMinimumAreValid" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_InvalidPageOrPageSize_ReturnsProblemDetails" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="5a8c9055-d40f-8b2b-1acf-c6ae716109ee">
+      <Execution id="e60e2850-693b-421d-9b4f-7c8cb1b9af54" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="GetExpenses_InvalidPageOrPageSize_ReturnsProblemDetails" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_WithDefaultPagination_ReturnsPagedResultAndCategoryName" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="514f3575-858f-06a6-8e6f-00544d9384e1">
+      <Execution id="a2171127-01c5-44d2-81b9-a56079278c94" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="GetExpenses_WithDefaultPagination_ReturnsPagedResultAndCategoryName" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.GetSummary_ValidYearAndMonth_ReturnsCategoryBreakdownAndTotals" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="bad098c6-eb96-ccc5-a887-a301f269a95f">
+      <Execution id="c00423f5-dc0b-479c-9bfe-9889689538c3" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="GetSummary_ValidYearAndMonth_ReturnsCategoryBreakdownAndTotals" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.EfMigrations_AreAppliedAndSeededRowsSurvive" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="b4b9c35c-3d92-93d6-147d-74000ebf1e33">
+      <Execution id="a0b6b482-bd58-4fa0-8764-05372ca33131" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="EfMigrations_AreAppliedAndSeededRowsSurvive" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.GetCategories_ReturnsAllCategories" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="8100b2ea-6c83-cda2-8e82-9f1bf94b8a6f">
+      <Execution id="70b455cf-96c0-4878-a729-a70b2c9a0a59" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="GetCategories_ReturnsAllCategories" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_NonExistentCategoryId_ReturnsValidationProblemDetails" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="5b9c85c7-9506-aaa7-dea1-38da2b0b680c">
+      <Execution id="3ee91bcb-3b0b-4543-81d5-ddc417b0d3a3" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PostExpense_NonExistentCategoryId_ReturnsValidationProblemDetails" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_InvalidAmountOrDefaultDate_ReturnsValidationProblemDetails" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="b6b57798-4291-113c-61af-f58199d45e43">
+      <Execution id="d4c1210c-3359-4ed0-b39b-045b317551f5" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PostExpense_InvalidAmountOrDefaultDate_ReturnsValidationProblemDetails" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_UnknownId_Returns404" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="5ab6cd31-5381-0449-a30e-c9e24363d2e5">
+      <Execution id="e0470191-4dd1-40e8-b7f7-5fe782ae6e2a" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PutExpense_UnknownId_Returns404" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.GetSummary_InvalidMonth_ReturnsProblemDetails" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="5a3731ce-66be-54f7-f993-fabfc2896efb">
+      <Execution id="5b215fbf-fcfe-4225-a874-9a835dc837c6" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="GetSummary_InvalidMonth_ReturnsProblemDetails" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_WithPaginationAndDateFilter_ReturnsFilteredSubset" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="79349b34-2ae5-cc1c-6398-ccfa28dd2a4a">
+      <Execution id="8deae568-2971-4f54-84bc-f6b73384d9be" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="GetExpenses_WithPaginationAndDateFilter_ReturnsFilteredSubset" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_ValidData_Returns200AndPersistsChanges" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="05d83ffe-cbaf-f84e-aef4-22e79367768e">
+      <Execution id="021e5254-3e35-41c1-aae4-859111166852" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PutExpense_ValidData_Returns200AndPersistsChanges" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_MissingDate_Returns400AndPreservesOriginal" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="6b5e6f33-9db4-3e36-fe9b-541d7370c7e3">
+      <Execution id="f9bc1551-2057-4745-800e-4ac2fe91b987" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PutExpense_MissingDate_Returns400AndPreservesOriginal" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="79349b34-2ae5-cc1c-6398-ccfa28dd2a4a" executionId="8deae568-2971-4f54-84bc-f6b73384d9be" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5a8c9055-d40f-8b2b-1acf-c6ae716109ee" executionId="e60e2850-693b-421d-9b4f-7c8cb1b9af54" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5b9c85c7-9506-aaa7-dea1-38da2b0b680c" executionId="3ee91bcb-3b0b-4543-81d5-ddc417b0d3a3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a7d8b884-6c75-7690-985b-4d0fb9f67cad" executionId="f91889b4-873d-4bd2-a1ed-b8e4a18f8772" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5a3731ce-66be-54f7-f993-fabfc2896efb" executionId="5b215fbf-fcfe-4225-a874-9a835dc837c6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5ab6cd31-5381-0449-a30e-c9e24363d2e5" executionId="e0470191-4dd1-40e8-b7f7-5fe782ae6e2a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bad098c6-eb96-ccc5-a887-a301f269a95f" executionId="c00423f5-dc0b-479c-9bfe-9889689538c3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fa8c6343-c037-9b6c-5a32-d28f41a9ef08" executionId="fa6632e1-b65f-4ac4-a8e4-6eb39cb113e0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="514f3575-858f-06a6-8e6f-00544d9384e1" executionId="a2171127-01c5-44d2-81b9-a56079278c94" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b4b9c35c-3d92-93d6-147d-74000ebf1e33" executionId="a0b6b482-bd58-4fa0-8764-05372ca33131" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6b5e6f33-9db4-3e36-fe9b-541d7370c7e3" executionId="f9bc1551-2057-4745-800e-4ac2fe91b987" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8100b2ea-6c83-cda2-8e82-9f1bf94b8a6f" executionId="70b455cf-96c0-4878-a729-a70b2c9a0a59" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3269175b-7fe8-b725-b8a0-1fa806de6a9b" executionId="fac0ebd5-6bdd-4fa5-a03e-9598b5728119" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cb264711-9f54-e87b-0ecb-be3c2c3d7a45" executionId="7e280f2b-6b9e-4cee-8ec0-9f536242aa88" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="05d83ffe-cbaf-f84e-aef4-22e79367768e" executionId="021e5254-3e35-41c1-aae4-859111166852" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b6b57798-4291-113c-61af-f58199d45e43" executionId="d4c1210c-3359-4ed0-b39b-045b317551f5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="16" executed="16" passed="16" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.12)&#xD;
+[xUnit.net 00:00:00.08]   Discovering: ExpenseApi.Tests&#xD;
+[xUnit.net 00:00:00.11]   Discovered:  ExpenseApi.Tests&#xD;
+[xUnit.net 00:00:00.11]   Starting:    ExpenseApi.Tests&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT 1&#xD;
+info: Microsoft.EntityFrameworkCore.Migrations[20411]&#xD;
+      Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      DECLARE @result int;&#xD;
+      EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';&#xD;
+      SELECT @result&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL&#xD;
+      BEGIN&#xD;
+          CREATE TABLE [__EFMigrationsHistory] (&#xD;
+              [MigrationId] nvarchar(150) NOT NULL,&#xD;
+              [ProductVersion] nvarchar(32) NOT NULL,&#xD;
+              CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])&#xD;
+          );&#xD;
+      END;&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT 1&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT [MigrationId], [ProductVersion]&#xD;
+      FROM [__EFMigrationsHistory]&#xD;
+      ORDER BY [MigrationId];&#xD;
+info: Microsoft.EntityFrameworkCore.Migrations[20402]&#xD;
+      Applying migration '20261007083824_InitialCreate'.&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE TABLE [Categories] (&#xD;
+          [Id] int NOT NULL IDENTITY,&#xD;
+          [Name] nvarchar(100) NOT NULL,&#xD;
+          CONSTRAINT [PK_Categories] PRIMARY KEY ([Id])&#xD;
+      );&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE TABLE [Expenses] (&#xD;
+          [Id] int NOT NULL IDENTITY,&#xD;
+          [CategoryId] int NOT NULL,&#xD;
+          [Amount] decimal(18,2) NOT NULL,&#xD;
+          [SpentOn] date NOT NULL,&#xD;
+          [Note] nvarchar(500) NULL,&#xD;
+          CONSTRAINT [PK_Expenses] PRIMARY KEY ([Id]),&#xD;
+          CONSTRAINT [FK_Expenses_Categories_CategoryId] FOREIGN KEY ([CategoryId]) REFERENCES [Categories] ([Id]) ON DELETE NO ACTION&#xD;
+      );&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE UNIQUE INDEX [IX_Categories_Name] ON [Categories] ([Name]);&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE INDEX [IX_Expenses_CategoryId] ON [Expenses] ([CategoryId]);&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])&#xD;
+      VALUES (N'20261007083824_InitialCreate', N'10.0.12');&#xD;
+info: Microsoft.EntityFrameworkCore.Migrations[20402]&#xD;
+      Applying migration '20261007083840_AddExpenseCreatedAtUtc'.&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      ALTER TABLE [Expenses] ADD [CreatedAtUtc] datetime2 NULL;&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])&#xD;
+      VALUES (N'20261007083840_AddExpenseCreatedAtUtc', N'10.0.12');&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      DECLARE @result int;&#xD;
+      EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';&#xD;
+      SELECT @result&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (4ms) [Parameters=[@p0='?' (Size = 100), @p1='?' (Size = 100), @p2='?' (Size = 100)], CommandType='Text', CommandTimeout='30']&#xD;
+      SET IMPLICIT_TRANSACTIONS OFF;&#xD;
+      SET NOCOUNT ON;&#xD;
+      MERGE [Categories] USING (&#xD;
+      VALUES (@p0, 0),&#xD;
+      (@p1, 1),&#xD;
+      (@p2, 2)) AS i ([Name], _Position) ON 1=0&#xD;
+      WHEN NOT MATCHED THEN&#xD;
+      INSERT ([Name])&#xD;
+      VALUES (i.[Name])&#xD;
+      OUTPUT INSERTED.[Id], i._Position;&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (8ms) [Parameters=[@p0='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p1='?' (DbType = Int32), @p2='?' (DbType = DateTime2), @p3='?' (Size = 500), @p4='?' (DbType = Date), @p5='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p6='?' (DbType = Int32), @p7='?' (DbType = DateTime2), @p8='?' (Size = 500), @p9='?' (DbType = Date), @p10='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p11='?' (DbType = Int32), @p12='?' (DbType = DateTime2), @p13='?' (Size = 500), @p14='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']&#xD;
+      SET IMPLICIT_TRANSACTIONS OFF;&#xD;
+      SET NOCOUNT ON;&#xD;
+      MERGE [Expenses] USING (&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, 0),&#xD;
+      (@p5, @p6, @p7, @p8, @p9, 1),&#xD;
+      (@p10, @p11, @p12, @p13, @p14, 2)) AS i ([Amount], [CategoryId], [CreatedAtUtc], [Note], [SpentOn], _Position) ON 1=0&#xD;
+      WHEN NOT MATCHED THEN&#xD;
+      INSERT ([Amount], [CategoryId], [CreatedAtUtc], [Note], [SpentOn])&#xD;
+      VALUES (i.[Amount], i.[CategoryId], i.[CreatedAtUtc], i.[Note], i.[SpentOn])&#xD;
+      OUTPUT INSERTED.[Id], i._Position;&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (4ms) [Parameters=[@from='?' (DbType = Date), @to='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT COUNT(*)&#xD;
+      FROM [Expenses] AS [e]&#xD;
+      WHERE [e].[SpentOn] &gt;= @from AND [e].[SpentOn] &lt;= @to&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (4ms) [Parameters=[@from='?' (DbType = Date), @to='?' (DbType = Date), @p='?' (DbType = Int32), @p3='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT [e0].[Id], [e0].[CategoryId], [c].[Name], [e0].[Amount], [e0].[SpentOn], [e0].[Note]&#xD;
+      FROM (&#xD;
+          SELECT [e].[Id], [e].[Amount], [e].[CategoryId], [e].[Note], [e].[SpentOn]&#xD;
+          FROM [Expenses] AS [e]&#xD;
+          WHERE [e].[SpentOn] &gt;= @from AND [e].[SpentOn] &lt;= @to&#xD;
+          ORDER BY [e].[Id]&#xD;
+          OFFSET @p ROWS FETCH NEXT @p3 ROWS ONLY&#xD;
+      ) AS [e0]&#xD;
+      INNER JOIN [Categories] AS [c] ON [e0].[CategoryId] = [c].[Id]&#xD;
+      ORDER BY [e0].[Id]&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@from='?' (DbType = Date), @to='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT COUNT(*)&#xD;
+      FROM [Expenses] AS [e]&#xD;
+      WHERE [e].[SpentOn] &gt;= @from AND [e].[SpentOn] &lt;= @to&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (2ms) [Parameters=[@from='?' (DbType = Date), @to='?' (DbType = Date), @p='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT [e0].[Id], [e0].[CategoryId], [c].[Name], [e0].[Amount], [e0].[SpentOn], [e0].[Note]&#xD;
+      FROM (&#xD;
+          SELECT [e].[Id], [e].[Amount], [e].[CategoryId], [e].[Note], [e].[SpentOn]&#xD;
+          FROM [Expenses] AS [e]&#xD;
+          WHERE [e].[SpentOn] &gt;= @from AND [e].[SpentOn] &lt;= @to&#xD;
+          ORDER BY [e].[Id]&#xD;
+          OFFSET @p ROWS FETCH NEXT @p ROWS ONLY&#xD;
+      ) AS [e0]&#xD;
+      INNER JOIN [Categories] AS [c] ON [e0].[CategoryId] = [c].[Id]&#xD;
+      ORDER BY [e0].[Id]&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (2ms) [Parameters=[@request_CategoryId='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [c].[Id], [c].[Name]&#xD;
+      FROM [Categories] AS [c]&#xD;
+      WHERE [c].[Id] = @request_CategoryId&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p1='?' (DbType = Int32), @p2='?' (DbType = DateTime2), @p3='?' (Size = 500), @p4='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']&#xD;
+      SET IMPLICIT_TRANSACTIONS OFF;&#xD;
+      SET NOCOUNT ON;&#xD;
+      INSERT INTO [Expenses] ([Amount], [CategoryId], [CreatedAtUtc], [Note], [SpentOn])&#xD;
+      OUTPUT INSERTED.[Id]&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4);&#xD;
+info: ExpenseApi.Services.EfExpenseService[0]&#xD;
+      Expense created 4 for category 1&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (4ms) [Parameters=[@id='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [e].[Id], [e].[Amount], [e].[CategoryId], [e].[CreatedAtUtc], [e].[Note], [e].[SpentOn], [c].[Id], [c].[Name]&#xD;
+      FROM [Expenses] AS [e]&#xD;
+      INNER JOIN [Categories] AS [c] ON [e].[CategoryId] = [c].[Id]&#xD;
+      WHERE [e].[Id] = @id&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@request_CategoryId='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [c].[Id], [c].[Name]&#xD;
+      FROM [Categories] AS [c]&#xD;
+      WHERE [c].[Id] = @request_CategoryId&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (2ms) [Parameters=[@p4='?' (DbType = Int32), @p0='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p1='?' (DbType = Int32), @p2='?' (Size = 500), @p3='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']&#xD;
+      SET IMPLICIT_TRANSACTIONS OFF;&#xD;
+      SET NOCOUNT ON;&#xD;
+      UPDATE [Expenses] SET [Amount] = @p0, [CategoryId] = @p1, [Note] = @p2, [SpentOn] = @p3&#xD;
+      OUTPUT 1&#xD;
+      WHERE [Id] = @p4;&#xD;
+info: ExpenseApi.Services.EfExpenseService[0]&#xD;
+      Expense updated 4 for category 2&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (2ms) [Parameters=[@id='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [e].[Id], [e].[CategoryId], [c].[Name], [e].[Amount], [e].[SpentOn], [e].[Note]&#xD;
+      FROM [Expenses] AS [e]&#xD;
+      INNER JOIN [Categories] AS [c] ON [e].[CategoryId] = [c].[Id]&#xD;
+      WHERE [e].[Id] = @id&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@id='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [e].[Id], [e].[Amount], [e].[CategoryId], [e].[CreatedAtUtc], [e].[Note], [e].[SpentOn], [c].[Id], [c].[Name]&#xD;
+      FROM [Expenses] AS [e]&#xD;
+      INNER JOIN [Categories] AS [c] ON [e].[CategoryId] = [c].[Id]&#xD;
+      WHERE [e].[Id] = @id&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT [c].[Id], [c].[Name]&#xD;
+      FROM [Categories] AS [c]&#xD;
+      ORDER BY [c].[Name]&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@request_CategoryId='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [c].[Id], [c].[Name]&#xD;
+      FROM [Categories] AS [c]&#xD;
+      WHERE [c].[Id] = @request_CategoryId&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p1='?' (DbType = Int32), @p2='?' (DbType = DateTime2), @p3='?' (Size = 500), @p4='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']&#xD;
+      SET IMPLICIT_TRANSACTIONS OFF;&#xD;
+      SET NOCOUNT ON;&#xD;
+      INSERT INTO [Expenses] ([Amount], [CategoryId], [CreatedAtUtc], [Note], [SpentOn])&#xD;
+      OUTPUT INSERTED.[Id]&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4);&#xD;
+info: ExpenseApi.Services.EfExpenseService[0]&#xD;
+      Expense created 5 for category 3&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@id='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [e].[Id], [e].[CategoryId], [c].[Name], [e].[Amount], [e].[SpentOn], [e].[Note]&#xD;
+      FROM [Expenses] AS [e]&#xD;
+      INNER JOIN [Categories] AS [c] ON [e].[CategoryId] = [c].[Id]&#xD;
+      WHERE [e].[Id] = @id&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT 1&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT [MigrationId], [ProductVersion]&#xD;
+      FROM [__EFMigrationsHistory]&#xD;
+      ORDER BY [MigrationId];&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT COUNT(*)&#xD;
+      FROM [Expenses] AS [e]&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT CASE&#xD;
+          WHEN EXISTS (&#xD;
+              SELECT 1&#xD;
+              FROM [Expenses] AS [e]&#xD;
+              WHERE [e].[CreatedAtUtc] IS NOT NULL) THEN CAST(1 AS bit)&#xD;
+          ELSE CAST(0 AS bit)&#xD;
+      END&#xD;
+EF database=RoadmapApi779_6e3cc6e46a174eacb436a5d13eb16710; migrations=20261007083824_InitialCreate,20261007083840_AddExpenseCreatedAtUtc; seededRows=5&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@request_CategoryId='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [c].[Id], [c].[Name]&#xD;
+      FROM [Categories] AS [c]&#xD;
+      WHERE [c].[Id] = @request_CategoryId&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (1ms) [Parameters=[@p0='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p1='?' (DbType = Int32), @p2='?' (DbType = DateTime2), @p3='?' (Size = 500), @p4='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']&#xD;
+      SET IMPLICIT_TRANSACTIONS OFF;&#xD;
+      SET NOCOUNT ON;&#xD;
+      INSERT INTO [Expenses] ([Amount], [CategoryId], [CreatedAtUtc], [Note], [SpentOn])&#xD;
+      OUTPUT INSERTED.[Id]&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4);&#xD;
+info: ExpenseApi.Services.EfExpenseService[0]&#xD;
+      Expense created 6 for category 1&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@request_CategoryId='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [c].[Id], [c].[Name]&#xD;
+      FROM [Categories] AS [c]&#xD;
+      WHERE [c].[Id] = @request_CategoryId&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@request_CategoryId='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [c].[Id], [c].[Name]&#xD;
+      FROM [Categories] AS [c]&#xD;
+      WHERE [c].[Id] = @request_CategoryId&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (1ms) [Parameters=[@p0='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p1='?' (DbType = Int32), @p2='?' (DbType = DateTime2), @p3='?' (Size = 500), @p4='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']&#xD;
+      SET IMPLICIT_TRANSACTIONS OFF;&#xD;
+      SET NOCOUNT ON;&#xD;
+      INSERT INTO [Expenses] ([Amount], [CategoryId], [CreatedAtUtc], [Note], [SpentOn])&#xD;
+      OUTPUT INSERTED.[Id]&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4);&#xD;
+info: ExpenseApi.Services.EfExpenseService[0]&#xD;
+      Expense created 7 for category 1&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@id='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [e].[Id], [e].[CategoryId], [c].[Name], [e].[Amount], [e].[SpentOn], [e].[Note]&#xD;
+      FROM [Expenses] AS [e]&#xD;
+      INNER JOIN [Categories] AS [c] ON [e].[CategoryId] = [c].[Id]&#xD;
+      WHERE [e].[Id] = @id&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT COUNT(*)&#xD;
+      FROM [Expenses] AS [e]&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (2ms) [Parameters=[@p='?' (DbType = Int32), @p1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT [e0].[Id], [e0].[CategoryId], [c].[Name], [e0].[Amount], [e0].[SpentOn], [e0].[Note]&#xD;
+      FROM (&#xD;
+          SELECT [e].[Id], [e].[Amount], [e].[CategoryId], [e].[Note], [e].[SpentOn]&#xD;
+          FROM [Expenses] AS [e]&#xD;
+          ORDER BY [e].[Id]&#xD;
+          OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY&#xD;
+      ) AS [e0]&#xD;
+      INNER JOIN [Categories] AS [c] ON [e0].[CategoryId] = [c].[Id]&#xD;
+      ORDER BY [e0].[Id]&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (4ms) [Parameters=[@start='?' (DbType = Date), @end='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT [e].[CategoryId], [c].[Name] AS [CategoryName], COALESCE(SUM([e].[Amount]), 0.0) AS [Total], COUNT(*) AS [Count]&#xD;
+      FROM [Expenses] AS [e]&#xD;
+      INNER JOIN [Categories] AS [c] ON [e].[CategoryId] = [c].[Id]&#xD;
+      WHERE [e].[SpentOn] &gt;= @start AND [e].[SpentOn] &lt; @end&#xD;
+      GROUP BY [e].[CategoryId], [c].[Name]&#xD;
+      ORDER BY [c].[Name]&#xD;
+fail: Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware[1]&#xD;
+      An unhandled exception has occurred while executing the request.&#xD;
+      System.InvalidOperationException: Injected provider failure secret=should-not-leak&#xD;
+         at ExpenseApi.Services.EfExpenseService.GetCategoriesAsync(CancellationToken cancellationToken) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Services\EfExpenseService.cs:line 80&#xD;
+         at ExpenseApi.Controllers.CategoriesController.GetCategories(CancellationToken cancellationToken) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Controllers\CategoriesController.cs:line 15&#xD;
+         at lambda_method271(Closure, Object)&#xD;
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)&#xD;
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.&lt;InvokeActionMethodAsync&gt;g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)&#xD;
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.&lt;InvokeNextActionFilterAsync&gt;g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)&#xD;
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)&#xD;
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State&amp; next, Scope&amp; scope, Object&amp; state, Boolean&amp; isCompleted)&#xD;
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()&#xD;
+      --- End of stack trace from previous location ---&#xD;
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.&lt;InvokeFilterPipelineAsync&gt;g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)&#xD;
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.&lt;InvokeAsync&gt;g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)&#xD;
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.&lt;InvokeAsync&gt;g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)&#xD;
+         at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.&lt;Invoke&gt;g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (1ms) [Parameters=[@request_CategoryId='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [c].[Id], [c].[Name]&#xD;
+      FROM [Categories] AS [c]&#xD;
+      WHERE [c].[Id] = @request_CategoryId&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p1='?' (DbType = Int32), @p2='?' (DbType = DateTime2), @p3='?' (Size = 500), @p4='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']&#xD;
+      SET IMPLICIT_TRANSACTIONS OFF;&#xD;
+      SET NOCOUNT ON;&#xD;
+      INSERT INTO [Expenses] ([Amount], [CategoryId], [CreatedAtUtc], [Note], [SpentOn])&#xD;
+      OUTPUT INSERTED.[Id]&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4);&#xD;
+info: ExpenseApi.Services.EfExpenseService[0]&#xD;
+      Expense created 8 for category 1&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (1ms) [Parameters=[@id='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [e].[Id], [e].[Amount], [e].[CategoryId], [e].[CreatedAtUtc], [e].[Note], [e].[SpentOn]&#xD;
+      FROM [Expenses] AS [e]&#xD;
+      WHERE [e].[Id] = @id&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (1ms) [Parameters=[@p0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SET IMPLICIT_TRANSACTIONS OFF;&#xD;
+      SET NOCOUNT ON;&#xD;
+      DELETE FROM [Expenses]&#xD;
+      OUTPUT 1&#xD;
+      WHERE [Id] = @p0;&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@id='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [e].[Id], [e].[Amount], [e].[CategoryId], [e].[CreatedAtUtc], [e].[Note], [e].[SpentOn]&#xD;
+      FROM [Expenses] AS [e]&#xD;
+      WHERE [e].[Id] = @id&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@id='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT TOP(2) [e].[Id], [e].[CategoryId], [c].[Name], [e].[Amount], [e].[SpentOn], [e].[Note]&#xD;
+      FROM [Expenses] AS [e]&#xD;
+      INNER JOIN [Categories] AS [c] ON [e].[CategoryId] = [c].[Id]&#xD;
+      WHERE [e].[Id] = @id&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+[xUnit.net 00:00:02.04]   Finished:    ExpenseApi.Tests&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

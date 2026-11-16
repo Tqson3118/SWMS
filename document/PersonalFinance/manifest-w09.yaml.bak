@@ -1,0 +1,40 @@
+schema_version: "2.0.0"
+package_id: "package:personal-finance:w09"
+subject_id: "roadmap:subject:personal-finance"
+display_title: "T�i Ch�nh C� Nh�n Th?c H�nh"
+source_status: "in_review"
+version: 1
+created_at: "2026-09-15T00:00:00Z"
+subject: "T�i ch�nh c� nh�n"
+course: "T�i ch�nh c� nh�n th?c h�nh"
+module: "module-3"
+lesson: "week-09-personal-income-tax-vn"
+learning_objectives:
+  - {id: "LO-PF-W09-01", bloom_level: "Apply", statement: "T�nh thu? TNCN ti?n luong trong ph?m vi van b?n �p d?ng."}
+  - {id: "LO-PF-W09-02", bloom_level: "Understand", statement: "X�c d?nh gi?m tr? v� th?i di?m hi?u l?c."}
+  - {id: "LO-PF-W09-03", bloom_level: "Apply", statement: "Ph�n bi?t thu? c? t?c v� chuy?n nhu?ng ch?ng kho�n."}
+  - {id: "LO-PF-W09-04", bloom_level: "Evaluate", statement: "Nh?n bi?t nghia v? h? kinh doanh, freelance v� ti?n ch?m n?p."}
+concepts:
+  - {id: "roadmap:concept:pf:pit-brackets", name: "Bi?u thu? TNCN", claim_ids: ["M3-C07", "M3-C08"], evidence_label: "pending", source_ledger_path: "quality/module-3-source-ledger.md"}
+  - {id: "roadmap:concept:pf:investment-tax", name: "Thu? d?u tu", claim_ids: ["M3-C09"], evidence_label: "medium", source_ledger_path: "quality/module-3-source-ledger.md"}
+  - {id: "roadmap:concept:pf:business-tax", name: "Thu? h? kinh doanh", claim_ids: ["M3-C10", "M3-C12"], evidence_label: "pending", source_ledger_path: "quality/module-3-source-ledger.md"}
+questions:
+  - {id: "Q01", lo_ref: "LO-PF-W09-01", concept_id: "roadmap:concept:pf:pit-brackets", claim_ids: ["M3-C07", "M3-C08"]}
+  - {id: "Q02", lo_ref: "LO-PF-W09-02", concept_id: "roadmap:concept:pf:pit-brackets", claim_ids: ["M3-C08"]}
+  - {id: "Q03", lo_ref: "LO-PF-W09-01", concept_id: "roadmap:concept:pf:pit-brackets", claim_ids: ["M3-C07"]}
+  - {id: "Q04", lo_ref: "LO-PF-W09-03", concept_id: "roadmap:concept:pf:investment-tax", claim_ids: ["M3-C09"]}
+  - {id: "Q05", lo_ref: "LO-PF-W09-03", concept_id: "roadmap:concept:pf:investment-tax", claim_ids: ["M3-C09"]}
+  - {id: "Q06", lo_ref: "LO-PF-W09-04", concept_id: "roadmap:concept:pf:business-tax", claim_ids: []}
+  - {id: "Q07", lo_ref: "LO-PF-W09-04", concept_id: "roadmap:concept:pf:business-tax", claim_ids: ["M3-C12"]}
+  - {id: "Q08", lo_ref: "LO-PF-W09-04", concept_id: "roadmap:concept:pf:business-tax", claim_ids: ["M3-C10"]}
+  - {id: "Q09", lo_ref: "LO-PF-W09-04", concept_id: "roadmap:concept:pf:business-tax", claim_ids: ["M3-C10"]}
+  - {id: "Q10", lo_ref: "LO-PF-W09-04", concept_id: "roadmap:concept:pf:business-tax", claim_ids: []}
+units:
+  - unit_id: "roadmap:unit:pf:w09"
+    display_title: "Tu?n 09: Thu? thu nh?p c� nh�n t?i Vi?t Nam"
+    sort_order: 9
+    artifacts:
+      - {role: "lesson_theory", stable_id: "roadmap:lesson:pf:w09", path: "notes/module-3/week-09-personal-income-tax-vn.md", sha256: "34ab6a4a929e594d57892a81ed308e79c1b8eb2b0dfe6d1e7592eee676a03040", byte_length: 18162}
+      - {role: "quiz_questions", stable_id: "roadmap:quiz:pf:w09", path: "assessments/quizzes/week-09-quiz.md", question_count: 10, sha256: "b4ceaefc9e9956c23e237441c9176282fca2d087f6a48bb1061ba657d51ed098", byte_length: 3390}
+      - {role: "quiz_answers", stable_id: "roadmap:answers:pf:w09", path: "assessments/answer-keys/week-09-answers.md", correct_count: 10, wrong_count: 30, sha256: "5789c2e04b11f9c43cd7104e2f7346053f55f1456d645b279ce4014697d2752b", byte_length: 9238}
+      - {role: "source_ledger", path: "quality/module-3-source-ledger.md", sha256: "d039c3af311bbb4e7bfdb046878801784df51b0c83bcb4f90f9fb7c184ed0e47", byte_length: 7551}

@@ -1,29 +1,29 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import {
-  ArrowLeft,
+  AlertCircle,
   BookOpen,
   Brain,
   CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  ChevronsDownUp,
+  ChevronsUpDown,
   Circle,
   ClipboardCheck,
   Clock,
-  GraduationCap,
+  Layers,
+  Pencil,
   Play,
-  Sparkles,
-  TrendingUp,
+  RefreshCw,
+  Search,
+  X,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
-
-interface CourseChapter {
-  id: string;
-  title: string;
-  sortOrder?: number;
-  lessons: CourseLesson[];
-}
+import { classifyCourseDomain, normalizeVi } from "@/lib/course-helpers";
 
 interface CourseLesson {
   id: string;
@@ -35,12 +35,21 @@ interface CourseLesson {
   courseId?: string;
 }
 
+interface CourseChapter {
+  id: string;
+  chapterId?: string;
+  title: string;
+  sortOrder?: number;
+  lessons: CourseLesson[];
+}
+
 interface CourseDetail {
   id: string;
   title: string;
   description?: string;
   category?: string;
   visibility?: string;
+  isPublished?: boolean;
   progressPercent: number;
   totalLessons: number;
   completedLessons: number;
@@ -51,23 +60,33 @@ interface CourseDetail {
   chapters: CourseChapter[];
 }
 
+type LessonFilter = "all" | "pending" | "completed";
+
 export default function CourseDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const courseId = params.id as string;
   const { activeUserHeaderId } = useWorkspaceStore();
 
   const [course, setCourse] = useState<CourseDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [lessonFilter, setLessonFilter] = useState<LessonFilter>("all");
+  const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set());
 
   const fetchCourse = useCallback(async () => {
     if (!courseId) return;
     setIsLoading(true);
+    setFetchError(null);
     try {
-      const effectiveUserId = activeUserHeaderId ?? (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
-      const headers = getClientRequestHeaders(effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined);
+      const effectiveUserId =
+        activeUserHeaderId ??
+        (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
+      const headers = getClientRequestHeaders(
+        effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
+      );
 
-      // Try getting course details - fall back to courses list
       const [courseResp, dashResp] = await Promise.all([
         fetch(`/api/v1/courses/${courseId}`, { headers }).catch(() => null),
         fetch("/api/v1/workspace/dashboard", { headers }).catch(() => null),
@@ -82,16 +101,14 @@ export default function CourseDetailPage() {
         const completedIds: string[] = Array.isArray(raw.completedLessonIds)
           ? raw.completedLessonIds
           : [];
-        const total = Number(
-          raw.totalLessons ?? raw.lessonCount ?? flatLessons.length
-        );
+        const total = Number(raw.totalLessons ?? raw.lessonCount ?? flatLessons.length);
         const completed = Number(raw.completedLessons ?? completedIds.length);
         const progress =
           raw.progressPercent != null
             ? Number(raw.progressPercent)
             : total > 0
-            ? Math.round((completed * 100) / total)
-            : 0;
+              ? Math.round((completed * 100) / total)
+              : 0;
         courseData = {
           ...raw,
           id: String(raw.courseId || raw.id || courseId),
@@ -104,8 +121,8 @@ export default function CourseDetailPage() {
       } else if (dashResp && dashResp.ok) {
         const dashData = await dashResp.json();
         const allCourses = dashData.courses ?? [];
-        const found = allCourses.find((c: Record<string, unknown>) =>
-          (c.courseId || c.id) === courseId
+        const found = allCourses.find(
+          (c: Record<string, unknown>) => (c.courseId || c.id) === courseId
         );
         if (found) {
           const chaps = (found.chapters as CourseChapter[]) ?? [];
@@ -124,6 +141,7 @@ export default function CourseDetailPage() {
             description: String(found.description || ""),
             category: String(found.category || ""),
             visibility: String(found.visibility || "personal"),
+            isPublished: Boolean(found.isPublished ?? found.visibility === "public"),
             progressPercent: Number(
               found.progressPercent ??
                 found.progress ??
@@ -138,15 +156,95 @@ export default function CourseDetailPage() {
             chapters: chaps,
           };
         }
+      } else if (courseResp && !courseResp.ok) {
+        setFetchError(`Không tải được thông tin khóa học (HTTP ${courseResp.status}).`);
       }
 
       setCourse(courseData);
-    } catch { /* silent */ } finally {
+      if (courseData?.chapters) {
+        setExpandedChapters(
+          new Set(courseData.chapters.map((ch) => String(ch.chapterId || ch.id)))
+        );
+      }
+    } catch {
+      setFetchError("Không thể kết nối tới máy chủ.");
+    } finally {
       setIsLoading(false);
     }
   }, [courseId, activeUserHeaderId]);
 
-  useEffect(() => { fetchCourse(); }, [fetchCourse]);
+  useEffect(() => {
+    fetchCourse();
+  }, [fetchCourse]);
+
+  const completedSet = useMemo(
+    () => new Set(course?.completedLessonIds ?? []),
+    [course?.completedLessonIds]
+  );
+
+  const isDone = useCallback(
+    (lesson: CourseLesson) => Boolean(lesson.isCompleted || completedSet.has(lesson.id)),
+    [completedSet]
+  );
+
+  const allLessons = useMemo(
+    () => (course?.chapters ?? []).flatMap((ch) => ch.lessons ?? []),
+    [course?.chapters]
+  );
+
+  const nextLesson = useMemo(
+    () => allLessons.find((l) => !isDone(l)) || allLessons[0],
+    [allLessons, isDone]
+  );
+
+  const totalMinutes = useMemo(
+    () =>
+      allLessons.reduce(
+        (sum, l) => sum + Number(l.durationMinutes ?? l.estimatedMinutes ?? 10),
+        0
+      ),
+    [allLessons]
+  );
+
+  const filteredChapters = useMemo(() => {
+    if (!course) return [];
+    const q = normalizeVi(searchQuery);
+    return course.chapters
+      .map((ch) => {
+        const matchingLessons = (ch.lessons ?? []).filter((lesson) => {
+          const done = isDone(lesson);
+          if (lessonFilter === "completed" && !done) return false;
+          if (lessonFilter === "pending" && done) return false;
+          if (q && !normalizeVi(lesson.title).includes(q)) return false;
+          return true;
+        });
+        return { ...ch, lessons: matchingLessons };
+      })
+      .filter((ch) => ch.lessons.length > 0 || (!q && lessonFilter === "all"));
+  }, [course, searchQuery, lessonFilter, isDone]);
+
+  const allExpanded =
+    course !== null &&
+    course.chapters.length > 0 &&
+    course.chapters.every((ch) => expandedChapters.has(String(ch.chapterId || ch.id)));
+
+  const toggleAllChapters = () => {
+    if (!course) return;
+    if (allExpanded) {
+      setExpandedChapters(new Set());
+    } else {
+      setExpandedChapters(new Set(course.chapters.map((ch) => String(ch.chapterId || ch.id))));
+    }
+  };
+
+  const toggleChapter = (chId: string) => {
+    setExpandedChapters((prev) => {
+      const next = new Set(prev);
+      if (next.has(chId)) next.delete(chId);
+      else next.add(chId);
+      return next;
+    });
+  };
 
   if (isLoading) {
     return (
@@ -159,180 +257,335 @@ export default function CourseDetailPage() {
   if (!course) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-12 text-center">
+        {fetchError && (
+          <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-600 dark:text-red-400 inline-flex items-center gap-2">
+            <AlertCircle className="w-4 h-4" />
+            <span>{fetchError}</span>
+          </div>
+        )}
         <p className="text-text-secondary mb-4">Không tìm thấy khóa học.</p>
-        <Link href="/app" className="text-sm text-accent hover:underline">← Quay lại tổng quan</Link>
+        <div className="flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={fetchCourse}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-border text-xs font-medium text-text-primary hover:bg-bg-secondary cursor-pointer"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Thử lại
+          </button>
+          <Link href="/app/courses" className="text-sm text-accent hover:underline">
+            ← Về danh sách khóa học
+          </Link>
+        </div>
       </div>
     );
   }
 
-  const completedSet = new Set(course.completedLessonIds ?? []);
-  const allLessons = course.chapters.flatMap((ch) => ch.lessons ?? []);
-  const isDone = (lesson: CourseLesson) =>
-    Boolean(lesson.isCompleted || completedSet.has(lesson.id));
-  const nextLesson = allLessons.find((l) => !isDone(l)) || allLessons[0];
+  const domain = classifyCourseDomain(course);
   const continueLearnHref = nextLesson
     ? `/app/courses/${courseId}/learn?lesson=${nextLesson.id}`
     : `/app/courses/${courseId}/learn`;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-8">
-      {/* Back button */}
-      <button
-        type="button"
-        onClick={() => router.back()}
-        className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition mb-6 cursor-pointer"
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10">
+      {/* Breadcrumb */}
+      <nav
+        aria-label="Breadcrumb"
+        className="flex items-center gap-1.5 text-sm text-text-tertiary mb-6 overflow-x-auto whitespace-nowrap"
       >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Quay lại</span>
-      </button>
+        <Link href="/app/courses" className="hover:text-text-primary transition">
+          Khóa học
+        </Link>
+        <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+        <span className="text-text-primary font-medium truncate">{course.title}</span>
+      </nav>
 
-      {/* Course Header */}
-      <div className="rounded-lg border border-border bg-bg-secondary p-6 mb-6">
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div className="flex-1">
-            {course.category && (
-              <span className="inline-block text-xs font-medium text-accent bg-accent-subtle rounded-md px-2 py-0.5 mb-2">
-                {course.category}
-              </span>
-            )}
-            <h1 className="text-2xl font-bold text-text-primary mb-2">
-              {course.title}
-            </h1>
-            {course.description && (
-              <p className="text-sm text-text-secondary line-clamp-2">
-                {course.description}
-              </p>
-            )}
-          </div>
+      {/* Hero Summary Card */}
+      <div className="rounded-lg border border-border bg-bg-secondary p-6 mb-8">
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <span className="text-xs font-medium text-accent bg-accent-subtle rounded-md px-2.5 py-0.5">
+            {domain.label}
+          </span>
+          {(course.isPublished || course.visibility === "public") && (
+            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 rounded-md px-2.5 py-0.5">
+              Công khai
+            </span>
+          )}
         </div>
 
-        {/* Progress bar */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between text-sm text-text-secondary mb-1.5">
-            <span>Tiến độ: {course.completedLessons}/{course.totalLessons} bài</span>
-            <span className="font-medium">{course.progressPercent}%</span>
+        <h1 className="text-2xl font-semibold tracking-tight text-text-primary mb-2">
+          {course.title}
+        </h1>
+        {course.description && (
+          <p className="text-sm text-text-secondary mb-4 leading-relaxed">
+            {course.description}
+          </p>
+        )}
+
+        {/* Stats Pills */}
+        <div className="flex flex-wrap items-center gap-2 mb-5 text-xs text-text-secondary">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-bg-primary border border-border">
+            <Layers className="w-3.5 h-3.5 text-text-tertiary" />
+            {course.chapters.length} chương
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-bg-primary border border-border">
+            <BookOpen className="w-3.5 h-3.5 text-text-tertiary" />
+            {course.totalLessons} bài giảng
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-bg-primary border border-border">
+            <Clock className="w-3.5 h-3.5 text-text-tertiary" />
+            {totalMinutes} phút
+          </span>
+        </div>
+
+        {/* Overall Progress */}
+        <div className="mb-5">
+          <div className="flex items-center justify-between text-xs text-text-secondary mb-1.5">
+            <span>
+              Tiến độ: {course.completedLessons}/{course.totalLessons} bài hoàn thành
+            </span>
+            <span className="font-semibold text-text-primary">{course.progressPercent}%</span>
           </div>
           <div className="w-full h-2 bg-bg-tertiary rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all ${course.progressPercent === 100 ? "bg-emerald-500" : "bg-accent"}`}
+              className={`h-full rounded-full transition-all ${
+                course.progressPercent === 100 ? "bg-emerald-500" : "bg-accent"
+              }`}
               style={{ width: `${Math.max(0, Math.min(100, course.progressPercent))}%` }}
             />
           </div>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href={continueLearnHref}
-            data-testid="course-continue-learn-btn"
-            className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition"
-          >
-            <Play className="w-4 h-4" />
-            <span>{course.progressPercent > 0 ? "Tiếp tục học" : "Bắt đầu học"}</span>
-          </Link>
-          <Link
-            href={`/app/review?courseId=${courseId}`}
-            className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-border text-text-primary text-sm font-medium hover:bg-bg-tertiary transition"
-          >
-            <Brain className="w-4 h-4" />
-            <span>Ôn tập{course.flashcardCount ? ` (${course.flashcardCount})` : ""}</span>
-          </Link>
+        {/* Next Lesson Highlight Banner */}
+        {nextLesson && (
+          <div className="rounded-md border border-border bg-bg-primary p-3.5 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-text-tertiary">
+                {course.progressPercent === 100 ? "Ôn lại lộ trình" : "Bài học tiếp theo"}
+              </p>
+              <p className="text-sm font-medium text-text-primary truncate mt-0.5">
+                {nextLesson.title}
+              </p>
+            </div>
+            <Link
+              href={continueLearnHref}
+              data-testid="course-continue-learn-btn"
+              className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition shrink-0"
+            >
+              <Play className="w-4 h-4" />
+              <span>{course.progressPercent > 0 ? "Tiếp tục học" : "Bắt đầu học"}</span>
+            </Link>
+          </div>
+        )}
+
+        {/* Secondary Actions */}
+        <div className="flex flex-wrap items-center gap-2">
+          {!nextLesson && (
+            <Link
+              href={continueLearnHref}
+              data-testid="course-continue-learn-btn"
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition"
+            >
+              <Play className="w-4 h-4" />
+              <span>{course.progressPercent > 0 ? "Tiếp tục học" : "Bắt đầu học"}</span>
+            </Link>
+          )}
           <Link
             href={`/app/courses/${courseId}/quiz`}
             data-testid="course-quiz-btn"
-            className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-border text-text-primary text-sm font-medium hover:bg-bg-tertiary transition"
+            className="inline-flex items-center gap-2 h-9 px-3.5 rounded-md border border-border bg-bg-primary text-text-primary text-sm font-medium hover:bg-bg-tertiary transition"
           >
-            <ClipboardCheck className="w-4 h-4" />
-            <span>Làm Quiz{course.quizCount ? ` (${course.quizCount})` : ""}</span>
+            <ClipboardCheck className="w-4 h-4 text-text-secondary" />
+            <span>Làm bài kiểm tra{course.quizCount ? ` (${course.quizCount})` : ""}</span>
           </Link>
           <Link
-            href={`/app/studio/${courseId}`}
-            className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-border text-text-primary text-sm font-medium hover:bg-bg-tertiary transition"
+            href={`/app/review?courseId=${courseId}`}
+            className="inline-flex items-center gap-2 h-9 px-3.5 rounded-md border border-border bg-bg-primary text-text-primary text-sm font-medium hover:bg-bg-tertiary transition"
           >
-            <GraduationCap className="w-4 h-4" />
-            <span>Studio</span>
+            <Brain className="w-4 h-4 text-text-secondary" />
+            <span>Ôn thẻ ghi nhớ{course.flashcardCount ? ` (${course.flashcardCount})` : ""}</span>
+          </Link>
+          <Link
+            href={`/app/courses/${courseId}/edit`}
+            className="inline-flex items-center gap-2 h-9 px-3.5 rounded-md border border-border bg-bg-primary text-text-primary text-sm font-medium hover:bg-bg-tertiary transition"
+          >
+            <Pencil className="w-4 h-4 text-text-secondary" />
+            <span>Biên tập khóa học</span>
           </Link>
         </div>
       </div>
 
-      {/* Course Roadmap */}
-      <div className="mb-8">
-        <h2 className="text-base font-semibold text-text-primary mb-4">Lộ trình khóa học</h2>
+      {/* Interactive Syllabus Explorer */}
+      <div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <h2 className="text-base font-semibold text-text-primary">Đề cương khóa học</h2>
+          {course.chapters.length > 0 && (
+            <button
+              type="button"
+              onClick={toggleAllChapters}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary transition cursor-pointer self-start sm:self-auto"
+            >
+              {allExpanded ? (
+                <>
+                  <ChevronsDownUp className="w-3.5 h-3.5" />
+                  <span>Thu gọn tất cả</span>
+                </>
+              ) : (
+                <>
+                  <ChevronsUpDown className="w-3.5 h-3.5" />
+                  <span>Mở rộng tất cả</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
 
-        {course.chapters.length > 0 ? (
-          <div className="space-y-4">
-            {course.chapters.map((chapter, chIdx) => (
-              <div key={chapter.id} className="rounded-lg border border-border bg-bg-primary">
-                <div className="px-4 py-3 border-b border-border-subtle">
-                  <h3 className="text-sm font-semibold text-text-primary">
-                    Chương {chIdx + 1}: {chapter.title}
-                  </h3>
-                </div>
-                <div className="divide-y divide-border-subtle">
-                  {(chapter.lessons ?? []).map((lesson) => {
-                    const completed = isDone(lesson);
-                    const mins = lesson.durationMinutes ?? lesson.estimatedMinutes;
-                    return (
-                    <Link
-                      key={lesson.id}
-                      href={`/app/courses/${courseId}/learn?lesson=${lesson.id}`}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-bg-secondary transition group"
-                    >
-                      {completed ? (
-                        <CheckCircle2 className="w-4.5 h-4.5 text-emerald-500 shrink-0" />
-                      ) : lesson.id === nextLesson?.id ? (
-                        <Play className="w-4.5 h-4.5 text-accent shrink-0" />
+        {/* Search & Lesson Status Filter */}
+        {allLessons.length > 0 && (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 mb-4">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Tìm bài học trong đề cương..."
+                className="w-full h-9 pl-9 pr-8 rounded-md border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent transition"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              {(
+                [
+                  { id: "all", label: "Tất cả" },
+                  { id: "pending", label: "Chưa học" },
+                  { id: "completed", label: "Đã hoàn thành" },
+                ] as { id: LessonFilter; label: string }[]
+              ).map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setLessonFilter(tab.id)}
+                  className={`h-8 px-3 rounded-md text-xs font-medium transition cursor-pointer ${
+                    lessonFilter === tab.id
+                      ? "bg-text-primary text-bg-primary"
+                      : "bg-bg-secondary text-text-secondary border border-border hover:text-text-primary"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {filteredChapters.length > 0 ? (
+          <div className="space-y-3">
+            {filteredChapters.map((chapter, chIdx) => {
+              const chKey = String(chapter.chapterId || chapter.id);
+              const isOpen =
+                searchQuery.trim().length > 0 ||
+                lessonFilter !== "all" ||
+                expandedChapters.has(chKey);
+              const lessons = chapter.lessons ?? [];
+              const origChapter =
+                course.chapters.find((c) => String(c.chapterId || c.id) === chKey) ?? chapter;
+              const origLessons = origChapter.lessons ?? [];
+              const doneInChapter = origLessons.filter((l) => isDone(l)).length;
+
+              return (
+                <div
+                  key={chKey}
+                  className="rounded-lg border border-border bg-bg-primary overflow-hidden"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleChapter(chKey)}
+                    className="w-full px-4 py-3 bg-bg-secondary/50 hover:bg-bg-secondary flex items-center justify-between gap-3 text-left transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      {isOpen ? (
+                        <ChevronDown className="w-4 h-4 text-text-tertiary shrink-0" />
                       ) : (
-                        <Circle className="w-4.5 h-4.5 text-text-tertiary shrink-0" />
+                        <ChevronRight className="w-4 h-4 text-text-tertiary shrink-0" />
                       )}
-                      <span className={`text-sm flex-1 ${
-                        completed
-                          ? "text-text-tertiary"
-                          : lesson.id === nextLesson?.id
-                          ? "text-accent font-medium"
-                          : "text-text-primary"
-                      } group-hover:text-accent transition`}>
-                        {lesson.title}
-                      </span>
-                      {mins && (
-                        <span className="text-xs text-text-tertiary flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {mins}p
-                        </span>
-                      )}
-                    </Link>
-                    );
-                  })}
+                      <h3 className="text-sm font-semibold text-text-primary truncate">
+                        Chương {chIdx + 1}: {chapter.title}
+                      </h3>
+                    </div>
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-bg-tertiary text-text-secondary shrink-0">
+                      {doneInChapter}/{origLessons.length} bài
+                    </span>
+                  </button>
+
+                  {isOpen && lessons.length > 0 && (
+                    <div className="divide-y divide-border-subtle border-t border-border-subtle">
+                      {lessons.map((lesson) => {
+                        const completed = isDone(lesson);
+                        const isNext = lesson.id === nextLesson?.id && !completed;
+                        const mins = lesson.durationMinutes ?? lesson.estimatedMinutes;
+                        return (
+                          <Link
+                            key={lesson.id}
+                            href={`/app/courses/${courseId}/learn?lesson=${lesson.id}`}
+                            className="flex items-center gap-3 px-4 py-3 hover:bg-bg-secondary transition group"
+                          >
+                            {completed ? (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                            ) : isNext ? (
+                              <Play className="w-4 h-4 text-accent shrink-0" />
+                            ) : (
+                              <Circle className="w-4 h-4 text-text-tertiary shrink-0" />
+                            )}
+
+                            <span
+                              className={`text-sm flex-1 min-w-0 truncate ${
+                                completed
+                                  ? "text-text-tertiary"
+                                  : isNext
+                                    ? "text-accent font-medium"
+                                    : "text-text-primary"
+                              } group-hover:text-accent transition`}
+                            >
+                              {lesson.title}
+                            </span>
+
+                            {mins ? (
+                              <span className="text-xs text-text-tertiary flex items-center gap-1 shrink-0">
+                                <Clock className="w-3 h-3" />
+                                {mins} phút
+                              </span>
+                            ) : null}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="rounded-lg border border-border bg-bg-secondary p-8 text-center">
             <BookOpen className="w-8 h-8 text-text-tertiary mx-auto mb-3" />
-            <p className="text-sm text-text-secondary">Khóa học chưa có nội dung bài giảng.</p>
+            <p className="text-sm text-text-secondary">
+              {allLessons.length > 0
+                ? "Không có bài giảng nào khớp bộ lọc hiện tại."
+                : "Khóa học chưa có nội dung bài giảng."}
+            </p>
           </div>
         )}
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-lg border border-border bg-bg-secondary p-4 text-center">
-          <Sparkles className="w-4 h-4 text-text-tertiary mx-auto mb-1.5" />
-          <p className="text-lg font-bold text-text-primary">{course.totalLessons}</p>
-          <p className="text-xs text-text-tertiary">Bài giảng</p>
-        </div>
-        <div className="rounded-lg border border-border bg-bg-secondary p-4 text-center">
-          <CheckCircle2 className="w-4 h-4 text-emerald-500 mx-auto mb-1.5" />
-          <p className="text-lg font-bold text-text-primary">{course.completedLessons}</p>
-          <p className="text-xs text-text-tertiary">Đã hoàn thành</p>
-        </div>
-        <div className="rounded-lg border border-border bg-bg-secondary p-4 text-center">
-          <TrendingUp className="w-4 h-4 text-accent mx-auto mb-1.5" />
-          <p className="text-lg font-bold text-text-primary">{course.progressPercent}%</p>
-          <p className="text-xs text-text-tertiary">Tiến độ</p>
-        </div>
       </div>
     </div>
   );
 }
+

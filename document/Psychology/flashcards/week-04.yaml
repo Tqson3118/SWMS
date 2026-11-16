@@ -1,0 +1,136 @@
+deck_id: "deck-psy-w04"
+subject: "Psychology"
+lesson_id: "week-04-brain-genes-environment"
+version: "1.0.0"
+description: "Bộ thẻ Flashcard chuẩn hóa ôn tập ngắt quãng (Spaced Repetition - R5 Compliant) Tuần 04: Não bộ, Hệ Thần kinh, Gene, Môi trường và Tính Mềm dẻo"
+
+cards:
+  - id: "fc-psy-w04-001"
+    concept: "Cấu trúc tế bào nơ-ron và chức năng"
+    front: "Bốn bộ phận cấu trúc chính của một tế bào nơ-ron là gì và bao myelin đóng vai trò gì đối với sợi trục?"
+    back: "Bốn bộ phận chính gồm: Thân tế bào (Soma), Sợi nhánh (Dendrites - nhận tín hiệu), Sợi trục (Axon - dẫn truyền xung điện) và Cúc tận cùng (Terminal buttons - chứa túi synap). Bao myelin là lớp vỏ cách điện bọc quanh sợi trục giúp tăng tốc độ truyền dẫn xung điện."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-04-brain-genes-environment.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C04-01"
+    tags:
+      - "neuroscience"
+      - "neuron-structure"
+      - "myelin"
+
+  - id: "fc-psy-w04-002"
+    concept: "Điện thế động và Quy luật Tất cả hoặc Không"
+    front: "Điện thế nghỉ của màng nơ-ron xấp xỉ bao nhiêu và Quy luật Tất cả hoặc Không (All-or-none law) của điện thế động quy định điều gì?"
+    back: "Điện thế nghỉ xấp xỉ -70 mV. Khi kích thích đạt ngưỡng (khoảng -55 mV), điện thế động bùng phát theo quy luật Tất cả hoặc Không: xung điện luôn phát ở cường độ tối đa và không suy giảm dọc sợi trục; kích thích mạnh hơn chỉ làm tăng tần số phát xung."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-04-brain-genes-environment.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C04-02"
+    tags:
+      - "electrophysiology"
+      - "action-potential"
+      - "all-or-none"
+
+  - id: "fc-psy-w04-003"
+    concept: "Dẫn truyền qua synap và cơ chế tái hấp thu"
+    front: "Cơ chế truyền tin qua khe synap diễn ra như thế nào và hiện tượng tái hấp thu (reuptake) có vai trò gì?"
+    back: "Chất dẫn truyền thần kinh được giải phóng vào khe synap và gắn đặc hiệu vào các thụ thể sau synap theo cơ chế chìa khóa - ổ khóa. Tái hấp thu (reuptake) là quy trình bơm ngược các phân tử chất dẫn truyền dư thừa trở lại nơ-ron tiền synap để dọn sạch khe synap."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-04-brain-genes-environment.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C04-03"
+    tags:
+      - "synapse"
+      - "neurotransmission"
+      - "reuptake"
+
+  - id: "fc-psy-w04-004"
+    concept: "Các chất dẫn truyền thần kinh chính"
+    front: "Nêu vai trò tâm lý sinh học của Dopamine và GABA trong hệ thần kinh trung ương?"
+    back: "Dopamine tham gia cơ chế phần thưởng, động lực và kiểm soát vận động (thiếu hụt liên quan Parkinson, rối loạn thụ thể liên quan tâm thần phân liệt). GABA là chất dẫn truyền ức chế chính của hệ thần kinh trung ương, giúp làm dịu hoạt động não và giảm lo âu."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-04-brain-genes-environment.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C04-04"
+    tags:
+      - "neurotransmitters"
+      - "dopamine"
+      - "gaba"
+
+  - id: "fc-psy-w04-005"
+    concept: "Cơ chế tác động của thuốc SSRI"
+    front: "Thuốc chống trầm cảm nhóm SSRI tác động lên khớp nối synap dựa trên cơ chế dược lý nào?"
+    back: "SSRI (Selective Serotonin Reuptake Inhibitors) ức chế có chọn lọc các bơm tái hấp thu ở nơ-ron tiền synap, ngăn chặn việc thu hồi serotonin, làm tăng nồng độ và kéo dài thời gian serotonin tồn tại trong khe synap để gắn vào thụ thể."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-04-brain-genes-environment.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C04-05"
+    tags:
+      - "pharmacology"
+      - "ssri"
+      - "serotonin"
+
+  - id: "fc-psy-w04-006"
+    concept: "Hệ Giao cảm đối lập Hệ Đối giao cảm"
+    front: "Phân biệt chức năng sinh học của Hệ thần kinh Giao cảm (Sympathetic) và Hệ thần kinh Đối giao cảm (Parasympathetic)?"
+    back: "Hệ Giao cảm kích hoạt phản ứng chiến-hay-chạy (Fight-or-Flight) khi căng thẳng: tăng nhịp tim, giãn đồng tử, ức chế tiêu hóa. Hệ Đối giao cảm kích hoạt trạng thái nghỉ ngơi, hồi phục và tiêu hóa (Rest-and-Digest): làm chậm nhịp tim, co đồng tử, kích thích tiêu hóa."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-04-brain-genes-environment.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C04-06"
+    tags:
+      - "autonomic-nervous-system"
+      - "sympathetic"
+      - "parasympathetic"
+
+  - id: "fc-psy-w04-007"
+    concept: "Bốn thùy vỏ não và chức năng chuyên biệt"
+    front: "Kể tên bốn thùy vỏ não và chức năng cốt lõi của Thùy trán (Frontal lobe) cùng Vùng Broca?"
+    back: "Bốn thùy gồm: Thùy trán, Thùy đỉnh (cảm giác thân thể), Thùy thái dương (thính giác, Wernicke), Thùy chẩm (thị giác). Thùy trán đảm nhận chức năng điều hành, kiểm soát xung động, lập kế hoạch, vận động sơ cấp và Vùng Broca chuyên trách sản xuất ngôn ngữ nói."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-04-brain-genes-environment.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C04-07"
+    tags:
+      - "brain-lobes"
+      - "frontal-lobe"
+      - "broca"
+
+  - id: "fc-psy-w04-008"
+    concept: "Hệ viền: Hồi hải mã và Hạch hạnh nhân"
+    front: "Vai trò phân biệt của Hồi hải mã (Hippocampus) và Hạch hạnh nhân (Amygdala) trong Hệ viền là gì?"
+    back: "Hồi hải mã là cấu trúc sống còn cho việc mã hóa và củng cố trí nhớ dài hạn tường minh có ý thức; Hạch hạnh nhân là trung tâm xử lý cảm xúc cốt lõi, đặc biệt là nhận diện mối đe dọa, phản ứng sợ hãi và gắn nhãn cảm xúc cho ký ức."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-04-brain-genes-environment.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C04-08"
+    tags:
+      - "limbic-system"
+      - "hippocampus"
+      - "amygdala"
+
+  - id: "fc-psy-w04-009"
+    concept: "Tính mềm dẻo của não bộ và Neurogenesis"
+    front: "Tính mềm dẻo của não bộ (Neuroplasticity) là gì và hiện tượng Neurogenesis diễn ra ở đâu trong não người trưởng thành?"
+    back: "Tính mềm dẻo của não bộ là khả năng thích ứng của hệ thần kinh trong việc thay đổi cấu trúc synap và tổ chức lại mạng lưới chức năng đáp ứng với việc học hỏi và phục hồi sau chấn thương. Neurogenesis (sản sinh nơ-ron mới) vẫn liên tục diễn ra ở người lớn, đặc biệt tại Hồi hải mã."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-04-brain-genes-environment.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C04-09"
+    tags:
+      - "neuroplasticity"
+      - "neurogenesis"
+      - "adaptation"
+
+  - id: "fc-psy-w04-010"
+    concept: "Di truyền biểu sinh và Phạm vi phản ứng"
+    front: "Mô hình Phạm vi phản ứng (Range of reaction) và Di truyền học biểu sinh (Epigenetics) bác bỏ thuyết tiền định di truyền như thế nào?"
+    back: "Phạm vi phản ứng chỉ ra rằng gene thiết lập giới hạn biên tiềm năng, còn môi trường quyết định vị trí thực tế của cá nhân. Di truyền biểu sinh chứng minh các yếu tố môi trường có thể làm thay đổi hoạt động biểu hiện gene (bật/tắt gene) mà không làm biến đổi chuỗi trình tự ADN gốc."
+    source_lesson: "Psychology/notes/01-scientific-foundations/week-04-brain-genes-environment.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C04-10"
+    tags:
+      - "genetics"
+      - "epigenetics"
+      - "range-of-reaction"

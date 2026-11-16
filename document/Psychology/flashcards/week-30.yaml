@@ -1,0 +1,83 @@
+deck_id: "deck-psy-w30"
+subject: "Psychology"
+lesson_id: "week-30-boundaries-consent"
+version: "1.0.0"
+description: "Flashcards ôn tập Tuần 30 - Ranh giới và Consent"
+
+cards:
+  - id: "fc-psy-w30-001"
+    concept: "Boundaries (Ranh giới)"
+    front: "Định nghĩa về ranh giới (Boundaries) trong tâm lý học là gì?"
+    back: "Là những giới hạn vật lý, cảm xúc, thời gian và không gian mà cá nhân thiết lập để bảo vệ sức khỏe tinh thần và sự an toàn của bản thân."
+    source_lesson: "Psychology/notes/04-love-relationships/week-30-boundaries-consent.md"
+    version: "1.0.0"
+    tags:
+      - "boundaries"
+
+  - id: "fc-psy-w30-002"
+    concept: "FRIES Model (Consent)"
+    front: "5 tiêu chí của sự Đồng thuận (Consent) theo mô hình FRIES là gì?"
+    back: "Freely given (Tự nguyện), Reversible (Có thể rút lại), Informed (Có thông tin), Enthusiastic (Hào hứng), Specific (Cụ thể)."
+    source_lesson: "Psychology/notes/04-love-relationships/week-30-boundaries-consent.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C30-01"
+    tags:
+      - "consent"
+
+  - id: "fc-psy-w30-003"
+    concept: "Autonomy"
+    front: "Autonomy (Quyền tự quyết) trong Thuyết Tự Quyết (SDT) nghĩa là gì?"
+    back: "Là nhu cầu tâm lý cơ bản được hành động theo ý chí tự do và giá trị của bản thân, không bị ép buộc hay thao túng."
+    source_lesson: "Psychology/notes/04-love-relationships/week-30-boundaries-consent.md"
+    version: "1.0.0"
+    tags:
+      - "sdt"
+      - "autonomy"
+
+  - id: "fc-psy-w30-004"
+    concept: "Porous vs Rigid boundaries"
+    front: "Sự khác biệt giữa Ranh giới lỏng lẻo (Porous) và Ranh giới cứng nhắc (Rigid)?"
+    back: "Lỏng lẻo: Khó nói Không, ôm đồm việc người khác. Cứng nhắc: Tránh né giao tiếp, khép kín, từ chối sự giúp đỡ và thân mật."
+    source_lesson: "Psychology/notes/04-love-relationships/week-30-boundaries-consent.md"
+    version: "1.0.0"
+    tags:
+      - "boundaries"
+
+  - id: "fc-psy-w30-005"
+    concept: "Reversible Consent"
+    front: "Tiêu chí 'Reversible' (Có thể rút lại) trong Consent nghĩa là gì?"
+    back: "Sự đồng thuận không phải là vĩnh viễn; một người có quyền thay đổi ý định và dừng lại bất kỳ lúc nào."
+    source_lesson: "Psychology/notes/04-love-relationships/week-30-boundaries-consent.md"
+    version: "1.0.0"
+    tags:
+      - "consent"
+
+  - id: "fc-psy-w30-006"
+    concept: "Enthusiastic Consent"
+    front: "Tại sao Consent phải 'Enthusiastic' (Hào hứng)?"
+    back: "Để đảm bảo đối phương thực sự muốn tham gia (chủ động), chứ không phải vì cam chịu, sợ hãi, hay do phản ứng đóng băng (freeze)."
+    source_lesson: "Psychology/notes/04-love-relationships/week-30-boundaries-consent.md"
+    version: "1.0.0"
+    tags:
+      - "consent"
+
+  - id: "fc-psy-w30-007"
+    concept: "Labeling"
+    front: "Tại sao không nên tùy tiện dán nhãn người vi phạm ranh giới là 'kẻ độc hại' (toxic)?"
+    back: "Vì nó tấn công vào bản chất thay vì giải quyết hành vi. Vi phạm ranh giới có thể do thiếu kỹ năng giao tiếp, trừ trường hợp bạo hành rõ ràng."
+    source_lesson: "Psychology/notes/04-love-relationships/week-30-boundaries-consent.md"
+    version: "1.0.0"
+    tags:
+      - "communication"
+      - "safety"
+
+  - id: "fc-psy-w30-008"
+    concept: "Autonomy Support"
+    front: "Autonomy support (Hỗ trợ quyền tự quyết) trong tình yêu mang lại hiệu quả gì?"
+    back: "Gia tăng sự hài lòng và cam kết trong mối quan hệ, trái ngược với hành vi kiểm soát làm xói mòn lòng tin."
+    source_lesson: "Psychology/notes/04-love-relationships/week-30-boundaries-consent.md"
+    version: "1.0.0"
+    tags:
+      - "sdt"
+      - "relationships"

@@ -1,0 +1,117 @@
+schema_version: 2.0.0
+package_id: package:fscr:w21
+subject_id: roadmap:subject:fullstack-csharp-react-refresh
+display_title: FullStack C# + React Refresh
+source_status: in_review
+version: 1
+created_at: '2026-10-03T09:21:35Z'
+subject: FullStack C# + React Refresh
+course: FullStack C# + React Refresh
+module: phase-6-week-21
+lesson: week-21
+source_ledger_path: quality/ledger-w21.md
+learning_objectives:
+- id: LO-W21-01
+  bloom_level: Apply
+  statement: Tạo history có thể review và tái hiện.
+- id: LO-W21-02
+  bloom_level: Apply
+  statement: Chẩn đoán đường dẫn, quyền và network service.
+- id: LO-W21-03
+  bloom_level: Apply
+  statement: Phân biệt public frontend config với backend secret.
+concepts:
+- id: concept:fscr:w21-c01
+  name: Git và review workflow
+  claim_ids:
+  - W21-C01
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w21.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w21-c02
+  name: Linux và process basics
+  claim_ids:
+  - W21-C02
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w21.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w21-c03
+  name: Configuration và secrets
+  claim_ids:
+  - W21-C03
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w21.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+questions:
+- id: Q21-01
+  lo_ref: LO-W21-01
+  concept_id: concept:fscr:w21-c01
+  claim_ids:
+  - W21-C01
+- id: Q21-02
+  lo_ref: LO-W21-01
+  concept_id: concept:fscr:w21-c01
+  claim_ids:
+  - W21-C01
+- id: Q21-03
+  lo_ref: LO-W21-02
+  concept_id: concept:fscr:w21-c02
+  claim_ids:
+  - W21-C02
+- id: Q21-04
+  lo_ref: LO-W21-02
+  concept_id: concept:fscr:w21-c02
+  claim_ids:
+  - W21-C02
+- id: Q21-05
+  lo_ref: LO-W21-03
+  concept_id: concept:fscr:w21-c03
+  claim_ids:
+  - W21-C03
+- id: Q21-06
+  lo_ref: LO-W21-03
+  concept_id: concept:fscr:w21-c03
+  claim_ids:
+  - W21-C03
+units:
+- unit_id: roadmap:unit:fscr:w21
+  display_title: 'Tuần 21: Git, Linux và environment configuration'
+  sort_order: 21
+  artifacts:
+  - role: lesson_theory
+    path: notes/module-6/week-21.html
+    sha256: ead20e6d22d4eb8ecc861ef0c31a79fdd7fe9a4cfc87ac136f1ca31993503482
+    byte_length: 8504
+    stable_id: roadmap:lesson:fscr:w21
+  - role: quiz_questions
+    path: assessments/quizzes/week-21-quiz.md
+    sha256: d4560f0ee61b5ef8f359704275b5dc945354b056d5735f1d9c01dd26490854f6
+    byte_length: 1220
+    stable_id: roadmap:quiz:fscr:w21
+    question_count: 6
+  - role: quiz_answers
+    path: assessments/answer-keys/week-21-answers.md
+    sha256: 2719bc5abfa332c07168ab4baa3dd3ef8d66f7b94262b42746f13c58d3cc40f1
+    byte_length: 3912
+    stable_id: roadmap:answers:fscr:w21
+    correct_count: 6
+    wrong_count: 18
+  - role: flashcard_deck
+    path: flashcards/week-21.yaml
+    sha256: 2fb5db3343ef1db64732ca0027cd0f446e570adaeb168680feaf53933cdee129
+    byte_length: 1960
+    stable_id: roadmap:deck:fscr:w21
+    card_count: 6
+  - role: source_ledger
+    path: quality/ledger-w21.md
+    sha256: a119e535b73dcccf0fb7602d892a85e1b34d2a1db2b08f967733d45e59f8ede1
+    byte_length: 708

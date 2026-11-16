@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -41,6 +41,7 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
 
   return (
     <header
+      data-testid="landing-header"
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
         isScrolled
           ? "bg-white/80 dark:bg-neutral-950/80 backdrop-blur-lg border-b border-neutral-200 dark:border-neutral-800"
@@ -61,8 +62,10 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
         {/* Right actions */}
         <div className="flex items-center gap-2">
           <button
+            type="button"
+            data-testid="theme-toggle-btn"
             onClick={toggleDark}
-            className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition text-neutral-500 dark:text-neutral-400"
+            className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition text-neutral-500 dark:text-neutral-400 cursor-pointer"
             aria-label="Toggle theme"
           >
             {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -75,6 +78,7 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
           </Link>
           <Link
             href="/auth?tab=register"
+            data-testid="landing-nav-cta"
             className="text-sm font-medium bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-4 py-1.5 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition shadow-sm"
           >
             Bắt đầu miễn phí
@@ -88,7 +92,7 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
 /* ── Hero ─────────────────────────────────────────────────────── */
 function HeroSection() {
   return (
-    <section className="relative pt-32 pb-20 px-6">
+    <section data-testid="landing-hero-section" className="relative pt-32 pb-20 px-6">
       {/* Subtle gradient background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-indigo-100/50 via-violet-50/30 to-transparent dark:from-indigo-950/30 dark:via-violet-950/20 dark:to-transparent rounded-full blur-3xl" />
@@ -117,6 +121,7 @@ function HeroSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             href="/auth?tab=register"
+            data-testid="landing-hero-cta"
             className="inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-100 transition shadow-lg shadow-neutral-900/10 dark:shadow-white/10"
           >
             Bắt đầu miễn phí
@@ -259,7 +264,7 @@ const PILLARS = [
 
 function FeaturesSection() {
   return (
-    <section id="features" className="px-6 py-24">
+    <section id="features" data-testid="landing-pillars-section" className="px-6 py-24">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-white tracking-tight mb-4">
@@ -321,7 +326,7 @@ const STEPS = [
 
 function WorkflowSection() {
   return (
-    <section className="px-6 py-24 bg-neutral-50 dark:bg-neutral-950/50">
+    <section data-testid="landing-workflow-section" className="px-6 py-24 bg-neutral-50 dark:bg-neutral-950/50">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-white tracking-tight mb-4">
@@ -373,7 +378,7 @@ function ShortcutsSection() {
   ];
 
   return (
-    <section id="shortcuts" className="px-6 py-24 scroll-mt-16">
+    <section id="shortcuts" data-testid="landing-shortcuts-section" className="px-6 py-24 scroll-mt-16">
       <div className="max-w-4xl mx-auto">
         <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-8 sm:p-12">
           <div className="flex items-start gap-4 mb-8">
@@ -437,7 +442,7 @@ function CTASection() {
 /* ── Footer ───────────────────────────────────────────────────── */
 function Footer({ onOpenInfo }: { onOpenInfo: (tab: "privacy" | "terms") => void }) {
   return (
-    <footer className="border-t border-neutral-200 dark:border-neutral-800 px-6 py-8">
+    <footer data-testid="landing-footer" className="border-t border-neutral-200 dark:border-neutral-800 px-6 py-8">
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-md bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-[10px] font-bold">
@@ -453,6 +458,7 @@ function Footer({ onOpenInfo }: { onOpenInfo: (tab: "privacy" | "terms") => void
         <div className="flex items-center gap-6 text-xs text-neutral-400 dark:text-neutral-500">
           <button
             type="button"
+            data-testid="privacy-modal-trigger"
             onClick={() => onOpenInfo("privacy")}
             className="hover:text-neutral-600 dark:hover:text-neutral-300 transition cursor-pointer"
           >
@@ -460,6 +466,7 @@ function Footer({ onOpenInfo }: { onOpenInfo: (tab: "privacy" | "terms") => void
           </button>
           <button
             type="button"
+            data-testid="terms-modal-trigger"
             onClick={() => onOpenInfo("terms")}
             className="hover:text-neutral-600 dark:hover:text-neutral-300 transition cursor-pointer"
           >
@@ -467,6 +474,7 @@ function Footer({ onOpenInfo }: { onOpenInfo: (tab: "privacy" | "terms") => void
           </button>
           <Link
             href="/app"
+            data-testid="landing-app-link"
             className="hover:text-neutral-600 dark:hover:text-neutral-300 transition"
           >
             Vào ứng dụng
@@ -482,6 +490,20 @@ export function LandingPageV2() {
   const router = useRouter();
   const { darkMode, toggleDarkMode } = useWorkspaceStore();
   const [infoModal, setInfoModal] = useState<"privacy" | "terms" | null>(null);
+  const infoModalRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!infoModal) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusables = infoModalRef.current?.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    focusables?.[0]?.focus();
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [infoModal]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -490,6 +512,22 @@ export function LandingPageV2() {
         target &&
         (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
       ) {
+        return;
+      }
+      if (infoModal && e.key === "Tab" && infoModalRef.current) {
+        const focusables = Array.from(
+          infoModalRef.current.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
+        );
+        if (focusables.length > 0) {
+          e.preventDefault();
+          const currentIdx = focusables.indexOf(document.activeElement as HTMLElement);
+          const nextIdx = e.shiftKey
+            ? (currentIdx <= 0 ? focusables.length - 1 : currentIdx - 1)
+            : (currentIdx + 1) % focusables.length;
+          focusables[nextIdx].focus();
+        }
         return;
       }
       if (e.key === "?" && !e.ctrlKey && !e.metaKey && !e.altKey) {
@@ -507,7 +545,10 @@ export function LandingPageV2() {
   }, [infoModal, router]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 antialiased">
+    <div
+      data-testid="landing-page-root"
+      className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 antialiased"
+    >
       <Header dark={darkMode} toggleDark={toggleDarkMode} />
       <HeroSection />
       <PreviewSection />
@@ -523,6 +564,10 @@ export function LandingPageV2() {
           onClick={() => setInfoModal(null)}
         >
           <div
+            ref={infoModalRef}
+            role="dialog"
+            aria-modal="true"
+            data-testid="landing-info-modal"
             className="w-full max-w-md rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
@@ -532,6 +577,7 @@ export function LandingPageV2() {
               </h3>
               <button
                 type="button"
+                data-testid="close-info-modal"
                 onClick={() => setInfoModal(null)}
                 className="p-1 rounded-md text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition cursor-pointer"
                 aria-label="Đóng"

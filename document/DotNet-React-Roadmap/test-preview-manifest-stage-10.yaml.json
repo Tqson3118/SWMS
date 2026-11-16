@@ -1,0 +1,96 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-07T11:23:26Z",
+  "unit_id": "roadmap:unit:dotnet-react:stage-10",
+  "subject_id": "roadmap:subject:dotnet-react",
+  "subject_title": "Stage 10 SQL/EF Core query shape, migration, and concurrency manual activity",
+  "unit_title": "Stage 10 SQL/EF Core query shape, migration, and concurrency manual activity",
+  "source_status": "draft",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:dotnet-react:stage-10",
+    "title": "Chặng 10: SQL và EF Core sâu hơn",
+    "content_markdown": "# Chặng 10: SQL và EF Core sâu hơn\n\nThời lượng tham khảo: 4–5 tuần. Điều kiện vào: đã có API CRUD, migration và contract ExpenseResponse ở Chặng 5–7.\n\nChặng này chuyển từ “query trả kết quả” sang “query có thể giải thích, đo lường và giữ dữ liệu đúng khi nhiều người cùng sửa”. Không tối ưu bằng cảm giác; luôn tạo dữ liệu thử, đo trước, thay đổi một thứ rồi đo lại.\n\n## Mục tiêu đạt được\n\n- Đọc execution plan ở mức đủ để tìm scan, seek, join và sort đáng chú ý.\n- Tạo index theo query thực tế, không tạo index cho mọi column.\n- Hiểu transaction boundary, isolation và nguy cơ đọc dữ liệu chưa ổn định.\n- Xử lý optimistic concurrency và trả 409 khi bản ghi đã bị người khác sửa.\n- Dùng projection, no-tracking, pagination và query filter có chủ đích.\n- Tạo migration an toàn khi database đã có dữ liệu.\n\n## Tuần 1: index và đo query\n\n### Buổi 1: index không phải thuốc chữa mọi query\n\nIndex giúp database tìm row theo một số access pattern nhanh hơn nhưng làm tăng chi phí ghi và dung lượng. Query phải lọc/sắp xếp theo cột phù hợp; một index không được dùng chỉ vì nó tồn tại.\n\nBắt đầu bằng query danh sách theo user và ngày:\n\n```sql\nSELECT Id, CategoryId, Amount, SpentOn, Note\nFROM Expenses\nWHERE OwnerUserId = @ownerUserId\n  AND SpentOn &gt;= @from\n  AND SpentOn &lt; @to\nORDER BY SpentOn DESC, Id DESC;\n```\n\nTạo dữ liệu thử đủ lớn rồi đo:\n\n```sql\nSET STATISTICS IO ON;\nSET STATISTICS TIME ON;\n\n-- Chạy query trước khi th&#234;m index.\n-- Tạo index dựa tr&#234;n query v&#224; kiểm tra lại execution plan.\n```\n\nBài tập: ghi logical reads, elapsed time và execution plan trước/sau. Nếu dữ liệu quá ít khiến kết quả không có ý nghĩa, nói rõ giới hạn của phép đo.\n\n### Buổi 2: projection, pagination và N+1\n\nAPI list không nên trả entity/navigation graph không cần thiết. Chỉ chọn field cần hiển thị, áp dụng filter ở database và giới hạn page size do client gửi.\n\n```csharp\nvar pageSize = Math.Clamp(request.PageSize, 1, 100);\nvar page = Math.Max(request.Page, 1);\n\nvar items = await db.Expenses\n    .AsNoTracking()\n    .Where(x =&gt; x.OwnerUserId == ownerUserId)\n    .OrderByDescending(x =&gt; x.SpentOn)\n    .ThenByDescending(x =&gt; x.Id)\n    .Skip((page - 1) * pageSize)\n    .Take(pageSize)\n    .Select(x =&gt; new ExpenseResponse\n    {\n        Id = x.Id,\n        CategoryId = x.CategoryId,\n        CategoryName = x.Category.Name,\n        Amount = x.Amount,\n        SpentOn = x.SpentOn,\n        Note = x.Note\n    })\n    .ToListAsync(cancellationToken);\n```\n\nBài tập: thử gọi endpoint với pageSize âm, rất lớn và page overflow. Trả metadata total/page/pageSize rõ ràng. Không gọi ToList trước Where/Skip/Take.\n\n## Tuần 2: transaction và isolation\n\n### Buổi 3: transaction boundary\n\nMột request có nhiều thay đổi liên quan phải xác định ranh giới nguyên tử. SaveChanges thường có transaction cho chính lần save, nhưng một quy trình gồm nhiều lệnh hoặc nhiều SaveChanges cần thiết kế rõ.\n\n```csharp\nawait using var transaction =\n    await db.Database.BeginTransactionAsync(cancellationToken);\n\ntry\n{\n    // Thay đổi expense v&#224; audit record phải c&#249;ng th&#224;nh c&#244;ng hoặc c&#249;ng thất bại.\n    await db.SaveChangesAsync(cancellationToken);\n    await transaction.CommitAsync(cancellationToken);\n}\ncatch\n{\n    await transaction.RollbackAsync(cancellationToken);\n    throw;\n}\n```\n\nIsolation level ảnh hưởng việc transaction nhìn thấy thay đổi của transaction khác. Không học thuộc “Serializable luôn tốt hơn”; mức cô lập cao hơn có thể tăng khóa/chờ. Tạo hai session SQL để quan sát dirty read, non-repeatable read hoặc deadlock ở dữ liệu học tập.\n\n### Buổi 4: migration khi đã có dữ liệu\n\nTrước migration:\n\n1. Backup database học tập hoặc tạo bản copy.\n2. Đọc SQL migration sinh ra.\n3. Xác định column mới có nullable/default/backfill hay không.\n4. Chạy trên database test trước.\n5. Có kế hoạch rollback; không xóa migration đã áp dụng chỉ để làm lịch sử “đẹp”.\n\nBài tập: thêm OwnerUserId hoặc CreatedAtUtc vào database đã có expense. Nếu column bắt buộc, phải backfill dữ liệu cũ trước khi đặt NOT NULL. Kiểm tra số row trước/sau.\n\n## Tuần 3: optimistic concurrency\n\n### Buổi 5: phát hiện hai người sửa cùng row\n\nOptimistic concurrency cho phép nhiều người đọc, nhưng lúc ghi phải kiểm tra bản ghi chưa bị đổi. Với SQL Server, có thể dùng rowversion làm concurrency token.\n\n```csharp\npublic sealed class Expense\n{\n    public int Id { get; set; }\n    public decimal Amount { get; set; }\n    public byte[] Version { get; set; } = Array.Empty&lt;byte&gt;();\n}\n\nprotected override void OnModelCreating(ModelBuilder modelBuilder)\n{\n    modelBuilder.Entity&lt;Expense&gt;()\n        .Property(x =&gt; x.Version)\n        .IsRowVersion();\n}\n```\n\nKhi SaveChangesAsync ném DbUpdateConcurrencyException, không tự động ghi đè dữ liệu mới. Đọc lại current database values, trả 409 Conflict và cho UI lựa chọn tải lại hoặc hiển thị hai phiên bản.\n\n```csharp\ntry\n{\n    await db.SaveChangesAsync(cancellationToken);\n}\ncatch (DbUpdateConcurrencyException)\n{\n    return Conflict(new\n    {\n        code = &quot;expense_changed&quot;,\n        message = &quot;Khoản chi đ&#227; thay đổi. H&#227;y tải lại trước khi lưu.&quot;\n    });\n}\n```\n\nBài tập: mở hai cửa sổ hoặc viết hai test scope. Cả hai đọc cùng Version; request thứ nhất lưu thành công, request thứ hai phải nhận 409 và không làm mất dữ liệu thứ nhất.\n\n## Dự án chặng: query nhanh hơn và giữ dữ liệu đúng\n\nNâng cấp Sổ chi tiêu theo lát cắt:\n\n1. Thêm pagination/filter theo owner và khoảng ngày.\n2. Thêm index phục vụ đúng query list đã đo.\n3. Thêm báo cáo tổng theo tháng bằng projection/grouping.\n4. Thêm rowversion và API cập nhật có concurrency token.\n5. Trả 409 có contract ổn định; frontend hiển thị nút tải lại.\n6. Viết migration nâng schema trên database có dữ liệu mẫu.\n7. Ghi kết quả đo trước/sau trong README, kèm dữ liệu và query đã dùng.\n\n### Dữ liệu biên bắt buộc\n\n- Không có row, page vượt quá total, pageSize 0/101/giá trị rất lớn.\n- Hai request cùng sửa một expense.\n- Migration chạy trên database rỗng và database đã có row.\n- Query filter ngày ở ranh giới đầu/cuối tháng.\n- Category bị xóa hoặc không còn hợp lệ.\n- Transaction thất bại giữa chừng và audit record không được ghi riêng lẻ.\n\n### Checkpoint\n\nCụ đạt chặng khi có thể:\n\n- Đọc được lý do query chậm từ SQL/plan/log, không chỉ nói “EF chậm”.\n- Chứng minh index giúp một query cụ thể hoặc giải thích vì sao optimizer không dùng nó.\n- Tái hiện concurrency conflict và trả 409 mà không mất update.\n- Nâng schema mà giữ được dữ liệu cũ và có cách kiểm tra.\n\n## Interview checkpoint\n\n1. Tại sao thêm index mà query vẫn chậm?\n2. Khi nào dùng AsNoTracking?\n3. Vì sao projection thường tốt hơn trả entity?\n4. Offset pagination có nhược điểm gì khi dữ liệu thay đổi?\n5. Transaction và optimistic concurrency giải quyết hai loại vấn đề nào?\n6. Vì sao retry mù một SaveChanges có thể tạo hành vi sai?\n7. 409 khác 400 và 404 trong case concurrency ra sao?\n8. Đọc execution plan, cụ sẽ tìm operator nào trước?\n\nBài debug có thời gian 35 phút: endpoint list chạy 4 giây sau khi có 1 triệu row. Cụ phải tạo giả thuyết, đo query, kiểm tra filter/order/index và viết lại kết luận trước khi sửa.\n\n## Tự chấm\n\n- 0: biết từ khóa index/transaction nhưng chưa đo.\n- 1: query chạy đúng trên dữ liệu nhỏ.\n- 2: có benchmark nhỏ, pagination, migration và concurrency test.\n- 3: giải thích được trade-off index/ghi, isolation/lock và xử lý conflict ở cả API/UI.\n\n## Tài liệu chính thức\n\n- [Efficient Querying](https://learn.microsoft.com/en-us/ef/core/performance/efficient-querying)\n- [Handling Concurrency Conflicts](https://learn.microsoft.com/en-us/ef/core/saving/concurrency)\n- [Using Transactions](https://learn.microsoft.com/en-us/ef/core/saving/transactions)\n- [Migrations overview](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/)\n- [Pagination](https://learn.microsoft.com/en-us/ef/core/querying/pagination)\n- [Indexes](https://learn.microsoft.com/en-us/ef/core/modeling/indexes)\n",
+    "source_citations": [
+      "`10.md`, Tuần 1 Buổi 1–2",
+      "EF Core Efficient Querying",
+      "EF Core Pagination",
+      "EF Core Indexes",
+      "`10.md`, Tuần 1 Buổi 2",
+      "Tuần 2 Buổi 3",
+      "project",
+      "EF Core Transactions",
+      "EF Core Pagination",
+      "`10.md`, Tuần 2 Buổi 4",
+      "project",
+      "EF Core Migrations Overview",
+      "data-retention task"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-DOTNET-S10-01]",
+        "bloom_level": "Apply",
+        "statement": "Measure and improve one owner/date query with bounded projection, pagination, indexing, transaction and populated-migration evidence while preserving data boundaries."
+      },
+      {
+        "id": "[LO-DOTNET-S10-02]",
+        "bloom_level": "Analyze",
+        "statement": "Explain query shape, N+1, plan and index trade-offs, isolation, provider-scoped rowversion, stale-write 409 behavior, UI recovery and timed-debug limits."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "DOTNET-S10-C01",
+        "name": "Query shape, projection, pagination, N+1, and index measurement",
+        "evidence_label": "preliminary"
+      },
+      {
+        "id": "DOTNET-S10-C02",
+        "name": "Transactions, period reports, populated migrations, and retention boundaries",
+        "evidence_label": "preliminary"
+      },
+      {
+        "id": "DOTNET-S10-C03",
+        "name": "Provider-scoped optimistic concurrency and 409/UI recovery",
+        "evidence_label": "preliminary"
+      }
+    ],
+    "external_resources": []
+  },
+  "activity": {
+    "stable_id": "activity:dotnet:stage-10",
+    "type": "manual",
+    "title": "Stage 10 SQL/EF Core query shape, migration, transactions, and concurrency evidence",
+    "instructions": "This single manual unit maps to DotNet-React-Roadmap/10.md. Complete Stage 09 first and preserve the learner sequence Stage 09 -> Stage 10 -> Stage 11. Work in a learner-owned scratch project and learning database only. This is guided learner evidence, not runtime approval or a deployment gate. If SDK, provider, SQL Server, database, or browser tooling is unavailable, record the exact blocker and leave that observation incomplete; unavailable or unperformed evidence earns zero for that observation.\n\nStart with a concrete owner/date expense list query. Record the query shape, filter/order semantics, page and page-size contract, and a baseline logical-read/time/plan observation on enough learning data to make the limitation visible. Apply projection and AsNoTracking deliberately. Keep filtering, ordering, Skip and Take in the database; do not call ToList before them. Compare a bounded page, an empty result, page beyond total, pageSize 0, 101, negative and a very large value. Define a safe page/offset overflow boundary using an explicit maximum, long/checked arithmetic, or a documented rejection; show the actual response or preserve the blocker. A code snippet without observed boundary evidence earns no point for that observation.\n\nInspect the query shape for navigation loading and N+1 behavior. Record SQL/log or ToQueryString evidence where available, compare projection with entity/navigation loading, and explain why a query may still scan or sort despite an index. Measure before and after one index chosen from the actual filter/order query, including logical reads, elapsed time and plan evidence; record write/storage trade-offs and the small-data limitation. Do not claim that an index is beneficial from its existence alone.\n\nAdd a monthly aggregate/report projection and verify the date boundary with an inclusive start and exclusive end. Exercise no rows, month boundary and a category that is missing or no longer valid. Make transaction boundaries explicit for a multi-step expense plus audit operation. Reproduce or record a failure between steps and show that the chosen transaction prevents a partial audit/expense result; distinguish transaction atomicity from isolation. If two learning sessions are available, observe dirty/non-repeatable/locking behavior with a stated isolation choice and limits; do not imply that Serializable is always best.\n\nCreate a migration against a populated learning database. Before applying it, preserve a row count/copy, read the generated SQL, classify nullable/default/backfill/NOT NULL behavior, and apply it only to the learning database. Verify old rows and the post-migration schema/count. As an optional authored extension, document a retention/archival policy, owner/date scope, audit consequence and backup boundary; this extension is not a task explicitly stated in 10.md and does not authorize deleting content or real data. Record empty and populated database outcomes separately.\n\nConfigure SQL Server rowversion as a concurrency token only within the provider/schema boundary actually used. Record the model mapping, migration/schema result, and token returned to the update path; do not generalize SQL Server rowversion or an empty byte-array default to every provider. Reproduce two reads of one expense with the same token: the first update succeeds and the second stale update must preserve the first update, return the stable 409 conflict contract, and expose a UI choice to reload/compare rather than overwrite. Record the API response and UI behavior when actually observed; if API/UI/browser access is unavailable, retain the exact blocker and award no point.\n\nFinish with a 35-minute timed investigation of a list endpoint slow at one million learning rows. Record hypothesis, filter/order/index/query-shape/plan/IO/time observations, one change, result, and trade-off. Answer the interview questions on index write cost, AsNoTracking, projection, offset pagination, transaction versus concurrency, blind retry, 409 versus 400/404, and plan operators. Record commands and outputs only when actually run; no build, test, database, or frontend result may be claimed without evidence.\n",
+    "expected_output": "A learner evidence note with query shape, projection/no-tracking, bounded pagination and overflow, N+1/plan evidence, measured index trade-off, monthly period projection, transaction/isolation observation, populated migration and optional retention extension, SQL Server/provider-scoped rowversion, stale-update 409 and reload/compare UI behavior, timed investigation, interview reasoning, expected-versus-observed outcomes, and explicit blockers.",
+    "completion_mode": "learner_attest",
+    "rubric": [
+      {
+        "criterion": "Query shape, projection, pagination, N+1, and measured index",
+        "evidence": "The note records the owner/date query, projection and no-tracking choice, database-side filtering/order/pagination, page overflow boundary, N+1 or navigation evidence, and before/after logical reads/time/plan with write/storage trade-off. Missing or blocked observations remain incomplete and earn no point.",
+        "max_points": 1
+      },
+      {
+        "criterion": "Transaction, period report, and populated migration",
+        "evidence": "The note records exclusive-end period behavior and edge rows, transaction failure/atomicity and stated isolation limit, a populated-database migration with SQL/backfill/count evidence, with backup/rollback and learning-data scope. The authored retention/archival extension is optional and does not affect the point. Unperformed required database evidence earns no point.",
+        "max_points": 1
+      },
+      {
+        "criterion": "Provider-scoped concurrency and 409/UI behavior",
+        "evidence": "The note identifies the actual provider/schema rowversion boundary and records two stale-token updates where one succeeds, the other preserves the winner and returns the stable 409 contract, plus reload/compare UI behavior. An unavailable API/UI/browser path is an explicit blocker and earns no point.",
+        "max_points": 1
+      },
+      {
+        "criterion": "Timed debugging, trade-offs, and honest limits",
+        "evidence": "The note contains the timed one-million-row investigation, actual plan/IO/time reasoning, answers on retry and status semantics, expected-versus-observed results and exact blockers. A snippet, assertion, or unperformed command is not positive evidence.",
+        "max_points": 1
+      }
+    ],
+    "resources": []
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:stage-10",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Stage 10 SQL/EF Core query shape, migration, and concurrency manual activity",
+    "card_count": 0,
+    "cards": []
+  }
+}

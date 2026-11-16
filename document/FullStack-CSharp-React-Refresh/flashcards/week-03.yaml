@@ -1,0 +1,72 @@
+deck_id: deck-fscr-w03
+subject: FullStack-CSharp-React-Refresh
+lesson_id: week-03
+version: 1.0.0
+description: DOM, sự kiện, modules và persistence nhỏ
+cards:
+- id: fc-fscr-w03-001
+  concept: Default behavior
+  front: preventDefault trên submit chặn gì?
+  back: Hành vi mặc định gửi/reload. Nó hủy default nếu event cancelable.
+  source_lesson: notes/module-1/week-03.md
+  version: 1.0.0
+  claim_ids:
+  - W03-C01
+  tags:
+  - w03
+  - fullstack
+- id: fc-fscr-w03-002
+  concept: Safe text
+  front: Render note chưa tin cậy nên dùng gì?
+  back: textContent. Text không diễn giải note thành HTML.
+  source_lesson: notes/module-1/week-03.md
+  version: 1.0.0
+  claim_ids:
+  - W03-C01
+  tags:
+  - w03
+  - fullstack
+- id: fc-fscr-w03-003
+  concept: Module import
+  front: Named export total import đúng thế nào?
+  back: import {total} from './money.js'. Braces đọc named binding.
+  source_lesson: notes/module-1/week-03.md
+  version: 1.0.0
+  claim_ids:
+  - W03-C02
+  tags:
+  - w03
+  - fullstack
+- id: fc-fscr-w03-004
+  concept: Module hosting
+  front: Tại sao dùng HTTP server local cho module?
+  back: Để origin/MIME/path hoạt động như web. Browser module tải theo cơ chế web/origin.
+  source_lesson: notes/module-1/week-03.md
+  version: 1.0.0
+  claim_ids:
+  - W03-C02
+  tags:
+  - w03
+  - fullstack
+- id: fc-fscr-w03-005
+  concept: JSON validation
+  front: JSON.parse('{}') thành công có đủ nhận expenses không?
+  back: Không, phải validate shape. Syntax JSON không đảm bảo array/schema.
+  source_lesson: notes/module-1/week-03.md
+  version: 1.0.0
+  claim_ids:
+  - W03-C03
+  tags:
+  - w03
+  - fullstack
+- id: fc-fscr-w03-006
+  concept: Storage security
+  front: localStorage phù hợp lab này cho gì?
+  back: Expense giả lập đã validate. Dữ liệu lab không nhạy cảm, có recovery.
+  source_lesson: notes/module-1/week-03.md
+  version: 1.0.0
+  claim_ids:
+  - W03-C03
+  tags:
+  - w03
+  - fullstack

@@ -1,0 +1,178 @@
+schema_version: 2.0.0
+package_id: package:psychology:w29
+subject_id: roadmap:subject:psychology
+display_title: Tự học Tâm lý học 48 tuần
+source_status: in_review
+version: 2
+created_at: '2026-10-05T00:00:00Z'
+subject: Tâm lý học
+course: Tự học Tâm lý học 48 tuần
+module: 04-love-relationships
+lesson: week-29-needs-communication
+learning_objectives:
+- id: LO-W29-01
+  bloom_level: Understand
+  statement: Trình bày mô hình Bốn Kỵ Sĩ của Gottman và kỹ năng Lắng nghe chủ động
+    (Active listening).
+- id: LO-W29-02
+  bloom_level: Apply
+  statement: Biến đổi các câu chỉ trích tính cách thành diễn đạt nhu cầu xây dựng
+    theo khung NVC.
+- id: LO-W29-03
+  bloom_level: Analyze
+  statement: Phân tích cơ chế quá tải cảm xúc (Flooding) và sự khác biệt giữa lắng
+    nghe chủ động và thụ động.
+- id: LO-W29-04
+  bloom_level: Evaluate
+  statement: Đánh giá tầm quan trọng của các lời mời kết nối (Turning toward/away/against)
+    trong tương tác hàng ngày.
+concepts:
+- id: roadmap:concept:psychology:w29-c29-01
+  name: Mô hình Bốn Kỵ Sĩ Khải Huyền trong xung đột (Gottman)
+  claim_ids:
+  - C29-01
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w29-c29-02
+  name: Quá tải sinh lý thần kinh & Giao thức tạm dừng (Flooding & Time-out)
+  claim_ids:
+  - C29-02
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w29-c29-03
+  name: Giao tiếp Trắc ẩn / Phi bạo lực 4 bước (NVC - Rosenberg)
+  claim_ids:
+  - C29-03
+  evidence_label: moderate
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w29-c29-04
+  name: Lời mời kết nối & Hướng về nhau (Bids for connection - Driver & Gottman)
+  claim_ids:
+  - C29-04
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+- id: roadmap:concept:psychology:w29-c29-05
+  name: Lắng nghe tích cực & Khởi đầu nhẹ nhàng (Softened startup & Repair)
+  claim_ids:
+  - C29-05
+  evidence_label: strong
+  source_ledger_path: quality/source-ledger.md
+  safety_review:
+    reviewed: false
+    reviewer: pending-independent-review
+    date: '2026-10-05'
+    notes: Pending independent source and safety review; see validation/psych-later-review349/review.md.
+questions:
+- id: Q29-01
+  lo_ref: LO-W29-01
+  concept_id: roadmap:concept:psychology:w29-c29-01
+  claim_ids:
+  - C29-01
+- id: Q29-02
+  lo_ref: LO-W29-02
+  concept_id: roadmap:concept:psychology:w29-c29-01
+  claim_ids:
+  - C29-01
+- id: Q29-03
+  lo_ref: LO-W29-04
+  concept_id: roadmap:concept:psychology:w29-c29-04
+  claim_ids:
+  - C29-04
+- id: Q29-04
+  lo_ref: LO-W29-01
+  concept_id: roadmap:concept:psychology:w29-c29-03
+  claim_ids:
+  - C29-03
+- id: Q29-05
+  lo_ref: LO-W29-02
+  concept_id: roadmap:concept:psychology:w29-c29-01
+  claim_ids:
+  - C29-01
+- id: Q29-06
+  lo_ref: LO-W29-03
+  concept_id: roadmap:concept:psychology:w29-c29-05
+  claim_ids:
+  - C29-05
+- id: Q29-07
+  lo_ref: LO-W29-02
+  concept_id: roadmap:concept:psychology:w29-c29-02
+  claim_ids:
+  - C29-02
+- id: Q29-08
+  lo_ref: LO-W29-03
+  concept_id: roadmap:concept:psychology:w29-c29-01
+  claim_ids:
+  - C29-01
+- id: Q29-09
+  lo_ref: LO-W29-01
+  concept_id: roadmap:concept:psychology:w29-c29-05
+  claim_ids:
+  - C29-05
+- id: Q29-10
+  lo_ref: LO-W29-02
+  concept_id: roadmap:concept:psychology:w29-c29-05
+  claim_ids:
+  - C29-05
+- id: Q29-11
+  lo_ref: LO-W29-03
+  concept_id: roadmap:concept:psychology:w29-c29-01
+  claim_ids:
+  - C29-01
+- id: Q29-12
+  lo_ref: LO-W29-04
+  concept_id: roadmap:concept:psychology:w29-c29-04
+  claim_ids:
+  - C29-04
+units:
+- unit_id: roadmap:unit:psychology:w29
+  display_title: 'Tuần 29: Giao Tiếp Nhu Cầu và Lắng Nghe Chủ Động'
+  sort_order: 29
+  artifacts:
+  - role: lesson_theory
+    stable_id: roadmap:lesson:psychology:w29
+    path: notes/04-love-relationships/week-29-needs-communication.md
+    sha256: ca35e9090577780d6981231a5085ba1d66142acd962994dad4fbbfdc50af2905
+    byte_length: 14576
+  - role: quiz_questions
+    stable_id: roadmap:quiz:psychology:w29
+    path: assessments/quizzes/week-29-quiz.md
+    question_count: 12
+    sha256: fe49328c8190149d02c04b0831901f6bfce73047f2ffc28428905f4c55122fd5
+    byte_length: 5529
+  - role: quiz_answers
+    stable_id: roadmap:answers:psychology:w29
+    path: assessments/answer-keys/week-29-answers.md
+    correct_count: 12
+    wrong_count: 36
+    sha256: b01f126b7089ae478f44b4a017e8f507234d2261372274703535a99ad12e60fb
+    byte_length: 5567
+  - role: flashcard_deck
+    stable_id: roadmap:deck:psychology:w29
+    path: flashcards/week-29.yaml
+    card_count: 8
+    sha256: c3a9c733289b7f955567a22573e86f1ce323f454b526fd4e1d2cbd93fadf99ac
+    byte_length: 3896
+  - role: source_ledger
+    path: quality/source-ledger.md
+    sha256: f6b31bb629b2df28655e138cd6a97aa1769b1f4d3ee666795e8e8db88d87e958
+    byte_length: 340606

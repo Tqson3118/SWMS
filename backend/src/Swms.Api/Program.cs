@@ -1,7 +1,9 @@
+using System.Data.Common;
 using System.Net.Sockets;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Swms.Api.Features;
 using Swms.Api.Features.Pdf;
@@ -81,7 +83,8 @@ builder.Services.AddDbContext<SwmsDbContext>(options =>
     else
     {
         // Persistent SQLite for local app so courses and learning progress survive restarts
-        options.UseSqlite(sqliteConn);
+        options.UseSqlite(sqliteConn)
+               .AddInterceptors(new SqlitePragmaConnectionInterceptor());
     }
 });
 
@@ -158,11 +161,18 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 
 // 4. CORS for Next.js 15 Frontend (with credentials for HttpOnly RTR cookies)
+var configuredOrigins = (builder.Configuration["Cors:AllowedOrigins"] ?? Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS") ?? "")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+var allowedOrigins = new[] { "http://localhost:3000", "http://127.0.0.1:3000" }
+    .Concat(configuredOrigins)
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("SwmsFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -215,3 +225,26 @@ app.MapSwmsEndpoints();
 app.Run();
 
 public partial class Program { }
+
+public sealed class SqlitePragmaConnectionInterceptor : DbConnectionInterceptor
+{
+    private const string PragmaSql =
+        "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA temp_store=MEMORY; PRAGMA busy_timeout=5000; PRAGMA wal_autocheckpoint=20000; PRAGMA cache_size=-64000;";
+
+    public override void ConnectionOpened(DbConnection connection, ConnectionEndEventData eventData)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = PragmaSql;
+        cmd.ExecuteNonQuery();
+    }
+
+    public override async Task ConnectionOpenedAsync(
+        DbConnection connection,
+        ConnectionEndEventData eventData,
+        CancellationToken cancellationToken = default)
+    {
+        await using var cmd = connection.CreateCommand();
+        cmd.CommandText = PragmaSql;
+        await cmd.ExecuteNonQueryAsync(cancellationToken);
+    }
+}

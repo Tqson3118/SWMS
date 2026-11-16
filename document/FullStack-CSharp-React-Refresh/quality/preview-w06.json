@@ -1,0 +1,393 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-03T11:53:45Z",
+  "unit_id": "roadmap:unit:fscr:w06",
+  "subject_id": "roadmap:subject:fullstack-csharp-react-refresh",
+  "subject_title": "FullStack C# + React Refresh",
+  "unit_title": "Tuần 06: Collections, generics và delegates",
+  "source_status": "in_review",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:fscr:w06",
+    "title": "Tuần 06: Collections, generics và delegates",
+    "content_markdown": "<h1>Tuần 06 — Collections, generics và delegates</h1>\n<p>Chặng 2; 3 bài L06-01..03; bắt buộc trừ mục ghi tùy chọn. 12–18 giờ tham khảo + English hằng ngày.</p>\n<h2>Mục tiêu và tiên quyết</h2>\n<ul>\n<li>\n<p>LO-W06-01: Chọn collection theo truy cập, duplicate và chi phí trung bình.</p>\n</li>\n<li>\n<p>LO-W06-02: Viết generic helper có constraint và phân biệt compile/runtime safety.</p>\n</li>\n<li>\n<p>LO-W06-03: Dùng Func/Action/Predicate để lọc và kiểm tra captured state.</p>\n</li>\n</ul>\n<p>Tiên quyết: Đạt gate tuần 05; dùng lại fixture và commit trước.</p>\n<h2>Chẩn đoán và phân bổ thời gian</h2>\n<p>Làm <a href=\"../../assessments/quizzes/week-06-quiz.md\">quiz</a> trước khi đọc, không tra đáp án. Tự viết lại ví dụ bằng input khác. Nếu &gt;=5/6 và tự vượt practice: review 30–60 phút rồi tập trung project/deep dive; còn lại học từng bài 60–90 phút. Không bỏ acceptance.</p>\n<p>Ngày 1 chẩn đoán+bài 1; ngày 2 bài 2; ngày 3 bài 3; ngày 4 practice; ngày 5 project; ngày 6 test+quiz; ngày 7 ôn 1/3/7/14 ngày. Git commit sau trạng thái chạy được.</p>\n<p><a id=\"lo-w06-01\"></a></p>\n<h2>Bài 1: List, Dictionary, HashSet</h2>\n<p>LO-W06-01 · W06-C01</p>\n<p>List&lt;T&gt; là dãy có thứ tự, truy cập index O(1), tìm theo điều kiện O(n). Dictionary&lt;TKey,TValue&gt; lookup key trung bình O(1), cần equality/hash đúng, không có guarantee mọi case O(1). HashSet&lt;T&gt; theo membership/unique, Add trả false nếu duplicate theo comparer. Dùng Dictionary categoryId-&gt;name khi render nhiều expense; không tìm List category lặp trong loop nếu dữ liệu lớn. Không sửa List trong foreach vì enumerator bị invalidated; dùng RemoveAll(predicate) hoặc duyệt snapshot khi phù hợp. Dictionary không thay index DB và HashSet memory không bảo đảm chống trùng giữa process. Chọn collection theo yêu cầu trước tối ưu.</p>\n<p><a id=\"lo-w06-02\"></a></p>\n<h2>Bài 2: Generics và constraints</h2>\n<p>LO-W06-02 · W06-C02</p>\n<p>Generic type/method nhận type parameter T, reuse thuật toán mà giữ compile-time type safety. Không cast object tùy tiện hoặc tạo List&lt;object&gt; khi domain homogeneous. where T:notnull hỗ trợ key không-null; where T:class cho reference; where T:new() cho tạo instance public parameterless; interface constraint cho hành vi. Constraints chỉ cho phép dùng members được contract xác định, không biến T thành dynamic. IEnumerable&lt;T&gt; mô tả khả năng enumerate, IReadOnlyList&lt;T&gt; thêm count/index nhưng không bảo đảm underlying object immutable. Generic wrapper không phải abstraction tốt nếu chỉ che code một lần và làm debug khó hơn.</p>\n<p><a id=\"lo-w06-03\"></a></p>\n<h2>Bài 3: Delegate, lambda và callback</h2>\n<p>LO-W06-03 · W06-C03</p>\n<p>Delegate là type-safe callable reference; Func&lt;Expense,bool&gt; trả bool, Action&lt;Expense&gt; không trả value, Predicate&lt;T&gt; là filter contract phổ biến. Lambda tạo function expression; e=&gt;e.AmountVnd&gt;threshold capture threshold lexical, có thể thấy threshold bị đổi. Tránh capture loop/shared mutable state khi dùng concurrent tasks. Method group có thể truyền thay lambda nếu signature khớp. Callback dùng cho rule/transform; không cần event bus khi một function param đủ. Event pattern cho thông báo nhiều subscribers là tùy chọn. Để tính báo cáo, truyền pure predicate, không sửa mảng trong callback.</p>\n<h2>Ví dụ giải từng bước</h2>\n<ol>\n<li>Bài toán: lookup category và bỏ id nhập trùng trong batch.</li>\n<li>Dictionary lookup, HashSet membership; không khẳng định chống trùng toàn DB.</li>\n<li>Console:</li>\n</ol>\n<pre><code class=\"language-csharp\">var categories=new Dictionary&lt;string,string&gt;{{\"f1\",\"Food\"},{\"t1\",\"Travel\"}};\nvar seen=new HashSet&lt;string&gt;();\nforeach(var id in new[]{\"f1\",\"f1\",\"t1\"}) {\n if(seen.Add(id)&amp;&amp;categories.TryGetValue(id,out var name)) Console.WriteLine(name);\n}\nvar xs=new List&lt;long&gt;{50000,20000,30000};\nFunc&lt;long,bool&gt; large=x=&gt;x&gt;=30000;\nConsole.WriteLine(string.Join(\",\",xs.Where(large))); // 50000,30000\nxs.RemoveAll(x=&gt;x&lt;30000);\nConsole.WriteLine(xs.Count); // 2\n</code></pre>\n<ol>\n<li>Output Food/Travel một lần; missing key dùng TryGetValue không throw. Đổi comparer để thấy case sensitivity.</li>\n</ol>\n<h2>Đào sâu và lỗi thường gặp</h2>\n<p>Hash/equality inconsistency làm lookup sai dù code compile. IReadOnly collection interface không freeze source; đừng expose mutable List domain trực tiếp. Delegate giúp Strategy đơn giản, chỉ tạo interface Strategy khi cần state/lifecycle nhiều method.</p>\n<h2>Bài tập thực hành</h2>\n<h3>Bài tập 1</h3>\n<p>Group sums bằng Dictionary cho fixture; không dùng LINQ.</p>\n<h3>Bài tập 2</h3>\n<p>Viết generic DistinctByKey&lt;T,TKey&gt;(IEnumerable&lt;T&gt;,Func&lt;T,TKey&gt;) where TKey:notnull.</p>\n<h2>Hướng dẫn giải bài tập</h2>\n<p>Đọc sau khi thử ít nhất 30 phút. So expected với actual; đổi input biên.</p>\n<h3>Hướng giải 1</h3>\n<p>Duyệt expense; TryGetValue category total cũ; checked cộng; assign. Food80000,Travel20000; [] dictionary rỗng. Complexity trung bình O(n).</p>\n<h3>Hướng giải 2</h3>\n<p>HashSet&lt;TKey&gt;, foreach item nếu set.Add(key(item)) thì yield return item; giữ lần đầu. Test key a,a,b -&gt; a,b; không biến loop thành mutation source.</p>\n<h2>Project task</h2>\n<p>Console filter/report theo category và deduplicate import draft trong memory. Giữ giải thích đây chỉ là batch-local dedup; idempotency DB học W16.</p>\n<p>Theo <a href=\"../../project-spec.md\">contract chung</a>. Lưu code, fixture, test/ảnh/log và commit ID trong docs/evidence/w06.md của repo học viên. Không lưu secret.</p>\n<h2>Acceptance và rubric</h2>\n<ul>\n<li>\n<p>[ ] Dictionary report Food80000/Travel20000, empty đúng; missing category báo lỗi rõ.</p>\n</li>\n<li>\n<p>[ ] Không Collection was modified khi xóa; Add HashSet nhận trùng đúng.</p>\n</li>\n<li>\n<p>[ ] Generic helper và Func filter chạy với2 kiểu dữ liệu, giải thích constraint.</p>\n</li>\n<li>\n<p>[ ] Quiz &gt;=5/6; giải thích câu sai, làm lại sau 24h.</p>\n</li>\n<li>\n<p>[ ] English 30–60 phút/ngày,7 ngày/tuần;5 cụm từ/tuần + recording 90–120 giây.</p>\n</li>\n</ul>\n<table>\n<thead>\n<tr>\n<th>Tiêu chí</th>\n<th>0 Chưa đạt</th>\n<th>1 Đang phát triển</th>\n<th>2 Đạt</th>\n<th>3 Vững</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Hiểu cơ chế</td>\n<td>Không giải thích</td>\n<td>Lặp tên API</td>\n<td>Nói input/output và cơ chế tuần</td>\n<td>So sánh phương án và điều kiện biên</td>\n</tr>\n<tr>\n<td>Practice</td>\n<td>Chưa chạy</td>\n<td>Chỉ happy path</td>\n<td>Đúng output và edge cases</td>\n<td>Tự thêm regression có ý nghĩa</td>\n</tr>\n<tr>\n<td>Project</td>\n<td>Chưa có feature</td>\n<td>Copy chưa chứng minh</td>\n<td>Mọi gate tuần có evidence</td>\n<td>Tái hiện/sửa lỗi không xem lời giải</td>\n</tr>\n</tbody>\n</table>\n<p>Gate: mọi hàng &gt;=2 và mọi checkbox behavior đạt. Ownership, atomicity, token validation không bù bằng quiz. Chưa đạt: ghi lỗi, quay đúng LO, làm biến thể sau 24h.</p>\n<h2>English và ôn tập</h2>\n<p>Thu: 'Why did you choose a Dictionary instead of a List?' Thêm average lookup, duplicate, constraint, delegate, captured variable.</p>\n<p><a href=\"../../english-practice.md\">Nhịp 30–60 phút/ngày</a></p>\n<h2>Nguồn và kiểm chứng</h2>\n<ul>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/dotnet/standard/collections/selecting-a-collection-class\">Generic collections</a> — W06-C01; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/generics/constraints-on-type-parameters\">Constraints on type parameters</a> — W06-C02; primary. HTTP: 200; section xem ledger.</p>\n</li>\n<li>\n<p><a href=\"https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/delegates/\">Delegates</a> — W06-C03; primary. HTTP: 200; section xem ledger.</p>\n</li>\n</ul>\n<h2>Liên kết ôn tập và tuần liên quan</h2>\n<p><a href=\"../../assessments/quizzes/week-06-quiz.md\">Quiz</a> · <a href=\"../../assessments/answer-keys/week-06-answers.md\">Đáp án</a> · <a href=\"../../flashcards/week-06.yaml\">Flashcards</a> · <a href=\"../../quality/source-ledger.md\">Ledger</a></p>\n<p><a href=\"week-05.md\">Tuần trước</a></p>\n<p><a href=\"week-07.md\">Tuần tiếp</a></p>",
+    "source_citations": [
+      "[Generic collections](https://learn.microsoft.com/en-us/dotnet/standard/collections/selecting-a-collection-class)",
+      "[Constraints on type parameters](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/generics/constraints-on-type-parameters)",
+      "[Delegates](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/delegates/)"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-W06-01]",
+        "bloom_level": "Apply",
+        "statement": "Chọn collection theo truy cập, duplicate và chi phí trung bình."
+      },
+      {
+        "id": "[LO-W06-02]",
+        "bloom_level": "Apply",
+        "statement": "Viết generic helper có constraint và phân biệt compile/runtime safety."
+      },
+      {
+        "id": "[LO-W06-03]",
+        "bloom_level": "Apply",
+        "statement": "Dùng Func/Action/Predicate để lọc và kiểm tra captured state."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept:fscr:w06-c01",
+        "name": "List, Dictionary, HashSet",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w06-c02",
+        "name": "Generics và constraints",
+        "evidence_label": "strong"
+      },
+      {
+        "id": "concept:fscr:w06-c03",
+        "name": "Delegate, lambda và callback",
+        "evidence_label": "strong"
+      }
+    ],
+    "external_resources": []
+  },
+  "quiz": {
+    "quiz_id": "roadmap:quiz:fscr:w06",
+    "title": "Trắc nghiệm Tuần 06: Collections, generics và delegates",
+    "total_questions": 6,
+    "pass_score": 5,
+    "questions": [
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w06:q01",
+        "sort_order": 1,
+        "type": "Single",
+        "prompt": "Lookup Dictionary nên mô tả chi phí thế nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Luôn O(n²)"
+          },
+          {
+            "id": "B",
+            "text": "Không cần equality"
+          },
+          {
+            "id": "C",
+            "text": "Trung bình O(1), không tuyệt đối mọi case"
+          },
+          {
+            "id": "D",
+            "text": "Luôn O(1) bất kể hash"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Hash table average nhanh nhưng collision/pathology có thể khác.",
+        "wrong_explanations": {
+          "A": "Lookup không mặc định quadratic.",
+          "B": "Hash/equality cần nhất quán.",
+          "D": "Khẳng định tuyệt đối bỏ qua collisions."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w06-c01",
+        "lesson_anchor": "#lo-w06-01",
+        "claim_ids": [
+          "W06-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w06:q02",
+        "sort_order": 2,
+        "type": "Single",
+        "prompt": "Xóa List trong foreach nên đổi cách nào?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Bọc try/catch rồi bỏ lỗi"
+          },
+          {
+            "id": "B",
+            "text": "Đổi var thành int"
+          },
+          {
+            "id": "C",
+            "text": "Thêm Thread.Sleep"
+          },
+          {
+            "id": "D",
+            "text": "RemoveAll hoặc strategy không mutate enumerator đang chạy"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Tránh invalidating active enumerator.",
+        "wrong_explanations": {
+          "A": "Nuốt lỗi có thể chỉ xóa một phần.",
+          "B": "Variable declaration không sửa enumeration semantics.",
+          "C": "Sleep không giải quyết mutation."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w06-c01",
+        "lesson_anchor": "#lo-w06-01",
+        "claim_ids": [
+          "W06-C01"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w06:q03",
+        "sort_order": 3,
+        "type": "Single",
+        "prompt": "where T:new() cho phép điều gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "new T() với constructor phù hợp"
+          },
+          {
+            "id": "B",
+            "text": "Gọi mọi member tùy ý"
+          },
+          {
+            "id": "C",
+            "text": "Bảo đảm deep immutable"
+          },
+          {
+            "id": "D",
+            "text": "Tự kết nối DB"
+          }
+        ],
+        "correct_option_ids": [
+          "A"
+        ],
+        "correct_explanation": "Constraint yêu cầu public parameterless construction.",
+        "wrong_explanations": {
+          "B": "Chỉ members có constraint mới dùng được.",
+          "C": "new() không bảo đảm immutability.",
+          "D": "Generic constraint không thực hiện IO."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w06-c02",
+        "lesson_anchor": "#lo-w06-02",
+        "claim_ids": [
+          "W06-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w06:q04",
+        "sort_order": 4,
+        "type": "Single",
+        "prompt": "IReadOnlyList<T> bảo đảm source không đổi bởi bất kỳ ai không?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Nó cấm mọi reference type"
+          },
+          {
+            "id": "B",
+            "text": "Không"
+          },
+          {
+            "id": "C",
+            "text": "Có freeze deep"
+          },
+          {
+            "id": "D",
+            "text": "Có thread-safe luôn"
+          }
+        ],
+        "correct_option_ids": [
+          "B"
+        ],
+        "correct_explanation": "Interface hạn chế API caller, underlying có thể mutable.",
+        "wrong_explanations": {
+          "A": "T có thể reference type.",
+          "C": "Không thực hiện deep freeze.",
+          "D": "Không bảo đảm concurrent safety."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w06-c02",
+        "lesson_anchor": "#lo-w06-02",
+        "claim_ids": [
+          "W06-C02"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w06:q05",
+        "sort_order": 5,
+        "type": "Single",
+        "prompt": "Func<long,bool> biểu diễn gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Không trả value"
+          },
+          {
+            "id": "B",
+            "text": "Luôn async"
+          },
+          {
+            "id": "C",
+            "text": "Nhận long và trả bool"
+          },
+          {
+            "id": "D",
+            "text": "Nhận bool trả long"
+          }
+        ],
+        "correct_option_ids": [
+          "C"
+        ],
+        "correct_explanation": "Type cuối là return, trước là parameters.",
+        "wrong_explanations": {
+          "A": "Action mới không có return value.",
+          "B": "Func có thể sync hoặc trả Task riêng.",
+          "D": "Thứ tự parameter/return bị đảo."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w06-c03",
+        "lesson_anchor": "#lo-w06-03",
+        "claim_ids": [
+          "W06-C03"
+        ]
+      },
+      {
+        "question_id": "roadmap:question:fullstack-csharp-react-refresh:w06:q06",
+        "sort_order": 6,
+        "type": "Single",
+        "prompt": "Lambda capture threshold rồi threshold đổi có thể thấy gì?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Luôn snapshot cũ"
+          },
+          {
+            "id": "B",
+            "text": "Luôn null"
+          },
+          {
+            "id": "C",
+            "text": "Compile lỗi vì capture cấm"
+          },
+          {
+            "id": "D",
+            "text": "Value mới của captured variable"
+          }
+        ],
+        "correct_option_ids": [
+          "D"
+        ],
+        "correct_explanation": "Capture binding có thể phản ánh mutation.",
+        "wrong_explanations": {
+          "A": "Không deep freeze value tự động.",
+          "B": "Không tự biến số thành null.",
+          "C": "C# cho phép capture locals phù hợp."
+        },
+        "bloom_level": "Apply",
+        "concept_id": "concept:fscr:w06-c03",
+        "lesson_anchor": "#lo-w06-03",
+        "claim_ids": [
+          "W06-C03"
+        ]
+      }
+    ]
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:fscr:w06",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Tuần 06: Collections, generics và delegates",
+    "card_count": 6,
+    "cards": [
+      {
+        "card_id": "roadmap:card:fc-fscr-w06-001",
+        "concept_name": "Dictionary lookup",
+        "front": "Lookup Dictionary nên mô tả chi phí thế nào?",
+        "back": "Trung bình O(1), không tuyệt đối mọi case. Hash table average nhanh nhưng collision/pathology có thể khác.",
+        "tags": [
+          "w06",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W06-C01"
+        ],
+        "source_citation": "notes/module-2/week-06.md",
+        "lesson_anchor": "#lo-w06-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w06-002",
+        "concept_name": "Foreach mutation",
+        "front": "Xóa List trong foreach nên đổi cách nào?",
+        "back": "RemoveAll hoặc strategy không mutate enumerator đang chạy. Tránh invalidating active enumerator.",
+        "tags": [
+          "w06",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W06-C01"
+        ],
+        "source_citation": "notes/module-2/week-06.md",
+        "lesson_anchor": "#lo-w06-01"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w06-003",
+        "concept_name": "Generic constraint",
+        "front": "where T:new() cho phép điều gì?",
+        "back": "new T() với constructor phù hợp. Constraint yêu cầu public parameterless construction.",
+        "tags": [
+          "w06",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W06-C02"
+        ],
+        "source_citation": "notes/module-2/week-06.md",
+        "lesson_anchor": "#lo-w06-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w06-004",
+        "concept_name": "Read-only interface",
+        "front": "IReadOnlyList<T> bảo đảm source không đổi bởi bất kỳ ai không?",
+        "back": "Không. Interface hạn chế API caller, underlying có thể mutable.",
+        "tags": [
+          "w06",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W06-C02"
+        ],
+        "source_citation": "notes/module-2/week-06.md",
+        "lesson_anchor": "#lo-w06-02"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w06-005",
+        "concept_name": "Func signature",
+        "front": "Func<long,bool> biểu diễn gì?",
+        "back": "Nhận long và trả bool. Type cuối là return, trước là parameters.",
+        "tags": [
+          "w06",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W06-C03"
+        ],
+        "source_citation": "notes/module-2/week-06.md",
+        "lesson_anchor": "#lo-w06-03"
+      },
+      {
+        "card_id": "roadmap:card:fc-fscr-w06-006",
+        "concept_name": "Closure capture",
+        "front": "Lambda capture threshold rồi threshold đổi có thể thấy gì?",
+        "back": "Value mới của captured variable. Capture binding có thể phản ánh mutation.",
+        "tags": [
+          "w06",
+          "fullstack"
+        ],
+        "claim_ids": [
+          "W06-C03"
+        ],
+        "source_citation": "notes/module-2/week-06.md",
+        "lesson_anchor": "#lo-w06-03"
+      }
+    ]
+  }
+}

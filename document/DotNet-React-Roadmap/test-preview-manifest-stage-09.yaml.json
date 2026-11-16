@@ -1,0 +1,86 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-07T11:23:26Z",
+  "unit_id": "roadmap:unit:dotnet-react:stage-09",
+  "subject_id": "roadmap:subject:dotnet-react",
+  "subject_title": "Stage 09 behavior-preserving boundaries, patterns, and dependency manual activity",
+  "unit_title": "Stage 09 behavior-preserving boundaries, patterns, and dependency manual activity",
+  "source_status": "draft",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:dotnet-react:stage-09",
+    "title": "Chặng 9: Thiết kế code và design patterns vừa đủ",
+    "content_markdown": "# Chặng 9: Thiết kế code và design patterns vừa đủ\n\nThời lượng tham khảo: 3–4 tuần. Điều kiện vào: đã có importer hoặc report đơn giản ở Chặng 8.\n\nMục tiêu của chặng này không phải nhét thật nhiều pattern vào project. Cụ cần biết cách chia trách nhiệm, hướng phụ thuộc và mở rộng một behavior mà không kéo theo sửa dây chuyền. Pattern chỉ đáng dùng khi nó làm một thay đổi cụ thể dễ hơn.\n\n## Mục tiêu đạt được\n\n- Phân biệt inheritance với composition và chọn composition khi behavior cần thay đổi độc lập.\n- Áp dụng SOLID qua tình huống thật, không học thuộc năm chữ cái.\n- Đặt dependency direction: domain không biết HTTP/EF/UI; infrastructure thực hiện interface của application.\n- Dùng Strategy, Factory và Adapter để mở rộng importer/report có kiểm soát.\n- Tổ chức theo feature mà không biến project thành hàng chục abstraction rỗng.\n\n## Tuần 1: trách nhiệm và hướng phụ thuộc\n\n### Buổi 1: cohesion, coupling và composition\n\nMột class có cohesion tốt khi các thành viên phục vụ cùng một trách nhiệm. Coupling cao khi class biết quá nhiều chi tiết của class khác. Trước khi tách class, ghi rõ behavior nào thay đổi cùng nhau.\n\nSo sánh hai cách:\n\n- Controller vừa parse CSV, vừa tính tổng, vừa gọi EF: khó test và thay đổi.\n- Controller nhận request, gọi use case; use case dùng importer/report interface; adapter cụ thể nằm ở infrastructure: mỗi phần có boundary rõ hơn.\n\nKhông tách IThingService chỉ vì muốn có interface. Interface nên bảo vệ một boundary hoặc cho phép thay thế dependency có lý do.\n\n### Buổi 2: SOLID qua code Sổ chi tiêu\n\nDùng các câu hỏi sau để áp dụng SOLID:\n\n- Single Responsibility: nếu format CSV đổi, có phải sửa class tính báo cáo không?\n- Open/Closed: thêm báo cáo theo tuần có cần sửa mọi báo cáo cũ không?\n- Liskov Substitution: implementation mới có giữ đúng hợp đồng không, hay trả null/lỗi khác hẳn?\n- Interface Segregation: importer có bị bắt phải cài method export không dùng?\n- Dependency Inversion: application đang phụ thuộc SQL Server cụ thể hay phụ thuộc abstraction?\n\nBài tập: lấy một service 100 dòng ở Chặng 5–8, đánh dấu các trách nhiệm, sau đó tách đúng một boundary. Viết test trước và sau refactor để chứng minh behavior không đổi.\n\n### Buổi 3: feature folder và layered boundary\n\nCó thể tổ chức phần API theo feature:\n\n```text\nFeatures/\n  Expenses/\n    CreateExpense/\n    ListExpenses/\n    ImportExpenses/\n  Reports/\n    ByCategory/\n    ByMonth/\n  Shared/\n```\n\nHoặc dùng các layer Domain/Application/Infrastructure/Api. Cả hai đều là cách tổ chức; không có một cây thư mục tự động làm kiến trúc tốt. Với project học tập, chọn một cách và ghi dependency rule trong README.\n\nQuy tắc tối thiểu:\n\n- Domain không tham chiếu ASP.NET Core hoặc EF Core.\n- Application chứa use case và interface cần thiết.\n- Infrastructure chứa EF, file system, HTTP client và adapter.\n- API chỉ xử lý transport, status code và authentication boundary.\n- Frontend chỉ phụ thuộc contract HTTP, không phụ thuộc entity database.\n\n## Tuần 2: Strategy, Factory và Adapter\n\n### Buổi 4: Strategy cho báo cáo\n\nStrategy phù hợp khi có nhiều thuật toán cùng một mục đích nhưng thay đổi độc lập.\n\n```csharp\npublic interface IExpenseReport\n{\n    string Name { get; }\n    ExpenseReport Calculate(IReadOnlyList&lt;ExpenseResponse&gt; items);\n}\n\npublic sealed class MonthlyExpenseReport : IExpenseReport\n{\n    public string Name =&gt; &quot;monthly&quot;;\n\n    public ExpenseReport Calculate(IReadOnlyList&lt;ExpenseResponse&gt; items)\n    {\n        var total = items.Sum(x =&gt; x.Amount);\n        return new ExpenseReport(Name, total, items.Count);\n    }\n}\n\npublic sealed record ExpenseReport(\n    string Name,\n    decimal Total,\n    int ItemCount);\n```\n\nThêm CategoryReport không nên yêu cầu sửa MonthlyExpenseReport. Tuy nhiên, nếu chỉ có một thuật toán và không có khả năng thay đổi, một function đơn giản dễ đọc hơn Strategy.\n\n### Buổi 5: Factory và Adapter cho importer\n\nFactory chọn implementation dựa trên format đã được whitelist. Adapter chuyển interface của thư viện/file reader về interface mà application hiểu.\n\n```csharp\npublic interface IExpenseImporter\n{\n    IAsyncEnumerable&lt;ExpenseImportRow&gt; ReadAsync(\n        Stream input,\n        CancellationToken cancellationToken);\n}\n\npublic sealed class ExpenseImporterFactory\n{\n    public IExpenseImporter Create(string format)\n    {\n        return format.ToLowerInvariant() switch\n        {\n            &quot;csv&quot; =&gt; new CsvExpenseImporter(),\n            &quot;json&quot; =&gt; new JsonExpenseImporter(),\n            _ =&gt; throw new ArgumentException(&quot;Unsupported format&quot;, nameof(format))\n        };\n    }\n}\n```\n\nFactory không được dùng để che một danh sách dependency vô tận. Khi số implementation tăng, viết test cho mapping format → importer và trả lỗi rõ ràng cho format không hỗ trợ.\n\n## Dự án chặng: thêm importer và report mà không phá phần cũ\n\n1. Tạo application contract cho importer và report.\n2. Di chuyển parser CSV sang adapter riêng.\n3. Thêm JSON importer mà không sửa logic tính tổng.\n4. Thêm report theo danh mục và theo tháng bằng Strategy.\n5. Factory chỉ nhận format hợp lệ; không cho người dùng truyền tên type/class để reflection tùy ý.\n6. Đăng ký dependency ở composition root, không gọi new infrastructure rải rác trong controller.\n7. Viết một test contract dùng chung cho mọi importer: file hợp lệ, file rỗng, dòng lỗi và cancellation.\n8. Ghi một sơ đồ dependency ngắn trong README.\n\n### Điều kiện đạt\n\n- Thêm JSON importer không cần sửa report.\n- Thêm một report mới không cần sửa importer.\n- Controller không còn biết chi tiết parse CSV/JSON.\n- Có ít nhất một test chứng minh implementation mới tuân contract.\n- Cụ giải thích được vì sao một abstraction được giữ lại và abstraction nào là thừa.\n\n### Cảnh báo chống over-engineering\n\nChưa cần tạo mediator, CQRS, event bus hoặc generic repository chỉ để project trông “enterprise”. Nếu abstraction không giúp kiểm thử, thay thế dependency hoặc giới hạn phụ thuộc, hãy cân nhắc xóa nó.\n\n## Interview checkpoint\n\n1. Khi nào composition tốt hơn inheritance trong Sổ chi tiêu?\n2. Vì sao một interface không tự động làm code dễ test hơn?\n3. Strategy khác một if/else dài ở điểm nào?\n4. Factory nên kiểm soát input format như thế nào?\n5. Adapter giải quyết sự khác nhau giữa hai interface nào?\n6. Dependency Inversion khác Dependency Injection ra sao?\n7. Nếu thêm JSON mà phải sửa report, boundary nào đang sai?\n8. Cụ sẽ bảo vệ domain khỏi EF Core bằng cách nào?\n\nBài code-reading có thời gian 30 phút: một controller mới new CsvParser(), new SqlConnection() và tính tổng ngay trong action. Hãy vẽ dependency, chỉ ra ba trách nhiệm và đề xuất một refactor nhỏ có test.\n\n## Tự chấm\n\n- 0: gọi tên được pattern nhưng chưa biết vấn đề nó giải quyết.\n- 1: tách được interface nhưng chưa kiểm soát dependency.\n- 2: thêm importer/report mới mà không sửa phần không liên quan.\n- 3: giải thích trade-off giữa abstraction và sự đơn giản bằng ví dụ của project.\n\n## Tài liệu chính thức\n\n- [Common web application architectures](https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures)\n- [Architect modern web applications with ASP.NET Core and Azure](https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/)\n- [Dependency injection in .NET](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection)\n- [Design guidelines for class library developers](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/)\n",
+    "source_citations": [
+      "`9.md`, Tuần 1 Buổi 1–3",
+      "`9.md`, Tuần 2 Buổi 4–5",
+      "`9.md`, project and conditions"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-DOTNET-S09-01]",
+        "bloom_level": "Apply",
+        "statement": "Refactor one concrete importer/report boundary without behavior change and extend it through explicit application, infrastructure and transport contracts after Stage 08."
+      },
+      {
+        "id": "[LO-DOTNET-S09-02]",
+        "bloom_level": "Analyze",
+        "statement": "Record actual Strategy, format-whitelisted Factory, Adapter, shared importer contract, period-aware report, composition-root, trade-off and timed-debug evidence while preserving blockers."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "DOTNET-S09-C01",
+        "name": "Cohesion, composition, SOLID, and dependency direction",
+        "evidence_label": "preliminary"
+      },
+      {
+        "id": "DOTNET-S09-C02",
+        "name": "Strategy, Factory, Adapter, and shared importer/report contracts",
+        "evidence_label": "preliminary"
+      },
+      {
+        "id": "DOTNET-S09-C03",
+        "name": "Composition root, abstraction trade-offs, and regression reasoning",
+        "evidence_label": "preliminary"
+      }
+    ],
+    "external_resources": []
+  },
+  "activity": {
+    "stable_id": "activity:dotnet:stage-09",
+    "type": "manual",
+    "title": "Stage 09 behavior-preserving boundaries, patterns, and dependency evidence",
+    "instructions": "This single manual unit maps to DotNet-React-Roadmap/9.md. Complete Stage 08\nfirst and preserve the learner sequence Stage 07 -> Stage 08 -> Stage 09.\nWork in a learner-owned scratch project with learning data only. This is a\nguided learner-attestation activity, not architecture approval. If a tool,\nSDK, test runner, or database is unavailable, record the exact blocker and\nleave that evidence incomplete; a blocker earns no point for an unperformed\nobservation.\n\nChoose one concrete importer/report service with mixed responsibilities.\nRecord its existing behavior and a small regression test before refactoring.\nMake a behavior-preserving boundary refactor that demonstrates cohesion,\ncoupling, composition and the relevant SOLID trade-off. Show explicit\ndependency direction: domain has no HTTP/EF/UI dependency; application owns\nuse-case contracts; infrastructure contains EF/file/HTTP adapters; API owns\ntransport, status and auth; frontend depends on HTTP DTOs rather than EF\nentities. Record changed files and behavior evidence, not folder names alone.\n\nDefine shared IExpenseImporter and IExpenseReport contracts. Move CSV parsing\nbehind an adapter and add a JSON importer without changing report logic.\nAdd a report strategy for category and a period-aware monthly report. The\nmonthly report must explicitly receive or filter a supplied period; do not\ninfer month filtering from the class name. Use a format-whitelisted factory\nand document caller validation for null, blank, case variation and\nunsupported formats before or at the factory boundary. Never use reflection\non a user-supplied type name.\n\nUse one shared importer contract test matrix for CSV and JSON covering valid,\nempty, malformed/invalid rows and cancellation. Record whether each\nimplementation returns the same error/empty/cancellation contract. Register\ndependencies at one composition root; do not construct infrastructure in the\ncontroller. Demonstrate that a new importer leaves an existing report\nunchanged and a new report leaves an existing importer unchanged. Explain\none abstraction retained for a real boundary and one abstraction removed as\nunnecessary. Finish with the 30-minute timed code-reading exercise: trace a\ncontroller that news CsvParser, SqlConnection and totals inline, identify\nthree responsibilities, propose one small refactor, and attach regression\nevidence. Record actual commands/results only when run.\n",
+    "expected_output": "A learner evidence note with behavior-preserving refactor proof, explicit dependency direction, Strategy/Factory/Adapter contracts, shared CSV/JSON edge and cancellation results, period-aware report evidence, composition-root registration, retained/removed abstraction reasoning, timed code-reading output, and explicit blockers.",
+    "completion_mode": "learner_attest",
+    "rubric": [
+      {
+        "criterion": "Behavior-preserving boundary refactor",
+        "evidence": "The note identifies a concrete mixed-responsibility boundary, before/after behavior and regression evidence, and explains cohesion, coupling, composition and one relevant SOLID decision. Missing or blocked evidence remains incomplete and earns no point.",
+        "max_points": 1
+      },
+      {
+        "criterion": "Dependency direction and composition root",
+        "evidence": "The note maps domain/application/infrastructure/API/frontend dependencies and records composition-root registration without construction of infrastructure in controllers. Missing or blocked evidence remains incomplete and earns no point.",
+        "max_points": 1
+      },
+      {
+        "criterion": "Importer/report extension contracts",
+        "evidence": "The note demonstrates shared CSV/JSON importer behavior, format-whitelisted factory input validation, adapter use, period-aware report behavior, and that a new importer leaves reports unchanged while a new report leaves importers unchanged. Missing or blocked evidence remains incomplete and earns no point.",
+        "max_points": 1
+      },
+      {
+        "criterion": "Contract tests, trade-offs, and timed debugging",
+        "evidence": "The note records valid/empty/invalid/cancellation contract tests, one retained and one unnecessary abstraction, timed code-reading/refactor reasoning, actual outcomes and blockers. Missing or blocked evidence remains incomplete and earns no point.",
+        "max_points": 1
+      }
+    ],
+    "resources": []
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:stage-09",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Stage 09 behavior-preserving boundaries, patterns, and dependency manual activity",
+    "card_count": 0,
+    "cards": []
+  }
+}

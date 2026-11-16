@@ -1,0 +1,99 @@
+deck_id: "deck-psy-w33"
+subject: "Psychology"
+lesson_id: "week-33-healthy-patterns-warning-signs"
+version: "1.0.0"
+description: "Bộ thẻ ôn tập Tuần 33: Healthy patterns, warning signs và cách đánh giá an toàn"
+
+cards:
+  - id: "fc-psy-w33-001"
+    concept: "Healthy Relationship Patterns"
+    front: "Kể tên các đặc điểm cốt lõi của một mối quan hệ lành mạnh."
+    back: "Tôn trọng lẫn nhau (mutual respect), tin tưởng, trung thực, ủng hộ, và phân bổ quyền lực công bằng (equitable distribution of control)."
+    source_lesson: "Psychology/notes/04-love-relationships/week-33-healthy-patterns-warning-signs.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C33-01"
+    tags:
+      - "healthy-patterns"
+
+  - id: "fc-psy-w33-002"
+    concept: "Warning Sign: Isolation"
+    front: "Hành vi cô lập (Isolation) trong một mối quan hệ có nguy cơ biểu hiện như thế nào?"
+    back: "Ngăn cản, thao túng hoặc làm đối tác cảm thấy tội lỗi khi duy trì liên lạc với gia đình và bạn bè, nhằm cắt đứt mạng lưới hỗ trợ của họ."
+    source_lesson: "Psychology/notes/04-love-relationships/week-33-healthy-patterns-warning-signs.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C33-02"
+    tags:
+      - "warning-signs"
+      - "isolation"
+
+  - id: "fc-psy-w33-003"
+    concept: "Warning Sign: Gaslighting"
+    front: "Gaslighting là gì?"
+    back: "Một dạng thao túng tâm lý (thường đi kèm đổ lỗi/blame-shifting) khiến nạn nhân nghi ngờ trí nhớ, nhận thức và sự tỉnh táo của chính mình."
+    source_lesson: "Psychology/notes/04-love-relationships/week-33-healthy-patterns-warning-signs.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C33-03"
+    tags:
+      - "warning-signs"
+      - "gaslighting"
+
+  - id: "fc-psy-w33-004"
+    concept: "Labeling vs. Behavior"
+    front: "Tại sao nên dùng 'mẫu hành vi đáng lo ngại' thay vì gán nhãn một người là 'toxic' hay 'narcissist'?"
+    back: "Vì các nhãn dán như NPD là chẩn đoán lâm sàng, việc lạm dụng chúng gây hiểu lầm. Tập trung vào hành vi giúp đánh giá nguy cơ một cách khách quan và chính xác hơn."
+    source_lesson: "Psychology/notes/04-love-relationships/week-33-healthy-patterns-warning-signs.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C33-06"
+    tags:
+      - "safety"
+      - "ethics"
+
+  - id: "fc-psy-w33-005"
+    concept: "Struggling vs. High Risk"
+    front: "Sự khác biệt chính giữa một mối quan hệ đang gặp khó khăn (có thể cứu vãn) và có nguy cơ cao là gì?"
+    back: "Mối quan hệ nguy cơ cao đặc trưng bởi sự sợ hãi, mất cân bằng quyền lực nghiêm trọng, và các mẫu hành vi kiểm soát/bạo hành có tính hệ thống."
+    source_lesson: "Psychology/notes/04-love-relationships/week-33-healthy-patterns-warning-signs.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C33-04"
+    tags:
+      - "risk-assessment"
+
+  - id: "fc-psy-w33-006"
+    concept: "Circumplex Model"
+    front: "Theo mô hình Circumplex của Olson, hệ thống gia đình nào hoạt động hiệu quả nhất?"
+    back: "Hệ thống cân bằng (Balanced systems): Cân bằng giữa sự gắn kết (cohesion) và sự linh hoạt (flexibility), tránh được các thái cực quá cứng nhắc hoặc lỏng lẻo."
+    source_lesson: "Psychology/notes/04-love-relationships/week-33-healthy-patterns-warning-signs.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C33-05"
+    tags:
+      - "models"
+      - "olson"
+
+  - id: "fc-psy-w33-007"
+    concept: "Equitable Control"
+    front: "Equitable distribution of control (Phân bổ quyền lực công bằng) nghĩa là gì?"
+    back: "Cả hai bên đều có quyền quyết định ngang nhau đối với những vấn đề quan trọng (tài chính, chỗ ở, thời gian), không có ai áp đảo ai."
+    source_lesson: "Psychology/notes/04-love-relationships/week-33-healthy-patterns-warning-signs.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C33-01"
+    tags:
+      - "healthy-patterns"
+
+  - id: "fc-psy-w33-008"
+    concept: "Disclaimer & Safety"
+    front: "Khi nhận ra các dấu hiệu kiểm soát cưỡng chế (coercive control) nghiêm trọng, người đó nên làm gì?"
+    back: "Không dùng để tự chẩn đoán, mà phải liên hệ ngay với các dịch vụ hỗ trợ chuyên môn, đường dây nóng hoặc chuyên gia để đảm bảo an toàn."
+    source_lesson: "Psychology/notes/04-love-relationships/week-33-healthy-patterns-warning-signs.md"
+    version: "1.0.0"
+    claim_ids:
+      - "C33-04"
+    tags:
+      - "safety"
+      - "disclaimer"

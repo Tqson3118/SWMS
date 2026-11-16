@@ -1,0 +1,34 @@
+deck_id: "deck-sample-fullstack-roadmap-01"
+subject: "CongNgheThongTin"
+description: "Bộ thẻ ghi nhớ FSRS cho lộ trình mẫu .NET API, React State & UX Studxy"
+cards:
+  - id: "fc-road-001"
+    concept: "HTTP 409 Conflict vs 422"
+    front: "Trong REST API, khi nào trả HTTP 409 Conflict thay vì 422 Unprocessable Entity?"
+    back: "Trả 409 Conflict khi có xung đột đồng thời hoặc trùng trạng thái tài nguyên (như stale RowVersion); trả 422 khi dữ liệu đúng cú pháp nhưng vi phạm quy tắc nghiệp vụ."
+    tags: ["http", "api", "concurrency"]
+  - id: "fc-road-002"
+    concept: "Domain Invariant"
+    front: "Vì sao các thuộc tính quan trọng của Domain Entity trong C# nên đặt private set?"
+    back: "Để mọi cập nhật trạng thái phải đi qua phương thức kiểm tra invariant của chính Entity, ngăn code bên ngoài sửa lẻ một trường gây sai lệch dữ liệu."
+    tags: ["csharp", "domain-modeling"]
+  - id: "fc-road-003"
+    concept: "Chống Race Condition khi fetch React"
+    front: "Cần kết hợp cơ chế nào trong useEffect khi fetch dữ liệu theo ID để tránh stale response ghi đè UI?"
+    back: "Dùng AbortController để hủy request cũ trong hàm cleanup kết hợp biến cờ isCurrent nhằm bỏ qua kết quả đến muộn."
+    tags: ["react", "async", "stale-data"]
+  - id: "fc-road-004"
+    concept: "CSS overflow-x-clip vs overflow-x-hidden"
+    front: "Tại sao đặt overflow-x-hidden trên phần tử cha lại làm hỏng position: sticky của sidebar con, và dùng gì để thay thế?"
+    back: "overflow-x: hidden tạo ra một scroll container ngầm khiến sticky chỉ bám trong phạm vi cao đó; thay bằng overflow-x: clip sẽ cắt tràn ngang mà vẫn giữ nguyên sticky."
+    tags: ["css", "sticky", "layout"]
+  - id: "fc-road-005"
+    concept: "Khử Double Scrollbar"
+    front: "Nguyên nhân phổ biến gây thanh cuộn dọc kép (double scrollbar) ở sidebar cây bài học là gì?"
+    back: "Cả khung <aside> bao ngoài lẫn danh sách cây bài học bên trong đều bật overflow-y-auto; chỉ cần để khung ngoài overflow-hidden + flex-col và cho phần danh sách flex-1 min-h-0 overflow-y-auto."
+    tags: ["ui-ux", "flexbox", "scrollbar"]
+  - id: "fc-road-006"
+    concept: "Cấu trúc chuẩn gói lộ trình SWM"
+    front: "Một gói .zip lộ trình chuẩn SWM có thể nhập trực tiếp vào Studxy cần những thành phần nào?"
+    back: "manifest.yaml khai báo chương/bài, thư mục lessons/*.md cho bài học, cùng tùy chọn flashcards/*.yaml (thẻ FSRS) và quizzes/*.md (trắc nghiệm)."
+    tags: ["swm", "markdown", "workflow"]

@@ -1,0 +1,14 @@
+﻿schema_version: 2.0.0
+package_id: package:test:course-sample
+version: 1
+display_title: Khóa học Kiểm thử Tự động SWM
+description: Khóa học mẫu dùng cho kiểm thử tự động gói ZIP chuẩn SWM
+chapters:
+  - id: ch-01
+    title: Chương 1: Giới thiệu Kiến trúc SWM
+    sort_order: 1
+    lessons:
+      - id: les-01
+        title: Bài 1: Nền tảng Sovereign Workspace
+        file: lessons/01_nen_tang.md
+        sort_order: 1

@@ -1,0 +1,72 @@
+deck_id: deck-fscr-w23
+subject: FullStack-CSharp-React-Refresh
+lesson_id: week-23
+version: 1.0.0
+description: GitHub Actions và integration testing
+cards:
+- id: fc-fscr-w23-001
+  concept: Reproducibility
+  front: Frontend CI nên cài dependencies bằng gì?
+  back: npm ci với committed lockfile. CI dùng graph locked và fail khi mismatch.
+  source_lesson: notes/module-6/week-23.md
+  version: 1.0.0
+  claim_ids:
+  - W23-C01
+  tags:
+  - w23
+  - fullstack
+- id: fc-fscr-w23-002
+  concept: Fail gate
+  front: Build step exit nonzero nên làm gì?
+  back: Fail job và chặn rollout. Failure cần giữ evidence và sửa.
+  source_lesson: notes/module-6/week-23.md
+  version: 1.0.0
+  claim_ids:
+  - W23-C01
+  tags:
+  - w23
+  - fullstack
+- id: fc-fscr-w23-003
+  concept: DB test double
+  front: EFInMemory chứng minh SQL constraints không?
+  back: Không, test relational provider thật. Provider fake khác relational semantics.
+  source_lesson: notes/module-6/week-23.md
+  version: 1.0.0
+  claim_ids:
+  - W23-C02
+  tags:
+  - w23
+  - fullstack
+- id: fc-fscr-w23-004
+  concept: Isolation
+  front: Integration test DB nên dùng gì?
+  back: Database test riêng có seed/reset. Isolation giữ tests deterministic/an toàn.
+  source_lesson: notes/module-6/week-23.md
+  version: 1.0.0
+  claim_ids:
+  - W23-C02
+  tags:
+  - w23
+  - fullstack
+- id: fc-fscr-w23-005
+  concept: Fork security
+  front: ForkPR chưa tin cậy nên được gì?
+  back: Read-only verify, không deploy secrets. Untrusted code cần giới hạn credential.
+  source_lesson: notes/module-6/week-23.md
+  version: 1.0.0
+  claim_ids:
+  - W23-C03
+  tags:
+  - w23
+  - fullstack
+- id: fc-fscr-w23-006
+  concept: Release trace
+  front: Image nên nối release với gì?
+  back: CommitSHA và CIevidence. Có thể truy source/test của artifact.
+  source_lesson: notes/module-6/week-23.md
+  version: 1.0.0
+  claim_ids:
+  - W23-C03
+  tags:
+  - w23
+  - fullstack

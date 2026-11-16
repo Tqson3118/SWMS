@@ -1,0 +1,904 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="8832ec0c-6169-41cf-88e8-bbfe19e32754" name="Administrator@DESKTOP-C0K1LT1 2026-10-07 15:39:49" runUser="DESKTOP-C0K1LT1\Administrator" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-07T15:39:49.1657318+07:00" queuing="2026-10-07T15:39:49.1657320+07:00" start="2026-10-07T15:39:48.2683118+07:00" finish="2026-10-07T15:39:49.2045723+07:00" />
+  <TestSettings name="default" id="0dd5a6de-33f6-4736-ad63-c4ace13856c8">
+    <Deployment runDeploymentRoot="Administrator_DESKTOP-C0K1LT1_2026-10-07_15_39_49" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="fff2b543-c5a5-4e31-842d-8f41db032b86" testId="cb264711-9f54-e87b-0ecb-be3c2c3d7a45" testName="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_ZeroAmountAndDateMinimumAreValid" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1549627+07:00" endTime="2026-10-07T15:39:49.1549627+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fff2b543-c5a5-4e31-842d-8f41db032b86">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="7b5189e5-42fb-4fcc-b184-b9fd01209ab4" testId="cb264711-9f54-e87b-0ecb-be3c2c3d7a45" testName="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_ZeroAmountAndDateMinimumAreValid" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1123874+07:00" endTime="2026-10-07T15:39:49.1123874+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7b5189e5-42fb-4fcc-b184-b9fd01209ab4">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="7d47553b-8540-467a-a1ab-93142aa265ff" testId="fa8c6343-c037-9b6c-5a32-d28f41a9ef08" testName="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_ValidData_Returns201CreatedAndPersists" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1549344+07:00" endTime="2026-10-07T15:39:49.1549344+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7d47553b-8540-467a-a1ab-93142aa265ff">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="b760f9b9-ba52-4a96-a44b-4eccdaed7e73" testId="fa8c6343-c037-9b6c-5a32-d28f41a9ef08" testName="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_ValidData_Returns201CreatedAndPersists" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1118016+07:00" endTime="2026-10-07T15:39:49.1118016+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b760f9b9-ba52-4a96-a44b-4eccdaed7e73">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="9facb187-a77e-44a6-9bea-e2e1310c4b81" testId="6b5e6f33-9db4-3e36-fe9b-541d7370c7e3" testName="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_MissingDate_Returns400AndPreservesOriginal" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1448227+07:00" endTime="2026-10-07T15:39:49.1448227+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9facb187-a77e-44a6-9bea-e2e1310c4b81">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="69221cea-bc98-44c6-8dc7-ab2d454cfd33" testId="bad098c6-eb96-ccc5-a887-a301f269a95f" testName="ExpenseApi.Tests.ExpensesControllerTests.GetSummary_ValidYearAndMonth_ReturnsCategoryBreakdownAndTotals" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1490231+07:00" endTime="2026-10-07T15:39:49.1490231+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="69221cea-bc98-44c6-8dc7-ab2d454cfd33">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="fc0aacc2-2c05-4e99-b738-39f3b41a6645" testId="6b5e6f33-9db4-3e36-fe9b-541d7370c7e3" testName="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_MissingDate_Returns400AndPreservesOriginal" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1549589+07:00" endTime="2026-10-07T15:39:49.1549590+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fc0aacc2-2c05-4e99-b738-39f3b41a6645">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="85f252d7-f007-4d7d-bc80-4c8615e3bf09" testId="5b9c85c7-9506-aaa7-dea1-38da2b0b680c" testName="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_NonExistentCategoryId_ReturnsValidationProblemDetails" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1549536+07:00" endTime="2026-10-07T15:39:49.1549536+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="85f252d7-f007-4d7d-bc80-4c8615e3bf09">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="4f4c89f2-ca13-47cf-8b59-45c6dcac0c19" testId="b6b57798-4291-113c-61af-f58199d45e43" testName="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_InvalidAmountOrDefaultDate_ReturnsValidationProblemDetails" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1098667+07:00" endTime="2026-10-07T15:39:49.1098668+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4f4c89f2-ca13-47cf-8b59-45c6dcac0c19">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="937775c8-365d-4816-9fb3-dc9ce8abca14" testId="5a8c9055-d40f-8b2b-1acf-c6ae716109ee" testName="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_InvalidPageOrPageSize_ReturnsProblemDetails" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1129726+07:00" endTime="2026-10-07T15:39:49.1129726+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="937775c8-365d-4816-9fb3-dc9ce8abca14">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f7d48748-46c6-401a-a58c-2e9037d5939c" testId="8100b2ea-6c83-cda2-8e82-9f1bf94b8a6f" testName="ExpenseApi.Tests.ExpensesControllerTests.GetCategories_ReturnsAllCategories" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1549647+07:00" endTime="2026-10-07T15:39:49.1549648+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f7d48748-46c6-401a-a58c-2e9037d5939c">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="88c54c3a-da44-4ca1-82d8-c99f30362478" testId="8100b2ea-6c83-cda2-8e82-9f1bf94b8a6f" testName="ExpenseApi.Tests.ExpensesControllerTests.GetCategories_ReturnsAllCategories" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1111530+07:00" endTime="2026-10-07T15:39:49.1111531+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="88c54c3a-da44-4ca1-82d8-c99f30362478">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="9ec24eb9-d5cc-41c1-bc11-39a574f32abc" testId="05d83ffe-cbaf-f84e-aef4-22e79367768e" testName="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_ValidData_Returns200AndPersistsChanges" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1087121+07:00" endTime="2026-10-07T15:39:49.1087122+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9ec24eb9-d5cc-41c1-bc11-39a574f32abc">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8806b991-77b2-4d2b-bb23-72b37f8b37df" testId="514f3575-858f-06a6-8e6f-00544d9384e1" testName="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_WithDefaultPagination_ReturnsPagedResultAndCategoryName" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1509705+07:00" endTime="2026-10-07T15:39:49.1509707+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8806b991-77b2-4d2b-bb23-72b37f8b37df">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="6dfa091a-504d-44bc-87d3-cb6829bcdc15" testId="5ab6cd31-5381-0449-a30e-c9e24363d2e5" testName="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_UnknownId_Returns404" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1105440+07:00" endTime="2026-10-07T15:39:49.1105440+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6dfa091a-504d-44bc-87d3-cb6829bcdc15">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="a00a8aca-676b-4ba0-9979-668c67a8e2e8" testId="5a8c9055-d40f-8b2b-1acf-c6ae716109ee" testName="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_InvalidPageOrPageSize_ReturnsProblemDetails" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1510609+07:00" endTime="2026-10-07T15:39:49.1510609+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a00a8aca-676b-4ba0-9979-668c67a8e2e8">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="ab7408c4-7e19-4eac-948b-6a6867bb2c05" testId="5b9c85c7-9506-aaa7-dea1-38da2b0b680c" testName="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_NonExistentCategoryId_ReturnsValidationProblemDetails" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1135553+07:00" endTime="2026-10-07T15:39:49.1135553+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ab7408c4-7e19-4eac-948b-6a6867bb2c05">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="cc25b1bc-c6ee-45f1-b7dc-250b09cae281" testId="3269175b-7fe8-b725-b8a0-1fa806de6a9b" testName="ExpenseApi.Tests.ExpensesControllerTests.DeleteExpense_ExistingId_Returns204NoContent_Then404OnSecondDelete" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1549557+07:00" endTime="2026-10-07T15:39:49.1549557+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cc25b1bc-c6ee-45f1-b7dc-250b09cae281">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="0c3b4c80-7e4b-42aa-b159-150c6fa1564a" testId="514f3575-858f-06a6-8e6f-00544d9384e1" testName="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_WithDefaultPagination_ReturnsPagedResultAndCategoryName" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1486516+07:00" endTime="2026-10-07T15:39:49.1486517+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0c3b4c80-7e4b-42aa-b159-150c6fa1564a">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="6ebda318-5e6d-4b3e-8cb5-487c0872ca96" testId="05d83ffe-cbaf-f84e-aef4-22e79367768e" testName="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_ValidData_Returns200AndPersistsChanges" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1549573+07:00" endTime="2026-10-07T15:39:49.1549573+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6ebda318-5e6d-4b3e-8cb5-487c0872ca96">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="c0275494-a089-4f96-a7d0-30b4576e8a8f" testId="5a3731ce-66be-54f7-f993-fabfc2896efb" testName="ExpenseApi.Tests.ExpensesControllerTests.GetSummary_InvalidMonth_ReturnsProblemDetails" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1497488+07:00" endTime="2026-10-07T15:39:49.1497488+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c0275494-a089-4f96-a7d0-30b4576e8a8f">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="ef833e8d-6650-40a3-b11f-bf83cc4b5b67" testId="bad098c6-eb96-ccc5-a887-a301f269a95f" testName="ExpenseApi.Tests.ExpensesControllerTests.GetSummary_ValidYearAndMonth_ReturnsCategoryBreakdownAndTotals" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1510629+07:00" endTime="2026-10-07T15:39:49.1510630+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ef833e8d-6650-40a3-b11f-bf83cc4b5b67">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="cf9b16d0-cca8-4c29-9431-91ef9460c335" testId="5ab6cd31-5381-0449-a30e-c9e24363d2e5" testName="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_UnknownId_Returns404" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1549612+07:00" endTime="2026-10-07T15:39:49.1549612+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cf9b16d0-cca8-4c29-9431-91ef9460c335">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="175b10f0-6650-4181-b238-08ae5987b9a3" testId="79349b34-2ae5-cc1c-6398-ccfa28dd2a4a" testName="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_WithPaginationAndDateFilter_ReturnsFilteredSubset" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1046664+07:00" endTime="2026-10-07T15:39:49.1046968+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="175b10f0-6650-4181-b238-08ae5987b9a3">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="56eb693f-c4e7-401d-a826-7ca4a7537d41" testId="b6b57798-4291-113c-61af-f58199d45e43" testName="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_InvalidAmountOrDefaultDate_ReturnsValidationProblemDetails" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1549512+07:00" endTime="2026-10-07T15:39:49.1549513+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="56eb693f-c4e7-401d-a826-7ca4a7537d41">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="6cb82da3-aa53-4b25-8cf0-9de9ffe3a210" testId="5a3731ce-66be-54f7-f993-fabfc2896efb" testName="ExpenseApi.Tests.ExpensesControllerTests.GetSummary_InvalidMonth_ReturnsProblemDetails" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1510649+07:00" endTime="2026-10-07T15:39:49.1510649+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6cb82da3-aa53-4b25-8cf0-9de9ffe3a210">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="b7346634-0ac6-4c5c-b0ae-d8e486893f84" testId="3269175b-7fe8-b725-b8a0-1fa806de6a9b" testName="ExpenseApi.Tests.ExpensesControllerTests.DeleteExpense_ExistingId_Returns204NoContent_Then404OnSecondDelete" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1493801+07:00" endTime="2026-10-07T15:39:49.1493802+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b7346634-0ac6-4c5c-b0ae-d8e486893f84">
+      <Output>
+        <ErrorInfo>
+          <Message>System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')</Message>
+          <StackTrace>   at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs:line 17&#xD;
+   at Program.&lt;Main&gt;$(String[] args) in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs:line 31&#xD;
+   at Program.&lt;Main&gt;(String[] args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+--- End of stack trace from previous location ---&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+   at ExpenseApi.Tests.ApiTestFixture.InitializeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 28</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="9970a682-aa90-40f2-aeb8-efbf44cdd497" testId="79349b34-2ae5-cc1c-6398-ccfa28dd2a4a" testName="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_WithPaginationAndDateFilter_ReturnsFilteredSubset" computerName="DESKTOP-C0K1LT1" duration="00:00:00.0010000" startTime="2026-10-07T15:39:49.1510565+07:00" endTime="2026-10-07T15:39:49.1510566+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9970a682-aa90-40f2-aeb8-efbf44cdd497">
+      <Output>
+        <ErrorInfo>
+          <Message>[Test Collection Cleanup Failure (API)]: System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ExpenseApi.Tests.ApiTestFixture.DisposeAsync() in D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs:line 49</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.GetSummary_InvalidMonth_ReturnsProblemDetails" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="5a3731ce-66be-54f7-f993-fabfc2896efb">
+      <Execution id="c0275494-a089-4f96-a7d0-30b4576e8a8f" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="GetSummary_InvalidMonth_ReturnsProblemDetails" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_ValidData_Returns201CreatedAndPersists" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="fa8c6343-c037-9b6c-5a32-d28f41a9ef08">
+      <Execution id="b760f9b9-ba52-4a96-a44b-4eccdaed7e73" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PostExpense_ValidData_Returns201CreatedAndPersists" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_MissingDate_Returns400AndPreservesOriginal" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="6b5e6f33-9db4-3e36-fe9b-541d7370c7e3">
+      <Execution id="9facb187-a77e-44a6-9bea-e2e1310c4b81" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PutExpense_MissingDate_Returns400AndPreservesOriginal" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_ZeroAmountAndDateMinimumAreValid" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="cb264711-9f54-e87b-0ecb-be3c2c3d7a45">
+      <Execution id="7b5189e5-42fb-4fcc-b184-b9fd01209ab4" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PostExpense_ZeroAmountAndDateMinimumAreValid" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.GetCategories_ReturnsAllCategories" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="8100b2ea-6c83-cda2-8e82-9f1bf94b8a6f">
+      <Execution id="88c54c3a-da44-4ca1-82d8-c99f30362478" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="GetCategories_ReturnsAllCategories" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.DeleteExpense_ExistingId_Returns204NoContent_Then404OnSecondDelete" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="3269175b-7fe8-b725-b8a0-1fa806de6a9b">
+      <Execution id="b7346634-0ac6-4c5c-b0ae-d8e486893f84" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="DeleteExpense_ExistingId_Returns204NoContent_Then404OnSecondDelete" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_InvalidAmountOrDefaultDate_ReturnsValidationProblemDetails" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="b6b57798-4291-113c-61af-f58199d45e43">
+      <Execution id="4f4c89f2-ca13-47cf-8b59-45c6dcac0c19" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PostExpense_InvalidAmountOrDefaultDate_ReturnsValidationProblemDetails" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_ValidData_Returns200AndPersistsChanges" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="05d83ffe-cbaf-f84e-aef4-22e79367768e">
+      <Execution id="9ec24eb9-d5cc-41c1-bc11-39a574f32abc" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PutExpense_ValidData_Returns200AndPersistsChanges" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_InvalidPageOrPageSize_ReturnsProblemDetails" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="5a8c9055-d40f-8b2b-1acf-c6ae716109ee">
+      <Execution id="937775c8-365d-4816-9fb3-dc9ce8abca14" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="GetExpenses_InvalidPageOrPageSize_ReturnsProblemDetails" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_WithPaginationAndDateFilter_ReturnsFilteredSubset" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="79349b34-2ae5-cc1c-6398-ccfa28dd2a4a">
+      <Execution id="175b10f0-6650-4181-b238-08ae5987b9a3" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="GetExpenses_WithPaginationAndDateFilter_ReturnsFilteredSubset" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.GetSummary_ValidYearAndMonth_ReturnsCategoryBreakdownAndTotals" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="bad098c6-eb96-ccc5-a887-a301f269a95f">
+      <Execution id="69221cea-bc98-44c6-8dc7-ab2d454cfd33" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="GetSummary_ValidYearAndMonth_ReturnsCategoryBreakdownAndTotals" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PostExpense_NonExistentCategoryId_ReturnsValidationProblemDetails" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="5b9c85c7-9506-aaa7-dea1-38da2b0b680c">
+      <Execution id="ab7408c4-7e19-4eac-948b-6a6867bb2c05" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PostExpense_NonExistentCategoryId_ReturnsValidationProblemDetails" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_WithDefaultPagination_ReturnsPagedResultAndCategoryName" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="514f3575-858f-06a6-8e6f-00544d9384e1">
+      <Execution id="0c3b4c80-7e4b-42aa-b159-150c6fa1564a" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="GetExpenses_WithDefaultPagination_ReturnsPagedResultAndCategoryName" />
+    </UnitTest>
+    <UnitTest name="ExpenseApi.Tests.ExpensesControllerTests.PutExpense_UnknownId_Returns404" storage="d:\03_study\roadmap\dotnet-react-roadmap\reference\stage-04-api\tests\expenseapi.tests\bin\debug\net10.0\expenseapi.tests.dll" id="5ab6cd31-5381-0449-a30e-c9e24363d2e5">
+      <Execution id="6dfa091a-504d-44bc-87d3-cb6829bcdc15" />
+      <TestMethod codeBase="D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\bin\Debug\net10.0\ExpenseApi.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ExpenseApi.Tests.ExpensesControllerTests" name="PutExpense_UnknownId_Returns404" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="cb264711-9f54-e87b-0ecb-be3c2c3d7a45" executionId="fff2b543-c5a5-4e31-842d-8f41db032b86" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cb264711-9f54-e87b-0ecb-be3c2c3d7a45" executionId="7b5189e5-42fb-4fcc-b184-b9fd01209ab4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fa8c6343-c037-9b6c-5a32-d28f41a9ef08" executionId="7d47553b-8540-467a-a1ab-93142aa265ff" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fa8c6343-c037-9b6c-5a32-d28f41a9ef08" executionId="b760f9b9-ba52-4a96-a44b-4eccdaed7e73" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6b5e6f33-9db4-3e36-fe9b-541d7370c7e3" executionId="9facb187-a77e-44a6-9bea-e2e1310c4b81" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bad098c6-eb96-ccc5-a887-a301f269a95f" executionId="69221cea-bc98-44c6-8dc7-ab2d454cfd33" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6b5e6f33-9db4-3e36-fe9b-541d7370c7e3" executionId="fc0aacc2-2c05-4e99-b738-39f3b41a6645" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5b9c85c7-9506-aaa7-dea1-38da2b0b680c" executionId="85f252d7-f007-4d7d-bc80-4c8615e3bf09" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b6b57798-4291-113c-61af-f58199d45e43" executionId="4f4c89f2-ca13-47cf-8b59-45c6dcac0c19" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5a8c9055-d40f-8b2b-1acf-c6ae716109ee" executionId="937775c8-365d-4816-9fb3-dc9ce8abca14" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8100b2ea-6c83-cda2-8e82-9f1bf94b8a6f" executionId="f7d48748-46c6-401a-a58c-2e9037d5939c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8100b2ea-6c83-cda2-8e82-9f1bf94b8a6f" executionId="88c54c3a-da44-4ca1-82d8-c99f30362478" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="05d83ffe-cbaf-f84e-aef4-22e79367768e" executionId="9ec24eb9-d5cc-41c1-bc11-39a574f32abc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="514f3575-858f-06a6-8e6f-00544d9384e1" executionId="8806b991-77b2-4d2b-bb23-72b37f8b37df" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5ab6cd31-5381-0449-a30e-c9e24363d2e5" executionId="6dfa091a-504d-44bc-87d3-cb6829bcdc15" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5a8c9055-d40f-8b2b-1acf-c6ae716109ee" executionId="a00a8aca-676b-4ba0-9979-668c67a8e2e8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5b9c85c7-9506-aaa7-dea1-38da2b0b680c" executionId="ab7408c4-7e19-4eac-948b-6a6867bb2c05" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3269175b-7fe8-b725-b8a0-1fa806de6a9b" executionId="cc25b1bc-c6ee-45f1-b7dc-250b09cae281" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="514f3575-858f-06a6-8e6f-00544d9384e1" executionId="0c3b4c80-7e4b-42aa-b159-150c6fa1564a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="05d83ffe-cbaf-f84e-aef4-22e79367768e" executionId="6ebda318-5e6d-4b3e-8cb5-487c0872ca96" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5a3731ce-66be-54f7-f993-fabfc2896efb" executionId="c0275494-a089-4f96-a7d0-30b4576e8a8f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bad098c6-eb96-ccc5-a887-a301f269a95f" executionId="ef833e8d-6650-40a3-b11f-bf83cc4b5b67" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5ab6cd31-5381-0449-a30e-c9e24363d2e5" executionId="cf9b16d0-cca8-4c29-9431-91ef9460c335" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="79349b34-2ae5-cc1c-6398-ccfa28dd2a4a" executionId="175b10f0-6650-4181-b238-08ae5987b9a3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b6b57798-4291-113c-61af-f58199d45e43" executionId="56eb693f-c4e7-401d-a826-7ca4a7537d41" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5a3731ce-66be-54f7-f993-fabfc2896efb" executionId="6cb82da3-aa53-4b25-8cf0-9de9ffe3a210" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3269175b-7fe8-b725-b8a0-1fa806de6a9b" executionId="b7346634-0ac6-4c5c-b0ae-d8e486893f84" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="79349b34-2ae5-cc1c-6398-ccfa28dd2a4a" executionId="9970a682-aa90-40f2-aeb8-efbf44cdd497" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="28" executed="28" passed="0" failed="28" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.12)&#xD;
+[xUnit.net 00:00:00.15]   Discovering: ExpenseApi.Tests&#xD;
+[xUnit.net 00:00:00.19]   Discovered:  ExpenseApi.Tests&#xD;
+[xUnit.net 00:00:00.19]   Starting:    ExpenseApi.Tests&#xD;
+[xUnit.net 00:00:00.36]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.36]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.36]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.36]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.36]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.36]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.36]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.36]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.36]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.36]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.36]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.36]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.36]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.36]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.36]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.36]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.36]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.36]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.36]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.36]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.36]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.36]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.36]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.36]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.36]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.37]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.37]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.37]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.37]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.37]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.37]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.37]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.37]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.37]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.37]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.37]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.37]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.37]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.37]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.37]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.37]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.37]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.37]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.37]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.37]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.37]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.37]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.40]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.40]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.40]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.40]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.40]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.40]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.40]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.40]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.40]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.40]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.40]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.40]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.40]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.40]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.40]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.40]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.40]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.40]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.40]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.40]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.40]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.40]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.40]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.40]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.40]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.40]       System.ArgumentException : Only RoadmapApi779_&lt;32 hex&gt; database names are allowed. (Parameter 'name')&#xD;
+[xUnit.net 00:00:00.40]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Data\ApiDatabase.cs(17,0): at ExpenseApi.Data.ApiDatabase.ValidateFreshName(String name)&#xD;
+[xUnit.net 00:00:00.40]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\src\ExpenseApi\Program.cs(31,0): at Program.&lt;Main&gt;$(String[] args)&#xD;
+[xUnit.net 00:00:00.41]            at Program.&lt;Main&gt;(String[] args)&#xD;
+[xUnit.net 00:00:00.41]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)&#xD;
+[xUnit.net 00:00:00.41]            at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.41]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.41]            at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()&#xD;
+[xUnit.net 00:00:00.41]            at Microsoft.Extensions.Hosting.HostFactoryResolver.&lt;&gt;c__DisplayClass10_0.&lt;ResolveHostFactory&gt;b__0(String[] args)&#xD;
+[xUnit.net 00:00:00.41]            at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()&#xD;
+[xUnit.net 00:00:00.41]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.41]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.DelegatedWebApplicationFactory.CreateHost(IHostBuilder builder)&#xD;
+[xUnit.net 00:00:00.41]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)&#xD;
+[xUnit.net 00:00:00.41]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()&#xD;
+[xUnit.net 00:00:00.41]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.41]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)&#xD;
+[xUnit.net 00:00:00.41]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)&#xD;
+[xUnit.net 00:00:00.41]            at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()&#xD;
+[xUnit.net 00:00:00.41]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(28,0): at ExpenseApi.Tests.ApiTestFixture.InitializeAsync()&#xD;
+[xUnit.net 00:00:00.41]       System.NullReferenceException : Object reference not set to an instance of an object.&#xD;
+[xUnit.net 00:00:00.41]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.41]         D:\03_Study\Roadmap\DotNet-React-Roadmap\reference\stage-04-api\tests\ExpenseApi.Tests\ApiTestFixture.cs(49,0): at ExpenseApi.Tests.ApiTestFixture.DisposeAsync()&#xD;
+[xUnit.net 00:00:00.41]   Finished:    ExpenseApi.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1014496+07:00">
+        <Text>[xUnit.net 00:00:00.36]     ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_WithPaginationAndDateFilter_ReturnsFilteredSubset [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1085178+07:00">
+        <Text>[xUnit.net 00:00:00.36]     ExpenseApi.Tests.ExpensesControllerTests.PutExpense_ValidData_Returns200AndPersistsChanges [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1094173+07:00">
+        <Text>[xUnit.net 00:00:00.36]     ExpenseApi.Tests.ExpensesControllerTests.PostExpense_InvalidAmountOrDefaultDate_ReturnsValidationProblemDetails [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1107343+07:00">
+        <Text>[xUnit.net 00:00:00.37]     ExpenseApi.Tests.ExpensesControllerTests.PutExpense_UnknownId_Returns404 [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1120603+07:00">
+        <Text>[xUnit.net 00:00:00.37]     ExpenseApi.Tests.ExpensesControllerTests.GetCategories_ReturnsAllCategories [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1132870+07:00">
+        <Text>[xUnit.net 00:00:00.37]     ExpenseApi.Tests.ExpensesControllerTests.PostExpense_ValidData_Returns201CreatedAndPersists [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1145086+07:00">
+        <Text>[xUnit.net 00:00:00.37]     ExpenseApi.Tests.ExpensesControllerTests.PostExpense_ZeroAmountAndDateMinimumAreValid [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1157452+07:00">
+        <Text>[xUnit.net 00:00:00.37]     ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_InvalidPageOrPageSize_ReturnsProblemDetails [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1170228+07:00">
+        <Text>[xUnit.net 00:00:00.37]     ExpenseApi.Tests.ExpensesControllerTests.PostExpense_NonExistentCategoryId_ReturnsValidationProblemDetails [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1718895+07:00">
+        <Text>[xUnit.net 00:00:00.40]     ExpenseApi.Tests.ExpensesControllerTests.PutExpense_MissingDate_Returns400AndPreservesOriginal [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1719746+07:00">
+        <Text>[xUnit.net 00:00:00.40]     ExpenseApi.Tests.ExpensesControllerTests.GetExpenses_WithDefaultPagination_ReturnsPagedResultAndCategoryName [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1720306+07:00">
+        <Text>[xUnit.net 00:00:00.40]     ExpenseApi.Tests.ExpensesControllerTests.GetSummary_ValidYearAndMonth_ReturnsCategoryBreakdownAndTotals [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1720790+07:00">
+        <Text>[xUnit.net 00:00:00.40]     ExpenseApi.Tests.ExpensesControllerTests.DeleteExpense_ExistingId_Returns204NoContent_Then404OnSecondDelete [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1721188+07:00">
+        <Text>[xUnit.net 00:00:00.40]     ExpenseApi.Tests.ExpensesControllerTests.GetSummary_InvalidMonth_ReturnsProblemDetails [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-C0K1LT1" outcome="Error" timestamp="2026-10-07T15:39:49.1721653+07:00">
+        <Text>[xUnit.net 00:00:00.41]     [Test Collection Cleanup Failure (API)] System.NullReferenceException</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

@@ -1,0 +1,658 @@
+[
+  {
+    "week": 17,
+    "title": "TypeScript, components và state",
+    "lessons": [
+      {
+        "title": "Kiểu dữ liệu tại boundary",
+        "objective": "Phân biệt compile-time types với runtime validation.",
+        "body": "TypeScript bổ sung kiểm tra tĩnh cho JavaScript; kiểu bị xóa khi build. ExpenseDto mô tả id string, amountVnd number, spentOn string, version string. JSON từ fetch vẫn cần kiểm tra: unknown buộc narrow qua typeof, Array.isArray và field guards; 'as ExpenseDto' chỉ bảo compiler tin mình. Bật strict; tránh any để không mất kiểm tra null. Union status loading/error/success tạo các nhánh hợp lệ; discriminant status giúp narrow. Optional note cần quyết định undefined/null tại API boundary. Không chuyển DateOnly thành local Date rồi toISOString vì timezone có thể đổi ngày."
+      },
+      {
+        "title": "Components, props và identity",
+        "objective": "Chia UI theo nhiệm vụ và dùng keys ổn định.",
+        "body": "Component là hàm trả JSX từ props/state. Đặt ExpenseList, ExpenseRow, ExpenseForm ở cấp module; khai báo component trong parent tạo identity mới mỗi render. Props truyền dữ liệu xuống, callbacks truyền intent lên; không mutate props. List dùng key=id, không index khi có sort/delete vì state input có thể gắn sang item khác. JSX text được escape; không đưa note vào dangerouslySetInnerHTML. Fragment nhóm mà không thêm layout div. Type props gồm readonly data và callback có chữ ký rõ; CSS responsive từ tuần 1 vẫn dùng trong React."
+      },
+      {
+        "title": "State và derived values",
+        "objective": "Cập nhật immutable và tránh state trùng lặp.",
+        "body": "State là snapshot của lần render; setState yêu cầu render mới, không sửa biến hiện tại. Khi next phụ thuộc previous, dùng functional updater setRows(old => old.filter(...)). Array/object state không push hay sửa nested field trực tiếp: tạo array/object mới cho phần thay đổi. Tổng chi tiêu derive bằng reduce từ rows thay vì lưu total riêng rồi quên đồng bộ. Chọn parent chung sở hữu filter chia sẻ; form input thường local. Chỉ thêm reducer/context khi có nhiều transitions hoặc nhu cầu chia sẻ rõ; Redux không phải điều kiện bắt đầu. Hooks gọi cùng thứ tự, ở top level component/custom hook."
+      }
+    ],
+    "example": "1. Tạo client bằng npm create vite@latest web -- --template react-ts; npm install rồi npm run dev. Ghi phiên bản thực tế vào docs/toolchain.md và giữ lockfile.\n2. Trong src/App.tsx dùng fixture nội bộ:\n```tsx\nimport { useState } from 'react';\ntype Row = { id: string; amountVnd: number };\nconst initial: Row[] = [\n {id:'e1',amountVnd:50000}, {id:'e2',amountVnd:20000},\n {id:'e3',amountVnd:30000}\n];\nexport default function App() {\n const [rows,setRows] = useState(initial);\n const total = rows.reduce((sum,r)=>sum+r.amountVnd,0);\n return <main><h1>Expenses</h1><p>Total: {total} VND</p>\n <ul>{rows.map(r=><li key={r.id}>{r.amountVnd}\n <button onClick={()=>setRows(old=>old.filter(x=>x.id!==r.id))}>\n Delete {r.id}</button></li>)}</ul></main>;\n}\n```\n3. Ban đầu total=100000; xóa e2 còn80000. Fixture IDs e1..e3 chỉ dùng UI lab, API thực dùng GUID.\n4. Chạy npm run build; đổi thứ tự list rồi xóa để kiểm keys.",
+    "deep": "Đừng chuyển nguyên DOM app bằng cách document.querySelector rồi sửa element trong React render. State drives view; event handler thay state. Type guard cần kiểm giá trị số nguyên an toàn và date format, không chỉ typeof number. Quy tắc giới hạn amount đến1e9 là project policy.",
+    "exercises": [
+      {
+        "prompt": "Viết guard amountVnd cho JSON string '50000', 50000, NaN, -1.",
+        "solution": "Number.isSafeInteger(v) && v>=1 && v<=1e9 sau typeof v==='number'. Chỉ 50000 hợp lệ; parser form string xử lý riêng trước guard DTO."
+      },
+      {
+        "prompt": "Chứng minh tại sao lưu rows và total ở hai state dễ lỗi.",
+        "solution": "Xóa item rồi cập nhật rows mà quên total; UI lệch. Derive reduce từ rows, assert xóa20000 làm100000→80000."
+      }
+    ],
+    "project": "Thay UI DOM bằng React giữ fixture và responsive layout; thêm typed list, delete local và category filter. Chưa gọi network ở render.",
+    "criteria": [
+      "Build strict TypeScript không lỗi; guard từ chối string/negative/unsafe amount.",
+      "Seed total100000, xóa Travel còn80000; sort/delete không đổi identity input.",
+      "Note chứa <script> hiển thị text; keyboard thao tác delete được."
+    ],
+    "english": "Giải thích: 'Why does TypeScript not validate a server response?' Thu 2 phút với một ví dụ unknown.",
+    "sources": [
+      {
+        "url": "https://www.typescriptlang.org/docs/handbook/2/narrowing.html",
+        "section": "Narrowing and unknown guards"
+      },
+      {
+        "url": "https://react.dev/learn/rendering-lists",
+        "section": "Keys and rendering lists"
+      },
+      {
+        "url": "https://react.dev/learn/updating-arrays-in-state",
+        "section": "Immutable array updates"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Runtime types",
+        "stem": "JSON cast bằng as ExpenseDto bảo đảm gì?",
+        "options": [
+          "Chỉ thay cách compiler kiểm kiểu",
+          "Validate JSON thật",
+          "Tự gọi API",
+          "Tự parse ngày UTC"
+        ],
+        "reasons": [
+          "Assertion không tạo runtime checks.",
+          "JSON shape có thể không đúng kiểu.",
+          "Cast không thực hiện network request.",
+          "String ngày không được tự chuyển timezone."
+        ],
+        "front": "JSON cast bằng as ExpenseDto bảo đảm gì?",
+        "back": "Chỉ thay cách compiler kiểm kiểu. Assertion không tạo runtime checks."
+      },
+      {
+        "concept": "Unknown",
+        "stem": "Dữ liệu chưa tin cậy nên nhận kiểu gì?",
+        "options": [
+          "unknown rồi narrow",
+          "any và bỏ checks",
+          "never",
+          "ExpenseDto và tin tuyệt đối"
+        ],
+        "reasons": [
+          "Unknown yêu cầu kiểm trước sử dụng.",
+          "Any tắt kiểm tra tại boundary.",
+          "Never mô tả giá trị không xảy ra.",
+          "Annotation không chứng minh external data."
+        ],
+        "front": "Dữ liệu chưa tin cậy nên nhận kiểu gì?",
+        "back": "unknown rồi narrow. Unknown yêu cầu kiểm trước sử dụng."
+      },
+      {
+        "concept": "List identity",
+        "stem": "Key nào giữ identity khi sort?",
+        "options": [
+          "ID ổn định của expense",
+          "Index hiện tại",
+          "Math.random mỗi render",
+          "Amount có thể trùng"
+        ],
+        "reasons": [
+          "ID theo resource không theo vị trí.",
+          "Index gắn state với vị trí sai.",
+          "Random làm remount toàn bộ rows.",
+          "Amount không duy nhất và có thể sửa."
+        ],
+        "front": "Key nào giữ identity khi sort?",
+        "back": "ID ổn định của expense. ID theo resource không theo vị trí."
+      },
+      {
+        "concept": "Props",
+        "stem": "Child muốn xóa row nên làm gì?",
+        "options": [
+          "Gọi callback từ parent",
+          "Mutate props array",
+          "Query DOM xóa li",
+          "Gán lại props trực tiếp"
+        ],
+        "reasons": [
+          "Owner state nhận intent rồi cập nhật.",
+          "Mutation phá luồng cập nhật React.",
+          "DOM riêng lệch với state và render.",
+          "Props do parent cấp, child không sở hữu."
+        ],
+        "front": "Child muốn xóa row nên làm gì?",
+        "back": "Gọi callback từ parent. Owner state nhận intent rồi cập nhật."
+      },
+      {
+        "concept": "Derived state",
+        "stem": "Total nên lấy từ đâu khi rows đủ dữ liệu?",
+        "options": [
+          "Derive từ rows bằng reduce",
+          "State total riêng không đồng bộ",
+          "Biến global mutable",
+          "Đọc text DOM"
+        ],
+        "reasons": [
+          "Một nguồn dữ liệu giảm lỗi đồng bộ.",
+          "State trùng dễ quên cập nhật.",
+          "Global không theo lifecycle component.",
+          "DOM là output, không nguồn business data."
+        ],
+        "front": "Total nên lấy từ đâu khi rows đủ dữ liệu?",
+        "back": "Derive từ rows bằng reduce. Một nguồn dữ liệu giảm lỗi đồng bộ."
+      },
+      {
+        "concept": "Functional updater",
+        "stem": "Xóa dựa trên rows trước dùng cách nào?",
+        "options": [
+          "setRows(old => old.filter(...))",
+          "rows.splice rồi không set",
+          "setRows(rows.push(x))",
+          "setState trong render vô điều kiện"
+        ],
+        "reasons": [
+          "Updater dùng previous state và array mới.",
+          "Mutation không yêu cầu render mới đúng cách.",
+          "Push trả length, không trả array rows.",
+          "Set vô điều kiện trong render gây vòng lặp."
+        ],
+        "front": "Xóa dựa trên rows trước dùng cách nào?",
+        "back": "setRows(old => old.filter(...)). Updater dùng previous state và array mới."
+      }
+    ]
+  },
+  {
+    "week": 18,
+    "title": "Hooks, routing và API lifecycle",
+    "lessons": [
+      {
+        "title": "Effects và lifecycle",
+        "objective": "Đồng bộ external API mà không tạo vòng lặp.",
+        "body": "Effect chạy sau commit để đồng bộ external system. Event submit POST thuộc event handler; total derive thuộc render, không cần effect. Dependencies gồm các reactive values effect đọc; bỏ dependency để 'chỉ chạy một lần' tạo stale closure. Effect không khai báo async vì return phải là cleanup hoặc undefined; đặt async function bên trong rồi gọi. Cleanup abort/ignore request cũ trước effect mới và unmount. Strict Mode Development có chu kỳ setup-cleanup-setup để phát hiện thiếu cleanup; không tắt chỉ để giấu bug. useRef giữ controller/request id mà thay đổi không render; useMemo chỉ tối ưu khi có bằng chứng."
+      },
+      {
+        "title": "Routes và URL state",
+        "objective": "Tạo navigation và deep link có thể tải lại.",
+        "body": "Dùng React Router declarative BrowserRouter, Routes, Route với react-router theo docs phiên bản đã khóa; routes /expenses, /budgets, /reports, /login và catch-all. Link đổi URL mà không full reload. Query string chứa filter tháng/page cho bookmark; state input tạm thời có thể local. Khi đổi from/to hoặc category, reset page về1. Refresh /expenses cần host fallback index.html cho SPA, nhưng /api route phải đến backend. Route guard giúp UX khi chưa login; server vẫn enforce authorization. Không hard-code localhost trong production; cấu hình public API base URL theo environment."
+      },
+      {
+        "title": "Request state machine",
+        "objective": "Chặn stale result và hiển thị loading/error/empty.",
+        "body": "API helper kiểm response.ok vì fetch không reject chỉ do404/500; 204 trả undefined không gọi json. Loading hiển thị progress; success có items empty khác error. Union {status:'loading'|'error'|'success'} tránh các boolean mâu thuẫn. GET dựa filter cần abort và ignore để response tháng cũ không ghi đè tháng mới. Không show AbortError như lỗi cho user. Parse ProblemDetails an toàn và display message generic/field error; giữ traceId để báo lỗi. DTO không có runtime trust do TypeScript. Kiểm Number.isSafeInteger cho totals; abort network không chứng minh mutation server đã rollback."
+      }
+    ],
+    "example": "1. Trong component list import useEffect/useState; state union để dữ liệu không xuất hiện ở error.\n2. Core effect, apiUrl là URL GET đã chứa filter; decodeList là guard tự viết tuần17:\n```tsx\nuseEffect(() => {\n const ac = new AbortController(); let active = true;\n setView({status:'loading'});\n async function load() {\n  try {\n   const r=await fetch(apiUrl,{signal:ac.signal});\n   if(!r.ok) throw new Error(`HTTP ${r.status}`);\n   const data=decodeList(await r.json());\n   if(active) setView({status:'success',data});\n  } catch(e) {\n   if(active && !ac.signal.aborted)\n    setView({status:'error',message:e instanceof Error?e.message:'Request failed'});\n  }\n }\n void load();\n return ()=>{active=false;ac.abort();};\n},[apiUrl]);\n```\n3. Throttle DevTools: Oct chậm, Nov nhanh; đổi filter trước Oct xong. Cuối chỉ hiển thị Nov.\n4. GET Bob items=[] hiển thị empty CTA;500 hiển thị retry; không gộp thành 'no expenses'.",
+    "deep": "Abort giảm công việc nhưng ignore bảo vệ state khi request đã gần hoàn thành. Không thêm rows vào effect dependencies nếu effect setRows mỗi lần. Router state không cache server data. Thư viện query cache là tùy chọn sau khi đã hiểu race/keys/invalidation.",
+    "exercises": [
+      {
+        "prompt": "Thiết kế xử lý DELETE204 trong api helper.",
+        "solution": "Nếu status===204 return undefined trước json; các status khác check ok và content type. Sau delete refetch list đúng filter/page."
+      },
+      {
+        "prompt": "Filter mới page5 không có items nhưng có totalCount. Sửa UX.",
+        "solution": "Reset page1 khi filter thay đổi; khi xóa item cuối trang, tính lại page hợp lệ rồi fetch. Empty state chỉ khi filter không có kết quả."
+      }
+    ],
+    "project": "Nối list/pagination/filter React tới API của tuần14–16; thêm routing và GET state machine; lưu filter URL để chia sẻ link.",
+    "criteria": [
+      "Refresh deep link /expenses?month=2026-10 hoạt động; back/forward phục hồi filter.",
+      "Test Oct/Nov responses đảo thứ tự không ghi đè mới; unmount không update state.",
+      "Loading,500 retry,Bob empty và success có giao diện riêng; DELETE204 không JSON error."
+    ],
+    "english": "Đọc Effects docs15 phút; nói 'A stale closure is...' và mô tả cleanup bằng sơ đồ lời nói.",
+    "sources": [
+      {
+        "url": "https://react.dev/learn/synchronizing-with-effects",
+        "section": "Cleanup, dependencies and development remount"
+      },
+      {
+        "url": "https://reactrouter.com/start/declarative/routing",
+        "section": "BrowserRouter, Routes and nested routes"
+      },
+      {
+        "url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch",
+        "section": "Response status and cancellation"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Effect boundary",
+        "stem": "POST do user bấm submit nên đặt đâu?",
+        "options": [
+          "Trong event handler",
+          "Render body",
+          "Effect mỗi render",
+          "Module global startup"
+        ],
+        "reasons": [
+          "Mutation gắn với intent submit.",
+          "Render phải không gây side effects.",
+          "Effect lặp có thể tạo expense trùng.",
+          "Startup không biết dữ liệu form/user."
+        ],
+        "front": "POST do user bấm submit nên đặt đâu?",
+        "back": "Trong event handler. Mutation gắn với intent submit."
+      },
+      {
+        "concept": "Cleanup",
+        "stem": "Effect fetch trả cleanup để làm gì?",
+        "options": [
+          "Abort và ignore kết quả cũ",
+          "Undo mọi server commit",
+          "Tắt TypeScript",
+          "Giữ request chạy mãi"
+        ],
+        "reasons": [
+          "Cleanup bảo vệ UI khi đổi dependency.",
+          "Commit server có lifecycle riêng.",
+          "Type checking không liên quan cleanup.",
+          "Không hủy làm lãng phí và dễ race."
+        ],
+        "front": "Effect fetch trả cleanup để làm gì?",
+        "back": "Abort và ignore kết quả cũ. Cleanup bảo vệ UI khi đổi dependency."
+      },
+      {
+        "concept": "Deep links",
+        "stem": "SPA refresh route cần gì ở host?",
+        "options": [
+          "Fallback index.html cho UI routes",
+          "Fallback mọi /api sang HTML",
+          "Chỉ mở root được",
+          "Lưu route trong JWT"
+        ],
+        "reasons": [
+          "Host phải phục vụ entry cho route UI.",
+          "API cần JSON/status đúng backend.",
+          "Deep links là yêu cầu navigation.",
+          "JWT không lưu browser route cần thiết."
+        ],
+        "front": "SPA refresh route cần gì ở host?",
+        "back": "Fallback index.html cho UI routes. Host phải phục vụ entry cho route UI."
+      },
+      {
+        "concept": "Route guard",
+        "stem": "Guard client thay auth API không?",
+        "options": [
+          "Không, API tự kiểm quyền",
+          "Có nếu button ẩn",
+          "Có nếu router private",
+          "Có nếu URL khó đoán"
+        ],
+        "reasons": [
+          "Client bị sửa và API gọi trực tiếp được.",
+          "UI visibility không security boundary.",
+          "Router không validate bearer ở server.",
+          "Khó đoán không enforce authorization."
+        ],
+        "front": "Guard client thay auth API không?",
+        "back": "Không, API tự kiểm quyền. Client bị sửa và API gọi trực tiếp được."
+      },
+      {
+        "concept": "Fetch status",
+        "stem": "fetch gặp HTTP500 thường làm gì?",
+        "options": [
+          "Resolve Response cần kiểm ok",
+          "Luôn reject",
+          "Luôn parse ProblemDetails",
+          "Tự retry không giới hạn"
+        ],
+        "reasons": [
+          "HTTP lỗi vẫn là response network thành công.",
+          "Reject thường do network/abort.",
+          "Body parsing do ứng dụng xử lý.",
+          "Fetch không tự thực hiện retry policy."
+        ],
+        "front": "fetch gặp HTTP500 thường làm gì?",
+        "back": "Resolve Response cần kiểm ok. HTTP lỗi vẫn là response network thành công."
+      },
+      {
+        "concept": "204 parsing",
+        "stem": "DELETE204 nên xử lý body thế nào?",
+        "options": [
+          "Không gọi json, trả undefined",
+          "Parse JSON rỗng",
+          "Gán error500",
+          "Đòi backend gửi {}"
+        ],
+        "reasons": [
+          "204 biểu thị không có body.",
+          "JSON parser lỗi vì input rỗng.",
+          "Success204 không phải server failure.",
+          "Body {} vi phạm semantics204."
+        ],
+        "front": "DELETE204 nên xử lý body thế nào?",
+        "back": "Không gọi json, trả undefined. 204 biểu thị không có body."
+      }
+    ]
+  },
+  {
+    "week": 19,
+    "title": "Forms, authentication và edit conflicts",
+    "lessons": [
+      {
+        "title": "Controlled forms và validation",
+        "objective": "Giữ input string, parse rõ và map field errors.",
+        "body": "Form control value luôn string khi người dùng đang gõ, kể cả amount. Không dùng Number('') vì ra0 rồi đánh mất trạng thái trống. Submit trim, kiểm digits rồi Number.isSafeInteger/range; server vẫn validate cùng policy. Label htmlFor nối id, lỗi bằng aria-describedby và summary focus khi fail. Disable nút khi submitting để tránh double click; idempotency vẫn cần cho import/retry. POST chỉ gửi writable fields, không UserId; PUT gửi đủ fields và version Base64 từ record đã đọc. Khi409 giữ input và cho reload/so sánh; không âm thầm overwrite phiên bản mới."
+      },
+      {
+        "title": "SPA authentication",
+        "objective": "Dùng provider code flow PKCE và bearer đúng audience.",
+        "body": "Development dùng dotnet user-jwts theo API lab tuần15; chỉ dán token test vào memory của tab để học401/403. Production dùng OIDC/OAuth provider và client SDK được hỗ trợ: đăng ký public SPA client, redirect URI chính xác, authorization code với PKCE, scopes API. Không đặt client secret trong SPA. SDK quản lý login callback/state/nonce và token renewal; không tự viết protocol từ đầu. API nhận access token chứ không id_token; validate signature/issuer/audience/lifetime và ánh xạ issuer+subject sang internal UserId. Decode payload client chỉ phục vụ hiển thị, không chứng minh token hợp lệ."
+      },
+      {
+        "title": "Session UX và ownership",
+        "objective": "Xóa cache theo user và xử lý401/403/404 đúng.",
+        "body": "Auth provider/context giữ trạng thái loading/authenticated/anonymous cho UI. Authenticated principal không có quyền trên resource của người khác: API query scope theo UserId cho404. 401 đưa UX đăng nhập lại theo SDK nhưng không tự lặp vô hạn;403 giải thích thiếu policy. Logout hủy requests và bỏ in-memory user data/cache; query cache keys chứa identity để Alice/Bob không chia sẻ. Course không lưu access token dài hạn trong localStorage; XSS có thể đọc storage. Nếu chọn BFF cookie thay SPA bearer thì thiết kế CSRF/SameSite riêng, không trộn hai flow tùy tiện. Login và authorization cần test độc lập."
+      }
+    ],
+    "example": "1. Controlled amount bắt đầu ''. Tại submit:\n```ts\nfunction parseAmount(text:string):number {\n const s=text.trim();\n if(!/^\\d+$/.test(s)) throw new Error('Enter whole VND');\n const n=Number(s);\n if(!Number.isSafeInteger(n)||n<1||n>1_000_000_000)\n  throw new Error('Amount out of range');\n return n;\n}\n```\n2. Thử '', '1.5', '-1', '50000'; chỉ50000 pass. Keep note/date inputs khi server400.\n3. Alice mở e1 versionV1 ở hai tab; tabA PUT trả V2; tabB PUT V1 nhận409, giữ form.\n4. Bob gọi e1 nhận404 dù ID và JSON đúng. Production auth triển khai bằng SDK provider được chọn trong ADR; dev token không dùng deployment.",
+    "deep": "Auth token không là chỗ lưu finance data. Không log token và không copy vào screenshot. Submit retry sau timeout chưa biết commit: import dùng idempotency key, CRUD tạo cần UX reconcile hoặc bổ sung contract idempotency có thiết kế rõ.",
+    "exercises": [
+      {
+        "prompt": "Map validation errors amountVnd/spentOn từ ProblemDetails vào form.",
+        "solution": "Dùng allowlist field names; render text, aria-describedby; errors lạ vào summary. Giữ input và traceId; không render raw HTML."
+      },
+      {
+        "prompt": "Alice logout rồi Bob login thấy Alice total trong cache. Sửa và test.",
+        "solution": "Clear cached data on logout/user change, cancel/ignore pending Alice responses; key theo internal user identity. Test delayed Alice response sau loginBob không xuất hiện."
+      }
+    ],
+    "project": "Hoàn tất create/edit/delete form, conflict recovery và login/logout. Dev token ở memory; thiết kế production provider registration và owner-scoped requests.",
+    "criteria": [
+      "Form chặn empty/decimal/unsafe; server400 giữ input và focus error.",
+      "Hai-tab PUT cho409 khi version cũ; user phải reload/compare trước retry.",
+      "No token trên repo/log/storage; Alice/Bob chuyển session không chia sẻ dữ liệu."
+    ],
+    "english": "Đóng vai phỏng vấn: 'Authentication versus authorization'; giải thích code flow PKCE và token audience trong120 giây.",
+    "sources": [
+      {
+        "url": "https://react.dev/reference/react-dom/components/input",
+        "section": "Controlled input and labels"
+      },
+      {
+        "url": "https://learn.microsoft.com/en-us/aspnet/core/security/authentication/configure-jwt-bearer-authentication?view=aspnetcore-10.0",
+        "section": "Access token validation and OAuth/OIDC"
+      },
+      {
+        "url": "https://developer.mozilla.org/en-US/docs/Web/API/Storage",
+        "section": "Storage scope and behavior"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Input parsing",
+        "stem": "Number('') có vấn đề gì cho amount?",
+        "options": [
+          "Ra0 và mất phân biệt input trống",
+          "Ném exception luôn",
+          "Ra undefined",
+          "Bảo đảm valid amount"
+        ],
+        "reasons": [
+          "Cần kiểm chuỗi rỗng trước parse.",
+          "Number empty string không throw.",
+          "Conversion này trả số0.",
+          "Project yêu cầu integer1..1e9."
+        ],
+        "front": "Number('') có vấn đề gì cho amount?",
+        "back": "Ra0 và mất phân biệt input trống. Cần kiểm chuỗi rỗng trước parse."
+      },
+      {
+        "concept": "409 recovery",
+        "stem": "PUT stale version nên làm gì ở UI?",
+        "options": [
+          "Giữ input và cho reload/compare",
+          "Tự overwrite không hỏi",
+          "Xóa form ngay",
+          "Đổi thành POST tạo trùng"
+        ],
+        "reasons": [
+          "User cần quyết khi có concurrent edit.",
+          "Overwrite che mất update mới.",
+          "Mất input khiến khó reconcile.",
+          "Create khác ý nghĩa edit resource."
+        ],
+        "front": "PUT stale version nên làm gì ở UI?",
+        "back": "Giữ input và cho reload/compare. User cần quyết khi có concurrent edit."
+      },
+      {
+        "concept": "SPA credential",
+        "stem": "Public SPA nên chứa client secret không?",
+        "options": [
+          "Không, dùng code flow PKCE",
+          "Có nếu minify",
+          "Có nếu env VITE_",
+          "Có nếu HTTPS"
+        ],
+        "reasons": [
+          "Browser code không giữ secret an toàn.",
+          "Minify không ngăn inspect bundle.",
+          "VITE public variables có trong client.",
+          "TLS không giấu bundle khỏi người dùng."
+        ],
+        "front": "Public SPA nên chứa client secret không?",
+        "back": "Không, dùng code flow PKCE. Browser code không giữ secret an toàn."
+      },
+      {
+        "concept": "Token kind",
+        "stem": "API bearer nhận loại token nào?",
+        "options": [
+          "Access token đúng API audience",
+          "ID token thay access token",
+          "JSON payload tự ký giả",
+          "Refresh token gửi mọi GET"
+        ],
+        "reasons": [
+          "Access token dùng để gọi protected API.",
+          "ID token chứng minh login cho client.",
+          "API phải validate issuer/signature.",
+          "Refresh token thuộc token endpoint flow."
+        ],
+        "front": "API bearer nhận loại token nào?",
+        "back": "Access token đúng API audience. Access token dùng để gọi protected API."
+      },
+      {
+        "concept": "Session cache",
+        "stem": "Đổi Alice sang Bob cần gì?",
+        "options": [
+          "Clear/cancel data và key theo user",
+          "Giữ global total cache",
+          "Chỉ đổi avatar",
+          "Chỉ đổi URL"
+        ],
+        "reasons": [
+          "Ngăn dữ liệu session cũ hiển thị.",
+          "Global cache trộn chủ sở hữu.",
+          "Avatar không xóa finance state.",
+          "URL không reset user-scoped requests."
+        ],
+        "front": "Đổi Alice sang Bob cần gì?",
+        "back": "Clear/cancel data và key theo user. Ngăn dữ liệu session cũ hiển thị."
+      },
+      {
+        "concept": "401 versus403",
+        "stem": "Token hết hạn thường trả gì?",
+        "options": [
+          "401",
+          "403 mọi lần",
+          "200 error",
+          "404 mọi endpoint"
+        ],
+        "reasons": [
+          "Không còn authenticated hợp lệ.",
+          "403 dành principal valid thiếu quyền.",
+          "Status200 không truyền failure đúng.",
+          "404 scoped dùng resource visibility."
+        ],
+        "front": "Token hết hạn thường trả gì?",
+        "back": "401. Không còn authenticated hợp lệ."
+      }
+    ]
+  },
+  {
+    "week": 20,
+    "title": "Dashboard, accessibility và frontend tests",
+    "lessons": [
+      {
+        "title": "Budget dashboard",
+        "objective": "Tính totals và trạng thái budget đúng contract.",
+        "body": "Monthly dashboard dùng report API server đã scope owner, grouped và filtered, không sum chỉ trang expenses hiện tại. Alice100000,Food80000,Travel20000; Food budget70000 nên vượt 10000,14.29%. Tỷ lệ hiển thị làm tròn 2 decimal; giữ phép tính gốc cho logic. Limit0 và spent>0 biểu thị 'no budget/over limit' theo label đã chọn, không chia0 hay Infinity. Missing budget khác zero budget; viết rõ contract optional. Tables có caption/headers; màu không là dấu hiệu duy nhất, thêm text excess. Số VND format bằng Intl.NumberFormat nhưng payload vẫn number nguyên."
+      },
+      {
+        "title": "State management tối thiểu",
+        "objective": "Chọn state owner và dùng reducer khi có nhu cầu.",
+        "body": "Giữ UI state local; filter share qua URL; auth qua context; server data có fetching/caching lifecycle riêng. Không copy report vào nhiều contexts rồi giữ nhiều total không đồng bộ. Reducer hữu ích khi form workflow có transitions loading/saving/conflict/done; pure reducer nhận state+action trả next. Context truyền dependency/state, không tự cache hay tránh rerenders. Memoization/Redux/query library là tùy chọn, cần ADR ghi pain point và đơn giản hóa. Invalidate/refetch expenses/report/budgets sau write thành công; optimistic update chỉ thêm khi đã thiết kế rollback/version conflict."
+      },
+      {
+        "title": "User-focused testing và accessibility",
+        "objective": "Kiểm hành vi loading/empty/error/auth bằng roles.",
+        "body": "Component tests dùng React Testing Library truy role/name/label như người dùng. Mock network ở boundary để test delay,500,400,409,204 chứ không mock mọi hook; integration/browser smoke test gọi API thật fixture Alice/Bob ở môi trường test. Vitest với jsdom và jest-dom setup là lựa chọn; khóa versions thực tế trong lockfile. Test behavior, không snapshot toàn DOM dễ nhiễu. Tab order, focus error, contrast và mobile320px cần manual checks vì automated accessibility không chứng minh mọi thứ. Screen reader status announce aria-live polite; không đọc lại toàn table mỗi refresh."
+      }
+    ],
+    "example": "1. Test expected report bằng fixture tổng100000,Food80000,limit70000.\n2. Pure function:\n```ts\nexport function budgetStatus(spent:number,limit:number|null) {\n if(limit===null) return {label:'No budget',excess:0,percent:null};\n const excess=Math.max(0,spent-limit);\n return {label:excess?'Over budget':'Within budget',excess,\n percent:limit===0?null:excess/limit*100};\n}\n```\n3. Vitest assertions expect(budgetStatus(80000,70000).excess).toBe(10000); percent closeTo14.285714; zero returns null.\n4. Component integration mock500 then retry200; queryByRole table absent duringerror, getByRole button name Retry works. Test module src/budgetStatus.test.ts; install vitest/dev script rồi run.",
+    "deep": "Missing budget với spent không trả 'free spending' như khuyến nghị tài chính; course chỉ theo dõi dữ liệu. Không dùng page subtotal làm monthly total. Test login/logout và stale response quan trọng hơn đạt tỷ lệ coverage tùy ý.",
+    "exercises": [
+      {
+        "prompt": "Viết 4 testcases cho budget zero/missing/equal/over.",
+        "solution": "(20000,0)=>excess20000 percentnull; (20000,null)=>No budget; (70000,70000)=>0; (80000,70000)=>10000/14.29%. Assert label tương ứng."
+      },
+      {
+        "prompt": "Lập test UI retry và empty riêng.",
+        "solution": "Mock500→show alert+Retry, click→200items; mock200items[]→empty CTA không alert. Gọi bằng role/name, không class selector."
+      }
+    ],
+    "project": "Thêm dashboard/monthly budgets, responsive shell và bộ frontend behavior tests. Chuẩn bị screenshot/video demo Alice/Bob, lỗi/retry và conflict.",
+    "criteria": [
+      "Dashboard100000/80000/20000; excess10000/14.29%,zero không Infinity.",
+      "Test loading/empty/error/retry/400/409/204 và session switch pass.",
+      "320px không horizontal overflow; mọi form dùng keyboard và focus error được."
+    ],
+    "english": "Demo dashboard trong3 phút bằng English; mô tả một failing UI test và cách sửa.",
+    "sources": [
+      {
+        "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat",
+        "section": "Formatting numeric values"
+      },
+      {
+        "url": "https://react.dev/learn/extracting-state-logic-into-a-reducer",
+        "section": "Pure reducers and actions"
+      },
+      {
+        "url": "https://testing-library.com/docs/react-testing-library/intro/",
+        "section": "Tests that resemble user interaction"
+      }
+    ],
+    "questions": [
+      {
+        "concept": "Report source",
+        "stem": "Monthly total lấy từ đâu?",
+        "options": [
+          "API report cho toàn tháng",
+          "Chỉ sum page hiện tại",
+          "Text DOM rows",
+          "Amount cuối cùng"
+        ],
+        "reasons": [
+          "Pagination không bao hết tháng.",
+          "Page subtotal thiếu rows khác.",
+          "DOM là output của dữ liệu.",
+          "Một expense không đại diện total."
+        ],
+        "front": "Monthly total lấy từ đâu?",
+        "back": "API report cho toàn tháng. Pagination không bao hết tháng."
+      },
+      {
+        "concept": "Zero budget",
+        "stem": "Budget0 xử lý percentage thế nào?",
+        "options": [
+          "Không chia0; label và percent null",
+          "Infinity là UI tốt",
+          "Tự đổi limit thành1",
+          "Ẩn khoản chi"
+        ],
+        "reasons": [
+          "Giữ contract rõ và tránh giá trị invalid.",
+          "Infinity không meaningful cho người dùng.",
+          "Thay limit làm sai dữ liệu user.",
+          "Chi tiêu vẫn cần hiển thị."
+        ],
+        "front": "Budget0 xử lý percentage thế nào?",
+        "back": "Không chia0; label và percent null. Giữ contract rõ và tránh giá trị invalid."
+      },
+      {
+        "concept": "Reducer role",
+        "stem": "Reducer nên có đặc tính gì?",
+        "options": [
+          "Pure state/action → next state",
+          "Fetch bên trong reducer",
+          "Mutate global token",
+          "Ghi database trực tiếp"
+        ],
+        "reasons": [
+          "Pure transition dễ kiểm và tái hiện.",
+          "IO đặt event/effect/service boundary.",
+          "Global mutation phá predictability.",
+          "Frontend reducer không gọi DB trực tiếp."
+        ],
+        "front": "Reducer nên có đặc tính gì?",
+        "back": "Pure state/action → next state. Pure transition dễ kiểm và tái hiện."
+      },
+      {
+        "concept": "State choice",
+        "stem": "Khi nào thêm global state library?",
+        "options": [
+          "Khi nhu cầu chia sẻ/transition có bằng chứng",
+          "Ngay từ hello world bắt buộc",
+          "Để thay auth API",
+          "Để tránh học props"
+        ],
+        "reasons": [
+          "ADR cân nhắc complexity so benefit.",
+          "React không yêu cầu library global.",
+          "UI state không bảo vệ server.",
+          "Props là nền tảng data flow."
+        ],
+        "front": "Khi nào thêm global state library?",
+        "back": "Khi nhu cầu chia sẻ/transition có bằng chứng. ADR cân nhắc complexity so benefit."
+      },
+      {
+        "concept": "UI tests",
+        "stem": "Query nào gần cách user tìm nút?",
+        "options": [
+          "getByRole('button',{name:'Retry'})",
+          "CSS hash ngẫu nhiên",
+          "Private hook variable",
+          "Toàn snapshot mỗi render"
+        ],
+        "reasons": [
+          "Role/name kiểm UI có thể truy cập.",
+          "Class generated dễ thay không đổi behavior.",
+          "Implementation detail không user contract.",
+          "Snapshot rộng khó đọc regression có ý nghĩa."
+        ],
+        "front": "Query nào gần cách user tìm nút?",
+        "back": "getByRole('button',{name:'Retry'}). Role/name kiểm UI có thể truy cập."
+      },
+      {
+        "concept": "Accessibility evidence",
+        "stem": "Test tự động pass có chứng minh mọi a11y?",
+        "options": [
+          "Không, cần keyboard/focus/manual checks",
+          "Có100% chắc",
+          "Chỉ cần màu đẹp",
+          "Ẩn label cho gọn"
+        ],
+        "reasons": [
+          "Tool không phát hiện mọi usability issue.",
+          "Coverage tool có giới hạn thực tế.",
+          "Màu đẹp không đủ contrast/semantics.",
+          "Visible/accessible labels cần cho forms."
+        ],
+        "front": "Test tự động pass có chứng minh mọi a11y?",
+        "back": "Không, cần keyboard/focus/manual checks. Tool không phát hiện mọi usability issue."
+      }
+    ]
+  }
+]

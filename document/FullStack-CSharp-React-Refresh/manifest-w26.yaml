@@ -1,0 +1,117 @@
+schema_version: 2.0.0
+package_id: package:fscr:w26
+subject_id: roadmap:subject:fullstack-csharp-react-refresh
+display_title: FullStack C# + React Refresh
+source_status: in_review
+version: 1
+created_at: '2026-10-03T09:21:35Z'
+subject: FullStack C# + React Refresh
+course: FullStack C# + React Refresh
+module: phase-7-week-26
+lesson: week-26
+source_ledger_path: quality/ledger-w26.md
+learning_objectives:
+- id: LO-W26-01
+  bloom_level: Apply
+  statement: Phân biệt cache với source of truth.
+- id: LO-W26-02
+  bloom_level: Apply
+  statement: Cập nhật SQL trước invalidation và hiểu race.
+- id: LO-W26-03
+  bloom_level: Apply
+  statement: Đo hit/miss và thiết kế cache outage fallback.
+concepts:
+- id: concept:fscr:w26-c01
+  name: Redis fundamentals
+  claim_ids:
+  - W26-C01
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w26.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w26-c02
+  name: Cache-aside và invalidation
+  claim_ids:
+  - W26-C02
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w26.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+- id: concept:fscr:w26-c03
+  name: Failure, stampede và evidence
+  claim_ids:
+  - W26-C03
+  evidence_label: strong
+  source_ledger_path: quality/ledger-w26.md
+  safety_review:
+    reviewed: true
+    reviewer: course-author:technical-scope
+    date: '2026-10-03'
+questions:
+- id: Q26-01
+  lo_ref: LO-W26-01
+  concept_id: concept:fscr:w26-c01
+  claim_ids:
+  - W26-C01
+- id: Q26-02
+  lo_ref: LO-W26-01
+  concept_id: concept:fscr:w26-c01
+  claim_ids:
+  - W26-C01
+- id: Q26-03
+  lo_ref: LO-W26-02
+  concept_id: concept:fscr:w26-c02
+  claim_ids:
+  - W26-C02
+- id: Q26-04
+  lo_ref: LO-W26-02
+  concept_id: concept:fscr:w26-c02
+  claim_ids:
+  - W26-C02
+- id: Q26-05
+  lo_ref: LO-W26-03
+  concept_id: concept:fscr:w26-c03
+  claim_ids:
+  - W26-C03
+- id: Q26-06
+  lo_ref: LO-W26-03
+  concept_id: concept:fscr:w26-c03
+  claim_ids:
+  - W26-C03
+units:
+- unit_id: roadmap:unit:fscr:w26
+  display_title: 'Tuần 26: Redis, cache-aside và consistency'
+  sort_order: 26
+  artifacts:
+  - role: lesson_theory
+    path: notes/module-7/week-26.html
+    sha256: 30d5d69b0743e3e8a3b55484eea2a3f79c260af252800be6924b64e8d70b1916
+    byte_length: 8474
+    stable_id: roadmap:lesson:fscr:w26
+  - role: quiz_questions
+    path: assessments/quizzes/week-26-quiz.md
+    sha256: 9ea2c5cb684095afb6c176ea1b00d9bca18b61d3913225d6d7b45b9b80e7a2c7
+    byte_length: 1176
+    stable_id: roadmap:quiz:fscr:w26
+    question_count: 6
+  - role: quiz_answers
+    path: assessments/answer-keys/week-26-answers.md
+    sha256: 11b961c4ddfeecf05f08033b89188b0b9feee6f583b79a020f958382bf6d5f5d
+    byte_length: 3807
+    stable_id: roadmap:answers:fscr:w26
+    correct_count: 6
+    wrong_count: 18
+  - role: flashcard_deck
+    path: flashcards/week-26.yaml
+    sha256: 218c8eb44df0b503a61793682d6a291b98f642cd71ab7185268ed64b3cf6b0ea
+    byte_length: 1912
+    stable_id: roadmap:deck:fscr:w26
+    card_count: 6
+  - role: source_ledger
+    path: quality/ledger-w26.md
+    sha256: 17a1e55f29ff268f97590c90a5613e488e510d1afae54c536577b2fb30641f52
+    byte_length: 657

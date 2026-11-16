@@ -1,0 +1,83 @@
+﻿{
+  "schema_version": "2.0.0",
+  "exported_at": "2026-10-07T11:22:55Z",
+  "unit_id": "roadmap:unit:dotnet-react:stage-04",
+  "subject_id": "roadmap:subject:dotnet-react",
+  "subject_title": "Stage 04 relational schema, query, and transaction manual activity",
+  "unit_title": "Stage 04 relational schema, query, and transaction manual activity",
+  "source_status": "draft",
+  "lesson": {
+    "lesson_id": "roadmap:lesson:dotnet-react:stage-04",
+    "title": "Chặng 4: Database và SQL Server",
+    "content_markdown": "# Chặng 4: Database và SQL Server\n\nThời lượng tham khảo: 2–3 tuần. Điều kiện vào: Chặng 3 và biết Expense gồm id, category, amount, date.\n\nMục tiêu là hiểu dữ liệu quan hệ trước khi dùng EF Core. Bạn sẽ thiết kế database cho app chi tiêu, chạy truy vấn an toàn, và biết khi nào cần transaction. Các câu lệnh dưới đây dùng SQL Server.\n\n## Chuẩn bị\n\nTrên Windows, có thể dùng SQL Server LocalDB với instance MSSQLLocalDB và SQL Server Management Studio. Kết nối trong SSMS bằng Server name (localdb)\\\\MSSQLLocalDB, Authentication là Windows Authentication. Kiểm tra:\n\n```text\nsqllocaldb info MSSQLLocalDB\n```\n\nNếu instance chưa chạy, khởi động nó bằng công cụ LocalDB theo [tài liệu Microsoft](https://learn.microsoft.com/sql/database-engine/configure-windows/sql-server-express-localdb). [SSMS download](https://learn.microsoft.com/ssms/install/install) là công cụ xem bảng/query. Luôn làm bài trong database học tập, không chạy UPDATE/DELETE trên dữ liệu thật.\n\n```sql\nCREATE DATABASE ExpenseDb;\nGO\nUSE ExpenseDb;\nGO\n```\n\n## Tuần 1: Mô hình quan hệ và bảng\n\n### Buổi 1: Từ yêu cầu đến bảng\n\nApp cần khoản chi và danh mục. Một category có nhiều expense, nên thiết kế:\n\n- Categories: Id, Name.\n- Expenses: Id, CategoryId, Amount, SpentOn, Note.\n- CategoryId là foreign key tới Categories.Id.\n- Amount dùng decimal với precision/scale phù hợp; không dùng float cho tiền chỉ vì nó là số.\n\nPrimary key định danh một dòng. Foreign key có thể tham chiếu primary key hoặc một key có unique constraint, không bắt buộc mọi hệ quản trị chỉ cho trỏ tới PK. Ràng buộc giúp database từ chối dữ liệu không hợp lệ.\n\nBài tập: vẽ quan hệ 1–n trên giấy, ghi 3 dòng mẫu mỗi bảng, và trả lời điều gì xảy ra khi xóa category đang được dùng. SQL Server dùng NO ACTION (gần với restrict) hoặc CASCADE; chọn một quy tắc có lý do và ghi rõ tác động.\n\n### Buổi 2: DDL, dữ liệu mẫu và NULL\n\n```sql\nCREATE TABLE Categories\n(\n    Id int IDENTITY PRIMARY KEY,\n    Name nvarchar(100) NOT NULL UNIQUE\n);\n\nCREATE TABLE Expenses\n(\n    Id int IDENTITY PRIMARY KEY,\n    CategoryId int NOT NULL,\n    Amount decimal(18, 2) NOT NULL CHECK (Amount &gt;= 0),\n    SpentOn date NOT NULL,\n    Note nvarchar(500) NULL,\n    CONSTRAINT FK_Expenses_Categories\n        FOREIGN KEY (CategoryId) REFERENCES Categories(Id)\n);\n\nINSERT INTO Categories (Name)\nVALUES (N&#39;Điện&#39;), (N&#39;Ăn uống&#39;);\n\nINSERT INTO Expenses (CategoryId, Amount, SpentOn, Note)\nVALUES (1, 500000.00, &#39;2026-09-01&#39;, NULL),\n       (2, 120000.00, &#39;2026-09-02&#39;, N&#39;Bữa trưa&#39;);\n```\n\nKết quả mong đợi là hai category và hai expense; dòng Điện có Note NULL, dòng Ăn uống có Note “Bữa trưa”. Nếu chạy lại INSERT, UNIQUE Name hoặc dữ liệu trùng có thể làm lệnh lỗi; đó là lý do script mẫu cần dữ liệu sạch hoặc seed idempotent trong ứng dụng.\n\nNULL nghĩa là chưa có/không biết giá trị, khác chuỗi rỗng và khác số 0. Dùng IS NULL, không dùng = NULL. decimal(18,2) là ví dụ, không phải quy tắc cho mọi tiền tệ.\n\nBài tập: thêm category trùng, amount âm, CategoryId không tồn tại, rồi đọc lỗi constraint. Ghi lại ràng buộc nào bảo vệ bạn.\n\n## Tuần 2: SELECT, JOIN và thống kê\n\n### Buổi 3: Đọc và lọc\n\n```sql\nSELECT Id, CategoryId, Amount, SpentOn\nFROM Expenses\nWHERE Amount &gt;= 100000\nORDER BY SpentOn DESC;\n```\n\nWHERE lọc dòng trước khi nhóm; ORDER BY sắp xếp kết quả. Logical query processing là mô hình giúp hiểu ý nghĩa câu lệnh, không mô tả chính xác engine vật lý sẽ chạy thế nào. Với SQL Server, phân trang dùng OFFSET/FETCH; LIMIT là cú pháp của hệ khác.\n\n```sql\nSELECT Id, Amount, SpentOn\nFROM Expenses\nORDER BY Id\nOFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY;\n```\n\nBài tập: viết SELECT kiểm tra đúng các dòng sẽ bị sửa trước khi viết UPDATE. Tránh SELECT * trong code ứng dụng vì schema và dữ liệu trả về có thể lớn hơn cần thiết.\n\n### Buổi 4: JOIN và GROUP BY\n\n```sql\nSELECT e.Id, c.Name AS CategoryName, e.Amount, e.SpentOn\nFROM Expenses AS e\nINNER JOIN Categories AS c ON c.Id = e.CategoryId;\n\nSELECT c.Id, c.Name,\n       COALESCE(SUM(e.Amount), 0) AS TotalAmount\nFROM Categories AS c\nLEFT JOIN Expenses AS e ON e.CategoryId = c.Id\nGROUP BY c.Id, c.Name;\n```\n\nINNER JOIN chỉ giữ dòng khớp; LEFT JOIN giữ tất cả dòng bên trái và điền NULL khi không có dòng bên phải. Với category chưa có expense, SUM(e.Amount) có thể là NULL; COALESCE(..., 0) biến kết quả đó thành 0 khi báo cáo cần hiển thị số không. GROUP BY có thể dùng không có aggregate trong một số câu hợp lệ; aggregate như SUM/COUNT là mục đích thường gặp chứ không phải điều kiện cú pháp bắt buộc. Cột non-aggregate trong SELECT thường phải nằm trong GROUP BY; nhóm theo cả Id và Name giúp kết quả không phụ thuộc riêng vào tên.\n\nHAVING lọc sau nhóm:\n```sql\nSELECT c.Name, SUM(e.Amount) AS TotalAmount\nFROM Categories AS c\nJOIN Expenses AS e ON e.CategoryId = c.Id\nGROUP BY c.Name\nHAVING SUM(e.Amount) &gt; 1000000;\n```\n\nBài tập: tổng theo tháng; danh mục chưa có khoản chi vẫn phải hiện; tìm khoản lớn nhất. Kiểm tra kết quả bằng dữ liệu nhỏ có thể tính tay.\n\n## Tuần 3: UPDATE, transaction và thiết kế\n\n### Buổi 5: UPDATE/DELETE an toàn\n\n```sql\nSELECT Id, Amount\nFROM Expenses\nWHERE Id = 1;\n\nUPDATE Expenses\nSET Amount = 550000.00\nWHERE Id = 1;\n```\n\nTrước UPDATE/DELETE, chạy SELECT với cùng WHERE và đếm dòng. Trong bài học có thể dùng transaction để hoàn tác. Stored procedure nhận parameter giúp tổ chức truy vấn, nhưng bản thân việc gọi stored procedure không tự động ngăn SQL injection; query parameterization ở ứng dụng vẫn quan trọng.\n\nBài tập: cập nhật note, xóa một dòng mẫu, và mô tả cách khôi phục nếu WHERE sai. Không chạy câu lệnh thiếu WHERE trên database có dữ liệu cần giữ.\n\n### Buổi 6: Transaction\n\nTransaction bảo đảm nhóm thao tác được commit hoặc rollback theo quyết định của code. Một exception không tự động rollback mọi transaction; code phải rollback hoặc dùng mẫu/transaction API phù hợp.\n\n```sql\nBEGIN TRANSACTION;\n\nUPDATE Expenses\nSET Amount = Amount + 1\nWHERE Id = 1;\n\n-- Kiểm tra trước khi quyết định:\nSELECT Id, Amount FROM Expenses WHERE Id = 1;\n\nROLLBACK TRANSACTION;\n```\n\nBài tập: chạy rollback rồi kiểm tra giá trị không đổi; sau đó commit một thay đổi có chủ ý. Viết giả mã cho “chuyển tiền” gồm trừ A, cộng B, commit; nếu bước thứ hai lỗi thì rollback.\n\n## Bài kiểm tra chặng\n\nDatabase có bảng Categories/Expenses, khóa và CHECK; có 10 dòng mẫu; có query JOIN, tổng theo danh mục/tháng, phân trang SQL Server; có test cho NULL, danh mục chưa dùng, amount bằng 0; và một ghi chú giải thích transaction. Bạn phải đọc được kết quả từng query trước khi nối vào EF Core.\n\n## Dùng AI\n\nĐưa schema và một kết quả sai cho AI, yêu cầu nó giải thích cardinality của JOIN và hỏi lại bạn trước khi sửa query. Không dán dữ liệu thật hoặc connection string.\n\n## Tài liệu chính thức\n\n- [SQL Server SELECT](https://learn.microsoft.com/sql/t-sql/queries/select-transact-sql)\n- [CREATE TABLE](https://learn.microsoft.com/sql/t-sql/statements/create-table-transact-sql)\n- [JOIN](https://learn.microsoft.com/sql/relational-databases/performance/joins)\n- [GROUP BY](https://learn.microsoft.com/sql/t-sql/queries/select-group-by-transact-sql)\n- [Transactions](https://learn.microsoft.com/sql/t-sql/language-elements/transactions-transact-sql)\n\n\n",
+    "source_citations": [
+      "`4.md` Chuẩn bị",
+      "Tuần 1 Buổi 1–2",
+      "`4.md` Tuần 2 Buổi 3–4",
+      "`4.md` Tuần 3 Buổi 5–6",
+      "Bài kiểm tra chặng"
+    ],
+    "learning_objectives": [
+      {
+        "id": "[LO-DOTNET-S04-01]",
+        "bloom_level": "Apply",
+        "statement": "Build and explain a scratch relational schema for categories and expenses with keys, constraints, NULL handling, and a stated delete rule."
+      },
+      {
+        "id": "[LO-DOTNET-S04-02]",
+        "bloom_level": "Analyze",
+        "statement": "Record hand-checkable SQL query results and demonstrate safe mutation preview plus rollback/commit behavior without fabricating execution."
+      }
+    ],
+    "concepts": [
+      {
+        "id": "DOTNET-S04-C01",
+        "name": "Relational schema and constraints",
+        "evidence_label": "preliminary"
+      },
+      {
+        "id": "DOTNET-S04-C02",
+        "name": "SQL query and report behavior",
+        "evidence_label": "preliminary"
+      },
+      {
+        "id": "DOTNET-S04-C03",
+        "name": "Safe mutation and transactions",
+        "evidence_label": "preliminary"
+      }
+    ],
+    "external_resources": []
+  },
+  "activity": {
+    "stable_id": "activity:dotnet:stage-04",
+    "type": "manual",
+    "title": "Stage 04 relational schema, query, and transaction evidence",
+    "instructions": "This bounded activity maps to DotNet-React-Roadmap/4.md. It is a guided\nlearner-attestation task, not the complete Stage 04 gate.\n\nPrerequisite: complete Stage03 class/JSON/error work before this stage.\nUse SQL Server/LocalDB and a compatible query client such as SSMS.\n\nWork only in a learner-owned scratch SQL Server/LocalDB database. Do not use\na real database, real connection string, or existing user data. Create\nCategories and Expenses with primary keys, the CategoryId foreign key,\ndecimal money precision/scale, NOT NULL and CHECK constraints, and a stated\ndelete behavior. Insert a small clean sample including a NULL Note, then\ndeliberately attempt duplicate category, negative amount, and missing\nCategoryId cases. Record the actual constraint/error observation without\nclaiming an execution that did not happen.\n\nRecord actual results for a parameter-safe SELECT with WHERE and ORDER BY,\nSQL Server OFFSET/FETCH pagination, an INNER JOIN, a LEFT JOIN that retains\nan unused category, GROUP BY with SUM/COALESCE, and HAVING. Use a small data\nset whose totals can be checked by hand. State which rows and totals you\nobserved; do not paste real data.\n\nBefore any UPDATE or DELETE, run the matching SELECT and record its row count.\nDemonstrate a transaction with a deliberate change, inspect the row, roll it\nback, and verify the value is unchanged. Then record a separate intentional\ncommit or explain why the environment prevented it. Include one note about\nparameterization and why a stored procedure alone does not prove injection\nsafety. If SQL Server/LocalDB, SSMS, or another required tool is unavailable,\nleave the activity incomplete and record the blocker.\n\nThe full-stage checks remain separate: ten sample rows, all schema/query\nvariants, NULL/zero tests, and EF Core integration are not claimed unless\nindependently evidenced.\n",
+    "expected_output": "A learner evidence note with actual scratch schema/constraint observations, hand-checkable query results, safe mutation row counts, and rollback/commit evidence",
+    "completion_mode": "learner_attest",
+    "rubric": [
+      {
+        "criterion": "Relational schema and constraints",
+        "evidence": "The note records the scratch schema, primary/foreign keys, decimal precision, NULL behavior, delete rule, sample rows, and real constraint/error observations.",
+        "max_points": 1
+      },
+      {
+        "criterion": "Query and report evidence",
+        "evidence": "The note records actual WHERE/ORDER BY, OFFSET/FETCH, JOIN, LEFT JOIN, GROUP BY/COALESCE, and HAVING results from a hand-checkable sample.",
+        "max_points": 1
+      },
+      {
+        "criterion": "Safe mutation and transaction evidence",
+        "evidence": "The note shows a matching pre-mutation SELECT/count, parameterization reasoning, rollback verification, and a real intentional commit observation. A blocker leaves this criterion incomplete and does not earn its point.",
+        "max_points": 1
+      }
+    ],
+    "resources": []
+  },
+  "flashcard_deck": {
+    "deck_id": "roadmap:deck:stage-04",
+    "title": "Bộ thẻ Ôn tập Ngắt quãng Stage 04 relational schema, query, and transaction manual activity",
+    "card_count": 0,
+    "cards": []
+  }
+}
