@@ -24,3 +24,17 @@ test-results/verification/*
 !test-results/verification/*.log
 frontend/test-results/
 /e2e/
+
+# Local runtime databases & logs
+*.db
+*.db-shm
+*.db-wal
+*.log
+*.log.err
+frontend/tsconfig.tsbuildinfo
+test-fixtures/oversized-51mb.pdf
+test-fixtures/zero-byte.pdf
+test-fixtures/zero-byte.txt
+
+# Local personal study notes (kept on disk, excluded from public repo)
+/document/

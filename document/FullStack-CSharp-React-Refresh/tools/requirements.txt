@@ -1,2 +1,0 @@
-PyYAML>=6,<7
-Markdown>=3,<4
