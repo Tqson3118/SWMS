@@ -221,6 +221,31 @@ function isMarkdownPath(href: string): boolean {
   return /\.md$/.test(clean);
 }
 
+export function sanitizeSafeUrl(url: string | undefined | null): string {
+  if (!url) return "#";
+  const raw = url.trim();
+  if (!raw) return "#";
+
+  let normalized = raw.replace(/[\u0000-\u001F\u007F\s]+/g, "");
+  try {
+    const decoded = decodeURIComponent(normalized);
+    normalized = decoded.replace(/[\u0000-\u001F\u007F\s]+/g, "");
+  } catch {
+    // Keep normalized string if malformed URI escape
+  }
+
+  const lower = normalized.toLowerCase();
+  if (
+    lower.startsWith("javascript:") ||
+    lower.startsWith("data:") ||
+    lower.startsWith("vbscript:")
+  ) {
+    return "#";
+  }
+
+  return raw;
+}
+
 function isExternalUrl(href: string): boolean {
   return /^https?:\/\//i.test(href.trim()) || /^mailto:/i.test(href.trim());
 }
@@ -817,7 +842,7 @@ function InlineAudioPracticePlayer({ src, title, fileName }: AudioAttachment) {
           ref={audioRef}
           controls
           preload="metadata"
-          src={src}
+          src={sanitizeSafeUrl(src)}
           onLoadedMetadata={() => {
             if (audioRef.current) {
               audioRef.current.playbackRate = speed;
@@ -1045,7 +1070,7 @@ export function LessonMarkdownView({
         return (
           <img
             key={key}
-            src={token.href}
+            src={sanitizeSafeUrl(token.href)}
             alt={token.alt || ""}
             className="my-3 max-w-full rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs"
             loading="lazy"
@@ -1087,7 +1112,7 @@ export function LessonMarkdownView({
           return (
             <a
               key={key}
-              href={token.href}
+              href={sanitizeSafeUrl(token.href)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 font-semibold text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-2"
@@ -1102,7 +1127,7 @@ export function LessonMarkdownView({
           return (
             <a
               key={key}
-              href={token.href}
+              href={sanitizeSafeUrl(token.href)}
               className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-2"
             >
               {pieceText}
@@ -1113,7 +1138,7 @@ export function LessonMarkdownView({
         return (
           <a
             key={key}
-            href={token.href}
+            href={sanitizeSafeUrl(token.href)}
             target={token.isExternal ? "_blank" : undefined}
             rel={token.isExternal ? "noopener noreferrer" : undefined}
             className="inline-flex items-baseline gap-1 font-semibold text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-2 break-all"

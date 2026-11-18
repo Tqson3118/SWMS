@@ -6,15 +6,42 @@ import { Sidebar } from "@/components/navigation/Sidebar";
 import { MobileNav } from "@/components/navigation/MobileNav";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { CommandPaletteModal } from "@/components/command/CommandPaletteModal";
+import { bootstrapAuthSession, setAccessToken } from "@/lib/api-client";
 
 export default function AppShellLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { darkMode, toggleDarkMode } = useWorkspaceStore();
+  const { darkMode, toggleDarkMode, setActiveUserHeaderId } = useWorkspaceStore();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+  const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    let mounted = true;
+    bootstrapAuthSession().then((ok) => {
+      if (!mounted) return;
+      if (ok) {
+        setAuthReady(true);
+      } else {
+        try {
+          window.localStorage.removeItem("swms_has_refresh_cookie");
+          window.localStorage.removeItem("swms_active_user");
+          window.localStorage.removeItem("swms_active_user_id");
+        } catch {
+          // ignore
+        }
+        setAccessToken(null);
+        setActiveUserHeaderId(null);
+        router.replace(`/auth?redirect=${encodeURIComponent(pathname || "/app")}`);
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [pathname, router, setActiveUserHeaderId]);
 
   // Determine if we're in an immersive view (learn/reader mode)
   const isImmersive =
@@ -52,6 +79,19 @@ export default function AppShellLayout({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleDarkMode]);
+
+  if (!authReady) {
+    return (
+      <div className={darkMode ? "dark" : ""}>
+        <div className="h-screen w-screen flex items-center justify-center bg-bg-primary text-text-primary">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-7 h-7 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+            <span className="text-xs text-text-secondary">Đang xác thực phiên học tập...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={darkMode ? "dark" : ""}>

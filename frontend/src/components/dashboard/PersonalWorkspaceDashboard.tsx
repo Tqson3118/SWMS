@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useState, useEffect, useRef } from "react";
-import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
+import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import {
   Sparkles,
   Brain,
@@ -170,20 +170,7 @@ export function PersonalWorkspaceDashboard({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const getAuthHeaders = useCallback((): Record<string, string> => {
-    if (typeof window === "undefined") return {};
-    const headers: Record<string, string> = {};
-    const customUserId = window.localStorage.getItem("swms_active_user_id");
-    if (customUserId) headers["X-Test-User-Id"] = customUserId;
-    try {
-      const rawAi = window.localStorage.getItem("swms_ai_config");
-      if (rawAi) {
-        const parsed = JSON.parse(rawAi);
-        if (parsed.apiKey) headers["X-Ai-Api-Key"] = parsed.apiKey;
-        if (parsed.baseUrl) headers["X-Ai-Base-Url"] = parsed.baseUrl;
-        if (parsed.model) headers["X-Ai-Model"] = parsed.model;
-      }
-    } catch {}
-    return headers;
+    return getClientRequestHeaders();
   }, []);
 
   const fetchCourses = useCallback(async () => {

@@ -20,7 +20,10 @@ test.describe("Studxy V2 Landing Page — Ergonomics, Theme Sync & Multi-Viewpor
     page,
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "networkidle" });
+    await page.evaluate(
+      () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())))
+    );
 
     await expect(page.getByTestId("landing-page-root")).toBeVisible();
     await expect(page.getByTestId("landing-header")).toBeVisible();

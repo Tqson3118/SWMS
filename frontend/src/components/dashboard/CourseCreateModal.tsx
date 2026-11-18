@@ -21,7 +21,7 @@ import {
   GraduationCap,
   ChevronRight
 } from "lucide-react";
-import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
+import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspaceStore";
 
 interface CourseCreateModalProps {
   isOpen: boolean;
@@ -92,22 +92,7 @@ export function CourseCreateModal({ isOpen, onClose, onSuccess }: CourseCreateMo
 
   if (!isOpen) return null;
 
-  const getAuthHeaders = (): Record<string, string> => {
-    if (typeof window === "undefined") return {};
-    const headers: Record<string, string> = {};
-    const customUserId = window.localStorage.getItem("swms_active_user_id");
-    if (customUserId) headers["X-Test-User-Id"] = customUserId;
-    try {
-      const rawAi = window.localStorage.getItem("swms_ai_config");
-      if (rawAi) {
-        const parsed = JSON.parse(rawAi);
-        if (parsed.apiKey) headers["X-Ai-Api-Key"] = parsed.apiKey;
-        if (parsed.baseUrl) headers["X-Ai-Base-Url"] = parsed.baseUrl;
-        if (parsed.model) headers["X-Ai-Model"] = parsed.model;
-      }
-    } catch {}
-    return headers;
-  };
+  const getAuthHeaders = (): Record<string, string> => getClientRequestHeaders();
 
   // --------------------------------------------------------------------------
   // TAB 1: Document Upload Handlers

@@ -503,9 +503,19 @@ public class DocumentCourseSyncTests
         var quizDetail = await quizDetailResp.Content.ReadFromJsonAsync<JsonElement>();
         var firstItem = quizDetail.GetProperty("items")[0];
         var firstItemId = firstItem.GetProperty("id").GetGuid();
-        var expectedKey = firstItem.GetProperty("clozeSolution").GetString()!;
+        var secondItem = quizDetail.GetProperty("items")[1];
+        var secondItemId = secondItem.GetProperty("id").GetGuid();
 
-        // Submit right option
+        string expectedKey;
+        string secondExpectedKey;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
+            expectedKey = (await db.PracticeQuizItems.AsNoTracking().FirstAsync(i => i.Id == firstItemId)).ClozeSolution!;
+            secondExpectedKey = (await db.PracticeQuizItems.AsNoTracking().FirstAsync(i => i.Id == secondItemId)).ClozeSolution!;
+        }
+
+        // Submit right option on item 0
         var submitRightResp = await regClient.PostAsJsonAsync(
             $"/api/v1/practice-quizzes/{quizId}/items/{firstItemId}/submit",
             new SubmitQuizItemRequest(expectedKey, null, false));
@@ -513,12 +523,11 @@ public class DocumentCourseSyncTests
         var submitRightJson = await submitRightResp.Content.ReadFromJsonAsync<JsonElement>();
         Assert.True(submitRightJson.GetProperty("isCorrect").GetBoolean());
 
-        // Submit wrong option whose text contains the expected letter (regression check for multiple_choice false positives)
-        var wrongOption = expectedKey.Equals("A", StringComparison.OrdinalIgnoreCase)
-            ? "B. RAM & API"
-            : $"Z. Option {expectedKey} wrong";
+        // Submit wrong valid option on item 1 whose text contains the expected letter (regression check for multiple_choice false positives)
+        var wrongKey = secondExpectedKey.Equals("A", StringComparison.OrdinalIgnoreCase) ? "B" : "A";
+        var wrongOption = $"{wrongKey}. Option {secondExpectedKey} wrong";
         var submitWrongResp = await regClient.PostAsJsonAsync(
-            $"/api/v1/practice-quizzes/{quizId}/items/{firstItemId}/submit",
+            $"/api/v1/practice-quizzes/{quizId}/items/{secondItemId}/submit",
             new SubmitQuizItemRequest(wrongOption, null, false));
         Assert.Equal(HttpStatusCode.OK, submitWrongResp.StatusCode);
         var submitWrongJson = await submitWrongResp.Content.ReadFromJsonAsync<JsonElement>();

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { getAccessToken } from "@/lib/api-client";
 
 export type WorkspaceMode = "dashboard" | "reading" | "split" | "review" | "studio";
 export type PdfViewMode = "dual" | "canvas" | "text";
@@ -15,6 +16,10 @@ export function getClientRequestHeaders(
   extraHeaders?: Record<string, string>
 ): Record<string, string> {
   const headers: Record<string, string> = { ...(extraHeaders ?? {}) };
+  const token = getAccessToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
   if (typeof window === "undefined") return headers;
   try {
     const activeUserId = window.localStorage.getItem("swms_active_user_id");

@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspaceStore";
+import { bootstrapAuthSession, setAccessToken } from "@/lib/api-client";
 import { TopNavHeader, type QuotaSummary } from "@/components/layout/TopNavHeader";
 import {
   PersonalWorkspaceDashboard,
@@ -52,8 +54,12 @@ export default function WorkspacePage() {
     currentDocumentPage,
     commandPaletteOpen,
     aiConfigModalOpen,
-    activeUserHeaderId
+    activeUserHeaderId,
+    setActiveUserHeaderId
   } = useWorkspaceStore();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [authReady, setAuthReady] = useState(false);
   const [dashboard, setDashboard] = useState<DashboardData>(INITIAL_DASHBOARD_DATA);
   const [isLoadingDashboard, setIsLoadingDashboard] = useState(true);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
@@ -107,8 +113,33 @@ export default function WorkspacePage() {
   }, [activeUserHeaderId]);
 
   useEffect(() => {
+    let mounted = true;
+    bootstrapAuthSession().then((ok) => {
+      if (!mounted) return;
+      if (ok) {
+        setAuthReady(true);
+      } else {
+        try {
+          window.localStorage.removeItem("swms_has_refresh_cookie");
+          window.localStorage.removeItem("swms_active_user");
+          window.localStorage.removeItem("swms_active_user_id");
+        } catch {
+          // ignore
+        }
+        setAccessToken(null);
+        setActiveUserHeaderId(null);
+        router.replace(`/auth?redirect=${encodeURIComponent(pathname || "/workspace")}`);
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [pathname, router, setActiveUserHeaderId]);
+
+  useEffect(() => {
+    if (!authReady) return;
     fetchDashboardData();
-  }, [fetchDashboardData]);
+  }, [authReady, fetchDashboardData]);
 
   useEffect(() => {
     animateWorkspaceTransition(mainContainerRef.current);
@@ -213,6 +244,19 @@ export default function WorkspacePage() {
       : sourceType === "document" && activeDoc
       ? `${activeDoc.title} • Trang ${currentDocumentPage} / ${activeDoc.totalPages}`
       : activeLesson?.title || activeCourse?.title || "Chưa chọn bài học";
+
+  if (!authReady) {
+    return (
+      <div className={darkMode ? "dark" : ""}>
+        <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-7 h-7 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <span className="text-xs text-slate-500">Đang xác thực phiên làm việc...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={darkMode ? "dark" : ""}>

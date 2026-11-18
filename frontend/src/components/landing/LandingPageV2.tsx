@@ -18,6 +18,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
+import { bootstrapAuthSession } from "@/lib/api-client";
 
 /* =============================================================
    Landing Page V2 — Modern SaaS / Clean & Minimal
@@ -38,6 +39,37 @@ function useScrollY() {
 function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void }) {
   const scrollY = useScrollY();
   const isScrolled = scrollY > 20;
+  const [signedInUser, setSignedInUser] = useState<{ fullName: string } | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    try {
+      if (window.localStorage.getItem("swms_has_refresh_cookie") !== "1") {
+        return;
+      }
+    } catch {
+      return;
+    }
+
+    bootstrapAuthSession().then((ok) => {
+      if (!active || !ok) return;
+      try {
+        const raw = window.localStorage.getItem("swms_active_user");
+        if (raw) {
+          const parsed = JSON.parse(raw) as { fullName?: string };
+          setSignedInUser({ fullName: parsed.fullName || "Học viên" });
+          return;
+        }
+      } catch {
+        // ignore JSON parse error
+      }
+      setSignedInUser({ fullName: "Học viên" });
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <header
@@ -70,19 +102,33 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
           >
             {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
-          <Link
-            href="/auth"
-            className="text-sm font-medium text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition px-3 py-1.5"
-          >
-            Đăng nhập
-          </Link>
-          <Link
-            href="/auth?tab=register"
-            data-testid="landing-nav-cta"
-            className="text-sm font-medium bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-4 py-1.5 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition shadow-sm"
-          >
-            Bắt đầu miễn phí
-          </Link>
+          {signedInUser ? (
+            <Link
+              href="/app"
+              data-testid="landing-nav-cta"
+              className="text-sm font-medium bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-4 py-1.5 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition shadow-sm inline-flex items-center gap-1.5"
+            >
+              <span>Vào Studxy ({signedInUser.fullName})</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/auth"
+                data-testid="landing-login-link"
+                className="text-sm font-medium text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition px-3 py-1.5"
+              >
+                Đăng nhập
+              </Link>
+              <Link
+                href="/auth?tab=register"
+                data-testid="landing-nav-cta"
+                className="text-sm font-medium bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-4 py-1.5 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition shadow-sm"
+              >
+                Bắt đầu miễn phí
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Swms.Api.Domain.Entities;
 using Swms.Api.Features.Pdf;
@@ -15,6 +16,8 @@ namespace Swms.Api.Features;
 
 public record RegisterRequest(string Email, string Password, string FullName);
 public record LoginRequest(string Email, string Password);
+public record GoogleAuthRequest(string? Credential, string? IdToken = null);
+public record ChangePasswordRequest(string? CurrentPassword, string NewPassword);
 public record RefreshRequest(string? RefreshToken);
 public record OnboardingStepRequest(int Step, bool? CompleteActivation);
 
@@ -127,15 +130,69 @@ public record UpdateLessonRequest(
 
 public static class SwmsEndpoints
 {
-    private static int _sqliteMigrationRun = 0;
+    private static async Task<HashSet<string>> GetSqliteTableColumnsAsync(SwmsDbContext db, string tableName)
+    {
+        var cols = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var conn = db.Database.GetDbConnection();
+        var shouldClose = conn.State != System.Data.ConnectionState.Open;
+        if (shouldClose) await conn.OpenAsync();
+        try
+        {
+            await using var cmd = conn.CreateCommand();
+            cmd.CommandText = $"PRAGMA table_info('{tableName}');";
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                if (!reader.IsDBNull(1))
+                {
+                    cols.Add(reader.GetString(1));
+                }
+            }
+        }
+        finally
+        {
+            if (shouldClose) await conn.CloseAsync();
+        }
+        return cols;
+    }
+
     public static async Task EnsureSqliteSchemaUpdatedAsync(SwmsDbContext db)
     {
-        if (Interlocked.CompareExchange(ref _sqliteMigrationRun, 1, 0) != 0) return;
+        if (db.Database.IsNpgsql())
+        {
+            try
+            {
+                await db.Database.ExecuteSqlRawAsync(@"
+                    ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(32) NOT NULL DEFAULT 'local';
+                    ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(128);
+                    ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(500);
+                    CREATE UNIQUE INDEX IF NOT EXISTS ix_users_google_sub ON users (google_sub) WHERE google_sub IS NOT NULL;
+                ");
+            }
+            catch { }
+            return;
+        }
+
         if (!db.Database.IsSqlite()) return;
         try { await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA temp_store=MEMORY; PRAGMA busy_timeout=5000;"); } catch { }
-        try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE lessons ADD COLUMN content_markdown TEXT;"); } catch { }
-        try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE lessons ADD COLUMN video_url TEXT;"); } catch { }
-        try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE lessons ADD COLUMN estimated_minutes INTEGER NOT NULL DEFAULT 5;"); } catch { }
+
+        var lessonCols = await GetSqliteTableColumnsAsync(db, "lessons");
+        if (!lessonCols.Contains("content_markdown"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE lessons ADD COLUMN content_markdown TEXT;"); } catch { }
+        if (!lessonCols.Contains("video_url"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE lessons ADD COLUMN video_url TEXT;"); } catch { }
+        if (!lessonCols.Contains("estimated_minutes"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE lessons ADD COLUMN estimated_minutes INTEGER NOT NULL DEFAULT 5;"); } catch { }
+
+        var userCols = await GetSqliteTableColumnsAsync(db, "users");
+        if (!userCols.Contains("auth_provider"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE users ADD COLUMN auth_provider TEXT NOT NULL DEFAULT 'local';"); } catch { }
+        if (!userCols.Contains("google_sub"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE users ADD COLUMN google_sub TEXT;"); } catch { }
+        if (!userCols.Contains("avatar_url"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE users ADD COLUMN avatar_url TEXT;"); } catch { }
+        try { await db.Database.ExecuteSqlRawAsync("CREATE UNIQUE INDEX IF NOT EXISTS ix_users_google_sub_partial ON users (google_sub) WHERE google_sub IS NOT NULL;"); } catch { }
+
         try
         {
             await db.Database.ExecuteSqlRawAsync(@"
@@ -161,11 +218,33 @@ public static class SwmsEndpoints
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> NotebookOccLocks = new(StringComparer.OrdinalIgnoreCase);
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> FlashcardSyncLocks = new(StringComparer.OrdinalIgnoreCase);
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> AiQuotaLocks = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> LessonCompleteLocks = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> QuizItemSubmitLocks = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> WizardCommitLocks = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, (DateTimeOffset CreatedAt, object Summary)> WizardIdempotencyCache = new(StringComparer.OrdinalIgnoreCase);
     private static readonly SemaphoreSlim SqliteFlashcardWriteLock = new(1, 1);
+
+    private static readonly bool _isRunningUnderTests = AppDomain.CurrentDomain.GetAssemblies()
+        .Any(a => a.GetName().Name?.Contains("testhost", StringComparison.OrdinalIgnoreCase) == true);
 
     public static void MapSwmsEndpoints(this WebApplication app)
     {
-        var api = app.MapGroup("/api/v1");
+        var api = app.MapGroup("/api/v1")
+            .AddEndpointFilter(async (ctx, next) =>
+            {
+                var endpoint = ctx.HttpContext.GetEndpoint();
+                if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null)
+                {
+                    return await next(ctx);
+                }
+
+                if (!TryResolveUserId(ctx.HttpContext, out _))
+                {
+                    return Results.Unauthorized();
+                }
+
+                return await next(ctx);
+            });
 
         MapAuthEndpoints(api);
         MapWorkspaceEndpoints(api);
@@ -176,35 +255,136 @@ public static class SwmsEndpoints
         MapPracticeQuizAndAiEndpoints(api);
     }
 
+    private static bool IsTestUserHeaderAllowed(HttpContext ctx)
+    {
+        var cfg = ctx.RequestServices.GetService<IConfiguration>();
+        if (string.Equals(cfg?["Auth:EnforceStrictBearer"], "true", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (string.Equals(Environment.GetEnvironmentVariable("SWMS_ALLOW_TEST_USER_HEADER"), "true", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return _isRunningUnderTests;
+    }
+
+    private static bool TryResolveUserId(HttpContext ctx, out Guid userId)
+    {
+        if (ctx.User.Identity?.IsAuthenticated == true)
+        {
+            var sub = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                      ?? ctx.User.FindFirstValue("sub");
+            if (Guid.TryParse(sub, out userId))
+            {
+                return true;
+            }
+        }
+
+        if (IsTestUserHeaderAllowed(ctx))
+        {
+            if (ctx.Request.Headers.TryGetValue("X-Test-User-Id", out var headerUid) &&
+                Guid.TryParse(headerUid.ToString(), out userId))
+            {
+                return true;
+            }
+
+            userId = SeedDataInitializer.DefaultUserId;
+            return true;
+        }
+
+        userId = Guid.Empty;
+        return false;
+    }
+
     private static Guid ResolveUserId(HttpContext ctx)
     {
-        var sub = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier)
-                  ?? ctx.User.FindFirstValue("sub");
-        if (Guid.TryParse(sub, out var uid))
+        if (TryResolveUserId(ctx, out var uid))
+        {
             return uid;
-        if (ctx.Request.Headers.TryGetValue("X-Test-User-Id", out var headerUid) &&
-            Guid.TryParse(headerUid.ToString(), out var parsedHeaderUid))
-            return parsedHeaderUid;
-        return SeedDataInitializer.DefaultUserId;
+        }
+        throw new UnauthorizedAccessException("Missing or invalid authentication token.");
     }
 
     private static bool IsOwnerOrDefaultSeededAccess(Guid resourceOwnerId, Guid callerUserId) =>
         resourceOwnerId == callerUserId ||
         (callerUserId == SeedDataInitializer.DefaultUserId && resourceOwnerId == SeedDataInitializer.DefaultUserId);
 
+    private static async Task<bool> CanReadCourseAsync(SwmsDbContext db, Course course, Guid userId)
+    {
+        if (IsOwnerOrDefaultSeededAccess(course.InstructorId, userId)) return true;
+        if (course.Visibility == "public" && course.IsPublished) return true;
+        return await db.CourseEnrollments.AnyAsync(e => e.CourseId == course.Id && e.UserId == userId);
+    }
+
     // ========================================================================
     // 1. AUTHENTICATION & BFF RTR ENDPOINTS (ADR-003 & ADR-016)
     // ========================================================================
+    private static object ToUserAuthDto(User user) => new
+    {
+        user.Id,
+        user.Email,
+        user.FullName,
+        user.Role,
+        user.TokenVersion,
+        user.StreakDays,
+        user.OnboardingStep,
+        user.IsActivated,
+        user.AuthProvider,
+        user.AvatarUrl,
+        hasLocalPassword = PasswordHashUtility.HasLocalPassword(user.PasswordHash)
+    };
+
+    private static Course ProvisionPersonalWorkspaceDefaults(SwmsDbContext db, User user)
+    {
+        // Auto-provision Personal Workspace (Decision 1 & ADR-019)
+        var personalCourse = new Course
+        {
+            Id = Guid.NewGuid(),
+            InstructorId = user.Id,
+            Title = $"Không gian cá nhân ({user.FullName})",
+            Slug = $"personal-workspace-{user.Id:N}",
+            Description = "Không gian học tập chủ quyền cá nhân (Sovereign Personal Workspace)",
+            Visibility = "personal",
+            IsPublished = true
+        };
+        db.Courses.Add(personalCourse);
+        db.UserFsrsParameters.Add(new UserFsrsParameters { UserId = user.Id });
+        db.UserQuotas.Add(new UserQuota { UserId = user.Id, CurrentStorageBytes = 0 });
+        return personalCourse;
+    }
+
     private static void MapAuthEndpoints(RouteGroupBuilder api)
     {
         var auth = api.MapGroup("/auth");
 
+        auth.MapGet("/providers", (IGoogleIdTokenValidator googleValidator) =>
+        {
+            return Results.Ok(new
+            {
+                localEnabled = true,
+                googleEnabled = googleValidator.IsConfigured,
+                googleClientId = googleValidator.PrimaryClientId
+            });
+        }).AllowAnonymous();
+
         auth.MapPost("/register", async (
-            RegisterRequest req,
+            RegisterRequest? req,
             HttpContext http,
             SwmsDbContext db,
             RefreshTokenRotationService rtr) =>
         {
+            if (req == null ||
+                string.IsNullOrWhiteSpace(req.Email) ||
+                !req.Email.Contains('@') ||
+                string.IsNullOrWhiteSpace(req.Password) ||
+                req.Password.Length < 6)
+            {
+                return Results.BadRequest(new { error = "Email hợp lệ và mật khẩu tối thiểu 6 ký tự là bắt buộc." });
+            }
+
             var normalizedEmail = req.Email.Trim().ToLowerInvariant();
             var emailLock = RegistrationEmailLocks.GetOrAdd(normalizedEmail, _ => new SemaphoreSlim(1, 1));
             await emailLock.WaitAsync();
@@ -222,28 +402,14 @@ public static class SwmsEndpoints
                     PasswordHash = PasswordHashUtility.HashPassword(req.Password),
                     FullName = string.IsNullOrWhiteSpace(req.FullName) ? "Học viên SWMS" : req.FullName.Trim(),
                     Role = "student",
+                    AuthProvider = "local",
                     TokenVersion = 1,
                     StreakDays = 1,
                     OnboardingStep = 1,
                     IsActivated = false
                 };
                 db.Users.Add(user);
-
-                // Auto-provision Personal Workspace (Decision 1 & ADR-019)
-                var personalCourse = new Course
-                {
-                    Id = Guid.NewGuid(),
-                    InstructorId = user.Id,
-                    Title = $"Không gian cá nhân ({user.FullName})",
-                    Slug = $"personal-workspace-{user.Id:N}",
-                    Description = "Không gian học tập chủ quyền cá nhân (Sovereign Personal Workspace)",
-                    Visibility = "personal",
-                    IsPublished = true
-                };
-                db.Courses.Add(personalCourse);
-
-                db.UserFsrsParameters.Add(new UserFsrsParameters { UserId = user.Id });
-                db.UserQuotas.Add(new UserQuota { UserId = user.Id, CurrentStorageBytes = 0 });
+                var personalCourse = ProvisionPersonalWorkspaceDefaults(db, user);
 
                 await db.SaveChangesAsync();
 
@@ -259,36 +425,38 @@ public static class SwmsEndpoints
                     accessToken,
                     refreshToken = rawRefresh,
                     personalWorkspaceCourseId = personalCourse.Id,
-                    user = new
-                    {
-                        user.Id,
-                        user.Email,
-                        user.FullName,
-                        user.Role,
-                        user.TokenVersion,
-                        user.StreakDays,
-                        user.OnboardingStep,
-                        user.IsActivated
-                    }
+                    user = ToUserAuthDto(user)
                 });
             }
             finally
             {
                 emailLock.Release();
             }
-        });
+        }).AllowAnonymous();
 
         auth.MapPost("/login", async (
-            LoginRequest req,
+            LoginRequest? req,
             HttpContext http,
             SwmsDbContext db,
             RefreshTokenRotationService rtr) =>
         {
+            if (req == null || string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Password))
+            {
+                return Results.Unauthorized();
+            }
+
             var email = req.Email.Trim().ToLowerInvariant();
             var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null || !PasswordHashUtility.VerifyPassword(req.Password, user.PasswordHash))
             {
                 return Results.Unauthorized();
+            }
+
+            if (PasswordHashUtility.NeedsRehash(user.PasswordHash))
+            {
+                user.PasswordHash = PasswordHashUtility.HashPassword(req.Password);
+                user.UpdatedAt = DateTimeOffset.UtcNow;
+                await db.SaveChangesAsync();
             }
 
             var (accessToken, rawRefresh, _) = await rtr.IssueInitialTokenPairAsync(
@@ -302,17 +470,180 @@ public static class SwmsEndpoints
             {
                 accessToken,
                 refreshToken = rawRefresh,
-                user = new
+                user = ToUserAuthDto(user)
+            });
+        }).AllowAnonymous();
+
+        auth.MapPost("/google", async (
+            GoogleAuthRequest? req,
+            HttpContext http,
+            SwmsDbContext db,
+            RefreshTokenRotationService rtr,
+            IGoogleIdTokenValidator googleValidator,
+            CancellationToken ct) =>
+        {
+            if (!googleValidator.IsConfigured)
+            {
+                return Results.Json(new
                 {
-                    user.Id,
-                    user.Email,
-                    user.FullName,
-                    user.Role,
-                    user.TokenVersion,
-                    user.StreakDays,
-                    user.OnboardingStep,
-                    user.IsActivated
+                    error = "Đăng nhập Google chưa được cấu hình trên máy chủ (thiếu GOOGLE_CLIENT_ID).",
+                    code = "GOOGLE_AUTH_NOT_CONFIGURED"
+                }, statusCode: StatusCodes.Status503ServiceUnavailable);
+            }
+
+            var idToken = req?.Credential?.Trim();
+            if (string.IsNullOrWhiteSpace(idToken))
+            {
+                idToken = req?.IdToken?.Trim();
+            }
+            if (string.IsNullOrWhiteSpace(idToken))
+            {
+                return Results.BadRequest(new { error = "Thiếu Google credential token." });
+            }
+
+            var payload = await googleValidator.ValidateAsync(idToken, ct);
+            if (payload == null)
+            {
+                return Results.Json(new
+                {
+                    error = "Token xác thực Google không hợp lệ, đã hết hạn hoặc email chưa được xác minh."
+                }, statusCode: StatusCodes.Status401Unauthorized);
+            }
+
+            var emailLock = RegistrationEmailLocks.GetOrAdd(payload.Email, _ => new SemaphoreSlim(1, 1));
+            await emailLock.WaitAsync(ct);
+            try
+            {
+                var user = await db.Users.FirstOrDefaultAsync(u => u.GoogleSub == payload.Subject, ct);
+                bool isNewUser = false;
+                Guid? personalWorkspaceCourseId = null;
+
+                if (user == null)
+                {
+                    user = await db.Users.FirstOrDefaultAsync(u => u.Email == payload.Email, ct);
+                    if (user != null)
+                    {
+                        if (!string.IsNullOrEmpty(user.GoogleSub) &&
+                            !string.Equals(user.GoogleSub, payload.Subject, StringComparison.Ordinal))
+                        {
+                            return Results.Conflict(new { error = "Email này đã liên kết với một tài khoản Google khác." });
+                        }
+
+                        user.GoogleSub = payload.Subject;
+                        user.AuthProvider = PasswordHashUtility.HasLocalPassword(user.PasswordHash) ? "local+google" : "google";
+                        if (!string.IsNullOrWhiteSpace(payload.AvatarUrl))
+                        {
+                            user.AvatarUrl = payload.AvatarUrl;
+                        }
+                        if (string.IsNullOrWhiteSpace(user.FullName) || user.FullName == "Học viên SWMS")
+                        {
+                            user.FullName = payload.FullName;
+                        }
+                        user.UpdatedAt = DateTimeOffset.UtcNow;
+                    }
+                    else
+                    {
+                        isNewUser = true;
+                        user = new User
+                        {
+                            Id = Guid.NewGuid(),
+                            Email = payload.Email,
+                            PasswordHash = PasswordHashUtility.ExternalOnlySentinel,
+                            FullName = payload.FullName,
+                            Role = "student",
+                            AuthProvider = "google",
+                            GoogleSub = payload.Subject,
+                            AvatarUrl = payload.AvatarUrl,
+                            TokenVersion = 1,
+                            StreakDays = 1,
+                            OnboardingStep = 1,
+                            IsActivated = false
+                        };
+                        db.Users.Add(user);
+                        personalWorkspaceCourseId = ProvisionPersonalWorkspaceDefaults(db, user).Id;
+                    }
                 }
+                else
+                {
+                    if (!string.IsNullOrWhiteSpace(payload.AvatarUrl) && user.AvatarUrl != payload.AvatarUrl)
+                    {
+                        user.AvatarUrl = payload.AvatarUrl;
+                        user.UpdatedAt = DateTimeOffset.UtcNow;
+                    }
+                }
+
+                await db.SaveChangesAsync(ct);
+
+                var (accessToken, rawRefresh, _) = await rtr.IssueInitialTokenPairAsync(
+                    user,
+                    http.Request.Headers.UserAgent.ToString(),
+                    http.Connection.RemoteIpAddress?.ToString());
+
+                AppendRefreshTokenCookie(http, rawRefresh);
+
+                return Results.Ok(new
+                {
+                    accessToken,
+                    refreshToken = rawRefresh,
+                    isNewUser,
+                    personalWorkspaceCourseId,
+                    user = ToUserAuthDto(user)
+                });
+            }
+            finally
+            {
+                emailLock.Release();
+            }
+        }).AllowAnonymous();
+
+        auth.MapPost("/change-password", async (
+            ChangePasswordRequest? req,
+            HttpContext http,
+            SwmsDbContext db,
+            RefreshTokenRotationService rtr) =>
+        {
+            if (req == null || string.IsNullOrWhiteSpace(req.NewPassword) || req.NewPassword.Length < 6)
+            {
+                return Results.BadRequest(new { error = "Mật khẩu mới phải có tối thiểu 6 ký tự." });
+            }
+
+            var userId = ResolveUserId(http);
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return Results.NotFound();
+
+            if (PasswordHashUtility.HasLocalPassword(user.PasswordHash))
+            {
+                if (string.IsNullOrWhiteSpace(req.CurrentPassword) ||
+                    !PasswordHashUtility.VerifyPassword(req.CurrentPassword, user.PasswordHash))
+                {
+                    return Results.BadRequest(new { error = "Mật khẩu hiện tại không chính xác." });
+                }
+            }
+
+            user.PasswordHash = PasswordHashUtility.HashPassword(req.NewPassword);
+            user.AuthProvider = !string.IsNullOrEmpty(user.GoogleSub) ? "local+google" : "local";
+            user.TokenVersion += 1;
+            user.UpdatedAt = DateTimeOffset.UtcNow;
+
+            var activeTokens = await db.RefreshTokens.Where(t => t.UserId == userId && !t.IsRevoked).ToListAsync();
+            foreach (var t in activeTokens)
+            {
+                t.IsRevoked = true;
+                t.RevokedAt = DateTimeOffset.UtcNow;
+            }
+            await db.SaveChangesAsync();
+
+            var (accessToken, rawRefresh, _) = await rtr.IssueInitialTokenPairAsync(
+                user,
+                http.Request.Headers.UserAgent.ToString(),
+                http.Connection.RemoteIpAddress?.ToString());
+            AppendRefreshTokenCookie(http, rawRefresh);
+
+            return Results.Ok(new
+            {
+                message = "Đã cập nhật mật khẩu và làm mới phiên đăng nhập an toàn.",
+                accessToken,
+                user = ToUserAuthDto(user)
             });
         });
 
@@ -350,15 +681,9 @@ public static class SwmsEndpoints
                 accessToken = outcome.AccessToken,
                 refreshToken = outcome.RefreshToken,
                 graceWindowRecovered = outcome.IsGraceWindowRecovery,
-                user = new
-                {
-                    outcome.User!.Id,
-                    outcome.User.Email,
-                    outcome.User.FullName,
-                    outcome.User.TokenVersion
-                }
+                user = ToUserAuthDto(outcome.User!)
             });
-        });
+        }).AllowAnonymous();
 
         auth.MapPost("/logout", async (HttpContext http, SwmsDbContext db) =>
         {
@@ -384,9 +709,9 @@ public static class SwmsEndpoints
         auth.MapGet("/me", async (HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
-            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) return Results.NotFound();
-            return Results.Ok(user);
+            return Results.Ok(ToUserAuthDto(user));
         });
     }
 
@@ -437,8 +762,7 @@ public static class SwmsEndpoints
                 .AsNoTracking()
                 .Where(c => c.InstructorId == user.Id ||
                             enrolledCourseIds.Contains(c.Id) ||
-                            (c.Visibility == "public" && c.IsPublished) ||
-                            (user.Id == SeedDataInitializer.DefaultUserId && c.InstructorId != Guid.Empty))
+                            (c.Visibility == "public" && c.IsPublished))
                 .ToListAsync();
             var ownedCourses = rawOwnedCourses.OrderByDescending(c => c.UpdatedAt).ToList();
             var ownedCourseIds = ownedCourses.Select(c => c.Id).ToHashSet();
@@ -888,8 +1212,7 @@ public static class SwmsEndpoints
                 .AsNoTracking()
                 .Where(c => (c.InstructorId == userId ||
                              enrolledIds.Contains(c.Id) ||
-                             (c.Visibility == "public" && c.IsPublished) ||
-                             userId == SeedDataInitializer.DefaultUserId)
+                             (c.Visibility == "public" && c.IsPublished))
                             && !c.Slug.StartsWith("personal-workspace-"))
                 .ToListAsync();
 
@@ -1000,13 +1323,13 @@ public static class SwmsEndpoints
                                contentType.StartsWith("video/", StringComparison.OrdinalIgnoreCase);
 
             return Results.File(fullPath, contentType, enableRangeProcessing: isStreamable);
-        });
+        }).AllowAnonymous();
 
         api.MapGet("/courses/template-zip", () =>
         {
             var zipBytes = CourseWizardAndImportService.GenerateTemplateZip();
             return Results.File(zipBytes, "application/zip", "swm-course-template.zip");
-        });
+        }).AllowAnonymous();
 
         api.MapPost("/courses/import-zip", async (HttpContext http, SwmsDbContext db) =>
         {
@@ -1027,9 +1350,13 @@ public static class SwmsEndpoints
                 var summary = await CourseWizardAndImportService.ImportCourseFromZipAsync(db, stream, userId);
                 return Results.Ok(summary);
             }
-            catch (Exception ex)
+            catch (InvalidDataException)
             {
-                return Results.Json(new { error = ex.Message, detail = ex.ToString() }, statusCode: StatusCodes.Status500InternalServerError);
+                return Results.BadRequest(new { error = "Tệp .zip không hợp lệ hoặc bị hỏng định dạng." });
+            }
+            catch (Exception)
+            {
+                return Results.Json(new { error = "Không thể nhập khóa học từ tệp .zip." }, statusCode: StatusCodes.Status500InternalServerError);
             }
         });
 
@@ -1054,15 +1381,53 @@ public static class SwmsEndpoints
         });
 
         api.MapPost("/courses/generate-wizard/commit", async (
-            WizardCommitRequest req,
+            WizardCommitRequest? req,
             HttpContext http,
             GeminiProxyClient gemini,
             SwmsDbContext db) =>
         {
+            if (req == null || req.Chapters == null || req.Chapters.Count == 0)
+            {
+                return Results.BadRequest(new { error = "Danh sách chương không được để trống." });
+            }
+
             var userId = ResolveUserId(http);
             var aiOverrides = CourseGenerationService.ExtractAiOverrides(http);
-            var summary = await CourseWizardAndImportService.CommitWizardCourseAsync(db, gemini, req, userId, aiOverrides);
-            return Results.Ok(summary);
+            var userLock = WizardCommitLocks.GetOrAdd(userId.ToString("N"), _ => new SemaphoreSlim(1, 1));
+            await userLock.WaitAsync();
+            try
+            {
+                var now = DateTimeOffset.UtcNow;
+                var idempKey = req.IdempotencyKey.HasValue
+                    ? $"idemp:{userId:N}:{req.IdempotencyKey.Value:N}"
+                    : null;
+                var dedupKey = $"recent:{userId:N}:{(req.Title ?? req.Topic ?? string.Empty).Trim().ToLowerInvariant()}";
+
+                if (idempKey != null && WizardIdempotencyCache.TryGetValue(idempKey, out var cachedByIdemp))
+                {
+                    return Results.Ok(cachedByIdemp.Summary);
+                }
+
+                if (WizardIdempotencyCache.TryGetValue(dedupKey, out var cachedRecent) &&
+                    (now - cachedRecent.CreatedAt).TotalSeconds <= 5)
+                {
+                    return Results.Ok(cachedRecent.Summary);
+                }
+
+                var summary = await CourseWizardAndImportService.CommitWizardCourseAsync(db, gemini, req, userId, aiOverrides);
+
+                if (idempKey != null)
+                {
+                    WizardIdempotencyCache[idempKey] = (now, summary);
+                }
+                WizardIdempotencyCache[dedupKey] = (now, summary);
+
+                return Results.Ok(summary);
+            }
+            finally
+            {
+                userLock.Release();
+            }
         });
 
         api.MapPut("/courses/{id:guid}", async (
@@ -1221,6 +1586,10 @@ public static class SwmsEndpoints
             var userId = ResolveUserId(http);
             var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == id);
             if (course == null) return Results.NotFound(new { error = "Không tìm thấy khóa học." });
+            if (!await CanReadCourseAsync(db, course, userId))
+            {
+                return Results.StatusCode(StatusCodes.Status403Forbidden);
+            }
 
             var chapterIds = await db.Chapters.Where(c => c.CourseId == id).Select(c => c.Id).ToListAsync();
             var courseLessons = await db.Lessons.Where(l => chapterIds.Contains(l.ChapterId)).ToListAsync();
@@ -1464,37 +1833,69 @@ public static class SwmsEndpoints
             var lesson = await db.Lessons.FirstOrDefaultAsync(l => l.Id == id);
             if (lesson == null) return Results.NotFound(new { error = "Không tìm thấy bài học." });
 
-            var now = DateTimeOffset.UtcNow;
-            var progress = await db.UserLessonProgresses.FirstOrDefaultAsync(p => p.UserId == userId && p.LessonId == id);
-            if (progress == null)
+            var chapter = await db.Chapters.FirstOrDefaultAsync(ch => ch.Id == lesson.ChapterId);
+            var course = chapter != null ? await db.Courses.FirstOrDefaultAsync(c => c.Id == chapter.CourseId) : null;
+            if (course != null && !await CanReadCourseAsync(db, course, userId))
             {
-                progress = new UserLessonProgress
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = userId,
-                    LessonId = id,
-                    IsCompleted = true,
-                    CompletedAt = now,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                };
-                db.UserLessonProgresses.Add(progress);
-            }
-            else
-            {
-                progress.IsCompleted = true;
-                progress.CompletedAt = now;
-                progress.UpdatedAt = now;
+                return Results.StatusCode(StatusCodes.Status403Forbidden);
             }
 
-            await db.SaveChangesAsync();
-            return Results.Ok(new
+            var completeLock = LessonCompleteLocks.GetOrAdd($"{userId:N}:{id:N}", _ => new SemaphoreSlim(1, 1));
+            await completeLock.WaitAsync();
+            try
             {
-                message = "Đã hoàn thành bài học.",
-                lessonId = id,
-                isCompleted = true,
-                completedAt = progress.CompletedAt
-            });
+                var now = DateTimeOffset.UtcNow;
+                var progress = await db.UserLessonProgresses.FirstOrDefaultAsync(p => p.UserId == userId && p.LessonId == id);
+                if (progress == null)
+                {
+                    progress = new UserLessonProgress
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = userId,
+                        LessonId = id,
+                        IsCompleted = true,
+                        CompletedAt = now,
+                        CreatedAt = now,
+                        UpdatedAt = now
+                    };
+                    db.UserLessonProgresses.Add(progress);
+                }
+                else
+                {
+                    progress.IsCompleted = true;
+                    progress.CompletedAt = now;
+                    progress.UpdatedAt = now;
+                }
+
+                try
+                {
+                    await db.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    db.ChangeTracker.Clear();
+                    progress = await db.UserLessonProgresses.FirstOrDefaultAsync(p => p.UserId == userId && p.LessonId == id);
+                    if (progress != null)
+                    {
+                        progress.IsCompleted = true;
+                        progress.CompletedAt = now;
+                        progress.UpdatedAt = now;
+                        await db.SaveChangesAsync();
+                    }
+                }
+
+                return Results.Ok(new
+                {
+                    message = "Đã hoàn thành bài học.",
+                    lessonId = id,
+                    isCompleted = true,
+                    completedAt = progress?.CompletedAt ?? now
+                });
+            }
+            finally
+            {
+                completeLock.Release();
+            }
         });
 
         api.MapDelete("/lessons/{id:guid}/complete", async (Guid id, HttpContext http, SwmsDbContext db) =>
@@ -1502,6 +1903,13 @@ public static class SwmsEndpoints
             var userId = ResolveUserId(http);
             var lesson = await db.Lessons.FirstOrDefaultAsync(l => l.Id == id);
             if (lesson == null) return Results.NotFound(new { error = "Không tìm thấy bài học." });
+
+            var chapter = await db.Chapters.FirstOrDefaultAsync(ch => ch.Id == lesson.ChapterId);
+            var course = chapter != null ? await db.Courses.FirstOrDefaultAsync(c => c.Id == chapter.CourseId) : null;
+            if (course != null && !await CanReadCourseAsync(db, course, userId))
+            {
+                return Results.StatusCode(StatusCodes.Status403Forbidden);
+            }
 
             var progress = await db.UserLessonProgresses.FirstOrDefaultAsync(p => p.UserId == userId && p.LessonId == id);
             if (progress != null)
@@ -1518,10 +1926,30 @@ public static class SwmsEndpoints
             });
         });
 
-        api.MapGet("/lessons", async (SwmsDbContext db) =>
+        api.MapGet("/lessons", async (HttpContext http, SwmsDbContext db) =>
         {
-            var chapters = await db.Chapters.ToDictionaryAsync(ch => ch.Id, ch => ch.CourseId);
-            var lessons = await db.Lessons.OrderBy(l => l.SortOrder).ToListAsync();
+            var userId = ResolveUserId(http);
+            var enrolledCourseIds = await db.CourseEnrollments
+                .Where(e => e.UserId == userId)
+                .Select(e => e.CourseId)
+                .ToHashSetAsync();
+
+            var accessibleCourses = (await db.Courses.AsNoTracking().ToListAsync())
+                .Where(c => IsOwnerOrDefaultSeededAccess(c.InstructorId, userId) ||
+                            (c.Visibility == "public" && c.IsPublished) ||
+                            enrolledCourseIds.Contains(c.Id))
+                .Select(c => c.Id)
+                .ToHashSet();
+
+            var chapters = await db.Chapters
+                .Where(ch => accessibleCourses.Contains(ch.CourseId))
+                .ToDictionaryAsync(ch => ch.Id, ch => ch.CourseId);
+            var chapterIds = chapters.Keys.ToHashSet();
+
+            var lessons = await db.Lessons
+                .Where(l => chapterIds.Contains(l.ChapterId))
+                .OrderBy(l => l.SortOrder)
+                .ToListAsync();
             return Results.Ok(lessons.Select(l =>
             {
                 var (sourceDocumentId, startPage, endPage) = CourseGenerationService.ExtractLessonMetadata(l.ContentAstJson);
@@ -1675,6 +2103,10 @@ public static class SwmsEndpoints
             var course = chapter != null
                 ? await db.Courses.FirstOrDefaultAsync(c => c.Id == chapter.CourseId)
                 : null;
+            if (course != null && !await CanReadCourseAsync(db, course, userId))
+            {
+                return Results.StatusCode(StatusCodes.Status403Forbidden);
+            }
             var (sourceDocumentId, startPage, endPage) = CourseGenerationService.ExtractLessonMetadata(lesson.ContentAstJson);
             var (sourceFolder, sourceRelativePath) = CourseGenerationService.ExtractLessonSourceMetadata(lesson.ContentAstJson);
             sourceFolder ??= course != null
@@ -1804,6 +2236,13 @@ public static class SwmsEndpoints
             var userId = ResolveUserId(http);
             var lesson = await db.Lessons.FirstOrDefaultAsync(l => l.Id == id);
             if (lesson == null) return Results.NotFound();
+
+            var chapter = await db.Chapters.FirstOrDefaultAsync(ch => ch.Id == lesson.ChapterId);
+            var course = chapter != null ? await db.Courses.FirstOrDefaultAsync(c => c.Id == chapter.CourseId) : null;
+            if (course == null || !IsOwnerOrDefaultSeededAccess(course.InstructorId, userId))
+            {
+                return Results.StatusCode(StatusCodes.Status403Forbidden);
+            }
 
             var oldPlainText = lesson.PlainText;
             lesson.CurrentVersion += 1;
@@ -2242,8 +2681,20 @@ public static class SwmsEndpoints
                     return Results.BadRequest(new { error = "Dữ liệu tải lên trống." });
                 }
 
+                if (req.FileSizeBytes <= 0)
+                {
+                    return Results.BadRequest(new { error = "Kích thước tệp (FileSizeBytes) phải lớn hơn 0." });
+                }
+
+                var extractedText = req.ExtractedText ?? string.Empty;
+                if (extractedText.Length > 2_000_000)
+                {
+                    return Results.Json(new { error = "Nội dung văn bản vượt quá giới hạn 2,000,000 ký tự." }, statusCode: StatusCodes.Status413PayloadTooLarge);
+                }
+
+                var effectiveBytes = Math.Max(req.FileSizeBytes, Encoding.UTF8.GetByteCount(extractedText));
                 var quota = await db.UserQuotas.FirstOrDefaultAsync(q => q.UserId == userId);
-                if (quota != null && quota.CurrentStorageBytes + req.FileSizeBytes > quota.StorageLimitBytes)
+                if (quota != null && quota.CurrentStorageBytes + effectiveBytes > quota.StorageLimitBytes)
                 {
                     return Results.Json(new { error = "Vượt quá hạn mức dung lượng lưu trữ 50 MB của gói Free." }, statusCode: StatusCodes.Status413PayloadTooLarge);
                 }
@@ -2252,7 +2703,6 @@ public static class SwmsEndpoints
                                      ?? await db.Courses.FirstAsync();
 
                 var docId = Guid.NewGuid();
-                var extractedText = req.ExtractedText ?? string.Empty;
                 var totalPages = Math.Max(1, req.TotalPages);
 
                 var doc = new Document
@@ -2262,7 +2712,7 @@ public static class SwmsEndpoints
                     UploaderId = userId,
                     Title = req.Title,
                     FileUrl = $"/api/v1/documents/{docId}/file",
-                    FileSizeBytes = Math.Max(1024, req.FileSizeBytes),
+                    FileSizeBytes = Math.Max(1024, effectiveBytes),
                     TotalPages = totalPages,
                     MimeType = req.MimeType ?? "application/pdf",
                     OcrStatus = "completed",
@@ -2400,9 +2850,19 @@ public static class SwmsEndpoints
                 }
             }
 
+            if (req.StartOffset < 0)
+            {
+                return Results.BadRequest(new { error = "Vị trí bắt đầu (StartOffset) không được âm." });
+            }
+
             if (req.EndOffset < req.StartOffset)
             {
                 return Results.BadRequest(new { error = "Vị trí kết thúc (EndOffset) phải lớn hơn hoặc bằng vị trí bắt đầu (StartOffset)." });
+            }
+
+            if ((req.NoteComment?.Length ?? 0) > 10_000 || (req.ExactQuote?.Length ?? 0) > 10_000)
+            {
+                return Results.BadRequest(new { error = "Độ dài ghi chú hoặc đoạn trích không được vượt quá 10,000 ký tự." });
             }
 
             var defaultLabels = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -2683,6 +3143,11 @@ public static class SwmsEndpoints
             HttpContext http,
             SwmsDbContext db) =>
         {
+            if ((req.ContentAstJson?.Length ?? 0) > 2_000_000)
+            {
+                return Results.Json(new { error = "Nội dung sổ tay vượt quá giới hạn 2,000,000 ký tự." }, statusCode: StatusCodes.Status413PayloadTooLarge);
+            }
+
             var userId = ResolveUserId(http);
             var occLock = NotebookOccLocks.GetOrAdd(id.ToString("N"), _ => new SemaphoreSlim(1, 1));
             await occLock.WaitAsync();
@@ -2700,6 +3165,15 @@ public static class SwmsEndpoints
                 // Optimistic Concurrency Control (OCC) Check (Decision B & ADR-002 & ADR-022)
                 if (req.BaseVersion != nb.Version)
                 {
+                    var existingDraftCount = await db.NotebookConflictDrafts.CountAsync(d => d.NotebookId == nb.Id);
+                    if (existingDraftCount >= 20)
+                    {
+                        return Results.Json(new
+                        {
+                            error = "CONFLICT_DRAFT_LIMIT_REACHED",
+                            message = "Đã đạt giới hạn tối đa 20 bản nháp xung đột cho sổ tay này."
+                        }, statusCode: StatusCodes.Status409Conflict);
+                    }
                     // 409 CONFLICT -> "Keep Both" Strategy (ADR-022):
                     // Create a timestamped companion fork notebook and log to notebook_conflict_drafts
                     var forkTitle = $"{nb.Title} (Bản sao xung đột - {now:yyyy-MM-dd HH:mm})";
@@ -3215,28 +3689,39 @@ public static class SwmsEndpoints
                 }
 
                 var now = DateTimeOffset.UtcNow;
-                card.Stability = lastReview.LastStability;
-                card.Difficulty = lastReview.LastDifficulty;
-                card.Reps = Math.Max(0, card.Reps - 1);
-                if (lastReview.Rating == 1 && card.Lapses > 0)
-                {
-                    card.Lapses = Math.Max(0, card.Lapses - 1);
-                }
-                card.DueAt = now;
-                card.UpdatedAt = now;
-
                 db.FlashcardReviews.Remove(lastReview);
 
-                var prevReview = cardReviews
+                var remainingReviews = cardReviews
                     .Where(r => r.Id != lastReview.Id)
-                    .OrderByDescending(r => r.ReviewedAt)
-                    .FirstOrDefault();
+                    .OrderBy(r => r.ReviewedAt)
+                    .ToList();
 
-                card.LastReviewAt = prevReview?.ReviewedAt;
-                if (card.Reps == 0)
+                if (remainingReviews.Count > 0)
                 {
-                    card.State = 0;
+                    var fsrsParams = await db.UserFsrsParameters.FirstOrDefaultAsync(p => p.UserId == userId);
+                    var weights = fsrsParams?.Weights ?? FsrsV5Engine.DefaultWeights;
+                    var replayed = FsrsV5Engine.ReplayChronologically(
+                        remainingReviews.Select(r => (r.Rating, r.ReviewedAt)),
+                        weights);
+                    card.Stability = replayed.Stability;
+                    card.Difficulty = replayed.Difficulty;
+                    card.Reps = replayed.Reps;
+                    card.Lapses = replayed.Lapses;
+                    card.State = replayed.State;
+                    card.LastReviewAt = replayed.LastReviewAt;
+                    card.DueAt = replayed.DueAt;
                 }
+                else
+                {
+                    card.Stability = 0.0;
+                    card.Difficulty = 0.0;
+                    card.Reps = 0;
+                    card.Lapses = 0;
+                    card.State = 0;
+                    card.LastReviewAt = null;
+                    card.DueAt = now;
+                }
+                card.UpdatedAt = now;
 
                 await db.SaveChangesAsync();
 
@@ -3261,10 +3746,27 @@ public static class SwmsEndpoints
         });
 
         fcGroup.MapPost("/sync-reviews", async (
-            SyncReviewsBatchRequest req,
+            SyncReviewsBatchRequest? req,
             HttpContext http,
             SwmsDbContext db) =>
         {
+            if (req?.Reviews == null)
+            {
+                return Results.BadRequest(new { error = "Danh sách lượt ôn tập không hợp lệ." });
+            }
+
+            foreach (var ev in req.Reviews)
+            {
+                if (ev.Rating is < 1 or > 4)
+                {
+                    return Results.BadRequest(new { error = $"Rating {ev.Rating} không hợp lệ; phải nằm trong khoảng 1 đến 4." });
+                }
+                if (ev.ReviewDurationMs is < 0)
+                {
+                    return Results.BadRequest(new { error = "Thời lượng ôn tập (ReviewDurationMs) không được âm." });
+                }
+            }
+
             var userId = ResolveUserId(http);
             var syncLock = FlashcardSyncLocks.GetOrAdd(userId.ToString("N"), _ => new SemaphoreSlim(1, 1));
             var isSqlite = db.Database.IsSqlite();
@@ -3417,6 +3919,10 @@ public static class SwmsEndpoints
                     results = syncedResults
                 });
                 }
+                catch (ArgumentOutOfRangeException ex)
+                {
+                    return Results.BadRequest(new { error = ex.Message });
+                }
                 finally
                 {
                     if (isSqlite) SqliteFlashcardWriteLock.Release();
@@ -3446,6 +3952,7 @@ public static class SwmsEndpoints
         pqGroup.MapGet("/", async (Guid? courseId, HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
+            await EnsureUserPublicDocumentQuizzesAsync(db, userId);
 
             var lessonToCourse = await (
                 from l in db.Lessons
@@ -3568,7 +4075,7 @@ public static class SwmsEndpoints
                     i.ItemType,
                     prompt = JsonSerializer.Deserialize<object>(i.PromptAstJson),
                     choices = string.IsNullOrWhiteSpace(i.ChoicesJson) ? null : JsonSerializer.Deserialize<object>(i.ChoicesJson),
-                    i.ClozeSolution,
+                    clozeSolution = (i.EvaluatedAt.HasValue || quiz.Status == "completed") ? i.ClozeSolution : null,
                     userAnswer = string.IsNullOrWhiteSpace(i.UserAnswerJson) ? null : JsonSerializer.Deserialize<object>(i.UserAnswerJson),
                     i.IsCorrect,
                     aiRubricFeedback = string.IsNullOrWhiteSpace(i.AiRubricFeedbackJson) ? null : JsonSerializer.Deserialize<object>(i.AiRubricFeedbackJson),
@@ -3587,76 +4094,151 @@ public static class SwmsEndpoints
             IServiceProvider sp) =>
         {
             var userId = ResolveUserId(http);
-            var quiz = await db.PracticeQuizzes.FirstOrDefaultAsync(q => q.Id == quizId);
-            var item = await db.PracticeQuizItems.FirstOrDefaultAsync(i => i.Id == itemId && i.QuizId == quizId);
-            if (quiz == null || item == null) return Results.NotFound();
-            var isPublicDocQuiz = await IsPublicDocumentCourseQuizAsync(db, quiz);
-            if (!IsOwnerOrDefaultSeededAccess(quiz.UserId, userId) && !isPublicDocQuiz)
+            var itemLock = QuizItemSubmitLocks.GetOrAdd($"{quizId:N}:{itemId:N}", _ => new SemaphoreSlim(1, 1));
+            BackgroundJob? existingJob = null;
+
+            await itemLock.WaitAsync();
+            try
             {
-                return Results.StatusCode(StatusCodes.Status403Forbidden);
-            }
+                var quiz = await db.PracticeQuizzes.FirstOrDefaultAsync(q => q.Id == quizId);
+                var item = await db.PracticeQuizItems.FirstOrDefaultAsync(i => i.Id == itemId && i.QuizId == quizId);
+                if (quiz == null || item == null) return Results.NotFound();
 
-            item.UserAnswerJson = JsonSerializer.Serialize(new { text = req.Answer });
-
-            if (item.ItemType is "multiple_choice" or "cloze" or "short_answer")
-            {
-                item.IsCorrect = EvaluateQuizItemAnswer(item, req.Answer);
-                item.EvaluatedAt = DateTimeOffset.UtcNow;
-                await db.SaveChangesAsync();
-
-                var allItems = await db.PracticeQuizItems.Where(i => i.QuizId == quizId).ToListAsync();
-                quiz.CorrectItems = allItems.Count(i => i.IsCorrect == true);
-                if (allItems.All(i => i.EvaluatedAt.HasValue))
+                if (!IsOwnerOrDefaultSeededAccess(quiz.UserId, userId))
                 {
-                    quiz.Status = "completed";
-                    quiz.CompletedAt = DateTimeOffset.UtcNow;
+                    return Results.StatusCode(StatusCodes.Status403Forbidden);
                 }
-                await db.SaveChangesAsync();
 
-                return Results.Ok(new
+                if (item.ItemType is "multiple_choice" or "cloze" or "short_answer")
                 {
-                    item.Id,
-                    item.ItemType,
-                    item.IsCorrect,
-                    expectedSolution = item.ClozeSolution,
-                    item.EvaluatedAt,
-                    quizStatus = quiz.Status,
-                    correctItems = quiz.CorrectItems
-                });
+                    if (item.EvaluatedAt.HasValue)
+                    {
+                        return Results.Conflict(new { error = "Câu hỏi này đã được nộp và chấm điểm trước đó." });
+                    }
+
+                    if (item.ItemType == "multiple_choice" && !IsValidMultipleChoiceAnswer(item, req.Answer))
+                    {
+                        return Results.BadRequest(new { error = "Lựa chọn trắc nghiệm không hợp lệ." });
+                    }
+
+                    item.UserAnswerJson = JsonSerializer.Serialize(new { text = req.Answer });
+                    item.IsCorrect = EvaluateQuizItemAnswer(item, req.Answer);
+                    item.EvaluatedAt = DateTimeOffset.UtcNow;
+                    await db.SaveChangesAsync();
+
+                    var allItems = await db.PracticeQuizItems.Where(i => i.QuizId == quizId).ToListAsync();
+                    quiz.CorrectItems = allItems.Count(i => i.IsCorrect == true);
+                    if (allItems.All(i => i.EvaluatedAt.HasValue))
+                    {
+                        quiz.Status = "completed";
+                        quiz.CompletedAt = DateTimeOffset.UtcNow;
+                    }
+                    await db.SaveChangesAsync();
+
+                    return Results.Ok(new
+                    {
+                        item.Id,
+                        item.ItemType,
+                        item.IsCorrect,
+                        expectedSolution = item.ClozeSolution,
+                        item.EvaluatedAt,
+                        quizStatus = quiz.Status,
+                        correctItems = quiz.CorrectItems
+                    });
+                }
+
+                // Essay item -> Validate non-empty answer, idempotency, active job conflict, and atomic AI quota
+                if (string.IsNullOrWhiteSpace(req.Answer))
+                {
+                    return Results.BadRequest(new { error = "Câu trả lời tự luận không được để trống." });
+                }
+
+                if (req.IdempotencyKey.HasValue)
+                {
+                    existingJob = await db.BackgroundJobs.FirstOrDefaultAsync(j => j.IdempotencyKey == req.IdempotencyKey.Value);
+                }
+
+                if (existingJob == null)
+                {
+                    var itemIdToken = itemId.ToString();
+                    var quizIdToken = quizId.ToString();
+                    var activeJobs = await db.BackgroundJobs
+                        .AsNoTracking()
+                        .Where(j => j.UserId == userId &&
+                                    j.JobType == "essay_rubric_evaluation" &&
+                                    (j.Status == "queued" || j.Status == "leased" || j.Status == "running"))
+                        .ToListAsync();
+                    if (activeJobs.Any(j => j.PayloadJson.Contains(quizIdToken, StringComparison.OrdinalIgnoreCase) &&
+                                            j.PayloadJson.Contains(itemIdToken, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return Results.Conflict(new { error = "Bài tự luận này đang được chấm điểm, vui lòng chờ." });
+                    }
+
+                    var quotaLock = AiQuotaLocks.GetOrAdd(userId.ToString("N"), _ => new SemaphoreSlim(1, 1));
+                    await quotaLock.WaitAsync();
+                    try
+                    {
+                        if (!await CheckAiQuotaAvailableAsync(db, userId, requiredCredits: 2))
+                        {
+                            return Results.Json(
+                                new { error = "Đã đạt giới hạn 50 AI Credits/ngày của gói Free cho chấm bài tự luận (2 credits)." },
+                                statusCode: StatusCodes.Status429TooManyRequests);
+                        }
+
+                        var ledgerEntry = new AiUsageLedger
+                        {
+                            UserId = userId,
+                            Feature = "essay_feedback",
+                            CreditsCharged = 2,
+                            Model = "gemini-3.8-flash-pending",
+                            PromptTokens = 0,
+                            CompletionTokens = 0,
+                            TotalTokens = 0,
+                            CostUsd = 0m,
+                            CreatedAt = DateTimeOffset.UtcNow
+                        };
+                        db.AiUsageLedgers.Add(ledgerEntry);
+
+                        item.UserAnswerJson = JsonSerializer.Serialize(new { text = req.Answer });
+
+                        var idempKey = req.IdempotencyKey ?? Guid.NewGuid();
+                        var questionText = ExtractQuestionFromPrompt(item.PromptAstJson);
+                        var payload = new
+                        {
+                            quizId,
+                            itemId,
+                            ledgerId = ledgerEntry.Id,
+                            question = questionText,
+                            userAnswer = req.Answer
+                        };
+
+                        existingJob = new BackgroundJob
+                        {
+                            Id = Guid.NewGuid(),
+                            IdempotencyKey = idempKey,
+                            UserId = userId,
+                            JobType = "essay_rubric_evaluation",
+                            Status = "queued",
+                            Priority = 10,
+                            ProgressPercent = 0,
+                            PayloadJson = JsonSerializer.Serialize(payload),
+                            CreatedAt = DateTimeOffset.UtcNow
+                        };
+
+                        db.BackgroundJobs.Add(existingJob);
+                        await db.SaveChangesAsync();
+                    }
+                    finally
+                    {
+                        quotaLock.Release();
+                    }
+
+                    await taskQueue.EnqueueAsync(new AiJobMessage(existingJob.Id));
+                }
             }
-
-            // Essay item -> Durable Transactional Outbox Queue (Decision I, ADR-009 & ADR-017)
-            var idempKey = req.IdempotencyKey ?? Guid.NewGuid();
-            var existingJob = await db.BackgroundJobs.FirstOrDefaultAsync(j => j.IdempotencyKey == idempKey);
-            if (existingJob == null)
+            finally
             {
-                var questionText = ExtractQuestionFromPrompt(item.PromptAstJson);
-                var payload = new
-                {
-                    quizId,
-                    itemId,
-                    question = questionText,
-                    userAnswer = req.Answer
-                };
-
-                existingJob = new BackgroundJob
-                {
-                    Id = Guid.NewGuid(),
-                    IdempotencyKey = idempKey,
-                    UserId = userId,
-                    JobType = "essay_rubric_evaluation",
-                    Status = "queued",
-                    Priority = 10,
-                    ProgressPercent = 0,
-                    PayloadJson = JsonSerializer.Serialize(payload),
-                    CreatedAt = DateTimeOffset.UtcNow
-                };
-
-                // Commit job to PostgreSQL BEFORE dispatching or returning 202 Accepted!
-                db.BackgroundJobs.Add(existingJob);
-                await db.SaveChangesAsync();
-
-                await taskQueue.EnqueueAsync(new AiJobMessage(existingJob.Id));
+                itemLock.Release();
             }
 
             if (req.WaitForAiCompletion)
@@ -3691,15 +4273,20 @@ public static class SwmsEndpoints
                 jobId = existingJob.Id,
                 jobStatus = existingJob.Status,
                 progressPercent = existingJob.ProgressPercent,
-                itemId = item.Id
+                itemId
             });
         });
 
         // Background Job Status & SSE Stream
-        api.MapGet("/jobs/{id:guid}", async (Guid id, SwmsDbContext db) =>
+        api.MapGet("/jobs/{id:guid}", async (Guid id, HttpContext http, SwmsDbContext db) =>
         {
+            var userId = ResolveUserId(http);
             var job = await db.BackgroundJobs.FirstOrDefaultAsync(j => j.Id == id);
             if (job == null) return Results.NotFound();
+            if (!IsOwnerOrDefaultSeededAccess(job.UserId, userId))
+            {
+                return Results.StatusCode(StatusCodes.Status403Forbidden);
+            }
             return Results.Ok(new
             {
                 job.Id,
@@ -3866,7 +4453,7 @@ public static class SwmsEndpoints
         });
     }
 
-    private static async Task<bool> CheckAiQuotaAvailableAsync(SwmsDbContext db, Guid userId)
+    private static async Task<bool> CheckAiQuotaAvailableAsync(SwmsDbContext db, Guid userId, int requiredCredits = 1)
     {
         var quota = await db.UserQuotas.FirstOrDefaultAsync(q => q.UserId == userId);
         if (quota == null) return true;
@@ -3879,7 +4466,7 @@ public static class SwmsEndpoints
             .Where(l => l.CreatedAt >= todayUtc)
             .Sum(l => l.CreditsCharged);
 
-        return usedCredits < quota.DailyAiCreditLimit;
+        return usedCredits + requiredCredits <= quota.DailyAiCreditLimit;
     }
 
     private static string ExtractTextFromAstOrJson(string json)
@@ -3924,6 +4511,174 @@ public static class SwmsEndpoints
             .ThenByDescending(c => c.Slug.StartsWith("doc-course-", StringComparison.OrdinalIgnoreCase))
             .ThenByDescending(c => c.UpdatedAt)
             .ToList();
+    }
+
+    private static bool IsValidMultipleChoiceAnswer(PracticeQuizItem item, string? rawAnswer)
+    {
+        var actual = (rawAnswer ?? string.Empty).Trim();
+        if (string.IsNullOrEmpty(actual) || string.IsNullOrWhiteSpace(item.ChoicesJson))
+        {
+            return false;
+        }
+
+        try
+        {
+            using var doc = JsonDocument.Parse(item.ChoicesJson);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array) return false;
+
+            var actualKey = ExtractMultipleChoiceKey(actual);
+            foreach (var choice in doc.RootElement.EnumerateArray())
+            {
+                string? choiceKey = null;
+                string? choiceText = null;
+                if (choice.ValueKind == JsonValueKind.String)
+                {
+                    choiceText = choice.GetString()?.Trim();
+                    if (!string.IsNullOrWhiteSpace(choiceText))
+                    {
+                        choiceKey = ExtractMultipleChoiceKey(choiceText);
+                    }
+                }
+                else if (choice.ValueKind == JsonValueKind.Object)
+                {
+                    if (choice.TryGetProperty("key", out var kProp))
+                    {
+                        choiceKey = kProp.GetString()?.Trim();
+                    }
+                    if (choice.TryGetProperty("text", out var tProp))
+                    {
+                        choiceText = tProp.GetString()?.Trim();
+                    }
+                    if (string.IsNullOrWhiteSpace(choiceKey) && !string.IsNullOrWhiteSpace(choiceText))
+                    {
+                        choiceKey = ExtractMultipleChoiceKey(choiceText);
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(choiceText) && string.IsNullOrWhiteSpace(choiceKey)) continue;
+
+                if (!string.IsNullOrEmpty(actualKey) &&
+                    !string.IsNullOrEmpty(choiceKey) &&
+                    string.Equals(actualKey, choiceKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                if (!string.IsNullOrWhiteSpace(choiceText))
+                {
+                    var body = StripMultipleChoiceKeyPrefix(choiceText);
+                    if (string.Equals(actual, choiceText, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(actual, body, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        catch
+        {
+            return false;
+        }
+
+        return false;
+    }
+
+    private static async Task EnsureUserPublicDocumentQuizzesAsync(SwmsDbContext db, Guid userId)
+    {
+        if (userId == SeedDataInitializer.DefaultUserId)
+        {
+            return;
+        }
+
+        var syncLock = FlashcardSyncLocks.GetOrAdd($"quiz:{userId:N}", _ => new SemaphoreSlim(1, 1));
+        await syncLock.WaitAsync();
+        try
+        {
+            var publicQuizzes = await (
+                from q in db.PracticeQuizzes.AsNoTracking()
+                join l in db.Lessons.AsNoTracking() on q.LessonId equals l.Id
+                join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
+                join c in db.Courses.AsNoTracking() on ch.CourseId equals c.Id
+                where q.UserId == SeedDataInitializer.DefaultUserId &&
+                      c.Visibility == "public" &&
+                      c.IsPublished &&
+                      c.Slug.StartsWith("document-course-")
+                select q
+            ).ToListAsync();
+
+            if (publicQuizzes.Count == 0) return;
+
+            var existingUserQuizzes = await db.PracticeQuizzes
+                .AsNoTracking()
+                .Where(q => q.UserId == userId)
+                .Select(q => new { q.LessonId, q.Title })
+                .ToListAsync();
+
+            var existingKeys = new HashSet<(Guid? LessonId, string Title)>(
+                existingUserQuizzes.Select(q => (q.LessonId, q.Title)));
+
+            var missingQuizzes = publicQuizzes
+                .Where(q => existingKeys.Add((q.LessonId, q.Title)))
+                .ToList();
+
+            if (missingQuizzes.Count == 0) return;
+
+            var missingQuizIds = missingQuizzes.Select(q => q.Id).ToHashSet();
+            var sourceItems = await db.PracticeQuizItems
+                .AsNoTracking()
+                .Where(i => missingQuizIds.Contains(i.QuizId))
+                .ToListAsync();
+            var itemsByQuiz = sourceItems.GroupBy(i => i.QuizId).ToDictionary(g => g.Key, g => g.ToList());
+
+            var now = DateTimeOffset.UtcNow;
+            var newQuizzes = new List<PracticeQuiz>(missingQuizzes.Count);
+            var newItems = new List<PracticeQuizItem>();
+
+            foreach (var src in missingQuizzes)
+            {
+                var clonedQuiz = new PracticeQuiz
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    LessonId = src.LessonId,
+                    DocumentId = src.DocumentId,
+                    Title = src.Title,
+                    TotalItems = src.TotalItems,
+                    CorrectItems = 0,
+                    Status = "in_progress",
+                    StartedAt = now
+                };
+                newQuizzes.Add(clonedQuiz);
+
+                if (itemsByQuiz.TryGetValue(src.Id, out var srcItems))
+                {
+                    foreach (var si in srcItems)
+                    {
+                        newItems.Add(new PracticeQuizItem
+                        {
+                            Id = Guid.NewGuid(),
+                            QuizId = clonedQuiz.Id,
+                            ItemType = si.ItemType,
+                            PromptAstJson = si.PromptAstJson,
+                            ChoicesJson = si.ChoicesJson,
+                            ClozeSolution = si.ClozeSolution,
+                            CreatedAt = si.CreatedAt
+                        });
+                    }
+                }
+            }
+
+            db.PracticeQuizzes.AddRange(newQuizzes);
+            if (newItems.Count > 0)
+            {
+                db.PracticeQuizItems.AddRange(newItems);
+            }
+            await db.SaveChangesAsync();
+        }
+        finally
+        {
+            syncLock.Release();
+        }
     }
 
     private static async Task<bool> IsPublicDocumentCourseQuizAsync(SwmsDbContext db, PracticeQuiz quiz)

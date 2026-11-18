@@ -165,14 +165,16 @@ try {
     # Step C: Start Backend in Background (5080)
     # -------------------------------------------------------------------------
     Write-Log "`n--- Step C: Starting Backend API on http://127.0.0.1:5080 ---" "Yellow"
+    $env:SWMS_ALLOW_TEST_USER_HEADER = "true"
     $verifyDbPath = Join-Path $runDir "swms_verify.db"
     $sqliteArg = "`"--ConnectionStrings:SqliteFallback=Data Source=$verifyDbPath`""
+    $aiBenchArgs = "--AiProxy:TimeoutSeconds=3 --AiProxy:BaseUrl=http://127.0.0.1:18045"
     $backendDll = Join-Path $root "backend\src\Swms.Api\bin\Release\net10.0\Swms.Api.dll"
     if (Test-Path $backendDll) {
-        $backendProc = Start-Process -FilePath "dotnet" -ArgumentList "`"$backendDll`" --urls http://127.0.0.1:5080 $sqliteArg" -WorkingDirectory (Join-Path $root "backend\src\Swms.Api") `
+        $backendProc = Start-Process -FilePath "dotnet" -ArgumentList "`"$backendDll`" --urls http://127.0.0.1:5080 $sqliteArg $aiBenchArgs" -WorkingDirectory (Join-Path $root "backend\src\Swms.Api") `
             -RedirectStandardOutput $backendServiceLog -RedirectStandardError $backendServiceErr -PassThru
     } else {
-        $backendArgs = "run --project backend/src/Swms.Api/Swms.Api.csproj -c Release --urls http://127.0.0.1:5080 -- $sqliteArg"
+        $backendArgs = "run --project backend/src/Swms.Api/Swms.Api.csproj -c Release --urls http://127.0.0.1:5080 -- $sqliteArg $aiBenchArgs"
         $backendProc = Start-Process -FilePath "dotnet" -ArgumentList $backendArgs -WorkingDirectory $root `
             -RedirectStandardOutput $backendServiceLog -RedirectStandardError $backendServiceErr -PassThru
     }
@@ -391,6 +393,7 @@ try {
 
     Start-Sleep -Seconds 1
     Stop-PortProcesses @(5080, 3000)
+    $env:SWMS_ALLOW_TEST_USER_HEADER = $null
 
     $stopwatch.Stop()
     $elapsedSec = [math]::Round($stopwatch.Elapsed.TotalSeconds, 2)

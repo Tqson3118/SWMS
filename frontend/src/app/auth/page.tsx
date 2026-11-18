@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -13,14 +13,80 @@ import {
   AlertCircle,
   CheckCircle2,
   BookOpen,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  EyeOff,
+  HelpCircle,
 } from "lucide-react";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
+import { setAccessToken } from "@/lib/api-client";
+
+interface GoogleAccountsIdApi {
+  initialize: (config: {
+    client_id: string;
+    callback: (response: { credential?: string }) => void;
+  }) => void;
+  renderButton: (
+    parent: HTMLElement,
+    options: {
+      theme?: "outline" | "filled_blue" | "filled_black";
+      size?: "large" | "medium" | "small";
+      shape?: "rectangular" | "pill" | "circle" | "square";
+      text?: "signin_with" | "signup_with" | "continue_with" | "signin";
+      width?: number;
+      locale?: string;
+    }
+  ) => void;
+}
+
+declare global {
+  interface Window {
+    google?: {
+      accounts?: {
+        id?: GoogleAccountsIdApi;
+      };
+    };
+  }
+}
+
+interface AuthSessionUser {
+  id: string;
+  fullName: string;
+  email: string;
+  authProvider?: string;
+  avatarUrl?: string | null;
+  hasLocalPassword?: boolean;
+}
 
 function resolveSafeRedirect(raw: string | null): string {
   if (raw && raw.startsWith("/") && !raw.startsWith("//")) {
     return raw;
   }
   return "/app";
+}
+
+function GoogleGlyph({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 24c3.3 0 6.08-1.09 8.11-2.96l-3.88-3.05c-1.08.72-2.45 1.16-4.23 1.16-3.26 0-6.02-2.2-7-5.16H1.01v3.14C3.03 21.14 7.21 24 12 24Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5 13.99c-.25-.72-.39-1.49-.39-2.29s.14-1.57.39-2.29V6.27H1.01A11.98 11.98 0 0 0 0 11.7c0 1.94.46 3.77 1.01 5.43l3.99-3.14Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 4.75c1.8 0 3.41.62 4.68 1.83l3.51-3.51C18.07 1.19 15.3 0 12 0 7.21 0 3.03 2.86 1.01 7.13l3.99 3.14c.98-2.96 3.74-5.52 7-5.52Z"
+      />
+    </svg>
+  );
 }
 
 function AuthPageContent() {
@@ -34,10 +100,24 @@ function AuthPageContent() {
   const [mode, setMode] = useState<"login" | "register">(initialTab);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  const [googleClientId, setGoogleClientId] = useState<string | null>(
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || null
+  );
+  const [googleEnabled, setGoogleEnabled] = useState(
+    Boolean(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID)
+  );
+  const [googleProvidersLoaded, setGoogleProvidersLoaded] = useState(false);
+  const [googleSdkError, setGoogleSdkError] = useState<string | null>(null);
+  const [showGoogleSetupGuide, setShowGoogleSetupGuide] = useState(false);
+  const [showDemoSwitcher, setShowDemoSwitcher] = useState(false);
+
+  const googleBtnRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const paramTab = searchParams.get("tab");
@@ -46,27 +126,177 @@ function AuthPageContent() {
     }
   }, [searchParams]);
 
-  const saveSessionAndNavigate = (userObj: {
-    id: string;
-    fullName: string;
-    email: string;
-    accessToken?: string;
-  }) => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("swms_active_user", JSON.stringify(userObj));
-      if (
-        userObj.id &&
-        userObj.id !== "11111111-1111-4111-8111-111111111111"
-      ) {
-        window.localStorage.setItem("swms_active_user_id", userObj.id);
-        setActiveUserHeaderId(userObj.id);
-      } else {
-        window.localStorage.removeItem("swms_active_user_id");
-        setActiveUserHeaderId(null);
+  const saveSessionAndNavigate = useCallback(
+    (userObj: AuthSessionUser) => {
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("swms_has_refresh_cookie", "1");
+        window.localStorage.setItem(
+          "swms_active_user",
+          JSON.stringify({
+            id: userObj.id,
+            fullName: userObj.fullName,
+            email: userObj.email,
+            authProvider: userObj.authProvider ?? "local",
+            avatarUrl: userObj.avatarUrl ?? null,
+            hasLocalPassword: userObj.hasLocalPassword ?? true,
+          })
+        );
+        if (
+          userObj.id &&
+          userObj.id !== "11111111-1111-4111-8111-111111111111"
+        ) {
+          window.localStorage.setItem("swms_active_user_id", userObj.id);
+          setActiveUserHeaderId(userObj.id);
+        } else {
+          window.localStorage.removeItem("swms_active_user_id");
+          setActiveUserHeaderId(null);
+        }
       }
+      router.push(targetDestination);
+    },
+    [router, setActiveUserHeaderId, targetDestination]
+  );
+
+  const applyAuthResponse = useCallback(
+    (data: Record<string, unknown>, fallbackName: string, fallbackEmail: string) => {
+      const user = (data?.user ?? {}) as Record<string, unknown>;
+      const userId = String(user.id ?? user.Id ?? "");
+      setAccessToken(data?.accessToken ? String(data.accessToken) : null);
+      saveSessionAndNavigate({
+        id: userId,
+        fullName: String(user.fullName ?? user.FullName ?? fallbackName),
+        email: String(user.email ?? user.Email ?? fallbackEmail),
+        authProvider: String(user.authProvider ?? user.AuthProvider ?? "local"),
+        avatarUrl: (user.avatarUrl ?? user.AvatarUrl ?? null) as string | null,
+        hasLocalPassword: Boolean(user.hasLocalPassword ?? user.HasLocalPassword ?? true),
+      });
+    },
+    [saveSessionAndNavigate]
+  );
+
+  const handleGoogleCredential = useCallback(
+    async (credential: string) => {
+      setErrorMessage(null);
+      setStatusMessage("Đang xác thực tài khoản Google...");
+      setLoading(true);
+      try {
+        const resp = await fetch("/api/v1/auth/google", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credential }),
+        });
+        if (!resp.ok) {
+          const errData = await resp.json().catch(() => null);
+          setStatusMessage(null);
+          setErrorMessage(
+            errData?.error ?? "Xác thực Google không thành công. Vui lòng thử lại."
+          );
+          return;
+        }
+        const data = (await resp.json()) as Record<string, unknown>;
+        applyAuthResponse(data, "Google User", "");
+      } catch {
+        setStatusMessage(null);
+        setErrorMessage("Không thể kết nối máy chủ để xác thực Google.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [applyAuthResponse]
+  );
+
+  const handleGoogleCredentialRef = useRef(handleGoogleCredential);
+  handleGoogleCredentialRef.current = handleGoogleCredential;
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/v1/auth/providers", { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!active || !data) return;
+        const enabled = Boolean(data.googleEnabled);
+        const clientId = data.googleClientId ? String(data.googleClientId) : null;
+        setGoogleEnabled(enabled && Boolean(clientId));
+        setGoogleClientId(enabled ? clientId : null);
+      })
+      .catch(() => {
+        // Keep env fallback if network briefly fails
+      })
+      .finally(() => {
+        if (active) setGoogleProvidersLoaded(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!googleEnabled || !googleClientId || !googleBtnRef.current) return;
+    let cancelled = false;
+
+    const initGsi = () => {
+      if (cancelled || !googleBtnRef.current || !window.google?.accounts?.id) return;
+      try {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: (res) => {
+            if (res?.credential) {
+              void handleGoogleCredentialRef.current(res.credential);
+            } else {
+              setErrorMessage("Google không trả về token đăng nhập hợp lệ.");
+            }
+          },
+        });
+        googleBtnRef.current.innerHTML = "";
+        window.google.accounts.id.renderButton(googleBtnRef.current, {
+          theme: "outline",
+          size: "large",
+          shape: "rectangular",
+          text: "continue_with",
+          width: 360,
+          locale: "vi",
+        });
+        setGoogleSdkError(null);
+      } catch {
+        setGoogleSdkError("Không thể khởi tạo nút Đăng nhập Google cho origin này.");
+      }
+    };
+
+    if (window.google?.accounts?.id) {
+      initGsi();
+      return () => {
+        cancelled = true;
+      };
     }
-    router.push(targetDestination);
-  };
+
+    const existing = document.querySelector<HTMLScriptElement>(
+      'script[src="https://accounts.google.com/gsi/client"]'
+    );
+    if (existing) {
+      existing.addEventListener("load", initGsi);
+      return () => {
+        cancelled = true;
+        existing.removeEventListener("load", initGsi);
+      };
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = initGsi;
+    script.onerror = () => {
+      if (!cancelled) {
+        setGoogleSdkError("Không thể tải Google Identity SDK (kiểm tra kết nối Internet).");
+      }
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [googleEnabled, googleClientId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +305,12 @@ function AuthPageContent() {
 
     const trimmedEmail = email.trim();
     if (!trimmedEmail || !password) {
-      setErrorMessage("Vui lòng nhập đầy đủ email và mật khẩu.");
+      setErrorMessage("Vui lòng nhập đầy đủ Email và Mật khẩu.");
+      return;
+    }
+
+    if (mode === "register" && password.length < 6) {
+      setErrorMessage("Mật khẩu phải có tối thiểu 6 ký tự.");
       return;
     }
 
@@ -89,21 +324,20 @@ function AuthPageContent() {
           : {
               email: trimmedEmail,
               password,
-              fullName: fullName.trim() || "Học viên SWMS"
+              fullName: fullName.trim() || "Học viên SWMS",
             };
 
       const resp = await fetch(endpoint, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (!resp.ok) {
         const errData = await resp.json().catch(() => null);
         if (resp.status === 409) {
-          setErrorMessage(
-            errData?.error ?? "Email này đã được đăng ký trong hệ thống."
-          );
+          setErrorMessage("Email này đã được đăng ký. Vui lòng chuyển sang tab Đăng nhập.");
         } else if (resp.status === 401) {
           setErrorMessage("Email hoặc mật khẩu không chính xác.");
         } else {
@@ -114,15 +348,8 @@ function AuthPageContent() {
         return;
       }
 
-      const data = await resp.json();
-      const user = data?.user ?? {};
-      const userId = String(user.id ?? user.Id ?? "");
-      saveSessionAndNavigate({
-        id: userId,
-        fullName: String(user.fullName ?? user.FullName ?? (fullName.trim() || "Học viên SWMS")),
-        email: String(user.email ?? user.Email ?? trimmedEmail),
-        accessToken: String(data?.accessToken ?? "")
-      });
+      const data = (await resp.json()) as Record<string, unknown>;
+      applyAuthResponse(data, fullName.trim() || "Học viên SWMS", trimmedEmail);
     } catch {
       setErrorMessage("Lỗi kết nối máy chủ xác thực. Vui lòng thử lại.");
     } finally {
@@ -130,22 +357,35 @@ function AuthPageContent() {
     }
   };
 
-  const handleSwitchDefaultUser = () => {
+  const handleSwitchDefaultUser = async () => {
     setErrorMessage(null);
     setStatusMessage("Đang chuyển về tài khoản Sơn Trần (Mặc định)...");
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem("swms_active_user_id");
-      window.localStorage.setItem(
-        "swms_active_user",
-        JSON.stringify({
-          id: "11111111-1111-4111-8111-111111111111",
-          fullName: "Sơn Trần",
-          email: "son.tran@studxy.vn"
-        })
-      );
+    setLoading(true);
+    try {
+      const resp = await fetch("/api/v1/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "son.tran@studxy.vn",
+          password: "Studxy@2026",
+        }),
+      });
+
+      if (!resp.ok) {
+        setStatusMessage(null);
+        setErrorMessage("Không thể đăng nhập tài khoản mặc định Sơn Trần.");
+        return;
+      }
+
+      const data = (await resp.json()) as Record<string, unknown>;
+      applyAuthResponse(data, "Sơn Trần", "son.tran@studxy.vn");
+    } catch {
+      setStatusMessage(null);
+      setErrorMessage("Không thể kết nối tới máy chủ để chuyển tài khoản.");
+    } finally {
+      setLoading(false);
     }
-    setActiveUserHeaderId(null);
-    router.push(targetDestination);
   };
 
   const handleSwitchSecondaryUser = async () => {
@@ -160,48 +400,37 @@ function AuthPageContent() {
     try {
       let resp = await fetch("/api/v1/auth/register", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: demoEmail,
           password: demoPassword,
-          fullName: demoName
-        })
+          fullName: demoName,
+        }),
       });
 
       if (resp.status === 409) {
         resp = await fetch("/api/v1/auth/login", {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email: demoEmail,
-            password: demoPassword
-          })
+            password: demoPassword,
+          }),
         });
       }
 
       if (!resp.ok) {
+        setStatusMessage(null);
         setErrorMessage("Không thể chuyển sang tài khoản Minh Anh.");
         return;
       }
 
-      const data = await resp.json();
-      const user = data?.user ?? {};
-      const userId = String(user.id ?? user.Id ?? "");
-      if (typeof window !== "undefined" && userId) {
-        window.localStorage.setItem("swms_active_user_id", userId);
-        window.localStorage.setItem(
-          "swms_active_user",
-          JSON.stringify({
-            id: userId,
-            fullName: String(user.fullName ?? user.FullName ?? demoName),
-            email: String(user.email ?? user.Email ?? demoEmail),
-            accessToken: String(data?.accessToken ?? "")
-          })
-        );
-      }
-      setActiveUserHeaderId(userId || null);
-      router.push(targetDestination);
+      const data = (await resp.json()) as Record<string, unknown>;
+      applyAuthResponse(data, demoName, demoEmail);
     } catch {
+      setStatusMessage(null);
       setErrorMessage("Không thể kết nối tới máy chủ để chuyển tài khoản.");
     } finally {
       setLoading(false);
@@ -245,10 +474,9 @@ function AuthPageContent() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-4xl w-full mx-auto my-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Login / Register Form */}
-        <section className="lg:col-span-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-6 sm:p-8">
+      {/* Main Centered Auth Content */}
+      <main className="max-w-lg w-full mx-auto my-8 space-y-4">
+        <section className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-6 sm:p-8">
           <div className="mb-6">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold mb-2">
               <ShieldCheck className="w-3.5 h-3.5" />
@@ -264,164 +492,268 @@ function AuthPageContent() {
             </p>
           </div>
 
-            {/* Mode Tabs */}
-            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 mb-6">
-              <button
-                type="button"
-                data-testid="auth-tab-login"
-                onClick={() => {
-                  setMode("login");
-                  setErrorMessage(null);
-                }}
-                className={`min-h-[40px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
-                  mode === "login"
-                    ? "bg-indigo-600 text-white shadow-xs"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                }`}
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>Đăng nhập</span>
-              </button>
-              <button
-                type="button"
-                data-testid="auth-tab-register"
-                onClick={() => {
-                  setMode("register");
-                  setErrorMessage(null);
-                }}
-                className={`min-h-[40px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
-                  mode === "register"
-                    ? "bg-indigo-600 text-white shadow-xs"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                }`}
-              >
-                <UserPlus className="w-3.5 h-3.5" />
-                <span>Đăng ký tài khoản</span>
-              </button>
+          {/* Mode Tabs */}
+          <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 mb-6">
+            <button
+              type="button"
+              data-testid="auth-tab-login"
+              onClick={() => {
+                setMode("login");
+                setErrorMessage(null);
+              }}
+              className={`min-h-[40px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                mode === "login"
+                  ? "bg-indigo-600 text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Đăng nhập</span>
+            </button>
+            <button
+              type="button"
+              data-testid="auth-tab-register"
+              onClick={() => {
+                setMode("register");
+                setErrorMessage(null);
+              }}
+              className={`min-h-[40px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                mode === "register"
+                  ? "bg-indigo-600 text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>Đăng ký tài khoản</span>
+            </button>
+          </div>
+
+          {errorMessage && (
+            <div
+              role="alert"
+              className="mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/70 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 font-medium"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{errorMessage}</span>
             </div>
+          )}
 
-            {errorMessage && (
-              <div
-                role="alert"
-                className="mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/70 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 font-medium"
-              >
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{errorMessage}</span>
-              </div>
-            )}
+          {statusMessage && (
+            <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/70 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2 font-medium">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{statusMessage}</span>
+            </div>
+          )}
 
-            {statusMessage && (
-              <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/70 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2 font-medium">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>{statusMessage}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {mode === "register" && (
-                <div>
-                  <label
-                    htmlFor="auth-fullname"
-                    className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
-                  >
-                    Họ và tên hiển thị
-                  </label>
-                  <input
-                    id="auth-fullname"
-                    type="text"
-                    data-testid="auth-fullname-input"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Ví dụ: Nguyễn Minh Anh"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-              )}
-
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {mode === "register" && (
               <div>
                 <label
-                  htmlFor="auth-email"
+                  htmlFor="auth-fullname"
                   className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
                 >
-                  Địa chỉ Email học thuật
+                  Họ và tên hiển thị
                 </label>
                 <input
-                  id="auth-email"
-                  type="email"
-                  data-testid="auth-email-input"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="son.tran@studxy.vn"
-                  required
+                  id="auth-fullname"
+                  type="text"
+                  data-testid="auth-fullname-input"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Ví dụ: Nguyễn Minh Anh"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
+            )}
 
-              <div>
+            <div>
+              <label
+                htmlFor="auth-email"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+              >
+                Địa chỉ Email
+              </label>
+              <input
+                id="auth-email"
+                type="email"
+                data-testid="auth-email-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ten.ban@studxy.vn"
+                required
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
                 <label
                   htmlFor="auth-password"
-                  className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+                  className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
                 >
                   Mật khẩu bảo mật
                 </label>
+                {mode === "register" && (
+                  <span className="text-[11px] text-slate-400">Tối thiểu 6 ký tự</span>
+                )}
+              </div>
+              <div className="relative">
                 <input
                   id="auth-password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   data-testid="auth-password-input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
-              </div>
-
-              <button
-                type="submit"
-                data-testid="auth-submit-btn"
-                disabled={loading}
-                className="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>
-                  {loading
-                    ? "Đang xử lý..."
-                    : mode === "login"
-                    ? "Đăng nhập vào Studxy"
-                    : "Tạo tài khoản & Khám phá"}
-                </span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
-          </section>
-
-          {/* Right Column: Multi-User Demo Switcher */}
-          <aside
-            data-testid="demo-user-switcher"
-            className="lg:col-span-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-6 space-y-4"
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/20">
-                <Users className="w-4 h-4" />
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-                  Chuyển nhanh tài khoản Demo
-                </h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Trải nghiệm dữ liệu học tập tách biệt 1-Click
-                </p>
+                <button
+                  type="button"
+                  data-testid="auth-toggle-password-btn"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition cursor-pointer"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
               </div>
             </div>
 
-            <div className="space-y-3">
+            <button
+              type="submit"
+              data-testid="auth-submit-btn"
+              disabled={loading}
+              className="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>
+                {loading
+                  ? "Đang xử lý..."
+                  : mode === "login"
+                  ? "Đăng nhập vào Studxy"
+                  : "Tạo tài khoản & Khám phá"}
+              </span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+
+          {/* Divider + Google Sign-In Section */}
+          <div data-testid="google-signin-section" className="mt-6">
+            <div className="relative flex items-center justify-center mb-4">
+              <div className="border-t border-slate-200 dark:border-slate-800 w-full" />
+              <span className="bg-white dark:bg-slate-900 px-3 text-[11px] font-medium text-slate-400 dark:text-slate-500 whitespace-nowrap">
+                Hoặc tiếp tục với
+              </span>
+              <div className="border-t border-slate-200 dark:border-slate-800 w-full" />
+            </div>
+
+            {googleEnabled && googleClientId ? (
+              <div className="flex flex-col items-center gap-2">
+                <div
+                  ref={googleBtnRef}
+                  data-testid="google-signin-button-container"
+                  className="min-h-[42px] flex items-center justify-center w-full overflow-hidden"
+                />
+                {googleSdkError && (
+                  <p className="text-[11px] text-amber-600 dark:text-amber-400 text-center">
+                    {googleSdkError}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                <button
+                  type="button"
+                  data-testid="google-signin-unconfigured-btn"
+                  onClick={() => setShowGoogleSetupGuide((v) => !v)}
+                  className="w-full min-h-[42px] px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center justify-between gap-2 transition cursor-pointer"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <GoogleGlyph className="w-4 h-4 opacity-80" />
+                    <span>
+                      {googleProvidersLoaded
+                        ? "Tiếp tục với Google (Chưa bật Client ID)"
+                        : "Đang kiểm tra Google Sign-In..."}
+                    </span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[11px] text-indigo-600 dark:text-indigo-400">
+                    <HelpCircle className="w-3.5 h-3.5" />
+                    <span>Hướng dẫn</span>
+                  </span>
+                </button>
+
+                {showGoogleSetupGuide && (
+                  <div
+                    data-testid="google-setup-guide"
+                    className="p-3.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/60 text-[11px] text-slate-700 dark:text-slate-300 space-y-1.5 leading-relaxed"
+                  >
+                    <p className="font-bold text-indigo-700 dark:text-indigo-300">
+                      Cách bật Google Sign-In thật trong 2 phút:
+                    </p>
+                    <ol className="list-decimal list-inside space-y-1">
+                      <li>
+                        Mở <strong>Google Cloud Console</strong> → <em>APIs &amp; Services → Credentials → Create OAuth client ID (Web application)</em>.
+                      </li>
+                      <li>
+                        Thêm <strong>Authorized JavaScript origins</strong>: <code className="px-1 py-0.5 rounded bg-white dark:bg-slate-900 font-mono">http://localhost:3000</code> và <code className="px-1 py-0.5 rounded bg-white dark:bg-slate-900 font-mono">http://127.0.0.1:3000</code>.
+                      </li>
+                      <li>
+                        Cấu hình biến môi trường <code className="px-1 py-0.5 rounded bg-white dark:bg-slate-900 font-mono">GOOGLE_CLIENT_ID=...</code> hoặc <code className="px-1 py-0.5 rounded bg-white dark:bg-slate-900 font-mono">Authentication:Google:ClientId</code> trong <code className="font-mono">appsettings.json</code> rồi khởi động lại Backend.
+                      </li>
+                    </ol>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Collapsible Secondary Demo Switcher Panel */}
+        <aside className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+          <button
+            type="button"
+            data-testid="demo-switcher-toggle"
+            onClick={() => setShowDemoSwitcher((v) => !v)}
+            aria-expanded={showDemoSwitcher}
+            className="w-full px-5 py-3.5 flex items-center justify-between gap-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/40 transition cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/20">
+                <Users className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-slate-900 dark:text-white">
+                  Dùng thử nhanh (Tài khoản Demo 1-Click)
+                </div>
+                <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Sơn Trần (dữ liệu mẫu đầy đủ) hoặc Minh Anh (không gian mới)
+                </div>
+              </div>
+            </div>
+            {showDemoSwitcher ? (
+              <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+            )}
+          </button>
+
+          {showDemoSwitcher && (
+            <div
+              data-testid="demo-user-switcher"
+              className="px-5 pb-5 pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2.5"
+            >
               <button
                 type="button"
                 data-testid="switch-user-default"
                 onClick={handleSwitchDefaultUser}
                 disabled={loading}
-                className="w-full text-left p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 bg-slate-50/70 dark:bg-slate-950/60 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/30 transition group cursor-pointer"
+                className="w-full text-left p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 bg-slate-50/70 dark:bg-slate-950/60 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/30 transition group cursor-pointer"
               >
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between mb-0.5">
                   <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
                     Sơn Trần (Tài khoản Mặc định - Đầy đủ dữ liệu)
                   </span>
@@ -439,9 +771,9 @@ function AuthPageContent() {
                 data-testid="switch-user-secondary"
                 onClick={handleSwitchSecondaryUser}
                 disabled={loading}
-                className="w-full text-left p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-500 bg-slate-50/70 dark:bg-slate-950/60 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/30 transition group cursor-pointer"
+                className="w-full text-left p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-500 bg-slate-50/70 dark:bg-slate-950/60 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/30 transition group cursor-pointer"
               >
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between mb-0.5">
                   <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
                     Minh Anh (Tài khoản Độc lập - Không gian mới)
                   </span>
@@ -453,22 +785,23 @@ function AuthPageContent() {
                   minh.anh@studxy.vn • Tự động tạo không gian riêng biệt, độc lập thư viện PDF và thẻ ôn tập.
                 </p>
               </button>
-            </div>
 
-            <div className="p-3 rounded-xl bg-slate-100/80 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 flex items-start gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
-              <span>
-                Mẹo: Bạn có thể chuyển đổi qua lại giữa <strong>Sơn Trần</strong> và <strong>Minh Anh</strong> bất kỳ lúc nào từ Sidebar hoặc menu Cài đặt.
-              </span>
+              <div className="p-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-500 shrink-0 mt-0.5" />
+                <span>
+                  Dữ liệu tài khoản thử nghiệm hoàn toàn tách biệt với tài khoản chính thức của bạn.
+                </span>
+              </div>
             </div>
-          </aside>
-        </main>
+          )}
+        </aside>
+      </main>
 
-        {/* Footer */}
-        <footer className="max-w-5xl w-full mx-auto text-center text-[11px] text-slate-400 dark:text-slate-600">
-          Studxy · Nền tảng đọc sâu, ghi chú và ghi nhớ lâu dài với FSRS v5
-        </footer>
-      </div>
+      {/* Footer */}
+      <footer className="max-w-5xl w-full mx-auto text-center text-[11px] text-slate-400 dark:text-slate-600">
+        Studxy · Nền tảng đọc sâu, ghi chú và ghi nhớ lâu dài với FSRS v5
+      </footer>
+    </div>
   );
 }
 

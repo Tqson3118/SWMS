@@ -22,6 +22,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { setAccessToken } from "@/lib/api-client";
 import { deduplicateCourses, getCourseId, getCourseProgress } from "@/lib/course-helpers";
 
 interface SidebarProps {
@@ -410,8 +411,17 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
               <div className="border-t border-border-subtle pt-1">
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
+                    try {
+                      await fetch("/api/v1/auth/logout", {
+                        method: "POST",
+                        headers: getClientRequestHeaders(),
+                        credentials: "include",
+                      });
+                    } catch {}
+                    setAccessToken(null);
                     if (typeof window !== "undefined") {
+                      window.localStorage.removeItem("swms_has_refresh_cookie");
                       window.localStorage.removeItem("swms_active_user_id");
                       window.localStorage.removeItem("swms_active_user");
                     }

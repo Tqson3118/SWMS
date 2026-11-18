@@ -21,7 +21,8 @@ public record WizardCommitRequest(
     string Topic,
     string? Title,
     string? Description,
-    List<WizardChapterPreviewDto> Chapters
+    List<WizardChapterPreviewDto> Chapters,
+    Guid? IdempotencyKey = null
 );
 
 public static class CourseWizardAndImportService

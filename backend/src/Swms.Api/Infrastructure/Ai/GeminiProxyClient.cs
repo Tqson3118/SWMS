@@ -1,5 +1,7 @@
 using System.Globalization;
+using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Channels;
@@ -45,7 +47,8 @@ public class GeminiProxyClient
         _apiKey = config["AiProxy:ApiKey"] ?? "sk-5a766381ba4a48f4bdc62585e0a6a264";
         _model = config["AiProxy:Model"] ?? "gemini-3.8-flash";
         _logger = logger;
-        _http.Timeout = TimeSpan.FromSeconds(3);
+        var timeoutSeconds = int.TryParse(config["AiProxy:TimeoutSeconds"], out var ts) && ts > 0 ? ts : 60;
+        _http.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
     }
 
     public async Task<AiCompletionResult> CompleteChatAsync(
@@ -54,8 +57,29 @@ public class GeminiProxyClient
         CancellationToken ct = default,
         AiCallOverrides? overrides = null)
     {
-        var baseUrl = (!string.IsNullOrWhiteSpace(overrides?.BaseUrl) ? overrides.BaseUrl : _baseUrl).TrimEnd('/');
-        var apiKey = !string.IsNullOrWhiteSpace(overrides?.ApiKey) ? overrides.ApiKey : _apiKey;
+        var hasOverrideBaseUrl = !string.IsNullOrWhiteSpace(overrides?.BaseUrl);
+        var overrideBaseUrl = hasOverrideBaseUrl ? overrides!.BaseUrl!.Trim().TrimEnd('/') : _baseUrl;
+        var isCustomBaseUrl = hasOverrideBaseUrl && !string.Equals(overrideBaseUrl, _baseUrl, StringComparison.OrdinalIgnoreCase);
+
+        if (isCustomBaseUrl)
+        {
+            if (string.IsNullOrWhiteSpace(overrides?.ApiKey))
+            {
+                _logger.LogWarning("Blocked custom AI Proxy BaseUrl without caller ApiKey to prevent server key exfiltration.");
+                return CreateFallbackResult(_model);
+            }
+
+            if (!await IsAllowedOverrideBaseUrlAsync(overrideBaseUrl, _baseUrl, ct))
+            {
+                _logger.LogWarning("Blocked disallowed custom AI Proxy BaseUrl {BaseUrl} (SSRF protection).", overrideBaseUrl);
+                return CreateFallbackResult(_model);
+            }
+        }
+
+        var baseUrl = overrideBaseUrl;
+        var apiKey = isCustomBaseUrl
+            ? overrides!.ApiKey!
+            : (!string.IsNullOrWhiteSpace(overrides?.ApiKey) ? overrides.ApiKey : _apiKey);
         var model = !string.IsNullOrWhiteSpace(overrides?.Model) ? overrides.Model : _model;
 
         try
@@ -105,13 +129,94 @@ public class GeminiProxyClient
         }
 
         // Resilient offline fallback so local dev never fails if proxy is offline
-        return new AiCompletionResult(
-            Content: string.Empty,
-            Model: $"{model}-fallback",
-            PromptTokens: 95,
-            CompletionTokens: 145,
-            TotalTokens: 240,
-            UsedLiveEndpoint: false);
+        return CreateFallbackResult(model);
+    }
+
+    private static AiCompletionResult CreateFallbackResult(string model) => new(
+        Content: string.Empty,
+        Model: $"{model}-fallback",
+        PromptTokens: 95,
+        CompletionTokens: 145,
+        TotalTokens: 240,
+        UsedLiveEndpoint: false);
+
+    private static async Task<bool> IsAllowedOverrideBaseUrlAsync(string candidateUrl, string configuredBaseUrl, CancellationToken ct)
+    {
+        if (!Uri.TryCreate(candidateUrl, UriKind.Absolute, out var uri))
+        {
+            return false;
+        }
+
+        Uri.TryCreate(configuredBaseUrl, UriKind.Absolute, out var serverUri);
+        var matchesServerHost = serverUri != null && string.Equals(uri.Host, serverUri.Host, StringComparison.OrdinalIgnoreCase);
+
+        if (uri.Scheme == Uri.UriSchemeHttp)
+        {
+            if (!matchesServerHost) return false;
+        }
+        else if (uri.Scheme != Uri.UriSchemeHttps)
+        {
+            return false;
+        }
+
+        if (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (IPAddress.TryParse(uri.Host, out var directIp))
+        {
+            return !IsBlockedIpAddress(directIp);
+        }
+
+        try
+        {
+            var addresses = await Dns.GetHostAddressesAsync(uri.Host, ct);
+            if (addresses.Length == 0) return false;
+            return addresses.All(ip => !IsBlockedIpAddress(ip));
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static bool IsBlockedIpAddress(IPAddress ip)
+    {
+        if (ip.IsIPv4MappedToIPv6)
+        {
+            ip = ip.MapToIPv4();
+        }
+
+        if (IPAddress.IsLoopback(ip))
+        {
+            return true;
+        }
+
+        if (ip.AddressFamily == AddressFamily.InterNetwork)
+        {
+            var b = ip.GetAddressBytes();
+            if (b[0] == 0) return true; // 0.0.0.0/8
+            if (b[0] == 10) return true; // 10.0.0.0/8
+            if (b[0] == 127) return true; // 127.0.0.0/8
+            if (b[0] == 169 && b[1] == 254) return true; // 169.254.0.0/16
+            if (b[0] == 172 && b[1] >= 16 && b[1] <= 31) return true; // 172.16.0.0/12
+            if (b[0] == 192 && b[1] == 168) return true; // 192.168.0.0/16
+            return false;
+        }
+
+        if (ip.AddressFamily == AddressFamily.InterNetworkV6)
+        {
+            if (ip.IsIPv6LinkLocal || ip.IsIPv6SiteLocal || ip.Equals(IPAddress.IPv6Any))
+            {
+                return true;
+            }
+            var b = ip.GetAddressBytes();
+            if ((b[0] & 0xFE) == 0xFC) return true; // fc00::/7
+            return false;
+        }
+
+        return true;
     }
 }
 
@@ -324,26 +429,46 @@ public class AiJobProcessorService : BackgroundService
             }
 
             var rubricJson = JsonSerializer.Serialize(rubricObj);
+            var isMasteryPassing = EvaluateEssayPassing(rubricJson, answer);
             var item = await db.PracticeQuizItems.FirstOrDefaultAsync(i => i.Id == itemId && i.QuizId == quizId, ct);
             if (item != null)
             {
                 item.AiRubricFeedbackJson = rubricJson;
-                item.IsCorrect = true;
+                item.IsCorrect = isMasteryPassing;
                 item.EvaluatedAt = DateTimeOffset.UtcNow;
             }
 
-            db.AiUsageLedgers.Add(new AiUsageLedger
+            AiUsageLedger? reservedLedger = null;
+            if (root.TryGetProperty("ledgerId", out var ledgerIdProp) &&
+                ledgerIdProp.ValueKind == JsonValueKind.String &&
+                Guid.TryParse(ledgerIdProp.GetString(), out var ledgerId))
             {
-                UserId = job.UserId,
-                Feature = "essay_feedback",
-                CreditsCharged = 2,
-                Model = aiResult.Model,
-                PromptTokens = aiResult.PromptTokens,
-                CompletionTokens = aiResult.CompletionTokens,
-                TotalTokens = aiResult.TotalTokens,
-                CostUsd = Math.Round(aiResult.TotalTokens * 0.0000005m, 6),
-                CreatedAt = DateTimeOffset.UtcNow
-            });
+                reservedLedger = await db.AiUsageLedgers.FirstOrDefaultAsync(l => l.Id == ledgerId, ct);
+            }
+
+            if (reservedLedger != null)
+            {
+                reservedLedger.Model = aiResult.Model;
+                reservedLedger.PromptTokens = aiResult.PromptTokens;
+                reservedLedger.CompletionTokens = aiResult.CompletionTokens;
+                reservedLedger.TotalTokens = aiResult.TotalTokens;
+                reservedLedger.CostUsd = Math.Round(aiResult.TotalTokens * 0.0000005m, 6);
+            }
+            else
+            {
+                db.AiUsageLedgers.Add(new AiUsageLedger
+                {
+                    UserId = job.UserId,
+                    Feature = "essay_feedback",
+                    CreditsCharged = 2,
+                    Model = aiResult.Model,
+                    PromptTokens = aiResult.PromptTokens,
+                    CompletionTokens = aiResult.CompletionTokens,
+                    TotalTokens = aiResult.TotalTokens,
+                    CostUsd = Math.Round(aiResult.TotalTokens * 0.0000005m, 6),
+                    CreatedAt = DateTimeOffset.UtcNow
+                });
+            }
 
             job.ResultJson = rubricJson;
         }
@@ -353,6 +478,37 @@ public class AiJobProcessorService : BackgroundService
         job.CompletedAt = DateTimeOffset.UtcNow;
         job.LeaseExpiresAt = null;
         await db.SaveChangesAsync(ct);
+    }
+
+    private static bool EvaluateEssayPassing(string rubricJson, string answer)
+    {
+        if (string.IsNullOrWhiteSpace(answer) || answer.Trim().Length < 10)
+        {
+            return false;
+        }
+
+        try
+        {
+            using var doc = JsonDocument.Parse(rubricJson);
+            if (doc.RootElement.TryGetProperty("masteryLevel", out var mlProp))
+            {
+                var mastery = mlProp.GetString() ?? string.Empty;
+                if (mastery.Contains("Cần củng cố", StringComparison.OrdinalIgnoreCase) ||
+                    mastery.Contains("Cần bổ sung", StringComparison.OrdinalIgnoreCase) ||
+                    mastery.Contains("Chưa đạt", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+                return mastery.Contains("Vững vàng", StringComparison.OrdinalIgnoreCase) ||
+                       mastery.Contains("Đạt yêu cầu", StringComparison.OrdinalIgnoreCase);
+            }
+        }
+        catch
+        {
+            // Ignore malformed rubric JSON
+        }
+
+        return false;
     }
 }
 

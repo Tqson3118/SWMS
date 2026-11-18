@@ -19,13 +19,18 @@ import {
   Keyboard,
   Info,
   ExternalLink,
+  ShieldCheck,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { setAccessToken } from "@/lib/api-client";
 
 interface UserInfo {
   id: string;
   fullName: string;
   email: string;
+  authProvider?: string;
+  avatarUrl?: string | null;
+  hasLocalPassword?: boolean;
 }
 
 interface AiConfig {
@@ -53,6 +58,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const {
     activeUserHeaderId,
+    setActiveUserHeaderId,
     darkMode,
     toggleDarkMode,
     serifFont,
@@ -64,6 +70,13 @@ export default function SettingsPage() {
   const [user, setUser] = useState<UserInfo>({ id: "", fullName: "", email: "" });
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Password form state
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordFeedback, setPasswordFeedback] = useState<{ type: "ok" | "err"; message: string } | null>(null);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   // AI Config state
   const [aiConfig, setAiConfig] = useState<AiConfig>(DEFAULT_AI_CONFIG);
@@ -79,10 +92,22 @@ export default function SettingsPage() {
       const headers = getClientRequestHeaders(
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
-      const resp = await fetch("/api/v1/workspace/dashboard", { headers });
-      if (resp.ok) {
-        const data = await resp.json();
-        setUser(data.user ?? { id: "", fullName: "", email: "" });
+      const [meResp, dashResp] = await Promise.all([
+        fetch("/api/v1/auth/me", { credentials: "include", headers }).catch(() => null),
+        fetch("/api/v1/workspace/dashboard", { credentials: "include", headers }).catch(() => null),
+      ]);
+      const meData = meResp && meResp.ok ? await meResp.json().catch(() => null) : null;
+      const dashData = dashResp && dashResp.ok ? await dashResp.json().catch(() => null) : null;
+      const baseUser = dashData?.user ?? {};
+      if (meData || dashData) {
+        setUser({
+          id: String(meData?.id ?? baseUser.id ?? ""),
+          fullName: String(meData?.fullName ?? baseUser.fullName ?? ""),
+          email: String(meData?.email ?? baseUser.email ?? ""),
+          authProvider: meData?.authProvider ?? "local",
+          avatarUrl: meData?.avatarUrl ?? null,
+          hasLocalPassword: meData?.hasLocalPassword ?? true,
+        });
       }
     } catch {
       /* silent */
@@ -128,7 +153,20 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await fetch("/api/v1/auth/logout", { method: "POST" });
+      await fetch("/api/v1/auth/logout", {
+        method: "POST",
+        headers: getClientRequestHeaders(),
+        credentials: "include",
+      });
+    } catch {
+      /* silent */
+    }
+    setAccessToken(null);
+    setActiveUserHeaderId(null);
+    try {
+      window.localStorage.removeItem("swms_has_refresh_cookie");
+      window.localStorage.removeItem("swms_active_user_id");
+      window.localStorage.removeItem("swms_active_user");
     } catch {
       /* silent */
     }
@@ -163,28 +201,178 @@ export default function SettingsPage() {
           <User className="w-4 h-4" />
           Tài khoản
         </h2>
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold text-sm shrink-0">
-            {initials}
-          </div>
+        <div className="flex flex-wrap items-center gap-4">
+          {user.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt={user.fullName || "Avatar"}
+              referrerPolicy="no-referrer"
+              className="w-12 h-12 rounded-full object-cover border border-border shrink-0"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold text-sm shrink-0">
+              {initials}
+            </div>
+          )}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-text-primary truncate">
-              {user.fullName || "Chưa có tên"}
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-medium text-text-primary truncate">
+                {user.fullName || "Chưa có tên"}
+              </p>
+              <span
+                data-testid="settings-auth-provider-badge"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-bg-tertiary border border-border text-text-secondary"
+              >
+                <ShieldCheck className="w-3 h-3 text-accent" />
+                {user.authProvider === "local+google"
+                  ? "Google + Email"
+                  : user.authProvider === "google"
+                  ? "Google"
+                  : "Email & Mật khẩu"}
+              </span>
+            </div>
             <p className="text-sm text-text-secondary truncate">
               {user.email || "Chưa có email"}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="flex items-center gap-2 h-9 px-4 rounded-md border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition disabled:opacity-50 cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>{isLoggingOut ? "Đang xuất..." : "Đăng xuất"}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              data-testid="toggle-password-form-btn"
+              onClick={() => {
+                setShowPasswordForm((v) => !v);
+                setPasswordFeedback(null);
+              }}
+              className="flex items-center gap-1.5 h-9 px-3 rounded-md border border-border bg-bg-primary text-text-primary text-xs font-medium hover:bg-bg-tertiary transition cursor-pointer"
+            >
+              <Key className="w-3.5 h-3.5" />
+              <span>{user.hasLocalPassword === false ? "Đặt mật khẩu" : "Đổi mật khẩu"}</span>
+            </button>
+            <button
+              type="button"
+              data-testid="settings-logout-btn"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="flex items-center gap-2 h-9 px-4 rounded-md border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition disabled:opacity-50 cursor-pointer"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>{isLoggingOut ? "Đang xuất..." : "Đăng xuất"}</span>
+            </button>
+          </div>
         </div>
+
+        {showPasswordForm && (
+          <form
+            data-testid="change-password-section"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setPasswordFeedback(null);
+              if (newPassword.length < 6) {
+                setPasswordFeedback({ type: "err", message: "Mật khẩu mới phải tối thiểu 6 ký tự." });
+                return;
+              }
+              setIsUpdatingPassword(true);
+              try {
+                const effectiveUserId =
+                  activeUserHeaderId ??
+                  (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
+                const resp = await fetch("/api/v1/auth/change-password", {
+                  method: "POST",
+                  credentials: "include",
+                  headers: getClientRequestHeaders({
+                    "Content-Type": "application/json",
+                    ...(effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : {}),
+                  }),
+                  body: JSON.stringify({
+                    currentPassword: user.hasLocalPassword === false ? null : currentPassword,
+                    newPassword,
+                  }),
+                });
+                const body = await resp.json().catch(() => null);
+                if (!resp.ok) {
+                  setPasswordFeedback({
+                    type: "err",
+                    message: body?.error || "Không thể cập nhật mật khẩu.",
+                  });
+                  return;
+                }
+                if (body?.accessToken) {
+                  setAccessToken(String(body.accessToken));
+                }
+                if (body?.user) {
+                  setUser((prev) => ({
+                    ...prev,
+                    authProvider: body.user.authProvider ?? prev.authProvider,
+                    hasLocalPassword: body.user.hasLocalPassword ?? true,
+                  }));
+                }
+                setCurrentPassword("");
+                setNewPassword("");
+                setPasswordFeedback({
+                  type: "ok",
+                  message: body?.message || "Đã cập nhật mật khẩu thành công.",
+                });
+              } catch {
+                setPasswordFeedback({ type: "err", message: "Lỗi kết nối máy chủ." });
+              } finally {
+                setIsUpdatingPassword(false);
+              }
+            }}
+            className="mt-4 pt-4 border-t border-border space-y-3"
+          >
+            {user.hasLocalPassword !== false && (
+              <div>
+                <label className="block text-xs font-medium text-text-secondary mb-1">
+                  Mật khẩu hiện tại
+                </label>
+                <input
+                  type="password"
+                  data-testid="settings-current-password-input"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                  className="w-full h-9 px-3 rounded-md border border-border bg-bg-primary text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                />
+              </div>
+            )}
+            <div>
+              <label className="block text-xs font-medium text-text-secondary mb-1">
+                {user.hasLocalPassword === false
+                  ? "Mật khẩu mới (để đăng nhập bằng Email)"
+                  : "Mật khẩu mới (tối thiểu 6 ký tự)"}
+              </label>
+              <input
+                type="password"
+                data-testid="settings-new-password-input"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={6}
+                className="w-full h-9 px-3 rounded-md border border-border bg-bg-primary text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+            {passwordFeedback && (
+              <p
+                data-testid="settings-password-feedback"
+                className={`text-xs font-medium ${
+                  passwordFeedback.type === "ok"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-rose-600 dark:text-rose-400"
+                }`}
+              >
+                {passwordFeedback.message}
+              </p>
+            )}
+            <button
+              type="submit"
+              data-testid="settings-save-password-btn"
+              disabled={isUpdatingPassword}
+              className="h-9 px-4 rounded-md bg-accent text-white text-xs font-semibold hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
+            >
+              {isUpdatingPassword ? "Đang lưu..." : "Lưu mật khẩu"}
+            </button>
+          </form>
+        )}
       </section>
 
       {/* Section 2: Cấu hình AI */}

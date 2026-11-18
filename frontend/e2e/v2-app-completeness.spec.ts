@@ -254,4 +254,67 @@ test.describe("V2 App Completeness & End-to-End Coherence", () => {
     await lessonResult.click();
     await page.waitForURL(`**/app/courses/${courseId}/learn?lesson=**`, { timeout: 15000 });
   });
+
+  test("Auth Google provider panel, collapsible Demo Switcher, Landing CTA state, & Settings password change", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1366, height: 820 });
+
+    const providersPromise = page.waitForResponse(
+      (r) => r.url().includes("/api/v1/auth/providers") && r.request().method() === "GET"
+    );
+    await page.goto("/auth");
+    const providersResp = await providersPromise;
+    expect(providersResp.status()).toBe(200);
+    const providersJson = await providersResp.json();
+
+    await expect(page.getByTestId("google-signin-section")).toBeVisible();
+    if (!providersJson.googleEnabled) {
+      await page.getByTestId("google-signin-unconfigured-btn").click();
+      await expect(page.getByTestId("google-setup-guide")).toBeVisible();
+    } else {
+      await expect(page.getByTestId("google-signin-button-container")).toBeVisible();
+    }
+
+    // Demo switcher starts collapsed until toggled open
+    await expect(page.getByTestId("demo-user-switcher")).toBeHidden();
+    await page.getByTestId("demo-switcher-toggle").click();
+    await expect(page.getByTestId("demo-user-switcher")).toBeVisible();
+    await expect(page.getByTestId("switch-user-default")).toBeVisible();
+
+    // Register a new user -> change password in /app/settings -> re-login with new password
+    const uniqueEmail = `v2.pwchange.${Date.now()}@studxy.vn`;
+    await page.getByTestId("auth-tab-register").click();
+    await page.getByTestId("auth-fullname-input").fill("Người Dùng Auth Mới");
+    await page.getByTestId("auth-email-input").fill(uniqueEmail);
+    await page.getByTestId("auth-password-input").fill("InitialPass123!");
+    await page.getByTestId("auth-submit-btn").click();
+    await page.waitForURL("**/app", { timeout: 15000 });
+
+    // Landing page recognizes active signed-in session
+    await page.goto("/");
+    await expect(page.getByTestId("landing-nav-cta")).toContainText("Vào Studxy", { timeout: 10000 });
+
+    // Change password in /app/settings
+    await page.goto("/app/settings");
+    await expect(page.getByTestId("settings-auth-provider-badge")).toContainText("Email");
+    await page.getByTestId("toggle-password-form-btn").click();
+    await page.getByTestId("settings-current-password-input").fill("InitialPass123!");
+    await page.getByTestId("settings-new-password-input").fill("UpdatedPass456!");
+    const chgPromise = page.waitForResponse(
+      (r) => r.url().includes("/api/v1/auth/change-password") && r.request().method() === "POST"
+    );
+    await page.getByTestId("settings-save-password-btn").click();
+    expect((await chgPromise).status()).toBe(200);
+    await expect(page.getByTestId("settings-password-feedback")).toBeVisible();
+
+    // Log out cleanly & log back in with updated password
+    await page.getByTestId("settings-logout-btn").click();
+    await page.waitForURL("**/auth", { timeout: 15000 });
+    await page.getByTestId("auth-tab-login").click();
+    await page.getByTestId("auth-email-input").fill(uniqueEmail);
+    await page.getByTestId("auth-password-input").fill("UpdatedPass456!");
+    await page.getByTestId("auth-submit-btn").click();
+    await page.waitForURL("**/app", { timeout: 15000 });
+  });
 });

@@ -125,6 +125,27 @@ interface ReviewAndPracticeViewProps {
 }
 
 const DEFAULT_PRACTICE_QUIZ_ID = "77777777-7777-4777-8777-777777777777";
+const DEFAULT_DEMO_USER_ID = "11111111-1111-4111-8111-111111111111";
+
+function isDefaultDemoUser(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    const activeUserId = window.localStorage.getItem("swms_active_user_id");
+    if (activeUserId && activeUserId.trim()) {
+      return activeUserId.trim() === DEFAULT_DEMO_USER_ID;
+    }
+    const rawUser = window.localStorage.getItem("swms_active_user");
+    if (rawUser) {
+      const parsed = JSON.parse(rawUser) as { id?: string };
+      if (parsed?.id) {
+        return parsed.id === DEFAULT_DEMO_USER_ID;
+      }
+    }
+  } catch {
+    // ignore localStorage parse errors
+  }
+  return true;
+}
 
 export function ReviewAndPracticeView({
   tags,
@@ -165,6 +186,7 @@ export function ReviewAndPracticeView({
   );
   const [onlyCurrentLessonCards, setOnlyCurrentLessonCards] = useState(false);
   const [showAllTags, setShowAllTags] = useState(false);
+  const [quizSubmitError, setQuizSubmitError] = useState<string | null>(null);
 
   // Sync course filter automatically when workspace activeCourseId changes from Reader/Catalog
   useEffect(() => {
@@ -297,7 +319,7 @@ export function ReviewAndPracticeView({
         correctItems: quiz.correctItems
       });
     }
-    if (!map.has(DEFAULT_PRACTICE_QUIZ_ID)) {
+    if (isDefaultDemoUser() && !map.has(DEFAULT_PRACTICE_QUIZ_ID)) {
       map.set(DEFAULT_PRACTICE_QUIZ_ID, {
         id: DEFAULT_PRACTICE_QUIZ_ID,
         title: "Đề luyện tập tổng hợp: Chương 3 — Bộ nhớ ảo & Phân trang"
@@ -328,7 +350,7 @@ export function ReviewAndPracticeView({
       );
       if (courseByDoc?.quizId) return courseByDoc.quizId;
     }
-    return DEFAULT_PRACTICE_QUIZ_ID;
+    return isDefaultDemoUser() ? DEFAULT_PRACTICE_QUIZ_ID : (effectiveQuizList[0]?.id ?? null);
   }, [
     activeQuizId,
     selectedCourseFilterId,
@@ -475,20 +497,30 @@ export function ReviewAndPracticeView({
     }
   };
 
-  const loadPracticeQuiz = async (targetQuizId?: string) => {
-    const idToLoad = targetQuizId || resolvedQuizId || DEFAULT_PRACTICE_QUIZ_ID;
+  const loadPracticeQuiz = async (targetQuizId?: string | null) => {
+    const idToLoad =
+      targetQuizId || resolvedQuizId || (isDefaultDemoUser() ? DEFAULT_PRACTICE_QUIZ_ID : null);
+    if (!idToLoad) {
+      setQuiz(null);
+      return;
+    }
     const headers = getClientRequestHeaders();
     let resp = await fetch(`/api/v1/practice-quizzes/${encodeURIComponent(idToLoad)}`, {
-      headers
+      headers,
+      credentials: "include"
     });
-    if (!resp.ok && idToLoad !== DEFAULT_PRACTICE_QUIZ_ID) {
+    if (!resp.ok && isDefaultDemoUser() && idToLoad !== DEFAULT_PRACTICE_QUIZ_ID) {
       resp = await fetch(`/api/v1/practice-quizzes/${DEFAULT_PRACTICE_QUIZ_ID}`, {
-        headers
+        headers,
+        credentials: "include"
       });
     }
     if (resp.ok) {
       const data: PracticeQuizDto = await resp.json();
       setQuiz(data);
+      setQuizSubmitError(null);
+    } else {
+      setQuiz(null);
     }
   };
 
@@ -519,15 +551,10 @@ export function ReviewAndPracticeView({
     if (!lastReviewedCardId) return;
     const cardIdToUndo = lastReviewedCardId;
     try {
-      const activeUserId =
-        typeof window !== "undefined" ? localStorage.getItem("swms_active_user_id") : null;
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (activeUserId) {
-        headers["X-Test-User-Id"] = activeUserId;
-      }
       const resp = await fetch(`/api/v1/flashcards/${cardIdToUndo}/undo-last-review`, {
         method: "POST",
-        headers
+        headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
+        credentials: "include"
       });
       if (resp.ok) {
         onReviewSessionUpdated();
@@ -691,14 +718,29 @@ export function ReviewAndPracticeView({
 
   const handleSubmitQuizItem = async (itemId: string, fallbackAnswer: string) => {
     if (!quiz) return;
+    const targetItem = quiz.items.find((it) => it.id === itemId);
+    if (
+      targetItem &&
+      targetItem.itemType !== "essay" &&
+      targetItem.isCorrect !== null &&
+      targetItem.isCorrect !== undefined
+    ) {
+      setQuizSubmitError("Câu hỏi này đã được chấm trước đó, không thể nộp lại.");
+      return;
+    }
     const answerText = (practiceQuizDraftAnswers[itemId] ?? fallbackAnswer).trim();
-    if (!answerText) return;
+    if (!answerText) {
+      setQuizSubmitError("Vui lòng nhập câu trả lời trước khi nộp.");
+      return;
+    }
 
     setSubmittingItemId(itemId);
+    setQuizSubmitError(null);
     try {
       const resp = await fetch(`/api/v1/practice-quizzes/${quiz.id}/items/${itemId}/submit`, {
         method: "POST",
         headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
+        credentials: "include",
         body: JSON.stringify({
           answer: answerText,
           idempotencyKey: crypto.randomUUID(),
@@ -708,7 +750,30 @@ export function ReviewAndPracticeView({
       if (resp.ok || resp.status === 202) {
         await loadPracticeQuiz(quiz.id);
         onReviewSessionUpdated();
+      } else {
+        const errBody = await resp.json().catch(() => null);
+        if (resp.status === 409) {
+          setQuizSubmitError(
+            errBody?.error || "Câu hỏi này đã được chấm trước đó, không thể nộp lại."
+          );
+          await loadPracticeQuiz(quiz.id);
+        } else if (resp.status === 429) {
+          setQuizSubmitError(
+            errBody?.error ||
+              "Bạn đã hết hạn mức 50 AI credits. Vui lòng thử lại sau hoặc nạp thêm."
+          );
+        } else if (resp.status === 400) {
+          setQuizSubmitError(
+            errBody?.error || "Nội dung câu trả lời không hợp lệ hoặc đang để trống."
+          );
+        } else {
+          setQuizSubmitError(
+            errBody?.error || `Gửi câu trả lời thất bại (HTTP ${resp.status}).`
+          );
+        }
       }
+    } catch {
+      setQuizSubmitError("Lỗi kết nối máy chủ khi nộp câu trả lời.");
     } finally {
       setSubmittingItemId(null);
     }
@@ -1439,7 +1504,14 @@ export function ReviewAndPracticeView({
             </span>
           </div>
 
+          {quizSubmitError && (
+            <div className="rounded-xl border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/40 px-4 py-2.5 text-xs font-semibold text-rose-700 dark:text-rose-300">
+              {quizSubmitError}
+            </div>
+          )}
+
           {quiz.items.map((item, idx) => {
+            const isItemEvaluated = item.isCorrect !== null && item.isCorrect !== undefined;
             const currentAns =
               practiceQuizDraftAnswers[item.id] ??
               item.userAnswer?.text ??
@@ -1487,11 +1559,12 @@ export function ReviewAndPracticeView({
                       <button
                         key={ch.key}
                         type="button"
+                        disabled={submittingItemId === item.id || isItemEvaluated}
                         onClick={() => {
                           setPracticeQuizDraftAnswer(item.id, ch.key);
                           handleSubmitQuizItem(item.id, ch.key);
                         }}
-                        className={`p-3 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${
+                        className={`p-3 rounded-xl border text-left text-xs font-bold transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
                           currentAns === ch.key
                             ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300"
                             : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -1516,10 +1589,11 @@ export function ReviewAndPracticeView({
                     <button
                       type="button"
                       data-testid="submit-cloze-btn"
+                      disabled={submittingItemId === item.id || isItemEvaluated}
                       onClick={() => handleSubmitQuizItem(item.id, currentAns || "TLB")}
-                      className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold cursor-pointer"
                     >
-                      Kiểm tra Cloze
+                      {isItemEvaluated ? "Đã chấm" : "Kiểm tra Cloze"}
                     </button>
                   </div>
                 )}
@@ -1537,11 +1611,11 @@ export function ReviewAndPracticeView({
                     <button
                       type="button"
                       data-testid="submit-short-answer-btn"
-                      disabled={submittingItemId === item.id || !currentAns.trim()}
+                      disabled={submittingItemId === item.id || isItemEvaluated || !currentAns.trim()}
                       onClick={() => handleSubmitQuizItem(item.id, currentAns)}
                       className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold cursor-pointer"
                     >
-                      Gửi câu trả lời
+                      {isItemEvaluated ? "Đã chấm" : "Gửi câu trả lời"}
                     </button>
                   </div>
                 )}
@@ -1577,7 +1651,11 @@ export function ReviewAndPracticeView({
                         ) : (
                           <>
                             <Sparkles className="w-3.5 h-3.5" />
-                            <span>Gửi chấm nhận xét ngữ nghĩa AI (2 Credits)</span>
+                            <span>
+                              {isItemEvaluated
+                                ? "Gửi chấm lại AI (2 Credits)"
+                                : "Gửi chấm nhận xét ngữ nghĩa AI (2 Credits)"}
+                            </span>
                           </>
                         )}
                       </button>

@@ -87,6 +87,7 @@ public class SwmsDbContext : DbContext
         }
 
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+        modelBuilder.Entity<User>().HasIndex(u => u.GoogleSub).IsUnique();
         modelBuilder.Entity<RefreshToken>().HasIndex(r => r.TokenHash).IsUnique();
         modelBuilder.Entity<Course>().HasIndex(c => c.Slug).IsUnique();
         modelBuilder.Entity<CourseEnrollment>().HasIndex(ce => new { ce.UserId, ce.CourseId }).IsUnique();

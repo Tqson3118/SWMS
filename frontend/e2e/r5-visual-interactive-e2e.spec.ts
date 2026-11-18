@@ -203,6 +203,7 @@ test.describe("Tier 1: Feature Coverage (R1–R4)", () => {
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/workspace");
+    await expect(page.getByTestId("mode-tab-dashboard")).toBeVisible({ timeout: 10000 });
 
     // Press '?' to trigger KeyboardShortcutsModal
     await page.keyboard.press("?");

@@ -16,6 +16,12 @@ public class User
     public string FullName { get; set; } = string.Empty;
     [Required, MaxLength(50)]
     public string Role { get; set; } = "student"; // student, instructor, admin
+    [Required, MaxLength(32)]
+    public string AuthProvider { get; set; } = "local"; // local, google, local+google
+    [MaxLength(128)]
+    public string? GoogleSub { get; set; }
+    [MaxLength(500)]
+    public string? AvatarUrl { get; set; }
     public int TokenVersion { get; set; } = 1;
     public int StreakDays { get; set; } = 1;
     public int OnboardingStep { get; set; } = 1; // 1..4 (4 = completed all 3 steps)

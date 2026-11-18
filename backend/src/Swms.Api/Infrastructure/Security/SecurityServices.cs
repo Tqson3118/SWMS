@@ -11,22 +11,74 @@ namespace Swms.Api.Infrastructure.Security;
 
 public static class PasswordHashUtility
 {
+    public const string ExternalOnlySentinel = "!external-oauth-no-password!";
+    private const int Pbkdf2V2Iterations = 210_000;
+    private const string V2Prefix = "pbkdf2-sha256:v2:";
+
+    public static bool HasLocalPassword(string? storedHash) =>
+        !string.IsNullOrWhiteSpace(storedHash) && !storedHash.StartsWith('!');
+
     public static string HashPassword(string password)
     {
-        var salt = Encoding.UTF8.GetBytes("SWMS-v1-Static-PBKDF2-Salt-2026");
-        var bytes = Rfc2898DeriveBytes.Pbkdf2(
+        var salt = RandomNumberGenerator.GetBytes(16);
+        var hash = Rfc2898DeriveBytes.Pbkdf2(
             Encoding.UTF8.GetBytes(password),
             salt,
+            Pbkdf2V2Iterations,
+            HashAlgorithmName.SHA256,
+            32);
+        return $"{V2Prefix}{Pbkdf2V2Iterations}:{Convert.ToBase64String(salt)}:{Convert.ToBase64String(hash)}";
+    }
+
+    public static bool NeedsRehash(string? storedHash) =>
+        HasLocalPassword(storedHash) && !storedHash!.StartsWith(V2Prefix, StringComparison.Ordinal);
+
+    public static bool VerifyPassword(string password, string storedHash)
+    {
+        if (string.IsNullOrEmpty(password) || !HasLocalPassword(storedHash))
+        {
+            return false;
+        }
+
+        if (storedHash.StartsWith(V2Prefix, StringComparison.Ordinal))
+        {
+            var parts = storedHash.Split(':');
+            if (parts.Length != 5 || !int.TryParse(parts[2], out var iterations) || iterations <= 0)
+            {
+                return false;
+            }
+
+            try
+            {
+                var salt = Convert.FromBase64String(parts[3]);
+                var expectedHash = Convert.FromBase64String(parts[4]);
+                var actualHash = Rfc2898DeriveBytes.Pbkdf2(
+                    Encoding.UTF8.GetBytes(password),
+                    salt,
+                    iterations,
+                    HashAlgorithmName.SHA256,
+                    expectedHash.Length);
+                return CryptographicOperations.FixedTimeEquals(actualHash, expectedHash);
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+        }
+
+        // Legacy v1 dual-verify for existing 64-hex hashes
+        var legacySalt = Encoding.UTF8.GetBytes("SWMS-v1-Static-PBKDF2-Salt-2026");
+        var legacyBytes = Rfc2898DeriveBytes.Pbkdf2(
+            Encoding.UTF8.GetBytes(password),
+            legacySalt,
             10000,
             HashAlgorithmName.SHA256,
             32);
-        return Convert.ToHexString(bytes).ToLowerInvariant();
-    }
-
-    public static bool VerifyPassword(string password, string storedHash) =>
-        CryptographicOperations.FixedTimeEquals(
-            Encoding.UTF8.GetBytes(HashPassword(password)),
+        var legacyHex = Convert.ToHexString(legacyBytes).ToLowerInvariant();
+        return CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(legacyHex),
             Encoding.UTF8.GetBytes(storedHash.ToLowerInvariant()));
+    }
 
     public static string ComputeSha256Hex(string input)
     {
@@ -96,11 +148,27 @@ public class JwtTokenService
     private readonly string _signingKey;
     private readonly int _accessTokenMinutes;
 
+    public static string ResolveJwtSigningKey(IConfiguration config)
+    {
+        var envKey = Environment.GetEnvironmentVariable("JWT_SIGNING_KEY");
+        if (!string.IsNullOrWhiteSpace(envKey)) return envKey;
+        var cfgKey = config["Jwt:SigningKey"];
+        return !string.IsNullOrWhiteSpace(cfgKey)
+            ? cfgKey
+            : "SWMS-v1-Enterprise-Jwt-HmacSha256-Secret-Key-2026-Studxy-Workspace!";
+    }
+
+    public static string? ResolveAesMasterKeyBase64(IConfiguration config)
+    {
+        var envKey = Environment.GetEnvironmentVariable("SECURITY_AES_MASTER_KEY_BASE64");
+        return !string.IsNullOrWhiteSpace(envKey) ? envKey : config["Security:AesMasterKeyBase64"];
+    }
+
     public JwtTokenService(IConfiguration config)
     {
         _issuer = config["Jwt:Issuer"] ?? "https://api.studxy.vn";
         _audience = config["Jwt:Audience"] ?? "https://app.studxy.vn";
-        _signingKey = config["Jwt:SigningKey"] ?? "SWMS-v1-Enterprise-Jwt-HmacSha256-Secret-Key-2026-Studxy-Workspace!";
+        _signingKey = ResolveJwtSigningKey(config);
         _accessTokenMinutes = int.TryParse(config["Jwt:AccessTokenMinutes"], out var mins) ? mins : 15;
     }
 
@@ -216,7 +284,7 @@ public class RefreshTokenRotationService
 
             // Pessimistic Row Locking (SELECT ... FOR UPDATE) in PostgreSQL per MASTER_PROMPT.md §6.2 & ADR-003 §7
             RefreshToken? existing;
-            if (_db.Database.IsRelational())
+            if (_db.Database.IsNpgsql())
             {
                 var lockedRows = await _db.RefreshTokens
                     .FromSqlInterpolated($"SELECT * FROM refresh_tokens WHERE token_hash = {tokenHash} FOR UPDATE")

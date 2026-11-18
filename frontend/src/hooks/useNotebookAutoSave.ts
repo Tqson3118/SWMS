@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
+import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 
 export interface ConflictForkResolution {
   message: string;
@@ -53,7 +54,8 @@ export function useNotebookAutoSave(
         try {
           const resp = await fetch(`/api/v1/notebooks/${params.id}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
+            credentials: "include",
             body: JSON.stringify({
               mutationId: crypto.randomUUID(),
               baseVersion: params.baseVersion,

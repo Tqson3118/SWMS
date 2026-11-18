@@ -198,6 +198,7 @@ export default function CourseQuizPage() {
         {
           method: "POST",
           headers: buildHeaders({ "Content-Type": "application/json" }),
+          credentials: "include",
           body: JSON.stringify({
             answer: answerText,
             idempotencyKey: crypto.randomUUID(),
@@ -208,9 +209,25 @@ export default function CourseQuizPage() {
 
       if (!resp.ok) {
         const errBody = await resp.json().catch(() => null);
-        setErrorMsg(
-          errBody?.error || `Gửi câu trả lời thất bại (HTTP ${resp.status}).`
-        );
+        if (resp.status === 409) {
+          setErrorMsg(
+            errBody?.error || "Câu hỏi này đã được chấm trước đó, không thể nộp lại."
+          );
+          await loadQuizDetail(quizDetail.id);
+        } else if (resp.status === 429) {
+          setErrorMsg(
+            errBody?.error ||
+              "Bạn đã hết hạn mức 50 AI credits. Vui lòng thử lại sau hoặc nạp thêm."
+          );
+        } else if (resp.status === 400) {
+          setErrorMsg(
+            errBody?.error || "Nội dung câu trả lời không hợp lệ hoặc đang để trống."
+          );
+        } else {
+          setErrorMsg(
+            errBody?.error || `Gửi câu trả lời thất bại (HTTP ${resp.status}).`
+          );
+        }
         return;
       }
 
@@ -589,20 +606,28 @@ export default function CourseQuizPage() {
 
                     <button
                       type="button"
-                      disabled={isSubmitting || !draft.trim()}
+                      disabled={
+                        isSubmitting ||
+                        (item.itemType !== "essay" && isEvaluated) ||
+                        !draft.trim()
+                      }
                       onClick={() => handleSubmitItem(item)}
-                      className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover disabled:opacity-50 transition cursor-pointer"
+                      className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
                     >
                       {isSubmitting ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : item.itemType !== "essay" && isEvaluated ? (
+                        <CheckCircle2 className="w-3.5 h-3.5" />
                       ) : (
                         <Send className="w-3.5 h-3.5" />
                       )}
                       <span>
                         {isSubmitting
                           ? "Đang chấm..."
-                          : isEvaluated
-                          ? "Nộp lại"
+                          : item.itemType !== "essay" && isEvaluated
+                          ? "Đã chấm"
+                          : item.itemType === "essay" && isEvaluated
+                          ? "Chấm lại"
                           : "Kiểm tra"}
                       </span>
                     </button>

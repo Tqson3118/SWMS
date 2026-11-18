@@ -542,14 +542,16 @@ test.describe("SWMS v1.0 — Comprehensive End-to-End User Flow & Defect QA Suit
     await page.getByTestId("mode-tab-review").click();
     await page.getByTestId("review-subtab-fsrs").click();
     const flipCard = page.getByTestId("fsrs-3d-flip-card");
+    const resetQueueBtn = page.locator('button:has-text("Ôn tập lại hàng đợi")');
+    await flipCard.or(resetQueueBtn).first().waitFor({ state: "visible", timeout: 10000 });
     if (await flipCard.isVisible()) {
       await flipCard.click();
       await takeScreenshot(page, "ANIM_01_fsrs_abrupt_dom_swap.png");
     } else {
       // If card already completed, reset to see flip
-      await page.locator('button:has-text("Ôn tập lại hàng đợi")').click();
+      await resetQueueBtn.click();
       await page.waitForTimeout(200);
-      await page.getByTestId("fsrs-3d-flip-card").click();
+      await flipCard.click();
       await takeScreenshot(page, "ANIM_01_fsrs_abrupt_dom_swap.png");
     }
   });

@@ -1026,7 +1026,9 @@ export function ReaderAndSplitViews({
       try {
         const loadingTask = pdfjsLib.getDocument({
           url: `/api/v1/documents/${activeDocumentId}/file`,
-          cMapPacked: true
+          cMapPacked: true,
+          httpHeaders: getClientRequestHeaders(),
+          withCredentials: true
         });
         const doc = await loadingTask.promise;
         if (isMounted) {
@@ -1131,7 +1133,13 @@ export function ReaderAndSplitViews({
 
     const fetchPage = async () => {
       try {
-        const res = await fetch(`/api/v1/documents/${activeDocumentId}/pages/${pageNum}`);
+        const res = await fetch(
+          `/api/v1/documents/${activeDocumentId}/pages/${pageNum}`,
+          {
+            credentials: "include",
+            headers: getClientRequestHeaders()
+          }
+        );
         if (res.ok) {
           const data: DocumentPageDto = await res.json();
           pageCacheRef.current.set(pageNum, data);
@@ -1535,7 +1543,8 @@ export function ReaderAndSplitViews({
   ) => {
     const resp = await fetch(`/api/v1/annotations/${annId}/reconcile`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
         action,
         newBlockId: "aaaaaaa2-2222-4222-8222-222222222222",
@@ -1566,7 +1575,10 @@ export function ReaderAndSplitViews({
 
   const handleExportMarkdown = async () => {
     if (!notebook) return;
-    const resp = await fetch(`/api/v1/notebooks/${notebook.id}/export-markdown`);
+    const resp = await fetch(`/api/v1/notebooks/${notebook.id}/export-markdown`, {
+      headers: getClientRequestHeaders(),
+      credentials: "include"
+    });
     if (resp.ok) {
       const data = await resp.json();
       setExportedMarkdown(data.markdown);

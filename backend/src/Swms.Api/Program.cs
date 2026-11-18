@@ -92,12 +92,17 @@ builder.Services.AddDbContext<SwmsDbContext>(options =>
 builder.Services.AddSingleton(sp =>
 {
     var cfg = sp.GetRequiredService<IConfiguration>();
-    return new AesGcmTokenProtector(cfg["Security:AesMasterKeyBase64"]);
+    return new AesGcmTokenProtector(JwtTokenService.ResolveAesMasterKeyBase64(cfg));
 });
 builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddScoped<RefreshTokenRotationService>();
+builder.Services.AddHttpClient("GoogleAuth", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+builder.Services.AddSingleton<IGoogleIdTokenValidator, GoogleJwksIdTokenValidator>();
 
-var jwtSigningKey = builder.Configuration["Jwt:SigningKey"] ?? "SWMS-v1-Enterprise-Jwt-HmacSha256-Secret-Key-2026-Studxy-Workspace!";
+var jwtSigningKey = JwtTokenService.ResolveJwtSigningKey(builder.Configuration);
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "https://api.studxy.vn";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "https://app.studxy.vn";
 
@@ -214,10 +219,7 @@ using (var scope = app.Services.CreateScope())
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "healthy",
-    service = "SWMS Backend .NET 10 LTS",
-    databaseMode = isPostgresAvailable ? "PostgreSQL 17 + pgvector" : (isRunningUnderTests ? "Isolated In-Memory (Test Runner)" : "Persistent SQLite (swms_local_dev.db) + Vietnamese Seed Data"),
-    aiEndpoint = builder.Configuration["AiProxy:BaseUrl"] ?? "http://127.0.0.1:8045",
-    aiModel = builder.Configuration["AiProxy:Model"] ?? "gemini-3.8-flash"
+    service = "SWMS Backend .NET 10 LTS"
 }));
 
 app.MapSwmsEndpoints();

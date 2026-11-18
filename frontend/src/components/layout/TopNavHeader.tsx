@@ -21,7 +21,8 @@ import {
   Users,
   GraduationCap
 } from "lucide-react";
-import { useWorkspaceStore, type WorkspaceMode } from "@/stores/useWorkspaceStore";
+import { getClientRequestHeaders, useWorkspaceStore, type WorkspaceMode } from "@/stores/useWorkspaceStore";
+import { setAccessToken } from "@/lib/api-client";
 
 export interface QuotaSummary {
   tier: string;
@@ -541,9 +542,15 @@ export function TopNavHeader({
                   data-testid="logout-btn"
                   onClick={async () => {
                     try {
-                      await fetch("/api/v1/auth/logout", { method: "POST" });
+                      await fetch("/api/v1/auth/logout", {
+                        method: "POST",
+                        headers: getClientRequestHeaders(),
+                        credentials: "include"
+                      });
                     } catch {}
+                    setAccessToken(null);
                     try {
+                      window.localStorage.removeItem("swms_has_refresh_cookie");
                       window.localStorage.removeItem("swms_active_user_id");
                       window.localStorage.removeItem("swms_active_user");
                     } catch {}
