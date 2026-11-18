@@ -12,9 +12,11 @@ import {
   Zap,
   AlertCircle,
   BookOpen,
+  Plus,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { enqueueOfflineMutation, removeOfflineMutation } from "@/lib/offline-queue";
+import { getReviewCapSettings } from "@/lib/review-settings";
 
 interface FlashcardTagItem {
   id: string;
@@ -111,6 +113,8 @@ function ReviewPageContent() {
   const [reviewHistory, setReviewHistory] = useState<ReviewHistoryEntry[]>([]);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [undoBanner, setUndoBanner] = useState<string | null>(null);
+  const [extraSessionCap, setExtraSessionCap] = useState(0);
+  const [totalBacklog, setTotalBacklog] = useState(0);
 
   const cardShownAtRef = useRef<number>(Date.now());
 
@@ -195,14 +199,21 @@ function ReviewPageContent() {
         }
 
         const cardsData = await cardsResp.json();
-        const cards: DueFlashcardItem[] = Array.isArray(cardsData)
+        const rawCards: DueFlashcardItem[] = Array.isArray(cardsData)
           ? cardsData
           : (cardsData.cards ?? []);
+
+        const caps = getReviewCapSettings();
+        const effectiveCap = caps.maxReviewsPerDay + extraSessionCap;
+        const cards = !useIncludeAll && rawCards.length > effectiveCap
+          ? rawCards.slice(0, effectiveCap)
+          : rawCards;
+        setTotalBacklog(Math.max(0, rawCards.length - cards.length));
 
         setQueue({
           cards,
           totalDue: cards.length > 0 ? cards.length : totalDue,
-          totalCards: Math.max(totalCards, cards.length),
+          totalCards: Math.max(totalCards, rawCards.length),
           newCount: newCount || cards.filter((c) => c.state === "New").length,
           learningCount:
             learningCount ||
@@ -222,7 +233,7 @@ function ReviewPageContent() {
         setIsLoading(false);
       }
     },
-    [getAuthHeaders, practiceAll, selectedCourseId, selectedTagId]
+    [getAuthHeaders, practiceAll, selectedCourseId, selectedTagId, extraSessionCap]
   );
 
   useEffect(() => {
@@ -517,7 +528,9 @@ function ReviewPageContent() {
             </h2>
             <p className="text-sm text-text-secondary mb-6">
               {sessionComplete
-                ? `Bạn đã ôn xong ${reviewHistory.length || queue.cards.length} thẻ trong phiên này theo lịch FSRS v5.`
+                ? `Bạn đã ôn xong ${reviewHistory.length || queue.cards.length} thẻ trong phiên này theo giới hạn hôm nay.${
+                    totalBacklog > 0 ? ` (Còn ${totalBacklog} thẻ tồn trong kho).` : ""
+                  }`
                 : hasFilters
                 ? "Không có thẻ nào khớp với bộ lọc hiện tại đang đến hạn."
                 : queue.totalCards > 0
@@ -525,6 +538,20 @@ function ReviewPageContent() {
                 : "Hãy bôi đen đoạn văn hoặc tạo thẻ Cloze từ bài học để bắt đầu ôn tập."}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
+              {sessionComplete && (
+                <button
+                  type="button"
+                  data-testid="review-more-20-btn"
+                  onClick={() => {
+                    setExtraSessionCap((prev) => prev + 20);
+                    setSessionComplete(false);
+                  }}
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-[#5E51E8] hover:bg-[#4F46E5] text-white text-sm font-semibold shadow-xs transition cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  Ôn thêm 20 thẻ
+                </button>
+              )}
               <Link
                 href="/app"
                 className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-border text-text-primary text-sm font-medium hover:bg-bg-secondary transition"
