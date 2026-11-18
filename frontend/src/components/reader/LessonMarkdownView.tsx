@@ -113,6 +113,9 @@ export function cleanStudyInlineArtifacts(raw: string): string {
     // Hide evidence strength / audit badges like 🟢 [Mạnh], 🟡 [Khá], 🔴 [Tranh luận]
     .replace(/\s*(?:🟢|🟡|🔴|⚪)\s*\[(?:Mạnh|Khá|Trung bình|Yếu|Tranh luận|Cảnh báo|Strong|Moderate|Weak|Controversial|Verified)[^\]]*\](?!\()/gi, "")
     .replace(/\s*\[(?:Mạnh|Khá|Trung bình|Yếu|Tranh luận|Cảnh báo)\](?!\()/gi, "")
+    // Hide developer internal work tasks / AI executor rows
+    .replace(/^.*\(AI executor\).*$/gim, "")
+    .replace(/^.*HANDOFF.*$/gim, "")
     // Clean orphaned bold markers / whitespace before punctuation
     .replace(/\*\*\s*\*\*/g, "")
     .replace(/\s+([.,;:!?])/g, "$1")
@@ -308,54 +311,67 @@ function parseStyledTextRun(
   return tokens;
 }
 
+function isDeadOrInternalMarkdown(path: string): boolean {
+  const norm = path.toLowerCase().replace(/\\/g, "/").split("/").pop() || "";
+  return /^(handoff.*\.md|implementation_plan.*\.md|roadmap.*\.md|agents.*\.md|review_report.*\.md)$/i.test(norm);
+}
+
 function tokenizeInlineMarkdown(
   rawText: string,
   sourceFolder?: string | null,
   sourceRelativePath?: string | null
 ): InlineToken[] {
-  const result: InlineToken[] = [];
-  // First pass splits out inline code (`...`) and images/links (![alt](url) or [label](url))
-  const tokenRegex = /(`+[^`\n]+?`+|!\[([^\]]*)\]\(([^)\s]+(?:\s+"[^"]*")?)\)|\[([^\]]+)\]\(([^)]+)\))/g;
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
+  if (!rawText) return [];
 
-  while ((match = tokenRegex.exec(rawText)) !== null) {
-    if (match.index > lastIndex) {
-      result.push(...parseStyledTextRun(rawText.slice(lastIndex, match.index), {}));
-    }
+  // Step 1: Protect inline code with unique Unicode private-use placeholders
+  // so nested formatting like **Đọc `implementation_plan_new.md`** doesn't break bold tokens
+  const codeItems: Array<{ code: string }> = [];
+  const withCodePlaceholders = rawText.replace(/(`+)([\s\S]*?)\1/g, (_m, _ticks, inner) => {
+    const idx = codeItems.length;
+    codeItems.push({ code: inner.trim() });
+    return `\uE000CODE_${idx}\uE000`;
+  });
 
-    const full = match[0];
-    if (full.startsWith("`")) {
-      const tickMatch = full.match(/^(`+)([\s\S]*?)\1$/);
-      const innerCode = tickMatch ? tickMatch[2].trim() : full.slice(1, -1);
-      result.push({
-        kind: "code",
-        text: innerCode
-      });
-    } else if (full.startsWith("![")) {
-      const alt = match[2] ?? "";
-      const rawHref = (match[3] ?? "").replace(/\s+"[^"]*"$/, "").trim();
-      let resolvedUrl = rawHref;
-      if (!isExternalUrl(rawHref) && !rawHref.startsWith("/api/") && sourceFolder) {
-        const rel = resolveRelativeCoursePath(sourceRelativePath, rawHref);
-        if (rel) resolvedUrl = buildDocumentAssetUrl(sourceFolder, rel);
+  // Step 2: Protect images and links (excluding dead/internal md links which should become plain text)
+  const linkItems: Array<InlineToken> = [];
+  const linkRegex = /(!\[([^\]]*)\]\(([^)\s]+(?:\s+"[^"]*")?)\)|\[([^\]]+)\]\(([^)]+)\))/g;
+
+  const withAllPlaceholders = withCodePlaceholders.replace(
+    linkRegex,
+    (full, _m1, imgAlt, imgUrl, linkText, linkHref) => {
+      if (full.startsWith("![")) {
+        const alt = imgAlt ?? "";
+        const rawHref = (imgUrl ?? "").replace(/\s+"[^"]*"$/, "").trim();
+        let resolvedUrl = rawHref;
+        if (!isExternalUrl(rawHref) && !rawHref.startsWith("/api/") && sourceFolder) {
+          const rel = resolveRelativeCoursePath(sourceRelativePath, rawHref);
+          if (rel) resolvedUrl = buildDocumentAssetUrl(sourceFolder, rel);
+        }
+        const idx = linkItems.length;
+        linkItems.push({
+          kind: "image",
+          text: alt,
+          alt,
+          href: resolvedUrl,
+        });
+        return `\uE000LINK_${idx}\uE000`;
       }
-      result.push({
-        kind: "image",
-        text: alt,
-        alt,
-        href: resolvedUrl
-      });
-    } else {
-      const label = match[4] ?? "";
-      const rawHref = (match[5] ?? "").trim();
+
+      const label = linkText ?? "";
+      const rawHref = (linkHref ?? "").trim();
       const external = isExternalUrl(rawHref);
+
+      // Dead or internal markdown links: render as regular text rather than dead link
+      if (!external && isDeadOrInternalMarkdown(rawHref)) {
+        return label;
+      }
 
       if (!external && isAudioPath(rawHref) && sourceFolder) {
         const rel = resolveRelativeCoursePath(sourceRelativePath, rawHref);
         const assetUrl = rel ? buildDocumentAssetUrl(sourceFolder, rel) : rawHref;
         const fileName = rel.split("/").pop() || rawHref;
-        result.push({
+        const idx = linkItems.length;
+        linkItems.push({
           kind: "link",
           text: label,
           href: assetUrl,
@@ -363,41 +379,93 @@ function tokenizeInlineMarkdown(
           audioMeta: {
             src: assetUrl,
             title: label,
-            fileName
-          }
+            fileName,
+          },
         });
-      } else if (!external && isMarkdownPath(rawHref)) {
+        return `\uE000LINK_${idx}\uE000`;
+      }
+
+      if (!external && isMarkdownPath(rawHref)) {
         const rel = resolveRelativeCoursePath(sourceRelativePath, rawHref);
-        result.push({
+        const idx = linkItems.length;
+        linkItems.push({
           kind: "link",
           text: label,
           href: rawHref,
           isExternal: false,
-          mdTargetPath: rel || rawHref
+          mdTargetPath: rel || rawHref,
         });
-      } else {
-        let resolvedHref = rawHref;
-        if (!external && !rawHref.startsWith("#") && !rawHref.startsWith("/") && sourceFolder) {
-          const rel = resolveRelativeCoursePath(sourceRelativePath, rawHref);
-          if (rel) resolvedHref = buildDocumentAssetUrl(sourceFolder, rel);
-        }
-        result.push({
-          kind: "link",
-          text: label,
-          href: resolvedHref,
-          isExternal: external
-        });
+        return `\uE000LINK_${idx}\uE000`;
       }
+
+      let resolvedHref = rawHref;
+      if (!external && !rawHref.startsWith("#") && !rawHref.startsWith("/") && sourceFolder) {
+        const rel = resolveRelativeCoursePath(sourceRelativePath, rawHref);
+        if (rel) resolvedHref = buildDocumentAssetUrl(sourceFolder, rel);
+      }
+      const idx = linkItems.length;
+      linkItems.push({
+        kind: "link",
+        text: label,
+        href: resolvedHref,
+        isExternal: external,
+      });
+      return `\uE000LINK_${idx}\uE000`;
+    }
+  );
+
+  // Step 3: Run parseStyledTextRun on the placeholder string
+  const styledTokens = parseStyledTextRun(withAllPlaceholders, {});
+
+  // Step 4: Expand placeholders back into actual code / link tokens, preserving any enclosing styles (bold/italic)
+  const finalTokens: InlineToken[] = [];
+
+  for (const token of styledTokens) {
+    if (token.kind !== "text") {
+      finalTokens.push(token);
+      continue;
     }
 
-    lastIndex = tokenRegex.lastIndex;
+    const segments = token.text.split(/(\uE000(?:CODE|LINK)_\d+\uE000)/g);
+    for (const seg of segments) {
+      if (!seg) continue;
+      const codeMatch = seg.match(/^\uE000CODE_(\d+)\uE000$/);
+      if (codeMatch) {
+        const cIdx = parseInt(codeMatch[1], 10);
+        const item = codeItems[cIdx];
+        if (item) {
+          finalTokens.push({
+            kind: "code",
+            text: item.code,
+            bold: token.bold,
+            italic: token.italic,
+          });
+          continue;
+        }
+      }
+
+      const linkMatch = seg.match(/^\uE000LINK_(\d+)\uE000$/);
+      if (linkMatch) {
+        const lIdx = parseInt(linkMatch[1], 10);
+        const item = linkItems[lIdx];
+        if (item) {
+          finalTokens.push({
+            ...item,
+            bold: token.bold || item.bold,
+            italic: token.italic || item.italic,
+          });
+          continue;
+        }
+      }
+
+      finalTokens.push({
+        ...token,
+        text: seg,
+      });
+    }
   }
 
-  if (lastIndex < rawText.length) {
-    result.push(...parseStyledTextRun(rawText.slice(lastIndex), {}));
-  }
-
-  return result;
+  return finalTokens;
 }
 
 function isTableSeparatorLine(line: string): boolean {
@@ -968,20 +1036,24 @@ export function LessonMarkdownView({
 
   const indexedBlocks = useMemo(() => {
     let mapped = blocks.map((block, bIdx) => ({ block, bIdx }));
-    if (
-      mapped.length > 0 &&
-      mapped[0].block.type === "heading" &&
-      mapped[0].block.level === 1 &&
-      lessonTitle
-    ) {
-      const h1Norm = normalizeTitleForComparison(mapped[0].block.text);
+    // Robust H1 deduplication (Bug B5): Check if any of the first 3 blocks is an H1 matching lesson title
+    if (lessonTitle && mapped.length > 0) {
       const titleNorm = normalizeTitleForComparison(lessonTitle);
-      if (
-        h1Norm &&
-        titleNorm &&
-        (h1Norm === titleNorm || h1Norm.includes(titleNorm) || titleNorm.includes(h1Norm))
-      ) {
-        mapped = mapped.slice(1);
+      const h1Idx = mapped.findIndex(
+        (m, idx) => idx <= 2 && m.block.type === "heading" && m.block.level === 1
+      );
+      if (h1Idx !== -1) {
+        const h1Block = mapped[h1Idx].block;
+        if (h1Block.type === "heading") {
+          const h1Norm = normalizeTitleForComparison(h1Block.text);
+          if (
+            h1Norm &&
+            titleNorm &&
+            (h1Norm === titleNorm || h1Norm.includes(titleNorm) || titleNorm.includes(h1Norm) || h1Idx === 0)
+          ) {
+            mapped.splice(h1Idx, 1);
+          }
+        }
       }
     }
     if (cleanReadingMode) {

@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import * as pdfjsLib from "pdfjs-dist";
+import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 import {
   AlertCircle,
   ArrowLeft,
@@ -52,10 +52,6 @@ import {
   type MarkdownAnnotationItem,
 } from "@/components/reader/LessonMarkdownView";
 import { LessonPracticeLab } from "@/components/learn/LessonPracticeLab";
-
-if (typeof window !== "undefined") {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
-}
 
 export interface CourseLearningWorkspaceProps {
   courseId: string;
@@ -383,7 +379,7 @@ export function CourseLearningWorkspace({
   } | null>(null);
 
   // PDF states
-  const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+  const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
   const [pdfPage, setPdfPage] = useState(1);
   const [pdfJumpInput, setPdfJumpInput] = useState("1");
   const [pdfTotalPages, setPdfTotalPages] = useState<number>(1);
@@ -393,7 +389,7 @@ export function CourseLearningWorkspace({
   const [pageLoading, setPageLoading] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const renderTaskRef = useRef<pdfjsLib.RenderTask | null>(null);
+  const renderTaskRef = useRef<RenderTask | null>(null);
   const pageCacheRef = useRef<Map<number, DocumentPageDto>>(new Map());
   const readerScrollRef = useRef<HTMLDivElement | null>(null);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -718,7 +714,11 @@ export function CourseLearningWorkspace({
       }
 
       try {
-        const loadingTask = pdfjsLib.getDocument({
+        const pdfjs = await import("pdfjs-dist");
+        if (typeof window !== "undefined") {
+          pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+        }
+        const loadingTask = pdfjs.getDocument({
           url: `/api/v1/documents/${activeDocId}/file`,
           httpHeaders: getHeaders(),
           withCredentials: true,
@@ -1698,7 +1698,11 @@ export function CourseLearningWorkspace({
       <div className="flex-1 min-h-0 flex relative overflow-hidden">
         {/* Left: Course Roadmap */}
         {hasRoadmap && roadmapOpen && (
-          <aside className="w-72 shrink-0 border-r border-border bg-bg-secondary/30 h-full overflow-hidden hidden md:block p-3">
+          <aside
+            className={`w-72 shrink-0 border-r border-[var(--border-calm)] bg-[var(--canvas-bg)]/30 h-full overflow-hidden p-3 ${
+              rightPanel !== "closed" ? "hidden xl:block" : "hidden md:block"
+            }`}
+          >
             <CourseRoadmapSidebar
               courseTitle={course?.title || "Khóa học"}
               chapters={roadmapChapters}
@@ -1715,7 +1719,7 @@ export function CourseLearningWorkspace({
         {/* Mobile Roadmap Overlay */}
         {hasRoadmap && roadmapOpen && (
           <div className="fixed inset-0 top-12 z-40 flex md:hidden">
-            <div className="w-72 max-w-[85vw] h-full bg-bg-primary border-r border-border shadow-xl overflow-hidden p-3">
+            <div className="w-72 max-w-[85vw] h-full bg-[var(--surface-card)] border-r border-[var(--border-calm)] shadow-elevation-3 overflow-hidden p-3">
               <CourseRoadmapSidebar
                 courseTitle={course?.title || "Khóa học"}
                 chapters={roadmapChapters}
@@ -1739,8 +1743,8 @@ export function CourseLearningWorkspace({
           </div>
         )}
 
-        {/* Center Canvas */}
-        <main className="flex-1 min-w-0 flex flex-col bg-bg-primary overflow-hidden relative">
+        {/* Center Canvas - Reading column never shrinks below 320px (Bug B2) */}
+        <main className="flex-1 min-w-[320px] flex flex-col bg-[var(--surface-card)] overflow-hidden relative">
           {/* Workspace Switcher Bar: Bài giảng / Thực hành / Tài liệu PDF / Song song */}
           {(hasLesson || hasPdf || availableDocs.length > 0) && (
             <div className="px-4 py-2 border-b border-border-subtle bg-bg-secondary/30 flex flex-wrap items-center justify-between gap-2 shrink-0">
@@ -2309,9 +2313,9 @@ export function CourseLearningWorkspace({
           </aside>
         )}
 
-        {/* Right Contextual Panel: 3-Tab Study Drawer */}
+        {/* Right Contextual Panel: 3-Tab Study Drawer (Bottom-sheet/overlay on < 768px, inline on desktop) */}
         {rightPanel === "drawer" && (
-          <aside className="w-full sm:w-96 shrink-0 border-l border-border bg-bg-primary flex flex-col h-full absolute sm:static inset-0 z-30">
+          <aside className="w-full md:w-96 shrink-0 border-l border-[var(--border-calm)] bg-[var(--surface-card)] flex flex-col h-full fixed inset-x-0 bottom-0 top-12 md:static md:top-auto z-40 shadow-elevation-2">
             {/* Drawer Tab Header */}
             <div className="px-3 py-2 border-b border-border bg-bg-secondary/30 flex items-center justify-between gap-2 shrink-0">
               <div className="flex items-center gap-1">
