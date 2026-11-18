@@ -15,6 +15,7 @@ import {
   getClientRequestHeaders,
 } from "@/stores/useWorkspaceStore";
 import type { LibraryFilter } from "@/stores/useWorkspaceStore";
+import { Button, Card, Badge, ProgressBar, EmptyState } from "@/components/ui";
 
 interface CourseItem {
   id?: string;
@@ -194,35 +195,40 @@ export default function LibraryPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 md:pb-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-text-primary">Thư viện</h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">Thư viện</h1>
+          <p className="text-sm text-[var(--text-secondary)] mt-1">
+            Tổng hợp toàn bộ khóa học, tài liệu đọc và sổ tay ghi chú của bạn
+          </p>
+        </div>
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)] pointer-events-none" />
           <input
             type="text"
             placeholder="Tìm kiếm tài liệu..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-9 pl-9 pr-3 rounded-md border border-border bg-bg-secondary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent transition"
+            className="w-full h-9 pl-9 pr-3 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition"
           />
         </div>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex items-center gap-1 mb-6 border-b border-border overflow-x-auto">
+      <div className="flex items-center gap-1 mb-6 border-b border-[var(--border-calm)] overflow-x-auto">
         {FILTER_TABS.map((tab) => (
           <button
             key={tab.key}
             type="button"
             data-testid={`library-filter-${tab.key}`}
             onClick={() => setLibraryFilter(tab.key)}
-            className={`px-3 py-2 text-sm font-medium transition cursor-pointer -mb-px whitespace-nowrap flex items-center gap-1.5 ${
+            className={`px-3.5 py-2.5 text-sm font-medium transition cursor-pointer -mb-px whitespace-nowrap flex items-center gap-1.5 ${
               libraryFilter === tab.key
-                ? "text-accent border-b-2 border-accent"
-                : "text-text-tertiary hover:text-text-secondary"
+                ? "text-[#5E51E8] dark:text-[#818CF8] border-b-2 border-[#5E51E8] dark:border-[#818CF8] font-semibold"
+                : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
             }`}
           >
             <span>{tab.label}</span>
-            <span className="text-[11px] px-1.5 py-0.5 rounded bg-bg-tertiary text-text-tertiary">
+            <span className="text-[11px] px-1.5 py-0.5 rounded-[5px] bg-[var(--surface-elevated)] text-[var(--text-secondary)]">
               {countsByType[tab.key]}
             </span>
           </button>
@@ -231,28 +237,26 @@ export default function LibraryPage() {
 
       {/* Content */}
       {filteredItems.length === 0 ? (
-        /* Empty state */
-        <div className="flex flex-col items-center justify-center py-20">
-          <div className="w-16 h-16 rounded-lg bg-bg-tertiary flex items-center justify-center mb-4">
-            <FolderOpen className="w-8 h-8 text-text-tertiary" />
-          </div>
-          <h3 className="text-base font-semibold text-text-primary mb-1">
-            Chưa có tài liệu nào
-          </h3>
-          <p className="text-sm text-text-tertiary text-center max-w-xs">
-            {searchQuery.trim()
-              ? "Không tìm thấy tài liệu nào phù hợp với từ khóa."
-              : "Hãy tạo khóa học hoặc upload PDF để bắt đầu."}
-          </p>
-          {!searchQuery.trim() && (
-            <Link
-              href="/app/studio/create"
-              className="mt-4 inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition"
-            >
-              Tạo khóa học
-            </Link>
-          )}
-        </div>
+        <EmptyState
+          icon={FolderOpen}
+          title={searchQuery.trim() ? "Không tìm thấy tài liệu phù hợp" : "Chưa có tài liệu nào"}
+          description={
+            searchQuery.trim()
+              ? "Thử tìm bằng từ khóa khác hoặc chuyển sang danh mục khác."
+              : "Hãy tạo khóa học hoặc tải tài liệu PDF lên để bắt đầu học tập."
+          }
+          action={
+            searchQuery.trim()
+              ? {
+                  label: "Xóa tìm kiếm",
+                  onClick: () => setSearchQuery(""),
+                }
+              : {
+                  label: "Tạo khóa học mới",
+                  href: "/app/courses/new",
+                }
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => {
@@ -264,42 +268,43 @@ export default function LibraryPage() {
                 <Link
                   key={`course-${id}`}
                   href={`/app/courses/${id}`}
-                  className="group rounded-lg border border-border bg-bg-secondary p-4 hover:border-accent/50 transition"
+                  className="block"
                 >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-9 h-9 rounded-md bg-bg-tertiary flex items-center justify-center shrink-0">
-                      <BookOpen className="w-4.5 h-4.5 text-text-tertiary" />
+                  <Card hoverable className="p-4 flex flex-col justify-between h-full">
+                    <div>
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-9 h-9 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] flex items-center justify-center shrink-0 border border-[#5E51E8]/20">
+                          <BookOpen className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-sm font-semibold text-[var(--text-primary)] hover:text-[#5E51E8] transition line-clamp-2">
+                            {course.title}
+                          </h3>
+                          {course.category && (
+                            <Badge variant="neutral" size="sm" className="mt-1">
+                              {course.category}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-sm font-medium text-text-primary group-hover:text-accent transition line-clamp-2">
-                        {course.title}
-                      </h3>
-                      {course.category && (
-                        <span className="inline-block text-xs font-medium text-text-tertiary bg-bg-tertiary rounded-md px-2 py-0.5 mt-1">
-                          {course.category}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {/* Progress bar */}
-                  <div>
-                    <div className="flex items-center justify-between text-xs text-text-tertiary mb-1.5">
-                      <span>{progress}% hoàn thành</span>
-                      {progress === 100 && (
-                        <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                          ✓ Xong
-                        </span>
-                      )}
-                    </div>
-                    <div className="w-full h-1 bg-bg-tertiary rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${
-                          progress === 100 ? "bg-emerald-500" : "bg-accent"
-                        }`}
-                        style={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
+                    {/* Progress bar */}
+                    <div className="pt-2">
+                      <div className="flex items-center justify-between text-xs text-[var(--text-tertiary)] mb-1.5">
+                        <span>{progress}% hoàn thành</span>
+                        {progress === 100 && (
+                          <Badge variant="success" size="sm">
+                            ✓ Xong
+                          </Badge>
+                        )}
+                      </div>
+                      <ProgressBar
+                        value={progress}
+                        color={progress === 100 ? "success" : "brand"}
+                        size="sm"
                       />
                     </div>
-                  </div>
+                  </Card>
                 </Link>
               );
             }
@@ -312,9 +317,8 @@ export default function LibraryPage() {
                   ? doc.courseId
                   : null;
               return (
-                <button
+                <div
                   key={`pdf-${docId}`}
-                  type="button"
                   onClick={() => {
                     setActiveDocument(docId, 1, doc.totalPages ?? null);
                     if (linkedCourseId) {
@@ -325,29 +329,33 @@ export default function LibraryPage() {
                       router.push("/workspace");
                     }
                   }}
-                  className="group text-left rounded-lg border border-border bg-bg-secondary p-4 hover:border-accent/50 transition cursor-pointer"
+                  className="cursor-pointer"
                 >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-9 h-9 rounded-md bg-bg-tertiary flex items-center justify-center shrink-0">
-                      <FileText className="w-4.5 h-4.5 text-text-tertiary" />
+                  <Card hoverable className="p-4 flex flex-col justify-between h-full">
+                    <div>
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-9 h-9 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] flex items-center justify-center shrink-0 border border-[#5E51E8]/20">
+                          <FileText className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-sm font-semibold text-[var(--text-primary)] hover:text-[#5E51E8] transition line-clamp-2">
+                            {doc.title || doc.fileName || "Tài liệu PDF"}
+                          </h3>
+                          {doc.category && (
+                            <Badge variant="neutral" size="sm" className="mt-1">
+                              {doc.category}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-sm font-medium text-text-primary group-hover:text-accent transition line-clamp-2">
-                        {doc.title || doc.fileName || "Tài liệu PDF"}
-                      </h3>
-                      {doc.category && (
-                        <span className="inline-block text-xs font-medium text-text-tertiary bg-bg-tertiary rounded-md px-2 py-0.5 mt-1">
-                          {doc.category}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {(doc.createdAt || doc.updatedAt) && (
-                    <p className="text-xs text-text-tertiary">
-                      {formatDate(doc.updatedAt || doc.createdAt)}
-                    </p>
-                  )}
-                </button>
+                    {(doc.createdAt || doc.updatedAt) && (
+                      <p className="text-xs text-[var(--text-tertiary)] pt-2 border-t border-[var(--border-calm)]">
+                        {formatDate(doc.updatedAt || doc.createdAt)}
+                      </p>
+                    )}
+                  </Card>
+                </div>
               );
             }
 
@@ -363,9 +371,8 @@ export default function LibraryPage() {
                 : null);
 
             return (
-              <button
+              <div
                 key={`notebook-${nb.id}`}
-                type="button"
                 onClick={() => {
                   setActiveMode("split");
                   if (nb.primarySourceLessonId) {
@@ -384,29 +391,33 @@ export default function LibraryPage() {
                     router.push("/workspace");
                   }
                 }}
-                className="group text-left rounded-lg border border-border bg-bg-secondary p-4 hover:border-accent/50 transition cursor-pointer"
+                className="cursor-pointer"
               >
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="w-9 h-9 rounded-md bg-bg-tertiary flex items-center justify-center shrink-0">
-                    <BookMarked className="w-4.5 h-4.5 text-text-tertiary" />
+                <Card hoverable className="p-4 flex flex-col justify-between h-full">
+                  <div>
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-9 h-9 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] flex items-center justify-center shrink-0 border border-[#5E51E8]/20">
+                        <BookMarked className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)] hover:text-[#5E51E8] transition line-clamp-2">
+                          {nb.title}
+                        </h3>
+                        {nb.version != null && (
+                          <Badge variant="neutral" size="sm" className="mt-1">
+                            Phiên bản v{nb.version}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-medium text-text-primary group-hover:text-accent transition line-clamp-2">
-                      {nb.title}
-                    </h3>
-                    {nb.version != null && (
-                      <span className="inline-block text-xs font-medium text-text-tertiary bg-bg-tertiary rounded-md px-2 py-0.5 mt-1">
-                        Phiên bản v{nb.version}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {(nb.updatedAt || nb.createdAt) && (
-                  <p className="text-xs text-text-tertiary">
-                    {formatDate(nb.updatedAt || nb.createdAt)}
-                  </p>
-                )}
-              </button>
+                  {(nb.updatedAt || nb.createdAt) && (
+                    <p className="text-xs text-[var(--text-tertiary)] pt-2 border-t border-[var(--border-calm)]">
+                      {formatDate(nb.updatedAt || nb.createdAt)}
+                    </p>
+                  )}
+                </Card>
+              </div>
             );
           })}
         </div>

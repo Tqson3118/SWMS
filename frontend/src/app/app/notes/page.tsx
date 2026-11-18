@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { Button, Card, Badge, EmptyState } from "@/components/ui";
 import { getCourseId, normalizeVi, type CourseLike } from "@/lib/course-helpers";
 
 interface NotebookItem {
@@ -183,46 +184,46 @@ export default function NotesPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
           Sổ tay
         </h1>
-        <p className="text-sm text-text-secondary mt-1">
+        <p className="text-sm text-[var(--text-secondary)] mt-1">
           {notebooks.length} sổ tay ghi chú gắn với bài giảng và tài liệu của bạn.
         </p>
       </div>
 
       {fetchError && (
-        <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 flex items-center justify-between gap-3">
+        <div className="mb-6 rounded-[10px] border border-red-500/30 bg-red-500/5 px-4 py-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{fetchError}</span>
           </div>
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={fetchNotes}
-            className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md border border-border hover:bg-bg-secondary text-text-primary cursor-pointer"
+            leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
           >
-            <RefreshCw className="w-3.5 h-3.5" />
             Thử lại
-          </button>
+          </Button>
         </div>
       )}
 
       {/* Search bar */}
       <div className="relative mb-6">
-        <Search className="w-4 h-4 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Tìm sổ tay theo tiêu đề, bài giảng hoặc khóa học..."
-          className="w-full h-9 pl-9 pr-8 rounded-md border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent transition"
+          className="w-full h-9 pl-9 pr-8 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition"
         />
         {searchQuery && (
           <button
             type="button"
             onClick={() => setSearchQuery("")}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary cursor-pointer"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -237,65 +238,76 @@ export default function NotesPage() {
             const dateLabel = formatDate(nb.updatedAt || nb.createdAt);
 
             return (
-              <div
+              <Card
                 key={nb.id}
-                className="rounded-lg border border-border bg-bg-primary p-4 flex flex-col justify-between hover:border-accent/50 transition"
+                hoverable
+                className="p-5 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start gap-3 mb-3">
-                    <div className="w-9 h-9 rounded-md bg-bg-secondary border border-border flex items-center justify-center shrink-0">
-                      <NotebookPen className="w-4 h-4 text-accent" />
+                    <div className="w-9 h-9 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+                      <NotebookPen className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h2 className="text-sm font-semibold text-text-primary line-clamp-2">
+                      <h2 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2">
                         {nb.title || "Sổ tay ghi chú"}
                       </h2>
                       {nb.version != null && (
-                        <span className="inline-block text-[11px] font-medium text-text-tertiary bg-bg-tertiary rounded-md px-1.5 py-0.5 mt-1">
+                        <Badge variant="neutral" size="sm" className="mt-1">
                           Phiên bản {nb.version}
-                        </span>
+                        </Badge>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-xs text-text-secondary bg-bg-secondary rounded-md px-2.5 py-1.5 mb-3">
+                  <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] bg-[var(--surface-elevated)] rounded-[8px] px-2.5 py-1.5 mb-3">
                     {ctx.isDocumentSource ? (
-                      <FileText className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
+                      <FileText className="w-3.5 h-3.5 text-[var(--text-tertiary)] shrink-0" />
                     ) : (
-                      <BookOpen className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
+                      <BookOpen className="w-3.5 h-3.5 text-[var(--text-tertiary)] shrink-0" />
                     )}
                     <span className="truncate">{ctx.sourceLabel}</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 pt-2 border-t border-border-subtle">
-                  <span className="text-xs text-text-tertiary">
+                <div className="flex items-center justify-between gap-2 pt-3 border-t border-[var(--border-calm)]">
+                  <span className="text-xs text-[var(--text-tertiary)]">
                     {dateLabel ? `Cập nhật ${dateLabel}` : ""}
                   </span>
-                  <button
-                    type="button"
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() => handleOpenNotebook(nb)}
-                    className="h-7 px-3 rounded-md bg-bg-secondary hover:bg-accent hover:text-white border border-border hover:border-accent text-xs font-medium text-text-primary transition cursor-pointer"
                   >
                     Mở ghi chú
-                  </button>
+                  </Button>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
       ) : (
-        <div className="rounded-lg border border-border bg-bg-secondary p-10 text-center">
-          <NotebookPen className="w-8 h-8 text-text-tertiary mx-auto mb-3" />
-          <p className="text-sm font-medium text-text-primary mb-1">
-            {searchQuery ? "Không tìm thấy sổ tay phù hợp" : "Chưa có sổ tay ghi chú nào"}
-          </p>
-          <p className="text-xs text-text-tertiary">
-            {searchQuery
+        <EmptyState
+          icon={NotebookPen}
+          title={searchQuery ? "Không tìm thấy sổ tay phù hợp" : "Chưa có sổ tay ghi chú nào"}
+          description={
+            searchQuery
               ? "Thử đổi từ khóa tìm kiếm."
-              : "Sổ tay sẽ tự động được tạo khi bạn ghi chú trong lúc học bài hoặc đọc tài liệu."}
-          </p>
-        </div>
+              : "Sổ tay sẽ tự động được tạo khi bạn ghi chú trong lúc học bài hoặc đọc tài liệu."
+          }
+          action={
+            searchQuery
+              ? {
+                  label: "Xóa tìm kiếm",
+                  onClick: () => setSearchQuery(""),
+                }
+              : {
+                  label: "Khám phá khóa học để ghi chú",
+                  href: "/app/courses",
+                  icon: <BookOpen className="w-4 h-4" />,
+                }
+          }
+        />
       )}
     </div>
   );

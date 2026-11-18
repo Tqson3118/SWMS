@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { Button, Card, Badge, EmptyState } from "@/components/ui";
 import { getCourseId, normalizeVi, type CourseLike } from "@/lib/course-helpers";
 
 interface DocumentItem {
@@ -182,10 +183,10 @@ export default function DocumentsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
             Tài liệu
           </h1>
-          <p className="text-sm text-text-secondary mt-1">
+          <p className="text-sm text-[var(--text-secondary)] mt-1">
             {documents.length} tài liệu PDF dùng cho việc đọc và trích dẫn kiến thức.
           </p>
         </div>
@@ -199,61 +200,53 @@ export default function DocumentsPage() {
             className="hidden"
             disabled={isUploading}
           />
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            isLoading={isUploading}
             disabled={isUploading}
             onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover disabled:opacity-50 transition cursor-pointer"
+            leftIcon={<Upload className="w-4 h-4" />}
+            aria-label="Tải tài liệu lên"
           >
-            {isUploading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Đang tải lên...</span>
-              </>
-            ) : (
-              <>
-                <Upload className="w-4 h-4" />
-                <span>Tải tài liệu lên</span>
-              </>
-            )}
-          </button>
+            <span>{isUploading ? "Đang tải lên..." : "Tải tài liệu lên"}</span>
+          </Button>
         </div>
       </div>
 
       {(fetchError || uploadError) && (
-        <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 flex items-center justify-between gap-3">
+        <div className="mb-6 rounded-[10px] border border-red-500/30 bg-red-500/5 px-4 py-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{uploadError || fetchError}</span>
           </div>
           {fetchError && (
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={fetchDocuments}
-              className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md border border-border hover:bg-bg-secondary text-text-primary cursor-pointer"
+              leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
             >
-              <RefreshCw className="w-3.5 h-3.5" />
               Thử lại
-            </button>
+            </Button>
           )}
         </div>
       )}
 
       {/* Search bar */}
       <div className="relative mb-6">
-        <Search className="w-4 h-4 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Tìm tài liệu theo tiêu đề hoặc tên tệp..."
-          className="w-full h-9 pl-9 pr-8 rounded-md border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent transition"
+          className="w-full h-9 pl-9 pr-8 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition"
         />
         {searchQuery && (
           <button
             type="button"
             onClick={() => setSearchQuery("")}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary cursor-pointer"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -271,21 +264,22 @@ export default function DocumentsPage() {
             const dateLabel = formatDate(doc.updatedAt || doc.createdAt);
 
             return (
-              <div
+              <Card
                 key={docId}
-                className="rounded-lg border border-border bg-bg-primary p-4 flex flex-col justify-between hover:border-accent/50 transition"
+                hoverable
+                className="p-5 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start gap-3 mb-3">
-                    <div className="w-9 h-9 rounded-md bg-bg-secondary border border-border flex items-center justify-center shrink-0">
-                      <FileText className="w-4 h-4 text-accent" />
+                    <div className="w-9 h-9 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+                      <FileText className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h2 className="text-sm font-semibold text-text-primary line-clamp-2">
+                      <h2 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2">
                         {doc.title || doc.fileName || "Tài liệu PDF"}
                       </h2>
                       {doc.fileName && doc.title && doc.fileName !== doc.title && (
-                        <p className="text-xs text-text-tertiary truncate mt-0.5">
+                        <p className="text-xs text-[var(--text-tertiary)] truncate mt-0.5">
                           {doc.fileName}
                         </p>
                       )}
@@ -293,43 +287,53 @@ export default function DocumentsPage() {
                   </div>
 
                   {courseName && (
-                    <div className="flex items-center gap-1.5 text-xs text-text-secondary bg-bg-secondary rounded-md px-2.5 py-1.5 mb-3">
-                      <BookOpen className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
+                    <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] bg-[var(--surface-elevated)] rounded-[8px] px-2.5 py-1.5 mb-3">
+                      <BookOpen className="w-3.5 h-3.5 text-[var(--text-tertiary)] shrink-0" />
                       <span className="truncate">{courseName}</span>
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between gap-2 pt-2 border-t border-border-subtle">
-                  <div className="text-xs text-text-tertiary flex items-center gap-2">
+                <div className="flex items-center justify-between gap-2 pt-3 border-t border-[var(--border-calm)]">
+                  <div className="text-xs text-[var(--text-tertiary)] flex items-center gap-1.5">
                     {pages ? <span>{pages} trang</span> : null}
-                    {pages && dateLabel ? <span>•</span> : null}
+                    {pages && dateLabel ? <span>·</span> : null}
                     {dateLabel ? <span>{dateLabel}</span> : null}
                   </div>
-                  <button
-                    type="button"
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() => handleOpenDocument(doc)}
-                    className="h-7 px-3 rounded-md bg-bg-secondary hover:bg-accent hover:text-white border border-border hover:border-accent text-xs font-medium text-text-primary transition cursor-pointer"
                   >
                     Mở đọc
-                  </button>
+                  </Button>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
       ) : (
-        <div className="rounded-lg border border-border bg-bg-secondary p-10 text-center">
-          <FileText className="w-8 h-8 text-text-tertiary mx-auto mb-3" />
-          <p className="text-sm font-medium text-text-primary mb-1">
-            {searchQuery ? "Không tìm thấy tài liệu phù hợp" : "Chưa có tài liệu nào"}
-          </p>
-          <p className="text-xs text-text-tertiary">
-            {searchQuery
+        <EmptyState
+          icon={FileText}
+          title={searchQuery ? "Không tìm thấy tài liệu phù hợp" : "Chưa có tài liệu nào"}
+          description={
+            searchQuery
               ? "Thử tìm bằng từ khóa khác."
-              : "Tải tệp PDF lên để đọc, đánh dấu ý chính và ghi chú song song."}
-          </p>
-        </div>
+              : "Tải tệp PDF lên để đọc, đánh dấu ý chính và ghi chú song song."
+          }
+          action={
+            searchQuery
+              ? {
+                  label: "Xóa tìm kiếm",
+                  onClick: () => setSearchQuery(""),
+                }
+              : {
+                  label: "Tải tài liệu lên",
+                  onClick: () => fileInputRef.current?.click(),
+                  icon: <Upload className="w-4 h-4" />,
+                }
+          }
+        />
       )}
     </div>
   );

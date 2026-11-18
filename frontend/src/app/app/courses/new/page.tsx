@@ -15,6 +15,7 @@ import {
   Upload,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { Button, Card } from "@/components/ui";
 
 interface PreviewChapter {
   title: string;
@@ -240,25 +241,25 @@ export default function NewCoursePage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10">
       {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-text-tertiary mb-6">
-        <Link href="/app/courses" className="hover:text-text-primary transition">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-[var(--text-tertiary)] mb-6">
+        <Link href="/app/courses" className="hover:text-[var(--text-primary)] transition">
           Khóa học
         </Link>
-        <ChevronRight className="w-3.5 h-3.5" />
-        <span className="text-text-primary font-medium">Tạo khóa học mới</span>
+        <span>·</span>
+        <span className="text-[var(--text-primary)] font-medium">Tạo khóa học mới</span>
       </nav>
 
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
           Tạo khóa học mới
         </h1>
-        <p className="text-sm text-text-secondary mt-1.5">
+        <p className="text-sm text-[var(--text-secondary)] mt-1.5">
           Chọn cách khởi tạo phù hợp từ tài liệu sẵn có, gợi ý theo chủ đề hoặc nhập gói lưu trữ.
         </p>
       </div>
 
       {errorMessage && (
-        <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-600 dark:text-red-400 flex items-center gap-2">
+        <div className="mb-6 rounded-[10px] border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-600 dark:text-red-400 flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -266,16 +267,16 @@ export default function NewCoursePage() {
 
       <div className="space-y-4">
         {/* Method 1: Upload Document */}
-        <div className="rounded-lg border border-border bg-bg-secondary p-6">
+        <Card className="p-6">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-bg-tertiary border border-border flex items-center justify-center shrink-0">
-              <FileUp className="w-5 h-5 text-accent" />
+            <div className="w-10 h-10 rounded-[10px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+              <FileUp className="w-5 h-5 text-[#5E51E8] dark:text-[#818CF8]" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-base font-semibold text-text-primary mb-1">
+              <h2 className="text-base font-semibold text-[var(--text-primary)] mb-1">
                 1. Tạo từ tài liệu sẵn có
               </h2>
-              <p className="text-sm text-text-secondary mb-4">
+              <p className="text-sm text-[var(--text-secondary)] mb-4">
                 Tải lên giáo trình PDF, tài liệu Word, TXT hoặc Markdown để tự động chia chương và bài học.
               </p>
 
@@ -287,39 +288,30 @@ export default function NewCoursePage() {
                 className="hidden"
                 disabled={anyLoading}
               />
-              <button
-                type="button"
+              <Button
+                variant="primary"
                 disabled={anyLoading}
+                isLoading={uploadLoading}
                 onClick={() => uploadInputRef.current?.click()}
-                className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover disabled:opacity-50 transition cursor-pointer"
+                leftIcon={<Upload className="w-4 h-4" />}
               >
-                {uploadLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Đang xử lý tài liệu...</span>
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4" />
-                    <span>Chọn tệp tài liệu</span>
-                  </>
-                )}
-              </button>
+                <span>{uploadLoading ? "Đang xử lý tài liệu..." : "Chọn tệp tài liệu"}</span>
+              </Button>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Method 2: AI Topic Generator */}
-        <div className="rounded-lg border border-border bg-bg-secondary p-6">
+        <Card className="p-6">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-bg-tertiary border border-border flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-accent" />
+            <div className="w-10 h-10 rounded-[10px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-[#5E51E8] dark:text-[#818CF8]" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-base font-semibold text-text-primary mb-1">
+              <h2 className="text-base font-semibold text-[var(--text-primary)] mb-1">
                 2. Tạo lộ trình theo chủ đề với AI
               </h2>
-              <p className="text-sm text-text-secondary mb-4">
+              <p className="text-sm text-[var(--text-secondary)] mb-4">
                 Nhập tên môn học, kỹ năng hoặc mục tiêu bạn muốn chinh phục để hệ thống thiết kế đề cương chi tiết.
               </p>
 
@@ -336,56 +328,50 @@ export default function NewCoursePage() {
                   }}
                   placeholder="Ví dụ: Thiết kế hệ thống Backend, Tiếng Anh giao tiếp..."
                   disabled={anyLoading}
-                  className="flex-1 h-9 px-3 rounded-md border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent"
+                  className="flex-1 h-9 px-3 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8]"
                 />
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
+                  <Button
+                    variant="secondary"
                     disabled={anyLoading || !aiTopic.trim()}
                     onClick={handleAiPreview}
-                    className="h-9 px-3.5 rounded-md border border-border bg-bg-primary text-text-primary text-sm font-medium hover:bg-bg-tertiary disabled:opacity-50 transition cursor-pointer shrink-0"
+                    className="shrink-0"
                   >
                     Xem trước
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
+                    variant="primary"
                     disabled={anyLoading || !aiTopic.trim()}
+                    isLoading={aiLoading}
                     onClick={handleAiCreate}
-                    className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover disabled:opacity-50 transition cursor-pointer shrink-0"
+                    className="shrink-0"
                   >
-                    {aiLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Đang khởi tạo...</span>
-                      </>
-                    ) : (
-                      <span>{previewData ? "Lưu & Mở khóa học" : "Tạo khóa học"}</span>
-                    )}
-                  </button>
+                    <span>{previewData ? "Lưu & Mở khóa học" : "Tạo khóa học"}</span>
+                  </Button>
                 </div>
               </div>
 
               {previewData && (
-                <div className="mt-4 rounded-lg border border-border bg-bg-primary p-4">
-                  <div className="flex items-center gap-2 text-xs font-medium text-accent mb-1">
+                <div className="mt-4 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] p-4">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-[#5E51E8] dark:text-[#818CF8] mb-1">
                     <BookOpen className="w-3.5 h-3.5" />
                     <span>Bản xem trước đề cương</span>
                   </div>
-                  <h3 className="text-sm font-semibold text-text-primary mb-1">
+                  <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1">
                     {previewData.title || aiTopic}
                   </h3>
                   {previewData.description && (
-                    <p className="text-xs text-text-secondary mb-3">{previewData.description}</p>
+                    <p className="text-xs text-[var(--text-secondary)] mb-3">{previewData.description}</p>
                   )}
                   {Array.isArray(previewData.chapters) && previewData.chapters.length > 0 && (
                     <div className="space-y-2 max-h-56 overflow-y-auto swms-thin-scrollbar pr-1">
                       {previewData.chapters.map((ch, idx) => (
-                        <div key={idx} className="text-xs rounded-md bg-bg-secondary p-2.5">
-                          <p className="font-medium text-text-primary mb-1">
+                        <div key={idx} className="text-xs rounded-[8px] bg-[var(--surface-card)] p-2.5 border border-[var(--border-calm)]">
+                          <p className="font-semibold text-[var(--text-primary)] mb-1">
                             Chương {idx + 1}: {ch.title}
                           </p>
                           {Array.isArray(ch.lessons) && ch.lessons.length > 0 && (
-                            <ul className="list-disc list-inside text-text-tertiary space-y-0.5">
+                            <ul className="list-disc list-inside text-[var(--text-secondary)] space-y-0.5">
                               {ch.lessons.map((l, lIdx) => (
                                 <li key={lIdx}>{l.title}</li>
                               ))}
@@ -399,19 +385,19 @@ export default function NewCoursePage() {
               )}
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Method 3: Import SWM ZIP */}
-        <div className="rounded-lg border border-border bg-bg-secondary p-6">
+        <Card className="p-6">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-bg-tertiary border border-border flex items-center justify-center shrink-0">
-              <Package className="w-5 h-5 text-text-secondary" />
+            <div className="w-10 h-10 rounded-[10px] bg-[var(--surface-elevated)] border border-[var(--border-calm)] flex items-center justify-center shrink-0">
+              <Package className="w-5 h-5 text-[var(--text-secondary)]" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-base font-semibold text-text-primary mb-1">
+              <h2 className="text-base font-semibold text-[var(--text-primary)] mb-1">
                 3. Nhập gói khóa học (.swm / .zip)
               </h2>
-              <p className="text-sm text-text-secondary mb-4">
+              <p className="text-sm text-[var(--text-secondary)] mb-4">
                 Khôi phục khóa học đã xuất trước đó hoặc nhập giáo trình do người khác chia sẻ.
               </p>
 
@@ -424,29 +410,20 @@ export default function NewCoursePage() {
                 disabled={anyLoading}
               />
               <div className="flex flex-wrap items-center gap-2.5">
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
                   disabled={anyLoading}
+                  isLoading={importLoading}
                   onClick={() => importInputRef.current?.click()}
-                  className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-border bg-bg-primary text-text-primary text-sm font-medium hover:bg-bg-tertiary disabled:opacity-50 transition cursor-pointer"
+                  leftIcon={<Package className="w-4 h-4" />}
                 >
-                  {importLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Đang nhập gói...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Package className="w-4 h-4" />
-                      <span>Chọn tệp SWM / ZIP</span>
-                    </>
-                  )}
-                </button>
+                  <span>{importLoading ? "Đang nhập gói..." : "Chọn tệp SWM / ZIP"}</span>
+                </Button>
                 <a
                   href="/templates/lo-trinh-mau-swm.zip"
                   download="lo-trinh-mau-swm.zip"
                   data-testid="download-swm-template-btn"
-                  className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md border border-border bg-bg-primary text-xs font-medium text-text-secondary hover:text-accent hover:border-accent/40 transition"
+                  className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-secondary)] hover:text-[#5E51E8] hover:border-[#5E51E8]/40 transition"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Tải gói lộ trình mẫu (.zip)</span>
@@ -454,7 +431,7 @@ export default function NewCoursePage() {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

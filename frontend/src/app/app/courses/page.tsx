@@ -17,6 +17,13 @@ import {
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import {
+  Button,
+  Card,
+  Badge,
+  ProgressBar,
+  EmptyState,
+} from "@/components/ui";
+import {
   COURSE_DOMAINS,
   classifyCourseDomain,
   deduplicateCourses,
@@ -146,29 +153,31 @@ export default function CoursesCatalogPage() {
           </p>
         </div>
 
-        <Link
-          href="/app/courses/new"
-          className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Tạo khóa học</span>
+        <Link href="/app/courses/new">
+          <Button
+            variant="primary"
+            leftIcon={<Plus className="w-4 h-4" />}
+            aria-label="Tạo khóa học mới"
+          >
+            <span>Tạo khóa học</span>
+          </Button>
         </Link>
       </div>
 
       {fetchError && (
-        <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 flex items-center justify-between gap-3">
+        <div className="mb-6 rounded-[10px] border border-red-500/30 bg-red-500/5 px-4 py-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{fetchError}</span>
           </div>
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={fetchCourses}
-            className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md border border-border hover:bg-bg-secondary text-text-primary cursor-pointer"
+            leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
           >
-            <RefreshCw className="w-3.5 h-3.5" />
             Thử lại
-          </button>
+          </Button>
         </div>
       )}
 
@@ -176,19 +185,19 @@ export default function CoursesCatalogPage() {
       <div className="space-y-3 mb-6">
         <div className="flex flex-col sm:flex-row gap-2.5">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Tìm khóa học theo tên hoặc mô tả..."
-              className="w-full h-9 pl-9 pr-8 rounded-md border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent transition"
+              className="w-full h-9 pl-9 pr-8 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer"
                 aria-label="Xóa từ khóa"
               >
                 <X className="w-3.5 h-3.5" />
@@ -200,10 +209,10 @@ export default function CoursesCatalogPage() {
             <button
               type="button"
               onClick={() => setHideDuplicates((prev) => !prev)}
-              className={`inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-md border text-xs font-medium transition cursor-pointer shrink-0 ${
+              className={`inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-[10px] border text-xs font-medium transition cursor-pointer shrink-0 ${
                 hideDuplicates
-                  ? "border-accent/40 bg-accent-subtle text-accent"
-                  : "border-border bg-bg-secondary text-text-secondary hover:text-text-primary"
+                  ? "border-[#5E51E8]/40 bg-[#EEF0FD] dark:bg-[#1E1B4B] text-[#4F46E5] dark:text-[#A5B4FC]"
+                  : "border-[var(--border-calm)] bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
               {hideDuplicates ? (
@@ -232,10 +241,10 @@ export default function CoursesCatalogPage() {
               key={item.id}
               type="button"
               onClick={() => setStatusFilter(item.id)}
-              className={`h-7 px-2.5 rounded-md text-xs font-medium transition cursor-pointer ${
+              className={`h-7 px-2.5 rounded-[8px] text-xs font-medium transition cursor-pointer ${
                 statusFilter === item.id
-                  ? "bg-text-primary text-bg-primary"
-                  : "bg-bg-secondary text-text-secondary hover:text-text-primary border border-border"
+                  ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12]"
+                  : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-calm)]"
               }`}
             >
               {item.label}
@@ -248,10 +257,10 @@ export default function CoursesCatalogPage() {
           <button
             type="button"
             onClick={() => setSelectedDomain("all")}
-            className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-xs font-medium whitespace-nowrap transition cursor-pointer ${
               selectedDomain === "all"
-                ? "bg-accent-subtle text-accent border border-accent/30"
-                : "bg-bg-primary text-text-secondary border border-border hover:bg-bg-secondary"
+                ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] border border-[#5E51E8]/30 font-semibold"
+                : "bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-calm)] hover:bg-[var(--surface-elevated)]"
             }`}
           >
             <span>Tất cả lĩnh vực</span>
@@ -266,10 +275,10 @@ export default function CoursesCatalogPage() {
                 key={domain.id}
                 type="button"
                 onClick={() => setSelectedDomain(domain.id)}
-                className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                   selectedDomain === domain.id
-                    ? "bg-accent-subtle text-accent border border-accent/30"
-                    : "bg-bg-primary text-text-secondary border border-border hover:bg-bg-secondary"
+                    ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] border border-[#5E51E8]/30 font-semibold"
+                    : "bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-calm)] hover:bg-[var(--surface-elevated)]"
                 }`}
               >
                 <span>{domain.label}</span>
@@ -291,54 +300,67 @@ export default function CoursesCatalogPage() {
             const domain = classifyCourseDomain(course);
 
             return (
-              <div
+              <Card
                 key={id}
-                className="rounded-lg border border-border bg-bg-primary p-4 flex flex-col justify-between hover:border-accent/50 transition"
+                hoverable
+                className="p-5 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2.5">
-                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-bg-tertiary text-text-secondary truncate">
+                    <Badge
+                      variant={
+                        domain.id === "language"
+                          ? "brand"
+                          : domain.id === "technology"
+                          ? "brand"
+                          : "neutral"
+                      }
+                      size="sm"
+                    >
                       {domain.label}
-                    </span>
+                    </Badge>
                     {progress === 100 ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 shrink-0">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Hoàn thành
-                      </span>
+                      <Badge variant="success" size="sm">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>Hoàn thành</span>
+                      </Badge>
                     ) : progress > 0 ? (
-                      <span className="text-[11px] font-medium text-accent shrink-0">
+                      <span className="text-[11px] font-semibold text-[#5E51E8] dark:text-[#818CF8] shrink-0">
                         {progress}%
                       </span>
                     ) : (
-                      <span className="text-[11px] text-text-tertiary shrink-0">Mới</span>
+                      <span className="text-[11px] text-[var(--text-tertiary)] shrink-0">Mới</span>
                     )}
                   </div>
 
                   <Link
                     href={`/app/courses/${id}`}
-                    className="block text-sm font-semibold text-text-primary hover:text-accent transition line-clamp-2 mb-1.5"
+                    className="block text-sm font-semibold text-[var(--text-primary)] hover:text-[#5E51E8] dark:hover:text-[#818CF8] transition line-clamp-2 mb-1.5"
                   >
                     {course.title || "Khóa học"}
                   </Link>
 
                   {course.description ? (
-                    <p className="text-xs text-text-tertiary line-clamp-2 mb-3">
+                    <p className="text-xs text-[var(--text-secondary)] line-clamp-2 mb-3">
                       {course.description}
                     </p>
                   ) : (
-                    <p className="text-xs text-text-tertiary mb-3">
+                    <p className="text-xs text-[var(--text-tertiary)] mb-3">
                       Lộ trình học theo chương và bài giảng tương tác.
                     </p>
                   )}
                 </div>
 
                 <div className="pt-2">
-                  <div className="flex items-center gap-3 text-xs text-text-tertiary mb-2">
+                  <div className="flex items-center gap-1.5 text-xs text-[var(--text-tertiary)] mb-2.5">
                     {chapterCount > 0 && (
-                      <span className="inline-flex items-center gap-1">
-                        <Layers className="w-3.5 h-3.5" />
-                        {chapterCount} chương
-                      </span>
+                      <>
+                        <span className="inline-flex items-center gap-1">
+                          <Layers className="w-3.5 h-3.5" />
+                          {chapterCount} chương
+                        </span>
+                        <span>·</span>
+                      </>
                     )}
                     <span className="inline-flex items-center gap-1">
                       <BookOpen className="w-3.5 h-3.5" />
@@ -346,58 +368,57 @@ export default function CoursesCatalogPage() {
                     </span>
                   </div>
 
-                  <div className="w-full h-1.5 bg-bg-tertiary rounded-full overflow-hidden mb-3.5">
-                    <div
-                      className={`h-full rounded-full transition-all ${
-                        progress === 100 ? "bg-emerald-500" : "bg-accent"
-                      }`}
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
+                  <ProgressBar
+                    value={progress}
+                    color={progress === 100 ? "success" : "brand"}
+                    size="sm"
+                    className="mb-4"
+                  />
 
                   <div className="flex items-center gap-2">
-                    <Link
-                      href={`/app/courses/${id}`}
-                      className="flex-1 inline-flex items-center justify-center h-8 px-3 rounded-md border border-border text-xs font-medium text-text-primary hover:bg-bg-secondary transition"
-                    >
-                      Xem lộ trình
+                    <Link href={`/app/courses/${id}`} className="flex-1">
+                      <Button variant="secondary" size="sm" className="w-full">
+                        Xem lộ trình
+                      </Button>
                     </Link>
-                    <Link
-                      href={`/app/courses/${id}/learn`}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover transition"
-                    >
-                      <Play className="w-3 h-3" />
-                      <span>{progress > 0 ? "Tiếp tục" : "Học ngay"}</span>
+                    <Link href={`/app/courses/${id}/learn`} className="flex-1">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        className="w-full"
+                        leftIcon={<Play className="w-3 h-3" />}
+                      >
+                        {progress > 0 ? "Tiếp tục" : "Học ngay"}
+                      </Button>
                     </Link>
                   </div>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
       ) : (
-        <div className="rounded-lg border border-border bg-bg-secondary p-10 text-center">
-          <BookOpen className="w-8 h-8 text-text-tertiary mx-auto mb-3" />
-          <p className="text-sm font-medium text-text-primary mb-1">
-            Không tìm thấy khóa học phù hợp
-          </p>
-          <p className="text-xs text-text-tertiary mb-4">
-            Thử đổi từ khóa tìm kiếm, chọn lại lĩnh vực hoặc tạo khóa học mới.
-          </p>
-          {(searchQuery || selectedDomain !== "all" || statusFilter !== "all") && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedDomain("all");
-                setStatusFilter("all");
-              }}
-              className="inline-flex items-center h-8 px-3 rounded-md border border-border bg-bg-primary text-xs font-medium text-text-primary hover:bg-bg-tertiary transition cursor-pointer"
-            >
-              Xóa bộ lọc
-            </button>
-          )}
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="Không tìm thấy khóa học phù hợp"
+          description="Thử đổi từ khóa tìm kiếm, chọn lại lĩnh vực hoặc tạo khóa học mới."
+          action={
+            searchQuery || selectedDomain !== "all" || statusFilter !== "all"
+              ? {
+                  label: "Xóa bộ lọc",
+                  onClick: () => {
+                    setSearchQuery("");
+                    setSelectedDomain("all");
+                    setStatusFilter("all");
+                  },
+                }
+              : {
+                  label: "Tạo khóa học mới",
+                  href: "/app/courses/new",
+                  icon: <Plus className="w-4 h-4" />,
+                }
+          }
+        />
       )}
     </div>
   );

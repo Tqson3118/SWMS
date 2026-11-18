@@ -11,6 +11,7 @@ import {
   Upload,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { Button, Card } from "@/components/ui";
 
 export default function CreateCoursePage() {
   const router = useRouter();
@@ -194,19 +195,24 @@ export default function CreateCoursePage() {
       <div className="flex items-center gap-3 mb-6">
         <Link
           href="/app/studio"
-          className="flex items-center justify-center w-8 h-8 rounded-md hover:bg-bg-tertiary transition text-text-secondary"
+          className="flex items-center justify-center w-8 h-8 rounded-[8px] hover:bg-[var(--surface-elevated)] transition text-[var(--text-secondary)]"
         >
           <ArrowLeft className="w-4 h-4" />
         </Link>
-        <h1 className="text-2xl font-bold text-text-primary">
-          Tạo khóa học mới
-        </h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+            Tạo khóa học mới
+          </h1>
+          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+            Chọn phương thức khởi tạo thuận tiện nhất cho nội dung bài giảng của bạn
+          </p>
+        </div>
       </div>
 
       {errorMessage && (
         <div
           role="alert"
-          className="mb-6 rounded-lg border border-rose-300 bg-rose-50 dark:bg-rose-950/50 dark:border-rose-900 px-4 py-3 text-sm text-rose-800 dark:text-rose-200"
+          className="mb-6 rounded-[10px] border border-rose-300 bg-rose-50 dark:bg-rose-950/50 dark:border-rose-900 px-4 py-3 text-sm text-rose-800 dark:text-rose-200"
         >
           {errorMessage}
         </div>
@@ -215,29 +221,29 @@ export default function CreateCoursePage() {
       {/* 3 Method Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: Upload PDF / DOCX / MD */}
-        <div className="rounded-lg border border-border bg-bg-secondary p-6 flex flex-col items-center text-center">
-          <div className="w-12 h-12 rounded-lg bg-bg-tertiary flex items-center justify-center mb-4">
-            <Upload className="w-6 h-6 text-accent" />
+        <Card className="p-6 flex flex-col items-center text-center justify-between">
+          <div>
+            <div className="w-12 h-12 rounded-[12px] bg-[#EEF0FD] dark:bg-[#1E1B4B] flex items-center justify-center mb-4 mx-auto border border-[#5E51E8]/20">
+              <Upload className="w-6 h-6 text-[#5E51E8] dark:text-[#818CF8]" />
+            </div>
+            <h3 className="text-base font-semibold text-[var(--text-primary)] mb-1">
+              Tải tài liệu lên
+            </h3>
+            <p className="text-sm text-[var(--text-secondary)] mb-4">
+              Upload PDF, DOCX, Markdown hoặc TXT để dựng khóa học tự động
+            </p>
           </div>
-          <h3 className="text-base font-semibold text-text-primary mb-1">
-            Tải tài liệu lên
-          </h3>
-          <p className="text-sm text-text-secondary mb-4">
-            Upload PDF, DOCX, Markdown hoặc TXT để dựng khóa học tự động
-          </p>
-          <label
-            className={`inline-flex items-center gap-2 h-9 px-4 rounded-md text-sm font-medium transition cursor-pointer ${
-              uploadLoading
-                ? "bg-bg-tertiary text-text-tertiary cursor-not-allowed"
-                : "bg-accent text-white hover:bg-accent-hover"
-            }`}
-          >
-            {uploadLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Upload className="w-4 h-4" />
-            )}
-            <span>{uploadLoading ? "Đang xử lý..." : "Chọn file"}</span>
+          <div className="w-full">
+            <Button
+              variant="primary"
+              className="w-full"
+              isLoading={uploadLoading}
+              disabled={uploadLoading}
+              onClick={() => uploadInputRef.current?.click()}
+              leftIcon={<Upload className="w-4 h-4" />}
+            >
+              <span>{uploadLoading ? "Đang xử lý..." : "Chọn file"}</span>
+            </Button>
             <input
               ref={uploadInputRef}
               type="file"
@@ -246,94 +252,87 @@ export default function CreateCoursePage() {
               onChange={handleFileUpload}
               disabled={uploadLoading}
             />
-          </label>
-        </div>
+          </div>
+        </Card>
 
         {/* Card 2: AI Wizard */}
-        <div className="rounded-lg border border-border bg-bg-secondary p-6 flex flex-col items-center text-center">
-          <div className="w-12 h-12 rounded-lg bg-bg-tertiary flex items-center justify-center mb-4">
-            <Sparkles className="w-6 h-6 text-accent" />
-          </div>
-          <h3 className="text-base font-semibold text-text-primary mb-1">
-            AI Wizard
-          </h3>
-          <p className="text-sm text-text-secondary mb-4">
-            Tạo khóa học với trợ lý AI
-          </p>
-          <div className="w-full space-y-2">
+        <Card className="p-6 flex flex-col items-center text-center justify-between">
+          <div className="w-full">
+            <div className="w-12 h-12 rounded-[12px] bg-[#EEF0FD] dark:bg-[#1E1B4B] flex items-center justify-center mb-4 mx-auto border border-[#5E51E8]/20">
+              <Sparkles className="w-6 h-6 text-[#5E51E8] dark:text-[#818CF8]" />
+            </div>
+            <h3 className="text-base font-semibold text-[var(--text-primary)] mb-1">
+              AI Wizard
+            </h3>
+            <p className="text-sm text-[var(--text-secondary)] mb-4">
+              Tạo khóa học với trợ lý AI
+            </p>
             <input
               type="text"
               value={aiTopic}
               onChange={(e) => setAiTopic(e.target.value)}
               placeholder="Nhập chủ đề..."
-              className="w-full h-9 px-3 rounded-md border border-border bg-bg-primary text-text-primary text-sm placeholder:text-text-tertiary focus:outline-none focus:border-accent transition"
+              className="w-full h-9 px-3 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-[var(--text-primary)] text-sm placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition mb-2"
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleAiWizard();
               }}
             />
-            <button
-              type="button"
-              onClick={handleAiWizard}
-              disabled={aiLoading || !aiTopic.trim()}
-              className={`w-full inline-flex items-center justify-center gap-2 h-9 rounded-md text-sm font-medium transition cursor-pointer ${
-                aiLoading || !aiTopic.trim()
-                  ? "bg-bg-tertiary text-text-tertiary cursor-not-allowed"
-                  : "bg-accent text-white hover:bg-accent-hover"
-              }`}
-            >
-              {aiLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Sparkles className="w-4 h-4" />
-              )}
-              <span>{aiLoading ? "Đang tạo..." : "Tạo khóa học"}</span>
-            </button>
           </div>
-        </div>
+          <div className="w-full">
+            <Button
+              variant="primary"
+              className="w-full"
+              isLoading={aiLoading}
+              disabled={aiLoading || !aiTopic.trim()}
+              onClick={handleAiWizard}
+              leftIcon={<Sparkles className="w-4 h-4" />}
+            >
+              <span>{aiLoading ? "Đang tạo..." : "Tạo khóa học"}</span>
+            </Button>
+          </div>
+        </Card>
 
         {/* Card 3: Import SWM */}
-        <div className="rounded-lg border border-border bg-bg-secondary p-6 flex flex-col items-center text-center">
-          <div className="w-12 h-12 rounded-lg bg-bg-tertiary flex items-center justify-center mb-4">
-            <Package className="w-6 h-6 text-accent" />
+        <Card className="p-6 flex flex-col items-center text-center justify-between">
+          <div>
+            <div className="w-12 h-12 rounded-[12px] bg-[var(--surface-elevated)] flex items-center justify-center mb-4 mx-auto border border-[var(--border-calm)]">
+              <Package className="w-6 h-6 text-[#5E51E8] dark:text-[#818CF8]" />
+            </div>
+            <h3 className="text-base font-semibold text-[var(--text-primary)] mb-1">
+              Import SWM
+            </h3>
+            <p className="text-sm text-[var(--text-secondary)] mb-4">
+              Nhập từ file .zip hoặc .swm chuẩn SWM
+            </p>
           </div>
-          <h3 className="text-base font-semibold text-text-primary mb-1">
-            Import SWM
-          </h3>
-          <p className="text-sm text-text-secondary mb-4">
-            Nhập từ file .zip hoặc .swm chuẩn SWM
-          </p>
           <div className="flex flex-col items-center gap-2.5 w-full">
-            <label
-              className={`inline-flex items-center gap-2 h-9 px-4 rounded-md text-sm font-medium transition cursor-pointer ${
-                importLoading
-                  ? "bg-bg-tertiary text-text-tertiary cursor-not-allowed"
-                  : "bg-accent text-white hover:bg-accent-hover"
-              }`}
+            <Button
+              variant="primary"
+              className="w-full"
+              isLoading={importLoading}
+              disabled={importLoading}
+              onClick={() => importInputRef.current?.click()}
+              leftIcon={<Package className="w-4 h-4" />}
             >
-              {importLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Package className="w-4 h-4" />
-              )}
               <span>{importLoading ? "Đang nhập..." : "Chọn file"}</span>
-              <input
-                ref={importInputRef}
-                type="file"
-                accept=".swm,.zip"
-                className="hidden"
-                onChange={handleImportSwm}
-                disabled={importLoading}
-              />
-            </label>
+            </Button>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept=".swm,.zip"
+              className="hidden"
+              onChange={handleImportSwm}
+              disabled={importLoading}
+            />
             <a
               href="/templates/lo-trinh-mau-swm.zip"
               download="lo-trinh-mau-swm.zip"
-              className="text-xs font-medium text-accent hover:underline"
+              className="text-xs font-medium text-[#5E51E8] dark:text-[#818CF8] hover:underline"
             >
               Tải gói lộ trình mẫu (.zip)
             </a>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

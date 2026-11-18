@@ -23,6 +23,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { Button, Card, Badge } from "@/components/ui";
 import { setAccessToken } from "@/lib/api-client";
 import {
   getReviewCapSettings,
@@ -213,7 +214,7 @@ export default function SettingsPage() {
       <h1 className="text-2xl font-bold text-text-primary mb-8">Cài đặt</h1>
 
       {/* Section 1: Tài khoản */}
-      <section className="bg-bg-secondary rounded-lg border border-border p-6 mb-6">
+      <Card className="p-6 mb-6 bg-[var(--surface-card)]">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
           <User className="w-4 h-4" />
           Tài khoản
@@ -390,10 +391,10 @@ export default function SettingsPage() {
             </button>
           </form>
         )}
-      </section>
+      </Card>
 
       {/* Section 2: Cấu hình AI */}
-      <section className="bg-bg-secondary rounded-lg border border-border p-6 mb-6">
+      <Card className="p-6 mb-6 bg-[var(--surface-card)]">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
           <Bot className="w-4 h-4" />
           Cấu hình AI
@@ -462,10 +463,10 @@ export default function SettingsPage() {
             )}
           </div>
         </div>
-      </section>
+      </Card>
 
       {/* Section 2b: Giới hạn ôn tập hàng ngày (Daily Review Cap) */}
-      <section className="bg-bg-secondary rounded-lg border border-border p-6 mb-6">
+      <Card className="p-6 mb-6 bg-[var(--surface-card)]">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
           <Brain className="w-4 h-4 text-accent" />
           Giới hạn ôn tập hàng ngày (Daily Review Cap)
@@ -536,10 +537,10 @@ export default function SettingsPage() {
             )}
           </div>
         </form>
-      </section>
+      </Card>
 
       {/* Section 3: Giao diện */}
-      <section className="bg-bg-secondary rounded-lg border border-border p-6 mb-6">
+      <Card className="p-6 mb-6 bg-[var(--surface-card)]">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
           <Sun className="w-4 h-4" />
           Giao diện
@@ -621,10 +622,10 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-      </section>
+      </Card>
 
       {/* Section 4: Phím tắt */}
-      <section className="bg-bg-secondary rounded-lg border border-border p-6 mb-6">
+      <Card className="p-6 mb-6 bg-[var(--surface-card)]">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
           <Keyboard className="w-4 h-4" />
           Phím tắt
@@ -655,10 +656,10 @@ export default function SettingsPage() {
             </tbody>
           </table>
         </div>
-      </section>
+      </Card>
 
       {/* Section 5: Thông tin ứng dụng */}
-      <section className="bg-bg-secondary rounded-lg border border-border p-6 mb-6">
+      <Card className="p-6 mb-6 bg-[var(--surface-card)]">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
           <Info className="w-4 h-4" />
           Thông tin ứng dụng
@@ -704,7 +705,7 @@ export default function SettingsPage() {
             </Link>
           </div>
         </div>
-      </section>
+      </Card>
     </div>
   );
 }

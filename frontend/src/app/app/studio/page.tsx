@@ -9,6 +9,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { Button, Card, Badge, EmptyState } from "@/components/ui";
 
 interface CourseItem {
   id?: string;
@@ -68,7 +69,7 @@ export default function StudioListPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-[#5E51E8] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -77,63 +78,66 @@ export default function StudioListPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 md:pb-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-text-primary">Studio</h1>
-        <Link
-          href="/app/studio/create"
-          className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Tạo khóa học mới</span>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">Studio</h1>
+          <p className="text-sm text-[var(--text-secondary)] mt-1">
+            Không gian biên tập và thiết kế đề cương khóa học
+          </p>
+        </div>
+        <Link href="/app/studio/create">
+          <Button variant="primary" leftIcon={<Plus className="w-4 h-4" />}>
+            <span>Tạo khóa học mới</span>
+          </Button>
         </Link>
       </div>
 
       {/* Course Grid */}
       {courses.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 rounded-full bg-bg-tertiary flex items-center justify-center mb-4">
-            <FolderOpen className="w-8 h-8 text-text-tertiary" />
-          </div>
-          <p className="text-text-secondary text-sm mb-1">
-            Chưa có khóa học nào.
-          </p>
-          <p className="text-text-tertiary text-sm">
-            Hãy tạo khóa học đầu tiên!
-          </p>
-        </div>
+        <EmptyState
+          icon={FolderOpen}
+          title="Chưa có khóa học nào"
+          description="Hãy tạo khóa học đầu tiên để bắt đầu biên tập lộ trình học tập."
+          action={{
+            label: "Tạo khóa học mới",
+            href: "/app/studio/create",
+            icon: <Plus className="w-4 h-4" />,
+          }}
+        />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {courses.map((course) => {
             const id = getCourseId(course);
             const lessonCount = getLessonCount(course);
             return (
-              <div
+              <Card
                 key={id}
-                className="rounded-lg border border-border bg-bg-primary p-4 flex flex-col"
+                hoverable
+                className="p-5 flex flex-col justify-between"
               >
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-sm font-medium text-text-primary line-clamp-2 flex-1">
-                    {course.title}
-                  </h3>
+                <div>
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 flex-1">
+                      {course.title}
+                    </h3>
+                  </div>
+                  {course.category && (
+                    <Badge variant="neutral" size="sm" className="mb-3">
+                      {course.category}
+                    </Badge>
+                  )}
+                  <div className="flex items-center gap-1.5 text-xs text-[var(--text-tertiary)] mb-4">
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>{lessonCount} bài học</span>
+                  </div>
                 </div>
-                {course.category && (
-                  <span className="inline-block text-xs font-medium text-text-tertiary bg-bg-tertiary rounded-md px-2 py-0.5 mb-3 self-start">
-                    {course.category}
-                  </span>
-                )}
-                <div className="flex items-center gap-1.5 text-xs text-text-tertiary mb-4">
-                  <BookOpen className="w-3.5 h-3.5" />
-                  <span>{lessonCount} bài học</span>
-                </div>
-                <div className="mt-auto">
-                  <Link
-                    href={`/app/studio/${id}`}
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline transition"
-                  >
-                    <Pencil className="w-3.5 h-3.5" />
-                    <span>Chỉnh sửa</span>
+                <div className="pt-2 border-t border-[var(--border-calm)]">
+                  <Link href={`/app/studio/${id}`}>
+                    <Button variant="secondary" size="sm" className="w-full" leftIcon={<Pencil className="w-3.5 h-3.5" />}>
+                      Chỉnh sửa
+                    </Button>
                   </Link>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>

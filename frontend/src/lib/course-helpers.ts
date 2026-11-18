@@ -84,44 +84,50 @@ export function getCourseChapterCount(course: CourseLike): number {
 }
 
 export function classifyCourseDomain(course: CourseLike): CourseDomainMeta {
-  const combined = normalizeVi(
-    `${course.category || ""} ${course.title || ""} ${course.description || ""}`
-  );
+  const rawCombined = `${course.category || ""} ${course.title || ""} ${course.description || ""}`;
+  const combined = normalizeVi(rawCombined);
 
+  // 1. Language - prioritize language so "Tiếng Anh cho Dân IT" or "Bài học Tiếng Anh" match language
   if (
-    /(phap luat|luat|hien phap|hinh su|dan su|hanh chinh|chinh tri|triet hoc|xa hoi|lich su|giao trinh phap|nha nuoc)/.test(
-      combined
-    )
-  ) {
-    return { id: "law", label: "Pháp luật & Xã hội" };
-  }
-
-  if (
-    /(lap trinh|code|coding|react|next|typescript|javascript|python|java|c#|dotnet|\.net|sql|database|backend|frontend|api|ai|machine learning|deep learning|llm|devops|cloud|docker|kubernetes|software|computer|it|data|thuat toan|cau truc du lieu|mang may tinh|he dieu hanh)/.test(
-      combined
-    )
-  ) {
-    return { id: "technology", label: "Công nghệ & Lập trình" };
-  }
-
-  if (
-    /(toan|math|vat ly|physics|hoa hoc|chemistry|sinh hoc|biology|xac suat|thong ke|statistics|giai tich|dai so|khoa hoc)/.test(
-      combined
-    )
-  ) {
-    return { id: "science", label: "Khoa học & Toán" };
-  }
-
-  if (
-    /(tieng anh|english|ielts|toeic|toefl|ngoai ngu|tieng nhat|japanese|tieng trung|chinese|tieng han|korean|ngu phap|tu vung|vocabulary)/.test(
+    /(tieng anh|english|ielts|toeic|toefl|ngoai ngu|tieng nhat|japanese|tieng trung|chinese|tieng han|korean|ngu phap|tu vung|vocabulary|phat am|listening|reading|writing|speaking|grammar|pronunciation)/.test(
       combined
     )
   ) {
     return { id: "language", label: "Ngoại ngữ" };
   }
 
+  // 2. Law & Social
   if (
-    /(kinh te|quan tri|marketing|tai chinh|ke toan|business|management|finance|economics|startup|product|ban hang|sales)/.test(
+    /(phap luat|\bluat\b|hien phap|hinh su|dan su|hanh chinh|chinh tri|triet hoc|lich su|giao trinh phap|nha nuoc)/.test(
+      combined
+    )
+  ) {
+    return { id: "law", label: "Pháp luật & Xã hội" };
+  }
+
+  // 3. Technology & Programming - ensure short acronyms have \b word boundaries so "giai", "bai", "lai" never match "ai"
+  if (
+    /(lap trinh|coding|\bcode\b|react|next|typescript|javascript|python|\bjava\b|\bc#\b|dotnet|\.net|\bsql\b|database|backend|frontend|\bapi\b|\bai\b|machine learning|deep learning|\bml\b|\bllm\b|devops|cloud|docker|kubernetes|software|computer|may tinh|thuat toan|cau truc du lieu|mang may tinh|he dieu hanh|microservice|microservices|\bddd\b|event sourcing|phan tan|he thong)/.test(
+      combined
+    )
+  ) {
+    return { id: "technology", label: "Công nghệ & Lập trình" };
+  }
+
+  // 4. Science & Math - ensure \b word boundaries so "khoa hoc" (course) doesn't match "hoa hoc" (chemistry) or "khoa hoc" (science)
+  const isScience =
+    /(\btoan hoc\b|\btoan cao cap\b|\btoan roi rac\b|\bgiai tich\b|\bdai so\b|\bmath\b|\bvat ly\b|\bphysics\b|\bhoa hoc\b|\bchemistry\b|\bsinh hoc\b|\bbiology\b|\bxac suat\b|\bthong ke\b|\bstatistics\b|\bkhoa hoc tu nhien\b)/.test(
+      combined
+    ) ||
+    (/\bkhoa học\b/i.test(rawCombined) && !/\b(khóa học|khoá học)\b/i.test(rawCombined));
+
+  if (isScience) {
+    return { id: "science", label: "Khoa học & Toán" };
+  }
+
+  // 5. Business & Economics
+  if (
+    /(kinh te|quan tri|marketing|tai chinh|ke toan|business|management|finance|economics|startup|product|ban hang|\bsales\b)/.test(
       combined
     )
   ) {
