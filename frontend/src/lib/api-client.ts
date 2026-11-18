@@ -166,3 +166,96 @@ export async function swmsFetch<T>(url: string, init?: RequestInit): Promise<T> 
 
   return (await resp.json()) as T;
 }
+
+interface DashboardCacheEntry<T = unknown> {
+  data: T;
+  timestamp: number;
+}
+
+const DASHBOARD_CACHE_TTL_MS = 25_000;
+const dashboardCache = new Map<string, DashboardCacheEntry<any>>();
+const dashboardInFlight = new Map<string, Promise<any>>();
+
+export function invalidateDashboardCache(userId?: string): void {
+  if (userId) {
+    dashboardCache.delete(userId);
+  } else {
+    dashboardCache.clear();
+  }
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("swms:data-mutated", () => {
+    invalidateDashboardCache();
+  });
+}
+
+function buildDashboardHeaders(extraHeaders?: Record<string, string>): Record<string, string> {
+  const headers: Record<string, string> = { ...(extraHeaders ?? {}) };
+  if (inMemoryAccessToken && !headers["Authorization"]) {
+    headers["Authorization"] = `Bearer ${inMemoryAccessToken}`;
+  }
+  if (typeof window !== "undefined") {
+    try {
+      const activeUserId = window.localStorage.getItem("swms_active_user_id");
+      if (activeUserId && activeUserId.trim() && !headers["X-Test-User-Id"]) {
+        headers["X-Test-User-Id"] = activeUserId.trim();
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return headers;
+}
+
+export async function fetchDashboardCached<T = any>(options?: {
+  forceRefresh?: boolean;
+  headers?: Record<string, string>;
+}): Promise<T> {
+  const headers = buildDashboardHeaders(options?.headers);
+  const cacheKey = headers["X-Test-User-Id"] || "default_user";
+
+  if (!options?.forceRefresh) {
+    const cached = dashboardCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < DASHBOARD_CACHE_TTL_MS) {
+      return cached.data as T;
+    }
+    const inFlight = dashboardInFlight.get(cacheKey);
+    if (inFlight) {
+      return inFlight as Promise<T>;
+    }
+  }
+
+  const fetchPromise = (async () => {
+    try {
+      let resp = await fetch("/api/v1/workspace/dashboard", {
+        credentials: "include",
+        headers
+      });
+
+      if (resp.status === 401) {
+        const refreshed = await refreshAccessTokenSingleFlight();
+        if (refreshed) {
+          headers["Authorization"] = `Bearer ${refreshed}`;
+          resp = await fetch("/api/v1/workspace/dashboard", {
+            credentials: "include",
+            headers
+          });
+        }
+      }
+
+      if (!resp.ok) {
+        throw new Error(`HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      dashboardCache.set(cacheKey, { data, timestamp: Date.now() });
+      return data as T;
+    } finally {
+      dashboardInFlight.delete(cacheKey);
+    }
+  })();
+
+  dashboardInFlight.set(cacheKey, fetchPromise);
+  return fetchPromise;
+}
+

@@ -15,6 +15,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { fetchDashboardCached } from "@/lib/api-client";
 import { enqueueOfflineMutation, removeOfflineMutation } from "@/lib/offline-queue";
 import { getReviewCapSettings } from "@/lib/review-settings";
 
@@ -145,8 +146,8 @@ function ReviewPageContent() {
         if (useIncludeAll) params.set("includeAll", "true");
         const queryString = params.toString();
 
-        const [dashResp, cardsResp] = await Promise.all([
-          fetch("/api/v1/workspace/dashboard", { headers }),
+        const [dashData, cardsResp] = await Promise.all([
+          fetchDashboardCached({ headers }).catch(() => null),
           fetch(`/api/v1/flashcards/due${queryString ? `?${queryString}` : ""}`, { headers }),
         ]);
 
@@ -157,8 +158,7 @@ function ReviewPageContent() {
         let reviewCount = 0;
         let estimatedMinutes = 0;
 
-        if (dashResp.ok) {
-          const dashData = await dashResp.json();
+        if (dashData) {
           const rs = dashData.reviewStation ?? {};
           totalDue = rs.totalDue ?? 0;
           totalCards = rs.totalCards ?? 0;

@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { fetchDashboardCached } from "@/lib/api-client";
 import {
   Button,
   Card,
@@ -65,9 +66,8 @@ export default function CoursesCatalogPage() {
         const list = await resp.json();
         setRawCourses(Array.isArray(list) ? list : []);
       } else {
-        const dashResp = await fetch("/api/v1/workspace/dashboard", { headers }).catch(() => null);
-        if (dashResp && dashResp.ok) {
-          const data = await dashResp.json();
+        const data = await fetchDashboardCached({ headers }).catch(() => null);
+        if (data && data.courses) {
           setRawCourses(Array.isArray(data.courses) ? data.courses : []);
         } else {
           setFetchError(`Không tải được danh sách khóa học (HTTP ${resp.status}).`);

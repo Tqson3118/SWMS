@@ -23,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { fetchDashboardCached } from "@/lib/api-client";
 import { Button, Card, Badge, ProgressBar, EmptyState } from "@/components/ui";
 import { classifyCourseDomain, normalizeVi } from "@/lib/course-helpers";
 
@@ -88,9 +89,9 @@ export default function CourseDetailPage() {
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
 
-      const [courseResp, dashResp] = await Promise.all([
+      const [courseResp, dashData] = await Promise.all([
         fetch(`/api/v1/courses/${courseId}`, { headers }).catch(() => null),
-        fetch("/api/v1/workspace/dashboard", { headers }).catch(() => null),
+        fetchDashboardCached({ headers }).catch(() => null),
       ]);
 
       let courseData: CourseDetail | null = null;
@@ -119,8 +120,7 @@ export default function CourseDetailPage() {
           progressPercent: progress,
           chapters: chaps,
         };
-      } else if (dashResp && dashResp.ok) {
-        const dashData = await dashResp.json();
+      } else if (dashData) {
         const allCourses = dashData.courses ?? [];
         const found = allCourses.find(
           (c: Record<string, unknown>) => (c.courseId || c.id) === courseId

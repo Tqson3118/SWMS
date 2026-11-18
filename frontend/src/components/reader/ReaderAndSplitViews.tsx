@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import * as pdfjsLib from "pdfjs-dist";
+import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 import {
   Lightbulb,
   Code2,
@@ -61,10 +61,6 @@ function toNullableUuid(val?: string | number | null): string | null {
   return UUID_REGEX.test(trimmed) ? trimmed : null;
 }
 
-// Configure PDF.js offline worker without external CDN
-if (typeof window !== "undefined") {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
-}
 
 function renderSemanticHighlightIcon(iconName: string, className = "w-3 h-3 inline-block") {
   switch (iconName) {
@@ -698,11 +694,11 @@ export function ReaderAndSplitViews({
   // PDF Viewer & Dual-Layer Reader states
   const [currentPageData, setCurrentPageData] = useState<DocumentPageDto | null>(null);
   const [pageLoading, setPageLoading] = useState(false);
-  const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+  const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
   const [pdfTotalPages, setPdfTotalPages] = useState<number>(0);
   const [jumpPageInput, setJumpPageInput] = useState<string>("1");
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const currentRenderTaskRef = useRef<pdfjsLib.RenderTask | null>(null);
+  const currentRenderTaskRef = useRef<RenderTask | null>(null);
   const pageCacheRef = useRef<Map<number, DocumentPageDto>>(new Map());
 
   const isDocMode = sourceType === "document" && Boolean(activeDocumentId);
@@ -1024,7 +1020,11 @@ export function ReaderAndSplitViews({
 
     const loadPdf = async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument({
+        const pdfjs = await import("pdfjs-dist");
+        if (typeof window !== "undefined") {
+          pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+        }
+        const loadingTask = pdfjs.getDocument({
           url: `/api/v1/documents/${activeDocumentId}/file`,
           cMapPacked: true,
           httpHeaders: getClientRequestHeaders(),

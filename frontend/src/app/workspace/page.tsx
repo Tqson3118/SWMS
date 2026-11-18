@@ -1,20 +1,62 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter, usePathname } from "next/navigation";
 import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspaceStore";
-import { bootstrapAuthSession, setAccessToken } from "@/lib/api-client";
+import { bootstrapAuthSession, setAccessToken, fetchDashboardCached } from "@/lib/api-client";
 import { TopNavHeader, type QuotaSummary } from "@/components/layout/TopNavHeader";
 import {
   PersonalWorkspaceDashboard,
   type DashboardData
 } from "@/components/dashboard/PersonalWorkspaceDashboard";
-import { ReaderAndSplitViews } from "@/components/reader/ReaderAndSplitViews";
-import { ReviewAndPracticeView } from "@/components/review/ReviewAndPracticeView";
-import { CourseStudioView } from "@/components/studio/CourseStudioView";
-import { CommandPaletteModal } from "@/components/command/CommandPaletteModal";
-import { KeyboardShortcutsModal } from "@/components/auxiliary/KeyboardShortcutsModal";
 import { animateWorkspaceTransition } from "@/lib/animations.ts";
+
+const ReaderAndSplitViews = dynamic(
+  () => import("@/components/reader/ReaderAndSplitViews").then((mod) => mod.ReaderAndSplitViews),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex-1 min-h-[400px] flex items-center justify-center p-8 text-[var(--text-muted)] animate-pulse">
+        Đang tải chế độ đọc...
+      </div>
+    )
+  }
+);
+
+const ReviewAndPracticeView = dynamic(
+  () => import("@/components/review/ReviewAndPracticeView").then((mod) => mod.ReviewAndPracticeView),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex-1 min-h-[400px] flex items-center justify-center p-8 text-[var(--text-muted)] animate-pulse">
+        Đang tải chế độ ôn tập...
+      </div>
+    )
+  }
+);
+
+const CourseStudioView = dynamic(
+  () => import("@/components/studio/CourseStudioView").then((mod) => mod.CourseStudioView),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex-1 min-h-[400px] flex items-center justify-center p-8 text-[var(--text-muted)] animate-pulse">
+        Đang tải studio khóa học...
+      </div>
+    )
+  }
+);
+
+const CommandPaletteModal = dynamic(
+  () => import("@/components/command/CommandPaletteModal").then((mod) => mod.CommandPaletteModal),
+  { ssr: false }
+);
+
+const KeyboardShortcutsModal = dynamic(
+  () => import("@/components/auxiliary/KeyboardShortcutsModal").then((mod) => mod.KeyboardShortcutsModal),
+  { ssr: false }
+);
 
 const INITIAL_DASHBOARD_DATA: DashboardData = {
   user: {
@@ -79,9 +121,8 @@ export default function WorkspacePage() {
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
       const reqHeaders = Object.keys(headers).length > 0 ? headers : undefined;
-      const dashResp = await fetch("/api/v1/workspace/dashboard", { headers: reqHeaders });
-      if (dashResp.ok) {
-        const data = await dashResp.json();
+      const data = await fetchDashboardCached({ headers: reqHeaders });
+      if (data) {
         let resolvedCourses = Array.isArray(data.courses) ? data.courses : [];
         if (resolvedCourses.length === 0) {
           const coursesResp = await fetch("/api/v1/courses", { headers: reqHeaders }).catch(() => null);
@@ -97,11 +138,7 @@ export default function WorkspacePage() {
         });
         if (data.quota) setQuota(data.quota);
       } else {
-        const errBody = await dashResp.json().catch(() => null);
-        setDashboardError(
-          errBody?.error ||
-            `Không thể tải dữ liệu không gian học tập (Mã lỗi HTTP ${dashResp.status}).`
-        );
+        setDashboardError("Không thể tải dữ liệu không gian học tập.");
       }
     } catch {
       setDashboardError(
@@ -248,11 +285,26 @@ export default function WorkspacePage() {
   if (!authReady) {
     return (
       <div className={darkMode ? "dark" : ""}>
-        <div className="min-h-screen w-full flex items-center justify-center bg-[var(--canvas-bg)] text-[var(--text-primary)]">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-7 h-7 border-2 border-[#5E51E8] border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs text-[var(--text-tertiary)]">Đang xác thực phiên làm việc...</span>
+        <div className="min-h-screen w-full bg-[var(--canvas-bg)] text-[var(--text-primary)]">
+          <div className="h-14 border-b border-[var(--border-calm)] bg-[var(--surface-card)] px-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-24 h-5 rounded-[6px] bg-[var(--surface-elevated)] animate-pulse" />
+              <div className="w-32 h-5 rounded-[6px] bg-[var(--surface-elevated)] animate-pulse" />
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-20 h-7 rounded-[8px] bg-[var(--surface-elevated)] animate-pulse" />
+              <div className="w-8 h-8 rounded-full bg-[var(--surface-elevated)] animate-pulse" />
+            </div>
           </div>
+          <main className="max-w-7xl mx-auto p-6 space-y-6">
+            <div className="h-8 w-48 rounded-[8px] bg-[var(--surface-elevated)] animate-pulse" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-28 rounded-[14px] bg-[var(--surface-elevated)] animate-pulse" />
+              ))}
+            </div>
+            <div className="h-64 rounded-[14px] bg-[var(--surface-elevated)] animate-pulse" />
+          </main>
         </div>
       </div>
     );

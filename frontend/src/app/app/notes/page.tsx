@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { fetchDashboardCached } from "@/lib/api-client";
 import { Button, Card, Badge, EmptyState } from "@/components/ui";
 import { getCourseId, normalizeVi, type CourseLike } from "@/lib/course-helpers";
 
@@ -78,13 +79,13 @@ export default function NotesPage() {
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
 
-      const resp = await fetch("/api/v1/workspace/dashboard", { headers });
-      if (!resp.ok) {
-        setFetchError(`Không tải được danh sách sổ tay (HTTP ${resp.status}).`);
+      const data = await fetchDashboardCached({
+        headers: effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
+      });
+      if (!data) {
+        setFetchError("Không tải được danh sách sổ tay.");
         return;
       }
-
-      const data = await resp.json();
       setNotebooks(Array.isArray(data.notebooks) ? data.notebooks : []);
 
       const nextLessons: Record<string, LessonLookupItem> = {};

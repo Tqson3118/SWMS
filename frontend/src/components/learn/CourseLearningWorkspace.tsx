@@ -51,7 +51,19 @@ import {
   type LessonHeadingItem,
   type MarkdownAnnotationItem,
 } from "@/components/reader/LessonMarkdownView";
-import { LessonPracticeLab } from "@/components/learn/LessonPracticeLab";
+import dynamic from "next/dynamic";
+
+const LessonPracticeLab = dynamic(
+  () => import("@/components/learn/LessonPracticeLab").then((mod) => mod.LessonPracticeLab),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex-1 flex items-center justify-center p-8 text-[var(--text-muted)] animate-pulse">
+        Đang tải phòng thực hành...
+      </div>
+    )
+  }
+);
 
 export interface CourseLearningWorkspaceProps {
   courseId: string;

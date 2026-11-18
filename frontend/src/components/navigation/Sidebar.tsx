@@ -21,7 +21,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
-import { setAccessToken } from "@/lib/api-client";
+import { setAccessToken, fetchDashboardCached } from "@/lib/api-client";
 import { deduplicateCourses, getCourseId, getCourseProgress } from "@/lib/course-helpers";
 
 interface SidebarProps {
@@ -95,17 +95,8 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   // Fetch minimal sidebar data
   const fetchSidebarData = useCallback(async () => {
     try {
-      const effectiveUserId =
-        activeUserHeaderId ??
-        (typeof window !== "undefined"
-          ? window.localStorage.getItem("swms_active_user_id")
-          : null);
-      const headers = getClientRequestHeaders(
-        effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
-      );
-      const resp = await fetch("/api/v1/workspace/dashboard", { headers });
-      if (resp.ok) {
-        const data = await resp.json();
+      const data = await fetchDashboardCached();
+      if (data) {
         setDueCount(data.reviewStation?.totalDue ?? 0);
         setStreakDays(data.user?.streakDays ?? 0);
         setUserName(data.user?.fullName ?? "Học viên");
@@ -127,7 +118,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
     } catch {
       // Silent fail for sidebar data
     }
-  }, [activeUserHeaderId]);
+  }, []);
 
   useEffect(() => {
     fetchSidebarData();

@@ -21,6 +21,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { fetchDashboardCached } from "@/lib/api-client";
 import {
   classifyCourseDomain,
   deduplicateCourses,
@@ -118,17 +119,17 @@ export default function DashboardPage() {
       const headers = getClientRequestHeaders(
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
-      const [dashResp, coursesResp] = await Promise.all([
-        fetch("/api/v1/workspace/dashboard", { headers }),
+      const [data, coursesResp] = await Promise.all([
+        fetchDashboardCached({
+          headers: effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
+        }),
         fetch("/api/v1/courses", { headers }).catch(() => null),
       ]);
 
-      if (!dashResp.ok) {
-        setFetchError(`Không tải được dữ liệu bảng điều khiển (HTTP ${dashResp.status}).`);
+      if (!data) {
+        setFetchError("Không tải được dữ liệu bảng điều khiển.");
         return;
       }
-
-      const data = await dashResp.json();
       setUser(data.user ?? { id: "", fullName: "Học viên", email: "", streakDays: 0 });
       setReviewStation(
         data.reviewStation ?? {

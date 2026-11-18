@@ -14,6 +14,7 @@ import {
   useWorkspaceStore,
   getClientRequestHeaders,
 } from "@/stores/useWorkspaceStore";
+import { fetchDashboardCached } from "@/lib/api-client";
 import type { LibraryFilter } from "@/stores/useWorkspaceStore";
 import { Button, Card, Badge, ProgressBar, EmptyState } from "@/components/ui";
 
@@ -91,9 +92,10 @@ export default function LibraryPage() {
       const headers = getClientRequestHeaders(
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
-      const resp = await fetch("/api/v1/workspace/dashboard", { headers });
-      if (resp.ok) {
-        const data = await resp.json();
+      const data = await fetchDashboardCached({
+        headers: effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
+      });
+      if (data) {
         setCourses(data.courses ?? []);
         setDocuments(data.documents ?? []);
         setNotebooks(data.notebooks ?? []);

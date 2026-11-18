@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { fetchDashboardCached } from "@/lib/api-client";
 import { Button, Card, Badge, EmptyState } from "@/components/ui";
 import { getCourseId, normalizeVi, type CourseLike } from "@/lib/course-helpers";
 
@@ -76,23 +77,17 @@ export default function DocumentsPage() {
     setFetchError(null);
     try {
       const headers = getHeaders();
-      const [docsResp, dashResp] = await Promise.all([
+      const [docsResp, dashData] = await Promise.all([
         fetch("/api/v1/documents", { headers }).catch(() => null),
-        fetch("/api/v1/workspace/dashboard", { headers }),
+        fetchDashboardCached({ headers }).catch(() => ({})),
       ]);
 
-      if (!dashResp.ok && (!docsResp || !docsResp.ok)) {
-        setFetchError(`Không tải được danh sách tài liệu (HTTP ${dashResp.status}).`);
-        return;
-      }
-
       const docsList = docsResp && docsResp.ok ? await docsResp.json().catch(() => null) : null;
-      const dashData = dashResp.ok ? await dashResp.json().catch(() => ({})) : {};
 
       const resolvedDocs: DocumentItem[] =
         Array.isArray(docsList) && docsList.length > 0
           ? docsList
-          : Array.isArray(dashData.documents)
+          : Array.isArray(dashData?.documents)
             ? dashData.documents
             : [];
       setDocuments(resolvedDocs);

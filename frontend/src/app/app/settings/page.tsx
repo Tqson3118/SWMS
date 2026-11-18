@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { Button, Card, Badge } from "@/components/ui";
-import { setAccessToken } from "@/lib/api-client";
+import { setAccessToken, fetchDashboardCached } from "@/lib/api-client";
 import {
   getReviewCapSettings,
   saveReviewCapSettings,
@@ -110,12 +110,11 @@ export default function SettingsPage() {
       const headers = getClientRequestHeaders(
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
-      const [meResp, dashResp] = await Promise.all([
+      const [meResp, dashData] = await Promise.all([
         fetch("/api/v1/auth/me", { credentials: "include", headers }).catch(() => null),
-        fetch("/api/v1/workspace/dashboard", { credentials: "include", headers }).catch(() => null),
+        fetchDashboardCached({ headers }).catch(() => null),
       ]);
       const meData = meResp && meResp.ok ? await meResp.json().catch(() => null) : null;
-      const dashData = dashResp && dashResp.ok ? await dashResp.json().catch(() => null) : null;
       const baseUser = dashData?.user ?? {};
       if (meData || dashData) {
         setUser({

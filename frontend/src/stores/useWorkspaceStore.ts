@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { getAccessToken } from "@/lib/api-client";
+import { getAccessToken, invalidateDashboardCache } from "@/lib/api-client";
 
 export type WorkspaceMode = "dashboard" | "reading" | "split" | "review" | "studio";
 export type PdfViewMode = "dual" | "canvas" | "text";
@@ -225,6 +225,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
             window.localStorage.removeItem("swms_active_user_id");
           }
         }
+        invalidateDashboardCache();
         set({ activeUserHeaderId: id });
       },
       setActiveCourseId: (id) => set({ activeCourseId: id }),
