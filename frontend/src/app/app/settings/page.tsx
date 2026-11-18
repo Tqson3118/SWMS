@@ -7,6 +7,7 @@ import {
   User,
   LogOut,
   Bot,
+  Brain,
   Key,
   Globe,
   Cpu,
@@ -23,6 +24,11 @@ import {
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { setAccessToken } from "@/lib/api-client";
+import {
+  getReviewCapSettings,
+  saveReviewCapSettings,
+  type ReviewCapSettings,
+} from "@/lib/review-settings";
 
 interface UserInfo {
   id: string;
@@ -81,6 +87,17 @@ export default function SettingsPage() {
   // AI Config state
   const [aiConfig, setAiConfig] = useState<AiConfig>(DEFAULT_AI_CONFIG);
   const [showSavedToast, setShowSavedToast] = useState(false);
+
+  // Daily Review Cap state
+  const [reviewCaps, setReviewCaps] = useState<ReviewCapSettings>(getReviewCapSettings);
+  const [showCapSavedToast, setShowCapSavedToast] = useState(false);
+
+  const handleSaveReviewCaps = (e: React.FormEvent) => {
+    e.preventDefault();
+    saveReviewCapSettings(reviewCaps);
+    setShowCapSavedToast(true);
+    setTimeout(() => setShowCapSavedToast(false), 2500);
+  };
 
   // Fetch user data
   const fetchUser = useCallback(async () => {
@@ -445,6 +462,80 @@ export default function SettingsPage() {
             )}
           </div>
         </div>
+      </section>
+
+      {/* Section 2b: Giới hạn ôn tập hàng ngày (Daily Review Cap) */}
+      <section className="bg-bg-secondary rounded-lg border border-border p-6 mb-6">
+        <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
+          <Brain className="w-4 h-4 text-accent" />
+          Giới hạn ôn tập hàng ngày (Daily Review Cap)
+        </h2>
+        <form onSubmit={handleSaveReviewCaps} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="flex items-center gap-1.5 text-sm font-medium text-text-secondary mb-1.5">
+                Số thẻ ôn tập tối đa / ngày
+              </label>
+              <input
+                data-testid="settings-review-cap-input"
+                type="number"
+                min={10}
+                max={500}
+                value={reviewCaps.maxReviewsPerDay}
+                onChange={(e) =>
+                  setReviewCaps((c) => ({
+                    ...c,
+                    maxReviewsPerDay: Number(e.target.value) || 100,
+                  }))
+                }
+                className="w-full h-9 px-3 rounded-md border border-border bg-bg-primary text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+              <p className="text-[11px] text-text-tertiary mt-1">
+                Mặc định: 100 thẻ. Giúp chống quá tải nhận thức khi ôn thi.
+              </p>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-1.5 text-sm font-medium text-text-secondary mb-1.5">
+                Số thẻ mới tối đa / ngày
+              </label>
+              <input
+                data-testid="settings-new-cap-input"
+                type="number"
+                min={5}
+                max={100}
+                value={reviewCaps.maxNewPerDay}
+                onChange={(e) =>
+                  setReviewCaps((c) => ({
+                    ...c,
+                    maxNewPerDay: Number(e.target.value) || 20,
+                  }))
+                }
+                className="w-full h-9 px-3 rounded-md border border-border bg-bg-primary text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+              <p className="text-[11px] text-text-tertiary mt-1">
+                Mặc định: 20 thẻ mới. Điều phối nhịp độ tiếp thu kiến thức mới.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 pt-1">
+            <button
+              type="submit"
+              data-testid="settings-save-review-caps-btn"
+              className="flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition cursor-pointer"
+            >
+              <Save className="w-4 h-4" />
+              Lưu giới hạn ôn tập
+            </button>
+            {showCapSavedToast && (
+              <span className="flex items-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400 font-medium animate-in fade-in">
+                <Check className="w-4 h-4" />
+                Đã lưu ✓
+              </span>
+            )}
+          </div>
+        </form>
       </section>
 
       {/* Section 3: Giao diện */}

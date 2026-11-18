@@ -29,6 +29,12 @@ import {
   getCourseProgress,
   type CourseLike,
 } from "@/lib/course-helpers";
+import {
+  getVietnameseGreetingName,
+  getReviewCapSettings,
+  type ReviewCapSettings,
+} from "@/lib/review-settings";
+import { EmptyState, Card, StatCard, ProgressBar, Badge } from "@/components/ui";
 
 interface DashboardUser {
   id: string;
@@ -199,7 +205,29 @@ export default function DashboardPage() {
     fetchData();
   }, [fetchData]);
 
-  const firstName = user.fullName.trim().split(/\s+/).pop() || "bạn";
+  const [reviewCaps, setReviewCaps] = useState<ReviewCapSettings>(getReviewCapSettings);
+
+  useEffect(() => {
+    const handleCapsUpdate = (e: Event) => {
+      const detail = (e as CustomEvent<ReviewCapSettings>).detail;
+      if (detail) setReviewCaps(detail);
+    };
+    window.addEventListener("studxy:review-caps-updated", handleCapsUpdate);
+    return () => window.removeEventListener("studxy:review-caps-updated", handleCapsUpdate);
+  }, []);
+
+  const firstName = getVietnameseGreetingName(user.fullName);
+
+  const totalDue = reviewStation.totalDue;
+  const cappedDue = Math.min(totalDue, reviewCaps.maxReviewsPerDay);
+  const backlogCount = Math.max(0, totalDue - cappedDue);
+  const estimatedMins = Math.max(1, Math.round(cappedDue * 0.5));
+
+  // Lịch sử kiểm tra: chỉ hiển thị bài đã nộp (hoàn tất)
+  const submittedQuizzes = quizzes.filter(
+    (q) => q.status === "completed" || q.status === "submitted"
+  );
+  const recentQuizzes = submittedQuizzes.slice(0, 3);
 
   const continueCourse =
     courses.find((c) => {
@@ -238,7 +266,6 @@ export default function DashboardPage() {
           )
         )
       : 0;
-  const recentQuizzes = quizzes.slice(0, 3);
   const streakFilledCount = Math.min(7, Math.max(0, user.streakDays));
 
   if (isLoading) {
@@ -410,37 +437,34 @@ export default function DashboardPage() {
               </span>
             </div>
 
-            <div className="flex items-baseline gap-2.5 mb-1.5">
-              <span className="text-3xl font-bold tracking-tight text-text-primary">
-                {reviewStation.totalDue}
+            <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+              <span className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
+                Hôm nay: {cappedDue} thẻ
               </span>
-              <span className="text-sm text-text-secondary">thẻ đến hạn hôm nay</span>
+              <span className="text-sm font-medium text-text-secondary">
+                (~{estimatedMins} phút)
+              </span>
             </div>
 
-            {reviewStation.estimatedMinutes > 0 ? (
-              <p className="text-sm text-text-tertiary mb-4 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5" />
-                <span>Ước tính khoảng {reviewStation.estimatedMinutes} phút</span>
-              </p>
-            ) : (
-              <p className="text-sm text-text-tertiary mb-4">
-                {reviewStation.totalDue > 0
-                  ? "Ôn lại kiến thức trọng tâm để nhớ lâu hơn."
-                  : "Bạn đã hoàn thành hết thẻ cần ôn hôm nay."}
-              </p>
-            )}
+            <div className="flex items-center gap-2 mb-4 text-xs">
+              <span className="text-text-tertiary">
+                {backlogCount > 0 ? `còn ${backlogCount} thẻ tồn` : "Đã lên lịch tối ưu"}
+              </span>
+              <span className="text-text-tertiary">·</span>
+              <span className="text-text-tertiary">Giới hạn {reviewCaps.maxReviewsPerDay} thẻ/ngày</span>
+            </div>
           </div>
 
           <div className="pt-1">
             <Link
               href="/app/review"
               className={`inline-flex items-center gap-2 h-9 px-4 rounded-md text-sm font-medium transition ${
-                reviewStation.totalDue > 0
-                  ? "bg-accent text-white hover:bg-accent-hover"
+                cappedDue > 0
+                  ? "bg-accent text-white hover:bg-accent-hover shadow-xs"
                   : "border border-border bg-bg-primary text-text-primary hover:bg-bg-tertiary"
               }`}
             >
-              <span>{reviewStation.totalDue > 0 ? "Bắt đầu ôn tập" : "Mở phòng ôn tập"}</span>
+              <span>{cappedDue > 0 ? "Bắt đầu ôn tập" : "Mở phòng ôn tập"}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -602,22 +626,23 @@ export default function DashboardPage() {
                     <span className="text-xs font-medium text-text-primary truncate">
                       {q.title}
                     </span>
-                    <span
-                      className={`text-[11px] font-semibold px-2 py-0.5 rounded shrink-0 ${
-                        q.status === "completed"
-                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
-                          : "bg-bg-secondary text-text-secondary"
-                      }`}
-                    >
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded shrink-0 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
                       {q.correctItems}/{q.totalItems}
                     </span>
                   </Link>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-text-tertiary py-2">
-                Chưa có bài kiểm tra nào gần đây. Hãy mở một khóa học để làm bài luyện tập.
-              </p>
+              <EmptyState
+                title="Chưa có bài kiểm tra đã nộp"
+                description="Làm bài kiểm tra ngắn sau mỗi bài học để củng cố trí nhớ dài hạn."
+                action={{
+                  label: "Chọn khóa học",
+                  href: "/app/courses",
+                  testId: "dashboard-empty-quizzes-cta",
+                }}
+                className="py-4"
+              />
             )}
 
             <div className="rounded-md border border-accent/25 bg-accent-subtle/60 px-3 py-2 flex items-start gap-2">
