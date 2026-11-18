@@ -1,0 +1,2806 @@
+[
+  {
+    "route": "/",
+    "name": "landing",
+    "viewport": "1440x900",
+    "theme": "light",
+    "screenshot": "a11y-landing-1440x900-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Đọc sâu. Ghi nhớ. Làm chủ.",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 5,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.text-sm.font-bold",
+        "text": "01",
+        "ratio": 1.03,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(251,251,253)",
+        "fontSize": "14px",
+        "fontWeight": "700"
+      },
+      {
+        "selector": "SPAN.text-sm.font-bold",
+        "text": "02",
+        "ratio": 1.03,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(251,251,253)",
+        "fontSize": "14px",
+        "fontWeight": "700"
+      },
+      {
+        "selector": "SPAN.text-sm.font-bold",
+        "text": "03",
+        "ratio": 1.03,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(251,251,253)",
+        "fontSize": "14px",
+        "fontWeight": "700"
+      },
+      {
+        "selector": "SPAN.text-sm.font-bold",
+        "text": "04",
+        "ratio": 1.03,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(251,251,253)",
+        "fontSize": "14px",
+        "fontWeight": "700"
+      },
+      {
+        "selector": "A.inline-flex.items-center",
+        "text": "Tạo tài khoản miễn phí",
+        "ratio": 1.03,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(251,251,253)",
+        "fontSize": "14px",
+        "fontWeight": "600"
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "name": "landing",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "screenshot": "a11y-landing-1440x900-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Đọc sâu. Ghi nhớ. Làm chủ.",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 1,
+    "contrastViolations": [
+      {
+        "selector": "SPAN",
+        "text": "Nhấn ? để xem phím tắt",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "name": "landing",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "a11y-landing-390x844-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Đọc sâu. Ghi nhớ. Làm chủ.",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 5,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.text-sm.font-bold",
+        "text": "01",
+        "ratio": 1.03,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(251,251,253)",
+        "fontSize": "14px",
+        "fontWeight": "700"
+      },
+      {
+        "selector": "SPAN.text-sm.font-bold",
+        "text": "02",
+        "ratio": 1.03,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(251,251,253)",
+        "fontSize": "14px",
+        "fontWeight": "700"
+      },
+      {
+        "selector": "SPAN.text-sm.font-bold",
+        "text": "03",
+        "ratio": 1.03,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(251,251,253)",
+        "fontSize": "14px",
+        "fontWeight": "700"
+      },
+      {
+        "selector": "SPAN.text-sm.font-bold",
+        "text": "04",
+        "ratio": 1.03,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(251,251,253)",
+        "fontSize": "14px",
+        "fontWeight": "700"
+      },
+      {
+        "selector": "A.inline-flex.items-center",
+        "text": "Tạo tài khoản miễn phí",
+        "ratio": 1.03,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(251,251,253)",
+        "fontSize": "14px",
+        "fontWeight": "600"
+      }
+    ]
+  },
+  {
+    "route": "/",
+    "name": "landing",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "a11y-landing-390x844-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Đọc sâu. Ghi nhớ. Làm chủ.",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 1,
+    "contrastViolations": [
+      {
+        "selector": "SPAN",
+        "text": "Nhấn ? để xem phím tắt",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    ]
+  },
+  {
+    "route": "/auth",
+    "name": "auth",
+    "viewport": "1440x900",
+    "theme": "light",
+    "screenshot": "a11y-auth-1440x900-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Đăng nhập vào Studxy",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 0,
+    "contrastViolations": []
+  },
+  {
+    "route": "/auth",
+    "name": "auth",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "screenshot": "a11y-auth-1440x900-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Đăng nhập vào Studxy",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 1,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.bg-[var(--surface-card)].px-3",
+        "text": "Hoặc tiếp tục với",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      }
+    ]
+  },
+  {
+    "route": "/auth",
+    "name": "auth",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "a11y-auth-390x844-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Đăng nhập vào Studxy",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 0,
+    "contrastViolations": []
+  },
+  {
+    "route": "/auth",
+    "name": "auth",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "a11y-auth-390x844-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Đăng nhập vào Studxy",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 1,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.bg-[var(--surface-card)].px-3",
+        "text": "Hoặc tiếp tục với",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      }
+    ]
+  },
+  {
+    "route": "/app",
+    "name": "dashboard",
+    "viewport": "1440x900",
+    "theme": "light",
+    "screenshot": "a11y-dashboard-1440x900-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Chào Sơn, hôm nay học gì?",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 4,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.text-xs.font-medium",
+        "text": "23",
+        "ratio": 4.39,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(243,244,247)",
+        "fontSize": "12px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.inline-block.text-[11px]",
+        "text": "Công nghệ & Lập trình",
+        "ratio": 4.39,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(243,244,247)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.inline-block.text-[11px]",
+        "text": "Ngoại ngữ",
+        "ratio": 4.39,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(243,244,247)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.inline-block.text-[11px]",
+        "text": "Kinh tế & Quản trị",
+        "ratio": 4.39,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(243,244,247)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      }
+    ]
+  },
+  {
+    "route": "/app",
+    "name": "dashboard",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "screenshot": "a11y-dashboard-1440x900-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Chào Sơn, hôm nay học gì?",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 43,
+    "contrastViolations": [
+      {
+        "selector": "BUTTON.w-full.h-8",
+        "text": "Tìm kiếm...⌘K",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.flex-1.text-left",
+        "text": "Tìm kiếm...",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[11px].font-semibold",
+        "text": "Gần đây",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "600"
+      },
+      {
+        "selector": "A.flex.items-center",
+        "text": "Tạo khóa học",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Tạo khóa học",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "BUTTON.hidden.sm:inline-flex",
+        "text": "Tìm nhanh...⌘K",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "14px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Tìm nhanh...",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "14px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "A.inline-flex.items-center",
+        "text": "Tạo khóa học",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Tiếp tục lộ trình",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Tiến độ khóa học",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "A.inline-flex.items-center",
+        "text": "Học tiếp",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Học tiếp",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Ôn tập ghi nhớ",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.text-xs.text-text-tertiary",
+        "text": "1510 thẻ đang lưu",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-text-tertiary",
+        "text": "còn 1408 thẻ tồn",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    ]
+  },
+  {
+    "route": "/app",
+    "name": "dashboard",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "a11y-dashboard-390x844-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Chào Sơn, hôm nay học gì?",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 4,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.text-xs.font-medium",
+        "text": "23",
+        "ratio": 4.39,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(243,244,247)",
+        "fontSize": "12px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.inline-block.text-[11px]",
+        "text": "Công nghệ & Lập trình",
+        "ratio": 4.39,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(243,244,247)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.inline-block.text-[11px]",
+        "text": "Ngoại ngữ",
+        "ratio": 4.39,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(243,244,247)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.inline-block.text-[11px]",
+        "text": "Kinh tế & Quản trị",
+        "ratio": 4.39,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(243,244,247)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      }
+    ]
+  },
+  {
+    "route": "/app",
+    "name": "dashboard",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "a11y-dashboard-390x844-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Chào Sơn, hôm nay học gì?",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 47,
+    "contrastViolations": [
+      {
+        "selector": "A.inline-flex.items-center",
+        "text": "Tạo khóa học",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Tạo khóa học",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Tiếp tục lộ trình",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Tiến độ khóa học",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "A.inline-flex.items-center",
+        "text": "Học tiếp",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Học tiếp",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Ôn tập ghi nhớ",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.text-xs.text-text-tertiary",
+        "text": "1510 thẻ đang lưu",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-text-tertiary",
+        "text": "còn 1408 thẻ tồn",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-text-tertiary",
+        "text": "·",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-text-tertiary",
+        "text": "Giới hạn 100 thẻ/ngày",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "A.inline-flex.items-center",
+        "text": "Bắt đầu ôn tập",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Bắt đầu ôn tập",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.text-xs.text-text-tertiary",
+        "text": "Cập nhật trực tiếp từ tiến độ của bạn",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Nhịp độ học tập",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "500"
+      }
+    ]
+  },
+  {
+    "route": "/app/courses",
+    "name": "courses",
+    "viewport": "1440x900",
+    "theme": "light",
+    "screenshot": "a11y-courses-1440x900-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Khóa học",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 0,
+    "contrastViolations": []
+  },
+  {
+    "route": "/app/courses",
+    "name": "courses",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "screenshot": "a11y-courses-1440x900-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Khóa học",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 24,
+    "contrastViolations": [
+      {
+        "selector": "BUTTON.w-full.h-8",
+        "text": "Tìm kiếm...⌘K",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.flex-1.text-left",
+        "text": "Tìm kiếm...",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[11px].font-semibold",
+        "text": "Gần đây",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "600"
+      },
+      {
+        "selector": "A.flex.items-center",
+        "text": "Tạo khóa học",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Tạo khóa học",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.text-[11px].text-[var(--text-tertiary)]",
+        "text": "Mới",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "4 chương",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "·",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "16 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "29 chương",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "36 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "5 chương",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "493 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "21 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "14 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    ]
+  },
+  {
+    "route": "/app/courses",
+    "name": "courses",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "a11y-courses-390x844-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Khóa học",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 0,
+    "contrastViolations": []
+  },
+  {
+    "route": "/app/courses",
+    "name": "courses",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "a11y-courses-390x844-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Khóa học",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 29,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.text-[11px].text-[var(--text-tertiary)]",
+        "text": "Mới",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "4 chương",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "·",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "16 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "29 chương",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "36 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "5 chương",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "493 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "21 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "14 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "18 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "7 chương",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "52 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "2 chương",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "4 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    ]
+  },
+  {
+    "route": "/app/courses/22222222-2222-4222-8222-222222222222/learn",
+    "name": "learn",
+    "viewport": "1440x900",
+    "theme": "light",
+    "screenshot": "a11y-learn-1440x900-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 0,
+    "contrastViolations": []
+  },
+  {
+    "route": "/app/courses/22222222-2222-4222-8222-222222222222/learn",
+    "name": "learn",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "screenshot": "a11y-learn-1440x900-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 17,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.text-text-tertiary.hidden",
+        "text": "/",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "16px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "0/2 bài hoàn thành",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "10px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "1 chương",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "10px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "1 chương • 2 bài",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "BUTTON.w-full.min-h-[34px]",
+        "text": "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp5p",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[11px].font-medium",
+        "text": "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.text-[10px].inline-flex",
+        "text": "5p",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "10px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "5p",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "10px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "BUTTON.inline-flex.items-center",
+        "text": "Bài giảng",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "12px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Bài giảng",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "12px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "LABEL.text-[11px].text-text-tertiary",
+        "text": "PDF tham chiếu:",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.px-2.py-0.5",
+        "text": "Chương 3: Quản lý Bộ nhớ & Phân trang (Memory Mana",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "5 phút đọc",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-block.mr-1",
+        "text": "</>",
+        "ratio": 1.19,
+        "requiredRatio": 4.5,
+        "color": "rgb(0, 0, 0)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "18px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.font-mono.text-[10px]",
+        "text": "</>",
+        "ratio": 1.19,
+        "requiredRatio": 4.5,
+        "color": "rgb(0, 0, 0)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "10px",
+        "fontWeight": "700"
+      }
+    ]
+  },
+  {
+    "route": "/app/courses/22222222-2222-4222-8222-222222222222/learn",
+    "name": "learn",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "a11y-learn-390x844-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 0,
+    "contrastViolations": []
+  },
+  {
+    "route": "/app/courses/22222222-2222-4222-8222-222222222222/learn",
+    "name": "learn",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "a11y-learn-390x844-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 8,
+    "contrastViolations": [
+      {
+        "selector": "BUTTON.inline-flex.items-center",
+        "text": "Bài giảng",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "12px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Bài giảng",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "12px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.px-2.py-0.5",
+        "text": "Chương 3: Quản lý Bộ nhớ & Phân trang (Memory Mana",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "5 phút đọc",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.inline-block.mr-1",
+        "text": "</>",
+        "ratio": 1.19,
+        "requiredRatio": 4.5,
+        "color": "rgb(0, 0, 0)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "18px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.font-mono.text-[10px]",
+        "text": "</>",
+        "ratio": 1.19,
+        "requiredRatio": 4.5,
+        "color": "rgb(0, 0, 0)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "10px",
+        "fontWeight": "700"
+      },
+      {
+        "selector": "BUTTON.inline-flex.items-center",
+        "text": "Đánh dấu hoàn thành & Học bài tiếp",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Đánh dấu hoàn thành & Học bài tiếp",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      }
+    ]
+  },
+  {
+    "route": "/app/review",
+    "name": "review",
+    "viewport": "1440x900",
+    "theme": "light",
+    "screenshot": "a11y-review-1440x900-light.png",
+    "h1Count": 0,
+    "h1s": [],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 2,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.text-[11px].font-medium",
+        "text": "#TLB",
+        "ratio": 4.39,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(243,244,247)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.text-[11px].font-medium",
+        "text": "#Algorithms",
+        "ratio": 4.39,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(243,244,247)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      }
+    ]
+  },
+  {
+    "route": "/app/review",
+    "name": "review",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "screenshot": "a11y-review-1440x900-dark.png",
+    "h1Count": 0,
+    "h1s": [],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 10,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.text-xs.text-text-tertiary",
+        "text": "1 / 100",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "BUTTON.flex.items-center",
+        "text": "Hoàn tác (Z)",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.hidden.sm:inline",
+        "text": "Hoàn tác (Z)",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[11px].font-medium",
+        "text": "#TLB",
+        "ratio": 3.27,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(34,34,40)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.text-[11px].font-medium",
+        "text": "#Algorithms",
+        "ratio": 3.27,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(34,34,40)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "Operating Systems: Three Easy Pieces (OSTEP).pdf —",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.truncate",
+        "text": "Operating Systems: Three Easy Pieces (OSTEP).pdf —",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "P.text-xs.text-text-tertiary",
+        "text": "Nhấn Space hoặc click để lật thẻ",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Đáp án · Thẻ mới",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "BUTTON.h-10.px-6",
+        "text": "Hiện đáp án (Space)",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      }
+    ]
+  },
+  {
+    "route": "/app/review",
+    "name": "review",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "a11y-review-390x844-light.png",
+    "h1Count": 0,
+    "h1s": [],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 2,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.text-[11px].font-medium",
+        "text": "#TLB",
+        "ratio": 4.39,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(243,244,247)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.text-[11px].font-medium",
+        "text": "#Algorithms",
+        "ratio": 4.39,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(243,244,247)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      }
+    ]
+  },
+  {
+    "route": "/app/review",
+    "name": "review",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "a11y-review-390x844-dark.png",
+    "h1Count": 0,
+    "h1s": [],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 9,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.text-xs.text-text-tertiary",
+        "text": "1 / 100",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "BUTTON.flex.items-center",
+        "text": "Hoàn tác (Z)",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[11px].font-medium",
+        "text": "#TLB",
+        "ratio": 3.27,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(34,34,40)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.text-[11px].font-medium",
+        "text": "#Algorithms",
+        "ratio": 3.27,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(34,34,40)",
+        "fontSize": "11px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.inline-flex.items-center",
+        "text": "Operating Systems: Three Easy Pieces (OSTEP).pdf —",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.truncate",
+        "text": "Operating Systems: Three Easy Pieces (OSTEP).pdf —",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "P.text-xs.text-text-tertiary",
+        "text": "Nhấn Space hoặc click để lật thẻ",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Đáp án · Thẻ mới",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "BUTTON.h-10.px-6",
+        "text": "Hiện đáp án (Space)",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      }
+    ]
+  },
+  {
+    "route": "/app/documents",
+    "name": "documents",
+    "viewport": "1440x900",
+    "theme": "light",
+    "screenshot": "a11y-documents-1440x900-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Tài liệu",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 0,
+    "contrastViolations": []
+  },
+  {
+    "route": "/app/documents",
+    "name": "documents",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "screenshot": "a11y-documents-1440x900-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Tài liệu",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 16,
+    "contrastViolations": [
+      {
+        "selector": "BUTTON.w-full.h-8",
+        "text": "Tìm kiếm...⌘K",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.flex-1.text-left",
+        "text": "Tìm kiếm...",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[11px].font-semibold",
+        "text": "Gần đây",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "600"
+      },
+      {
+        "selector": "A.flex.items-center",
+        "text": "Tạo khóa học",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Tạo khóa học",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "1 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "·",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "17/11/2026",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "3 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "12 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "305 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "26 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "13/11/2026",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "4 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "298 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    ]
+  },
+  {
+    "route": "/app/documents",
+    "name": "documents",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "a11y-documents-390x844-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Tài liệu",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 0,
+    "contrastViolations": []
+  },
+  {
+    "route": "/app/documents",
+    "name": "documents",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "a11y-documents-390x844-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Tài liệu",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 21,
+    "contrastViolations": [
+      {
+        "selector": "SPAN",
+        "text": "1 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "·",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "17/11/2026",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "3 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "12 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "305 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "26 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "13/11/2026",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "4 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "298 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN",
+        "text": "48 trang",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "A.flex.flex-col",
+        "text": "Hôm nay",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "16px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[10px]",
+        "text": "Hôm nay",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "10px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "A.flex.flex-col",
+        "text": "Khóa học",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "16px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[10px]",
+        "text": "Khóa học",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "10px",
+        "fontWeight": "400"
+      }
+    ]
+  },
+  {
+    "route": "/app/notes",
+    "name": "notes",
+    "viewport": "1440x900",
+    "theme": "light",
+    "screenshot": "a11y-notes-1440x900-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Sổ tay",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 0,
+    "contrastViolations": []
+  },
+  {
+    "route": "/app/notes",
+    "name": "notes",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "screenshot": "a11y-notes-1440x900-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Sổ tay",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 9,
+    "contrastViolations": [
+      {
+        "selector": "BUTTON.w-full.h-8",
+        "text": "Tìm kiếm...⌘K",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.flex-1.text-left",
+        "text": "Tìm kiếm...",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[11px].font-semibold",
+        "text": "Gần đây",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "600"
+      },
+      {
+        "selector": "A.flex.items-center",
+        "text": "Tạo khóa học",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Tạo khóa học",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN.text-xs.text-[var(--text-tertiary)]",
+        "text": "Cập nhật 18/11/2026",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-xs.text-[var(--text-tertiary)]",
+        "text": "Cập nhật 17/11/2026",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-xs.text-[var(--text-tertiary)]",
+        "text": "Cập nhật 15/11/2026",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-xs.text-[var(--text-tertiary)]",
+        "text": "Cập nhật 13/11/2026",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    ]
+  },
+  {
+    "route": "/app/notes",
+    "name": "notes",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "a11y-notes-390x844-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Sổ tay",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 0,
+    "contrastViolations": []
+  },
+  {
+    "route": "/app/notes",
+    "name": "notes",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "a11y-notes-390x844-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Sổ tay",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 0,
+    "unlabeledButtons": [],
+    "contrastViolationsCount": 14,
+    "contrastViolations": [
+      {
+        "selector": "SPAN.text-xs.text-[var(--text-tertiary)]",
+        "text": "Cập nhật 18/11/2026",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-xs.text-[var(--text-tertiary)]",
+        "text": "Cập nhật 17/11/2026",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-xs.text-[var(--text-tertiary)]",
+        "text": "Cập nhật 15/11/2026",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-xs.text-[var(--text-tertiary)]",
+        "text": "Cập nhật 13/11/2026",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "A.flex.flex-col",
+        "text": "Hôm nay",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "16px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[10px]",
+        "text": "Hôm nay",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "10px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "A.flex.flex-col",
+        "text": "Khóa học",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "16px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[10px]",
+        "text": "Khóa học",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "10px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "BUTTON.flex.flex-col",
+        "text": "Tìm kiếm",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "16px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[10px]",
+        "text": "Tìm kiếm",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "10px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "A.flex.flex-col",
+        "text": "Tài liệu",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "16px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[10px]",
+        "text": "Tài liệu",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "10px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "A.flex.flex-col",
+        "text": "Ôn tập",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "16px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[10px]",
+        "text": "Ôn tập",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "10px",
+        "fontWeight": "400"
+      }
+    ]
+  },
+  {
+    "route": "/app/settings",
+    "name": "settings",
+    "viewport": "1440x900",
+    "theme": "light",
+    "screenshot": "a11y-settings-1440x900-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Cài đặt",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 2,
+    "unlabeledButtons": [
+      {
+        "tag": "BUTTON",
+        "testid": "",
+        "className": "relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-bg-tertiary border border-border",
+        "html": "<button type=\"button\" class=\"relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-bg-tertiary border border-border\"><span class=\"absolut"
+      },
+      {
+        "tag": "BUTTON",
+        "testid": "",
+        "className": "relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-accent",
+        "html": "<button type=\"button\" class=\"relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-accent\"><span class=\"absolute top-0.5 left-0.5 w-5 h-5"
+      }
+    ],
+    "contrastViolationsCount": 0,
+    "contrastViolations": []
+  },
+  {
+    "route": "/app/settings",
+    "name": "settings",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "screenshot": "a11y-settings-1440x900-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Cài đặt",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 2,
+    "unlabeledButtons": [
+      {
+        "tag": "BUTTON",
+        "testid": "",
+        "className": "relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-bg-tertiary border border-border",
+        "html": "<button type=\"button\" class=\"relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-bg-tertiary border border-border\"><span class=\"absolut"
+      },
+      {
+        "tag": "BUTTON",
+        "testid": "",
+        "className": "relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-accent",
+        "html": "<button type=\"button\" class=\"relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-accent\"><span class=\"absolute top-0.5 left-0.5 w-5 h-5"
+      }
+    ],
+    "contrastViolationsCount": 14,
+    "contrastViolations": [
+      {
+        "selector": "BUTTON.w-full.h-8",
+        "text": "Tìm kiếm...⌘K",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.flex-1.text-left",
+        "text": "Tìm kiếm...",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[11px].font-semibold",
+        "text": "Gần đây",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "600"
+      },
+      {
+        "selector": "A.flex.items-center",
+        "text": "Tạo khóa học",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "SPAN",
+        "text": "Tạo khóa học",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "BUTTON.flex.items-center",
+        "text": "Lưu cấu hình",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "P.text-[11px].text-text-tertiary",
+        "text": "Mặc định: 100 thẻ. Giúp chống quá tải nhận thức kh",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "P.text-[11px].text-text-tertiary",
+        "text": "Mặc định: 20 thẻ mới. Điều phối nhịp độ tiếp thu k",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "BUTTON.flex.items-center",
+        "text": "Lưu giới hạn ôn tập",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "P.text-xs.text-text-tertiary",
+        "text": "Đang tắt",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "P.text-xs.text-text-tertiary",
+        "text": "Serif (có chân)",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "P.text-xs.text-text-tertiary",
+        "text": "18px",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-xs.text-text-tertiary",
+        "text": "12",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-xs.text-text-tertiary",
+        "text": "20",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    ]
+  },
+  {
+    "route": "/app/settings",
+    "name": "settings",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "a11y-settings-390x844-light.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Cài đặt",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 2,
+    "unlabeledButtons": [
+      {
+        "tag": "BUTTON",
+        "testid": "",
+        "className": "relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-bg-tertiary border border-border",
+        "html": "<button type=\"button\" class=\"relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-bg-tertiary border border-border\"><span class=\"absolut"
+      },
+      {
+        "tag": "BUTTON",
+        "testid": "",
+        "className": "relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-accent",
+        "html": "<button type=\"button\" class=\"relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-accent\"><span class=\"absolute top-0.5 left-0.5 w-5 h-5"
+      }
+    ],
+    "contrastViolationsCount": 0,
+    "contrastViolations": []
+  },
+  {
+    "route": "/app/settings",
+    "name": "settings",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "a11y-settings-390x844-dark.png",
+    "h1Count": 1,
+    "h1s": [
+      {
+        "text": "Cài đặt",
+        "visible": true
+      }
+    ],
+    "unlabeledButtonsCount": 2,
+    "unlabeledButtons": [
+      {
+        "tag": "BUTTON",
+        "testid": "",
+        "className": "relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-bg-tertiary border border-border",
+        "html": "<button type=\"button\" class=\"relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-bg-tertiary border border-border\"><span class=\"absolut"
+      },
+      {
+        "tag": "BUTTON",
+        "testid": "",
+        "className": "relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-accent",
+        "html": "<button type=\"button\" class=\"relative w-11 h-6 rounded-full transition-colors cursor-pointer bg-accent\"><span class=\"absolute top-0.5 left-0.5 w-5 h-5"
+      }
+    ],
+    "contrastViolationsCount": 21,
+    "contrastViolations": [
+      {
+        "selector": "BUTTON.flex.items-center",
+        "text": "Lưu cấu hình",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "P.text-[11px].text-text-tertiary",
+        "text": "Mặc định: 100 thẻ. Giúp chống quá tải nhận thức kh",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "P.text-[11px].text-text-tertiary",
+        "text": "Mặc định: 20 thẻ mới. Điều phối nhịp độ tiếp thu k",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "11px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "BUTTON.flex.items-center",
+        "text": "Lưu giới hạn ôn tập",
+        "ratio": 2.98,
+        "requiredRatio": 4.5,
+        "color": "rgb(255, 255, 255)",
+        "bgColor": "rgb(129,140,248)",
+        "fontSize": "14px",
+        "fontWeight": "500"
+      },
+      {
+        "selector": "P.text-xs.text-text-tertiary",
+        "text": "Đang tắt",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "P.text-xs.text-text-tertiary",
+        "text": "Serif (có chân)",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "P.text-xs.text-text-tertiary",
+        "text": "18px",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-xs.text-text-tertiary",
+        "text": "12",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-xs.text-text-tertiary",
+        "text": "20",
+        "ratio": 3.66,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(24,24,28)",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "A.flex.flex-col",
+        "text": "Hôm nay",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "16px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[10px]",
+        "text": "Hôm nay",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "10px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "A.flex.flex-col",
+        "text": "Khóa học",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "16px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[10px]",
+        "text": "Khóa học",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "10px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "BUTTON.flex.flex-col",
+        "text": "Tìm kiếm",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "16px",
+        "fontWeight": "400"
+      },
+      {
+        "selector": "SPAN.text-[10px]",
+        "text": "Tìm kiếm",
+        "ratio": 3.96,
+        "requiredRatio": 4.5,
+        "color": "rgb(113, 113, 122)",
+        "bgColor": "rgb(15,15,18)",
+        "fontSize": "10px",
+        "fontWeight": "400"
+      }
+    ]
+  }
+]

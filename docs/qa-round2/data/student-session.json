@@ -1,0 +1,19 @@
+{
+  "email": "qa+student-1795031509127@test.local",
+  "password": "StudentPass123!",
+  "userId": "5f90733c-f7a9-4ba2-bb47-05216bdc78b1",
+  "timestamp": 1795031509127,
+  "courses": {
+    "aiCourse": {
+      "id": "6f11a38f-c8ec-4ec1-9029-4be38c061289",
+      "title": "Tiếng Anh Giao Tiếp Hằng Ngày Cho Sinh Viên",
+      "url": "http://127.0.0.1:3000/app/courses/6f11a38f-c8ec-4ec1-9029-4be38c061289"
+    },
+    "docCourse": {
+      "id": "7319698b-34d6-463e-a319-f374354f1d24",
+      "title": "Nhập Môn Cấu Trúc Dữ Liệu & Giải Thuật",
+      "url": "http://127.0.0.1:3000/app/courses/7319698b-34d6-463e-a319-f374354f1d24",
+      "durationMs": 33
+    }
+  }
+}

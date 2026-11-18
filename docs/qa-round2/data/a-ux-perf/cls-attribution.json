@@ -1,0 +1,1640 @@
+[
+  {
+    "route": "/app",
+    "routeName": "app-dashboard",
+    "viewport": "1440x900",
+    "totalCls": 0.2241,
+    "clsEntries": [
+      {
+        "value": 0.0019703125000000003,
+        "startTime": 237,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 262,
+              "y": 22,
+              "w": 1156,
+              "h": 856
+            },
+            "currentRect": {
+              "x": 258,
+              "y": 18,
+              "w": 1163,
+              "h": 863
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0029036800599065503,
+        "startTime": 254,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 258,
+              "y": 18,
+              "w": 1163,
+              "h": 863
+            },
+            "currentRect": {
+              "x": 253,
+              "y": 13,
+              "w": 1174,
+              "h": 874
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.002527527115014682,
+        "startTime": 267,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 253,
+              "y": 13,
+              "w": 1174,
+              "h": 874
+            },
+            "currentRect": {
+              "x": 249,
+              "y": 9,
+              "w": 1183,
+              "h": 883
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.001764584974333419,
+        "startTime": 284,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 249,
+              "y": 9,
+              "w": 1183,
+              "h": 883
+            },
+            "currentRect": {
+              "x": 245,
+              "y": 5,
+              "w": 1189,
+              "h": 889
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0065809670781893,
+        "startTime": 661,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "aside[data-testid=\"app-sidebar\"] > div.border-t.px-2",
+              "snippet": "7 ngày liên tụcGiao diện tốiWorkspace ClassicCài đặtSTSơn Trần"
+            },
+            "previousRect": {
+              "x": 0,
+              "y": 739,
+              "w": 239,
+              "h": 161
+            },
+            "currentRect": {
+              "x": 0,
+              "y": 707,
+              "w": 239,
+              "h": 193
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "aside[data-testid=\"app-sidebar\"] > nav.flex-1.overflow-y-auto > div.pt-2",
+              "snippet": "Tạo khóa học"
+            },
+            "previousRect": {
+              "x": 8,
+              "y": 302,
+              "w": 223,
+              "h": 40
+            },
+            "currentRect": {
+              "x": 8,
+              "y": 494,
+              "w": 223,
+              "h": 40
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.20833333333333334,
+        "startTime": 856,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": "Chào Sơn, hôm nay học gì?7 ngày học liên tiếpTìm nhanh...⌘KTạo khóa họcTiếp tục lộ trìnhKinh tế & Qu"
+            },
+            "previousRect": {
+              "x": 240,
+              "y": 0,
+              "w": 1200,
+              "h": 900
+            },
+            "currentRect": {
+              "x": 328,
+              "y": 0,
+              "w": 1024,
+              "h": 900
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.flex.flex-col",
+              "snippet": "Chào Sơn, hôm nay học gì?7 ngày học liên tiếpTìm nhanh...⌘KTạo khóa học"
+            },
+            "previousRect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            },
+            "currentRect": {
+              "x": 360,
+              "y": 32,
+              "w": 960,
+              "h": 58
+            }
+          }
+        ]
+      }
+    ],
+    "lcp": 872,
+    "lcpEntries": [
+      {
+        "startTime": 204,
+        "size": 2166,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "SPAN",
+          "selector": "a[data-testid=\"switch-to-workspace-link\"] > span.truncate",
+          "snippet": "Workspace Classic"
+        }
+      },
+      {
+        "startTime": 668,
+        "size": 3026,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "SPAN",
+          "selector": "aside[data-testid=\"app-sidebar\"] > nav.flex-1.overflow-y-auto > a.flex.items-center > span.flex-1.truncate",
+          "snippet": "FullStack C# & React Refresh (28 Tuần)"
+        }
+      },
+      {
+        "startTime": 872,
+        "size": 9560,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "SPAN",
+          "selector": "div.grid.grid-cols-1 > div.rounded-lg.border > div > div.flex.items-baseline > span.text-2xl.font-bold",
+          "snippet": "Hôm nay: 100 thẻ"
+        }
+      }
+    ],
+    "screenshot": "cls-app-dashboard-1440x900.png"
+  },
+  {
+    "route": "/app/courses",
+    "routeName": "app-courses",
+    "viewport": "1440x900",
+    "totalCls": 0.2241,
+    "clsEntries": [
+      {
+        "value": 0.0019618923611111113,
+        "startTime": 216,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 262,
+              "y": 22,
+              "w": 1156,
+              "h": 856
+            },
+            "currentRect": {
+              "x": 258,
+              "y": 18,
+              "w": 1163,
+              "h": 863
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0029208615987225653,
+        "startTime": 232,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 258,
+              "y": 18,
+              "w": 1163,
+              "h": 863
+            },
+            "currentRect": {
+              "x": 253,
+              "y": 13,
+              "w": 1174,
+              "h": 874
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.002532528506515775,
+        "startTime": 250,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 253,
+              "y": 13,
+              "w": 1174,
+              "h": 874
+            },
+            "currentRect": {
+              "x": 248,
+              "y": 8,
+              "w": 1183,
+              "h": 883
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.001764584974333419,
+        "startTime": 265,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 248,
+              "y": 8,
+              "w": 1183,
+              "h": 883
+            },
+            "currentRect": {
+              "x": 245,
+              "y": 5,
+              "w": 1189,
+              "h": 889
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.20833333333333334,
+        "startTime": 499,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": "Khóa họcHiển thị 23 khóa học tiêu biểu (đã ẩn 20 bản sao trùng lặp).Tạo khóa họcĐang ẩn bản sao trùn"
+            },
+            "previousRect": {
+              "x": 240,
+              "y": 0,
+              "w": 1200,
+              "h": 900
+            },
+            "currentRect": {
+              "x": 328,
+              "y": 0,
+              "w": 1024,
+              "h": 900
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.flex.flex-col",
+              "snippet": "Khóa họcHiển thị 23 khóa học tiêu biểu (đã ẩn 20 bản sao trùng lặp).Tạo khóa học"
+            },
+            "previousRect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            },
+            "currentRect": {
+              "x": 360,
+              "y": 32,
+              "w": 963,
+              "h": 56
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0065809670781893,
+        "startTime": 612,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "aside[data-testid=\"app-sidebar\"] > div.border-t.px-2",
+              "snippet": "7 ngày liên tụcGiao diện tốiWorkspace ClassicCài đặtSTSơn Trần"
+            },
+            "previousRect": {
+              "x": 0,
+              "y": 739,
+              "w": 239,
+              "h": 161
+            },
+            "currentRect": {
+              "x": 0,
+              "y": 707,
+              "w": 239,
+              "h": 193
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "aside[data-testid=\"app-sidebar\"] > nav.flex-1.overflow-y-auto > div.pt-2",
+              "snippet": "Tạo khóa học"
+            },
+            "previousRect": {
+              "x": 8,
+              "y": 302,
+              "w": 223,
+              "h": 40
+            },
+            "currentRect": {
+              "x": 8,
+              "y": 494,
+              "w": 223,
+              "h": 40
+            }
+          }
+        ]
+      }
+    ],
+    "lcp": 520,
+    "lcpEntries": [
+      {
+        "startTime": 184,
+        "size": 2166,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "SPAN",
+          "selector": "a[data-testid=\"switch-to-workspace-link\"] > span.truncate",
+          "snippet": "Workspace Classic"
+        }
+      },
+      {
+        "startTime": 520,
+        "size": 10257,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "A",
+          "selector": "div.max-w-5xl.mx-auto > div.grid.grid-cols-1 > div.border.shadow-elevation-1 > div > a.block.text-sm",
+          "snippet": "IELTS Mastery Roadmap (Phase 0 – Phase 3)"
+        }
+      }
+    ],
+    "screenshot": "cls-app-courses-1440x900.png"
+  },
+  {
+    "route": "/app/documents",
+    "routeName": "app-documents",
+    "viewport": "1440x900",
+    "totalCls": 0.2298,
+    "clsEntries": [
+      {
+        "value": 0.0019534722222222223,
+        "startTime": 221,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 262,
+              "y": 22,
+              "w": 1156,
+              "h": 856
+            },
+            "currentRect": {
+              "x": 258,
+              "y": 18,
+              "w": 1163,
+              "h": 863
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0029208615987225653,
+        "startTime": 232,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 258,
+              "y": 18,
+              "w": 1163,
+              "h": 863
+            },
+            "currentRect": {
+              "x": 253,
+              "y": 13,
+              "w": 1174,
+              "h": 874
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.002532528506515775,
+        "startTime": 249,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 253,
+              "y": 13,
+              "w": 1174,
+              "h": 874
+            },
+            "currentRect": {
+              "x": 248,
+              "y": 8,
+              "w": 1183,
+              "h": 883
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.001764584974333419,
+        "startTime": 266,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 248,
+              "y": 8,
+              "w": 1183,
+              "h": 883
+            },
+            "currentRect": {
+              "x": 245,
+              "y": 5,
+              "w": 1189,
+              "h": 889
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.22067264660493827,
+        "startTime": 668,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": "Tài liệu14 tài liệu PDF dùng cho việc đọc và trích dẫn kiến thức.Tải tài liệu lênKiến trúc Máy tínhK"
+            },
+            "previousRect": {
+              "x": 240,
+              "y": 0,
+              "w": 1200,
+              "h": 900
+            },
+            "currentRect": {
+              "x": 328,
+              "y": 0,
+              "w": 1024,
+              "h": 900
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.flex.flex-col",
+              "snippet": "Tài liệu14 tài liệu PDF dùng cho việc đọc và trích dẫn kiến thức.Tải tài liệu lên"
+            },
+            "previousRect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            },
+            "currentRect": {
+              "x": 360,
+              "y": 32,
+              "w": 963,
+              "h": 56
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "aside[data-testid=\"app-sidebar\"] > div.border-t.px-2",
+              "snippet": "7 ngày liên tụcGiao diện tốiWorkspace ClassicCài đặtSTSơn Trần"
+            },
+            "previousRect": {
+              "x": 0,
+              "y": 739,
+              "w": 239,
+              "h": 161
+            },
+            "currentRect": {
+              "x": 0,
+              "y": 707,
+              "w": 239,
+              "h": 193
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "aside[data-testid=\"app-sidebar\"] > nav.flex-1.overflow-y-auto > div.pt-2",
+              "snippet": "Tạo khóa học"
+            },
+            "previousRect": {
+              "x": 8,
+              "y": 302,
+              "w": 223,
+              "h": 40
+            },
+            "currentRect": {
+              "x": 8,
+              "y": 494,
+              "w": 223,
+              "h": 40
+            }
+          }
+        ]
+      }
+    ],
+    "lcp": 688,
+    "lcpEntries": [
+      {
+        "startTime": 184,
+        "size": 2166,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "SPAN",
+          "selector": "a[data-testid=\"switch-to-workspace-link\"] > span.truncate",
+          "snippet": "Workspace Classic"
+        }
+      },
+      {
+        "startTime": 688,
+        "size": 6574,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "P",
+          "selector": "main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.flex.flex-col > div > p.text-sm.mt-1",
+          "snippet": "14 tài liệu PDF dùng cho việc đọc và trích dẫn kiến thức."
+        }
+      }
+    ],
+    "screenshot": "cls-app-documents-1440x900.png"
+  },
+  {
+    "route": "/app/notes",
+    "routeName": "app-notes",
+    "viewport": "1440x900",
+    "totalCls": 0.2299,
+    "clsEntries": [
+      {
+        "value": 0.0019618923611111113,
+        "startTime": 219,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 262,
+              "y": 22,
+              "w": 1156,
+              "h": 856
+            },
+            "currentRect": {
+              "x": 258,
+              "y": 18,
+              "w": 1163,
+              "h": 863
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0028950892904985428,
+        "startTime": 235,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 258,
+              "y": 18,
+              "w": 1163,
+              "h": 863
+            },
+            "currentRect": {
+              "x": 253,
+              "y": 13,
+              "w": 1174,
+              "h": 874
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.002558817729766804,
+        "startTime": 251,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 253,
+              "y": 13,
+              "w": 1174,
+              "h": 874
+            },
+            "currentRect": {
+              "x": 248,
+              "y": 8,
+              "w": 1183,
+              "h": 883
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.001764584974333419,
+        "startTime": 268,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 248,
+              "y": 8,
+              "w": 1183,
+              "h": 883
+            },
+            "currentRect": {
+              "x": 245,
+              "y": 5,
+              "w": 1189,
+              "h": 889
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.22067264660493827,
+        "startTime": 641,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": "Sổ tay47 sổ tay ghi chú gắn với bài giảng và tài liệu của bạn.Ghi chú: 🗺️ Lộ trình học Tài chính cá"
+            },
+            "previousRect": {
+              "x": 240,
+              "y": 0,
+              "w": 1200,
+              "h": 900
+            },
+            "currentRect": {
+              "x": 328,
+              "y": 0,
+              "w": 1024,
+              "h": 900
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.mb-6",
+              "snippet": "Sổ tay47 sổ tay ghi chú gắn với bài giảng và tài liệu của bạn."
+            },
+            "previousRect": {
+              "x": 0,
+              "y": 0,
+              "w": 0,
+              "h": 0
+            },
+            "currentRect": {
+              "x": 359,
+              "y": 32,
+              "w": 961,
+              "h": 56
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "aside[data-testid=\"app-sidebar\"] > div.border-t.px-2",
+              "snippet": "7 ngày liên tụcGiao diện tốiWorkspace ClassicCài đặtSTSơn Trần"
+            },
+            "previousRect": {
+              "x": 0,
+              "y": 739,
+              "w": 239,
+              "h": 161
+            },
+            "currentRect": {
+              "x": 0,
+              "y": 707,
+              "w": 239,
+              "h": 193
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "aside[data-testid=\"app-sidebar\"] > nav.flex-1.overflow-y-auto > div.pt-2",
+              "snippet": "Tạo khóa học"
+            },
+            "previousRect": {
+              "x": 8,
+              "y": 302,
+              "w": 223,
+              "h": 40
+            },
+            "currentRect": {
+              "x": 8,
+              "y": 494,
+              "w": 223,
+              "h": 40
+            }
+          }
+        ]
+      }
+    ],
+    "lcp": 672,
+    "lcpEntries": [
+      {
+        "startTime": 188,
+        "size": 2166,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "SPAN",
+          "selector": "a[data-testid=\"switch-to-workspace-link\"] > span.truncate",
+          "snippet": "Workspace Classic"
+        }
+      },
+      {
+        "startTime": 672,
+        "size": 8619,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "H2",
+          "selector": "div.border.shadow-elevation-1 > div > div.flex.items-start > div.min-w-0.flex-1 > h2.text-sm.font-semibold",
+          "snippet": "Ghi chú: 🗺️ Roadmap — Theo Dõi Tiến Độ"
+        }
+      }
+    ],
+    "screenshot": "cls-app-notes-1440x900.png"
+  },
+  {
+    "route": "/app/courses/22222222-2222-4222-8222-222222222222/quiz",
+    "routeName": "app-quiz",
+    "viewport": "1440x900",
+    "totalCls": 0.2221,
+    "clsEntries": [
+      {
+        "value": 0.0023562500000000003,
+        "startTime": 205,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 22,
+              "y": 22,
+              "w": 1396,
+              "h": 856
+            },
+            "currentRect": {
+              "x": 18,
+              "y": 18,
+              "w": 1403,
+              "h": 863
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0035179712952246225,
+        "startTime": 223,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 18,
+              "y": 18,
+              "w": 1403,
+              "h": 863
+            },
+            "currentRect": {
+              "x": 13,
+              "y": 13,
+              "w": 1414,
+              "h": 874
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.003040296774865505,
+        "startTime": 240,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 13,
+              "y": 13,
+              "w": 1414,
+              "h": 874
+            },
+            "currentRect": {
+              "x": 9,
+              "y": 9,
+              "w": 1423,
+              "h": 883
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.002120467658232596,
+        "startTime": 257,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 9,
+              "y": 9,
+              "w": 1423,
+              "h": 883
+            },
+            "currentRect": {
+              "x": 5,
+              "y": 5,
+              "w": 1429,
+              "h": 889
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.2111111111111111,
+        "startTime": 494,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-4xl.mx-auto",
+              "snippet": "Quay lại khóa họcMở bài giảngÔn thẻ ghi nhớHệ điều hành: Kiến trúc Bộ nhớ ảo & Phân trangKiểm tra &"
+            },
+            "previousRect": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 900
+            },
+            "currentRect": {
+              "x": 272,
+              "y": 0,
+              "w": 896,
+              "h": 900
+            }
+          }
+        ]
+      }
+    ],
+    "lcp": 512,
+    "lcpEntries": [
+      {
+        "startTime": 512,
+        "size": 27798,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "H3",
+          "selector": "div[data-testid=\"quiz-item-2\"] > div.flex.items-start > div > h3.text-sm.font-semibold",
+          "snippet": "Điền thuật ngữ chính xác: Trong bộ quản lý bộ nhớ MMU, bộ đệm phần cứng giúp ánh xạ nhanh từ địa chỉ"
+        }
+      }
+    ],
+    "screenshot": "cls-app-quiz-1440x900.png"
+  },
+  {
+    "route": "/app/settings",
+    "routeName": "app-settings",
+    "viewport": "1440x900",
+    "totalCls": 0.1416,
+    "clsEntries": [
+      {
+        "value": 0.001978732638888889,
+        "startTime": 233,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 262,
+              "y": 22,
+              "w": 1156,
+              "h": 856
+            },
+            "currentRect": {
+              "x": 258,
+              "y": 18,
+              "w": 1163,
+              "h": 863
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0029036800599065503,
+        "startTime": 250,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 258,
+              "y": 18,
+              "w": 1163,
+              "h": 863
+            },
+            "currentRect": {
+              "x": 253,
+              "y": 13,
+              "w": 1174,
+              "h": 874
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.002527527115014682,
+        "startTime": 267,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 253,
+              "y": 13,
+              "w": 1174,
+              "h": 874
+            },
+            "currentRect": {
+              "x": 249,
+              "y": 9,
+              "w": 1183,
+              "h": 883
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.001764584974333419,
+        "startTime": 283,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 249,
+              "y": 9,
+              "w": 1183,
+              "h": 883
+            },
+            "currentRect": {
+              "x": 245,
+              "y": 5,
+              "w": 1189,
+              "h": 889
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.13240358796296295,
+        "startTime": 682,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-3xl.mx-auto",
+              "snippet": "Cài đặtTài khoảnSTSơn TrầnEmail & Mật khẩuson.tran@studxy.vnĐổi mật khẩuĐăng xuấtCấu hình AIAPI KeyB"
+            },
+            "previousRect": {
+              "x": 240,
+              "y": 0,
+              "w": 1200,
+              "h": 900
+            },
+            "currentRect": {
+              "x": 456,
+              "y": 0,
+              "w": 768,
+              "h": 900
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "aside[data-testid=\"app-sidebar\"] > div.border-t.px-2",
+              "snippet": "7 ngày liên tụcGiao diện tốiWorkspace ClassicCài đặtSTSơn Trần"
+            },
+            "previousRect": {
+              "x": 0,
+              "y": 739,
+              "w": 239,
+              "h": 161
+            },
+            "currentRect": {
+              "x": 0,
+              "y": 707,
+              "w": 239,
+              "h": 193
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "aside[data-testid=\"app-sidebar\"] > nav.flex-1.overflow-y-auto > div.pt-2",
+              "snippet": "Tạo khóa học"
+            },
+            "previousRect": {
+              "x": 8,
+              "y": 302,
+              "w": 223,
+              "h": 40
+            },
+            "currentRect": {
+              "x": 8,
+              "y": 494,
+              "w": 223,
+              "h": 40
+            }
+          }
+        ]
+      }
+    ],
+    "lcp": 704,
+    "lcpEntries": [
+      {
+        "startTime": 204,
+        "size": 2166,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "SPAN",
+          "selector": "a[data-testid=\"switch-to-workspace-link\"] > span.truncate",
+          "snippet": "Workspace Classic"
+        }
+      },
+      {
+        "startTime": 704,
+        "size": 6993,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "H2",
+          "selector": "div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-3xl.mx-auto > div.border.shadow-elevation-1 > h2.text-base.font-semibold",
+          "snippet": "Giới hạn ôn tập hàng ngày (Daily Review Cap)"
+        }
+      }
+    ],
+    "screenshot": "cls-app-settings-1440x900.png"
+  },
+  {
+    "route": "/app/courses/22222222-2222-4222-8222-222222222222/learn",
+    "routeName": "learn-mobile-os",
+    "viewport": "390x844",
+    "totalCls": 0.2384,
+    "clsEntries": [
+      {
+        "value": 0.003831861082626522,
+        "startTime": 1053,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
+              "snippet": "Đang chuẩn bị không gian học tập..."
+            },
+            "previousRect": {
+              "x": 22,
+              "y": 22,
+              "w": 346,
+              "h": 822
+            },
+            "currentRect": {
+              "x": 18,
+              "y": 18,
+              "w": 353,
+              "h": 826
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.005784313863120775,
+        "startTime": 1070,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
+              "snippet": "Đang chuẩn bị không gian học tập..."
+            },
+            "previousRect": {
+              "x": 18,
+              "y": 18,
+              "w": 353,
+              "h": 826
+            },
+            "currentRect": {
+              "x": 13,
+              "y": 13,
+              "w": 364,
+              "h": 831
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.011279486949114764,
+        "startTime": 1319,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
+              "snippet": "Hệ điều hành: Kiến trúc Bộ nhớ ảo & Phân trang0/2 • 0%AaSổ tay & ThẻKiểm traTài liệu PDFPDF tham chi"
+            },
+            "previousRect": {
+              "x": 13,
+              "y": 13,
+              "w": 364,
+              "h": 831
+            },
+            "currentRect": {
+              "x": 3,
+              "y": 3,
+              "w": 383,
+              "h": 841
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0078125,
+        "startTime": 1341,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
+              "snippet": "Hệ điều hành: Kiến trúc Bộ nhớ ảo & Phân trang0/2 • 0%AaSổ tay & ThẻKiểm traTài liệu PDFPDF tham chi"
+            },
+            "previousRect": {
+              "x": 3,
+              "y": 3,
+              "w": 383,
+              "h": 841
+            },
+            "currentRect": {
+              "x": 0,
+              "y": 0,
+              "w": 390,
+              "h": 844
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.2097168283431069,
+        "startTime": 1567,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "main.flex-1.min-w-0 > div.h-screen.flex > div.flex-1.min-h-0 > main.flex-1.flex > div.flex-1.min-h-0",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 0,
+              "y": 99,
+              "w": 390,
+              "h": 745
+            },
+            "currentRect": {
+              "x": 0,
+              "y": 165,
+              "w": 390,
+              "h": 679
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div.h-screen.flex > div.flex-1.min-h-0 > main.flex-1.flex > div.px-4.py-2 > div.flex.items-center",
+              "snippet": "PDF tham chiếu:Chọn PDF đọc song song...Kiến trúc Máy tínhsmall-3pmarker-12plarge-305psmall-3pmarker"
+            },
+            "previousRect": {
+              "x": 144,
+              "y": 59,
+              "w": 230,
+              "h": 28
+            },
+            "currentRect": {
+              "x": 16,
+              "y": 128,
+              "w": 230,
+              "h": 28
+            }
+          },
+          {
+            "node": {
+              "tagName": "BUTTON",
+              "id": "",
+              "selector": "button[data-testid=\"center-tab-pdf\"]",
+              "snippet": "Tài liệu PDF"
+            },
+            "previousRect": {
+              "x": 19,
+              "y": 59,
+              "w": 103,
+              "h": 28
+            },
+            "currentRect": {
+              "x": 211,
+              "y": 59,
+              "w": 103,
+              "h": 28
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex > header.h-12.shrink-0 > div.flex.items-center",
+              "snippet": "0/2 • 0%AaSổ tay & Thẻ26Kiểm tra"
+            },
+            "previousRect": {
+              "x": 300,
+              "y": 8,
+              "w": 78,
+              "h": 32
+            },
+            "currentRect": {
+              "x": 271,
+              "y": 8,
+              "w": 107,
+              "h": 32
+            }
+          }
+        ]
+      }
+    ],
+    "lcp": 2484,
+    "lcpEntries": [
+      {
+        "startTime": 1020,
+        "size": 3104,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "SPAN",
+          "selector": "div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex > div.flex.flex-col > span.text-xs.text-text-tertiary",
+          "snippet": "Đang chuẩn bị không gian học tập..."
+        }
+      },
+      {
+        "startTime": 2484,
+        "size": 75816,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "P",
+          "selector": "div#block-10000000-0000-4000-8000-000000000002 > p.break-words",
+          "snippet": "Phân trang (Paging) là cơ chế quản lý bộ nhớ cho phép không gian địa chỉ vật lý của một tiến trình k"
+        }
+      }
+    ],
+    "screenshot": "cls-learn-mobile-os-390x844.png"
+  },
+  {
+    "route": "/app/courses/79B30ACD-0BD5-41C8-8744-271AD7B496CE/learn?lesson=0360C033-EBC7-453D-9FAE-C812D3BCB48A",
+    "routeName": "learn-mobile-ielts",
+    "viewport": "390x844",
+    "totalCls": 0.0183,
+    "clsEntries": [
+      {
+        "value": 0.0038647525940653767,
+        "startTime": 1125,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
+              "snippet": "Đang chuẩn bị không gian học tập..."
+            },
+            "previousRect": {
+              "x": 22,
+              "y": 22,
+              "w": 346,
+              "h": 822
+            },
+            "currentRect": {
+              "x": 18,
+              "y": 18,
+              "w": 353,
+              "h": 826
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.00573327579962265,
+        "startTime": 1142,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
+              "snippet": "Đang chuẩn bị không gian học tập..."
+            },
+            "previousRect": {
+              "x": 18,
+              "y": 18,
+              "w": 353,
+              "h": 826
+            },
+            "currentRect": {
+              "x": 13,
+              "y": 13,
+              "w": 364,
+              "h": 831
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.005117306083300361,
+        "startTime": 1160,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
+              "snippet": "Đang chuẩn bị không gian học tập..."
+            },
+            "previousRect": {
+              "x": 13,
+              "y": 13,
+              "w": 364,
+              "h": 831
+            },
+            "currentRect": {
+              "x": 8,
+              "y": 8,
+              "w": 373,
+              "h": 836
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0035504326069979077,
+        "startTime": 1171,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
+              "snippet": "Đang chuẩn bị không gian học tập..."
+            },
+            "previousRect": {
+              "x": 8,
+              "y": 8,
+              "w": 373,
+              "h": 836
+            },
+            "currentRect": {
+              "x": 5,
+              "y": 5,
+              "w": 379,
+              "h": 839
+            }
+          }
+        ]
+      }
+    ],
+    "lcp": 2836,
+    "lcpEntries": [
+      {
+        "startTime": 1088,
+        "size": 3104,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "SPAN",
+          "selector": "div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex > div.flex.flex-col > span.text-xs.text-text-tertiary",
+          "snippet": "Đang chuẩn bị không gian học tập..."
+        }
+      },
+      {
+        "startTime": 2836,
+        "size": 38280,
+        "id": "",
+        "url": "",
+        "element": {
+          "tagName": "LI",
+          "selector": "div[data-testid=\"lesson-markdown-view\"] > div.space-y-2 > ol.my-2.space-y-1.5 > li.text-slate-800.break-words",
+          "snippet": "Gói hiện hành: sau Phase 2, mở CODE_0 để theo lịch Month 1 hiện có; các phần chưa có hoặc chưa đượ"
+        }
+      }
+    ],
+    "screenshot": "cls-learn-mobile-ielts-390x844.png"
+  }
+]

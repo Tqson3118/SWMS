@@ -1,0 +1,62 @@
+{
+  "testEmail": "qa+newbie-core-1795031987851@test.local",
+  "courseId": "63f0286c-dd28-454e-8ff0-42dd8ff08dea",
+  "firstLessonId": "9e5f7960-9d0d-4bad-8e3a-b422ff352e3b",
+  "quizId": "4022947f-7019-49f7-a30c-8f32ae7f50f0",
+  "isTocVisible390": false,
+  "isTocVisible768": false,
+  "isDrawerBtnVisible": true,
+  "drawerBox": {
+    "x": 318.4375,
+    "y": 7.5,
+    "width": 59.5625,
+    "height": 32
+  },
+  "ratingButtons": [
+    {
+      "index": 1,
+      "visible": true,
+      "box": {
+        "x": 16,
+        "y": 619.5,
+        "width": 82,
+        "height": 64
+      },
+      "distFromScreenBottom": 161
+    },
+    {
+      "index": 2,
+      "visible": true,
+      "box": {
+        "x": 108,
+        "y": 619.5,
+        "width": 82,
+        "height": 64
+      },
+      "distFromScreenBottom": 161
+    },
+    {
+      "index": 3,
+      "visible": true,
+      "box": {
+        "x": 200,
+        "y": 619.5,
+        "width": 82,
+        "height": 64
+      },
+      "distFromScreenBottom": 161
+    },
+    {
+      "index": 4,
+      "visible": true,
+      "box": {
+        "x": 292,
+        "y": 619.5,
+        "width": 82,
+        "height": 64
+      },
+      "distFromScreenBottom": 161
+    }
+  ],
+  "appV2LinkInDropdown": true
+}

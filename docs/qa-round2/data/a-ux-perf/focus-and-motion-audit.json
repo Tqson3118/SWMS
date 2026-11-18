@@ -1,0 +1,240 @@
+{
+  "authFocusSteps": [
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "role": null,
+      "text": "SStudxy · Không gian học tập t",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(94, 81, 232)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "role": null,
+      "text": "Vào không gian học",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(255, 255, 255)",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 1px 2px 0px",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "role": null,
+      "text": "Workspace Classic",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(82, 82, 91)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "type": "button",
+      "role": null,
+      "text": "Đăng nhập",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(255, 255, 255)",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 1px 2px 0px",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "type": "button",
+      "role": null,
+      "text": "Đăng ký tài khoản",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(82, 82, 91)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "INPUT",
+      "id": "auth-email",
+      "type": "email",
+      "role": null,
+      "text": "",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(94, 81, 232)",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(94, 81, 232) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "INPUT",
+      "id": "auth-password",
+      "type": "password",
+      "role": null,
+      "text": "",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(94, 81, 232)",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(94, 81, 232) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "type": "button",
+      "role": null,
+      "text": "",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(113, 113, 122)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    }
+  ],
+  "appFocusSteps": [
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "text": "StStudxy",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(94, 81, 232)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "type": "button",
+      "text": "",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(113, 113, 122)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "type": "button",
+      "text": "Tìm kiếm...⌘K",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(113, 113, 122)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "text": "Hôm nay",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(79, 70, 229)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "text": "Khóa học",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(82, 82, 91)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "text": "Tài liệu",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(82, 82, 91)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "text": "Sổ tay",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(82, 82, 91)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "text": "Ôn tập99+",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(82, 82, 91)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "text": ".NET & React Full-Stack Roadma",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(82, 82, 91)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "text": "FullStack C# & React Refresh (",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(82, 82, 91)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "text": "IELTS Mastery Roadmap (Phase 0",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(82, 82, 91)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "type": null,
+      "text": "Đầu Tư Tài Chính Nền Tảng (18 ",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "rgb(82, 82, 91)",
+      "boxShadow": "none",
+      "hasVisibleRing": true
+    }
+  ],
+  "reducedMotionInfo": {
+    "mediaMatches": true,
+    "reducedRulesInCssCount": 1,
+    "animatedElementsCount": 0,
+    "animatedElements": []
+  }
+}

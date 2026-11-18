@@ -1,0 +1,16 @@
+{
+  "searchBtnBox": {
+    "x": 131.328125,
+    "y": 789,
+    "width": 63.65625,
+    "height": 55
+  },
+  "isModalVisible": true,
+  "modalBox": {
+    "x": 0,
+    "y": 0,
+    "width": 390,
+    "height": 844
+  },
+  "closedOnEsc": true
+}
