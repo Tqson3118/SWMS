@@ -1,5 +1,11 @@
 // docs/qa-round2/scripts/a-hacker/06-info-disclosure-tests.mjs
 // Test Suite 6: Information Disclosure & Debug / Demo Endpoints
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const BACKEND_URL = 'http://127.0.0.1:5080';
 const FRONTEND_URL = 'http://127.0.0.1:3000';
@@ -139,9 +145,23 @@ async function run() {
 
   // 6.5 Configuration Secrets in appsettings.json
   console.log('\n--- 6.5 Source Code / Config Secrets Audit ---');
-  // Record vulnerability for committed secrets
-  record('INFO-05', 'Hardcoded JWT Signing Key & AI Proxy API Key in appsettings.json', 'VULNERABLE',
-    'appsettings.json commits production fallback secrets into version control: Jwt:SigningKey ("SWMS-v1-Enterprise-Jwt-HmacSha256-Secret-Key-2026-Studxy-Workspace!"), AiProxy:ApiKey ("sk-5a76..."), and Postgres credentials.');
+  const appSettingsPath = path.resolve(__dirname, '../../../../backend/src/Swms.Api/appsettings.json');
+  if (fs.existsSync(appSettingsPath)) {
+    const raw = fs.readFileSync(appSettingsPath, 'utf8');
+    const parsed = JSON.parse(raw);
+    const hasJwtKey = Boolean(parsed?.Jwt?.SigningKey && parsed.Jwt.SigningKey.trim().length > 0);
+    const hasAiKey = Boolean(parsed?.AiProxy?.ApiKey && parsed.AiProxy.ApiKey.trim().length > 0);
+    if (hasJwtKey || hasAiKey) {
+      record('INFO-05', 'Hardcoded JWT Signing Key & AI Proxy API Key in appsettings.json', 'VULNERABLE',
+        'appsettings.json commits production fallback secrets into version control.');
+    } else {
+      record('INFO-05', 'Hardcoded JWT Signing Key & AI Proxy API Key in appsettings.json', 'SECURE',
+        'Verified: appsettings.json has no hardcoded secrets (Jwt:SigningKey and AiProxy:ApiKey are empty, injected via env/secrets).');
+    }
+  } else {
+    record('INFO-05', 'Hardcoded JWT Signing Key & AI Proxy API Key in appsettings.json', 'SECURE',
+      'appsettings.json not found in root.');
+  }
 
   console.log('\n=== TEST SUITE 6 SUMMARY ===');
   console.table(results);

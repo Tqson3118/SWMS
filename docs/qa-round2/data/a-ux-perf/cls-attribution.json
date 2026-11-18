@@ -3,122 +3,122 @@
     "route": "/app",
     "routeName": "app-dashboard",
     "viewport": "1440x900",
-    "totalCls": 0.2241,
+    "totalCls": 0.0712,
     "clsEntries": [
       {
-        "value": 0.0019703125000000003,
-        "startTime": 237,
+        "value": 0.0015890260631001374,
+        "startTime": 224,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
               "snippet": ""
             },
             "previousRect": {
-              "x": 262,
+              "x": 328,
               "y": 22,
-              "w": 1156,
-              "h": 856
+              "w": 1024,
+              "h": 720
             },
             "currentRect": {
-              "x": 258,
+              "x": 328,
               "y": 18,
-              "w": 1163,
-              "h": 863
+              "w": 1024,
+              "h": 720
             }
           }
         ]
       },
       {
-        "value": 0.0029036800599065503,
-        "startTime": 254,
+        "value": 0.0021133401920438956,
+        "startTime": 240,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
               "snippet": ""
             },
             "previousRect": {
-              "x": 258,
+              "x": 328,
               "y": 18,
-              "w": 1163,
-              "h": 863
+              "w": 1024,
+              "h": 720
             },
             "currentRect": {
-              "x": 253,
+              "x": 328,
               "y": 13,
-              "w": 1174,
-              "h": 874
+              "w": 1024,
+              "h": 720
             }
           }
         ]
       },
       {
-        "value": 0.002527527115014682,
-        "startTime": 267,
+        "value": 0.001989026063100137,
+        "startTime": 257,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
               "snippet": ""
             },
             "previousRect": {
-              "x": 253,
+              "x": 328,
               "y": 13,
-              "w": 1174,
-              "h": 874
+              "w": 1024,
+              "h": 720
             },
             "currentRect": {
-              "x": 249,
-              "y": 9,
-              "w": 1183,
-              "h": 883
+              "x": 328,
+              "y": 8,
+              "w": 1024,
+              "h": 720
             }
           }
         ]
       },
       {
-        "value": 0.001764584974333419,
-        "startTime": 284,
+        "value": 0.0012335133744855967,
+        "startTime": 274,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
               "snippet": ""
             },
             "previousRect": {
-              "x": 249,
-              "y": 9,
-              "w": 1183,
-              "h": 883
+              "x": 328,
+              "y": 8,
+              "w": 1024,
+              "h": 720
             },
             "currentRect": {
-              "x": 245,
+              "x": 328,
               "y": 5,
-              "w": 1189,
-              "h": 889
+              "w": 1024,
+              "h": 720
             }
           }
         ]
       },
       {
-        "value": 0.0065809670781893,
-        "startTime": 661,
+        "value": 0.000982115912208505,
+        "startTime": 680,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
               "selector": "aside[data-testid=\"app-sidebar\"] > div.border-t.px-2",
-              "snippet": "7 ngày liên tụcGiao diện tốiWorkspace ClassicCài đặtSTSơn Trần"
+              "snippet": "7 ngày liên tụcGiao diện tốiGiao diện nhiều khung (Classic)Cài đặtSTSơn Trần"
             },
             "previousRect": {
               "x": 0,
@@ -142,13 +142,13 @@
             },
             "previousRect": {
               "x": 8,
-              "y": 302,
+              "y": 488,
               "w": 223,
               "h": 40
             },
             "currentRect": {
               "x": 8,
-              "y": 494,
+              "y": 478,
               "w": 223,
               "h": 40
             }
@@ -156,27 +156,27 @@
         ]
       },
       {
-        "value": 0.20833333333333334,
-        "startTime": 856,
+        "value": 0.06333333333333334,
+        "startTime": 763,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
-              "snippet": "Chào Sơn, hôm nay học gì?7 ngày học liên tiếpTìm nhanh...⌘KTạo khóa họcTiếp tục lộ trìnhKinh tế & Qu"
+              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.grid.grid-cols-1",
+              "snippet": "Tiếp tục lộ trìnhKinh tế & Quản trịTài Chính Cá Nhân Thực Hành (12 Tuần)Bài tiếp theo: 🗺️ Lộ trình"
             },
             "previousRect": {
               "x": 240,
               "y": 0,
-              "w": 1200,
-              "h": 900
+              "w": 720,
+              "h": 176
             },
             "currentRect": {
-              "x": 328,
-              "y": 0,
-              "w": 1024,
-              "h": 900
+              "x": 360,
+              "y": 122,
+              "w": 960,
+              "h": 222
             }
           },
           {
@@ -187,10 +187,10 @@
               "snippet": "Chào Sơn, hôm nay học gì?7 ngày học liên tiếpTìm nhanh...⌘KTạo khóa học"
             },
             "previousRect": {
-              "x": 0,
+              "x": 240,
               "y": 0,
-              "w": 0,
-              "h": 0
+              "w": 16,
+              "h": 40
             },
             "currentRect": {
               "x": 360,
@@ -202,32 +202,21 @@
         ]
       }
     ],
-    "lcp": 872,
+    "lcp": 776,
     "lcpEntries": [
       {
-        "startTime": 204,
-        "size": 2166,
+        "startTime": 196,
+        "size": 3249,
         "id": "",
         "url": "",
         "element": {
           "tagName": "SPAN",
           "selector": "a[data-testid=\"switch-to-workspace-link\"] > span.truncate",
-          "snippet": "Workspace Classic"
+          "snippet": "Giao diện nhiều khung (Classic)"
         }
       },
       {
-        "startTime": 668,
-        "size": 3026,
-        "id": "",
-        "url": "",
-        "element": {
-          "tagName": "SPAN",
-          "selector": "aside[data-testid=\"app-sidebar\"] > nav.flex-1.overflow-y-auto > a.flex.items-center > span.flex-1.truncate",
-          "snippet": "FullStack C# & React Refresh (28 Tuần)"
-        }
-      },
-      {
-        "startTime": 872,
+        "startTime": 776,
         "size": 9560,
         "id": "",
         "url": "",
@@ -244,168 +233,168 @@
     "route": "/app/courses",
     "routeName": "app-courses",
     "viewport": "1440x900",
-    "totalCls": 0.2241,
+    "totalCls": 0.0456,
     "clsEntries": [
       {
-        "value": 0.0019618923611111113,
-        "startTime": 216,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 262,
-              "y": 22,
-              "w": 1156,
-              "h": 856
-            },
-            "currentRect": {
-              "x": 258,
-              "y": 18,
-              "w": 1163,
-              "h": 863
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.0029208615987225653,
-        "startTime": 232,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 258,
-              "y": 18,
-              "w": 1163,
-              "h": 863
-            },
-            "currentRect": {
-              "x": 253,
-              "y": 13,
-              "w": 1174,
-              "h": 874
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.002532528506515775,
-        "startTime": 250,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 253,
-              "y": 13,
-              "w": 1174,
-              "h": 874
-            },
-            "currentRect": {
-              "x": 248,
-              "y": 8,
-              "w": 1183,
-              "h": 883
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.001764584974333419,
-        "startTime": 265,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 248,
-              "y": 8,
-              "w": 1183,
-              "h": 883
-            },
-            "currentRect": {
-              "x": 245,
-              "y": 5,
-              "w": 1189,
-              "h": 889
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.20833333333333334,
-        "startTime": 499,
+        "value": 0.0015890260631001374,
+        "startTime": 173,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
               "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
-              "snippet": "Khóa họcHiển thị 23 khóa học tiêu biểu (đã ẩn 20 bản sao trùng lặp).Tạo khóa họcĐang ẩn bản sao trùn"
+              "snippet": ""
             },
             "previousRect": {
-              "x": 240,
-              "y": 0,
-              "w": 1200,
-              "h": 900
+              "x": 328,
+              "y": 22,
+              "w": 1024,
+              "h": 720
             },
             "currentRect": {
               "x": 328,
-              "y": 0,
+              "y": 18,
               "w": 1024,
-              "h": 900
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.002107124485596708,
+        "startTime": 190,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 328,
+              "y": 18,
+              "w": 1024,
+              "h": 720
+            },
+            "currentRect": {
+              "x": 328,
+              "y": 13,
+              "w": 1024,
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0017938614540466394,
+        "startTime": 206,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 328,
+              "y": 13,
+              "w": 1024,
+              "h": 720
+            },
+            "currentRect": {
+              "x": 328,
+              "y": 9,
+              "w": 1024,
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0015890260631001374,
+        "startTime": 223,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 328,
+              "y": 9,
+              "w": 1024,
+              "h": 720
+            },
+            "currentRect": {
+              "x": 328,
+              "y": 5,
+              "w": 1024,
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.037582047325102876,
+        "startTime": 425,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.grid.grid-cols-1",
+              "snippet": "Công nghệ & Lập trìnhMới.NET & React Full-Stack RoadmapLộ trình 14 chặng từ C# nền tảng, SQL Server,"
+            },
+            "previousRect": {
+              "x": 360,
+              "y": 224,
+              "w": 960,
+              "h": 432
+            },
+            "currentRect": {
+              "x": 355,
+              "y": 312,
+              "w": 970,
+              "h": 588
             }
           },
           {
             "node": {
               "tagName": "DIV",
               "id": "",
-              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.flex.flex-col",
-              "snippet": "Khóa họcHiển thị 23 khóa học tiêu biểu (đã ẩn 20 bản sao trùng lặp).Tạo khóa học"
+              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.space-y-3.mb-6",
+              "snippet": "Đang ẩn bản sao trùng lặpTất cả trạng tháiĐang họcChưa họcHoàn thànhTất cả lĩnh vực(23)Công nghệ & L"
             },
             "previousRect": {
-              "x": 0,
-              "y": 0,
-              "w": 0,
-              "h": 0
+              "x": 360,
+              "y": 164,
+              "w": 960,
+              "h": 36
             },
             "currentRect": {
               "x": 360,
-              "y": 32,
-              "w": 963,
-              "h": 56
+              "y": 112,
+              "w": 960,
+              "h": 180
             }
           }
         ]
       },
       {
-        "value": 0.0065809670781893,
-        "startTime": 612,
+        "value": 0.000982115912208505,
+        "startTime": 595,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
               "selector": "aside[data-testid=\"app-sidebar\"] > div.border-t.px-2",
-              "snippet": "7 ngày liên tụcGiao diện tốiWorkspace ClassicCài đặtSTSơn Trần"
+              "snippet": "7 ngày liên tụcGiao diện tốiGiao diện nhiều khung (Classic)Cài đặtSTSơn Trần"
             },
             "previousRect": {
               "x": 0,
@@ -429,13 +418,13 @@
             },
             "previousRect": {
               "x": 8,
-              "y": 302,
+              "y": 488,
               "w": 223,
               "h": 40
             },
             "currentRect": {
               "x": 8,
-              "y": 494,
+              "y": 478,
               "w": 223,
               "h": 40
             }
@@ -443,21 +432,21 @@
         ]
       }
     ],
-    "lcp": 520,
+    "lcp": 444,
     "lcpEntries": [
       {
-        "startTime": 184,
-        "size": 2166,
+        "startTime": 144,
+        "size": 3249,
         "id": "",
         "url": "",
         "element": {
           "tagName": "SPAN",
           "selector": "a[data-testid=\"switch-to-workspace-link\"] > span.truncate",
-          "snippet": "Workspace Classic"
+          "snippet": "Giao diện nhiều khung (Classic)"
         }
       },
       {
-        "startTime": 520,
+        "startTime": 444,
         "size": 10257,
         "id": "",
         "url": "",
@@ -474,154 +463,134 @@
     "route": "/app/documents",
     "routeName": "app-documents",
     "viewport": "1440x900",
-    "totalCls": 0.2298,
+    "totalCls": 0.0195,
     "clsEntries": [
       {
-        "value": 0.0019534722222222223,
-        "startTime": 221,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 262,
-              "y": 22,
-              "w": 1156,
-              "h": 856
-            },
-            "currentRect": {
-              "x": 258,
-              "y": 18,
-              "w": 1163,
-              "h": 863
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.0029208615987225653,
-        "startTime": 232,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 258,
-              "y": 18,
-              "w": 1163,
-              "h": 863
-            },
-            "currentRect": {
-              "x": 253,
-              "y": 13,
-              "w": 1174,
-              "h": 874
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.002532528506515775,
-        "startTime": 249,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 253,
-              "y": 13,
-              "w": 1174,
-              "h": 874
-            },
-            "currentRect": {
-              "x": 248,
-              "y": 8,
-              "w": 1183,
-              "h": 883
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.001764584974333419,
-        "startTime": 266,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 248,
-              "y": 8,
-              "w": 1183,
-              "h": 883
-            },
-            "currentRect": {
-              "x": 245,
-              "y": 5,
-              "w": 1189,
-              "h": 889
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.22067264660493827,
-        "startTime": 668,
+        "value": 0.0015890260631001374,
+        "startTime": 162,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
               "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
-              "snippet": "Tài liệu14 tài liệu PDF dùng cho việc đọc và trích dẫn kiến thức.Tải tài liệu lênKiến trúc Máy tínhK"
+              "snippet": ""
             },
             "previousRect": {
-              "x": 240,
-              "y": 0,
-              "w": 1200,
-              "h": 900
+              "x": 328,
+              "y": 22,
+              "w": 1024,
+              "h": 720
             },
             "currentRect": {
               "x": 328,
-              "y": 0,
+              "y": 18,
               "w": 1024,
-              "h": 900
+              "h": 720
             }
-          },
+          }
+        ]
+      },
+      {
+        "value": 0.002107124485596708,
+        "startTime": 179,
+        "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
-              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.flex.flex-col",
-              "snippet": "Tài liệu14 tài liệu PDF dùng cho việc đọc và trích dẫn kiến thức.Tải tài liệu lên"
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": ""
             },
             "previousRect": {
-              "x": 0,
-              "y": 0,
-              "w": 0,
-              "h": 0
+              "x": 328,
+              "y": 18,
+              "w": 1024,
+              "h": 720
+            },
+            "currentRect": {
+              "x": 328,
+              "y": 13,
+              "w": 1024,
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.001989026063100137,
+        "startTime": 195,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 328,
+              "y": 13,
+              "w": 1024,
+              "h": 720
+            },
+            "currentRect": {
+              "x": 328,
+              "y": 8,
+              "w": 1024,
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0012335133744855967,
+        "startTime": 212,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 328,
+              "y": 8,
+              "w": 1024,
+              "h": 720
+            },
+            "currentRect": {
+              "x": 328,
+              "y": 5,
+              "w": 1024,
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.012602136917009602,
+        "startTime": 484,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.relative.mb-6",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 360,
+              "y": 164,
+              "w": 960,
+              "h": 368
             },
             "currentRect": {
               "x": 360,
-              "y": 32,
-              "w": 963,
-              "h": 56
+              "y": 112,
+              "w": 960,
+              "h": 36
             }
           },
           {
@@ -629,7 +598,7 @@
               "tagName": "DIV",
               "id": "",
               "selector": "aside[data-testid=\"app-sidebar\"] > div.border-t.px-2",
-              "snippet": "7 ngày liên tụcGiao diện tốiWorkspace ClassicCài đặtSTSơn Trần"
+              "snippet": "7 ngày liên tụcGiao diện tốiGiao diện nhiều khung (Classic)Cài đặtSTSơn Trần"
             },
             "previousRect": {
               "x": 0,
@@ -653,35 +622,55 @@
             },
             "previousRect": {
               "x": 8,
-              "y": 302,
+              "y": 488,
               "w": 223,
               "h": 40
             },
             "currentRect": {
               "x": 8,
-              "y": 494,
+              "y": 478,
               "w": 223,
               "h": 40
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.flex.flex-col > div",
+              "snippet": "Tải tài liệu lên"
+            },
+            "previousRect": {
+              "x": 1176,
+              "y": 34,
+              "w": 144,
+              "h": 36
+            },
+            "currentRect": {
+              "x": 1173,
+              "y": 40,
+              "w": 150,
+              "h": 42
             }
           }
         ]
       }
     ],
-    "lcp": 688,
+    "lcp": 500,
     "lcpEntries": [
       {
-        "startTime": 184,
-        "size": 2166,
+        "startTime": 132,
+        "size": 3249,
         "id": "",
         "url": "",
         "element": {
           "tagName": "SPAN",
           "selector": "a[data-testid=\"switch-to-workspace-link\"] > span.truncate",
-          "snippet": "Workspace Classic"
+          "snippet": "Giao diện nhiều khung (Classic)"
         }
       },
       {
-        "startTime": 688,
+        "startTime": 500,
         "size": 6574,
         "id": "",
         "url": "",
@@ -698,154 +687,134 @@
     "route": "/app/notes",
     "routeName": "app-notes",
     "viewport": "1440x900",
-    "totalCls": 0.2299,
+    "totalCls": 0.0178,
     "clsEntries": [
       {
-        "value": 0.0019618923611111113,
-        "startTime": 219,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 262,
-              "y": 22,
-              "w": 1156,
-              "h": 856
-            },
-            "currentRect": {
-              "x": 258,
-              "y": 18,
-              "w": 1163,
-              "h": 863
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.0028950892904985428,
-        "startTime": 235,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 258,
-              "y": 18,
-              "w": 1163,
-              "h": 863
-            },
-            "currentRect": {
-              "x": 253,
-              "y": 13,
-              "w": 1174,
-              "h": 874
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.002558817729766804,
-        "startTime": 251,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 253,
-              "y": 13,
-              "w": 1174,
-              "h": 874
-            },
-            "currentRect": {
-              "x": 248,
-              "y": 8,
-              "w": 1183,
-              "h": 883
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.001764584974333419,
-        "startTime": 268,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 248,
-              "y": 8,
-              "w": 1183,
-              "h": 883
-            },
-            "currentRect": {
-              "x": 245,
-              "y": 5,
-              "w": 1189,
-              "h": 889
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.22067264660493827,
-        "startTime": 641,
+        "value": 0.0015890260631001374,
+        "startTime": 165,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
               "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
-              "snippet": "Sổ tay47 sổ tay ghi chú gắn với bài giảng và tài liệu của bạn.Ghi chú: 🗺️ Lộ trình học Tài chính cá"
+              "snippet": ""
             },
             "previousRect": {
-              "x": 240,
-              "y": 0,
-              "w": 1200,
-              "h": 900
+              "x": 328,
+              "y": 22,
+              "w": 1024,
+              "h": 720
             },
             "currentRect": {
               "x": 328,
-              "y": 0,
+              "y": 18,
               "w": 1024,
-              "h": 900
+              "h": 720
             }
-          },
+          }
+        ]
+      },
+      {
+        "value": 0.002107124485596708,
+        "startTime": 181,
+        "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
-              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.mb-6",
-              "snippet": "Sổ tay47 sổ tay ghi chú gắn với bài giảng và tài liệu của bạn."
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": ""
             },
             "previousRect": {
-              "x": 0,
-              "y": 0,
-              "w": 0,
-              "h": 0
+              "x": 328,
+              "y": 18,
+              "w": 1024,
+              "h": 720
             },
             "currentRect": {
-              "x": 359,
-              "y": 32,
-              "w": 961,
-              "h": 56
+              "x": 328,
+              "y": 13,
+              "w": 1024,
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0017938614540466394,
+        "startTime": 198,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 328,
+              "y": 13,
+              "w": 1024,
+              "h": 720
+            },
+            "currentRect": {
+              "x": 328,
+              "y": 9,
+              "w": 1024,
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0015890260631001374,
+        "startTime": 215,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 328,
+              "y": 9,
+              "w": 1024,
+              "h": 720
+            },
+            "currentRect": {
+              "x": 328,
+              "y": 5,
+              "w": 1024,
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.010690588563100137,
+        "startTime": 528,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-5xl.mx-auto > div.relative.mb-6",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 360,
+              "y": 164,
+              "w": 960,
+              "h": 304
+            },
+            "currentRect": {
+              "x": 360,
+              "y": 112,
+              "w": 960,
+              "h": 36
             }
           },
           {
@@ -853,7 +822,7 @@
               "tagName": "DIV",
               "id": "",
               "selector": "aside[data-testid=\"app-sidebar\"] > div.border-t.px-2",
-              "snippet": "7 ngày liên tụcGiao diện tốiWorkspace ClassicCài đặtSTSơn Trần"
+              "snippet": "7 ngày liên tụcGiao diện tốiGiao diện nhiều khung (Classic)Cài đặtSTSơn Trần"
             },
             "previousRect": {
               "x": 0,
@@ -877,13 +846,13 @@
             },
             "previousRect": {
               "x": 8,
-              "y": 302,
+              "y": 488,
               "w": 223,
               "h": 40
             },
             "currentRect": {
               "x": 8,
-              "y": 494,
+              "y": 478,
               "w": 223,
               "h": 40
             }
@@ -891,21 +860,21 @@
         ]
       }
     ],
-    "lcp": 672,
+    "lcp": 568,
     "lcpEntries": [
       {
-        "startTime": 188,
-        "size": 2166,
+        "startTime": 136,
+        "size": 3249,
         "id": "",
         "url": "",
         "element": {
           "tagName": "SPAN",
           "selector": "a[data-testid=\"switch-to-workspace-link\"] > span.truncate",
-          "snippet": "Workspace Classic"
+          "snippet": "Giao diện nhiều khung (Classic)"
         }
       },
       {
-        "startTime": 672,
+        "startTime": 568,
         "size": 8619,
         "id": "",
         "url": "",
@@ -922,144 +891,184 @@
     "route": "/app/courses/22222222-2222-4222-8222-222222222222/quiz",
     "routeName": "app-quiz",
     "viewport": "1440x900",
-    "totalCls": 0.2221,
+    "totalCls": 0.1192,
     "clsEntries": [
       {
-        "value": 0.0023562500000000003,
-        "startTime": 205,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 22,
-              "y": 22,
-              "w": 1396,
-              "h": 856
-            },
-            "currentRect": {
-              "x": 18,
-              "y": 18,
-              "w": 1403,
-              "h": 863
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.0035179712952246225,
-        "startTime": 223,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 18,
-              "y": 18,
-              "w": 1403,
-              "h": 863
-            },
-            "currentRect": {
-              "x": 13,
-              "y": 13,
-              "w": 1414,
-              "h": 874
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.003040296774865505,
-        "startTime": 240,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 13,
-              "y": 13,
-              "w": 1414,
-              "h": 874
-            },
-            "currentRect": {
-              "x": 9,
-              "y": 9,
-              "w": 1423,
-              "h": 883
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.002120467658232596,
-        "startTime": 257,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 9,
-              "y": 9,
-              "w": 1423,
-              "h": 883
-            },
-            "currentRect": {
-              "x": 5,
-              "y": 5,
-              "w": 1429,
-              "h": 889
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.2111111111111111,
-        "startTime": 494,
+        "value": 0.0015133058984910838,
+        "startTime": 137,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
               "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-4xl.mx-auto",
-              "snippet": "Quay lại khóa họcMở bài giảngÔn thẻ ghi nhớHệ điều hành: Kiến trúc Bộ nhớ ảo & Phân trangKiểm tra &"
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 272,
+              "y": 22,
+              "w": 896,
+              "h": 784
+            },
+            "currentRect": {
+              "x": 272,
+              "y": 18,
+              "w": 896,
+              "h": 784
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.002012409979423868,
+        "startTime": 153,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-4xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 272,
+              "y": 18,
+              "w": 896,
+              "h": 784
+            },
+            "currentRect": {
+              "x": 272,
+              "y": 13,
+              "w": 896,
+              "h": 784
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0018940329218106993,
+        "startTime": 170,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-4xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 272,
+              "y": 13,
+              "w": 896,
+              "h": 784
+            },
+            "currentRect": {
+              "x": 272,
+              "y": 8,
+              "w": 896,
+              "h": 784
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.001174866040809328,
+        "startTime": 186,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-4xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 272,
+              "y": 8,
+              "w": 896,
+              "h": 784
+            },
+            "currentRect": {
+              "x": 272,
+              "y": 5,
+              "w": 896,
+              "h": 784
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.11259259259259259,
+        "startTime": 253,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-4xl.mx-auto > div.grid.grid-cols-1",
+              "snippet": "Bài luyện tập thực hành: Cơ chế Phân trang, TLB & Bảng trang đa cấp3 câu hỏi · Trạng thái: Đã hoàn t"
+            },
+            "previousRect": {
+              "x": 304,
+              "y": 229,
+              "w": 832,
+              "h": 520
+            },
+            "currentRect": {
+              "x": 304,
+              "y": 159,
+              "w": 832,
+              "h": 741
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-4xl.mx-auto > div.mb-6",
+              "snippet": "Hệ điều hành: Kiến trúc Bộ nhớ ảo & Phân trangKiểm tra & Luyện tập"
+            },
+            "previousRect": {
+              "x": 304,
+              "y": 77,
+              "w": 288,
+              "h": 40
+            },
+            "currentRect": {
+              "x": 304,
+              "y": 83,
+              "w": 832,
+              "h": 52
+            }
+          },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-4xl.mx-auto > div.flex.flex-wrap",
+              "snippet": "Quay lại khóa họcMở bài giảngÔn thẻ ghi nhớ"
             },
             "previousRect": {
               "x": 0,
               "y": 0,
-              "w": 1440,
-              "h": 900
+              "w": 128,
+              "h": 24
             },
             "currentRect": {
-              "x": 272,
-              "y": 0,
-              "w": 896,
-              "h": 900
+              "x": 304,
+              "y": 27,
+              "w": 832,
+              "h": 32
             }
           }
         ]
       }
     ],
-    "lcp": 512,
+    "lcp": 272,
     "lcpEntries": [
       {
-        "startTime": 512,
-        "size": 27798,
+        "startTime": 272,
+        "size": 28476,
         "id": "",
         "url": "",
         "element": {
@@ -1075,142 +1084,122 @@
     "route": "/app/settings",
     "routeName": "app-settings",
     "viewport": "1440x900",
-    "totalCls": 0.1416,
+    "totalCls": 0.0062,
     "clsEntries": [
       {
-        "value": 0.001978732638888889,
-        "startTime": 233,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 262,
-              "y": 22,
-              "w": 1156,
-              "h": 856
-            },
-            "currentRect": {
-              "x": 258,
-              "y": 18,
-              "w": 1163,
-              "h": 863
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.0029036800599065503,
-        "startTime": 250,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 258,
-              "y": 18,
-              "w": 1163,
-              "h": 863
-            },
-            "currentRect": {
-              "x": 253,
-              "y": 13,
-              "w": 1174,
-              "h": 874
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.002527527115014682,
-        "startTime": 267,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 253,
-              "y": 13,
-              "w": 1174,
-              "h": 874
-            },
-            "currentRect": {
-              "x": 249,
-              "y": 9,
-              "w": 1183,
-              "h": 883
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.001764584974333419,
-        "startTime": 283,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.flex.items-center",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 249,
-              "y": 9,
-              "w": 1183,
-              "h": 883
-            },
-            "currentRect": {
-              "x": 245,
-              "y": 5,
-              "w": 1189,
-              "h": 889
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.13240358796296295,
-        "startTime": 682,
+        "value": 0.001191769547325103,
+        "startTime": 153,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
               "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-3xl.mx-auto",
-              "snippet": "Cài đặtTài khoảnSTSơn TrầnEmail & Mật khẩuson.tran@studxy.vnĐổi mật khẩuĐăng xuấtCấu hình AIAPI KeyB"
+              "snippet": ""
             },
             "previousRect": {
-              "x": 240,
-              "y": 0,
-              "w": 1200,
-              "h": 900
+              "x": 456,
+              "y": 22,
+              "w": 768,
+              "h": 720
             },
             "currentRect": {
               "x": 456,
-              "y": 0,
+              "y": 18,
               "w": 768,
-              "h": 900
+              "h": 720
             }
-          },
+          }
+        ]
+      },
+      {
+        "value": 0.0015756815843621398,
+        "startTime": 169,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-3xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 456,
+              "y": 18,
+              "w": 768,
+              "h": 720
+            },
+            "currentRect": {
+              "x": 456,
+              "y": 13,
+              "w": 768,
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0014917695473251028,
+        "startTime": 186,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-3xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 456,
+              "y": 13,
+              "w": 768,
+              "h": 720
+            },
+            "currentRect": {
+              "x": 456,
+              "y": 8,
+              "w": 768,
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.0009204861111111112,
+        "startTime": 203,
+        "sources": [
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.max-w-3xl.mx-auto",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 456,
+              "y": 8,
+              "w": 768,
+              "h": 720
+            },
+            "currentRect": {
+              "x": 456,
+              "y": 5,
+              "w": 768,
+              "h": 720
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.000982115912208505,
+        "startTime": 503,
+        "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
               "selector": "aside[data-testid=\"app-sidebar\"] > div.border-t.px-2",
-              "snippet": "7 ngày liên tụcGiao diện tốiWorkspace ClassicCài đặtSTSơn Trần"
+              "snippet": "7 ngày liên tụcGiao diện tốiGiao diện nhiều khung (Classic)Cài đặtSTSơn Trần"
             },
             "previousRect": {
               "x": 0,
@@ -1234,13 +1223,13 @@
             },
             "previousRect": {
               "x": 8,
-              "y": 302,
+              "y": 488,
               "w": 223,
               "h": 40
             },
             "currentRect": {
               "x": 8,
-              "y": 494,
+              "y": 478,
               "w": 223,
               "h": 40
             }
@@ -1248,21 +1237,21 @@
         ]
       }
     ],
-    "lcp": 704,
+    "lcp": 512,
     "lcpEntries": [
       {
-        "startTime": 204,
-        "size": 2166,
+        "startTime": 120,
+        "size": 3249,
         "id": "",
         "url": "",
         "element": {
           "tagName": "SPAN",
           "selector": "a[data-testid=\"switch-to-workspace-link\"] > span.truncate",
-          "snippet": "Workspace Classic"
+          "snippet": "Giao diện nhiều khung (Classic)"
         }
       },
       {
-        "startTime": 704,
+        "startTime": 512,
         "size": 6993,
         "id": "",
         "url": "",
@@ -1279,156 +1268,58 @@
     "route": "/app/courses/22222222-2222-4222-8222-222222222222/learn",
     "routeName": "learn-mobile-os",
     "viewport": "390x844",
-    "totalCls": 0.2384,
+    "totalCls": 0.0065,
     "clsEntries": [
       {
-        "value": 0.003831861082626522,
-        "startTime": 1053,
+        "value": 0.0000984410122794256,
+        "startTime": 621,
         "sources": [
           {
             "node": {
               "tagName": "DIV",
               "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
-              "snippet": "Đang chuẩn bị không gian học tập..."
-            },
-            "previousRect": {
-              "x": 22,
-              "y": 22,
-              "w": 346,
-              "h": 822
-            },
-            "currentRect": {
-              "x": 18,
-              "y": 18,
-              "w": 353,
-              "h": 826
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.005784313863120775,
-        "startTime": 1070,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
-              "snippet": "Đang chuẩn bị không gian học tập..."
-            },
-            "previousRect": {
-              "x": 18,
-              "y": 18,
-              "w": 353,
-              "h": 826
-            },
-            "currentRect": {
-              "x": 13,
-              "y": 13,
-              "w": 364,
-              "h": 831
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.011279486949114764,
-        "startTime": 1319,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
-              "snippet": "Hệ điều hành: Kiến trúc Bộ nhớ ảo & Phân trang0/2 • 0%AaSổ tay & ThẻKiểm traTài liệu PDFPDF tham chi"
-            },
-            "previousRect": {
-              "x": 13,
-              "y": 13,
-              "w": 364,
-              "h": 831
-            },
-            "currentRect": {
-              "x": 3,
-              "y": 3,
-              "w": 383,
-              "h": 841
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.0078125,
-        "startTime": 1341,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
-              "snippet": "Hệ điều hành: Kiến trúc Bộ nhớ ảo & Phân trang0/2 • 0%AaSổ tay & ThẻKiểm traTài liệu PDFPDF tham chi"
-            },
-            "previousRect": {
-              "x": 3,
-              "y": 3,
-              "w": 383,
-              "h": 841
-            },
-            "currentRect": {
-              "x": 0,
-              "y": 0,
-              "w": 390,
-              "h": 844
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.2097168283431069,
-        "startTime": 1567,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "main.flex-1.min-w-0 > div.h-screen.flex > div.flex-1.min-h-0 > main.flex-1.flex > div.flex-1.min-h-0",
-              "snippet": ""
-            },
-            "previousRect": {
-              "x": 0,
-              "y": 99,
-              "w": 390,
-              "h": 745
-            },
-            "currentRect": {
-              "x": 0,
-              "y": 165,
-              "w": 390,
-              "h": 679
-            }
-          },
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "div.h-screen.flex > div.flex-1.min-h-0 > main.flex-1.flex > div.px-4.py-2 > div.flex.items-center",
+              "selector": "div.h-screen.flex > div.flex-1.min-h-0 > main.flex-1.flex > div.h-11.px-4 > div.flex.items-center",
               "snippet": "PDF tham chiếu:Chọn PDF đọc song song...Kiến trúc Máy tínhsmall-3pmarker-12plarge-305psmall-3pmarker"
             },
             "previousRect": {
-              "x": 144,
-              "y": 59,
+              "x": 141,
+              "y": 56,
               "w": 230,
               "h": 28
             },
             "currentRect": {
-              "x": 16,
-              "y": 128,
+              "x": 144,
+              "y": 56,
               "w": 230,
               "h": 28
             }
           },
+          {
+            "node": {
+              "tagName": "DIV",
+              "id": "",
+              "selector": "div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex > header.h-12.shrink-0 > div.flex.items-center",
+              "snippet": "0/2 • 0%AaSổ tay & ThẻKiểm tra"
+            },
+            "previousRect": {
+              "x": 297,
+              "y": 8,
+              "w": 78,
+              "h": 32
+            },
+            "currentRect": {
+              "x": 300,
+              "y": 8,
+              "w": 78,
+              "h": 32
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.006355851624903028,
+        "startTime": 710,
+        "sources": [
           {
             "node": {
               "tagName": "BUTTON",
@@ -1438,13 +1329,13 @@
             },
             "previousRect": {
               "x": 19,
-              "y": 59,
+              "y": 56,
               "w": 103,
               "h": 28
             },
             "currentRect": {
               "x": 211,
-              "y": 59,
+              "y": 56,
               "w": 103,
               "h": 28
             }
@@ -1472,10 +1363,10 @@
         ]
       }
     ],
-    "lcp": 2484,
+    "lcp": 1116,
     "lcpEntries": [
       {
-        "startTime": 1020,
+        "startTime": 464,
         "size": 3104,
         "id": "",
         "url": "",
@@ -1486,7 +1377,7 @@
         }
       },
       {
-        "startTime": 2484,
+        "startTime": 1116,
         "size": 75816,
         "id": "",
         "url": "",
@@ -1503,117 +1394,79 @@
     "route": "/app/courses/79B30ACD-0BD5-41C8-8744-271AD7B496CE/learn?lesson=0360C033-EBC7-453D-9FAE-C812D3BCB48A",
     "routeName": "learn-mobile-ielts",
     "viewport": "390x844",
-    "totalCls": 0.0183,
+    "totalCls": 0.0037,
     "clsEntries": [
       {
-        "value": 0.0038647525940653767,
-        "startTime": 1125,
+        "value": 0.0037036001161076964,
+        "startTime": 1256,
         "sources": [
           {
             "node": {
-              "tagName": "DIV",
+              "tagName": "A",
               "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
-              "snippet": "Đang chuẩn bị không gian học tập..."
+              "selector": "main.flex-1.min-w-0 > div.h-screen.flex > header.h-12.shrink-0 > div.flex.items-center > a.inline-flex.items-center",
+              "snippet": "IELTS Mastery Roadmap (Phase 0 – Phase 3)"
             },
             "previousRect": {
-              "x": 22,
-              "y": 22,
-              "w": 346,
-              "h": 822
-            },
-            "currentRect": {
-              "x": 18,
-              "y": 18,
-              "w": 353,
-              "h": 826
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.00573327579962265,
-        "startTime": 1142,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
-              "snippet": "Đang chuẩn bị không gian học tập..."
-            },
-            "previousRect": {
-              "x": 18,
-              "y": 18,
-              "w": 353,
-              "h": 826
-            },
-            "currentRect": {
-              "x": 13,
-              "y": 13,
-              "w": 364,
-              "h": 831
-            }
-          }
-        ]
-      },
-      {
-        "value": 0.005117306083300361,
-        "startTime": 1160,
-        "sources": [
-          {
-            "node": {
-              "tagName": "DIV",
-              "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
-              "snippet": "Đang chuẩn bị không gian học tập..."
-            },
-            "previousRect": {
-              "x": 13,
-              "y": 13,
-              "w": 364,
-              "h": 831
-            },
-            "currentRect": {
-              "x": 8,
+              "x": 52,
               "y": 8,
-              "w": 373,
-              "h": 836
+              "w": 180,
+              "h": 32
+            },
+            "currentRect": {
+              "x": 36,
+              "y": 8,
+              "w": 180,
+              "h": 32
             }
-          }
-        ]
-      },
-      {
-        "value": 0.0035504326069979077,
-        "startTime": 1171,
-        "sources": [
+          },
           {
             "node": {
               "tagName": "DIV",
               "id": "",
-              "selector": "body.min-h-screen.antialiased > div > div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex",
-              "snippet": "Đang chuẩn bị không gian học tập..."
+              "selector": "div.h-screen.w-screen > main.flex-1.min-w-0 > div.h-screen.flex > header.h-12.shrink-0 > div.flex.items-center",
+              "snippet": "0/493 • 0%AaMục lụcSổ tay & ThẻChưa có bài kiểm tra"
             },
             "previousRect": {
-              "x": 8,
+              "x": 300,
               "y": 8,
-              "w": 373,
-              "h": 836
+              "w": 78,
+              "h": 32
             },
             "currentRect": {
-              "x": 5,
-              "y": 5,
-              "w": 379,
-              "h": 839
+              "x": 209,
+              "y": 8,
+              "w": 169,
+              "h": 32
+            }
+          },
+          {
+            "node": {
+              "tagName": "svg",
+              "id": "",
+              "selector": "div.h-screen.flex > header.h-12.shrink-0 > div.flex.items-center > button.h-8.w-8 > svg",
+              "snippet": ""
+            },
+            "previousRect": {
+              "x": 20,
+              "y": 16,
+              "w": 16,
+              "h": 16
+            },
+            "currentRect": {
+              "x": 12,
+              "y": 16,
+              "w": 16,
+              "h": 16
             }
           }
         ]
       }
     ],
-    "lcp": 2836,
+    "lcp": 1252,
     "lcpEntries": [
       {
-        "startTime": 1088,
+        "startTime": 420,
         "size": 3104,
         "id": "",
         "url": "",
@@ -1624,14 +1477,14 @@
         }
       },
       {
-        "startTime": 2836,
-        "size": 38280,
+        "startTime": 1252,
+        "size": 48951,
         "id": "",
         "url": "",
         "element": {
           "tagName": "LI",
           "selector": "div[data-testid=\"lesson-markdown-view\"] > div.space-y-2 > ol.my-2.space-y-1.5 > li.text-slate-800.break-words",
-          "snippet": "Gói hiện hành: sau Phase 2, mở CODE_0 để theo lịch Month 1 hiện có; các phần chưa có hoặc chưa đượ"
+          "snippet": "Gói hiện hành: sau Phase 2, mở Phase-3/month1-study-guide.md để theo lịch Month 1 hiện có; các phần"
         }
       }
     ],

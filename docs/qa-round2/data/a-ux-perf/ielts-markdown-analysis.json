@@ -1,24 +1,10 @@
 {
-  "hasLeak": true,
-  "codePlaceholderMatches": [
-    "CODE_0",
-    "CODE_0"
-  ],
+  "hasLeak": false,
+  "codePlaceholderMatches": [],
   "linkPlaceholderMatches": [],
-  "rawPrivateUseCharsCount": 4,
+  "rawPrivateUseCharsCount": 0,
   "rawSubCharsCount": 0,
-  "leakyElements": [
-    {
-      "parentTag": "SPAN",
-      "parentClass": "",
-      "text": "CODE_0"
-    },
-    {
-      "parentTag": "SPAN",
-      "parentClass": "",
-      "text": "CODE_0"
-    }
-  ],
+  "leakyElements": [],
   "sampleCodeElements": [
     "implementation_plan_new.md",
     "roadmap.md",
@@ -29,7 +15,7 @@
   "sampleListItems": [
     "Đọc implementation_plan_new.md — hiểu lộ trình 5 phase (18-24 tháng).",
     "Ngày 0 (xem mục 📋 NGÀY 0 trong plan): test baseline EF SET (efset.org) + cài Anki + ghi âm 1 phút giới thiệu.",
-    "Gói hiện hành: sau Phase 2, mở CODE_0 để theo lịch Month 1 hiện có; các phần chưa có hoặc chưa được nghiệm thu vẫn giữ trạng thái chờ.",
+    "Gói hiện hành: sau Phase 2, mở Phase-3/month1-study-guide.md để theo lịch Month 1 hiện có; các phần chưa có hoặc chưa được nghiệm thu vẫn giữ trạng thái chờ.",
     "Mỗi tối: Anki 15-20' + graded reader 15-20' (xem Resources/graded-readers.md).",
     "Mỗi 3 tháng: retest EF SET + nghe lại ghi âm cũ → ghi roadmap.md.",
     "Không deadline — chỉ có tiêu chí đạt. Chậm là bình thường.",

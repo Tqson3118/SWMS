@@ -56,8 +56,8 @@
           "text": "Chính sách bảo mật",
           "width": 104.8,
           "height": 16,
-          "top": 4155,
-          "bottom": 4171,
+          "top": 4126,
+          "bottom": 4142,
           "left": 28,
           "right": 133,
           "severity": "Critical_Sub36",
@@ -70,8 +70,8 @@
           "text": "Điều khoản sử dụng",
           "width": 106.8,
           "height": 16,
-          "top": 4155,
-          "bottom": 4171,
+          "top": 4126,
+          "bottom": 4142,
           "left": 157,
           "right": 263,
           "severity": "Critical_Sub36",
@@ -84,8 +84,8 @@
           "text": "Vào ứng dụng",
           "width": 74.9,
           "height": 16,
-          "top": 4155,
-          "bottom": 4171,
+          "top": 4126,
+          "bottom": 4142,
           "left": 287,
           "right": 362,
           "severity": "Critical_Sub36",
@@ -136,7 +136,7 @@
     "tapTargetCheck": {
       "totalInteractive": 10,
       "sub44Count": 4,
-      "sub36Count": 1,
+      "sub36Count": 0,
       "issues": [
         {
           "index": 0,
@@ -185,14 +185,14 @@
           "tagName": "button",
           "testId": "auth-toggle-password-btn",
           "text": "Hiện mật khẩu",
-          "width": 24,
-          "height": 24,
-          "top": 446,
-          "bottom": 470,
-          "left": 315,
-          "right": 339,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 24x24px (chuẩn tối thiểu 44x44px)"
+          "width": 36,
+          "height": 36,
+          "top": 440,
+          "bottom": 476,
+          "left": 309,
+          "right": 345,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 36x36px (chuẩn tối thiểu 44x44px)"
         }
       ],
       "spacingIssues": [
@@ -207,7 +207,7 @@
             "tag": "button",
             "text": "Hiện mật khẩu",
             "testId": "auth-toggle-password-btn",
-            "rect": "24x24"
+            "rect": "36x36"
           },
           "edgeDistX": 0,
           "edgeDistY": 0
@@ -479,7 +479,7 @@
     "tapTargetCheck": {
       "totalInteractive": 65,
       "sub44Count": 59,
-      "sub36Count": 55,
+      "sub36Count": 45,
       "issues": [
         {
           "index": 17,
@@ -542,56 +542,56 @@
           "tagName": "button",
           "testId": "",
           "text": "Tất cả trạng thái",
-          "width": 109,
-          "height": 28,
+          "width": 113,
+          "height": 36,
           "top": 258,
-          "bottom": 286,
+          "bottom": 294,
           "left": 16,
-          "right": 125,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 109x28px (chuẩn tối thiểu 44x44px)"
+          "right": 129,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 113x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 22,
           "tagName": "button",
           "testId": "",
           "text": "Đang học",
-          "width": 74.2,
-          "height": 28,
+          "width": 78.2,
+          "height": 36,
           "top": 258,
-          "bottom": 286,
-          "left": 131,
-          "right": 205,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 74.2x28px (chuẩn tối thiểu 44x44px)"
+          "bottom": 294,
+          "left": 135,
+          "right": 213,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 78.2x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 23,
           "tagName": "button",
           "testId": "",
           "text": "Chưa học",
-          "width": 73.3,
-          "height": 28,
+          "width": 77.3,
+          "height": 36,
           "top": 258,
-          "bottom": 286,
-          "left": 211,
-          "right": 285,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 73.3x28px (chuẩn tối thiểu 44x44px)"
+          "bottom": 294,
+          "left": 219,
+          "right": 297,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 77.3x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 24,
           "tagName": "button",
           "testId": "",
           "text": "Hoàn thành",
-          "width": 86,
-          "height": 28,
-          "top": 292,
-          "bottom": 320,
+          "width": 90,
+          "height": 36,
+          "top": 300,
+          "bottom": 336,
           "left": 16,
-          "right": 102,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 86x28px (chuẩn tối thiểu 44x44px)"
+          "right": 106,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 90x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 25,
@@ -599,13 +599,13 @@
           "testId": "",
           "text": "Tất cả lĩnh vực\n(9)",
           "width": 125.2,
-          "height": 32,
-          "top": 332,
-          "bottom": 364,
+          "height": 36,
+          "top": 348,
+          "bottom": 384,
           "left": 16,
           "right": 141,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 125.2x32px (chuẩn tối thiểu 44x44px)"
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 125.2x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 26,
@@ -613,13 +613,13 @@
           "testId": "",
           "text": "Công nghệ & Lập trình\n(4)",
           "width": 170.4,
-          "height": 32,
-          "top": 332,
-          "bottom": 364,
-          "left": 147,
-          "right": 318,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 170.4x32px (chuẩn tối thiểu 44x44px)"
+          "height": 36,
+          "top": 348,
+          "bottom": 384,
+          "left": 149,
+          "right": 320,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 170.4x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 27,
@@ -627,13 +627,13 @@
           "testId": "",
           "text": "Khoa học & Toán\n(1)",
           "width": 136.4,
-          "height": 32,
-          "top": 332,
-          "bottom": 364,
-          "left": 324,
-          "right": 460,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 136.4x32px (chuẩn tối thiểu 44x44px)"
+          "height": 36,
+          "top": 392,
+          "bottom": 428,
+          "left": 16,
+          "right": 152,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 136.4x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 28,
@@ -641,13 +641,13 @@
           "testId": "",
           "text": "Ngoại ngữ\n(1)",
           "width": 102.8,
-          "height": 32,
-          "top": 332,
-          "bottom": 364,
-          "left": 466,
-          "right": 569,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 102.8x32px (chuẩn tối thiểu 44x44px)"
+          "height": 36,
+          "top": 392,
+          "bottom": 428,
+          "left": 160,
+          "right": 263,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 102.8x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 29,
@@ -655,13 +655,13 @@
           "testId": "",
           "text": "Kinh tế & Quản trị\n(2)",
           "width": 144.8,
-          "height": 32,
-          "top": 332,
-          "bottom": 364,
-          "left": 575,
-          "right": 720,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 144.8x32px (chuẩn tối thiểu 44x44px)"
+          "height": 36,
+          "top": 436,
+          "bottom": 472,
+          "left": 16,
+          "right": 161,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 144.8x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 30,
@@ -669,13 +669,13 @@
           "testId": "",
           "text": "Chủ đề khác\n(1)",
           "width": 111.7,
-          "height": 32,
-          "top": 332,
-          "bottom": 364,
-          "left": 726,
-          "right": 837,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 111.7x32px (chuẩn tối thiểu 44x44px)"
+          "height": 36,
+          "top": 436,
+          "bottom": 472,
+          "left": 169,
+          "right": 281,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 111.7x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 31,
@@ -684,8 +684,8 @@
           "text": ".NET & React Full-Stack Roadmap",
           "width": 316,
           "height": 20,
-          "top": 440,
-          "bottom": 460,
+          "top": 548,
+          "bottom": 568,
           "left": 37,
           "right": 353,
           "severity": "Critical_Sub36",
@@ -744,25 +744,9 @@
         {
           "elemA": {
             "tag": "a",
-            "text": "Xem lộ trình",
+            "text": "FullStack C# & React Refresh (28 Tuần)",
             "testId": "",
-            "rect": "154x32"
-          },
-          "elemB": {
-            "tag": "button",
-            "text": "Xem lộ trình",
-            "testId": "",
-            "rect": "154x32"
-          },
-          "edgeDistX": 0,
-          "edgeDistY": 0
-        },
-        {
-          "elemA": {
-            "tag": "a",
-            "text": "Xem lộ trình",
-            "testId": "",
-            "rect": "154x32"
+            "rect": "316x20"
           },
           "elemB": {
             "tag": "a",
@@ -776,9 +760,9 @@
         {
           "elemA": {
             "tag": "a",
-            "text": "Xem lộ trình",
+            "text": "FullStack C# & React Refresh (28 Tuần)",
             "testId": "",
-            "rect": "154x32"
+            "rect": "316x20"
           },
           "elemB": {
             "tag": "a",
@@ -792,9 +776,9 @@
         {
           "elemA": {
             "tag": "a",
-            "text": "Xem lộ trình",
+            "text": "FullStack C# & React Refresh (28 Tuần)",
             "testId": "",
-            "rect": "154x32"
+            "rect": "316x20"
           },
           "elemB": {
             "tag": "button",
@@ -808,29 +792,13 @@
         {
           "elemA": {
             "tag": "a",
-            "text": "Xem lộ trình",
+            "text": "FullStack C# & React Refresh (28 Tuần)",
             "testId": "",
-            "rect": "154x32"
+            "rect": "316x20"
           },
           "elemB": {
             "tag": "a",
             "text": "Tài liệu",
-            "testId": "",
-            "rect": "63.7x55"
-          },
-          "edgeDistX": 4,
-          "edgeDistY": 0
-        },
-        {
-          "elemA": {
-            "tag": "button",
-            "text": "Xem lộ trình",
-            "testId": "",
-            "rect": "154x32"
-          },
-          "elemB": {
-            "tag": "a",
-            "text": "Hôm nay",
             "testId": "",
             "rect": "63.7x55"
           },
@@ -839,16 +807,48 @@
         },
         {
           "elemA": {
-            "tag": "button",
+            "tag": "a",
+            "text": "FullStack C# & React Refresh (28 Tuần)",
+            "testId": "",
+            "rect": "316x20"
+          },
+          "elemB": {
+            "tag": "a",
+            "text": "Sổ tay",
+            "testId": "",
+            "rect": "63.7x55"
+          },
+          "edgeDistX": 0,
+          "edgeDistY": 0
+        },
+        {
+          "elemA": {
+            "tag": "a",
+            "text": "FullStack C# & React Refresh (28 Tuần)",
+            "testId": "",
+            "rect": "316x20"
+          },
+          "elemB": {
+            "tag": "a",
+            "text": "Ôn tập",
+            "testId": "",
+            "rect": "63.7x55"
+          },
+          "edgeDistX": 0,
+          "edgeDistY": 0
+        },
+        {
+          "elemA": {
+            "tag": "a",
             "text": "Xem lộ trình",
             "testId": "",
             "rect": "154x32"
           },
           "elemB": {
-            "tag": "a",
-            "text": "Khóa học",
+            "tag": "button",
+            "text": "Xem lộ trình",
             "testId": "",
-            "rect": "63.7x55"
+            "rect": "154x32"
           },
           "edgeDistX": 0,
           "edgeDistY": 0
@@ -1171,21 +1171,21 @@
     "tapTargetCheck": {
       "totalInteractive": 5,
       "sub44Count": 5,
-      "sub36Count": 4,
+      "sub36Count": 2,
       "issues": [
         {
           "index": 0,
           "tagName": "button",
           "testId": "",
           "text": "",
-          "width": 16,
-          "height": 16,
+          "width": 36,
+          "height": 36,
           "top": 10,
-          "bottom": 26,
+          "bottom": 46,
           "left": 16,
-          "right": 32,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 16x16px (chuẩn tối thiểu 44x44px)"
+          "right": 52,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 36x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 1,
@@ -1194,8 +1194,8 @@
           "text": "Tất cả khóa học\n.NET & React Full-Stack ",
           "width": 160,
           "height": 28,
-          "top": 34,
-          "bottom": 62,
+          "top": 54,
+          "bottom": 82,
           "left": 16,
           "right": 176,
           "severity": "Critical_Sub36",
@@ -1208,8 +1208,8 @@
           "text": "Chỉ thẻ đến hạn",
           "width": 108.1,
           "height": 28,
-          "top": 34,
-          "bottom": 62,
+          "top": 54,
+          "bottom": 82,
           "left": 188,
           "right": 296,
           "severity": "Critical_Sub36",
@@ -1220,14 +1220,14 @@
           "tagName": "button",
           "testId": "review-undo-btn",
           "text": "",
-          "width": 14,
-          "height": 14,
-          "top": 98,
-          "bottom": 112,
+          "width": 36,
+          "height": 36,
+          "top": 118,
+          "bottom": 154,
           "left": 16,
-          "right": 30,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 14x14px (chuẩn tối thiểu 44x44px)"
+          "right": 52,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 36x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 4,
@@ -1236,8 +1236,8 @@
           "text": "Hiện đáp án (Space)",
           "width": 175.4,
           "height": 40,
-          "top": 626,
-          "bottom": 666,
+          "top": 647,
+          "bottom": 687,
           "left": 107,
           "right": 283,
           "severity": "Sub44",
@@ -1593,9 +1593,9 @@
       "overflowingElements": []
     },
     "tapTargetCheck": {
-      "totalInteractive": 124,
-      "sub44Count": 37,
-      "sub36Count": 0,
+      "totalInteractive": 125,
+      "sub44Count": 38,
+      "sub36Count": 1,
       "issues": [
         {
           "index": 0,
@@ -1612,7 +1612,21 @@
           "reason": "Kích thước tap target: 36x36px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 2,
+          "index": 1,
+          "tagName": "a",
+          "testId": "header-back-to-app-btn",
+          "text": "Vào App",
+          "width": 78.2,
+          "height": 24.7,
+          "top": 15,
+          "bottom": 40,
+          "left": 48,
+          "right": 126,
+          "severity": "Critical_Sub36",
+          "reason": "Kích thước tap target: 78.2x24.7px (chuẩn tối thiểu 44x44px)"
+        },
+        {
+          "index": 3,
           "tagName": "button",
           "testId": "mode-tab-dashboard",
           "text": "",
@@ -1620,13 +1634,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 49,
-          "right": 85,
+          "left": 133,
+          "right": 169,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 3,
+          "index": 4,
           "tagName": "button",
           "testId": "mode-tab-reading",
           "text": "",
@@ -1634,13 +1648,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 85,
-          "right": 121,
+          "left": 169,
+          "right": 205,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 4,
+          "index": 5,
           "tagName": "button",
           "testId": "mode-tab-split",
           "text": "",
@@ -1648,13 +1662,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 121,
-          "right": 157,
+          "left": 205,
+          "right": 241,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 5,
+          "index": 6,
           "tagName": "button",
           "testId": "mode-tab-review",
           "text": "1381",
@@ -1662,13 +1676,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 157,
-          "right": 218,
+          "left": 241,
+          "right": 302,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 61x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 6,
+          "index": 7,
           "tagName": "button",
           "testId": "mode-tab-studio",
           "text": "",
@@ -1676,13 +1690,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 218,
-          "right": 254,
+          "left": 302,
+          "right": 338,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 7,
+          "index": 8,
           "tagName": "button",
           "testId": "cmd-k-trigger",
           "text": "",
@@ -1690,13 +1704,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 261,
-          "right": 297,
+          "left": 345,
+          "right": 381,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 8,
+          "index": 9,
           "tagName": "button",
           "testId": "quota-indicator-btn",
           "text": "AI:0",
@@ -1704,13 +1718,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 301,
-          "right": 354,
+          "left": 385,
+          "right": 438,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 53.1x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 12,
+          "index": 13,
           "tagName": "button",
           "testId": "theme-toggle-btn",
           "text": "Chuyển đổi giao diện Sáng/Tối",
@@ -1718,13 +1732,13 @@
           "height": 36,
           "top": 10,
           "bottom": 46,
-          "left": 358,
-          "right": 394,
+          "left": 442,
+          "right": 478,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x36px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 13,
+          "index": 14,
           "tagName": "button",
           "testId": "user-profile-btn",
           "text": "NM",
@@ -1732,13 +1746,13 @@
           "height": 36,
           "top": 10,
           "bottom": 46,
-          "left": 400,
-          "right": 436,
+          "left": 484,
+          "right": 520,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x36px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 18,
+          "index": 19,
           "tagName": "button",
           "testId": "onboarding-start-review-btn",
           "text": "Ôn tập nhanh (~1 phút)",
@@ -1752,60 +1766,46 @@
           "reason": "Kích thước tap target: 172x42px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 101,
+          "index": 102,
           "tagName": "button",
           "testId": "dashboard-tag-FullStack C# & React Refresh (28 Tuần)",
           "text": "#FullStack C# & React Refresh (28 Tuần) ",
           "width": 269.1,
           "height": 36,
-          "top": 9544,
-          "bottom": 9580,
+          "top": 9600,
+          "bottom": 9636,
           "left": 41,
           "right": 310,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 269.1x36px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 102,
+          "index": 103,
           "tagName": "button",
           "testId": "dashboard-tag-IELTS Mastery Roadmap (Phase 0 – Phase 3)",
           "text": "#IELTS Mastery Roadmap (Phase 0 – Phase ",
           "width": 298.5,
           "height": 36,
-          "top": 9588,
-          "bottom": 9624,
+          "top": 9644,
+          "bottom": 9680,
           "left": 41,
           "right": 340,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 298.5x36px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 103,
+          "index": 104,
           "tagName": "button",
           "testId": "dashboard-tag-KH-SWM-25f79a",
           "text": "#KH-SWM-25f79a (153)",
           "width": 152.4,
           "height": 36,
-          "top": 9632,
-          "bottom": 9668,
+          "top": 9688,
+          "bottom": 9724,
           "left": 41,
           "right": 193,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 152.4x36px (chuẩn tối thiểu 44x44px)"
-        },
-        {
-          "index": 105,
-          "tagName": "button",
-          "testId": "dashboard-tag-Tài Chính Cá Nhân Thực Hành (12 Tuần)",
-          "text": "#Tài Chính Cá Nhân Thực Hành (12 Tuần) (",
-          "width": 274.5,
-          "height": 36,
-          "top": 9728,
-          "bottom": 9764,
-          "left": 41,
-          "right": 315,
-          "severity": "Sub44",
-          "reason": "Kích thước tap target: 274.5x36px (chuẩn tối thiểu 44x44px)"
         }
       ],
       "spacingIssues": [
@@ -2060,7 +2060,7 @@
     "tapTargetCheck": {
       "totalInteractive": 11,
       "sub44Count": 9,
-      "sub36Count": 4,
+      "sub36Count": 3,
       "issues": [
         {
           "index": 0,
@@ -2165,20 +2165,20 @@
           "tagName": "button",
           "testId": "auth-toggle-password-btn",
           "text": "Hiện mật khẩu",
-          "width": 24,
-          "height": 24,
-          "top": 540,
-          "bottom": 564,
-          "left": 573,
-          "right": 597,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 24x24px (chuẩn tối thiểu 44x44px)"
+          "width": 36,
+          "height": 36,
+          "top": 534,
+          "bottom": 570,
+          "left": 567,
+          "right": 603,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 36x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 9,
           "tagName": "button",
           "testId": "google-signin-unconfigured-btn",
-          "text": "Tiếp tục với Google (Chưa bật Client ID)",
+          "text": "Tiếp tục với Google\nChưa cấu hình\nHướng ",
           "width": 446,
           "height": 42,
           "top": 687,
@@ -2201,7 +2201,7 @@
             "tag": "button",
             "text": "Hiện mật khẩu",
             "testId": "auth-toggle-password-btn",
-            "rect": "24x24"
+            "rect": "36x36"
           },
           "edgeDistX": 0,
           "edgeDistY": 0
@@ -2354,8 +2354,8 @@
           "text": ".NET & React Full-Stack Roadmap",
           "width": 223,
           "height": 32,
-          "top": 350,
-          "bottom": 382,
+          "top": 346,
+          "bottom": 378,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -2368,8 +2368,8 @@
           "text": "FullStack C# & React Refresh (28 Tuần)",
           "width": 223,
           "height": 32,
-          "top": 386,
-          "bottom": 418,
+          "top": 378,
+          "bottom": 410,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -2382,8 +2382,8 @@
           "text": "IELTS Mastery Roadmap (Phase 0 – Phase 3",
           "width": 223,
           "height": 32,
-          "top": 422,
-          "bottom": 454,
+          "top": 410,
+          "bottom": 442,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -2396,8 +2396,8 @@
           "text": "Đầu Tư Tài Chính Nền Tảng (18 Tuần)",
           "width": 223,
           "height": 32,
-          "top": 458,
-          "bottom": 490,
+          "top": 442,
+          "bottom": 474,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -2410,8 +2410,8 @@
           "text": "Tạo khóa học",
           "width": 223,
           "height": 32,
-          "top": 502,
-          "bottom": 534,
+          "top": 486,
+          "bottom": 518,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -2435,7 +2435,7 @@
           "index": 14,
           "tagName": "a",
           "testId": "switch-to-workspace-link",
-          "text": "Workspace Classic",
+          "text": "Giao diện nhiều khung (Classic)",
           "width": 223,
           "height": 32,
           "top": 908,
@@ -2525,7 +2525,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -2541,7 +2541,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -2557,7 +2557,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -2568,7 +2568,7 @@
           },
           "elemB": {
             "tag": "a",
-            "text": "Workspace Classic",
+            "text": "Giao diện nhiều khung (Classic)",
             "testId": "switch-to-workspace-link",
             "rect": "223x32"
           },
@@ -2578,7 +2578,7 @@
         {
           "elemA": {
             "tag": "a",
-            "text": "Workspace Classic",
+            "text": "Giao diện nhiều khung (Classic)",
             "testId": "switch-to-workspace-link",
             "rect": "223x32"
           },
@@ -2680,7 +2680,7 @@
     "tapTargetCheck": {
       "totalInteractive": 76,
       "sub44Count": 76,
-      "sub36Count": 54,
+      "sub36Count": 44,
       "issues": [
         {
           "index": 0,
@@ -2801,8 +2801,8 @@
           "text": ".NET & React Full-Stack Roadmap",
           "width": 223,
           "height": 32,
-          "top": 350,
-          "bottom": 382,
+          "top": 346,
+          "bottom": 378,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -2815,8 +2815,8 @@
           "text": "FullStack C# & React Refresh (28 Tuần)",
           "width": 223,
           "height": 32,
-          "top": 386,
-          "bottom": 418,
+          "top": 378,
+          "bottom": 410,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -2829,8 +2829,8 @@
           "text": "IELTS Mastery Roadmap (Phase 0 – Phase 3",
           "width": 223,
           "height": 32,
-          "top": 422,
-          "bottom": 454,
+          "top": 410,
+          "bottom": 442,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -2843,8 +2843,8 @@
           "text": "Đầu Tư Tài Chính Nền Tảng (18 Tuần)",
           "width": 223,
           "height": 32,
-          "top": 458,
-          "bottom": 490,
+          "top": 442,
+          "bottom": 474,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -2857,8 +2857,8 @@
           "text": "Tạo khóa học",
           "width": 223,
           "height": 32,
-          "top": 502,
-          "bottom": 534,
+          "top": 486,
+          "bottom": 518,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -2882,7 +2882,7 @@
           "index": 14,
           "tagName": "a",
           "testId": "switch-to-workspace-link",
-          "text": "Workspace Classic",
+          "text": "Giao diện nhiều khung (Classic)",
           "width": 223,
           "height": 32,
           "top": 908,
@@ -2972,7 +2972,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -2988,7 +2988,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -3004,7 +3004,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -3015,7 +3015,7 @@
           },
           "elemB": {
             "tag": "a",
-            "text": "Workspace Classic",
+            "text": "Giao diện nhiều khung (Classic)",
             "testId": "switch-to-workspace-link",
             "rect": "223x32"
           },
@@ -3025,7 +3025,7 @@
         {
           "elemA": {
             "tag": "a",
-            "text": "Workspace Classic",
+            "text": "Giao diện nhiều khung (Classic)",
             "testId": "switch-to-workspace-link",
             "rect": "223x32"
           },
@@ -3226,8 +3226,8 @@
           "text": ".NET & React Full-Stack Roadmap",
           "width": 223,
           "height": 32,
-          "top": 350,
-          "bottom": 382,
+          "top": 346,
+          "bottom": 378,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -3240,8 +3240,8 @@
           "text": "FullStack C# & React Refresh (28 Tuần)",
           "width": 223,
           "height": 32,
-          "top": 386,
-          "bottom": 418,
+          "top": 378,
+          "bottom": 410,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -3254,8 +3254,8 @@
           "text": "IELTS Mastery Roadmap (Phase 0 – Phase 3",
           "width": 223,
           "height": 32,
-          "top": 422,
-          "bottom": 454,
+          "top": 410,
+          "bottom": 442,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -3268,8 +3268,8 @@
           "text": "Đầu Tư Tài Chính Nền Tảng (18 Tuần)",
           "width": 223,
           "height": 32,
-          "top": 458,
-          "bottom": 490,
+          "top": 442,
+          "bottom": 474,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -3282,8 +3282,8 @@
           "text": "Tạo khóa học",
           "width": 223,
           "height": 32,
-          "top": 502,
-          "bottom": 534,
+          "top": 486,
+          "bottom": 518,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -3307,7 +3307,7 @@
           "index": 14,
           "tagName": "a",
           "testId": "switch-to-workspace-link",
-          "text": "Workspace Classic",
+          "text": "Giao diện nhiều khung (Classic)",
           "width": 223,
           "height": 32,
           "top": 908,
@@ -3397,7 +3397,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -3413,7 +3413,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -3429,7 +3429,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -3440,7 +3440,7 @@
           },
           "elemB": {
             "tag": "a",
-            "text": "Workspace Classic",
+            "text": "Giao diện nhiều khung (Classic)",
             "testId": "switch-to-workspace-link",
             "rect": "223x32"
           },
@@ -3450,7 +3450,7 @@
         {
           "elemA": {
             "tag": "a",
-            "text": "Workspace Classic",
+            "text": "Giao diện nhiều khung (Classic)",
             "testId": "switch-to-workspace-link",
             "rect": "223x32"
           },
@@ -3530,21 +3530,21 @@
     "tapTargetCheck": {
       "totalInteractive": 5,
       "sub44Count": 5,
-      "sub36Count": 4,
+      "sub36Count": 2,
       "issues": [
         {
           "index": 0,
           "tagName": "button",
           "testId": "",
           "text": "Quay lại",
-          "width": 72.1,
-          "height": 20,
-          "top": 14,
-          "bottom": 34,
+          "width": 92.1,
+          "height": 36,
+          "top": 10,
+          "bottom": 46,
           "left": 24,
-          "right": 96,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 72.1x20px (chuẩn tối thiểu 44x44px)"
+          "right": 116,
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 92.1x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 1,
@@ -3553,10 +3553,10 @@
           "text": "Tất cả khóa học\n.NET & React Full-Stack ",
           "width": 160,
           "height": 28,
-          "top": 10,
-          "bottom": 38,
-          "left": 170,
-          "right": 330,
+          "top": 14,
+          "bottom": 42,
+          "left": 169,
+          "right": 329,
           "severity": "Critical_Sub36",
           "reason": "Kích thước tap target: 160x28px (chuẩn tối thiểu 44x44px)"
         },
@@ -3567,10 +3567,10 @@
           "text": "Chỉ thẻ đến hạn",
           "width": 108.1,
           "height": 28,
-          "top": 10,
-          "bottom": 38,
-          "left": 342,
-          "right": 450,
+          "top": 14,
+          "bottom": 42,
+          "left": 341,
+          "right": 449,
           "severity": "Critical_Sub36",
           "reason": "Kích thước tap target: 108.1x28px (chuẩn tối thiểu 44x44px)"
         },
@@ -3579,14 +3579,14 @@
           "tagName": "button",
           "testId": "review-undo-btn",
           "text": "Hoàn tác (Z)",
-          "width": 82.8,
-          "height": 16,
-          "top": 16,
-          "bottom": 32,
-          "left": 661,
+          "width": 104.8,
+          "height": 36,
+          "top": 10,
+          "bottom": 46,
+          "left": 639,
           "right": 744,
-          "severity": "Critical_Sub36",
-          "reason": "Kích thước tap target: 82.8x16px (chuẩn tối thiểu 44x44px)"
+          "severity": "Sub44",
+          "reason": "Kích thước tap target: 104.8x36px (chuẩn tối thiểu 44x44px)"
         },
         {
           "index": 4,
@@ -3595,8 +3595,8 @@
           "text": "Hiện đáp án (Space)",
           "width": 175.4,
           "height": 40,
-          "top": 679,
-          "bottom": 719,
+          "top": 683,
+          "bottom": 723,
           "left": 296,
           "right": 472,
           "severity": "Sub44",
@@ -3751,8 +3751,8 @@
           "text": ".NET & React Full-Stack Roadmap",
           "width": 223,
           "height": 32,
-          "top": 350,
-          "bottom": 382,
+          "top": 346,
+          "bottom": 378,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -3765,8 +3765,8 @@
           "text": "FullStack C# & React Refresh (28 Tuần)",
           "width": 223,
           "height": 32,
-          "top": 386,
-          "bottom": 418,
+          "top": 378,
+          "bottom": 410,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -3779,8 +3779,8 @@
           "text": "IELTS Mastery Roadmap (Phase 0 – Phase 3",
           "width": 223,
           "height": 32,
-          "top": 422,
-          "bottom": 454,
+          "top": 410,
+          "bottom": 442,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -3793,8 +3793,8 @@
           "text": "Đầu Tư Tài Chính Nền Tảng (18 Tuần)",
           "width": 223,
           "height": 32,
-          "top": 458,
-          "bottom": 490,
+          "top": 442,
+          "bottom": 474,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -3807,8 +3807,8 @@
           "text": "Tạo khóa học",
           "width": 223,
           "height": 32,
-          "top": 502,
-          "bottom": 534,
+          "top": 486,
+          "bottom": 518,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -3832,7 +3832,7 @@
           "index": 14,
           "tagName": "a",
           "testId": "switch-to-workspace-link",
-          "text": "Workspace Classic",
+          "text": "Giao diện nhiều khung (Classic)",
           "width": 223,
           "height": 32,
           "top": 908,
@@ -3922,7 +3922,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -3938,7 +3938,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -3954,7 +3954,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -3965,7 +3965,7 @@
           },
           "elemB": {
             "tag": "a",
-            "text": "Workspace Classic",
+            "text": "Giao diện nhiều khung (Classic)",
             "testId": "switch-to-workspace-link",
             "rect": "223x32"
           },
@@ -3975,7 +3975,7 @@
         {
           "elemA": {
             "tag": "a",
-            "text": "Workspace Classic",
+            "text": "Giao diện nhiều khung (Classic)",
             "testId": "switch-to-workspace-link",
             "rect": "223x32"
           },
@@ -4176,8 +4176,8 @@
           "text": ".NET & React Full-Stack Roadmap",
           "width": 223,
           "height": 32,
-          "top": 350,
-          "bottom": 382,
+          "top": 346,
+          "bottom": 378,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -4190,8 +4190,8 @@
           "text": "FullStack C# & React Refresh (28 Tuần)",
           "width": 223,
           "height": 32,
-          "top": 386,
-          "bottom": 418,
+          "top": 378,
+          "bottom": 410,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -4204,8 +4204,8 @@
           "text": "IELTS Mastery Roadmap (Phase 0 – Phase 3",
           "width": 223,
           "height": 32,
-          "top": 422,
-          "bottom": 454,
+          "top": 410,
+          "bottom": 442,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -4218,8 +4218,8 @@
           "text": "Đầu Tư Tài Chính Nền Tảng (18 Tuần)",
           "width": 223,
           "height": 32,
-          "top": 458,
-          "bottom": 490,
+          "top": 442,
+          "bottom": 474,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -4232,8 +4232,8 @@
           "text": "Tạo khóa học",
           "width": 223,
           "height": 32,
-          "top": 502,
-          "bottom": 534,
+          "top": 486,
+          "bottom": 518,
           "left": 8,
           "right": 231,
           "severity": "Critical_Sub36",
@@ -4257,7 +4257,7 @@
           "index": 14,
           "tagName": "a",
           "testId": "switch-to-workspace-link",
-          "text": "Workspace Classic",
+          "text": "Giao diện nhiều khung (Classic)",
           "width": 223,
           "height": 32,
           "top": 908,
@@ -4347,7 +4347,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -4363,7 +4363,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -4379,7 +4379,7 @@
             "rect": "223x32"
           },
           "edgeDistX": 0,
-          "edgeDistY": 4
+          "edgeDistY": 0
         },
         {
           "elemA": {
@@ -4390,7 +4390,7 @@
           },
           "elemB": {
             "tag": "a",
-            "text": "Workspace Classic",
+            "text": "Giao diện nhiều khung (Classic)",
             "testId": "switch-to-workspace-link",
             "rect": "223x32"
           },
@@ -4400,7 +4400,7 @@
         {
           "elemA": {
             "tag": "a",
-            "text": "Workspace Classic",
+            "text": "Giao diện nhiều khung (Classic)",
             "testId": "switch-to-workspace-link",
             "rect": "223x32"
           },
@@ -4478,9 +4478,9 @@
       "overflowingElements": []
     },
     "tapTargetCheck": {
-      "totalInteractive": 127,
-      "sub44Count": 41,
-      "sub36Count": 0,
+      "totalInteractive": 128,
+      "sub44Count": 42,
+      "sub36Count": 1,
       "issues": [
         {
           "index": 0,
@@ -4497,7 +4497,21 @@
           "reason": "Kích thước tap target: 40x36px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 2,
+          "index": 1,
+          "tagName": "a",
+          "testId": "header-back-to-app-btn",
+          "text": "Vào App",
+          "width": 78.2,
+          "height": 24.7,
+          "top": 15,
+          "bottom": 40,
+          "left": 56,
+          "right": 134,
+          "severity": "Critical_Sub36",
+          "reason": "Kích thước tap target: 78.2x24.7px (chuẩn tối thiểu 44x44px)"
+        },
+        {
+          "index": 3,
           "tagName": "button",
           "testId": "mode-tab-dashboard",
           "text": "Tổng quan",
@@ -4505,13 +4519,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 73,
-          "right": 162,
+          "left": 145,
+          "right": 234,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 88.8x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 3,
+          "index": 4,
           "tagName": "button",
           "testId": "mode-tab-reading",
           "text": "Đọc",
@@ -4519,13 +4533,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 162,
-          "right": 214,
+          "left": 234,
+          "right": 285,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 51.4x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 4,
+          "index": 5,
           "tagName": "button",
           "testId": "mode-tab-split",
           "text": "Split",
@@ -4533,13 +4547,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 214,
-          "right": 268,
+          "left": 285,
+          "right": 340,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 54.4x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 5,
+          "index": 6,
           "tagName": "button",
           "testId": "mode-tab-review",
           "text": "Ôn tập\n1381",
@@ -4547,13 +4561,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 268,
-          "right": 374,
+          "left": 340,
+          "right": 446,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 106.2x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 6,
+          "index": 7,
           "tagName": "button",
           "testId": "mode-tab-studio",
           "text": "Studio",
@@ -4561,13 +4575,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 374,
-          "right": 439,
+          "left": 446,
+          "right": 511,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 65.1x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 7,
+          "index": 8,
           "tagName": "button",
           "testId": "cmd-k-trigger",
           "text": "",
@@ -4575,13 +4589,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 448,
-          "right": 484,
+          "left": 520,
+          "right": 556,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 8,
+          "index": 9,
           "tagName": "button",
           "testId": "quota-indicator-btn",
           "text": "AI:0",
@@ -4589,13 +4603,13 @@
           "height": 38,
           "top": 9,
           "bottom": 47,
-          "left": 503,
-          "right": 556,
+          "left": 562,
+          "right": 615,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 53.1x38px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 9,
+          "index": 10,
           "tagName": "button",
           "testId": "keyboard-shortcuts-trigger",
           "text": "Phím tắt và trợ giúp",
@@ -4603,13 +4617,13 @@
           "height": 36,
           "top": 10,
           "bottom": 46,
-          "left": 560,
-          "right": 596,
+          "left": 619,
+          "right": 655,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x36px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 10,
+          "index": 11,
           "tagName": "button",
           "testId": "topnav-create-course-btn",
           "text": "Tạo khóa học mới",
@@ -4617,13 +4631,13 @@
           "height": 36,
           "top": 10,
           "bottom": 46,
-          "left": 600,
-          "right": 636,
+          "left": 659,
+          "right": 695,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x36px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 11,
+          "index": 12,
           "tagName": "button",
           "testId": "open-ai-config-btn",
           "text": "Cấu hình khóa API AI",
@@ -4631,13 +4645,13 @@
           "height": 36,
           "top": 10,
           "bottom": 46,
-          "left": 640,
-          "right": 676,
+          "left": 699,
+          "right": 735,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x36px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 12,
+          "index": 13,
           "tagName": "button",
           "testId": "theme-toggle-btn",
           "text": "Chuyển đổi giao diện Sáng/Tối",
@@ -4645,13 +4659,13 @@
           "height": 36,
           "top": 10,
           "bottom": 46,
-          "left": 680,
-          "right": 716,
+          "left": 739,
+          "right": 775,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x36px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 13,
+          "index": 14,
           "tagName": "button",
           "testId": "user-profile-btn",
           "text": "NM",
@@ -4659,38 +4673,24 @@
           "height": 36,
           "top": 10,
           "bottom": 46,
-          "left": 722,
-          "right": 758,
+          "left": 781,
+          "right": 817,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 36x36px (chuẩn tối thiểu 44x44px)"
         },
         {
-          "index": 18,
+          "index": 19,
           "tagName": "button",
           "testId": "onboarding-start-review-btn",
           "text": "Ôn tập nhanh (~1 phút)",
           "width": 172,
           "height": 42,
-          "top": 543,
-          "bottom": 585,
+          "top": 559,
+          "bottom": 601,
           "left": 557,
           "right": 729,
           "severity": "Sub44",
           "reason": "Kích thước tap target: 172x42px (chuẩn tối thiểu 44x44px)"
-        },
-        {
-          "index": 101,
-          "tagName": "button",
-          "testId": "dashboard-tag-FullStack C# & React Refresh (28 Tuần)",
-          "text": "#FullStack C# & React Refresh (28 Tuần) ",
-          "width": 269.1,
-          "height": 36,
-          "top": 5709,
-          "bottom": 5745,
-          "left": 49,
-          "right": 318,
-          "severity": "Sub44",
-          "reason": "Kích thước tap target: 269.1x36px (chuẩn tối thiểu 44x44px)"
         }
       ],
       "spacingIssues": [

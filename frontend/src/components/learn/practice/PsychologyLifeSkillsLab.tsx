@@ -1332,7 +1332,7 @@ ${chatHistory
      RENDER
      ------------------------------------------------------------------------- */
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6 pb-12 font-sans text-zinc-900 dark:text-zinc-100">
+    <div data-testid="psychology-practice-lab" className="w-full max-w-5xl mx-auto space-y-6 pb-12 font-sans text-zinc-900 dark:text-zinc-100">
       {/* Toast Feedback Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-zinc-900/95 dark:bg-zinc-100/95 text-white dark:text-zinc-900 shadow-xl backdrop-blur-md text-sm font-medium border border-zinc-700/50 dark:border-zinc-300 transition-all animate-in fade-in slide-in-from-bottom-3 duration-200">

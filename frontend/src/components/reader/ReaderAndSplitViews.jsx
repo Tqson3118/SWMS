@@ -480,6 +480,21 @@ export function ReaderAndSplitViews({ mode, onDataMutated, documents, lessons, c
             setSelectedText(fullBlockText.slice(0, Math.min(92, fullBlockText.length)));
         }
     };
+    useEffect(() => {
+        const onSelectionChange = () => {
+            const sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) {
+                setSelectedText("");
+            } else {
+                const text = sel.toString().trim();
+                if (text.length >= 3) {
+                    setSelectedText(text);
+                }
+            }
+        };
+        document.addEventListener("selectionchange", onSelectionChange);
+        return () => document.removeEventListener("selectionchange", onSelectionChange);
+    }, []);
     const handleCreateHighlight = async (colorKey) => {
         if (!lesson)
             return;
@@ -690,10 +705,24 @@ export function ReaderAndSplitViews({ mode, onDataMutated, documents, lessons, c
     const handleSimulateConflictKeepBoth = async () => {
         if (!notebook)
             return;
-        // Deliberately send stale baseVersion = 0 to trigger 409 Conflict "Keep Both" Fork (ADR-022)
+        // Deliberately trigger 409 Conflict "Keep Both" Fork (ADR-022)
+        let baseVer = notebook.version;
+        if (baseVer <= 1) {
+            const saveRes = await saveNotebookWithSingleWriterLock({
+                id: notebook.id,
+                baseVersion: notebook.version,
+                title: notebook.title,
+                contentAst: notebook.contentAst
+            });
+            if (saveRes.version) {
+                baseVer = saveRes.version;
+            } else {
+                baseVer = 2;
+            }
+        }
         await saveNotebookWithSingleWriterLock({
             id: notebook.id,
-            baseVersion: 0,
+            baseVersion: Math.max(1, baseVer - 1),
             title: notebook.title,
             contentAst: notebook.contentAst
         });
@@ -1047,7 +1076,7 @@ export function ReaderAndSplitViews({ mode, onDataMutated, documents, lessons, c
             <button type="button" data-testid="draft-mode-cloze-btn" onClick={() => handleOpenDraftFlashcardPopover(selectedText)} className={`px-3 py-1 rounded-lg font-bold cursor-pointer ${draftMode === "cloze"
                     ? "bg-indigo-600 text-white"
                     : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"}`}>
-              (*) Thẻ điền từ nhanh (Miễn phí • 0 lượt AI)
+              (*) Thẻ điền từ nhanh (Cloze tức thì) (Miễn phí • 0 lượt AI)
             </button>
             <button type="button" data-testid="draft-mode-ai-btn" onClick={handleSwitchDraftToAiMode} className={`px-3 py-1 rounded-lg font-bold cursor-pointer inline-flex items-center gap-1.5 ${draftMode === "ai"
                     ? "bg-indigo-600 text-white"

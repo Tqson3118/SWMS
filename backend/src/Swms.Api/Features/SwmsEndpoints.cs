@@ -1411,6 +1411,30 @@ public static class SwmsEndpoints
             return Results.Ok(summary);
         });
 
+        api.MapPost("/courses/{id:guid}/enroll", async (Guid id, HttpContext http, SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == id);
+            if (course == null)
+            {
+                return Results.NotFound(new { error = "Không tìm thấy khóa học." });
+            }
+            var existing = await db.CourseEnrollments.FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == id);
+            if (existing == null)
+            {
+                db.CourseEnrollments.Add(new CourseEnrollment
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    CourseId = id,
+                    Role = "student",
+                    EnrolledAt = DateTimeOffset.UtcNow
+                });
+                await db.SaveChangesAsync();
+            }
+            return Results.Ok(new { enrolled = true, courseId = id });
+        });
+
         api.MapPost("/courses/sync-from-documents", async (IConfiguration config, HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);

@@ -14,14 +14,23 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
   const p = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 
   await p.goto(`${BASE_URL}/auth`, { waitUntil: 'domcontentloaded' });
-  await p.click('[data-testid="demo-switcher-toggle"]');
-  await p.click('[data-testid="switch-user-default"]');
-  await p.waitForURL('**/app**');
+  await p.waitForSelector('[data-testid="demo-switcher-toggle"]', { timeout: 10000 });
+  const switcherVisible = await p.isVisible('[data-testid="switch-user-default"]');
+  if (!switcherVisible) {
+    await p.click('[data-testid="demo-switcher-toggle"]');
+    await p.waitForSelector('[data-testid="switch-user-default"]', { timeout: 5000 });
+  }
+  await Promise.all([
+    p.waitForResponse(res => res.url().includes('/api/v1/auth/login') && res.status() === 200),
+    p.click('[data-testid="switch-user-default"]')
+  ]);
+  await p.waitForURL('**/app**', { timeout: 15000 });
+  await p.waitForTimeout(600);
 
   const courseId = '79B30ACD-0BD5-41C8-8744-271AD7B496CE';
   const lessonId = '0360C033-EBC7-453D-9FAE-C812D3BCB48A';
   await p.goto(`${BASE_URL}/app/courses/${courseId}/learn?lesson=${lessonId}`, { waitUntil: 'networkidle' });
-  await p.waitForTimeout(1000);
+  await p.waitForSelector('[data-testid="lesson-markdown-view"]', { timeout: 15000 });
 
   // Capture light mode
   await p.evaluate(() => {

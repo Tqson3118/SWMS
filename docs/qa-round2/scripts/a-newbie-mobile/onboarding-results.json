@@ -1,10 +1,10 @@
 {
-  "testEmail": "qa+newbie-1795031322087@test.local",
+  "testEmail": "qa+newbie-1795039821981@test.local",
   "landingCtaUrl": "/auth?tab=register",
   "postRegisterUrl": "http://127.0.0.1:3000/app",
   "emptyStateAssessments": {
     "/app": {
-      "title": "Studxy — Không gian Học tập Thống nhất cho Cá nhân Chủ quyền",
+      "title": "Studxy — Không gian Tự học & Ghi nhớ Thông minh",
       "hasWelcome": true,
       "hasFirstStepsGuide": true
     },
