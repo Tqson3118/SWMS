@@ -57,6 +57,7 @@ interface LessonMarkdownViewProps {
   onInsertCitation: (ann: MarkdownAnnotationItem) => void;
   onOpenRelativeMarkdown?: (resolvedRelativePath: string, label: string) => void;
   onHeadingsExtracted?: (headings: LessonHeadingItem[]) => void;
+  onOpenPractice?: () => void;
 }
 
 interface AudioAttachment {
@@ -1167,7 +1168,8 @@ export function LessonMarkdownView({
   onHighlightClick,
   onInsertCitation,
   onOpenRelativeMarkdown,
-  onHeadingsExtracted
+  onHeadingsExtracted,
+  onOpenPractice
 }: LessonMarkdownViewProps) {
   const cleanText = (text: string) => {
     const cleaned = cleanReadingMode ? cleanStudyInlineArtifacts(text) : text;
@@ -1920,6 +1922,16 @@ export function LessonMarkdownView({
             </p>
           </div>
         </div>
+        {onOpenPractice && (
+          <button
+            type="button"
+            data-testid="lesson-end-open-practice-btn"
+            onClick={onOpenPractice}
+            className="inline-flex items-center gap-1.5 min-h-[40px] px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-xs transition-colors cursor-pointer shrink-0"
+          >
+            <span>Mở Phòng Thực Hành →</span>
+          </button>
+        )}
       </div>
     </div>
   );

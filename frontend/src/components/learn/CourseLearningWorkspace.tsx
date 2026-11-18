@@ -42,6 +42,7 @@ import {
   getClientRequestHeaders,
   useWorkspaceStore,
 } from "@/stores/useWorkspaceStore";
+import { invalidateDashboardCache } from "@/lib/api-client";
 
 function stripChapterPrefix(title: string): string {
   if (!title) return "";
@@ -969,6 +970,8 @@ export function CourseLearningWorkspace({
         );
         setNoteDirty(false);
         setNoteSaveStatus("saved");
+        invalidateDashboardCache();
+        window.dispatchEvent(new Event("swms:data-mutated"));
         if (successBanner) showToast(successBanner);
         return true;
       } catch {
@@ -1009,16 +1012,24 @@ export function CourseLearningWorkspace({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [rightPanel, drawerTab, notebook, saveNotebookNow]);
 
+  const setMobileTocOpen = useCallback((open: boolean) => {
+    setRoadmapOpen(open);
+  }, []);
+
   // Select lesson handler updating URL query cleanly
   const handleSelectLesson = useCallback(
     (lessonId: string) => {
       setActiveLessonId(lessonId);
       setCenterTab("lesson");
+      readerScrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+      setMobileTocOpen(false);
+      setSelectedText("");
+      setSelectionCoords(null);
       if (!isStandalone) {
         router.replace(`/app/courses/${courseId}/learn?lesson=${lessonId}`, { scroll: false });
       }
     },
-    [courseId, isStandalone, router]
+    [courseId, isStandalone, router, setMobileTocOpen]
   );
 
   // Mark complete & advance
@@ -1045,6 +1056,7 @@ export function CourseLearningWorkspace({
             if (retryResp.ok) {
               const nextCompleted = Array.from(new Set([...completedIds, activeLessonId]));
               setCompletedIds(nextCompleted);
+              invalidateDashboardCache();
               window.dispatchEvent(new Event("swms:data-mutated"));
               const newPercent =
                 totalLessonCount > 0 ? Math.round((nextCompleted.length * 100) / totalLessonCount) : 100;
@@ -1059,12 +1071,27 @@ export function CourseLearningWorkspace({
             }
           }
         }
-        showToast(`Chưa lưu được tiến độ (HTTP ${resp.status}).`);
+        let errMsg = `Chưa lưu được tiến độ (HTTP ${resp.status}).`;
+        try {
+          const errData = await resp.json();
+          const detail = errData.detail || errData.message || errData.error;
+          if (detail && typeof detail === "string") {
+            errMsg = detail;
+          } else if (resp.status === 429) {
+            errMsg = "Thao tác quá nhanh, vui lòng đợi giây lát rồi thử lại.";
+          }
+        } catch {
+          if (resp.status === 429) {
+            errMsg = "Thao tác quá nhanh, vui lòng đợi giây lát rồi thử lại.";
+          }
+        }
+        showToast(errMsg);
         return;
       }
 
       const nextCompleted = Array.from(new Set([...completedIds, activeLessonId]));
       setCompletedIds(nextCompleted);
+      invalidateDashboardCache();
       window.dispatchEvent(new Event("swms:data-mutated"));
 
       const newPercent =
@@ -1320,6 +1347,8 @@ export function CourseLearningWorkspace({
         setFlashcardModalOpen(false);
         setSelectedText("");
         setSelectionCoords(null);
+        invalidateDashboardCache();
+        window.dispatchEvent(new Event("swms:data-mutated"));
         showToast("Đã thêm thẻ ghi nhớ mới.");
       } else {
         showToast(`Lưu thẻ thất bại (HTTP ${resp.status}).`);
@@ -1377,6 +1406,8 @@ export function CourseLearningWorkspace({
         setFlashcards((prev) => [createdCard, ...prev]);
         setSelectedText("");
         setSelectionCoords(null);
+        invalidateDashboardCache();
+        window.dispatchEvent(new Event("swms:data-mutated"));
         showToast("Đã tạo thẻ ghi nhớ 1-click.");
       } else {
         showToast(`Tạo thẻ thất bại (HTTP ${resp.status}).`);
@@ -2161,6 +2192,10 @@ export function CourseLearningWorkspace({
                       }}
                       onOpenRelativeMarkdown={handleOpenRelativeMarkdown}
                       onHeadingsExtracted={setHeadings}
+                      onOpenPractice={() => {
+                        setCenterTab("practice");
+                        readerScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
                     />
 
                     {/* Lesson Navigation & Completion Footer */}
