@@ -27,13 +27,13 @@ export function LandingFooter({ onOpenAbout, onOpenShortcuts }: LandingFooterPro
             </Link>
 
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Hệ sinh thái học tập và quản trị tri thức hợp nhất cho cá nhân chủ quyền.
-              Đọc sâu 68ch, Split Workspace PKM và khoa học trí nhớ FSRS v5.
+              Hệ sinh thái tự học và ghi nhớ thông minh cho cá nhân chủ quyền.
+              Đọc sâu (68ch), Ghi chép song song (Chia đôi) và ôn thẻ nhớ lâu (FSRS v5).
             </p>
 
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
               <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
-              <span>Sovereign Learning v1.0 Clean</span>
+              <span>Học tập Chủ quyền Cá nhân</span>
             </div>
           </div>
 
@@ -50,12 +50,12 @@ export function LandingFooter({ onOpenAbout, onOpenShortcuts }: LandingFooterPro
               </li>
               <li>
                 <Link href="/app" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                  Mode 1: Đọc sâu Công thái học (68ch)
+                  Mode 1: Đọc sâu dễ nhìn (68ch)
                 </Link>
               </li>
               <li>
                 <Link href="/app" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                  Mode 2: Chia đôi Song song (Split PKM)
+                  Mode 2: Vừa đọc vừa ghi chú (Chia đôi)
                 </Link>
               </li>
               <li>
@@ -81,7 +81,7 @@ export function LandingFooter({ onOpenAbout, onOpenShortcuts }: LandingFooterPro
                     className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1.5 cursor-pointer text-left"
                   >
                     <Compass className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Triết lý Sovereign &amp; Hybrid Persona</span>
+                    <span>Triết lý Không gian Học tập Chủ quyền</span>
                   </button>
                 </li>
               )}

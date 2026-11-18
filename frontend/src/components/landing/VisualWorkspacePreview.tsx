@@ -64,7 +64,7 @@ export function VisualWorkspacePreview() {
               }`}
             >
               <Columns2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Mode 2:</span> Chia đôi PKM
+              <span className="hidden sm:inline">Mode 2:</span> Chia đôi (Vừa đọc vừa ghi)
             </button>
 
             <button
@@ -95,7 +95,7 @@ export function VisualWorkspacePreview() {
             <div className="max-w-[68ch] mx-auto w-full space-y-4 text-left">
               <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                 <span className="text-xs font-mono text-slate-500">
-                  Chương 3 &gt; Bài 3.2: Bộ nhớ ảo &amp; TLB (68ch Prose)
+                  Chương 3 &gt; Bài 3.2: Bộ nhớ ảo &amp; TLB (Đọc sâu 68ch)
                 </span>
                 {/* Simulated in-situ floating selection toolbar */}
                 <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs">
@@ -177,7 +177,7 @@ export function VisualWorkspacePreview() {
                   <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
                     <span className="font-semibold text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5" />
-                      GHI CHÚ SOVEREIGN PKM (40%)
+                      SỔ TAY GHI CHÚ SONG SONG (40%)
                     </span>
                     <span className="text-[10px] text-slate-400 font-mono">Tiptap AST</span>
                   </div>

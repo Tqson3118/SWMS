@@ -350,7 +350,7 @@ export function ReviewAndPracticeView({ tags, onReviewSessionUpdated, courses: p
             ? "bg-indigo-600 text-white shadow-xs"
             : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"}`}>
             <Target className="w-4 h-4 shrink-0"/>
-            <span>Bài luyện tập thực hành (Practice Quiz & AI Rubric)</span>
+            <span>Bài luyện tập thực hành (Làm bài & AI nhận xét)</span>
           </button>
         </div>
 
@@ -632,7 +632,7 @@ export function ReviewAndPracticeView({ tags, onReviewSessionUpdated, courses: p
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between">
             <div>
               <span className="text-[11px] font-extrabold uppercase text-indigo-600 dark:text-indigo-400">
-                Đánh giá Quá trình (Formative Practice Quiz • Không tính điểm GPA áp lực theo ADR-021)
+                Bài luyện tập củng cố (Làm sai không bị trừ điểm)
               </span>
               <h2 className="text-lg font-extrabold text-slate-900 dark:text-white mt-0.5">
                 {quiz.title}
@@ -709,7 +709,7 @@ export function ReviewAndPracticeView({ tags, onReviewSessionUpdated, courses: p
                         <div className="flex items-center justify-between font-bold text-emerald-800 dark:text-emerald-300">
                           <span className="inline-flex items-center gap-1.5">
                             <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400"/>
-                            <span>Nhận xét định tính từ AI Rubric (gemini-3.8-flash)</span>
+                            <span>Nhận xét chi tiết từ AI</span>
                           </span>
                           <span className="px-2 py-0.5 rounded bg-emerald-600 text-white font-semibold">
                             Mức độ: {item.aiRubricFeedback.masteryLevel}

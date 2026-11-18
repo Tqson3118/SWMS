@@ -1620,7 +1620,7 @@ export function ReaderAndSplitViews({
     });
     if (res.status === "saved") {
       await loadLessonAndNotebook();
-      showToast(`Đã lưu tự động (OCC v${res.version}) qua Web Locks API!`);
+      showToast(`Đã tự động lưu sổ tay (bản v${res.version})!`);
     }
   };
 
@@ -2308,7 +2308,7 @@ export function ReaderAndSplitViews({
                   : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
               }`}
             >
-              (*) Cloze tức thì (Mặc định • 0 AI Credit)
+              (*) Thẻ điền từ nhanh (Miễn phí • 0 lượt AI)
             </button>
             <button
               type="button"
@@ -2412,7 +2412,7 @@ export function ReaderAndSplitViews({
           <div className="flex items-center justify-between">
             <span className="font-bold text-indigo-800 dark:text-indigo-200 inline-flex items-center gap-1.5">
               <Sparkles className="w-4 h-4" />
-              <span>Trợ lý học thuật AI (gemini-3.8-flash In-Situ Ghostreader)</span>
+              <span>Trợ lý AI giải thích nhanh</span>
             </span>
             <button
               type="button"

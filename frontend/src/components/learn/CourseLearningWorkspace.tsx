@@ -2733,7 +2733,7 @@ export function CourseLearningWorkspace({
                     : "border-border text-text-secondary"
                 }`}
               >
-                Điền khuyết
+                Điền từ còn thiếu
               </button>
               <button
                 type="button"

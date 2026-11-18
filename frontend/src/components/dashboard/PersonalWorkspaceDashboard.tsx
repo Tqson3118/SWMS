@@ -696,7 +696,7 @@ export function PersonalWorkspaceDashboard({
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold mb-2">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Bento Workspace • Tối ưu hóa việc học với FSRS Spaced Repetition</span>
+            <span>Bàn làm việc thông minh • Tối ưu hóa việc học với thuật toán nhắc ôn FSRS</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
             Chào mừng trở lại, {data.user.fullName}!
@@ -767,7 +767,7 @@ export function PersonalWorkspaceDashboard({
               <CheckCircle2 className="w-3.5 h-3.5" /> 1. Đọc tài liệu
             </span>
             <span data-testid="onboarding-step-2" className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
-              <CheckCircle2 className="w-3.5 h-3.5" /> 2. Trích xuất Cloze
+              <CheckCircle2 className="w-3.5 h-3.5" /> 2. Tạo thẻ điền từ
             </span>
             <span data-testid="onboarding-step-3" className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
               <CheckCircle2 className="w-3.5 h-3.5" /> 3. Ôn tập đều đặn
@@ -872,7 +872,7 @@ export function PersonalWorkspaceDashboard({
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-semibold transition cursor-pointer min-h-[44px]"
             >
               <PenTool className="w-4 h-4" />
-              <span>Mở Ghi chú PKM</span>
+              <span>Mở Sổ tay ghi chú</span>
             </button>
           </div>
         </div>
@@ -887,7 +887,7 @@ export function PersonalWorkspaceDashboard({
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
                   <Brain className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                  <span>Trạm ôn tập Spaced Repetition</span>
+                  <span>Trạm ôn tập thẻ nhớ</span>
                 </h3>
                 <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
                   FSRS v5

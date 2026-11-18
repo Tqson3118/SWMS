@@ -19,7 +19,7 @@ export function HeroSection({ onOpenShortcuts, onOpenAbout }) {
 
       {/* Subheading */}
       <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed mb-8 font-normal">
-        Hợp nhất Đọc sâu chuẩn công thái học (68ch), Ghi chép song song (PKM Split), và
+        Hợp nhất Đọc sâu dễ nhìn (68ch), Ghi chép song song (Chia đôi), và
         Khoa học trí nhớ dài hạn (FSRS v5) trong một không gian duy nhất — Loại bỏ hoàn
         toàn sự phân mảnh công cụ và nguy cơ thất lạc ngữ cảnh.
       </p>
@@ -39,7 +39,7 @@ export function HeroSection({ onOpenShortcuts, onOpenAbout }) {
         {onOpenAbout && (<button type="button" onClick={onOpenAbout} data-testid="about-swms-trigger" className="inline-flex items-center text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors px-2 py-1 cursor-pointer">
             <Compass className="w-4 h-4 mr-1.5 text-indigo-500"/>
             <span className="underline decoration-slate-300 dark:decoration-slate-700 underline-offset-4 hover:decoration-indigo-500">
-              Khám phá Triết lý Sovereign
+              Khám phá Không gian Chủ quyền
             </span>
           </button>)}
       </div>
@@ -66,10 +66,10 @@ export function HeroSection({ onOpenShortcuts, onOpenAbout }) {
           </div>
           <div>
             <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-              Cột đọc 68ch
+              Đọc sâu dễ nhìn (68ch)
             </div>
             <div className="text-[11px] text-slate-500 dark:text-slate-400">
-              Công thái học chống mỏi mắt
+              Căn chỉnh chống mỏi mắt
             </div>
           </div>
         </div>
@@ -80,7 +80,7 @@ export function HeroSection({ onOpenShortcuts, onOpenAbout }) {
           </div>
           <div>
             <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-              Sovereign Privacy
+              Bảo mật Chủ quyền
             </div>
             <div className="text-[11px] text-slate-500 dark:text-slate-400">
               Riêng tư cá nhân 100%

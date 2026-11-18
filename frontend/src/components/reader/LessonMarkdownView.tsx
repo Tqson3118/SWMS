@@ -3,7 +3,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
+  BookOpen,
   Check,
+  CheckCircle2,
   CheckSquare,
   ChevronRight,
   Copy,
@@ -15,6 +17,7 @@ import {
   Info,
   Lightbulb,
   Link2,
+  Sparkles,
   Square,
   Volume2
 } from "lucide-react";
@@ -97,7 +100,19 @@ type ParsedBlock =
   | { type: "heading"; level: 1 | 2 | 3 | 4; id: string; text: string; extraId?: string }
   | { type: "paragraph"; text: string; extraId?: string }
   | { type: "code"; lang: string; code: string }
-  | { type: "blockquote"; callout?: "NOTE" | "TIP" | "IMPORTANT" | "WARNING" | "CAUTION"; lines: string[] }
+  | {
+      type: "blockquote";
+      callout?:
+        | "NOTE"
+        | "TIP"
+        | "IMPORTANT"
+        | "WARNING"
+        | "CAUTION"
+        | "EXAMPLE"
+        | "SUMMARY"
+        | "FORMULA";
+      lines: string[];
+    }
   | { type: "table"; table: TableData }
   | { type: "list"; ordered: boolean; items: ListItemData[] }
   | { type: "details"; summary: string; body: string }
@@ -167,6 +182,27 @@ export function stripYamlFrontmatter(raw: string): string {
     return normalized.slice(match[0].length).trimStart();
   }
   return normalized;
+}
+
+export function stripDiacritics(input: string): string {
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase();
+}
+
+function inferPrecedingWord(fullText: string, ipaSlice: string): string {
+  const idx = fullText.indexOf(ipaSlice);
+  if (idx <= 0) return ipaSlice.replace(/\//g, "").trim();
+  const before = fullText.slice(Math.max(0, idx - 60), idx).trim();
+  const words = before.split(/[\s,;:!?"'()[\]{}]+/).filter(Boolean);
+  const last = words[words.length - 1];
+  if (last && /^[a-zA-Z'-]{2,}$/.test(last)) {
+    return last;
+  }
+  return ipaSlice.replace(/\//g, "").trim();
 }
 
 export function slugifyHeadingText(text: string, idx: number): string {
@@ -719,15 +755,72 @@ function parseMarkdownBlocks(rawMarkdown: string): ParsedBlock[] {
         quoteLines.push(lines[i].trim().replace(/^>\s?/, ""));
         i++;
       }
-      let callout: "NOTE" | "TIP" | "IMPORTANT" | "WARNING" | "CAUTION" | undefined;
+      let callout:
+        | "NOTE"
+        | "TIP"
+        | "IMPORTANT"
+        | "WARNING"
+        | "CAUTION"
+        | "EXAMPLE"
+        | "SUMMARY"
+        | "FORMULA"
+        | undefined;
       if (quoteLines.length > 0) {
-        const calloutMatch = quoteLines[0].match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)$/i);
+        const calloutMatch = quoteLines[0].match(
+          /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|EXAMPLE|SUMMARY|FORMULA)\]\s*(.*)$/i
+        );
         if (calloutMatch) {
           callout = calloutMatch[1].toUpperCase() as typeof callout;
           if (calloutMatch[2]) {
             quoteLines[0] = calloutMatch[2];
           } else {
             quoteLines.shift();
+          }
+        } else {
+          // Automatic context detection from curriculum keywords
+          const norm = stripDiacritics(quoteLines[0].toLowerCase().trim());
+          if (
+            /^(?:[⚠️🚨❌]|(?:\*\*|__)?(?:canh bao|bay|sai lam|warning|danger|caution|nguy hiem))/i.test(
+              norm
+            )
+          ) {
+            callout = "WARNING";
+          } else if (
+            /^(?:[💡✨]|(?:\*\*|__)?(?:meo|tip|ghi nho|kinh nghiem|khuyen dung|pro-tip))/i.test(
+              norm
+            )
+          ) {
+            callout = "TIP";
+          } else if (
+            /^(?:[🧪🔍]|(?:\*\*|__)?(?:vi du|thuc hanh|minh hoa|example|case study))/i.test(
+              norm
+            )
+          ) {
+            callout = "EXAMPLE";
+          } else if (
+            /^(?:[📐📊]|(?:\*\*|__)?(?:cong thuc|tinh toan|formula|toan hoc))/i.test(
+              norm
+            )
+          ) {
+            callout = "FORMULA";
+          } else if (
+            /^(?:[📋📑]|(?:\*\*|__)?(?:tom tat|tong ket|summary|takeaways|bai hoc rut ra))/i.test(
+              norm
+            )
+          ) {
+            callout = "SUMMARY";
+          } else if (
+            /^(?:[⚡🎯🔔]|(?:\*\*|__)?(?:quan trong|important|cot loi|bat buoc))/i.test(
+              norm
+            )
+          ) {
+            callout = "IMPORTANT";
+          } else if (
+            /^(?:[📌📝ℹ️]|(?:\*\*|__)?(?:luu y|ghi chu|note|chu y))/i.test(
+              norm
+            )
+          ) {
+            callout = "NOTE";
           }
         }
       }
@@ -989,7 +1082,7 @@ function CodeBlockCard({ lang, code }: { lang: string; code: string }) {
   };
 
   return (
-    <div className="my-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-950 text-slate-100 overflow-hidden shadow-xs font-sans max-w-full">
+    <div className="my-4 rounded-[12px] border border-slate-800 bg-slate-950 text-slate-100 overflow-hidden shadow-xs font-sans max-w-full">
       <div className="flex items-center justify-between px-3.5 py-2 bg-slate-900 border-b border-slate-800 text-[11px]">
         <span className="font-mono font-bold uppercase tracking-wider text-indigo-300">
           {lang || "code"}
@@ -997,7 +1090,7 @@ function CodeBlockCard({ lang, code }: { lang: string; code: string }) {
         <button
           type="button"
           onClick={handleCopy}
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold transition cursor-pointer"
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold transition cursor-pointer"
         >
           {copied ? (
             <>
@@ -1012,10 +1105,41 @@ function CodeBlockCard({ lang, code }: { lang: string; code: string }) {
           )}
         </button>
       </div>
-      <pre className="p-3.5 overflow-x-auto max-w-full text-[13px] leading-relaxed font-mono text-slate-100">
+      <pre className="p-4 overflow-x-auto max-w-full text-[13px] leading-relaxed font-mono text-slate-100">
         <code>{code}</code>
       </pre>
     </div>
+  );
+}
+
+function SpeechButton({ textToSpeak, label }: { textToSpeak: string; label?: string }) {
+  const [speaking, setSpeaking] = useState(false);
+
+  const handleSpeak = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(textToSpeak);
+    utter.lang = "en-US";
+    utter.rate = 0.92;
+    utter.onstart = () => setSpeaking(true);
+    utter.onend = () => setSpeaking(false);
+    utter.onerror = () => setSpeaking(false);
+    window.speechSynthesis.speak(utter);
+  };
+
+  return (
+    <button
+      type="button"
+      data-testid="inline-speech-btn"
+      onClick={handleSpeak}
+      title={label || `Bấm để nghe phát âm: "${textToSpeak}"`}
+      className={`inline-flex items-center justify-center w-5 h-5 mx-1 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900 transition align-middle cursor-pointer ${
+        speaking ? "scale-110 ring-2 ring-indigo-500" : ""
+      }`}
+    >
+      <Volume2 className="w-3 h-3" />
+    </button>
   );
 }
 
@@ -1243,6 +1367,28 @@ export function LessonMarkdownView({
       }
 
       let content: React.ReactNode = pieceText;
+      // If pieceText contains IPA phonetic pattern like /.../ (e.g. /kənˈsɪstənt/)
+      if (
+        token.kind === "text" &&
+        /\/([ˈˌːæɑɔəɛɜɪʊʌθðʃʒʧʤŋa-zA-Z\s.-]{2,35})\//.test(pieceText)
+      ) {
+        const parts = pieceText.split(/(\/[ˈˌːæɑɔəɛɜɪʊʌθðʃʒʧʤŋa-zA-Z\s.-]{2,35}\/)/g);
+        content = parts.map((part, pIdx) => {
+          if (/^\/([ˈˌːæɑɔəɛɜɪʊʌθðʃʒʧʤŋa-zA-Z\s.-]{2,35})\/$/.test(part)) {
+            const wordToSpeak = inferPrecedingWord(plainText, part);
+            return (
+              <span key={`ipa-${pIdx}`} className="inline-flex items-center align-middle mx-0.5">
+                <span className="font-mono text-indigo-600 dark:text-indigo-400 font-medium px-1.5 py-0.5 bg-indigo-50/80 dark:bg-indigo-950/60 rounded-md text-[0.88em]">
+                  {part}
+                </span>
+                <SpeechButton textToSpeak={wordToSpeak} />
+              </span>
+            );
+          }
+          return part;
+        });
+      }
+
       if (token.bold) {
         content = <strong className="font-bold text-slate-900 dark:text-white">{content}</strong>;
       }
@@ -1513,10 +1659,10 @@ export function LessonMarkdownView({
           return (
             <div
               key={blockId}
-              className="my-4 w-full max-w-full overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs font-sans"
+              className="my-4 w-full max-w-full overflow-x-auto rounded-[12px] border border-slate-200 dark:border-slate-800 shadow-xs font-sans"
             >
               <table className="w-full border-collapse text-left text-xs sm:text-sm">
-                <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
+                <thead className="bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700">
                   <tr>
                     {headers.map((header, hIdx) => {
                       const tokens = tokenizeInlineMarkdown(cleanText(header), sourceFolder, sourceRelativePath);
@@ -1531,7 +1677,7 @@ export function LessonMarkdownView({
                         <th
                           key={hIdx}
                           scope="col"
-                          className={`px-3.5 py-2.5 font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap ${alignCls}`}
+                          className={`px-4 py-3 font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap ${alignCls}`}
                         >
                           {renderInlineTokens(tokens, `${blockId}-th-${hIdx}`)}
                         </th>
@@ -1539,11 +1685,11 @@ export function LessonMarkdownView({
                     })}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
                   {rows.map((row, rIdx) => (
                     <tr
                       key={rIdx}
-                      className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors"
+                      className="odd:bg-white even:bg-slate-50/70 dark:odd:bg-slate-950 dark:even:bg-slate-900/60 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/30 transition-colors"
                     >
                       {row.map((cell, cIdx) => {
                         const tokens = tokenizeInlineMarkdown(cleanText(cell), sourceFolder, sourceRelativePath);
@@ -1559,7 +1705,7 @@ export function LessonMarkdownView({
                           <td
                             key={cIdx}
                             onMouseUp={() => onSelectBlockText(blockId, plain)}
-                            className={`px-3.5 py-2.5 text-slate-700 dark:text-slate-300 align-top leading-relaxed ${alignCls}`}
+                            className={`px-4 py-3 text-slate-700 dark:text-slate-300 align-top leading-relaxed ${alignCls}`}
                           >
                             {renderInlineTokens(tokens, blockId)}
                           </td>
@@ -1579,34 +1725,52 @@ export function LessonMarkdownView({
             { container: string; titleColor: string; label: string; icon: React.ReactNode }
           > = {
             NOTE: {
-              container: "border-l-sky-500 bg-sky-50/80 dark:bg-sky-950/30 border-sky-200 dark:border-sky-900/60",
+              container: "border-l-sky-500 bg-sky-50/80 dark:bg-sky-950/30 border-sky-200 dark:border-sky-900/60 text-slate-800 dark:text-slate-200",
               titleColor: "text-sky-800 dark:text-sky-300",
-              label: "Ghi chú",
+              label: "Ghi chú & Lưu ý",
               icon: <Info className="w-4 h-4 text-sky-600 dark:text-sky-400" />
             },
             TIP: {
-              container: "border-l-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/60",
-              titleColor: "text-emerald-800 dark:text-emerald-300",
-              label: "Mẹo thực hành",
-              icon: <Lightbulb className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              container: "border-l-amber-500 bg-amber-50/80 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/60 text-slate-800 dark:text-slate-200",
+              titleColor: "text-amber-800 dark:text-amber-300",
+              label: "Mẹo thực hành & Ghi nhớ",
+              icon: <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             },
             IMPORTANT: {
-              container: "border-l-indigo-500 bg-indigo-50/80 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-900/60",
+              container: "border-l-indigo-500 bg-indigo-50/80 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-900/60 text-slate-800 dark:text-slate-200",
               titleColor: "text-indigo-800 dark:text-indigo-300",
-              label: "Quan trọng",
+              label: "Điểm quan trọng",
               icon: <Info className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             },
             WARNING: {
-              container: "border-l-amber-500 bg-amber-50/80 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/60",
-              titleColor: "text-amber-800 dark:text-amber-300",
-              label: "Lưu ý",
-              icon: <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              container: "border-l-rose-500 bg-rose-50/80 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/60 text-slate-800 dark:text-slate-200",
+              titleColor: "text-rose-800 dark:text-rose-300",
+              label: "Cảnh báo & Sai lầm cần tránh",
+              icon: <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
             },
             CAUTION: {
-              container: "border-l-rose-500 bg-rose-50/80 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/60",
+              container: "border-l-rose-500 bg-rose-50/80 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/60 text-slate-800 dark:text-slate-200",
               titleColor: "text-rose-800 dark:text-rose-300",
-              label: "Cảnh báo",
+              label: "Lưu ý nguy hiểm",
               icon: <Flame className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+            },
+            EXAMPLE: {
+              container: "border-l-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/60 text-slate-800 dark:text-slate-200",
+              titleColor: "text-emerald-800 dark:text-emerald-300",
+              label: "Ví dụ minh họa & Thực tế",
+              icon: <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            },
+            FORMULA: {
+              container: "border-l-purple-500 bg-purple-50/80 dark:bg-purple-950/30 border-purple-200 dark:border-purple-900/60 text-slate-800 dark:text-slate-200",
+              titleColor: "text-purple-800 dark:text-purple-300",
+              label: "Công thức & Cách tính",
+              icon: <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            },
+            SUMMARY: {
+              container: "border-l-indigo-500 bg-indigo-50/80 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-900/60 text-slate-800 dark:text-slate-200",
+              titleColor: "text-indigo-800 dark:text-indigo-300",
+              label: "Tóm tắt & Điểm cốt lõi",
+              icon: <BookOpen className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             }
           };
 
@@ -1740,6 +1904,23 @@ export function LessonMarkdownView({
           </div>
         );
       })}
+
+      {/* Khối gợi ý thực hành cuối bài */}
+      <div className="mt-8 rounded-xl border border-indigo-200/70 dark:border-indigo-900/60 bg-gradient-to-r from-indigo-50/70 via-sky-50/50 to-indigo-50/70 dark:from-indigo-950/40 dark:via-slate-900 dark:to-indigo-950/40 p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+            <Sparkles className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="font-semibold text-slate-900 dark:text-slate-100">
+              Sẵn sàng kiểm tra kiến thức bài học?
+            </p>
+            <p className="text-slate-600 dark:text-slate-400 text-[11px] mt-0.5">
+              Chuyển sang tab <strong>Thực hành</strong> ở phía trên để làm bài tập tương tác, sửa lỗi code hoặc luyện nói.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -125,7 +125,7 @@ const SHORTCUTS_DATA: ShortcutItem[] = [
     id: "r5",
     category: "reading",
     keys: ["E"],
-    description: "Gọi AI Ghostreader giải thích thuật ngữ hoặc khái niệm tại chỗ"
+    description: "Gọi trợ lý AI giải thích nhanh thuật ngữ hoặc khái niệm"
   },
   {
     id: "r6",
@@ -157,7 +157,7 @@ const SHORTCUTS_DATA: ShortcutItem[] = [
     id: "s3",
     category: "split",
     keys: ["Ctrl", "S"],
-    description: "Lưu ghi chú thủ công (Hệ thống tự động lưu với OCC và Web Locks)"
+    description: "Lưu ghi chú thủ công (Hệ thống tự động lưu liên tục)"
   },
   {
     id: "s4",

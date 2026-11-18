@@ -586,6 +586,9 @@ export default function EditCoursePage() {
               <h1 className="text-xl sm:text-2xl font-bold text-text-primary truncate">
                 {course.title}
               </h1>
+              <span className="hidden sm:inline-flex px-2 py-0.5 rounded text-[11px] font-medium bg-bg-secondary text-text-secondary border border-border shrink-0">
+                Lộ trình &amp; Thẻ nhớ FSRS
+              </span>
               <button
                 type="button"
                 onClick={() => {

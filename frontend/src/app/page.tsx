@@ -2,23 +2,23 @@ import type { Metadata } from "next";
 import { LandingPageV2 } from "@/components/landing/LandingPageV2";
 
 export const metadata: Metadata = {
-  title: "Studxy — Nền tảng Học tập Thông minh",
+  title: "Studxy — Không gian Tự học & Ghi nhớ Thông minh",
   description:
-    "Hợp nhất Deep Reader, PKM Notebook và thuật toán FSRS v5 trong một không gian duy nhất. Biến mọi tài liệu thành kiến thức bền vững.",
+    "Đọc tài liệu, ghi chú sổ tay và ôn thẻ nhớ lâu trong một nơi duy nhất. Biến mọi tài liệu thành kiến thức của riêng bạn.",
   keywords: [
     "Studxy",
     "SWMS",
-    "Deep Reader",
-    "PKM",
+    "Đọc sâu",
+    "Chia đôi",
     "FSRS v5",
-    "Spaced Repetition",
-    "Active Recall",
+    "Thẻ nhớ",
+    "Tự học",
     "Course Studio",
   ],
   openGraph: {
-    title: "Studxy — Nền tảng Học tập Thông minh",
+    title: "Studxy — Không gian Tự học & Ghi nhớ Thông minh",
     description:
-      "Hợp nhất Deep Reader, PKM Notebook và thuật toán FSRS v5. Biến mọi tài liệu thành kiến thức bền vững.",
+      "Đọc tài liệu, ghi chú sổ tay và ôn thẻ nhớ lâu trong một nơi duy nhất. Biến mọi tài liệu thành kiến thức của riêng bạn.",
     type: "website",
     locale: "vi_VN",
   },

@@ -20,7 +20,7 @@ export function WorkflowSection() {
             num: "03",
             icon: Columns2,
             iconColor: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50",
-            title: "Ghi chép Song song (PKM)",
+            title: "Ghi chép Song song (Chia đôi)",
             desc: "Nhấn Ctrl+\\ để mở không gian ghi chép 3 khung (15/45/40). Nhúng thẻ trích dẫn [↗ Jump to Source] và kích hoạt cuộn đồng bộ mutex 50ms không gián đoạn."
         },
         {

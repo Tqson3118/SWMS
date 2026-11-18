@@ -44,7 +44,7 @@ export function CorePillarsSection() {
               Trụ cột 1 • Công thái học Đọc hiểu
             </div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">
-              Đọc sâu Công thái học (Deep Reader 68ch) &amp; Đánh dấu Ngữ nghĩa
+              Đọc sâu dễ nhìn (68ch) &amp; Tô màu ý chính
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
               Cột đọc tối ưu 68 ký tự/dòng (<code>68ch</code>) với lề đối xứng cân đối,
@@ -78,7 +78,7 @@ export function CorePillarsSection() {
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-slate-900 dark:text-slate-100">
-                    Thanh công cụ nổi In-situ:
+                    Thanh công cụ nổi khi bôi đen:
                   </span>{" "}
                   Xuất hiện debounced 150ms tại chỗ, bôi màu và tạo thẻ ghi nhớ trực tiếp
                   ngay trên đoạn chữ.
@@ -99,7 +99,7 @@ export function CorePillarsSection() {
               Trụ cột 2 • Không gian Song song
             </div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">
-              Không gian Chia đôi (Split Workspace PKM) &amp; Dẫn chứng 2 Chiều
+              Không gian Chia đôi màn hình &amp; Ghi chép song song
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
               Bố cục 3 khung chuẩn hóa (15% Mục lục / 45% Bài đọc / 40% Trình soạn thảo
@@ -207,7 +207,7 @@ export function CorePillarsSection() {
               Trụ cột 4 • Luyện tập Định hình
             </div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">
-              Formative Practice Quiz &amp; AI Semantic Rubric
+              Bài luyện tập củng cố &amp; AI nhận xét chi tiết
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
               Cổng tự kiểm tra năng lực phi trừng phạt (zero exam anxiety), biến bài tập
@@ -219,9 +219,9 @@ export function CorePillarsSection() {
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                 <div>
                   <span className="font-semibold text-slate-900 dark:text-slate-100">
-                    Trắc nghiệm &amp; Điền khuyết Tức thì:
+                    Trắc nghiệm &amp; Điền từ còn thiếu:
                   </span>{" "}
-                  Làm câu hỏi MCQ (phím A-D) và thẻ Cloze tức thì (0ms, 0 AI cost) để kích
+                  Làm câu hỏi MCQ (phím A-D) và thẻ điền từ tức thì (0ms, 0 AI cost) để kích
                   hoạt hồi tưởng tích cực.
                 </div>
               </li>

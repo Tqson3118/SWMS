@@ -21,8 +21,8 @@ export function FeaturesGridSection() {
     {
       icon: Bot,
       iconColor: "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60",
-      title: "AI Ghostreader & Formative Rubric",
-      desc: "Giải thích khái niệm khó bằng ngôn ngữ trực quan in-situ và phân tích bài luận tự luận theo thang rubric nhận thức đa tầng."
+      title: "Trợ lý AI & Nhận xét chi tiết",
+      desc: "Giải thích khái niệm khó bằng ngôn ngữ trực quan ngay tại đoạn đọc và nhận xét bài tự luận chi tiết cùng AI."
     },
     {
       icon: Anchor,

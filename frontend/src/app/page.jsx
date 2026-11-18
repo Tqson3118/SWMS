@@ -1,21 +1,20 @@
 import { LandingPageClient } from "@/components/landing/LandingPageClient";
 export const metadata = {
-    title: "SWMS — Không gian Học tập Thống nhất cho Cá nhân Chủ quyền",
-    description: "Nền tảng quản trị học tập hợp nhất: Đọc sâu công thái học (68ch), Ghi chép song song (Split PKM), Thuật toán FSRS v5 tối ưu trí nhớ và Luyện thi Formative AI Quiz.",
+    title: "Studxy — Không gian Tự học & Ghi nhớ Thông minh",
+    description: "Đọc tài liệu, ghi chú sổ tay và ôn thẻ nhớ lâu trong một nơi duy nhất. Biến mọi tài liệu thành kiến thức của riêng bạn.",
     keywords: [
         "SWMS",
         "Studxy",
         "Sovereign Learning",
-        "Deep Reader",
-        "Split PKM",
+        "Đọc sâu",
+        "Chia đôi",
         "FSRS v5",
-        "Spaced Repetition",
-        "Active Recall",
-        "Personal Knowledge Management"
+        "Sổ tay ghi chú",
+        "Ôn thẻ nhớ"
     ],
     openGraph: {
-        title: "SWMS — Hệ sinh thái Học tập Thống nhất cho Cá nhân Chủ quyền",
-        description: "Hợp nhất Đọc sâu, Ghi chú song song và Khoa học Trí nhớ FSRS v5 trong một không gian duy nhất.",
+        title: "Studxy — Không gian Tự học & Ghi nhớ Thông minh",
+        description: "Đọc tài liệu, ghi chú sổ tay và ôn thẻ nhớ lâu trong một nơi duy nhất. Biến mọi tài liệu thành kiến thức của riêng bạn.",
         type: "website",
         locale: "vi_VN"
     }

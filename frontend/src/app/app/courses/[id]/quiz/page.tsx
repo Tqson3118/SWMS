@@ -80,7 +80,7 @@ interface QuizDetail {
 
 const QUIZ_ITEM_TYPE_LABELS: Record<string, string> = {
   multiple_choice: "Trắc nghiệm",
-  cloze: "Điền khuyết",
+  cloze: "Điền từ còn thiếu",
   short_answer: "Trả lời ngắn",
   essay: "Tự luận",
 };
@@ -646,7 +646,7 @@ export default function CourseQuizPage() {
                       <div className="flex items-center justify-between">
                         <span className="font-semibold text-accent flex items-center gap-1.5">
                           <Sparkles className="w-3.5 h-3.5" />
-                          <span>Nhận xét AI Rubric</span>
+                          <span>Nhận xét chi tiết từ AI</span>
                         </span>
                         {item.aiRubricFeedback.masteryLevel && (
                           <span className="px-2 py-0.5 rounded bg-bg-primary border border-border font-semibold text-text-primary">

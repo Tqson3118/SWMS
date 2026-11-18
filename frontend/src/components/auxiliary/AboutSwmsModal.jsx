@@ -178,7 +178,7 @@ export function AboutSwmsModal({ isOpen, onClose, onExploreWorkspace }) {
                   <div>
                     <span className="font-bold text-slate-900 dark:text-slate-100">Sinh viên Theo Khóa (Academic Cohort Student):</span>
                     <p className="text-slate-600 dark:text-slate-400 mt-0.5">
-                      Tham gia lớp học của giảng viên, nhận tài liệu chính quy và làm bài kiểm tra Formative Practice Quiz với AI Rubric.
+                      Tham gia lớp học của giảng viên, nhận tài liệu chính quy và làm bài luyện tập củng cố với AI nhận xét chi tiết.
                     </p>
                   </div>
                 </div>

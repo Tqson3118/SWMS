@@ -299,7 +299,7 @@ function ReviewPageContent() {
       setCurrentIndex(lastEntry.index);
       setIsFlipped(false);
       cardShownAtRef.current = Date.now();
-      setUndoBanner("Đã hoàn tác đánh giá thẻ vừa rồi theo FSRS server.");
+      setUndoBanner("Đã hoàn tác lượt đánh giá thẻ vừa rồi.");
       window.dispatchEvent(new CustomEvent("swms:data-mutated", { detail: { origin: "review" } }));
     } catch (err) {
       setErrorBanner(
@@ -561,7 +561,7 @@ function ReviewPageContent() {
                 ? "Không có thẻ nào khớp với bộ lọc hiện tại đang đến hạn."
                 : queue.totalCards > 0
                 ? `Hiện có ${queue.totalCards} thẻ trong kho nhưng chưa đến hạn. Bạn có thể ôn tập trước hạn bất cứ lúc nào.`
-                : "Hãy bôi đen đoạn văn hoặc tạo thẻ Cloze từ bài học để bắt đầu ôn tập."}
+                : "Hãy bôi đen đoạn văn trong bài học để tạo thẻ điền từ hoặc thẻ hỏi đáp và bắt đầu ôn tập."}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               {sessionComplete && (

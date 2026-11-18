@@ -355,10 +355,10 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           className={`flex items-center gap-2.5 h-8 rounded-[8px] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition ${
             collapsed ? "justify-center px-0" : "px-2.5"
           }`}
-          title={collapsed ? "Workspace Classic (/workspace)" : "Mở Workspace Classic (/workspace)"}
+          title="Chế độ bàn làm việc nhiều khung trên máy tính (/workspace)"
         >
           <LayoutGrid className="w-4 h-4 shrink-0" />
-          {!collapsed && <span className="truncate">Workspace Classic</span>}
+          {!collapsed && <span className="truncate">Giao diện nhiều khung (Classic)</span>}
         </Link>
 
         {/* Settings */}

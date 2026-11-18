@@ -795,7 +795,7 @@ function AuthPageContent() {
 
       {/* Footer */}
       <footer className="max-w-5xl w-full mx-auto text-center text-[11px] text-[var(--text-tertiary)]">
-        Studxy · Nền tảng đọc sâu, ghi chú và ghi nhớ lâu dài với FSRS v5
+        Studxy · Không gian đọc bài, ghi chú và ôn thẻ nhớ lâu
       </footer>
     </div>
   );

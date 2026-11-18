@@ -7,7 +7,7 @@ export function ComparisonMatrixSection() {
       criterion: "Dòng làm việc (Workflow)",
       traditional:
         "4 công cụ riêng biệt (PDF + Notion + Anki + LMS rời rạc). Phải copy/paste thủ công, phân mảnh 4 tài khoản và tiêu tốn năng lượng tinh thần.",
-      swms: "Một không gian khép kín duy nhất: Đọc 68ch ↔ Ghi chép song song ↔ Ôn tập FSRS ↔ Luyện thi Formative Quiz mà không cần rời màn hình.",
+      swms: "Một không gian duy nhất: Đọc sâu (68ch) ↔ Ghi chép song song (Chia đôi) ↔ Ôn tập thẻ nhớ (FSRS) ↔ Luyện tập củng cố không trừ điểm.",
       highlight: true
     },
     {
@@ -18,10 +18,10 @@ export function ComparisonMatrixSection() {
       highlight: true
     },
     {
-      criterion: "Công thái học Đọc (Ergonomics)",
+      criterion: "Trải nghiệm Đọc sâu dễ nhìn",
       traditional:
         "PDF cố định chữ nhỏ tràn màn hình hoặc web quá rộng (120ch+) gây mỏi cơ mắt sau 30 phút đọc (saccade fatigue).",
-      swms: "Cột đọc công thái học 68–75ch căn giữa với lề 426px cân xứng; thanh công cụ nổi debounced 150ms tại chỗ.",
+      swms: "Cột đọc tối ưu 68–75 ký tự/dòng (68ch) căn giữa chống mỏi mắt; thanh công cụ nổi nhanh khi bôi đen.",
       highlight: false
     },
     {
@@ -32,10 +32,10 @@ export function ComparisonMatrixSection() {
       highlight: false
     },
     {
-      criterion: "Kiến trúc Ghi chú (PKM)",
+      criterion: "Sổ tay ghi chú song song (Chia đôi)",
       traditional:
         "Notion lưu từng block thành dòng DB nặng nề gây nghẽn khóa ghi; hoặc Markdown rời rạc thiếu neo ngữ cảnh.",
-      swms: "Sovereign Freeform Notebook với Single Tiptap JSONB AST nén hiệu năng cao, liên kết hai chiều [[wikilinks]].",
+      swms: "Sổ tay ghi chép tự do của riêng bạn, lưu trữ an toàn, liên kết hai chiều giữa tài liệu và ghi chú.",
       highlight: false
     },
     {
@@ -49,7 +49,7 @@ export function ComparisonMatrixSection() {
       criterion: "Đánh giá Năng lực (Assessment)",
       traditional:
         "Thi cử trừng phạt, trắc nghiệm thụ động lấy điểm số máy móc không có phản hồi định tính về lỗ hổng tư duy.",
-      swms: "Practice Quiz định hình phi trừng phạt: Trắc nghiệm, Cloze và Bài luận tự luận có Gemini AI chấm theo rubric ngữ nghĩa chi tiết.",
+      swms: "Bài luyện tập củng cố (Làm sai không bị trừ điểm): Trắc nghiệm, Thẻ điền từ và Tự luận có AI nhận xét chi tiết.",
       highlight: false
     }
   ];
@@ -58,7 +58,7 @@ export function ComparisonMatrixSection() {
     {
       name: "Readwise Reader",
       insight:
-        "SWMS học tập cơ chế trích xuất in-situ, nhưng nâng cấp hơn nhờ tích hợp sẵn trình soạn thảo Notebook song song và thuật toán FSRS v5 bản địa."
+        "Studxy cho phép tạo thẻ ngay khi đang đọc, đồng thời tích hợp sẵn Sổ tay ghi chú song song và thuật toán nhắc ôn FSRS v5."
     },
     {
       name: "RemNote",

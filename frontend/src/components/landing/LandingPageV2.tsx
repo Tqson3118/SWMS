@@ -160,8 +160,7 @@ function HeroSection() {
         </h1>
 
         <p className="text-lg text-[var(--text-secondary)] max-w-xl mx-auto mb-8 leading-relaxed">
-          Hợp nhất Deep Reader, PKM Notebook và thuật toán FSRS v5 trong một
-          không gian duy nhất. Biến mọi tài liệu thành kiến thức bền vững.
+          Đọc tài liệu, viết sổ tay và ôn thẻ nhớ lâu trong một nơi duy nhất. Biến mọi tài liệu thành kiến thức của riêng bạn.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -276,33 +275,33 @@ function PreviewSection() {
 const PILLARS = [
   {
     icon: BookOpen,
-    title: "Deep Reader",
+    title: "Đọc sâu & Tô màu ý chính",
     description:
-      "Đọc PDF ergonomic với layout 68ch, semantic highlighting 5 màu, annotation và ghi chú liên kết.",
+      "Đọc giáo trình và PDF dễ nhìn, tô màu 5 nhóm ý quan trọng và gắn ghi chú ngay tại đoạn đang đọc.",
     gradient: "from-blue-500 to-indigo-600",
     bg: "bg-blue-50 dark:bg-blue-950/30",
   },
   {
     icon: Layers,
-    title: "Split PKM",
+    title: "Vừa đọc vừa ghi chú (Chia đôi)",
     description:
-      "Chia đôi màn hình — đọc bên trái, ghi chú bên phải. Đồng bộ cuộn và liên kết annotation.",
+      "Chia đôi màn hình: đọc bài bên trái, viết sổ tay bên phải — không cần chuyển qua lại giữa nhiều ứng dụng.",
     gradient: "from-violet-500 to-purple-600",
     bg: "bg-violet-50 dark:bg-violet-950/30",
   },
   {
     icon: Brain,
-    title: "FSRS v5 Spaced Repetition",
+    title: "Ôn thẻ nhớ lâu (Nhắc ôn FSRS)",
     description:
-      "Thuật toán trí nhớ thế hệ mới. Tự động lập lịch ôn tập, tối ưu hóa khoảng cách lặp lại.",
+      "Tự động nhắc ôn lại đúng lúc bạn sắp quên, giúp nhớ bài lâu dài mà không cần học vẹt.",
     gradient: "from-emerald-500 to-teal-600",
     bg: "bg-emerald-50 dark:bg-emerald-950/30",
   },
   {
     icon: Sparkles,
-    title: "Course Studio + AI",
+    title: "Tạo khóa học nhanh cùng AI",
     description:
-      "Tạo khóa học từ PDF, AI Wizard hoặc import. Quản lý curriculum, bài giảng và flashcard.",
+      "Tải file PDF lên hoặc nhập chủ đề để hệ thống tạo sẵn chương mục, bài học và thẻ ôn tập.",
     gradient: "from-amber-500 to-orange-600",
     bg: "bg-amber-50 dark:bg-amber-950/30",
   },
@@ -350,23 +349,23 @@ function FeaturesSection() {
 const STEPS = [
   {
     step: "01",
-    title: "Upload hoặc tạo khóa học",
-    description: "Kéo thả PDF vào Studio, hoặc để AI Wizard tạo curriculum từ chủ đề.",
+    title: "Tải tài liệu lên hoặc tạo khóa học",
+    description: "Kéo thả file PDF hoặc nhập chủ đề bạn muốn học để tạo sẵn lộ trình.",
   },
   {
     step: "02",
-    title: "Đọc & Highlight",
-    description: "Đọc với layout ergonomic, highlight semantic 5 màu, ghi chú và tạo flashcard ngay trên trang.",
+    title: "Đọc bài & Tô màu ý chính",
+    description: "Tô màu đoạn quan trọng, viết ghi chú và tạo thẻ ôn tập ngay khi đang đọc.",
   },
   {
     step: "03",
-    title: "Ôn tập thông minh",
-    description: "FSRS v5 tính toán thời điểm tối ưu để ôn lại. Lật thẻ, đánh giá, xây dựng trí nhớ dài hạn.",
+    title: "Ôn thẻ đúng lúc sắp quên",
+    description: "Hệ thống tự chọn những thẻ cần ôn trong ngày. Lật thẻ và bấm mức độ nhớ của bạn.",
   },
   {
     step: "04",
     title: "Làm chủ kiến thức",
-    description: "Theo dõi tiến độ, streak, và xem kiến thức phát triển qua từng ngày.",
+    description: "Theo dõi tiến độ, streak, và xem kiến thức tích lũy bền vững qua từng ngày.",
   },
 ];
 

@@ -732,7 +732,7 @@ export function ReaderAndSplitViews({ mode, onDataMutated, documents, lessons, c
         });
         if (res.status === "saved") {
             await loadLessonAndNotebook();
-            showToast(`Đã lưu tự động (OCC v${res.version}) qua Web Locks API!`);
+            showToast(`Đã tự động lưu sổ tay (bản v${res.version})!`);
         }
     };
     useEffect(() => {
@@ -1047,7 +1047,7 @@ export function ReaderAndSplitViews({ mode, onDataMutated, documents, lessons, c
             <button type="button" data-testid="draft-mode-cloze-btn" onClick={() => handleOpenDraftFlashcardPopover(selectedText)} className={`px-3 py-1 rounded-lg font-bold cursor-pointer ${draftMode === "cloze"
                     ? "bg-indigo-600 text-white"
                     : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"}`}>
-              (*) Cloze tức thì (Mặc định • 0 AI Credit)
+              (*) Thẻ điền từ nhanh (Miễn phí • 0 lượt AI)
             </button>
             <button type="button" data-testid="draft-mode-ai-btn" onClick={handleSwitchDraftToAiMode} className={`px-3 py-1 rounded-lg font-bold cursor-pointer inline-flex items-center gap-1.5 ${draftMode === "ai"
                     ? "bg-indigo-600 text-white"
@@ -1101,7 +1101,7 @@ export function ReaderAndSplitViews({ mode, onDataMutated, documents, lessons, c
           <div className="flex items-center justify-between">
             <span className="font-bold text-indigo-800 dark:text-indigo-200 inline-flex items-center gap-1.5">
               <Sparkles className="w-4 h-4"/>
-              <span>Trợ lý học thuật AI (gemini-3.8-flash In-Situ Ghostreader)</span>
+              <span>Trợ lý AI giải thích nhanh</span>
             </span>
             <button type="button" onClick={() => setAiExplainOpen(false)} className="text-slate-500 hover:text-slate-800 font-bold">
               <X className="w-3.5 h-3.5"/>
