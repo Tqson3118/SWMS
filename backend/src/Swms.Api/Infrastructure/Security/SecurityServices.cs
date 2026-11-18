@@ -148,14 +148,24 @@ public class JwtTokenService
     private readonly string _signingKey;
     private readonly int _accessTokenMinutes;
 
+    private static readonly string ProcessFallbackSigningKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    public const string LeakedJwtSigningKey = "SWMS-v1-Enterprise-Jwt-HmacSha256-Secret-Key-2026-Studxy-Workspace!";
+
     public static string ResolveJwtSigningKey(IConfiguration config)
     {
         var envKey = Environment.GetEnvironmentVariable("JWT_SIGNING_KEY");
-        if (!string.IsNullOrWhiteSpace(envKey)) return envKey;
+        if (!string.IsNullOrWhiteSpace(envKey) && envKey.Length >= 32 && !string.Equals(envKey, LeakedJwtSigningKey, StringComparison.Ordinal))
+        {
+            return envKey;
+        }
+
         var cfgKey = config["Jwt:SigningKey"];
-        return !string.IsNullOrWhiteSpace(cfgKey)
-            ? cfgKey
-            : "SWMS-v1-Enterprise-Jwt-HmacSha256-Secret-Key-2026-Studxy-Workspace!";
+        if (!string.IsNullOrWhiteSpace(cfgKey) && cfgKey.Length >= 32 && !string.Equals(cfgKey, LeakedJwtSigningKey, StringComparison.Ordinal))
+        {
+            return cfgKey;
+        }
+
+        return ProcessFallbackSigningKey;
     }
 
     public static string? ResolveAesMasterKeyBase64(IConfiguration config)

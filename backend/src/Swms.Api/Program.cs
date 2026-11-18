@@ -19,6 +19,7 @@ if (string.IsNullOrEmpty(builder.Configuration["Urls"]) &&
 {
     builder.WebHost.UseUrls("http://127.0.0.1:5080");
 }
+builder.WebHost.ConfigureKestrel(k => k.AddServerHeader = false);
 
 // 1. Dual-Mode Database Persistence:
 // Uses PostgreSQL 17 if reachable (or forced via SWMS_USE_POSTGRES=true),
@@ -185,6 +186,16 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.Use(async (ctx, next) =>
+{
+    ctx.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    ctx.Response.Headers.Append("X-Frame-Options", "SAMEORIGIN");
+    ctx.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    ctx.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; frame-ancestors 'self'");
+    ctx.Response.Headers.Remove("Server");
+    await next();
+});
 
 app.UseCors("SwmsFrontend");
 app.UseAuthentication();

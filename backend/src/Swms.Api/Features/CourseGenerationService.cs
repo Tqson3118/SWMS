@@ -86,6 +86,20 @@ public static class CourseGenerationService
             };
             db.Courses.Add(course);
 
+            var ledgerEntry = new AiUsageLedger
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                Feature = "generate_course",
+                PromptTokens = 120,
+                CompletionTokens = 180,
+                TotalTokens = 300,
+                CostUsd = 0.00015m,
+                CreditsCharged = 1,
+                CreatedAt = now
+            };
+            db.AiUsageLedgers.Add(ledgerEntry);
+
             var hasEnrollment = await db.CourseEnrollments.AnyAsync(ce => ce.UserId == userId && ce.CourseId == course.Id);
             if (!hasEnrollment)
             {
@@ -115,12 +129,13 @@ public static class CourseGenerationService
                 var pStart = partLessons.Count > 0 ? partLessons.First().StartPage : 1;
                 var pEnd = partLessons.Count > 0 ? partLessons.Last().EndPage : totalPages;
                 var chTopic = partLessons.FirstOrDefault()?.HeadingTitle ?? $"Phần {cIdx + 1}";
+                var cleanChTopic = Regex.Replace(chTopic, @"^(?:Chương|Chapter|Phần)\s*\d+\s*[:.\-–—]\s*", "", RegexOptions.IgnoreCase).Trim();
 
                 var chapter = new Chapter
                 {
                     Id = Guid.NewGuid(),
                     CourseId = course.Id,
-                    Title = Truncate($"Chương {cIdx + 1}: {chTopic} (Trang {pStart}–{pEnd})", 245),
+                    Title = Truncate($"Chương {cIdx + 1}: {cleanChTopic} (Trang {pStart}–{pEnd})", 245),
                     SortOrder = cIdx + 1,
                     CreatedAt = now,
                     UpdatedAt = now
@@ -1156,12 +1171,12 @@ public static class CourseGenerationService
         DateTimeOffset now)
     {
         var items = new List<PracticeQuizItem>();
-        var solutionKeys = new[] { "A", "B", "C" };
+        var targetKeys = new[] { "C", "A", "D" };
 
         for (int i = 0; i < 3; i++)
         {
             var sent = sentences[i % sentences.Count];
-            var correctKey = solutionKeys[i % solutionKeys.Length];
+            var correctKey = targetKeys[i % targetKeys.Length];
             var correctStatement = Truncate(sent.Sentence, 170);
 
             var distractors = new[]

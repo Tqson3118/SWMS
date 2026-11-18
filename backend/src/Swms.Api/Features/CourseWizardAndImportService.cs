@@ -821,7 +821,8 @@ public static class CourseWizardAndImportService
                 }
                 else if (group.Key != "root" && group.Key != "lessons" && group.Key != "notes")
                 {
-                    chTitle = $"Chương {chNum}: {group.Key}";
+                    var cleanKey = Regex.Replace(group.Key, @"^(?:Chương|Chapter|Phần)\s*\d+\s*[:.\-–—]\s*", "", RegexOptions.IgnoreCase).Trim();
+                    chTitle = $"Chương {chNum}: {cleanKey}";
                 }
                 else
                 {
@@ -905,11 +906,12 @@ public static class CourseWizardAndImportService
         for (int cIdx = 0; cIdx < chapterPlans.Count; cIdx++)
         {
             var chPlan = chapterPlans[cIdx];
+            var cleanTitle = Regex.Replace(chPlan.Title, @"^(?:Chương|Chapter|Phần)\s*\d+\s*[:.\-–—]\s*", "", RegexOptions.IgnoreCase).Trim();
             var chapter = new Chapter
             {
                 Id = Guid.NewGuid(),
                 CourseId = course.Id,
-                Title = Truncate(chPlan.Title, 245),
+                Title = Truncate($"Chương {cIdx + 1}: {cleanTitle}", 245),
                 SortOrder = cIdx + 1,
                 CreatedAt = now,
                 UpdatedAt = now
@@ -1347,7 +1349,7 @@ public static class CourseWizardAndImportService
 
         // Default 2 chapters with 4 lessons
         chapters.Add(new WizardChapterPreviewDto(
-            $"Chương 1: Nền tảng & Khái niệm Cốt lõi của {cleanTopic}",
+            $"Nền tảng & Khái niệm Cốt lõi của {cleanTopic}",
             1,
             new List<WizardLessonPreviewDto>
             {
@@ -1357,7 +1359,7 @@ public static class CourseWizardAndImportService
         ));
 
         chapters.Add(new WizardChapterPreviewDto(
-            $"Chương 2: Thực hành & Nâng cao Kỹ năng {cleanTopic}",
+            $"Thực hành & Nâng cao Kỹ năng {cleanTopic}",
             2,
             new List<WizardLessonPreviewDto>
             {
@@ -1412,7 +1414,8 @@ public static class CourseWizardAndImportService
                         int sOrder = 1;
                         foreach (var chElem in chArray.EnumerateArray())
                         {
-                            var chTitle = chElem.GetProperty("title").GetString() ?? $"Chương {sOrder}";
+                            var rawTitle = chElem.GetProperty("title").GetString() ?? $"Chương {sOrder}";
+                            var chTitle = Regex.Replace(rawTitle, @"^(?:Chương|Chapter|Phần)\s*\d+\s*[:.\-–—]\s*", "", RegexOptions.IgnoreCase).Trim();
                             var chLessons = new List<WizardLessonPreviewDto>();
                             if (chElem.TryGetProperty("lessons", out var lesArray))
                             {
@@ -1486,11 +1489,12 @@ public static class CourseWizardAndImportService
         for (int cIdx = 0; cIdx < req.Chapters.Count; cIdx++)
         {
             var chDto = req.Chapters[cIdx];
+            var cleanTitle = Regex.Replace(chDto.Title, @"^(?:Chương|Chapter|Phần)\s*\d+\s*[:.\-–—]\s*", "", RegexOptions.IgnoreCase).Trim();
             var chapter = new Chapter
             {
                 Id = Guid.NewGuid(),
                 CourseId = course.Id,
-                Title = Truncate(chDto.Title, 245),
+                Title = Truncate($"Chương {cIdx + 1}: {cleanTitle}", 245),
                 SortOrder = cIdx + 1,
                 CreatedAt = now,
                 UpdatedAt = now
