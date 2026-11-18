@@ -35,11 +35,11 @@ export function EmptyState({
     if (!Icon) {
       return <Sparkles className="w-8 h-8 text-[#5E51E8] dark:text-[#818CF8]" />;
     }
-    if (typeof Icon === "function") {
-      const LucideComp = Icon as LucideIcon;
-      return <LucideComp className="w-8 h-8 text-[#5E51E8] dark:text-[#818CF8]" />;
+    if (React.isValidElement(Icon)) {
+      return Icon;
     }
-    return Icon;
+    const Comp = Icon as React.ComponentType<{ className?: string }>;
+    return <Comp className="w-8 h-8 text-[#5E51E8] dark:text-[#818CF8]" />;
   };
 
   return (

@@ -40,11 +40,9 @@ export function StatCard({
 
   const renderIcon = () => {
     if (!Icon) return null;
-    if (typeof Icon === "function") {
-      const LucideComp = Icon as LucideIcon;
-      return <LucideComp className="w-5 h-5 shrink-0" />;
-    }
-    return Icon;
+    if (React.isValidElement(Icon)) return Icon;
+    const Comp = Icon as React.ComponentType<{ className?: string }>;
+    return <Comp className="w-5 h-5 shrink-0" />;
   };
 
   return (
