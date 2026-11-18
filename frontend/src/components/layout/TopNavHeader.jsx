@@ -85,11 +85,11 @@ export function TopNavHeader({ userName, userEmail = "son.tran@studxy.vn", strea
     return (<header data-testid="global-top-header" className="sticky top-0 z-50 h-14 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md px-3 xl:px-5 flex items-center justify-between gap-2">
       {/* Left: Brand & Breadcrumb */}
       <div className="flex items-center gap-2.5 min-w-0">
-        <Link href="/" data-testid="brand-logo-link" className="flex items-center gap-2 font-bold tracking-tight text-indigo-600 dark:text-indigo-400 shrink-0 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md px-1.5 py-1 cursor-pointer group" title="Về Trang chủ SWMS">
-          <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-600 text-white text-xs font-extrabold shadow-sm group-hover:scale-105 transition-transform">
-            SW
+        <Link href="/" data-testid="brand-logo-link" className="flex items-center gap-2 font-bold tracking-tight text-[#5E51E8] dark:text-[#818CF8] shrink-0 focus:outline-none focus:ring-2 focus:ring-[#5E51E8] rounded-md px-1.5 py-1 cursor-pointer group" title="Về Trang chủ Studxy">
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-[8px] bg-[#5E51E8] dark:bg-[#818CF8] text-white dark:text-[#0F0F12] text-xs font-extrabold shadow-sm group-hover:scale-105 transition-transform">
+            St
           </span>
-          <span className="text-sm font-extrabold hidden sm:inline">SWMS</span>
+          <span className="text-sm font-extrabold hidden sm:inline">Studxy</span>
         </Link>
 
         <span className="text-slate-300 dark:text-slate-700 hidden md:inline">/</span>

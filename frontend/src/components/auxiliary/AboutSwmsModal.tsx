@@ -100,14 +100,14 @@ export function AboutSwmsModal({
                 <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/60">
                   Triết lý Sản phẩm &amp; Kiến trúc
                 </span>
-                <span className="text-xs text-slate-400 dark:text-slate-500">•</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500">·</span>
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">ADR-019 Baseline</span>
               </div>
               <h2
                 id="about-swms-title"
                 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mt-0.5"
               >
-                Về SWMS (Studxy) — Không gian Học tập Chủ quyền Cá nhân
+                Về Studxy — Không gian Học tập Chủ quyền Cá nhân
               </h2>
             </div>
           </div>

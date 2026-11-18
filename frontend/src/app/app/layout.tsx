@@ -43,9 +43,9 @@ export default function AppShellLayout({
     };
   }, [pathname, router, setActiveUserHeaderId]);
 
-  // Determine if we're in an immersive view (learn/reader mode)
+  // Determine if we're in an immersive view (learn/reader mode, review, or quiz)
   const isImmersive =
-    pathname.includes("/learn") || pathname.includes("/review");
+    pathname.includes("/learn") || pathname.includes("/review") || pathname.includes("/quiz");
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -83,11 +83,32 @@ export default function AppShellLayout({
   if (!authReady) {
     return (
       <div className={darkMode ? "dark" : ""}>
-        <div className="h-screen w-screen flex items-center justify-center bg-bg-primary text-text-primary">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-7 h-7 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs text-text-secondary">Đang xác thực phiên học tập...</span>
-          </div>
+        <div className="h-screen w-screen overflow-hidden bg-[var(--canvas-bg)] text-[var(--text-primary)] flex">
+          {/* Layout preserving skeleton to keep CLS < 0.1 */}
+          {!isImmersive && (
+            <div className="hidden md:flex flex-col h-screen w-[240px] border-r border-[var(--border-calm)] bg-[var(--surface-card)] p-3 space-y-4 shrink-0">
+              <div className="flex items-center gap-2.5 h-10 border-b border-[var(--border-calm)] pb-3">
+                <div className="w-7 h-7 rounded-[8px] bg-[var(--surface-elevated)] animate-pulse" />
+                <div className="w-20 h-4 rounded-[6px] bg-[var(--surface-elevated)] animate-pulse" />
+              </div>
+              <div className="space-y-2 pt-2">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-8.5 rounded-[8px] bg-[var(--surface-elevated)] animate-pulse" />
+                ))}
+              </div>
+            </div>
+          )}
+          <main className="flex-1 min-w-0 h-screen p-6 overflow-hidden">
+            <div className="max-w-5xl mx-auto space-y-6">
+              <div className="h-8 w-48 rounded-[8px] bg-[var(--surface-elevated)] animate-pulse" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-28 rounded-[14px] bg-[var(--surface-elevated)] animate-pulse" />
+                ))}
+              </div>
+              <div className="h-64 rounded-[14px] bg-[var(--surface-elevated)] animate-pulse" />
+            </div>
+          </main>
         </div>
       </div>
     );
@@ -95,7 +116,7 @@ export default function AppShellLayout({
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="h-screen w-screen overflow-hidden bg-bg-primary text-text-primary flex">
+      <div className="h-screen w-screen overflow-hidden bg-[var(--canvas-bg)] text-[var(--text-primary)] flex">
         {/* Sidebar — hidden in immersive mode on desktop, always available via toggle */}
         {!isImmersive && (
           <Sidebar

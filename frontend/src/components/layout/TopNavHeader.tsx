@@ -175,36 +175,36 @@ export function TopNavHeader({
       data-testid="global-top-header"
       className="sticky top-0 z-50 h-14 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md px-1.5 sm:px-2.5 lg:px-3 xl:px-5 flex items-center justify-between gap-1 sm:gap-1.5 lg:gap-2"
     >
-      {/* Left: Brand & Breadcrumb (never shrinks below SW logo on mobile/tablet) */}
+      {/* Left: Brand & Breadcrumb (never shrinks below logo on mobile/tablet) */}
       <div className="flex items-center gap-1.5 lg:gap-2 shrink-0 lg:shrink lg:flex-1 min-w-0 relative z-10">
         <Link
           href="/"
           data-testid="brand-logo-link"
-          className="relative z-10 flex items-center gap-2 font-bold tracking-tight text-indigo-600 dark:text-indigo-400 shrink-0 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md px-1 sm:px-1.5 py-1 cursor-pointer group"
-          title="Về Trang chủ SWMS"
+          className="relative z-10 flex items-center gap-2 font-bold tracking-tight text-[#5E51E8] dark:text-[#818CF8] shrink-0 focus:outline-none focus:ring-2 focus:ring-[#5E51E8] rounded-md px-1 sm:px-1.5 py-1 cursor-pointer group"
+          title="Về Trang chủ Studxy"
         >
-          <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-600 text-white text-xs font-extrabold shadow-sm group-hover:scale-105 transition-transform">
-            SW
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-[8px] bg-[#5E51E8] dark:bg-[#818CF8] text-white dark:text-[#0F0F12] text-xs font-extrabold shadow-sm group-hover:scale-105 transition-transform">
+            St
           </span>
-          <span className="text-sm font-extrabold hidden lg:inline">SWMS</span>
+          <span className="text-sm font-extrabold hidden lg:inline">Studxy</span>
         </Link>
 
-        <span className="text-slate-300 dark:text-slate-700 hidden lg:inline shrink-0">/</span>
+        <span className="text-[var(--border-calm)] hidden lg:inline shrink-0">/</span>
 
-        <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 min-w-0 flex-1 overflow-hidden">
+        <div className="hidden lg:flex items-center gap-1.5 text-xs text-[var(--text-secondary)] min-w-0 flex-1 overflow-hidden">
           <button
             type="button"
             data-testid="header-breadcrumb-root"
             onClick={() => setActiveMode("dashboard")}
-            className="font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 truncate max-w-[110px] xl:max-w-[140px] 2xl:max-w-[180px] shrink cursor-pointer"
+            className="font-medium text-[var(--text-secondary)] hover:text-[#5E51E8] dark:hover:text-[#818CF8] truncate max-w-[110px] xl:max-w-[140px] 2xl:max-w-[180px] shrink cursor-pointer"
             title={`Về Không gian cá nhân (${breadcrumbRoot})`}
           >
             {breadcrumbRoot}
           </button>
-          <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
+          <ChevronRight className="w-3 h-3 text-[var(--text-tertiary)] shrink-0" />
           <span
             data-testid="header-breadcrumb-current"
-            className="font-semibold text-slate-900 dark:text-slate-100 truncate min-w-0 flex-1"
+            className="font-semibold text-[var(--text-primary)] truncate min-w-0 flex-1"
             title={activeTitle}
           >
             {activeTitle}
@@ -358,7 +358,7 @@ export function TopNavHeader({
                     />
                   </div>
                   <p className="mt-1.5 text-[11px] text-slate-500">
-                    Đang lưu trữ {quota?.documentCount ?? 1} tài liệu PDF học thuật • Tự động làm mới hạn mức AI lúc 00:00 UTC.
+                    Đang lưu trữ {quota?.documentCount ?? 1} tài liệu PDF học thuật · Tự động làm mới hạn mức AI lúc 00:00 UTC.
                   </p>
                 </div>
               </div>
@@ -391,6 +391,7 @@ export function TopNavHeader({
         <button
           type="button"
           data-testid="topnav-create-course-btn"
+          aria-label="Tạo khóa học mới"
           onClick={() => {
             setActiveMode("dashboard");
             if (typeof window !== "undefined") {
@@ -400,7 +401,7 @@ export function TopNavHeader({
               }, 50);
             }
           }}
-          className="hidden sm:flex min-w-[36px] min-h-[36px] px-2 lg:px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold items-center justify-center gap-1.5 cursor-pointer shadow-2xs whitespace-nowrap transition"
+          className="hidden sm:flex min-w-[36px] min-h-[36px] px-2 lg:px-2.5 py-1.5 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white text-xs font-bold items-center justify-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap transition"
           title="Tạo khóa học mới"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />

@@ -575,7 +575,7 @@ export default function SettingsPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm text-text-secondary">Ứng dụng</span>
-            <span className="text-sm font-medium text-text-primary">Studxy (SWMS)</span>
+            <span className="text-sm font-medium text-text-primary">Studxy</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-text-secondary">Phiên bản</span>

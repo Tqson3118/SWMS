@@ -160,7 +160,7 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
               courseId: String(cObj.courseId || cObj.id || ""),
               type: "course" as const,
               title: String(cObj.title || "Khóa học"),
-              subtitle: `${Number(cObj.totalLessons || 0)} bài giảng • ${Math.round(
+              subtitle: `${Number(cObj.totalLessons || 0)} bài giảng · ${Math.round(
                 Number(cObj.progressPercent || 0)
               )}% hoàn thành`,
               snippet: String(cObj.description || ""),
@@ -433,7 +433,7 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
 
         <div className="px-4 py-2 bg-bg-secondary border-t border-border flex flex-wrap items-center justify-between gap-2 text-[11px] text-text-tertiary">
           <span>Hỗ trợ tìm tiếng Việt có dấu &amp; không dấu (VD: &ldquo;tai chinh&rdquo;, &ldquo;ielts&rdquo;)</span>
-          <span>↑↓ Chọn • ↵ Mở • Esc Đóng</span>
+          <span>↑↓ Chọn · ↵ Mở · Esc Đóng</span>
         </div>
       </div>
     </div>

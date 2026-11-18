@@ -18,7 +18,6 @@ import {
   Moon,
   Sun,
   Flame,
-  User,
   LayoutGrid,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
@@ -174,22 +173,22 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   return (
     <aside
       data-testid="app-sidebar"
-      className={`hidden md:flex flex-col h-screen border-r border-border bg-bg-tertiary shrink-0 transition-all duration-200 ${
-        collapsed ? "w-[52px]" : "w-[240px]"
+      className={`hidden md:flex flex-col h-screen border-r border-[var(--border-calm)] bg-[var(--surface-card)] shrink-0 transition-all duration-200 ${
+        collapsed ? "w-[56px]" : "w-[240px]"
       }`}
     >
       {/* Brand header */}
-      <div className="h-14 flex items-center justify-between px-3 border-b border-border-subtle">
+      <div className="h-14 flex items-center justify-between px-3 border-b border-[var(--border-calm)]">
         <Link
           href="/app"
           className="flex items-center gap-2.5 min-w-0 group"
           title="Studxy — Tổng quan"
         >
-          <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-accent text-white text-[11px] font-bold shrink-0 group-hover:scale-105 transition-transform">
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-[8px] bg-[#5E51E8] dark:bg-[#818CF8] text-white dark:text-[#0F0F12] text-[11px] font-bold shrink-0 group-hover:scale-105 transition-transform shadow-xs">
             St
           </span>
           {!collapsed && (
-            <span className="text-sm font-bold text-text-primary truncate">
+            <span className="text-sm font-bold text-[var(--text-primary)] tracking-tight truncate">
               Studxy
             </span>
           )}
@@ -198,8 +197,9 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         <button
           type="button"
           onClick={onToggleCollapse}
-          className="w-6 h-6 flex items-center justify-center rounded-md text-text-tertiary hover:text-text-primary hover:bg-bg-secondary transition cursor-pointer"
+          className="w-6 h-6 flex items-center justify-center rounded-[6px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition cursor-pointer"
           title={collapsed ? "Mở rộng sidebar (Ctrl+\\)" : "Thu gọn sidebar (Ctrl+\\)"}
+          aria-label={collapsed ? "Mở rộng sidebar" : "Thu gọn sidebar"}
         >
           {collapsed ? (
             <ChevronRight className="w-3.5 h-3.5" />
@@ -215,13 +215,11 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           <button
             type="button"
             onClick={() => setCommandPaletteOpen(true)}
-            className="w-full h-8 flex items-center gap-2 px-2.5 rounded-md border border-border bg-bg-secondary text-text-tertiary text-xs hover:border-border hover:text-text-secondary transition cursor-pointer"
+            className="w-full h-8 flex items-center gap-2 px-2.5 rounded-[8px] border border-[var(--border-calm)] bg-[var(--canvas-bg)] text-[var(--text-tertiary)] text-xs hover:border-[var(--accent)] hover:text-[var(--text-secondary)] transition cursor-pointer"
           >
             <Search className="w-3.5 h-3.5 shrink-0" />
             <span className="flex-1 text-left">Tìm kiếm...</span>
-            <kbd className="text-[10px] font-mono px-1 py-0.5 rounded bg-bg-tertiary border border-border text-text-tertiary">
-              ⌘K
-            </kbd>
+            <kbd className="swms-kbd text-[10px] px-1 py-0.5">⌘K</kbd>
           </button>
         </div>
       )}
@@ -231,8 +229,9 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           <button
             type="button"
             onClick={() => setCommandPaletteOpen(true)}
-            className="w-8 h-8 flex items-center justify-center rounded-md text-text-tertiary hover:text-text-primary hover:bg-bg-secondary transition cursor-pointer mx-auto"
+            className="w-8 h-8 flex items-center justify-center rounded-[8px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition cursor-pointer mx-auto"
             title="Tìm kiếm (Ctrl+K)"
+            aria-label="Tìm kiếm nhanh (Ctrl+K)"
           >
             <Search className="w-4 h-4" />
           </button>
@@ -240,7 +239,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       )}
 
       {/* Main navigation */}
-      <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
+      <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
         {navItemsWithBadge.map((item) => {
           const Icon = item.icon;
           const active = isActive(item);
@@ -249,12 +248,12 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
               key={item.href}
               href={item.href}
               data-testid={`sidebar-nav-${item.href.split("/").pop()}`}
-              className={`flex items-center gap-2.5 h-8 rounded-md text-sm font-medium transition ${
+              className={`flex items-center gap-2.5 h-8.5 rounded-[8px] text-sm font-medium transition ${
                 collapsed ? "justify-center px-0" : "px-2.5"
               } ${
                 active
-                  ? "bg-accent-subtle text-accent"
-                  : "text-text-secondary hover:text-text-primary hover:bg-bg-secondary"
+                  ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] font-semibold"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
               }`}
               title={collapsed ? item.label : undefined}
             >
@@ -263,7 +262,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 <>
                   <span className="flex-1 truncate">{item.label}</span>
                   {item.badge && (
-                    <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-md text-[10px] font-bold bg-accent text-white px-1">
+                    <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full text-[10px] font-bold bg-[#5E51E8] text-white px-1 shadow-xs">
                       {typeof item.badge === "number" && item.badge > 99
                         ? "99+"
                         : item.badge}
@@ -272,7 +271,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 </>
               )}
               {collapsed && item.badge && (
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-accent" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#5E51E8]" />
               )}
             </Link>
           );
@@ -282,7 +281,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         {!collapsed && recentCourses.length > 0 && (
           <>
             <div className="pt-4 pb-1 px-2.5">
-              <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                 Gần đây
               </span>
             </div>
@@ -290,10 +289,10 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
               <Link
                 key={course.id}
                 href={`/app/courses/${course.id}`}
-                className={`flex items-center gap-2.5 h-8 px-2.5 rounded-md text-sm transition ${
+                className={`flex items-center gap-2.5 h-8 px-2.5 rounded-[8px] text-sm transition ${
                   pathname === `/app/courses/${course.id}`
-                    ? "bg-accent-subtle text-accent font-medium"
-                    : "text-text-secondary hover:text-text-primary hover:bg-bg-secondary"
+                    ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] font-medium"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
                 }`}
               >
                 <BookOpen className="w-3.5 h-3.5 shrink-0 opacity-60" />
@@ -310,7 +309,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           <div className="pt-2">
             <Link
               href="/app/courses/new"
-              className="flex items-center gap-2.5 h-8 px-2.5 rounded-md text-sm text-text-tertiary hover:text-accent hover:bg-accent-subtle transition font-medium"
+              className="flex items-center gap-2.5 h-8 px-2.5 rounded-[8px] text-sm text-[var(--text-tertiary)] hover:text-[#5E51E8] hover:bg-[#EEF0FD] dark:hover:bg-[#1E1B4B] transition font-medium"
             >
               <Plus className="w-4 h-4 shrink-0" />
               <span>Tạo khóa học</span>
@@ -320,12 +319,12 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       </nav>
 
       {/* Bottom section — Streak + Theme + Profile */}
-      <div className="border-t border-border-subtle px-2 py-2 space-y-1">
+      <div className="border-t border-[var(--border-calm)] px-2 py-2 space-y-1">
         {/* Streak */}
         {!collapsed && streakDays > 0 && (
-          <div className="flex items-center gap-2 px-2.5 h-7 text-xs text-text-secondary">
-            <Flame className="w-3.5 h-3.5 text-amber-500" />
-            <span className="font-medium">{streakDays} ngày liên tục</span>
+          <div className="flex items-center gap-2 px-2.5 h-7 text-xs text-[var(--text-secondary)]">
+            <Flame className="w-3.5 h-3.5 text-[#D97706] dark:text-[#FBBF24]" />
+            <span className="font-semibold">{streakDays} ngày liên tục</span>
           </div>
         )}
 
@@ -333,10 +332,11 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         <button
           type="button"
           onClick={toggleDarkMode}
-          className={`flex items-center gap-2.5 h-8 rounded-md text-sm text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition w-full cursor-pointer ${
+          className={`flex items-center gap-2.5 h-8 rounded-[8px] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition w-full cursor-pointer ${
             collapsed ? "justify-center px-0" : "px-2.5"
           }`}
           title={darkMode ? "Chuyển sang sáng" : "Chuyển sang tối"}
+          aria-label={darkMode ? "Chuyển sang sáng" : "Chuyển sang tối"}
         >
           {darkMode ? (
             <Sun className="w-4 h-4 text-amber-400" />
@@ -350,7 +350,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         <Link
           href="/workspace"
           data-testid="switch-to-workspace-link"
-          className={`flex items-center gap-2.5 h-8 rounded-md text-sm text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition ${
+          className={`flex items-center gap-2.5 h-8 rounded-[8px] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition ${
             collapsed ? "justify-center px-0" : "px-2.5"
           }`}
           title={collapsed ? "Workspace Classic (/workspace)" : "Mở Workspace Classic (/workspace)"}
@@ -359,14 +359,12 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           {!collapsed && <span className="truncate">Workspace Classic</span>}
         </Link>
 
-        {/* Footer Bottom: Settings & User Profile */}
-
         {/* Settings */}
         <Link
           href="/app/settings"
-          className={`flex items-center gap-2.5 h-8 rounded-md text-sm text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition ${
+          className={`flex items-center gap-2.5 h-8 rounded-[8px] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition ${
             collapsed ? "justify-center px-0" : "px-2.5"
-          } ${pathname === "/app/settings" ? "bg-accent-subtle text-accent" : ""}`}
+          } ${pathname === "/app/settings" ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC]" : ""}`}
           title={collapsed ? "Cài đặt" : undefined}
         >
           <Settings className="w-4 h-4 shrink-0" />
@@ -381,17 +379,19 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
               e.stopPropagation();
               setProfileOpen((prev) => !prev);
             }}
-            className={`flex items-center gap-2.5 h-9 rounded-md text-sm text-text-secondary hover:bg-bg-secondary transition w-full cursor-pointer ${
+            className={`flex items-center gap-2.5 h-9 rounded-[8px] text-sm text-[var(--text-secondary)] hover:bg-[var(--surface-elevated)] transition w-full cursor-pointer ${
               collapsed ? "justify-center px-0" : "px-2.5"
             }`}
             title={collapsed ? userName : undefined}
+            aria-expanded={profileOpen}
+            aria-haspopup="true"
           >
-            <div className="w-6 h-6 rounded-md bg-accent text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+            <div className="w-6 h-6 rounded-[6px] bg-[#5E51E8] dark:bg-[#818CF8] text-white dark:text-[#0F0F12] text-[10px] font-bold flex items-center justify-center shrink-0">
               {userInitials}
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0 text-left">
-                <div className="text-sm font-medium text-text-primary truncate">
+                <div className="text-sm font-medium text-[var(--text-primary)] truncate">
                   {userName}
                 </div>
               </div>
@@ -401,14 +401,14 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           {/* Profile popover */}
           {profileOpen && !collapsed && (
             <div
-              className="absolute bottom-full left-0 mb-1 w-full rounded-lg border border-border bg-bg-primary shadow-lg p-2 z-50"
+              className="absolute bottom-full left-0 mb-1 w-full rounded-[12px] border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-2 p-2 z-50"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="px-2 py-1.5 mb-1">
-                <div className="text-sm font-medium text-text-primary">{userName}</div>
-                <div className="text-xs text-text-tertiary">{userEmail}</div>
+                <div className="text-sm font-medium text-[var(--text-primary)]">{userName}</div>
+                <div className="text-xs text-[var(--text-tertiary)]">{userEmail}</div>
               </div>
-              <div className="border-t border-border-subtle pt-1">
+              <div className="border-t border-[var(--border-calm)] pt-1">
                 <button
                   type="button"
                   onClick={async () => {
@@ -428,7 +428,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                     setActiveUserHeaderId(null);
                     window.location.href = "/auth";
                   }}
-                  className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition cursor-pointer"
+                  className="flex items-center gap-2 w-full px-2 py-1.5 rounded-[8px] text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Đăng xuất</span>
