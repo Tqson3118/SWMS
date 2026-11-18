@@ -28,6 +28,11 @@ interface WizardPreviewData {
   chapters?: PreviewChapter[];
 }
 
+function stripChapterPrefix(title: string): string {
+  if (!title) return "";
+  return title.replace(/^(?:Chương|Chapter|Phần)\s*\d+\s*[:.\-–—]\s*/i, "").trim();
+}
+
 export default function NewCoursePage() {
   const router = useRouter();
   const { activeUserHeaderId } = useWorkspaceStore();
@@ -368,7 +373,7 @@ export default function NewCoursePage() {
                       {previewData.chapters.map((ch, idx) => (
                         <div key={idx} className="text-xs rounded-[8px] bg-[var(--surface-card)] p-2.5 border border-[var(--border-calm)]">
                           <p className="font-semibold text-[var(--text-primary)] mb-1">
-                            Chương {idx + 1}: {ch.title}
+                            Chương {idx + 1}: {stripChapterPrefix(ch.title)}
                           </p>
                           {Array.isArray(ch.lessons) && ch.lessons.length > 0 && (
                             <ul className="list-disc list-inside text-[var(--text-secondary)] space-y-0.5">

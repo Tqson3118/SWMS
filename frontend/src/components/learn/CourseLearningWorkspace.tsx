@@ -42,6 +42,11 @@ import {
   getClientRequestHeaders,
   useWorkspaceStore,
 } from "@/stores/useWorkspaceStore";
+
+function stripChapterPrefix(title: string): string {
+  if (!title) return "";
+  return title.replace(/^(?:Chương|Chapter|Phần)\s*\d+\s*[:.\-–—]\s*/i, "").trim();
+}
 import {
   CourseRoadmapSidebar,
   type RoadmapChapterItem,
@@ -399,12 +404,27 @@ export function CourseLearningWorkspace({
   const [pdfRenderMode, setPdfRenderMode] = useState<PdfRenderMode>("canvas");
   const [currentPageData, setCurrentPageData] = useState<DocumentPageDto | null>(null);
   const [pageLoading, setPageLoading] = useState(false);
+  const [pdfLoadError, setPdfLoadError] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const renderTaskRef = useRef<RenderTask | null>(null);
   const pageCacheRef = useRef<Map<number, DocumentPageDto>>(new Map());
   const readerScrollRef = useRef<HTMLDivElement | null>(null);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Warn user before reload/navigation if note has unsaved changes (STU-03)
+  useEffect(() => {
+    if (!noteDirty) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+      return "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [noteDirty]);
 
   const showToast = useCallback((msg: string) => {
     setToastMsg(msg);
@@ -419,9 +439,9 @@ export function CourseLearningWorkspace({
 
   const roadmapChapters = useMemo<RoadmapChapterItem[]>(() => {
     if (!course?.chapters) return [];
-    return course.chapters.map((ch) => ({
+    return course.chapters.map((ch, cIdx) => ({
       id: ch.chapterId || ch.id,
-      title: ch.title,
+      title: `Chương ${cIdx + 1}: ${stripChapterPrefix(ch.title)}`,
       sortOrder: ch.sortOrder,
       lessons: (ch.lessons ?? []).map((l) => ({
         id: l.id,
@@ -456,9 +476,10 @@ export function CourseLearningWorkspace({
 
   const activeChapterTitle = useMemo(() => {
     if (!course?.chapters || !activeLessonId) return null;
-    for (const ch of course.chapters) {
+    for (let cIdx = 0; cIdx < course.chapters.length; cIdx++) {
+      const ch = course.chapters[cIdx];
       if ((ch.lessons ?? []).some((l) => l.id === activeLessonId)) {
-        return ch.title;
+        return `Chương ${cIdx + 1}: ${stripChapterPrefix(ch.title)}`;
       }
     }
     return null;
@@ -515,6 +536,12 @@ export function CourseLearningWorkspace({
         }
 
         if (!isStandalone) {
+          // Auto-enroll if public / not yet enrolled (ignore if already enrolled)
+          fetch(`/api/v1/courses/${courseId}/enroll`, {
+            method: "POST",
+            headers,
+          }).catch(() => null);
+
           const courseRes = await fetch(`/api/v1/courses/${courseId}`, { headers });
           if (courseRes.ok) {
             const raw = await courseRes.json();
@@ -678,6 +705,7 @@ export function CourseLearningWorkspace({
     pageCacheRef.current.clear();
     setPdfDoc(null);
     setPdfRenderMode("canvas");
+    setPdfLoadError(null);
 
     const loadDoc = async () => {
       try {
@@ -720,6 +748,9 @@ export function CourseLearningWorkspace({
               setFlashcards(Array.isArray(cards) ? cards : []);
             }
           }
+        } else if (!cancelled && docRes.status === 404) {
+          setPdfLoadError("Tài liệu PDF không tìm thấy hoặc đã bị xóa (HTTP 404).");
+          return;
         }
       } catch {
         // Non-fatal if metadata fails while PDF stream works
@@ -740,11 +771,21 @@ export function CourseLearningWorkspace({
         if (!cancelled) {
           setPdfDoc(loadedPdf);
           setPdfTotalPages(loadedPdf.numPages);
+          setPdfLoadError(null);
         }
-      } catch {
+      } catch (err: unknown) {
         if (!cancelled) {
           setPdfDoc(null);
-          setPdfRenderMode("text");
+          const is404 =
+            err &&
+            typeof err === "object" &&
+            "name" in err &&
+            (err as { name: string }).name === "MissingPDFException";
+          setPdfLoadError(
+            is404
+              ? "Tệp PDF không tìm thấy trên máy chủ (HTTP 404)."
+              : "Không thể tải tệp PDF. Vui lòng thử lại sau."
+          );
         }
       }
     };
@@ -991,6 +1032,33 @@ export function CourseLearningWorkspace({
       });
 
       if (!resp.ok) {
+        if (resp.status === 403 && !isStandalone && courseId) {
+          const enrollRes = await fetch(`/api/v1/courses/${courseId}/enroll`, {
+            method: "POST",
+            headers: getHeaders(),
+          }).catch(() => null);
+          if (enrollRes && enrollRes.ok) {
+            const retryResp = await fetch(`/api/v1/lessons/${activeLessonId}/complete`, {
+              method: "POST",
+              headers: getHeaders({ "Content-Type": "application/json" }),
+            });
+            if (retryResp.ok) {
+              const nextCompleted = Array.from(new Set([...completedIds, activeLessonId]));
+              setCompletedIds(nextCompleted);
+              window.dispatchEvent(new Event("swms:data-mutated"));
+              const newPercent =
+                totalLessonCount > 0 ? Math.round((nextCompleted.length * 100) / totalLessonCount) : 100;
+              if (newPercent >= 100 || !nextLessonId) {
+                setCelebrationOpen(true);
+                showToast("Bạn đã hoàn thành toàn bộ khóa học!");
+              } else {
+                showToast("Đã hoàn thành bài học.");
+                handleSelectLesson(nextLessonId);
+              }
+              return;
+            }
+          }
+        }
         showToast(`Chưa lưu được tiến độ (HTTP ${resp.status}).`);
         return;
       }
@@ -1664,7 +1732,7 @@ export function CourseLearningWorkspace({
             <button
               type="button"
               onClick={() => setRightPanel((curr) => (curr === "toc" ? "closed" : "toc"))}
-              className={`hidden lg:inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md border text-xs font-medium transition cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md border text-xs font-medium transition cursor-pointer ${
                 rightPanel === "toc"
                   ? "border-accent/40 bg-accent-subtle text-accent"
                   : "border-border bg-bg-primary text-text-secondary hover:text-text-primary hover:bg-bg-secondary"
@@ -1695,13 +1763,27 @@ export function CourseLearningWorkspace({
           </button>
 
           {!isStandalone && (
-            <Link
-              href={`/app/courses/${courseId}/quiz`}
-              className="hidden sm:inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md border border-border bg-bg-primary text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition"
-            >
-              <ClipboardCheck className="w-3.5 h-3.5" />
-              <span>Kiểm tra</span>
-            </Link>
+            (course?.quizCount ?? 0) === 0 ? (
+              <button
+                type="button"
+                disabled
+                data-testid="course-quiz-btn"
+                title="Khóa học chưa có bài kiểm tra"
+                className="hidden sm:inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md border border-border bg-bg-secondary text-xs font-medium text-text-tertiary opacity-60 cursor-not-allowed"
+              >
+                <ClipboardCheck className="w-3.5 h-3.5 text-text-tertiary" />
+                <span>Chưa có bài kiểm tra</span>
+              </button>
+            ) : (
+              <Link
+                href={`/app/courses/${courseId}/quiz`}
+                data-testid="course-quiz-btn"
+                className="hidden sm:inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md border border-border bg-bg-primary text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition"
+              >
+                <ClipboardCheck className="w-3.5 h-3.5" />
+                <span>Kiểm tra</span>
+              </Link>
+            )
           )}
         </div>
       </header>
@@ -1759,8 +1841,8 @@ export function CourseLearningWorkspace({
         <main className="flex-1 min-w-[320px] flex flex-col bg-[var(--surface-card)] overflow-hidden relative">
           {/* Workspace Switcher Bar: Bài giảng / Thực hành / Tài liệu PDF / Song song */}
           {(hasLesson || hasPdf || availableDocs.length > 0) && (
-            <div className="px-4 py-2 border-b border-border-subtle bg-bg-secondary/30 flex flex-wrap items-center justify-between gap-2 shrink-0">
-              <div className="inline-flex items-center rounded-md border border-border bg-bg-primary p-0.5 flex-wrap gap-0.5">
+            <div className="h-11 px-4 border-b border-border-subtle bg-bg-secondary/30 flex items-center justify-between gap-2 shrink-0 overflow-x-auto swms-thin-scrollbar flex-nowrap">
+              <div className="inline-flex items-center rounded-md border border-border bg-bg-primary p-0.5 flex-nowrap gap-0.5 shrink-0">
                 {hasLesson && (
                   <>
                     <button
@@ -1839,7 +1921,7 @@ export function CourseLearningWorkspace({
               </div>
 
               {availableDocs.length > 0 ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <label htmlFor="learn-pdf-selector" className="text-[11px] text-text-tertiary hidden sm:inline">
                     PDF tham chiếu:
                   </label>
@@ -2248,7 +2330,44 @@ export function CourseLearningWorkspace({
 
                 {/* PDF Canvas or Text */}
                 <div className="flex-1 overflow-auto p-4 swms-thin-scrollbar flex justify-center">
-                  {pdfRenderMode === "canvas" ? (
+                  {pdfLoadError ? (
+                    <div className="max-w-md w-full my-auto p-6 rounded-xl border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 text-center space-y-4">
+                      <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
+                        <AlertCircle className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-rose-800 dark:text-rose-200 mb-1">
+                          Không thể hiển thị tài liệu PDF
+                        </h4>
+                        <p className="text-xs text-rose-700 dark:text-rose-300">
+                          {pdfLoadError}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center gap-2.5 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPdfLoadError(null);
+                            if (activeDocId) handleSelectPdfDocument(activeDocId);
+                          }}
+                          className="h-8 px-3 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium transition cursor-pointer"
+                        >
+                          Thử tải lại
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCenterTab("lesson");
+                            setActiveDocId(null);
+                            setPdfLoadError(null);
+                          }}
+                          className="h-8 px-3 rounded-md border border-border bg-bg-primary text-text-primary text-xs font-medium hover:bg-bg-secondary transition cursor-pointer"
+                        >
+                          Quay lại bài giảng
+                        </button>
+                      </div>
+                    </div>
+                  ) : pdfRenderMode === "canvas" ? (
                     pdfDoc ? (
                       <canvas
                         ref={canvasRef}
@@ -2291,7 +2410,7 @@ export function CourseLearningWorkspace({
 
         {/* Right Contextual Panel: TOC */}
         {rightPanel === "toc" && headings.length > 0 && (
-          <aside className="w-64 shrink-0 border-l border-border bg-bg-secondary/20 hidden lg:flex flex-col">
+          <aside className="w-64 shrink-0 border-l border-border bg-[var(--surface-card)] lg:bg-bg-secondary/20 flex flex-col fixed lg:static right-0 top-14 bottom-0 z-40 shadow-lg lg:shadow-none">
             <div className="px-4 py-3 border-b border-border flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
                 Trong bài này
@@ -2818,13 +2937,25 @@ export function CourseLearningWorkspace({
             <div className="flex flex-col gap-2 pt-2">
               {!isStandalone && (
                 <>
-                  <Link
-                    href={`/app/courses/${courseId}/quiz`}
-                    className="h-9 px-4 rounded-md bg-accent text-white text-sm font-medium inline-flex items-center justify-center gap-2 hover:bg-accent-hover transition"
-                  >
-                    <ClipboardCheck className="w-4 h-4" />
-                    <span>Làm bài kiểm tra tổng kết</span>
-                  </Link>
+                  {(course?.quizCount ?? 0) === 0 ? (
+                    <button
+                      type="button"
+                      disabled
+                      title="Khóa học chưa có bài kiểm tra"
+                      className="h-9 px-4 rounded-md border border-border bg-bg-secondary text-text-tertiary text-sm font-medium inline-flex items-center justify-center gap-2 opacity-60 cursor-not-allowed"
+                    >
+                      <ClipboardCheck className="w-4 h-4 text-text-tertiary" />
+                      <span>Chưa có bài kiểm tra</span>
+                    </button>
+                  ) : (
+                    <Link
+                      href={`/app/courses/${courseId}/quiz`}
+                      className="h-9 px-4 rounded-md bg-accent text-white text-sm font-medium inline-flex items-center justify-center gap-2 hover:bg-accent-hover transition"
+                    >
+                      <ClipboardCheck className="w-4 h-4" />
+                      <span>Làm bài kiểm tra tổng kết</span>
+                    </Link>
+                  )}
                   <Link
                     href={`/app/review?courseId=${courseId}`}
                     data-testid="celebration-review-flashcards-btn"

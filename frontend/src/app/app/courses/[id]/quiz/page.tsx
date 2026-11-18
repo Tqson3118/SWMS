@@ -262,14 +262,21 @@ export default function CourseQuizPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-10 min-h-[80vh] space-y-6">
+        <div className="h-6 w-32 rounded bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="h-10 w-72 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="h-16 w-full rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="space-y-4 pt-2">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-40 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-10 min-h-[80vh]">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3 min-w-0">

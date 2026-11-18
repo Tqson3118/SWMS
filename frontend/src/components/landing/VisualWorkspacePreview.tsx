@@ -271,7 +271,7 @@ export function VisualWorkspacePreview() {
         <div className="h-10 px-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/90 flex items-center justify-between text-xs text-slate-500">
           <span>Mô phỏng Giao diện Không gian Học tập SWMS Clean Workspace v1.0</span>
           <Link
-            href="/workspace"
+            href="/app"
             className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center font-medium"
           >
             <span>Trải nghiệm trực tiếp</span>

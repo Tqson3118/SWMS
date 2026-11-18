@@ -309,9 +309,11 @@ function AuthPageContent() {
       return;
     }
 
-    if (mode === "register" && password.length < 6) {
-      setErrorMessage("Mật khẩu phải có tối thiểu 6 ký tự.");
-      return;
+    if (mode === "register") {
+      if (password.length < 6 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+        setErrorMessage("Mật khẩu phải có tối thiểu 6 ký tự và bao gồm cả chữ cái và chữ số.");
+        return;
+      }
     }
 
     setLoading(true);
@@ -368,7 +370,8 @@ function AuthPageContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: "son.tran@studxy.vn",
-          password: "Studxy@2026",
+          password: "__DEMO_SESSION__",
+          demoProfile: "default",
         }),
       });
 
@@ -394,32 +397,19 @@ function AuthPageContent() {
     setLoading(true);
 
     const demoEmail = "minh.anh@studxy.vn";
-    const demoPassword = "MinhAnhPassword123!";
     const demoName = "Minh Anh";
 
     try {
-      let resp = await fetch("/api/v1/auth/register", {
+      const resp = await fetch("/api/v1/auth/login", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: demoEmail,
-          password: demoPassword,
-          fullName: demoName,
+          password: "__DEMO_SESSION__",
+          demoProfile: "secondary",
         }),
       });
-
-      if (resp.status === 409) {
-        resp = await fetch("/api/v1/auth/login", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: demoEmail,
-            password: demoPassword,
-          }),
-        });
-      }
 
       if (!resp.ok) {
         setStatusMessage(null);
@@ -594,7 +584,7 @@ function AuthPageContent() {
                   Mật khẩu bảo mật
                 </label>
                 {mode === "register" && (
-                  <span className="text-[11px] text-[var(--text-tertiary)]">Tối thiểu 6 ký tự</span>
+                  <span className="text-[11px] text-[var(--text-tertiary)]">Tối thiểu 6 ký tự (gồm chữ và số)</span>
                 )}
               </div>
               <div className="relative">
@@ -606,14 +596,15 @@ function AuthPageContent() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
                   required
-                  className="w-full px-3.5 py-2.5 pr-10 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-xs text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8]"
+                  minLength={6}
+                  className="w-full px-3.5 py-2.5 pr-11 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-xs text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8]"
                 />
                 <button
                   type="button"
                   data-testid="auth-toggle-password-btn"
                   onClick={() => setShowPassword((prev) => !prev)}
                   aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition cursor-pointer"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 min-w-[36px] min-h-[36px] flex items-center justify-center p-1.5 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeOff className="w-4 h-4" />
@@ -676,9 +667,14 @@ function AuthPageContent() {
                     <GoogleGlyph className="w-4 h-4 opacity-80" />
                     <span>
                       {googleProvidersLoaded
-                        ? "Tiếp tục với Google (Chưa bật Client ID)"
+                        ? "Tiếp tục với Google"
                         : "Đang kiểm tra Google Sign-In..."}
                     </span>
+                    {googleProvidersLoaded && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+                        Chưa cấu hình
+                      </span>
+                    )}
                   </span>
                   <span className="inline-flex items-center gap-1 text-[11px] text-[#5E51E8] dark:text-[#818CF8]">
                     <HelpCircle className="w-3.5 h-3.5" />

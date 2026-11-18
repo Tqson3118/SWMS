@@ -34,22 +34,22 @@ export function LandingFooter({ onOpenAbout, onOpenShortcuts }) {
             </h4>
             <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
               <li>
-                <Link href="/workspace" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                <Link href="/app" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                   Personal Dashboard Cá nhân
                 </Link>
               </li>
               <li>
-                <Link href="/workspace" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                <Link href="/app" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                   Mode 1: Đọc sâu Công thái học (68ch)
                 </Link>
               </li>
               <li>
-                <Link href="/workspace" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                <Link href="/app" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                   Mode 2: Chia đôi Song song (Split PKM)
                 </Link>
               </li>
               <li>
-                <Link href="/workspace" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                <Link href="/app" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                   Mode 3: Ôn tập Trí nhớ FSRS v5 &amp; Quiz
                 </Link>
               </li>
@@ -106,8 +106,8 @@ export function LandingFooter({ onOpenAbout, onOpenShortcuts }) {
                 <span>Kiến trúc ADR-007, ADR-011, ADR-019</span>
               </li>
               <li className="pt-2">
-                <Link href="/workspace" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs transition shadow-xs">
-                  <span>Vào Workspace ngay</span>
+                <Link href="/app" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs transition shadow-xs">
+                  <span>Vào App ngay</span>
                   <ArrowRight className="w-3 h-3 stroke-[2]"/>
                 </Link>
               </li>

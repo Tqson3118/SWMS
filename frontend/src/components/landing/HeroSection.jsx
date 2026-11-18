@@ -26,7 +26,7 @@ export function HeroSection({ onOpenShortcuts, onOpenAbout }) {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
-        <Link href="/workspace" data-testid="landing-hero-cta" className="group inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-base shadow-xs hover:shadow-sm transition-all active:scale-[0.98] cursor-pointer">
+        <Link href="/app" data-testid="landing-hero-cta" className="group inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-base shadow-xs hover:shadow-sm transition-all active:scale-[0.98] cursor-pointer">
           <span>Bắt đầu học ngay — Miễn phí</span>
           <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform stroke-[2]"/>
         </Link>

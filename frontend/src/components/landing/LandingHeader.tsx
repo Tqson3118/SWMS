@@ -136,11 +136,11 @@ export function LandingHeader({ onOpenShortcuts, onOpenAbout }: LandingHeaderPro
           </button>
 
           <Link
-            href="/workspace"
+            href="/app"
             data-testid="landing-nav-cta"
             className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white shadow-xs transition-all cursor-pointer"
           >
-            <span>Vào Workspace</span>
+            <span>Vào App</span>
             <ArrowRight className="w-3.5 h-3.5 stroke-[2]" />
           </Link>
         </div>

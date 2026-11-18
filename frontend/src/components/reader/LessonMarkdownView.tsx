@@ -106,6 +106,8 @@ type ParsedBlock =
 export function cleanStudyInlineArtifacts(raw: string): string {
   if (!raw) return raw;
   return raw
+    // Strip leftover Unicode Private Use Area characters and control characters
+    .replace(/[\uE000-\uF8FF\u001A]/g, "")
     // Hide Learning Objective metadata prefixes like `[LO-W01-01] (Nhớ/Hiểu):` while keeping the bolded verb intact
     .replace(/\[LO-[A-Z0-9-]+\]\s*(?:\([^)]+\)\s*:?\s*)?/gi, "")
     // Hide evidence claim references like [C01-01], [C00-01a, C01-01], [C03-08] (preserve Markdown links `[label](href)`)
@@ -363,7 +365,10 @@ function tokenizeInlineMarkdown(
 
       // Dead or internal markdown links: render as regular text rather than dead link
       if (!external && isDeadOrInternalMarkdown(rawHref)) {
-        return label;
+        return label.replace(/\uE000CODE_(\d+)\uE000/g, (_m: string, idxStr: string) => {
+          const cIdx = parseInt(idxStr, 10);
+          return codeItems[cIdx]?.code ?? "";
+        });
       }
 
       if (!external && isAudioPath(rawHref) && sourceFolder) {
@@ -449,8 +454,14 @@ function tokenizeInlineMarkdown(
         const lIdx = parseInt(linkMatch[1], 10);
         const item = linkItems[lIdx];
         if (item) {
+          // Resolve any code placeholders inside link text
+          const resolvedLinkText = item.text.replace(/\uE000CODE_(\d+)\uE000/g, (_m: string, idxStr: string) => {
+            const cIdx = parseInt(idxStr, 10);
+            return codeItems[cIdx]?.code ?? "";
+          });
           finalTokens.push({
             ...item,
+            text: resolvedLinkText,
             bold: token.bold || item.bold,
             italic: token.italic || item.italic,
           });
@@ -458,9 +469,14 @@ function tokenizeInlineMarkdown(
         }
       }
 
+      const resolvedSeg = seg.replace(/\uE000CODE_(\d+)\uE000/g, (_m: string, idxStr: string) => {
+        const cIdx = parseInt(idxStr, 10);
+        return codeItems[cIdx]?.code ?? "";
+      });
+
       finalTokens.push({
         ...token,
-        text: seg,
+        text: resolvedSeg,
       });
     }
   }
@@ -1029,8 +1045,10 @@ export function LessonMarkdownView({
   onOpenRelativeMarkdown,
   onHeadingsExtracted
 }: LessonMarkdownViewProps) {
-  const cleanText = (text: string) =>
-    cleanReadingMode ? cleanStudyInlineArtifacts(text) : text;
+  const cleanText = (text: string) => {
+    const cleaned = cleanReadingMode ? cleanStudyInlineArtifacts(text) : text;
+    return cleaned ? cleaned.replace(/[\uE000-\uF8FF\u001A]/g, "") : "";
+  };
 
   const blocks = useMemo(() => parseMarkdownBlocks(markdown || ""), [markdown]);
 
@@ -1135,9 +1153,10 @@ export function LessonMarkdownView({
 
     const renderSingleTokenPiece = (
       token: InlineToken,
-      pieceText: string,
+      rawPieceText: string,
       key: string
     ): React.ReactNode => {
+      const pieceText = (rawPieceText || "").replace(/[\uE000-\uF8FF\u001A]/g, "");
       if (token.kind === "image") {
         return (
           <img
@@ -1170,7 +1189,7 @@ export function LessonMarkdownView({
               data-testid="lesson-relative-md-link"
               onClick={(e) => {
                 e.stopPropagation();
-                onOpenRelativeMarkdown(token.mdTargetPath!, token.text);
+                onOpenRelativeMarkdown(token.mdTargetPath!, (token.text || "").replace(/[\uE000-\uF8FF\u001A]/g, ""));
               }}
               className="inline-flex items-center gap-1 font-semibold text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-2 cursor-pointer text-left"
             >

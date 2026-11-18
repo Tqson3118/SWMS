@@ -187,14 +187,24 @@ export default function LibraryPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 md:pb-8 min-h-[80vh] space-y-6">
+        <div className="h-10 w-48 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="flex gap-4 border-b border-[var(--border-calm)] pb-2">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-7 w-28 rounded bg-[var(--surface-elevated)] animate-pulse" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-44 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 md:pb-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 md:pb-8 min-h-[80vh]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>

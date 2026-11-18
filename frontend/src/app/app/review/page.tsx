@@ -75,6 +75,32 @@ interface ReviewQueue {
   estimatedMinutes: number;
 }
 
+function formatFriendlyReviewError(status: number, rawText: string, defaultAction: string): string {
+  let code = "";
+  let message = "";
+  try {
+    const parsed = JSON.parse(rawText);
+    code = String(parsed.error || parsed.code || "");
+    message = String(parsed.message || "");
+  } catch {
+    code = rawText.trim();
+  }
+
+  if (code.includes("TOKEN_VERSION_REVOKED") || status === 401) {
+    return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+  }
+  if (code.includes("FORBIDDEN") || status === 403) {
+    return "Bạn không có quyền thực hiện thao tác này.";
+  }
+  if (code.includes("RATE_LIMIT") || status === 429) {
+    return "Hệ thống đang bận. Vui lòng thử lại sau vài giây.";
+  }
+  if (message && !message.startsWith("{")) {
+    return message;
+  }
+  return `${defaultAction} thất bại (Mã lỗi ${status}). Đã lưu vào hàng đợi offline.`;
+}
+
 function ReviewPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -184,7 +210,7 @@ function ReviewPageContent() {
         if (!cardsResp.ok) {
           const errText = await cardsResp.text().catch(() => "");
           setErrorBanner(
-            `Không thể tải hàng đợi flashcard (${cardsResp.status})${errText ? `: ${errText}` : ""}`
+            formatFriendlyReviewError(cardsResp.status, errText, "Tải hàng đợi flashcard")
           );
           setQueue({
             cards: [],
@@ -264,7 +290,7 @@ function ReviewPageContent() {
       if (!resp.ok) {
         const errText = await resp.text().catch(() => "");
         setErrorBanner(
-          `Không thể hoàn tác đánh giá (${resp.status})${errText ? `: ${errText}` : ""}`
+          formatFriendlyReviewError(resp.status, errText, "Hoàn tác đánh giá")
         );
         return;
       }
@@ -326,7 +352,7 @@ function ReviewPageContent() {
         if (!resp.ok) {
           const errText = await resp.text().catch(() => "");
           setErrorBanner(
-            `Đồng bộ đánh giá thất bại (${resp.status})${errText ? `: ${errText}` : ""}. Đã giữ trong hàng đợi offline.`
+            formatFriendlyReviewError(resp.status, errText, "Đồng bộ đánh giá")
           );
           return;
         }
@@ -441,7 +467,7 @@ function ReviewPageContent() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="max-w-2xl mx-auto px-4 py-8 min-h-[80vh] flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -612,12 +638,13 @@ function ReviewPageContent() {
 
   return (
     <div data-testid="v2-review-page" className="h-full flex flex-col">
+      <h1 className="sr-only">Trạm ôn tập thẻ ghi nhớ FSRS</h1>
       {/* Minimal header + filters */}
       <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-2.5 border-b border-border-subtle shrink-0">
         <button
           type="button"
           onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition cursor-pointer"
+          className="min-h-[36px] min-w-[36px] px-2.5 py-1.5 rounded-md inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="hidden sm:inline">Quay lại</span>
@@ -700,7 +727,7 @@ function ReviewPageContent() {
           data-testid="review-undo-btn"
           onClick={() => void handleUndoLastReview()}
           disabled={reviewHistory.length === 0 || isSubmitting}
-          className="flex items-center gap-1 text-xs text-text-tertiary hover:text-text-primary disabled:opacity-30 transition cursor-pointer"
+          className="min-h-[36px] min-w-[36px] px-2.5 py-1.5 rounded-md inline-flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-primary hover:bg-bg-secondary disabled:opacity-30 transition cursor-pointer"
           title="Hoàn tác đánh giá vừa rồi (Z)"
         >
           <RotateCcw className="w-3.5 h-3.5" />

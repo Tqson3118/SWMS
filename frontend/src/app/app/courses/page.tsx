@@ -132,14 +132,28 @@ export default function CoursesCatalogPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10 min-h-[80vh] space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="h-10 w-48 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="h-9 w-36 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+        </div>
+        <div className="h-11 w-full rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="flex flex-wrap gap-2">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-9 w-24 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-52 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10 min-h-[80vh]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -241,7 +255,7 @@ export default function CoursesCatalogPage() {
               key={item.id}
               type="button"
               onClick={() => setStatusFilter(item.id)}
-              className={`h-7 px-2.5 rounded-[8px] text-xs font-medium transition cursor-pointer ${
+              className={`h-9 min-h-[36px] px-3 rounded-[8px] text-xs font-medium transition cursor-pointer ${
                 statusFilter === item.id
                   ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12]"
                   : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-calm)]"
@@ -253,11 +267,11 @@ export default function CoursesCatalogPage() {
         </div>
 
         {/* Domain Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 swms-thin-scrollbar">
+        <div className="flex flex-wrap items-center gap-2 pb-1">
           <button
             type="button"
             onClick={() => setSelectedDomain("all")}
-            className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 h-9 min-h-[36px] px-3 rounded-[8px] text-xs font-medium whitespace-nowrap transition cursor-pointer ${
               selectedDomain === "all"
                 ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] border border-[#5E51E8]/30 font-semibold"
                 : "bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-calm)] hover:bg-[var(--surface-elevated)]"
@@ -275,7 +289,7 @@ export default function CoursesCatalogPage() {
                 key={domain.id}
                 type="button"
                 onClick={() => setSelectedDomain(domain.id)}
-                className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 h-9 min-h-[36px] px-3 rounded-[8px] text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                   selectedDomain === domain.id
                     ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] border border-[#5E51E8]/30 font-semibold"
                     : "bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-calm)] hover:bg-[var(--surface-elevated)]"
@@ -397,6 +411,17 @@ export default function CoursesCatalogPage() {
             );
           })}
         </div>
+      ) : baseCourses.length === 0 ? (
+        <EmptyState
+          icon={BookOpen}
+          title="Chào mừng bạn đến với Studxy!"
+          description="Bạn chưa có khóa học nào trong danh sách. Hãy tạo khóa học đầu tiên để bắt đầu học tập và ghi nhớ có hệ thống."
+          action={{
+            label: "Tạo khóa học đầu tiên",
+            href: "/app/courses/new",
+            icon: <Plus className="w-4 h-4" />,
+          }}
+        />
       ) : (
         <EmptyState
           icon={BookOpen}

@@ -64,6 +64,11 @@ interface CourseDetail {
 
 type LessonFilter = "all" | "pending" | "completed";
 
+function stripChapterPrefix(title: string): string {
+  if (!title) return "";
+  return title.replace(/^(?:Chương|Chapter|Phần)\s*\d+\s*[:.\-–—]\s*/i, "").trim();
+}
+
 export default function CourseDetailPage() {
   const params = useParams();
   const courseId = params.id as string;
@@ -249,8 +254,19 @@ export default function CourseDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10 min-h-[80vh] space-y-6">
+        <div className="h-6 w-32 rounded bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="h-10 w-96 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="h-20 w-full rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="flex gap-3">
+          <div className="h-9 w-36 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="h-9 w-36 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+        </div>
+        <div className="space-y-3 pt-4">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-14 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -397,17 +413,30 @@ export default function CourseDetailPage() {
               </Button>
             </Link>
           )}
-          <Link
-            href={`/app/courses/${courseId}/quiz`}
-            data-testid="course-quiz-btn"
-          >
-            <Button
-              variant="secondary"
-              leftIcon={<ClipboardCheck className="w-4 h-4 text-[var(--text-secondary)]" />}
+          {course.quizCount === 0 ? (
+            <button
+              type="button"
+              disabled
+              data-testid="course-quiz-btn"
+              title="Khóa học chưa có bài kiểm tra"
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-border bg-bg-secondary text-xs font-medium text-text-tertiary opacity-60 cursor-not-allowed"
             >
-              <span>Làm bài kiểm tra{course.quizCount ? ` (${course.quizCount})` : ""}</span>
-            </Button>
-          </Link>
+              <ClipboardCheck className="w-4 h-4 text-text-tertiary" />
+              <span>Chưa có bài kiểm tra</span>
+            </button>
+          ) : (
+            <Link
+              href={`/app/courses/${courseId}/quiz`}
+              data-testid="course-quiz-btn"
+            >
+              <Button
+                variant="secondary"
+                leftIcon={<ClipboardCheck className="w-4 h-4 text-[var(--text-secondary)]" />}
+              >
+                <span>Làm bài kiểm tra{course.quizCount ? ` (${course.quizCount})` : ""}</span>
+              </Button>
+            </Link>
+          )}
           <Link
             href={`/app/review?courseId=${courseId}`}
           >
@@ -535,7 +564,7 @@ export default function CourseDetailPage() {
                         <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" />
                       )}
                       <h3 className="text-sm font-semibold text-[var(--text-primary)] truncate">
-                        Chương {chIdx + 1}: {chapter.title}
+                        Chương {chIdx + 1}: {stripChapterPrefix(chapter.title)}
                       </h3>
                     </div>
                     <Badge variant="neutral" size="sm">

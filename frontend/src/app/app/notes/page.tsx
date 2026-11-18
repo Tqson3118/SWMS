@@ -176,14 +176,20 @@ export default function NotesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10 min-h-[80vh] space-y-6">
+        <div className="h-10 w-48 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="h-11 w-full rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-36 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10 min-h-[80vh]">
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
           Sổ tay

@@ -92,6 +92,17 @@ export function TopNavHeader({ userName, userEmail = "son.tran@studxy.vn", strea
           <span className="text-sm font-extrabold hidden sm:inline">Studxy</span>
         </Link>
 
+        {/* Nút quay về /app rõ ràng (MOB-05) */}
+        <Link
+          href="/app"
+          data-testid="header-back-to-app-btn"
+          className="inline-flex items-center gap-1 px-2 py-1 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] text-[#4F46E5] dark:text-[#A5B4FC] border border-[#5E51E8]/20 text-xs font-semibold hover:opacity-90 transition shrink-0"
+          title="Chuyển sang không gian học tập mới (/app)"
+        >
+          <BookOpen className="w-3.5 h-3.5 shrink-0" />
+          <span className="text-[11px] font-semibold">Vào App</span>
+        </Link>
+
         <span className="text-slate-300 dark:text-slate-700 hidden md:inline">/</span>
 
         <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 truncate max-w-[220px] 2xl:max-w-[380px]">

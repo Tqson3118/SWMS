@@ -86,6 +86,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   } = useWorkspaceStore();
 
   const [recentCourses, setRecentCourses] = useState<RecentCourse[]>([]);
+  const [loadingCourses, setLoadingCourses] = useState(true);
   const [dueCount, setDueCount] = useState(0);
   const [streakDays, setStreakDays] = useState(0);
   const [userName, setUserName] = useState("Học viên");
@@ -117,6 +118,8 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       }
     } catch {
       // Silent fail for sidebar data
+    } finally {
+      setLoadingCourses(false);
     }
   }, []);
 
@@ -268,31 +271,39 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           );
         })}
 
-        {/* Divider + Recent Courses */}
-        {!collapsed && recentCourses.length > 0 && (
-          <>
+        {/* Divider + Recent Courses with fixed min-h-[156px] */}
+        {!collapsed && (
+          <div className="min-h-[156px] flex flex-col justify-start">
             <div className="pt-4 pb-1 px-2.5">
               <span className="text-[11px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                 Gần đây
               </span>
             </div>
-            {recentCourses.map((course) => (
-              <Link
-                key={course.id}
-                href={`/app/courses/${course.id}`}
-                className={`flex items-center gap-2.5 h-8 px-2.5 rounded-[8px] text-sm transition ${
-                  pathname === `/app/courses/${course.id}`
-                    ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] font-medium"
-                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
-                }`}
-              >
-                <BookOpen className="w-3.5 h-3.5 shrink-0 opacity-60" />
-                <span className="flex-1 truncate text-[13px]">
-                  {course.title}
-                </span>
-              </Link>
-            ))}
-          </>
+            {loadingCourses ? (
+              <div className="space-y-1.5 px-2.5 py-1">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="h-7 w-full rounded-[6px] bg-[var(--surface-elevated)] animate-pulse" />
+                ))}
+              </div>
+            ) : recentCourses.length > 0 ? (
+              recentCourses.map((course) => (
+                <Link
+                  key={course.id}
+                  href={`/app/courses/${course.id}`}
+                  className={`flex items-center gap-2.5 h-8 px-2.5 rounded-[8px] text-sm transition ${
+                    pathname === `/app/courses/${course.id}`
+                      ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] font-medium"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
+                  }`}
+                >
+                  <BookOpen className="w-3.5 h-3.5 shrink-0 opacity-60" />
+                  <span className="flex-1 truncate text-[13px]">
+                    {course.title}
+                  </span>
+                </Link>
+              ))
+            ) : null}
+          </div>
         )}
 
         {/* Create course shortcut */}

@@ -88,8 +88,8 @@ export function LandingHeader({ onOpenShortcuts, onOpenAbout }) {
             {mounted && darkMode ? (<Sun className="w-4 h-4 text-amber-400 stroke-[2]"/>) : (<Moon className="w-4 h-4 text-slate-500 stroke-[2]"/>)}
           </button>
 
-          <Link href="/workspace" data-testid="landing-nav-cta" className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white shadow-xs transition-all cursor-pointer">
-            <span>Vào Workspace</span>
+          <Link href="/app" data-testid="landing-nav-cta" className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white shadow-xs transition-all cursor-pointer">
+            <span>Vào App</span>
             <ArrowRight className="w-3.5 h-3.5 stroke-[2]"/>
           </Link>
         </div>
