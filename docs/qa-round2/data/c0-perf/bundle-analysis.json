@@ -1,0 +1,1537 @@
+{
+  "analyzedAt": "2026-11-18T13:50:36.006Z",
+  "totalJsChunksCount": 45,
+  "totalJsChunksBytes": 2193378,
+  "totalJsChunksKB": 2141.97,
+  "sortedRoutes": [
+    {
+      "route": "/workspace/page",
+      "totalBytes": 1182129,
+      "totalKB": 1154.42,
+      "chunkCount": 14,
+      "chunks": [
+        {
+          "file": "static/chunks/9b0008ae-28de272f141264c7.js",
+          "sizeBytes": 331248,
+          "sizeKB": 323.48,
+          "libs": [
+            "pdfjs-dist"
+          ]
+        },
+        {
+          "file": "static/chunks/app/workspace/page-389a74fd05f9b628.js",
+          "sizeBytes": 327233,
+          "sizeKB": 319.56,
+          "libs": [
+            "pdfjs-dist",
+            "gsap"
+          ]
+        },
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/c15bf2b0-52e8419f34af26ab.js",
+          "sizeBytes": 51544,
+          "sizeKB": 50.34,
+          "libs": [
+            "gsap"
+          ]
+        },
+        {
+          "file": "static/chunks/268-25db7d6b23951b25.js",
+          "sizeBytes": 33540,
+          "sizeKB": 32.75,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/200-73a61b96e84c5812.js",
+          "sizeBytes": 28055,
+          "sizeKB": 27.4,
+          "libs": [
+            "gsap"
+          ]
+        },
+        {
+          "file": "static/chunks/107-47664224843053b9.js",
+          "sizeBytes": 28017,
+          "sizeKB": 27.36,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/434-b5242e7f3d33ad7a.js",
+          "sizeBytes": 9642,
+          "sizeKB": 9.42,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/644-984e980074faf355.js",
+          "sizeBytes": 9397,
+          "sizeKB": 9.18,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/courses/[id]/learn/page",
+      "totalBytes": 887917,
+      "totalKB": 867.11,
+      "chunkCount": 10,
+      "chunks": [
+        {
+          "file": "static/chunks/9b0008ae-28de272f141264c7.js",
+          "sizeBytes": 331248,
+          "sizeKB": 323.48,
+          "libs": [
+            "pdfjs-dist"
+          ]
+        },
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/courses/[id]/learn/page-239adddcb354671a.js",
+          "sizeBytes": 131659,
+          "sizeKB": 128.57,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/268-25db7d6b23951b25.js",
+          "sizeBytes": 33540,
+          "sizeKB": 32.75,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/107-47664224843053b9.js",
+          "sizeBytes": 28017,
+          "sizeKB": 27.36,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/courses/[id]/edit/page",
+      "totalBytes": 429710,
+      "totalKB": 419.64,
+      "chunkCount": 8,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/courses/[id]/edit/page-60f398c732a2cb6c.js",
+          "sizeBytes": 38240,
+          "sizeKB": 37.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/107-47664224843053b9.js",
+          "sizeBytes": 28017,
+          "sizeKB": 27.36,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/studio/[id]/page",
+      "totalBytes": 429082,
+      "totalKB": 419.03,
+      "chunkCount": 8,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/studio/[id]/page-62b49640d3a46876.js",
+          "sizeBytes": 37612,
+          "sizeKB": 36.73,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/107-47664224843053b9.js",
+          "sizeBytes": 28017,
+          "sizeKB": 27.36,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/layout",
+      "totalBytes": 402304,
+      "totalKB": 392.88,
+      "chunkCount": 9,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/layout-481b2425df56108b.js",
+          "sizeBytes": 19812,
+          "sizeKB": 19.35,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/434-b5242e7f3d33ad7a.js",
+          "sizeBytes": 9642,
+          "sizeKB": 9.42,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/644-984e980074faf355.js",
+          "sizeBytes": 9397,
+          "sizeKB": 9.18,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/page",
+      "totalBytes": 399149,
+      "totalKB": 389.79,
+      "chunkCount": 8,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/page-522a7563db4b6926.js",
+          "sizeBytes": 26299,
+          "sizeKB": 25.68,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/644-984e980074faf355.js",
+          "sizeBytes": 9397,
+          "sizeKB": 9.18,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/auth/page",
+      "totalBytes": 396664,
+      "totalKB": 387.37,
+      "chunkCount": 7,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/auth/page-1ca281af4bebc996.js",
+          "sizeBytes": 33211,
+          "sizeKB": 32.43,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/page",
+      "totalBytes": 394784,
+      "totalKB": 385.53,
+      "chunkCount": 7,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/page-c836453185c25705.js",
+          "sizeBytes": 31331,
+          "sizeKB": 30.6,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/review/page",
+      "totalBytes": 392995,
+      "totalKB": 383.78,
+      "chunkCount": 7,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/review/page-5c2e2faf4fb78dd4.js",
+          "sizeBytes": 29542,
+          "sizeKB": 28.85,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/courses/[id]/page",
+      "totalBytes": 391996,
+      "totalKB": 382.81,
+      "chunkCount": 8,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/courses/[id]/page-d58f9c8a4e2dc806.js",
+          "sizeBytes": 19146,
+          "sizeKB": 18.7,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/644-984e980074faf355.js",
+          "sizeBytes": 9397,
+          "sizeKB": 9.18,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/settings/page",
+      "totalBytes": 391675,
+      "totalKB": 382.5,
+      "chunkCount": 7,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/settings/page-18fa7538791e46b5.js",
+          "sizeBytes": 28222,
+          "sizeKB": 27.56,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/courses/[id]/quiz/page",
+      "totalBytes": 390176,
+      "totalKB": 381.03,
+      "chunkCount": 7,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/courses/[id]/quiz/page-0aa96a0b7eb3d828.js",
+          "sizeBytes": 26723,
+          "sizeKB": 26.1,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/courses/page",
+      "totalBytes": 385797,
+      "totalKB": 376.75,
+      "chunkCount": 8,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/courses/page-5c555e7fcb77b024.js",
+          "sizeBytes": 12947,
+          "sizeKB": 12.64,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/644-984e980074faf355.js",
+          "sizeBytes": 9397,
+          "sizeKB": 9.18,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/courses/new/page",
+      "totalBytes": 384506,
+      "totalKB": 375.49,
+      "chunkCount": 7,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/courses/new/page-abbc6eaf82cb56ca.js",
+          "sizeBytes": 21053,
+          "sizeKB": 20.56,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/library/page",
+      "totalBytes": 380568,
+      "totalKB": 371.65,
+      "chunkCount": 7,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/library/page-bdd7e8aedae43bb3.js",
+          "sizeBytes": 17115,
+          "sizeKB": 16.71,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/studio/create/page",
+      "totalBytes": 380015,
+      "totalKB": 371.11,
+      "chunkCount": 7,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/studio/create/page-1dba9980af95f829.js",
+          "sizeBytes": 16562,
+          "sizeKB": 16.17,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/documents/page",
+      "totalBytes": 374485,
+      "totalKB": 365.71,
+      "chunkCount": 7,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/documents/page-087810abd1b479d2.js",
+          "sizeBytes": 10172,
+          "sizeKB": 9.93,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/644-984e980074faf355.js",
+          "sizeBytes": 9397,
+          "sizeKB": 9.18,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/studio/page",
+      "totalBytes": 374331,
+      "totalKB": 365.56,
+      "chunkCount": 7,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/studio/page-c3196c33c6c08b62.js",
+          "sizeBytes": 10878,
+          "sizeKB": 10.62,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/619-ba102abea3e3d0e4.js",
+          "sizeBytes": 8537,
+          "sizeKB": 8.34,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/app/notes/page",
+      "totalBytes": 373747,
+      "totalKB": 364.99,
+      "chunkCount": 7,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/app/notes/page-0f5bee380d4863dd.js",
+          "sizeBytes": 9434,
+          "sizeKB": 9.21,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/644-984e980074faf355.js",
+          "sizeBytes": 9397,
+          "sizeKB": 9.18,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/970-ce032f8f47980367.js",
+          "sizeBytes": 3725,
+          "sizeKB": 3.64,
+          "libs": [
+            "lucide-react",
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/layout",
+      "totalBytes": 362537,
+      "totalKB": 354.04,
+      "chunkCount": 6,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/app/layout-a336921e988498a7.js",
+          "sizeBytes": 11346,
+          "sizeKB": 11.08,
+          "libs": [
+            "react / react-dom",
+            "zustand"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        },
+        {
+          "file": "static/css/9e8051c9d8e0a587.css",
+          "sizeBytes": 0,
+          "sizeKB": 0,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/_not-found/page",
+      "totalBytes": 353861,
+      "totalKB": 345.57,
+      "chunkCount": 5,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/app/_not-found/page-6dfd4fbe4a63eeb2.js",
+          "sizeBytes": 2670,
+          "sizeKB": 2.61,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/robots.txt/route",
+      "totalBytes": 351326,
+      "totalKB": 343.09,
+      "chunkCount": 5,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/app/robots.txt/route-fe12f19e31b2612e.js",
+          "sizeBytes": 135,
+          "sizeKB": 0.13,
+          "libs": []
+        }
+      ]
+    },
+    {
+      "route": "/sitemap.xml/route",
+      "totalBytes": 351326,
+      "totalKB": 343.09,
+      "chunkCount": 5,
+      "chunks": [
+        {
+          "file": "static/chunks/493-07510acc0d2af281.js",
+          "sizeBytes": 174133,
+          "sizeKB": 170.05,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+          "sizeBytes": 173019,
+          "sizeKB": 168.96,
+          "libs": [
+            "react / react-dom"
+          ]
+        },
+        {
+          "file": "static/chunks/webpack-a2a7106df7a920d1.js",
+          "sizeBytes": 3482,
+          "sizeKB": 3.4,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/main-app-b4aa3ec2199a9d63.js",
+          "sizeBytes": 557,
+          "sizeKB": 0.54,
+          "libs": []
+        },
+        {
+          "file": "static/chunks/app/sitemap.xml/route-fe12f19e31b2612e.js",
+          "sizeBytes": 135,
+          "sizeKB": 0.13,
+          "libs": []
+        }
+      ]
+    }
+  ],
+  "topChunks": [
+    {
+      "file": "static/chunks/9b0008ae-28de272f141264c7.js",
+      "sizeBytes": 331248,
+      "sizeKB": 323.48,
+      "libs": [
+        "pdfjs-dist"
+      ]
+    },
+    {
+      "file": "static/chunks/app/workspace/page-389a74fd05f9b628.js",
+      "sizeBytes": 327233,
+      "sizeKB": 319.56,
+      "libs": [
+        "pdfjs-dist",
+        "gsap"
+      ]
+    },
+    {
+      "file": "static/chunks/framework-28b60818f5cffd83.js",
+      "sizeBytes": 219011,
+      "sizeKB": 213.88,
+      "libs": [
+        "react / react-dom"
+      ]
+    },
+    {
+      "file": "static/chunks/493-07510acc0d2af281.js",
+      "sizeBytes": 174133,
+      "sizeKB": 170.05,
+      "libs": [
+        "react / react-dom"
+      ]
+    },
+    {
+      "file": "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "sizeBytes": 173019,
+      "sizeKB": 168.96,
+      "libs": [
+        "react / react-dom"
+      ]
+    },
+    {
+      "file": "static/chunks/app/app/courses/[id]/learn/page-239adddcb354671a.js",
+      "sizeBytes": 131659,
+      "sizeKB": 128.57,
+      "libs": []
+    },
+    {
+      "file": "static/chunks/main-a568ed019040df31.js",
+      "sizeBytes": 131354,
+      "sizeKB": 128.28,
+      "libs": []
+    },
+    {
+      "file": "static/chunks/polyfills-42372ed130431b0a.js",
+      "sizeBytes": 112594,
+      "sizeKB": 109.96,
+      "libs": []
+    },
+    {
+      "file": "static/chunks/c15bf2b0-52e8419f34af26ab.js",
+      "sizeBytes": 51544,
+      "sizeKB": 50.34,
+      "libs": [
+        "gsap"
+      ]
+    },
+    {
+      "file": "static/chunks/app/app/courses/[id]/edit/page-60f398c732a2cb6c.js",
+      "sizeBytes": 38240,
+      "sizeKB": 37.34,
+      "libs": []
+    },
+    {
+      "file": "static/chunks/app/app/studio/[id]/page-62b49640d3a46876.js",
+      "sizeBytes": 37612,
+      "sizeKB": 36.73,
+      "libs": []
+    },
+    {
+      "file": "static/chunks/268-25db7d6b23951b25.js",
+      "sizeBytes": 33540,
+      "sizeKB": 32.75,
+      "libs": []
+    },
+    {
+      "file": "static/chunks/app/auth/page-1ca281af4bebc996.js",
+      "sizeBytes": 33211,
+      "sizeKB": 32.43,
+      "libs": []
+    },
+    {
+      "file": "static/chunks/app/page-c836453185c25705.js",
+      "sizeBytes": 31331,
+      "sizeKB": 30.6,
+      "libs": []
+    },
+    {
+      "file": "static/chunks/app/app/review/page-5c2e2faf4fb78dd4.js",
+      "sizeBytes": 29542,
+      "sizeKB": 28.85,
+      "libs": []
+    },
+    {
+      "file": "static/chunks/app/app/settings/page-18fa7538791e46b5.js",
+      "sizeBytes": 28222,
+      "sizeKB": 27.56,
+      "libs": []
+    },
+    {
+      "file": "static/chunks/200-73a61b96e84c5812.js",
+      "sizeBytes": 28055,
+      "sizeKB": 27.4,
+      "libs": [
+        "gsap"
+      ]
+    },
+    {
+      "file": "static/chunks/107-47664224843053b9.js",
+      "sizeBytes": 28017,
+      "sizeKB": 27.36,
+      "libs": []
+    },
+    {
+      "file": "static/chunks/app/app/courses/[id]/quiz/page-0aa96a0b7eb3d828.js",
+      "sizeBytes": 26723,
+      "sizeKB": 26.1,
+      "libs": []
+    },
+    {
+      "file": "static/chunks/app/app/page-522a7563db4b6926.js",
+      "sizeBytes": 26299,
+      "sizeKB": 25.68,
+      "libs": []
+    }
+  ]
+}

@@ -1,0 +1,442 @@
+[
+  {
+    "endpoint": "GET /api/v1/workspace/dashboard",
+    "callCount": 84,
+    "medianDurationMs": 213.45,
+    "minDurationMs": 147.22,
+    "maxDurationMs": 477.4,
+    "avgDurationMs": 248.72
+  },
+  {
+    "endpoint": "GET /api/v1/courses",
+    "callCount": 12,
+    "medianDurationMs": 131.63,
+    "minDurationMs": 109.31,
+    "maxDurationMs": 200.88,
+    "avgDurationMs": 143.09
+  },
+  {
+    "endpoint": "GET /api/v1/courses/62126a64-8218-4b83-a693-b8fb24f57aa2/progress",
+    "callCount": 6,
+    "medianDurationMs": 66.04,
+    "minDurationMs": 61.2,
+    "maxDurationMs": 105.53,
+    "avgDurationMs": 75.53
+  },
+  {
+    "endpoint": "GET /api/v1/courses/22222222-2222-4222-8222-222222222222/progress",
+    "callCount": 6,
+    "medianDurationMs": 64.54,
+    "minDurationMs": 60.45,
+    "maxDurationMs": 105.45,
+    "avgDurationMs": 74.89
+  },
+  {
+    "endpoint": "GET /api/v1/flashcards/due",
+    "callCount": 12,
+    "medianDurationMs": 58.65,
+    "minDurationMs": 7.27,
+    "maxDurationMs": 162.98,
+    "avgDurationMs": 74.29
+  },
+  {
+    "endpoint": "GET /api/v1/courses/241872b7-e3a2-4dc4-ab86-a6172bf5e713/progress",
+    "callCount": 6,
+    "medianDurationMs": 54.55,
+    "minDurationMs": 24.87,
+    "maxDurationMs": 112.26,
+    "avgDurationMs": 56.74
+  },
+  {
+    "endpoint": "GET /api/v1/courses/25fd2baf-9e7a-4f94-8c6c-abd80b788eb7/progress",
+    "callCount": 6,
+    "medianDurationMs": 54.36,
+    "minDurationMs": 25.05,
+    "maxDurationMs": 108.71,
+    "avgDurationMs": 56.47
+  },
+  {
+    "endpoint": "GET /api/v1/courses/ad8cb726-ff17-4d06-95e9-af1266d90647/progress",
+    "callCount": 6,
+    "medianDurationMs": 54.13,
+    "minDurationMs": 24.94,
+    "maxDurationMs": 112.15,
+    "avgDurationMs": 56.53
+  },
+  {
+    "endpoint": "GET /api/v1/courses/f40705bc-7b26-4289-8b4c-8918aa00cee7/progress",
+    "callCount": 6,
+    "medianDurationMs": 53.64,
+    "minDurationMs": 24.69,
+    "maxDurationMs": 112.61,
+    "avgDurationMs": 56.54
+  },
+  {
+    "endpoint": "GET /api/v1/practice-quizzes/0c797758-06ca-47f4-a098-b551688821c7",
+    "callCount": 6,
+    "medianDurationMs": 52.96,
+    "minDurationMs": 2.3,
+    "maxDurationMs": 84.89,
+    "avgDurationMs": 47.66
+  },
+  {
+    "endpoint": "GET /api/v1/courses/e8258c13-9299-406c-96a7-c449de04a24b/progress",
+    "callCount": 6,
+    "medianDurationMs": 52.1,
+    "minDurationMs": 24.4,
+    "maxDurationMs": 112.59,
+    "avgDurationMs": 55.96
+  },
+  {
+    "endpoint": "GET /api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+    "callCount": 24,
+    "medianDurationMs": 51.8,
+    "minDurationMs": 10.26,
+    "maxDurationMs": 82.19,
+    "avgDurationMs": 44.98
+  },
+  {
+    "endpoint": "GET /api/v1/courses/c31f662f-a0e1-4bff-a44b-29befa722d58/progress",
+    "callCount": 6,
+    "medianDurationMs": 51.59,
+    "minDurationMs": 23.57,
+    "maxDurationMs": 111.56,
+    "avgDurationMs": 55.53
+  },
+  {
+    "endpoint": "GET /api/v1/courses/b629cd0c-7bdb-4f46-a192-f810bdc1a9ff/progress",
+    "callCount": 6,
+    "medianDurationMs": 51.34,
+    "minDurationMs": 21.77,
+    "maxDurationMs": 114.56,
+    "avgDurationMs": 54.67
+  },
+  {
+    "endpoint": "GET /api/v1/courses/7178ecaf-c7b6-4898-8eb8-a2480e1d708c/progress",
+    "callCount": 6,
+    "medianDurationMs": 51.31,
+    "minDurationMs": 24.1,
+    "maxDurationMs": 113.05,
+    "avgDurationMs": 55.56
+  },
+  {
+    "endpoint": "GET /api/v1/courses/3e23e340-4916-4fe6-8b6d-a001e5863bb5/progress",
+    "callCount": 6,
+    "medianDurationMs": 50.69,
+    "minDurationMs": 22.81,
+    "maxDurationMs": 113.78,
+    "avgDurationMs": 54.52
+  },
+  {
+    "endpoint": "GET /api/v1/courses/ead9f94f-0907-4fb9-bee7-ddb358483153/progress",
+    "callCount": 6,
+    "medianDurationMs": 49.27,
+    "minDurationMs": 22.32,
+    "maxDurationMs": 112.56,
+    "avgDurationMs": 53.63
+  },
+  {
+    "endpoint": "GET /api/v1/courses/157dafe8-8437-4cdd-9ff5-1a9b3ffaa4e5/progress",
+    "callCount": 6,
+    "medianDurationMs": 46.73,
+    "minDurationMs": 21.53,
+    "maxDurationMs": 113.22,
+    "avgDurationMs": 52.81
+  },
+  {
+    "endpoint": "GET /api/v1/courses/e38339dc-6338-478b-a0aa-d5c9c534d097/progress",
+    "callCount": 6,
+    "medianDurationMs": 46.54,
+    "minDurationMs": 21.22,
+    "maxDurationMs": 113.91,
+    "avgDurationMs": 52.91
+  },
+  {
+    "endpoint": "GET /api/v1/courses/0934329f-b9ec-4c8f-9400-c0b53cae4a4b/progress",
+    "callCount": 6,
+    "medianDurationMs": 46.15,
+    "minDurationMs": 21.23,
+    "maxDurationMs": 113.22,
+    "avgDurationMs": 51.81
+  },
+  {
+    "endpoint": "GET /api/v1/courses/e0090827-8d3c-4e4e-b9da-e840d4b86ead/progress",
+    "callCount": 6,
+    "medianDurationMs": 46.01,
+    "minDurationMs": 20.89,
+    "maxDurationMs": 111.85,
+    "avgDurationMs": 50.75
+  },
+  {
+    "endpoint": "GET /api/v1/courses/6a0ee877-44bb-4ced-91cf-faa502020a5a/progress",
+    "callCount": 6,
+    "medianDurationMs": 45.44,
+    "minDurationMs": 20.59,
+    "maxDurationMs": 114.42,
+    "avgDurationMs": 51.26
+  },
+  {
+    "endpoint": "GET /api/v1/courses/9c0e11d2-7e4b-42b5-b001-c2089a8c747a/progress",
+    "callCount": 6,
+    "medianDurationMs": 44.95,
+    "minDurationMs": 20.65,
+    "maxDurationMs": 112.2,
+    "avgDurationMs": 50.65
+  },
+  {
+    "endpoint": "GET /api/v1/courses/4e1811a8-e601-4e92-80d9-280c5a477706/progress",
+    "callCount": 6,
+    "medianDurationMs": 42.08,
+    "minDurationMs": 18.84,
+    "maxDurationMs": 113.34,
+    "avgDurationMs": 49.49
+  },
+  {
+    "endpoint": "GET /api/v1/courses/70952cf5-254a-4417-a334-bb73116bb808/progress",
+    "callCount": 6,
+    "medianDurationMs": 41.94,
+    "minDurationMs": 20.12,
+    "maxDurationMs": 114.44,
+    "avgDurationMs": 49.87
+  },
+  {
+    "endpoint": "GET /api/v1/courses/049c680d-e557-4c2d-823f-1895a2606794/progress",
+    "callCount": 6,
+    "medianDurationMs": 41.61,
+    "minDurationMs": 19.2,
+    "maxDurationMs": 114.88,
+    "avgDurationMs": 49.81
+  },
+  {
+    "endpoint": "GET /api/v1/courses/2bd8deaa-37be-4c5b-b16c-52c18a3e9420/progress",
+    "callCount": 6,
+    "medianDurationMs": 41.3,
+    "minDurationMs": 18.41,
+    "maxDurationMs": 113.55,
+    "avgDurationMs": 47.83
+  },
+  {
+    "endpoint": "GET /api/v1/courses/58032267-2a48-44a1-b2af-1e240ac6b32a/progress",
+    "callCount": 6,
+    "medianDurationMs": 40.27,
+    "minDurationMs": 17.87,
+    "maxDurationMs": 113.18,
+    "avgDurationMs": 47.53
+  },
+  {
+    "endpoint": "GET /api/v1/courses/79b30acd-0bd5-41c8-8744-271ad7b496ce/progress",
+    "callCount": 6,
+    "medianDurationMs": 38.25,
+    "minDurationMs": 16.26,
+    "maxDurationMs": 117.18,
+    "avgDurationMs": 47.16
+  },
+  {
+    "endpoint": "GET /api/v1/practice-quizzes",
+    "callCount": 6,
+    "medianDurationMs": 32.79,
+    "minDurationMs": 20.03,
+    "maxDurationMs": 45.65,
+    "avgDurationMs": 32.78
+  },
+  {
+    "endpoint": "GET /api/v1/courses/8f4cd6b1-e020-40a8-b1cc-018e7ac33090/progress",
+    "callCount": 6,
+    "medianDurationMs": 31.53,
+    "minDurationMs": 17.33,
+    "maxDurationMs": 114.03,
+    "avgDurationMs": 43.82
+  },
+  {
+    "endpoint": "GET /api/v1/courses/916e0bbe-9fa4-48a6-9679-244a6db6d979/progress",
+    "callCount": 6,
+    "medianDurationMs": 30.95,
+    "minDurationMs": 17.19,
+    "maxDurationMs": 113.22,
+    "avgDurationMs": 44.15
+  },
+  {
+    "endpoint": "GET /api/v1/courses/6c097ecf-3bf0-426e-8a7c-229dace84c3f/progress",
+    "callCount": 6,
+    "medianDurationMs": 30.62,
+    "minDurationMs": 17.34,
+    "maxDurationMs": 113.57,
+    "avgDurationMs": 44.01
+  },
+  {
+    "endpoint": "GET /api/v1/courses/613d615e-a220-4e65-b1ea-2a3c1f273727/progress",
+    "callCount": 6,
+    "medianDurationMs": 30.44,
+    "minDurationMs": 16.73,
+    "maxDurationMs": 114.02,
+    "avgDurationMs": 44.08
+  },
+  {
+    "endpoint": "GET /api/v1/courses/5e0e3f41-caf9-41c3-9c39-8111f06bf3ba/progress",
+    "callCount": 6,
+    "medianDurationMs": 28.58,
+    "minDurationMs": 14.47,
+    "maxDurationMs": 116.11,
+    "avgDurationMs": 42.62
+  },
+  {
+    "endpoint": "GET /api/v1/courses/609e0b4e-0c7b-4dfb-a658-cd38616271f3/progress",
+    "callCount": 6,
+    "medianDurationMs": 28.2,
+    "minDurationMs": 15.32,
+    "maxDurationMs": 113.83,
+    "avgDurationMs": 41.92
+  },
+  {
+    "endpoint": "GET /api/v1/courses/b82099b1-bb01-4016-a063-84785b640083/progress",
+    "callCount": 6,
+    "medianDurationMs": 27.86,
+    "minDurationMs": 16.24,
+    "maxDurationMs": 113.44,
+    "avgDurationMs": 41.73
+  },
+  {
+    "endpoint": "GET /api/v1/courses/b92b59df-7f4a-4deb-808b-69b3f8e2005f/progress",
+    "callCount": 6,
+    "medianDurationMs": 25.61,
+    "minDurationMs": 14.68,
+    "maxDurationMs": 113.69,
+    "avgDurationMs": 40.99
+  },
+  {
+    "endpoint": "GET /api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+    "callCount": 6,
+    "medianDurationMs": 25.07,
+    "minDurationMs": 22.14,
+    "maxDurationMs": 50.92,
+    "avgDurationMs": 32.07
+  },
+  {
+    "endpoint": "GET /api/v1/courses/3e9b8287-cdca-4e6a-a5f8-13678d9ea402/progress",
+    "callCount": 6,
+    "medianDurationMs": 24.77,
+    "minDurationMs": 13.87,
+    "maxDurationMs": 114.05,
+    "avgDurationMs": 39.72
+  },
+  {
+    "endpoint": "GET /api/v1/courses/43c1cb70-dcdd-4858-8fad-575d3c149cc7/progress",
+    "callCount": 6,
+    "medianDurationMs": 23.83,
+    "minDurationMs": 13.84,
+    "maxDurationMs": 113.85,
+    "avgDurationMs": 36.72
+  },
+  {
+    "endpoint": "GET /api/v1/courses/ca308099-e9da-431b-8787-fbf36554c740/progress",
+    "callCount": 6,
+    "medianDurationMs": 22.83,
+    "minDurationMs": 12.29,
+    "maxDurationMs": 113.43,
+    "avgDurationMs": 35.8
+  },
+  {
+    "endpoint": "GET /api/v1/courses/b87dce10-2ab6-4085-a133-f9d384568659/progress",
+    "callCount": 6,
+    "medianDurationMs": 22.78,
+    "minDurationMs": 14.33,
+    "maxDurationMs": 114.01,
+    "avgDurationMs": 36.53
+  },
+  {
+    "endpoint": "GET /api/v1/courses/2dbd5c6b-a9f0-40ce-851e-174a9b3a97bc/progress",
+    "callCount": 6,
+    "medianDurationMs": 22.47,
+    "minDurationMs": 14.78,
+    "maxDurationMs": 113.33,
+    "avgDurationMs": 36.62
+  },
+  {
+    "endpoint": "GET /api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/progress",
+    "callCount": 6,
+    "medianDurationMs": 22.24,
+    "minDurationMs": 14.24,
+    "maxDurationMs": 114.58,
+    "avgDurationMs": 36.41
+  },
+  {
+    "endpoint": "GET /api/v1/courses/52db4a51-8c0b-4b9f-a8aa-6fb77b3865fb/progress",
+    "callCount": 6,
+    "medianDurationMs": 22.06,
+    "minDurationMs": 14.68,
+    "maxDurationMs": 105.8,
+    "avgDurationMs": 35.05
+  },
+  {
+    "endpoint": "GET /api/v1/auth/providers",
+    "callCount": 6,
+    "medianDurationMs": 21.54,
+    "minDurationMs": 6.13,
+    "maxDurationMs": 31.88,
+    "avgDurationMs": 21.17
+  },
+  {
+    "endpoint": "GET /api/v1/courses/5eaa4fe0-ad9a-494a-916c-e180df000964/progress",
+    "callCount": 6,
+    "medianDurationMs": 21.47,
+    "minDurationMs": 12.65,
+    "maxDurationMs": 114,
+    "avgDurationMs": 35.39
+  },
+  {
+    "endpoint": "GET /api/v1/courses/95ccb77b-8a25-42b2-b171-357e10838fd4/progress",
+    "callCount": 6,
+    "medianDurationMs": 21.46,
+    "minDurationMs": 13.2,
+    "maxDurationMs": 113.96,
+    "avgDurationMs": 35.67
+  },
+  {
+    "endpoint": "GET /api/v1/courses/c6e3d5f8-63e6-429e-87ea-71710670c2d0/progress",
+    "callCount": 6,
+    "medianDurationMs": 21.41,
+    "minDurationMs": 12.92,
+    "maxDurationMs": 113.86,
+    "avgDurationMs": 35.52
+  },
+  {
+    "endpoint": "GET /api/v1/courses/691c1e78-dc5a-4f6a-9b59-c5bd5fb47506/progress",
+    "callCount": 6,
+    "medianDurationMs": 21.36,
+    "minDurationMs": 13.42,
+    "maxDurationMs": 113.71,
+    "avgDurationMs": 35.6
+  },
+  {
+    "endpoint": "POST /api/v1/notebooks/by-source",
+    "callCount": 6,
+    "medianDurationMs": 11.03,
+    "minDurationMs": 7.29,
+    "maxDurationMs": 29.63,
+    "avgDurationMs": 13.59
+  },
+  {
+    "endpoint": "POST /api/v1/auth/refresh",
+    "callCount": 66,
+    "medianDurationMs": 6.37,
+    "minDurationMs": 4.02,
+    "maxDurationMs": 15.08,
+    "avgDurationMs": 6.93
+  },
+  {
+    "endpoint": "GET /api/v1/documents",
+    "callCount": 12,
+    "medianDurationMs": 3.94,
+    "minDurationMs": 1.94,
+    "maxDurationMs": 52.93,
+    "avgDurationMs": 14.65
+  },
+  {
+    "endpoint": "GET /api/v1/auth/me",
+    "callCount": 72,
+    "medianDurationMs": 3.64,
+    "minDurationMs": 2.11,
+    "maxDurationMs": 41.11,
+    "avgDurationMs": 5.44
+  }
+]
