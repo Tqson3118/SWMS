@@ -242,16 +242,16 @@ export default function WorkspacePage() {
       : activeMode === "review"
       ? "Ôn tập FSRS & Quiz"
       : sourceType === "document" && activeDoc
-      ? `${activeDoc.title} • Trang ${currentDocumentPage} / ${activeDoc.totalPages}`
+      ? `${activeDoc.title} · Trang ${currentDocumentPage} / ${activeDoc.totalPages}`
       : activeLesson?.title || activeCourse?.title || "Chưa chọn bài học";
 
   if (!authReady) {
     return (
       <div className={darkMode ? "dark" : ""}>
-        <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+        <div className="min-h-screen w-full flex items-center justify-center bg-[var(--canvas-bg)] text-[var(--text-primary)]">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-7 h-7 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs text-slate-500">Đang xác thực phiên làm việc...</span>
+            <div className="w-7 h-7 border-2 border-[#5E51E8] border-t-transparent rounded-full animate-spin" />
+            <span className="text-xs text-[var(--text-tertiary)]">Đang xác thực phiên làm việc...</span>
           </div>
         </div>
       </div>
@@ -260,7 +260,7 @@ export default function WorkspacePage() {
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="min-h-screen w-full overflow-x-clip bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+      <div className="min-h-screen w-full overflow-x-clip bg-[var(--canvas-bg)] text-[var(--text-primary)]">
         <TopNavHeader
           userName={dashboard.user.fullName}
           userEmail={dashboard.user.email}

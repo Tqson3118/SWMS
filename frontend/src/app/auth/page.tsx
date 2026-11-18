@@ -440,18 +440,18 @@ function AuthPageContent() {
   return (
     <div
       data-testid="auth-page-container"
-      className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between p-4 sm:p-6 lg:p-8"
+      className="min-h-screen w-full bg-[var(--canvas-bg)] text-[var(--text-primary)] flex flex-col justify-between p-4 sm:p-6 lg:p-8"
     >
       {/* Top Bar */}
       <header className="max-w-5xl w-full mx-auto flex items-center justify-between gap-3">
         <Link
           href="/"
-          className="inline-flex items-center gap-2.5 font-bold text-indigo-600 dark:text-indigo-400 hover:opacity-90 transition"
+          className="inline-flex items-center gap-2.5 font-bold text-[#5E51E8] dark:text-[#818CF8] hover:opacity-90 transition"
         >
-          <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white text-xs font-extrabold shadow-xs">
+          <span className="inline-flex items-center justify-center w-8 h-8 rounded-[8px] bg-[#5E51E8] dark:bg-[#818CF8] text-white dark:text-[#0F0F12] text-xs font-bold shadow-xs">
             S
           </span>
-          <span className="text-sm font-extrabold tracking-tight text-slate-900 dark:text-white">
+          <span className="text-sm font-bold tracking-tight text-[var(--text-primary)]">
             Studxy · Không gian học tập thông minh
           </span>
         </Link>
@@ -460,14 +460,14 @@ function AuthPageContent() {
           <Link
             href="/app"
             data-testid="auth-go-app-v2"
-            className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl transition shadow-xs"
+            className="text-xs font-semibold text-white dark:text-[#0F0F12] bg-[#5E51E8] hover:bg-[#4F46E5] dark:bg-[#818CF8] dark:hover:bg-[#6366F1] inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] transition shadow-xs"
           >
             <BookOpen className="w-3.5 h-3.5" />
             <span>Vào không gian học</span>
           </Link>
           <Link
             href="/workspace"
-            className="hidden sm:inline-flex text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition"
+            className="hidden sm:inline-flex text-xs font-medium text-[var(--text-secondary)] hover:text-[#5E51E8] dark:hover:text-[#818CF8] items-center gap-1.5 px-3 py-2 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] transition"
           >
             <span>Workspace Classic</span>
           </Link>
@@ -476,24 +476,24 @@ function AuthPageContent() {
 
       {/* Main Centered Auth Content */}
       <main className="max-w-lg w-full mx-auto my-8 space-y-4">
-        <section className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-6 sm:p-8">
+        <section className="rounded-[16px] bg-[var(--surface-card)] border border-[var(--border-calm)] shadow-elevation-1 p-6 sm:p-8">
           <div className="mb-6">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold mb-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-[#EEF0FD] dark:bg-[#1E1B4B] text-[#4F46E5] dark:text-[#A5B4FC] border border-[#5E51E8]/20 text-[11px] font-semibold mb-2">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Không gian học tập cá nhân độc lập</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)]">
               {mode === "login"
                 ? "Đăng nhập vào Studxy"
                 : "Tạo tài khoản Studxy mới"}
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs text-[var(--text-secondary)] mt-1">
               Mỗi tài khoản sở hữu thư viện PDF, sổ tay ghi chú, khóa học và lịch ôn tập FSRS v5 riêng biệt.
             </p>
           </div>
 
           {/* Mode Tabs */}
-          <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 mb-6">
+          <div className="grid grid-cols-2 gap-1.5 p-1 rounded-[10px] bg-[var(--surface-elevated)] border border-[var(--border-calm)] mb-6">
             <button
               type="button"
               data-testid="auth-tab-login"
@@ -501,10 +501,10 @@ function AuthPageContent() {
                 setMode("login");
                 setErrorMessage(null);
               }}
-              className={`min-h-[40px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
+              className={`min-h-[40px] py-2 px-3 rounded-[8px] text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                 mode === "login"
-                  ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] shadow-xs"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
               <LogIn className="w-3.5 h-3.5" />
@@ -517,10 +517,10 @@ function AuthPageContent() {
                 setMode("register");
                 setErrorMessage(null);
               }}
-              className={`min-h-[40px] py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
+              className={`min-h-[40px] py-2 px-3 rounded-[8px] text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                 mode === "register"
-                  ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] shadow-xs"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
               <UserPlus className="w-3.5 h-3.5" />
@@ -531,7 +531,7 @@ function AuthPageContent() {
           {errorMessage && (
             <div
               role="alert"
-              className="mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/70 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 font-medium"
+              className="mb-4 p-3 rounded-[10px] bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/70 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 font-medium"
             >
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMessage}</span>
@@ -539,7 +539,7 @@ function AuthPageContent() {
           )}
 
           {statusMessage && (
-            <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/70 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2 font-medium">
+            <div className="mb-4 p-3 rounded-[10px] bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/70 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2 font-medium">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{statusMessage}</span>
             </div>
@@ -550,7 +550,7 @@ function AuthPageContent() {
               <div>
                 <label
                   htmlFor="auth-fullname"
-                  className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+                  className="block text-xs font-semibold text-[var(--text-primary)] mb-1.5"
                 >
                   Họ và tên hiển thị
                 </label>
@@ -561,7 +561,7 @@ function AuthPageContent() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Ví dụ: Nguyễn Minh Anh"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-xs text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8]"
                 />
               </div>
             )}
@@ -569,7 +569,7 @@ function AuthPageContent() {
             <div>
               <label
                 htmlFor="auth-email"
-                className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
+                className="block text-xs font-semibold text-[var(--text-primary)] mb-1.5"
               >
                 Địa chỉ Email
               </label>
@@ -581,7 +581,7 @@ function AuthPageContent() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ten.ban@studxy.vn"
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3.5 py-2.5 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-xs text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8]"
               />
             </div>
 
@@ -589,12 +589,12 @@ function AuthPageContent() {
               <div className="flex items-center justify-between mb-1.5">
                 <label
                   htmlFor="auth-password"
-                  className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+                  className="block text-xs font-semibold text-[var(--text-primary)]"
                 >
                   Mật khẩu bảo mật
                 </label>
                 {mode === "register" && (
-                  <span className="text-[11px] text-slate-400">Tối thiểu 6 ký tự</span>
+                  <span className="text-[11px] text-[var(--text-tertiary)]">Tối thiểu 6 ký tự</span>
                 )}
               </div>
               <div className="relative">
@@ -606,14 +606,14 @@ function AuthPageContent() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
                   required
-                  className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 pr-10 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-xs text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8]"
                 />
                 <button
                   type="button"
                   data-testid="auth-toggle-password-btn"
                   onClick={() => setShowPassword((prev) => !prev)}
                   aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeOff className="w-4 h-4" />
@@ -628,7 +628,7 @@ function AuthPageContent() {
               type="submit"
               data-testid="auth-submit-btn"
               disabled={loading}
-              className="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full min-h-[44px] py-2.5 px-4 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] dark:bg-[#818CF8] dark:text-[#0F0F12] disabled:opacity-60 text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>
                 {loading
@@ -644,11 +644,11 @@ function AuthPageContent() {
           {/* Divider + Google Sign-In Section */}
           <div data-testid="google-signin-section" className="mt-6">
             <div className="relative flex items-center justify-center mb-4">
-              <div className="border-t border-slate-200 dark:border-slate-800 w-full" />
-              <span className="bg-white dark:bg-slate-900 px-3 text-[11px] font-medium text-slate-400 dark:text-slate-500 whitespace-nowrap">
+              <div className="border-t border-[var(--border-calm)] w-full" />
+              <span className="bg-[var(--surface-card)] px-3 text-[11px] font-medium text-[var(--text-tertiary)] whitespace-nowrap">
                 Hoặc tiếp tục với
               </span>
-              <div className="border-t border-slate-200 dark:border-slate-800 w-full" />
+              <div className="border-t border-[var(--border-calm)] w-full" />
             </div>
 
             {googleEnabled && googleClientId ? (
@@ -670,7 +670,7 @@ function AuthPageContent() {
                   type="button"
                   data-testid="google-signin-unconfigured-btn"
                   onClick={() => setShowGoogleSetupGuide((v) => !v)}
-                  className="w-full min-h-[42px] px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center justify-between gap-2 transition cursor-pointer"
+                  className="w-full min-h-[42px] px-4 py-2 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] hover:border-[#5E51E8] text-[var(--text-primary)] text-xs font-semibold flex items-center justify-between gap-2 transition cursor-pointer"
                 >
                   <span className="inline-flex items-center gap-2">
                     <GoogleGlyph className="w-4 h-4 opacity-80" />
@@ -680,7 +680,7 @@ function AuthPageContent() {
                         : "Đang kiểm tra Google Sign-In..."}
                     </span>
                   </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] text-indigo-600 dark:text-indigo-400">
+                  <span className="inline-flex items-center gap-1 text-[11px] text-[#5E51E8] dark:text-[#818CF8]">
                     <HelpCircle className="w-3.5 h-3.5" />
                     <span>Hướng dẫn</span>
                   </span>
@@ -689,20 +689,20 @@ function AuthPageContent() {
                 {showGoogleSetupGuide && (
                   <div
                     data-testid="google-setup-guide"
-                    className="p-3.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/60 text-[11px] text-slate-700 dark:text-slate-300 space-y-1.5 leading-relaxed"
+                    className="p-3.5 rounded-[10px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 text-[11px] text-[var(--text-primary)] space-y-1.5 leading-relaxed"
                   >
-                    <p className="font-bold text-indigo-700 dark:text-indigo-300">
+                    <p className="font-bold text-[#4F46E5] dark:text-[#A5B4FC]">
                       Cách bật Google Sign-In thật trong 2 phút:
                     </p>
-                    <ol className="list-decimal list-inside space-y-1">
+                    <ol className="list-decimal list-inside space-y-1 text-[var(--text-secondary)]">
                       <li>
                         Mở <strong>Google Cloud Console</strong> → <em>APIs &amp; Services → Credentials → Create OAuth client ID (Web application)</em>.
                       </li>
                       <li>
-                        Thêm <strong>Authorized JavaScript origins</strong>: <code className="px-1 py-0.5 rounded bg-white dark:bg-slate-900 font-mono">http://localhost:3000</code> và <code className="px-1 py-0.5 rounded bg-white dark:bg-slate-900 font-mono">http://127.0.0.1:3000</code>.
+                        Thêm <strong>Authorized JavaScript origins</strong>: <code className="px-1 py-0.5 rounded bg-[var(--surface-card)] font-mono">http://localhost:3000</code> và <code className="px-1 py-0.5 rounded bg-[var(--surface-card)] font-mono">http://127.0.0.1:3000</code>.
                       </li>
                       <li>
-                        Cấu hình biến môi trường <code className="px-1 py-0.5 rounded bg-white dark:bg-slate-900 font-mono">GOOGLE_CLIENT_ID=...</code> hoặc <code className="px-1 py-0.5 rounded bg-white dark:bg-slate-900 font-mono">Authentication:Google:ClientId</code> trong <code className="font-mono">appsettings.json</code> rồi khởi động lại Backend.
+                        Cấu hình biến môi trường <code className="px-1 py-0.5 rounded bg-[var(--surface-card)] font-mono">GOOGLE_CLIENT_ID=...</code> hoặc <code className="px-1 py-0.5 rounded bg-[var(--surface-card)] font-mono">Authentication:Google:ClientId</code> trong <code className="font-mono">appsettings.json</code> rồi khởi động lại Backend.
                       </li>
                     </ol>
                   </div>
@@ -713,56 +713,56 @@ function AuthPageContent() {
         </section>
 
         {/* Collapsible Secondary Demo Switcher Panel */}
-        <aside className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+        <aside className="rounded-[16px] bg-[var(--surface-card)] border border-[var(--border-calm)] shadow-xs overflow-hidden">
           <button
             type="button"
             data-testid="demo-switcher-toggle"
             onClick={() => setShowDemoSwitcher((v) => !v)}
             aria-expanded={showDemoSwitcher}
-            className="w-full px-5 py-3.5 flex items-center justify-between gap-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/40 transition cursor-pointer"
+            className="w-full px-5 py-3.5 flex items-center justify-between gap-3 text-left hover:bg-[var(--surface-elevated)] transition cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/20">
+              <div className="w-8 h-8 rounded-[8px] bg-[#FEF3C7] dark:bg-[#451A03] text-[#B45309] dark:text-[#FBBF24] flex items-center justify-center shrink-0 border border-[#F59E0B]/20">
                 <Users className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-xs font-bold text-slate-900 dark:text-white">
+                <div className="text-xs font-bold text-[var(--text-primary)]">
                   Dùng thử nhanh (Tài khoản Demo 1-Click)
                 </div>
-                <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                <div className="text-[11px] text-[var(--text-secondary)]">
                   Sơn Trần (dữ liệu mẫu đầy đủ) hoặc Minh Anh (không gian mới)
                 </div>
               </div>
             </div>
             {showDemoSwitcher ? (
-              <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />
+              <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+              <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" />
             )}
           </button>
 
           {showDemoSwitcher && (
             <div
               data-testid="demo-user-switcher"
-              className="px-5 pb-5 pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2.5"
+              className="px-5 pb-5 pt-2 border-t border-[var(--border-calm)] space-y-2.5"
             >
               <button
                 type="button"
                 data-testid="switch-user-default"
                 onClick={handleSwitchDefaultUser}
                 disabled={loading}
-                className="w-full text-left p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 bg-slate-50/70 dark:bg-slate-950/60 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/30 transition group cursor-pointer"
+                className="w-full text-left p-3 rounded-[10px] border border-[var(--border-calm)] hover:border-[#5E51E8] bg-[var(--surface-elevated)] hover:bg-[#EEF0FD]/30 dark:hover:bg-[#1E1B4B]/30 transition group cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                  <span className="text-xs font-bold text-[var(--text-primary)] group-hover:text-[#5E51E8] dark:group-hover:text-[#818CF8]">
                     Sơn Trần (Tài khoản Mặc định - Đầy đủ dữ liệu)
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EEF0FD] dark:bg-[#1E1B4B] text-[#4F46E5] dark:text-[#A5B4FC]">
                     Mặc định
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  son.tran@studxy.vn • Sẵn sàng khóa học OSTEP, bài học Bộ nhớ ảo, thẻ FSRS và ghi chú mẫu.
+                <p className="text-[11px] text-[var(--text-secondary)]">
+                  son.tran@studxy.vn · Sẵn sàng khóa học OSTEP, bài học Bộ nhớ ảo, thẻ FSRS và ghi chú mẫu.
                 </p>
               </button>
 
@@ -771,23 +771,23 @@ function AuthPageContent() {
                 data-testid="switch-user-secondary"
                 onClick={handleSwitchSecondaryUser}
                 disabled={loading}
-                className="w-full text-left p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-500 bg-slate-50/70 dark:bg-slate-950/60 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/30 transition group cursor-pointer"
+                className="w-full text-left p-3 rounded-[10px] border border-[var(--border-calm)] hover:border-[#10B981] bg-[var(--surface-elevated)] hover:bg-emerald-50/30 dark:hover:bg-emerald-950/30 transition group cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                  <span className="text-xs font-bold text-[var(--text-primary)] group-hover:text-[#047857] dark:group-hover:text-[#34D399]">
                     Minh Anh (Tài khoản Độc lập - Không gian mới)
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#D1FAE5] dark:bg-[#064E3B] text-[#047857] dark:text-[#34D399]">
                     Độc lập
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  minh.anh@studxy.vn • Tự động tạo không gian riêng biệt, độc lập thư viện PDF và thẻ ôn tập.
+                <p className="text-[11px] text-[var(--text-secondary)]">
+                  minh.anh@studxy.vn · Tự động tạo không gian riêng biệt, độc lập thư viện PDF và thẻ ôn tập.
                 </p>
               </button>
 
-              <div className="p-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 flex items-start gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-500 shrink-0 mt-0.5" />
+              <div className="p-2.5 rounded-[10px] bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[11px] text-[var(--text-secondary)] flex items-start gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-[#5E51E8] dark:text-[#818CF8] shrink-0 mt-0.5" />
                 <span>
                   Dữ liệu tài khoản thử nghiệm hoàn toàn tách biệt với tài khoản chính thức của bạn.
                 </span>
@@ -798,7 +798,7 @@ function AuthPageContent() {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-5xl w-full mx-auto text-center text-[11px] text-slate-400 dark:text-slate-600">
+      <footer className="max-w-5xl w-full mx-auto text-center text-[11px] text-[var(--text-tertiary)]">
         Studxy · Nền tảng đọc sâu, ghi chú và ghi nhớ lâu dài với FSRS v5
       </footer>
     </div>
@@ -809,8 +809,8 @@ export default function AuthPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-          <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        <div className="min-h-screen w-full bg-[var(--canvas-bg)] flex items-center justify-center">
+          <div className="w-6 h-6 border-2 border-[#5E51E8] border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

@@ -76,17 +76,17 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
       data-testid="landing-header"
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-white/80 dark:bg-neutral-950/80 backdrop-blur-lg border-b border-neutral-200 dark:border-neutral-800"
+          ? "bg-[var(--surface-card)]/90 backdrop-blur-lg border-b border-[var(--border-calm)] shadow-xs"
           : "bg-transparent"
       }`}
     >
       <div className="max-w-6xl mx-auto flex items-center justify-between h-14 px-6">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+          <div className="w-7 h-7 rounded-[8px] bg-[#5E51E8] dark:bg-[#818CF8] flex items-center justify-center text-white dark:text-[#0F0F12] text-xs font-bold shadow-xs">
             S
           </div>
-          <span className="text-base font-semibold text-neutral-900 dark:text-white tracking-tight">
+          <span className="text-base font-bold text-[var(--text-primary)] tracking-tight">
             Studxy
           </span>
         </Link>
@@ -97,7 +97,7 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
             type="button"
             data-testid="theme-toggle-btn"
             onClick={toggleDark}
-            className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition text-neutral-500 dark:text-neutral-400 cursor-pointer"
+            className="p-2 rounded-[8px] hover:bg-[var(--surface-elevated)] transition text-[var(--text-secondary)] cursor-pointer"
             aria-label="Toggle theme"
           >
             {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -106,7 +106,7 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
             <Link
               href="/app"
               data-testid="landing-nav-cta"
-              className="text-sm font-medium bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-4 py-1.5 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition shadow-sm inline-flex items-center gap-1.5"
+              className="text-sm font-medium bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] px-4 py-1.5 rounded-[10px] transition shadow-xs inline-flex items-center gap-1.5"
             >
               <span>Vào Studxy ({signedInUser.fullName})</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -116,14 +116,14 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
               <Link
                 href="/auth"
                 data-testid="landing-login-link"
-                className="text-sm font-medium text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition px-3 py-1.5"
+                className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition px-3 py-1.5"
               >
                 Đăng nhập
               </Link>
               <Link
                 href="/auth?tab=register"
                 data-testid="landing-nav-cta"
-                className="text-sm font-medium bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-4 py-1.5 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition shadow-sm"
+                className="text-sm font-medium bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] px-4 py-1.5 rounded-[10px] transition shadow-xs"
               >
                 Bắt đầu miễn phí
               </Link>
@@ -141,25 +141,25 @@ function HeroSection() {
     <section data-testid="landing-hero-section" className="relative pt-32 pb-20 px-6">
       {/* Subtle gradient background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-indigo-100/50 via-violet-50/30 to-transparent dark:from-indigo-950/30 dark:via-violet-950/20 dark:to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-[#5E51E8]/10 via-[#818CF8]/5 to-transparent rounded-full blur-3xl" />
       </div>
 
       <div className="relative max-w-3xl mx-auto text-center">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-xs font-medium mb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 text-[#4F46E5] dark:text-[#A5B4FC] text-xs font-semibold mb-6">
           <Sparkles className="w-3.5 h-3.5" />
           Nền tảng học tập thế hệ mới
         </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-neutral-900 dark:text-white leading-[1.1] tracking-tight mb-5">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--text-primary)] leading-[1.1] tracking-tight mb-5">
           Đọc sâu.{" "}
-          <span className="bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">
+          <span className="text-[#5E51E8] dark:text-[#818CF8]">
             Ghi nhớ.
           </span>{" "}
           Làm chủ.
         </h1>
 
-        <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-xl mx-auto mb-8 leading-relaxed">
+        <p className="text-lg text-[var(--text-secondary)] max-w-xl mx-auto mb-8 leading-relaxed">
           Hợp nhất Deep Reader, PKM Notebook và thuật toán FSRS v5 trong một
           không gian duy nhất. Biến mọi tài liệu thành kiến thức bền vững.
         </p>
@@ -168,23 +168,23 @@ function HeroSection() {
           <Link
             href="/auth?tab=register"
             data-testid="landing-hero-cta"
-            className="inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-100 transition shadow-lg shadow-neutral-900/10 dark:shadow-white/10"
+            className="inline-flex items-center gap-2 h-11 px-6 rounded-[12px] bg-[#5E51E8] hover:bg-[#4F46E5] dark:bg-[#818CF8] dark:text-[#0F0F12] text-white text-sm font-semibold transition shadow-elevation-1"
           >
             Bắt đầu miễn phí
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="#features"
-            className="inline-flex items-center gap-2 h-11 px-6 rounded-xl border border-neutral-200 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition"
+            className="inline-flex items-center gap-2 h-11 px-6 rounded-[12px] border border-[var(--border-calm)] text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition"
           >
             Khám phá tính năng
           </Link>
         </div>
 
         {/* Keyboard hint */}
-        <div className="mt-8 flex items-center justify-center gap-2 text-xs text-neutral-400 dark:text-neutral-500">
+        <div className="mt-8 flex items-center justify-center gap-2 text-xs text-[var(--text-tertiary)]">
           <Keyboard className="w-3.5 h-3.5" />
-          <span>Nhấn <kbd className="px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-mono text-[10px]">?</kbd> để xem phím tắt</span>
+          <span>Nhấn <kbd className="px-1.5 py-0.5 rounded bg-[var(--surface-elevated)] text-[var(--text-secondary)] font-mono text-[10px] border border-[var(--border-calm)]">?</kbd> để xem phím tắt</span>
         </div>
       </div>
     </section>
@@ -593,7 +593,7 @@ export function LandingPageV2() {
   return (
     <div
       data-testid="landing-page-root"
-      className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 antialiased"
+      className="min-h-screen bg-[var(--canvas-bg)] text-[var(--text-primary)] antialiased"
     >
       <Header dark={darkMode} toggleDark={toggleDarkMode} />
       <HeroSection />
