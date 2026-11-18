@@ -108,7 +108,7 @@ export default function WorkspacePage() {
   const [quota, setQuota] = useState<QuotaSummary | null>(null);
   const mainContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const fetchDashboardData = useCallback(async () => {
+  const fetchDashboardData = useCallback(async (forceRefresh = false) => {
     setIsLoadingDashboard(true);
     setDashboardError(null);
     try {
@@ -121,7 +121,7 @@ export default function WorkspacePage() {
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
       const reqHeaders = Object.keys(headers).length > 0 ? headers : undefined;
-      const data = await fetchDashboardCached({ headers: reqHeaders });
+      const data = await fetchDashboardCached({ headers: reqHeaders, forceRefresh });
       if (data) {
         let resolvedCourses = Array.isArray(data.courses) ? data.courses : [];
         if (resolvedCourses.length === 0) {
@@ -177,6 +177,16 @@ export default function WorkspacePage() {
     if (!authReady) return;
     fetchDashboardData();
   }, [authReady, fetchDashboardData]);
+
+  useEffect(() => {
+    const handleMutated = () => {
+      fetchDashboardData(true);
+    };
+    window.addEventListener("swms:data-mutated", handleMutated);
+    return () => {
+      window.removeEventListener("swms:data-mutated", handleMutated);
+    };
+  }, [fetchDashboardData]);
 
   useEffect(() => {
     animateWorkspaceTransition(mainContainerRef.current);

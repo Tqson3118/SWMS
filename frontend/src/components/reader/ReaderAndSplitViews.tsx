@@ -454,8 +454,18 @@ export function ReaderAndSplitViews({
     };
   }, [activeDocumentId, activeLessonId, activeCourseId, sourceType, propCourses]);
 
-  const effectiveCourses =
-    propCourses && propCourses.length > 0 ? propCourses : fetchedCourses;
+  const effectiveCourses = useMemo(() => {
+    const map = new Map<string, CourseSummaryItemDto>();
+    for (const c of propCourses || []) {
+      const id = c.courseId || c.id;
+      if (id) map.set(id, c);
+    }
+    for (const c of fetchedCourses || []) {
+      const id = c.courseId || c.id;
+      if (id && !map.has(id)) map.set(id, c);
+    }
+    return Array.from(map.values());
+  }, [propCourses, fetchedCourses]);
 
   const activeCourse =
     effectiveCourses.find((c) => {

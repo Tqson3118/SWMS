@@ -155,6 +155,9 @@ export function CourseCreateModal({ isOpen, onClose, onSuccess }: CourseCreateMo
       setDocUploadStep("done");
       setTimeout(() => {
         const cid = createdCourse?.courseId || createdCourse?.id;
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("swms:data-mutated"));
+        }
         onSuccess(cid);
         if (cid) {
           setActiveCourseId(cid);
@@ -335,6 +338,9 @@ export function CourseCreateModal({ isOpen, onClose, onSuccess }: CourseCreateMo
 
       const createdCourse = await res.json();
       const cid = createdCourse?.courseId || createdCourse?.id;
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("swms:data-mutated"));
+      }
       onSuccess(cid);
       if (cid) {
         setActiveCourseId(cid);
@@ -431,6 +437,9 @@ export function CourseCreateModal({ isOpen, onClose, onSuccess }: CourseCreateMo
       });
 
       setTimeout(() => {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("swms:data-mutated"));
+        }
         if (data.courseId) {
           onSuccess(data.courseId);
           setActiveCourseId(data.courseId);
