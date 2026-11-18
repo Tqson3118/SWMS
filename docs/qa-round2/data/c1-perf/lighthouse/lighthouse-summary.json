@@ -1,0 +1,50 @@
+[
+  {
+    "page": "landing",
+    "url": "http://127.0.0.1:3000/",
+    "mode": "desktop",
+    "runs": 3,
+    "score": 100,
+    "fcp": 246.5,
+    "lcp": 246.5,
+    "tbt": 9,
+    "cls": 0,
+    "speedIndex": 594.7
+  },
+  {
+    "page": "landing",
+    "url": "http://127.0.0.1:3000/",
+    "mode": "mobile",
+    "runs": 3,
+    "score": 98,
+    "fcp": 905.2,
+    "lcp": 905.2,
+    "tbt": 151.5,
+    "cls": 0,
+    "speedIndex": 1302
+  },
+  {
+    "page": "auth",
+    "url": "http://127.0.0.1:3000/auth",
+    "mode": "desktop",
+    "runs": 3,
+    "score": 100,
+    "fcp": 246.9,
+    "lcp": 246.9,
+    "tbt": 1,
+    "cls": 0,
+    "speedIndex": 295.4
+  },
+  {
+    "page": "auth",
+    "url": "http://127.0.0.1:3000/auth",
+    "mode": "mobile",
+    "runs": 3,
+    "score": 97,
+    "fcp": 905.7,
+    "lcp": 905.7,
+    "tbt": 195,
+    "cls": 0,
+    "speedIndex": 1073.7
+  }
+]

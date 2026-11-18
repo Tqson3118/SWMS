@@ -4,7 +4,10 @@ Bạn là agent thực thi. Người điều phối (Antigravity) sẽ nghiệm 
 
 ## Môi trường
 - Repo: `d:\03_Study\Studxy`, branch `qa/agy2-round2`. Windows, PowerShell.
-- App production ĐANG CHẠY: frontend http://127.0.0.1:3000 (Next.js 15), backend http://127.0.0.1:5080 (.NET 10). Đừng tắt hai server này, trừ khi nhiệm vụ yêu cầu rebuild. Nếu cần rebuild: dùng `powershell -ExecutionPolicy Bypass -File scripts/start-prod.ps1` (script tự restart cả hai). Sau khi xong việc, app PHẢI đang chạy lại ở 3000/5080.
+- App production ĐANG CHẠY: frontend http://127.0.0.1:3000 (Next.js 15), backend http://127.0.0.1:5080 (.NET 10). Đừng tắt hai server này, trừ khi nhiệm vụ yêu cầu rebuild.
+- Rebuild + restart: CHỈ dùng `powershell -ExecutionPolicy Bypass -File docs/qa-round2/tools/restart-servers.ps1 -Build` (chạy đồng bộ, tự kết thúc khi server healthy; server chạy tách rời nên không bị kill). KHÔNG dùng `scripts/start-prod.ps1`, KHÔNG chạy `next start`/`dotnet run`/`next dev` dạng background task. Sau khi xong việc, app PHẢI đang chạy ở 3000/5080.
+- **KHÔNG để lại background task nào** (watcher, server, tail log...) khi kết thúc: trước khi viết báo cáo cuối, dừng mọi task nền bạn đã tạo. Phiên trước bị treo vì "waiting for 1 background task".
+- `scripts/verify.ps1` sẽ tự bật/tắt server riêng; sau khi chạy xong phải chạy lại `restart-servers.ps1` để app sống ở 3000/5080.
 - Tài khoản demo: trang `/auth` → nút `demo-switcher-toggle` → "Sơn Trần" (đủ dữ liệu) hoặc "Minh Anh" (trống). Có thể tự đăng ký tài khoản test mới (email dạng `qa+<vai>-<số>@test.local`).
 - Test trình duyệt: tự viết script Playwright (Node, `@playwright/test` hoặc `playwright` đã có trong `frontend/node_modules`) đặt trong `docs/qa-round2/scripts/`, chạy headless, chụp ảnh vào `docs/qa-round2/screenshots/<tác-vụ>/`.
 - Báo cáo cũ để tham khảo: `docs/qa-round2/OLD_REPORT.md`.

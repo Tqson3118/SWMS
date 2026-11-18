@@ -1,0 +1,5730 @@
+[
+  {
+    "run": 1,
+    "route": "/",
+    "routeName": "landing",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 2.7,
+    "fcp": 120,
+    "lcp": 120,
+    "cls": 0.0003,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 25.4,
+    "timeToMainContent": 186.93,
+    "totalRequests": 19,
+    "totalJsUncompressedKB": 519.46,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 4.46,
+    "taskDurationMs": 202.06,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 10.072200000000066,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.533199999999852,
+        "bodyBytes": 250
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\landing-desktop.png"
+  },
+  {
+    "run": 2,
+    "route": "/",
+    "routeName": "landing",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 3,
+    "fcp": 120,
+    "lcp": 120,
+    "cls": 0.0003,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 20.5,
+    "timeToMainContent": 194.16,
+    "totalRequests": 19,
+    "totalJsUncompressedKB": 519.46,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 4.46,
+    "taskDurationMs": 205.85,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 12.01890000000003,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 7.266000000000531,
+        "bodyBytes": 250
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/",
+    "routeName": "landing",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 2.4,
+    "fcp": 148,
+    "lcp": 148,
+    "cls": 0.0003,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 20.2,
+    "timeToMainContent": 223.82,
+    "totalRequests": 19,
+    "totalJsUncompressedKB": 519.46,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 4.46,
+    "taskDurationMs": 237.64,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 11.173800000000483,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 9.766100000000733,
+        "bodyBytes": 250
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/auth",
+    "routeName": "auth",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 2.3,
+    "fcp": 144,
+    "lcp": 144,
+    "cls": 0,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 18,
+    "timeToMainContent": 171.8,
+    "totalRequests": 21,
+    "totalJsUncompressedKB": 663.28,
+    "totalJsChunks": 15,
+    "jsHeapUsedMB": 4.67,
+    "taskDurationMs": 175.24,
+    "apiCalls": [
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/providers",
+        "url": "http://127.0.0.1:3000/api/v1/auth/providers",
+        "status": 200,
+        "durationMs": 10.757599999999002,
+        "bodyBytes": 65
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\auth-desktop.png"
+  },
+  {
+    "run": 2,
+    "route": "/auth",
+    "routeName": "auth",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.6,
+    "fcp": 132,
+    "lcp": 132,
+    "cls": 0,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 13.7,
+    "timeToMainContent": 133.25,
+    "totalRequests": 21,
+    "totalJsUncompressedKB": 663.28,
+    "totalJsChunks": 15,
+    "jsHeapUsedMB": 4.63,
+    "taskDurationMs": 157.79,
+    "apiCalls": [
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/providers",
+        "url": "http://127.0.0.1:3000/api/v1/auth/providers",
+        "status": 200,
+        "durationMs": 6.959899999999834,
+        "bodyBytes": 65
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/auth",
+    "routeName": "auth",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.7,
+    "fcp": 128,
+    "lcp": 128,
+    "cls": 0,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 14.1,
+    "timeToMainContent": 148.66,
+    "totalRequests": 21,
+    "totalJsUncompressedKB": 663.28,
+    "totalJsChunks": 15,
+    "jsHeapUsedMB": 4.64,
+    "taskDurationMs": 156.07,
+    "apiCalls": [
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/providers",
+        "url": "http://127.0.0.1:3000/api/v1/auth/providers",
+        "status": 200,
+        "durationMs": 9.732299999999668,
+        "bodyBytes": 65
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app",
+    "routeName": "app-dashboard",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 2.2,
+    "fcp": 156,
+    "lcp": 672,
+    "cls": 0.2241,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 14.9,
+    "timeToMainContent": 97.54,
+    "totalRequests": 40,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 6.74,
+    "taskDurationMs": 326.03,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 9.242500000000291,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.501499999998487,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses",
+        "url": "http://127.0.0.1:3000/api/v1/courses",
+        "status": 200,
+        "durationMs": 335.15480000000025,
+        "bodyBytes": 568488
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 362.8292000000001,
+        "bodyBytes": 960759
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 46.92920000000049,
+        "bodyBytes": 12692
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\app-dashboard-desktop.png"
+  },
+  {
+    "run": 2,
+    "route": "/app",
+    "routeName": "app-dashboard",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 2.3,
+    "fcp": 200,
+    "lcp": 764,
+    "cls": 0.2241,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 16.1,
+    "timeToMainContent": 115.13,
+    "totalRequests": 40,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 6.7,
+    "taskDurationMs": 403.82,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 10.807699999997567,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 4.205999999998312,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses",
+        "url": "http://127.0.0.1:3000/api/v1/courses",
+        "status": 200,
+        "durationMs": 357.67389999999796,
+        "bodyBytes": 568488
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 390.02449999999953,
+        "bodyBytes": 960759
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 66.74120000000039,
+        "bodyBytes": 12692
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app",
+    "routeName": "app-dashboard",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 2.1,
+    "fcp": 180,
+    "lcp": 716,
+    "cls": 0.2241,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 14,
+    "timeToMainContent": 106.82,
+    "totalRequests": 40,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 6.7,
+    "taskDurationMs": 322.92,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 8.530699999999342,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.7128000000011525,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses",
+        "url": "http://127.0.0.1:3000/api/v1/courses",
+        "status": 200,
+        "durationMs": 289.41029999999955,
+        "bodyBytes": 568488
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 372.7517000000007,
+        "bodyBytes": 960759
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 54.07690000000002,
+        "bodyBytes": 12692
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/courses",
+    "routeName": "app-courses",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 2.5,
+    "fcp": 172,
+    "lcp": 492,
+    "cls": 0.2241,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 17.1,
+    "timeToMainContent": 102.17,
+    "totalRequests": 47,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 7.01,
+    "taskDurationMs": 329.32,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 7.980900000002293,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 3.9799999999995634,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses",
+        "url": "http://127.0.0.1:3000/api/v1/courses",
+        "status": 200,
+        "durationMs": 253.91389999999956,
+        "bodyBytes": 568488
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 522.4456000000027,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\app-courses-desktop.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/courses",
+    "routeName": "app-courses",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.9,
+    "fcp": 160,
+    "lcp": 512,
+    "cls": 0.2241,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 13.5,
+    "timeToMainContent": 104.48,
+    "totalRequests": 47,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 7.02,
+    "taskDurationMs": 319.15,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 7.7071000000032654,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.524399999998423,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses",
+        "url": "http://127.0.0.1:3000/api/v1/courses",
+        "status": 200,
+        "durationMs": 286.792300000001,
+        "bodyBytes": 568488
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 381.1650000000009,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/courses",
+    "routeName": "app-courses",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.9,
+    "fcp": 172,
+    "lcp": 520,
+    "cls": 0.2241,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 16.1,
+    "timeToMainContent": 97.14,
+    "totalRequests": 47,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 7.17,
+    "taskDurationMs": 342.75,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 8.779899999997724,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.1041000000004715,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses",
+        "url": "http://127.0.0.1:3000/api/v1/courses",
+        "status": 200,
+        "durationMs": 292.6422999999995,
+        "bodyBytes": 568488
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 392.35369999999966,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+    "routeName": "course-detail",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 25.6,
+    "fcp": 208,
+    "lcp": 656,
+    "cls": 0.1269,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 39.8,
+    "timeToMainContent": 126.35,
+    "totalRequests": 41,
+    "totalJsUncompressedKB": 728.09,
+    "totalJsChunks": 20,
+    "jsHeapUsedMB": 6.22,
+    "taskDurationMs": 316.74,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 9.422200000000885,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 3.7603999999992084,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 128.7484000000004,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 340.27449999999953,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\course-detail-desktop.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+    "routeName": "course-detail",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 8.1,
+    "fcp": 192,
+    "lcp": 752,
+    "cls": 0.1269,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 25.9,
+    "timeToMainContent": 113.9,
+    "totalRequests": 41,
+    "totalJsUncompressedKB": 728.09,
+    "totalJsChunks": 20,
+    "jsHeapUsedMB": 6.26,
+    "taskDurationMs": 355.09,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 10.360400000001391,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 7.526999999998225,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 55.65980000000127,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 431.747199999998,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+    "routeName": "course-detail",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 11.4,
+    "fcp": 176,
+    "lcp": 740,
+    "cls": 0.1269,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 25.2,
+    "timeToMainContent": 98.69,
+    "totalRequests": 41,
+    "totalJsUncompressedKB": 728.09,
+    "totalJsChunks": 20,
+    "jsHeapUsedMB": 6.26,
+    "taskDurationMs": 280.83,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 8.681899999995949,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 3.6959999999962747,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 69.96450000000186,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 473.01140000000305,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/learn",
+    "routeName": "course-learn",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 5.8,
+    "fcp": 132,
+    "lcp": 592,
+    "cls": 0.0693,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 19.6,
+    "timeToMainContent": 102.51,
+    "totalRequests": 25,
+    "totalJsUncompressedKB": 528.24,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 5.39,
+    "taskDurationMs": 294.59,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 6.413200000002689,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 7.239900000000489,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/documents",
+        "url": "http://127.0.0.1:3000/api/v1/documents",
+        "status": 200,
+        "durationMs": 37.523699999997916,
+        "bodyBytes": 13846
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 57.507299999997485,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "url": "http://127.0.0.1:3000/api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "status": 200,
+        "durationMs": 106.31360000000132,
+        "bodyBytes": 18913
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/notebooks/by-source",
+        "url": "http://127.0.0.1:3000/api/v1/notebooks/by-source",
+        "status": 200,
+        "durationMs": 78.08400000000256,
+        "bodyBytes": 2866
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/flashcards/due",
+        "url": "http://127.0.0.1:3000/api/v1/flashcards/due?includeAll=true&lessonId=86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "status": 200,
+        "durationMs": 44.42569999999978,
+        "bodyBytes": 2
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\course-learn-desktop.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/learn",
+    "routeName": "course-learn",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 5.3,
+    "fcp": 128,
+    "lcp": 376,
+    "cls": 0.3592,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 18.7,
+    "timeToMainContent": 92.51,
+    "totalRequests": 25,
+    "totalJsUncompressedKB": 528.24,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 5.38,
+    "taskDurationMs": 272.86,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 8.82220000000234,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.303699999996752,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/documents",
+        "url": "http://127.0.0.1:3000/api/v1/documents",
+        "status": 200,
+        "durationMs": 6.93930000000546,
+        "bodyBytes": 13846
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 55.722600000000966,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "url": "http://127.0.0.1:3000/api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "status": 200,
+        "durationMs": 31.913300000000163,
+        "bodyBytes": 18913
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/notebooks/by-source",
+        "url": "http://127.0.0.1:3000/api/v1/notebooks/by-source",
+        "status": 200,
+        "durationMs": 9.576399999998102,
+        "bodyBytes": 2866
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/flashcards/due",
+        "url": "http://127.0.0.1:3000/api/v1/flashcards/due?includeAll=true&lessonId=86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "status": 200,
+        "durationMs": 11.152600000001257,
+        "bodyBytes": 2
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/learn",
+    "routeName": "course-learn",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 4.6,
+    "fcp": 136,
+    "lcp": 404,
+    "cls": 0.0206,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 19,
+    "timeToMainContent": 97.98,
+    "totalRequests": 24,
+    "totalJsUncompressedKB": 528.24,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 5.38,
+    "taskDurationMs": 325.84,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 6.8157999999966705,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.214899999999034,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/documents",
+        "url": "http://127.0.0.1:3000/api/v1/documents",
+        "status": 200,
+        "durationMs": 3.7453999999997905,
+        "bodyBytes": 13846
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 57.75020000000222,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "url": "http://127.0.0.1:3000/api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "status": 200,
+        "durationMs": 55.820400000004156,
+        "bodyBytes": 18913
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/notebooks/by-source",
+        "url": "http://127.0.0.1:3000/api/v1/notebooks/by-source",
+        "status": 200,
+        "durationMs": 15.757300000004761,
+        "bodyBytes": 2866
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/flashcards/due",
+        "url": "http://127.0.0.1:3000/api/v1/flashcards/due?includeAll=true&lessonId=86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "status": 200,
+        "durationMs": 9.091699999997218,
+        "bodyBytes": 2
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/quiz",
+    "routeName": "course-quiz",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 4.5,
+    "fcp": 360,
+    "lcp": 360,
+    "cls": 0.2222,
+    "tbt": 12,
+    "totalLongTasksMs": 62,
+    "longTaskCount": 1,
+    "inp": 0,
+    "domContentLoaded": 16.2,
+    "timeToMainContent": 78.76,
+    "totalRequests": 21,
+    "totalJsUncompressedKB": 467.74,
+    "totalJsChunks": 11,
+    "jsHeapUsedMB": 5.15,
+    "taskDurationMs": 169.33,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 6.47780000000057,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.019799999994575,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 62.118700000006356,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/practice-quizzes",
+        "url": "http://127.0.0.1:3000/api/v1/practice-quizzes?courseId=25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 88.26989999999932,
+        "bodyBytes": 30278
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/practice-quizzes/26d25335-f090-4bb2-8221-585112366408",
+        "url": "http://127.0.0.1:3000/api/v1/practice-quizzes/26d25335-f090-4bb2-8221-585112366408",
+        "status": 200,
+        "durationMs": 93.00370000000112,
+        "bodyBytes": 6291
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\course-quiz-desktop.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/quiz",
+    "routeName": "course-quiz",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 9,
+    "fcp": 312,
+    "lcp": 312,
+    "cls": 0.2176,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 27.1,
+    "timeToMainContent": 140.99,
+    "totalRequests": 21,
+    "totalJsUncompressedKB": 467.74,
+    "totalJsChunks": 11,
+    "jsHeapUsedMB": 5.11,
+    "taskDurationMs": 223.83,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 12.619100000003527,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.895099999994272,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 88.73040000000037,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/practice-quizzes",
+        "url": "http://127.0.0.1:3000/api/v1/practice-quizzes?courseId=25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 53.48780000000261,
+        "bodyBytes": 30278
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/practice-quizzes/26d25335-f090-4bb2-8221-585112366408",
+        "url": "http://127.0.0.1:3000/api/v1/practice-quizzes/26d25335-f090-4bb2-8221-585112366408",
+        "status": 200,
+        "durationMs": 9.74659999999858,
+        "bodyBytes": 6291
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/quiz",
+    "routeName": "course-quiz",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 6.3,
+    "fcp": 356,
+    "lcp": 356,
+    "cls": 0.2211,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 20.3,
+    "timeToMainContent": 98.32,
+    "totalRequests": 21,
+    "totalJsUncompressedKB": 467.74,
+    "totalJsChunks": 11,
+    "jsHeapUsedMB": 5.13,
+    "taskDurationMs": 200.08,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 8.616000000001804,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 11.983099999997648,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/practice-quizzes",
+        "url": "http://127.0.0.1:3000/api/v1/practice-quizzes?courseId=25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 9.684300000000803,
+        "bodyBytes": 30278
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 122.02749999999651,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/practice-quizzes/26d25335-f090-4bb2-8221-585112366408",
+        "url": "http://127.0.0.1:3000/api/v1/practice-quizzes/26d25335-f090-4bb2-8221-585112366408",
+        "status": 200,
+        "durationMs": 31.30109999999695,
+        "bodyBytes": 6291
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/review",
+    "routeName": "review",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.8,
+    "fcp": 680,
+    "lcp": 680,
+    "cls": 0.0111,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 15.6,
+    "timeToMainContent": 88.64,
+    "totalRequests": 16,
+    "totalJsUncompressedKB": 440.64,
+    "totalJsChunks": 10,
+    "jsHeapUsedMB": 7.19,
+    "taskDurationMs": 222.36,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 7.324200000002747,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.606599999999162,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/flashcards/due",
+        "url": "http://127.0.0.1:3000/api/v1/flashcards/due",
+        "status": 200,
+        "durationMs": 312.41389999999956,
+        "bodyBytes": 1625051
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 448.3382000000056,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\review-desktop.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/review",
+    "routeName": "review",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.7,
+    "fcp": 628,
+    "lcp": 628,
+    "cls": 0.011,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 13.4,
+    "timeToMainContent": 76.68,
+    "totalRequests": 16,
+    "totalJsUncompressedKB": 440.64,
+    "totalJsChunks": 10,
+    "jsHeapUsedMB": 7.21,
+    "taskDurationMs": 198.1,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 7.462700000003679,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.71310000000085,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/flashcards/due",
+        "url": "http://127.0.0.1:3000/api/v1/flashcards/due",
+        "status": 200,
+        "durationMs": 298.1831999999995,
+        "bodyBytes": 1625051
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 436.6869000000006,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/review",
+    "routeName": "review",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.5,
+    "fcp": 612,
+    "lcp": 612,
+    "cls": 0.0111,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 14.5,
+    "timeToMainContent": 81.66,
+    "totalRequests": 16,
+    "totalJsUncompressedKB": 440.64,
+    "totalJsChunks": 10,
+    "jsHeapUsedMB": 7.19,
+    "taskDurationMs": 196.33,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 8.305799999994633,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 8.817399999999907,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/flashcards/due",
+        "url": "http://127.0.0.1:3000/api/v1/flashcards/due",
+        "status": 200,
+        "durationMs": 286.84219999999914,
+        "bodyBytes": 1625051
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 422.71310000000085,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/documents",
+    "routeName": "documents",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 2.6,
+    "fcp": 156,
+    "lcp": 668,
+    "cls": 0.2298,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 16,
+    "timeToMainContent": 93.07,
+    "totalRequests": 36,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 6.02,
+    "taskDurationMs": 258.29,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 10.081200000000536,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 10.194400000000314,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/documents",
+        "url": "http://127.0.0.1:3000/api/v1/documents",
+        "status": 200,
+        "durationMs": 37.182199999995646,
+        "bodyBytes": 13846
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 437.32880000000296,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\documents-desktop.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/documents",
+    "routeName": "documents",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.7,
+    "fcp": 148,
+    "lcp": 684,
+    "cls": 0.2298,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 12.5,
+    "timeToMainContent": 84.44,
+    "totalRequests": 36,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 5.99,
+    "taskDurationMs": 235.84,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 5.839299999999639,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.556200000006356,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/documents",
+        "url": "http://127.0.0.1:3000/api/v1/documents",
+        "status": 200,
+        "durationMs": 31.746100000003935,
+        "bodyBytes": 13846
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 477.03139999999985,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/documents",
+    "routeName": "documents",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.6,
+    "fcp": 132,
+    "lcp": 612,
+    "cls": 0.2299,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 12.5,
+    "timeToMainContent": 79.11,
+    "totalRequests": 36,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 6.03,
+    "taskDurationMs": 213.49,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 8.71759999999631,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 8.255599999996775,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/documents",
+        "url": "http://127.0.0.1:3000/api/v1/documents",
+        "status": 200,
+        "durationMs": 3.3706999999994878,
+        "bodyBytes": 13846
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 421.5616000000009,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/notes",
+    "routeName": "notes",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 2,
+    "fcp": 148,
+    "lcp": 616,
+    "cls": 0.2299,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 12.9,
+    "timeToMainContent": 77.25,
+    "totalRequests": 35,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 6.3,
+    "taskDurationMs": 261.88,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 8.529099999999744,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 3.097199999996519,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 359.3859999999986,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\notes-desktop.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/notes",
+    "routeName": "notes",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 3.4,
+    "fcp": 228,
+    "lcp": 660,
+    "cls": 0.2298,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 24.8,
+    "timeToMainContent": 126.84,
+    "totalRequests": 35,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 6.29,
+    "taskDurationMs": 369.05,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 11.193099999996775,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 7.901899999997113,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 316.9661999999953,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/notes",
+    "routeName": "notes",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.6,
+    "fcp": 148,
+    "lcp": 652,
+    "cls": 0.2299,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 13.7,
+    "timeToMainContent": 89.35,
+    "totalRequests": 35,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 6.27,
+    "taskDurationMs": 284.79,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 7.156399999992573,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.359000000011292,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 360.60370000000694,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/settings",
+    "routeName": "settings",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 2.2,
+    "fcp": 144,
+    "lcp": 764,
+    "cls": 0.1416,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 14.2,
+    "timeToMainContent": 79.78,
+    "totalRequests": 36,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 5.97,
+    "taskDurationMs": 233.83,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 6.337200000009034,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.575999999986379,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 30.006700000012643,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 540.4333000000042,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\settings-desktop.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/settings",
+    "routeName": "settings",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.5,
+    "fcp": 152,
+    "lcp": 684,
+    "cls": 0.1408,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 12.2,
+    "timeToMainContent": 92.17,
+    "totalRequests": 36,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 5.98,
+    "taskDurationMs": 234.1,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 7.6736000000091735,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.36699999999837,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 28.078800000002957,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 444.98339999999735,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/settings",
+    "routeName": "settings",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.4,
+    "fcp": 136,
+    "lcp": 648,
+    "cls": 0.1416,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 12.3,
+    "timeToMainContent": 89.07,
+    "totalRequests": 36,
+    "totalJsUncompressedKB": 706.9,
+    "totalJsChunks": 19,
+    "jsHeapUsedMB": 5.98,
+    "taskDurationMs": 231.66,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 8.405100000003586,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 2.411099999997532,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 29.014100000000326,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 444.4459000000061,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/workspace",
+    "routeName": "workspace",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 2.3,
+    "fcp": 212,
+    "lcp": 212,
+    "cls": 0.0056,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 14.6,
+    "timeToMainContent": 106.05,
+    "totalRequests": 61,
+    "totalJsUncompressedKB": 577.58,
+    "totalJsChunks": 12,
+    "jsHeapUsedMB": 9.53,
+    "taskDurationMs": 451.04,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 6.851999999998952,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 3.7793000000092434,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 327.40750000000116,
+        "bodyBytes": 960759
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/43c1cb70-dcdd-4858-8fad-575d3c149cc7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/43c1cb70-dcdd-4858-8fad-575d3c149cc7/progress",
+        "status": 200,
+        "durationMs": 28.868799999996554,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/52db4a51-8c0b-4b9f-a8aa-6fb77b3865fb/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/52db4a51-8c0b-4b9f-a8aa-6fb77b3865fb/progress",
+        "status": 200,
+        "durationMs": 34.68520000000717,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/2dbd5c6b-a9f0-40ce-851e-174a9b3a97bc/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/2dbd5c6b-a9f0-40ce-851e-174a9b3a97bc/progress",
+        "status": 200,
+        "durationMs": 38.9262000000017,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/691c1e78-dc5a-4f6a-9b59-c5bd5fb47506/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/691c1e78-dc5a-4f6a-9b59-c5bd5fb47506/progress",
+        "status": 200,
+        "durationMs": 39.637100000007194,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/95ccb77b-8a25-42b2-b171-357e10838fd4/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/95ccb77b-8a25-42b2-b171-357e10838fd4/progress",
+        "status": 200,
+        "durationMs": 41.31500000000233,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b87dce10-2ab6-4085-a133-f9d384568659/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b87dce10-2ab6-4085-a133-f9d384568659/progress",
+        "status": 200,
+        "durationMs": 46.89070000000356,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/c6e3d5f8-63e6-429e-87ea-71710670c2d0/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/c6e3d5f8-63e6-429e-87ea-71710670c2d0/progress",
+        "status": 200,
+        "durationMs": 45.70799999999872,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/progress",
+        "status": 200,
+        "durationMs": 47.51819999999134,
+        "bodyBytes": 173
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/5eaa4fe0-ad9a-494a-916c-e180df000964/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/5eaa4fe0-ad9a-494a-916c-e180df000964/progress",
+        "status": 200,
+        "durationMs": 49.17909999999392,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/3e9b8287-cdca-4e6a-a5f8-13678d9ea402/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/3e9b8287-cdca-4e6a-a5f8-13678d9ea402/progress",
+        "status": 200,
+        "durationMs": 54.14080000000831,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b92b59df-7f4a-4deb-808b-69b3f8e2005f/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b92b59df-7f4a-4deb-808b-69b3f8e2005f/progress",
+        "status": 200,
+        "durationMs": 59.549399999988964,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ca308099-e9da-431b-8787-fbf36554c740/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ca308099-e9da-431b-8787-fbf36554c740/progress",
+        "status": 200,
+        "durationMs": 60.80890000000363,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/609e0b4e-0c7b-4dfb-a658-cd38616271f3/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/609e0b4e-0c7b-4dfb-a658-cd38616271f3/progress",
+        "status": 200,
+        "durationMs": 60.052700000000186,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b82099b1-bb01-4016-a063-84785b640083/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b82099b1-bb01-4016-a063-84785b640083/progress",
+        "status": 200,
+        "durationMs": 62.175800000011805,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/916e0bbe-9fa4-48a6-9679-244a6db6d979/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/916e0bbe-9fa4-48a6-9679-244a6db6d979/progress",
+        "status": 200,
+        "durationMs": 86.11990000000515,
+        "bodyBytes": 291
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/613d615e-a220-4e65-b1ea-2a3c1f273727/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/613d615e-a220-4e65-b1ea-2a3c1f273727/progress",
+        "status": 200,
+        "durationMs": 86.92099999998754,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/6c097ecf-3bf0-426e-8a7c-229dace84c3f/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/6c097ecf-3bf0-426e-8a7c-229dace84c3f/progress",
+        "status": 200,
+        "durationMs": 86.86669999999867,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/8f4cd6b1-e020-40a8-b1cc-018e7ac33090/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/8f4cd6b1-e020-40a8-b1cc-018e7ac33090/progress",
+        "status": 200,
+        "durationMs": 86.94570000001113,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/5e0e3f41-caf9-41c3-9c39-8111f06bf3ba/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/5e0e3f41-caf9-41c3-9c39-8111f06bf3ba/progress",
+        "status": 200,
+        "durationMs": 91.65549999999348,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/79b30acd-0bd5-41c8-8744-271ad7b496ce/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/79b30acd-0bd5-41c8-8744-271ad7b496ce/progress",
+        "status": 200,
+        "durationMs": 92.9594999999972,
+        "bodyBytes": 136
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/049c680d-e557-4c2d-823f-1895a2606794/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/049c680d-e557-4c2d-823f-1895a2606794/progress",
+        "status": 200,
+        "durationMs": 91.10239999998885,
+        "bodyBytes": 173
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/4e1811a8-e601-4e92-80d9-280c5a477706/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/4e1811a8-e601-4e92-80d9-280c5a477706/progress",
+        "status": 200,
+        "durationMs": 92.20530000000144,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/70952cf5-254a-4417-a334-bb73116bb808/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/70952cf5-254a-4417-a334-bb73116bb808/progress",
+        "status": 200,
+        "durationMs": 91.63090000000375,
+        "bodyBytes": 173
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/58032267-2a48-44a1-b2af-1e240ac6b32a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/58032267-2a48-44a1-b2af-1e240ac6b32a/progress",
+        "status": 200,
+        "durationMs": 93.6652000000031,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/2bd8deaa-37be-4c5b-b16c-52c18a3e9420/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/2bd8deaa-37be-4c5b-b16c-52c18a3e9420/progress",
+        "status": 200,
+        "durationMs": 96.44490000000224,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/6a0ee877-44bb-4ced-91cf-faa502020a5a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/6a0ee877-44bb-4ced-91cf-faa502020a5a/progress",
+        "status": 200,
+        "durationMs": 94.96240000000398,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/157dafe8-8437-4cdd-9ff5-1a9b3ffaa4e5/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/157dafe8-8437-4cdd-9ff5-1a9b3ffaa4e5/progress",
+        "status": 200,
+        "durationMs": 106.06429999999818,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e38339dc-6338-478b-a0aa-d5c9c534d097/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e38339dc-6338-478b-a0aa-d5c9c534d097/progress",
+        "status": 200,
+        "durationMs": 107.44749999999476,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e0090827-8d3c-4e4e-b9da-e840d4b86ead/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e0090827-8d3c-4e4e-b9da-e840d4b86ead/progress",
+        "status": 200,
+        "durationMs": 108.25890000000072,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/0934329f-b9ec-4c8f-9400-c0b53cae4a4b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/0934329f-b9ec-4c8f-9400-c0b53cae4a4b/progress",
+        "status": 200,
+        "durationMs": 108.22269999999844,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/9c0e11d2-7e4b-42b5-b001-c2089a8c747a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/9c0e11d2-7e4b-42b5-b001-c2089a8c747a/progress",
+        "status": 200,
+        "durationMs": 108.94539999999688,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b629cd0c-7bdb-4f46-a192-f810bdc1a9ff/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b629cd0c-7bdb-4f46-a192-f810bdc1a9ff/progress",
+        "status": 200,
+        "durationMs": 107.45210000000952,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/c31f662f-a0e1-4bff-a44b-29befa722d58/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/c31f662f-a0e1-4bff-a44b-29befa722d58/progress",
+        "status": 200,
+        "durationMs": 114.97479999999632,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ead9f94f-0907-4fb9-bee7-ddb358483153/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ead9f94f-0907-4fb9-bee7-ddb358483153/progress",
+        "status": 200,
+        "durationMs": 116.27550000000338,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/7178ecaf-c7b6-4898-8eb8-a2480e1d708c/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/7178ecaf-c7b6-4898-8eb8-a2480e1d708c/progress",
+        "status": 200,
+        "durationMs": 115.46799999999348,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/3e23e340-4916-4fe6-8b6d-a001e5863bb5/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/3e23e340-4916-4fe6-8b6d-a001e5863bb5/progress",
+        "status": 200,
+        "durationMs": 116.63749999999709,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e8258c13-9299-406c-96a7-c449de04a24b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e8258c13-9299-406c-96a7-c449de04a24b/progress",
+        "status": 200,
+        "durationMs": 118.48470000000088,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/f40705bc-7b26-4289-8b4c-8918aa00cee7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/f40705bc-7b26-4289-8b4c-8918aa00cee7/progress",
+        "status": 200,
+        "durationMs": 118.25759999999718,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ad8cb726-ff17-4d06-95e9-af1266d90647/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ad8cb726-ff17-4d06-95e9-af1266d90647/progress",
+        "status": 200,
+        "durationMs": 124.87189999999828,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/22222222-2222-4222-8222-222222222222/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/22222222-2222-4222-8222-222222222222/progress",
+        "status": 200,
+        "durationMs": 125.78769999998622,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/241872b7-e3a2-4dc4-ab86-a6172bf5e713/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/241872b7-e3a2-4dc4-ab86-a6172bf5e713/progress",
+        "status": 200,
+        "durationMs": 127.83250000000407,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25fd2baf-9e7a-4f94-8c6c-abd80b788eb7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25fd2baf-9e7a-4f94-8c6c-abd80b788eb7/progress",
+        "status": 200,
+        "durationMs": 127.19049999999697,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/62126a64-8218-4b83-a693-b8fb24f57aa2/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/62126a64-8218-4b83-a693-b8fb24f57aa2/progress",
+        "status": 200,
+        "durationMs": 127.23240000000806,
+        "bodyBytes": 134
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\workspace-desktop.png"
+  },
+  {
+    "run": 2,
+    "route": "/workspace",
+    "routeName": "workspace",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.4,
+    "fcp": 192,
+    "lcp": 192,
+    "cls": 0.0056,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 12.1,
+    "timeToMainContent": 81.93,
+    "totalRequests": 61,
+    "totalJsUncompressedKB": 577.58,
+    "totalJsChunks": 12,
+    "jsHeapUsedMB": 9.55,
+    "taskDurationMs": 446.21,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 6.07489999999234,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 10.716399999990244,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 468.20060000001104,
+        "bodyBytes": 960759
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/52db4a51-8c0b-4b9f-a8aa-6fb77b3865fb/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/52db4a51-8c0b-4b9f-a8aa-6fb77b3865fb/progress",
+        "status": 200,
+        "durationMs": 33.7329999999929,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/2dbd5c6b-a9f0-40ce-851e-174a9b3a97bc/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/2dbd5c6b-a9f0-40ce-851e-174a9b3a97bc/progress",
+        "status": 200,
+        "durationMs": 34.46010000001115,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/43c1cb70-dcdd-4858-8fad-575d3c149cc7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/43c1cb70-dcdd-4858-8fad-575d3c149cc7/progress",
+        "status": 200,
+        "durationMs": 34.7268999999942,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/progress",
+        "status": 200,
+        "durationMs": 35.43279999999504,
+        "bodyBytes": 173
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/691c1e78-dc5a-4f6a-9b59-c5bd5fb47506/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/691c1e78-dc5a-4f6a-9b59-c5bd5fb47506/progress",
+        "status": 200,
+        "durationMs": 34.77610000000277,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b87dce10-2ab6-4085-a133-f9d384568659/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b87dce10-2ab6-4085-a133-f9d384568659/progress",
+        "status": 200,
+        "durationMs": 36.541299999997136,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/c6e3d5f8-63e6-429e-87ea-71710670c2d0/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/c6e3d5f8-63e6-429e-87ea-71710670c2d0/progress",
+        "status": 200,
+        "durationMs": 33.325800000005984,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/95ccb77b-8a25-42b2-b171-357e10838fd4/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/95ccb77b-8a25-42b2-b171-357e10838fd4/progress",
+        "status": 200,
+        "durationMs": 34.905100000003586,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/5eaa4fe0-ad9a-494a-916c-e180df000964/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/5eaa4fe0-ad9a-494a-916c-e180df000964/progress",
+        "status": 200,
+        "durationMs": 33.853799999997136,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ca308099-e9da-431b-8787-fbf36554c740/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ca308099-e9da-431b-8787-fbf36554c740/progress",
+        "status": 200,
+        "durationMs": 33.96160000000964,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/3e9b8287-cdca-4e6a-a5f8-13678d9ea402/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/3e9b8287-cdca-4e6a-a5f8-13678d9ea402/progress",
+        "status": 200,
+        "durationMs": 33.47050000001036,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b92b59df-7f4a-4deb-808b-69b3f8e2005f/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b92b59df-7f4a-4deb-808b-69b3f8e2005f/progress",
+        "status": 200,
+        "durationMs": 34.26850000000559,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/609e0b4e-0c7b-4dfb-a658-cd38616271f3/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/609e0b4e-0c7b-4dfb-a658-cd38616271f3/progress",
+        "status": 200,
+        "durationMs": 35.24650000000838,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b82099b1-bb01-4016-a063-84785b640083/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b82099b1-bb01-4016-a063-84785b640083/progress",
+        "status": 200,
+        "durationMs": 35.17320000000473,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/613d615e-a220-4e65-b1ea-2a3c1f273727/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/613d615e-a220-4e65-b1ea-2a3c1f273727/progress",
+        "status": 200,
+        "durationMs": 37.14569999999367,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/8f4cd6b1-e020-40a8-b1cc-018e7ac33090/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/8f4cd6b1-e020-40a8-b1cc-018e7ac33090/progress",
+        "status": 200,
+        "durationMs": 45.96240000000398,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/6c097ecf-3bf0-426e-8a7c-229dace84c3f/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/6c097ecf-3bf0-426e-8a7c-229dace84c3f/progress",
+        "status": 200,
+        "durationMs": 46.856099999989965,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/916e0bbe-9fa4-48a6-9679-244a6db6d979/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/916e0bbe-9fa4-48a6-9679-244a6db6d979/progress",
+        "status": 200,
+        "durationMs": 47.33269999999902,
+        "bodyBytes": 291
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/58032267-2a48-44a1-b2af-1e240ac6b32a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/58032267-2a48-44a1-b2af-1e240ac6b32a/progress",
+        "status": 200,
+        "durationMs": 47.00809999999183,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/5e0e3f41-caf9-41c3-9c39-8111f06bf3ba/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/5e0e3f41-caf9-41c3-9c39-8111f06bf3ba/progress",
+        "status": 200,
+        "durationMs": 59.13880000000063,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/2bd8deaa-37be-4c5b-b16c-52c18a3e9420/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/2bd8deaa-37be-4c5b-b16c-52c18a3e9420/progress",
+        "status": 200,
+        "durationMs": 54.64329999999609,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/4e1811a8-e601-4e92-80d9-280c5a477706/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/4e1811a8-e601-4e92-80d9-280c5a477706/progress",
+        "status": 200,
+        "durationMs": 61.23619999999937,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/70952cf5-254a-4417-a334-bb73116bb808/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/70952cf5-254a-4417-a334-bb73116bb808/progress",
+        "status": 200,
+        "durationMs": 61.03790000001027,
+        "bodyBytes": 173
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/049c680d-e557-4c2d-823f-1895a2606794/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/049c680d-e557-4c2d-823f-1895a2606794/progress",
+        "status": 200,
+        "durationMs": 61.53639999999723,
+        "bodyBytes": 173
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/6a0ee877-44bb-4ced-91cf-faa502020a5a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/6a0ee877-44bb-4ced-91cf-faa502020a5a/progress",
+        "status": 200,
+        "durationMs": 82.61629999999423,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/9c0e11d2-7e4b-42b5-b001-c2089a8c747a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/9c0e11d2-7e4b-42b5-b001-c2089a8c747a/progress",
+        "status": 200,
+        "durationMs": 82.99950000000536,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/0934329f-b9ec-4c8f-9400-c0b53cae4a4b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/0934329f-b9ec-4c8f-9400-c0b53cae4a4b/progress",
+        "status": 200,
+        "durationMs": 83.15540000000328,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e0090827-8d3c-4e4e-b9da-e840d4b86ead/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e0090827-8d3c-4e4e-b9da-e840d4b86ead/progress",
+        "status": 200,
+        "durationMs": 83.83340000000317,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e38339dc-6338-478b-a0aa-d5c9c534d097/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e38339dc-6338-478b-a0aa-d5c9c534d097/progress",
+        "status": 200,
+        "durationMs": 83.03399999999965,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/79b30acd-0bd5-41c8-8744-271ad7b496ce/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/79b30acd-0bd5-41c8-8744-271ad7b496ce/progress",
+        "status": 200,
+        "durationMs": 98.41710000000603,
+        "bodyBytes": 136
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b629cd0c-7bdb-4f46-a192-f810bdc1a9ff/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b629cd0c-7bdb-4f46-a192-f810bdc1a9ff/progress",
+        "status": 200,
+        "durationMs": 96.14489999999932,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ead9f94f-0907-4fb9-bee7-ddb358483153/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ead9f94f-0907-4fb9-bee7-ddb358483153/progress",
+        "status": 200,
+        "durationMs": 96.99240000000282,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/c31f662f-a0e1-4bff-a44b-29befa722d58/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/c31f662f-a0e1-4bff-a44b-29befa722d58/progress",
+        "status": 200,
+        "durationMs": 97.32030000000668,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/3e23e340-4916-4fe6-8b6d-a001e5863bb5/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/3e23e340-4916-4fe6-8b6d-a001e5863bb5/progress",
+        "status": 200,
+        "durationMs": 97.7051000000065,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/157dafe8-8437-4cdd-9ff5-1a9b3ffaa4e5/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/157dafe8-8437-4cdd-9ff5-1a9b3ffaa4e5/progress",
+        "status": 200,
+        "durationMs": 98.76020000000426,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/7178ecaf-c7b6-4898-8eb8-a2480e1d708c/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/7178ecaf-c7b6-4898-8eb8-a2480e1d708c/progress",
+        "status": 200,
+        "durationMs": 97.48969999999099,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e8258c13-9299-406c-96a7-c449de04a24b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e8258c13-9299-406c-96a7-c449de04a24b/progress",
+        "status": 200,
+        "durationMs": 101.09739999999874,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25fd2baf-9e7a-4f94-8c6c-abd80b788eb7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25fd2baf-9e7a-4f94-8c6c-abd80b788eb7/progress",
+        "status": 200,
+        "durationMs": 103.69250000000466,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ad8cb726-ff17-4d06-95e9-af1266d90647/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ad8cb726-ff17-4d06-95e9-af1266d90647/progress",
+        "status": 200,
+        "durationMs": 103.90790000000561,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/62126a64-8218-4b83-a693-b8fb24f57aa2/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/62126a64-8218-4b83-a693-b8fb24f57aa2/progress",
+        "status": 200,
+        "durationMs": 104.46980000000622,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/f40705bc-7b26-4289-8b4c-8918aa00cee7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/f40705bc-7b26-4289-8b4c-8918aa00cee7/progress",
+        "status": 200,
+        "durationMs": 104.97399999998743,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/241872b7-e3a2-4dc4-ab86-a6172bf5e713/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/241872b7-e3a2-4dc4-ab86-a6172bf5e713/progress",
+        "status": 200,
+        "durationMs": 105.81500000000233,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/22222222-2222-4222-8222-222222222222/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/22222222-2222-4222-8222-222222222222/progress",
+        "status": 200,
+        "durationMs": 108.91509999999835,
+        "bodyBytes": 134
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/workspace",
+    "routeName": "workspace",
+    "viewport": "desktop",
+    "status": 200,
+    "ttfb": 1.7,
+    "fcp": 248,
+    "lcp": 248,
+    "cls": 0.0056,
+    "tbt": 0,
+    "totalLongTasksMs": 0,
+    "longTaskCount": 0,
+    "inp": 0,
+    "domContentLoaded": 16.1,
+    "timeToMainContent": 105.24,
+    "totalRequests": 61,
+    "totalJsUncompressedKB": 577.58,
+    "totalJsChunks": 12,
+    "jsHeapUsedMB": 9.5,
+    "taskDurationMs": 550.75,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 7.441900000005262,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.98399999999674,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 298.84309999999823,
+        "bodyBytes": 960759
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/52db4a51-8c0b-4b9f-a8aa-6fb77b3865fb/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/52db4a51-8c0b-4b9f-a8aa-6fb77b3865fb/progress",
+        "status": 200,
+        "durationMs": 163.46480000000156,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/2dbd5c6b-a9f0-40ce-851e-174a9b3a97bc/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/2dbd5c6b-a9f0-40ce-851e-174a9b3a97bc/progress",
+        "status": 200,
+        "durationMs": 164.16119999998773,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/43c1cb70-dcdd-4858-8fad-575d3c149cc7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/43c1cb70-dcdd-4858-8fad-575d3c149cc7/progress",
+        "status": 200,
+        "durationMs": 171.54550000000745,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/691c1e78-dc5a-4f6a-9b59-c5bd5fb47506/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/691c1e78-dc5a-4f6a-9b59-c5bd5fb47506/progress",
+        "status": 200,
+        "durationMs": 171.71979999999166,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/progress",
+        "status": 200,
+        "durationMs": 172.79230000000098,
+        "bodyBytes": 173
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/95ccb77b-8a25-42b2-b171-357e10838fd4/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/95ccb77b-8a25-42b2-b171-357e10838fd4/progress",
+        "status": 200,
+        "durationMs": 172.2387000000017,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b87dce10-2ab6-4085-a133-f9d384568659/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b87dce10-2ab6-4085-a133-f9d384568659/progress",
+        "status": 200,
+        "durationMs": 175.51140000000305,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/c6e3d5f8-63e6-429e-87ea-71710670c2d0/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/c6e3d5f8-63e6-429e-87ea-71710670c2d0/progress",
+        "status": 200,
+        "durationMs": 173.34440000000177,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/5eaa4fe0-ad9a-494a-916c-e180df000964/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/5eaa4fe0-ad9a-494a-916c-e180df000964/progress",
+        "status": 200,
+        "durationMs": 173.39710000000196,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ca308099-e9da-431b-8787-fbf36554c740/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ca308099-e9da-431b-8787-fbf36554c740/progress",
+        "status": 200,
+        "durationMs": 173.44890000000305,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/3e9b8287-cdca-4e6a-a5f8-13678d9ea402/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/3e9b8287-cdca-4e6a-a5f8-13678d9ea402/progress",
+        "status": 200,
+        "durationMs": 172.8813000000082,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b82099b1-bb01-4016-a063-84785b640083/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b82099b1-bb01-4016-a063-84785b640083/progress",
+        "status": 200,
+        "durationMs": 173.97539999999572,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/609e0b4e-0c7b-4dfb-a658-cd38616271f3/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/609e0b4e-0c7b-4dfb-a658-cd38616271f3/progress",
+        "status": 200,
+        "durationMs": 174.60439999999653,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b92b59df-7f4a-4deb-808b-69b3f8e2005f/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b92b59df-7f4a-4deb-808b-69b3f8e2005f/progress",
+        "status": 200,
+        "durationMs": 174.79180000000633,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/613d615e-a220-4e65-b1ea-2a3c1f273727/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/613d615e-a220-4e65-b1ea-2a3c1f273727/progress",
+        "status": 200,
+        "durationMs": 174.04200000000128,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/6c097ecf-3bf0-426e-8a7c-229dace84c3f/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/6c097ecf-3bf0-426e-8a7c-229dace84c3f/progress",
+        "status": 200,
+        "durationMs": 173.492900000012,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/8f4cd6b1-e020-40a8-b1cc-018e7ac33090/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/8f4cd6b1-e020-40a8-b1cc-018e7ac33090/progress",
+        "status": 200,
+        "durationMs": 173.53789999999572,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/916e0bbe-9fa4-48a6-9679-244a6db6d979/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/916e0bbe-9fa4-48a6-9679-244a6db6d979/progress",
+        "status": 200,
+        "durationMs": 174.23829999999725,
+        "bodyBytes": 291
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/58032267-2a48-44a1-b2af-1e240ac6b32a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/58032267-2a48-44a1-b2af-1e240ac6b32a/progress",
+        "status": 200,
+        "durationMs": 173.18730000000505,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/5e0e3f41-caf9-41c3-9c39-8111f06bf3ba/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/5e0e3f41-caf9-41c3-9c39-8111f06bf3ba/progress",
+        "status": 200,
+        "durationMs": 176.77850000000035,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/2bd8deaa-37be-4c5b-b16c-52c18a3e9420/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/2bd8deaa-37be-4c5b-b16c-52c18a3e9420/progress",
+        "status": 200,
+        "durationMs": 173.29030000000785,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/4e1811a8-e601-4e92-80d9-280c5a477706/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/4e1811a8-e601-4e92-80d9-280c5a477706/progress",
+        "status": 200,
+        "durationMs": 175.22759999999835,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/049c680d-e557-4c2d-823f-1895a2606794/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/049c680d-e557-4c2d-823f-1895a2606794/progress",
+        "status": 200,
+        "durationMs": 175.16169999999693,
+        "bodyBytes": 173
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/9c0e11d2-7e4b-42b5-b001-c2089a8c747a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/9c0e11d2-7e4b-42b5-b001-c2089a8c747a/progress",
+        "status": 200,
+        "durationMs": 174.4478999999992,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/70952cf5-254a-4417-a334-bb73116bb808/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/70952cf5-254a-4417-a334-bb73116bb808/progress",
+        "status": 200,
+        "durationMs": 175.05970000001253,
+        "bodyBytes": 173
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e0090827-8d3c-4e4e-b9da-e840d4b86ead/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e0090827-8d3c-4e4e-b9da-e840d4b86ead/progress",
+        "status": 200,
+        "durationMs": 174.18009999999776,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/0934329f-b9ec-4c8f-9400-c0b53cae4a4b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/0934329f-b9ec-4c8f-9400-c0b53cae4a4b/progress",
+        "status": 200,
+        "durationMs": 173.96889999999257,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/6a0ee877-44bb-4ced-91cf-faa502020a5a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/6a0ee877-44bb-4ced-91cf-faa502020a5a/progress",
+        "status": 200,
+        "durationMs": 175.00370000000112,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/79b30acd-0bd5-41c8-8744-271ad7b496ce/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/79b30acd-0bd5-41c8-8744-271ad7b496ce/progress",
+        "status": 200,
+        "durationMs": 181.45999999999185,
+        "bodyBytes": 136
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e38339dc-6338-478b-a0aa-d5c9c534d097/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e38339dc-6338-478b-a0aa-d5c9c534d097/progress",
+        "status": 200,
+        "durationMs": 173.63229999999749,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b629cd0c-7bdb-4f46-a192-f810bdc1a9ff/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b629cd0c-7bdb-4f46-a192-f810bdc1a9ff/progress",
+        "status": 200,
+        "durationMs": 173.13760000000184,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/157dafe8-8437-4cdd-9ff5-1a9b3ffaa4e5/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/157dafe8-8437-4cdd-9ff5-1a9b3ffaa4e5/progress",
+        "status": 200,
+        "durationMs": 173.45059999999648,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/3e23e340-4916-4fe6-8b6d-a001e5863bb5/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/3e23e340-4916-4fe6-8b6d-a001e5863bb5/progress",
+        "status": 200,
+        "durationMs": 172.8067999999912,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ead9f94f-0907-4fb9-bee7-ddb358483153/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ead9f94f-0907-4fb9-bee7-ddb358483153/progress",
+        "status": 200,
+        "durationMs": 175.0576000000001,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/c31f662f-a0e1-4bff-a44b-29befa722d58/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/c31f662f-a0e1-4bff-a44b-29befa722d58/progress",
+        "status": 200,
+        "durationMs": 174.55749999999534,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/f40705bc-7b26-4289-8b4c-8918aa00cee7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/f40705bc-7b26-4289-8b4c-8918aa00cee7/progress",
+        "status": 200,
+        "durationMs": 173.50169999999343,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/7178ecaf-c7b6-4898-8eb8-a2480e1d708c/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/7178ecaf-c7b6-4898-8eb8-a2480e1d708c/progress",
+        "status": 200,
+        "durationMs": 174.2005000000063,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ad8cb726-ff17-4d06-95e9-af1266d90647/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ad8cb726-ff17-4d06-95e9-af1266d90647/progress",
+        "status": 200,
+        "durationMs": 172.79099999999744,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e8258c13-9299-406c-96a7-c449de04a24b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e8258c13-9299-406c-96a7-c449de04a24b/progress",
+        "status": 200,
+        "durationMs": 174.1091000000015,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25fd2baf-9e7a-4f94-8c6c-abd80b788eb7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25fd2baf-9e7a-4f94-8c6c-abd80b788eb7/progress",
+        "status": 200,
+        "durationMs": 172.61849999999686,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/241872b7-e3a2-4dc4-ab86-a6172bf5e713/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/241872b7-e3a2-4dc4-ab86-a6172bf5e713/progress",
+        "status": 200,
+        "durationMs": 173.46380000001227,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/22222222-2222-4222-8222-222222222222/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/22222222-2222-4222-8222-222222222222/progress",
+        "status": 200,
+        "durationMs": 172.0622999999905,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/62126a64-8218-4b83-a693-b8fb24f57aa2/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/62126a64-8218-4b83-a693-b8fb24f57aa2/progress",
+        "status": 200,
+        "durationMs": 172.5804000000062,
+        "bodyBytes": 134
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/",
+    "routeName": "landing",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 3.6,
+    "fcp": 648,
+    "lcp": 648,
+    "cls": 0.0014,
+    "tbt": 277,
+    "totalLongTasksMs": 377,
+    "longTaskCount": 2,
+    "inp": 0,
+    "domContentLoaded": 57,
+    "timeToMainContent": 1173.78,
+    "totalRequests": 19,
+    "totalJsUncompressedKB": 519.46,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 4.71,
+    "taskDurationMs": 1486.81,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 7.325100000001839,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.416800000006333,
+        "bodyBytes": 250
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\landing-mobile.png"
+  },
+  {
+    "run": 2,
+    "route": "/",
+    "routeName": "landing",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 1.5,
+    "fcp": 524,
+    "lcp": 524,
+    "cls": 0.0014,
+    "tbt": 102,
+    "totalLongTasksMs": 152,
+    "longTaskCount": 1,
+    "inp": 0,
+    "domContentLoaded": 89.3,
+    "timeToMainContent": 898.74,
+    "totalRequests": 19,
+    "totalJsUncompressedKB": 519.46,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 4.73,
+    "taskDurationMs": 1141.84,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 18.830000000001746,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.3166999999957625,
+        "bodyBytes": 250
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/",
+    "routeName": "landing",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 1.4,
+    "fcp": 504,
+    "lcp": 504,
+    "cls": 0.0014,
+    "tbt": 108,
+    "totalLongTasksMs": 158,
+    "longTaskCount": 1,
+    "inp": 0,
+    "domContentLoaded": 83.9,
+    "timeToMainContent": 865.2,
+    "totalRequests": 19,
+    "totalJsUncompressedKB": 519.46,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 4.73,
+    "taskDurationMs": 1093.19,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 20.509900000004563,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.119600000005448,
+        "bodyBytes": 250
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/auth",
+    "routeName": "auth",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 1.7,
+    "fcp": 812,
+    "lcp": 812,
+    "cls": 0.0001,
+    "tbt": 144,
+    "totalLongTasksMs": 244,
+    "longTaskCount": 2,
+    "inp": 0,
+    "domContentLoaded": 76.3,
+    "timeToMainContent": 904.81,
+    "totalRequests": 18,
+    "totalJsUncompressedKB": 519.46,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 4.53,
+    "taskDurationMs": 990.48,
+    "apiCalls": [
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/providers",
+        "url": "http://127.0.0.1:3000/api/v1/auth/providers",
+        "status": 200,
+        "durationMs": 26.240600000004633,
+        "bodyBytes": 65
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\auth-mobile.png"
+  },
+  {
+    "run": 2,
+    "route": "/auth",
+    "routeName": "auth",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 1.8,
+    "fcp": 872,
+    "lcp": 872,
+    "cls": 0.0001,
+    "tbt": 192,
+    "totalLongTasksMs": 292,
+    "longTaskCount": 2,
+    "inp": 0,
+    "domContentLoaded": 114.4,
+    "timeToMainContent": 1056.66,
+    "totalRequests": 18,
+    "totalJsUncompressedKB": 519.46,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 4.53,
+    "taskDurationMs": 1174.44,
+    "apiCalls": [
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/providers",
+        "url": "http://127.0.0.1:3000/api/v1/auth/providers",
+        "status": 200,
+        "durationMs": 54.61059999999998,
+        "bodyBytes": 65
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/auth",
+    "routeName": "auth",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.1,
+    "fcp": 1228,
+    "lcp": 1228,
+    "cls": 0.0001,
+    "tbt": 301,
+    "totalLongTasksMs": 401,
+    "longTaskCount": 2,
+    "inp": 0,
+    "domContentLoaded": 136.8,
+    "timeToMainContent": 1354.69,
+    "totalRequests": 18,
+    "totalJsUncompressedKB": 519.46,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 4.54,
+    "taskDurationMs": 1471.61,
+    "apiCalls": [
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/providers",
+        "url": "http://127.0.0.1:3000/api/v1/auth/providers",
+        "status": 200,
+        "durationMs": 37.472200000003795,
+        "bodyBytes": 65
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app",
+    "routeName": "app-dashboard",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 1.8,
+    "fcp": 1308,
+    "lcp": 2508,
+    "cls": 0.0231,
+    "tbt": 348,
+    "totalLongTasksMs": 498,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 109,
+    "timeToMainContent": 882.22,
+    "totalRequests": 30,
+    "totalJsUncompressedKB": 538.12,
+    "totalJsChunks": 16,
+    "jsHeapUsedMB": 6.47,
+    "taskDurationMs": 2371.4,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 11.384799999999814,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 4.844599999996717,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 344.1441999999952,
+        "bodyBytes": 960759
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses",
+        "url": "http://127.0.0.1:3000/api/v1/courses",
+        "status": 200,
+        "durationMs": 298.0908000000054,
+        "bodyBytes": 568488
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 64.01020000000426,
+        "bodyBytes": 12692
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\app-dashboard-mobile.png"
+  },
+  {
+    "run": 2,
+    "route": "/app",
+    "routeName": "app-dashboard",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.2,
+    "fcp": 752,
+    "lcp": 2104,
+    "cls": 0.0276,
+    "tbt": 147,
+    "totalLongTasksMs": 297,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 92.9,
+    "timeToMainContent": 484.99,
+    "totalRequests": 30,
+    "totalJsUncompressedKB": 538.12,
+    "totalJsChunks": 16,
+    "jsHeapUsedMB": 6.48,
+    "taskDurationMs": 1838.94,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 6.808700000008685,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.395600000003469,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses",
+        "url": "http://127.0.0.1:3000/api/v1/courses",
+        "status": 200,
+        "durationMs": 285.51200000000244,
+        "bodyBytes": 568488
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 329.96480000000156,
+        "bodyBytes": 960759
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 60.74250000000757,
+        "bodyBytes": 12692
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app",
+    "routeName": "app-dashboard",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 1.5,
+    "fcp": 724,
+    "lcp": 1708,
+    "cls": 0.0226,
+    "tbt": 115,
+    "totalLongTasksMs": 215,
+    "longTaskCount": 2,
+    "inp": 0,
+    "domContentLoaded": 74.6,
+    "timeToMainContent": 439.33,
+    "totalRequests": 30,
+    "totalJsUncompressedKB": 538.12,
+    "totalJsChunks": 16,
+    "jsHeapUsedMB": 6.48,
+    "taskDurationMs": 1504.09,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 9.455200000011246,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.620699999999488,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses",
+        "url": "http://127.0.0.1:3000/api/v1/courses",
+        "status": 200,
+        "durationMs": 229.27569999999832,
+        "bodyBytes": 568488
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 388.829899999997,
+        "bodyBytes": 960759
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 58.42969999999332,
+        "bodyBytes": 12692
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/courses",
+    "routeName": "app-courses",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 3.3,
+    "fcp": 1000,
+    "lcp": 1952,
+    "cls": 0.0288,
+    "tbt": 298,
+    "totalLongTasksMs": 448,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 121.7,
+    "timeToMainContent": 708.01,
+    "totalRequests": 31,
+    "totalJsUncompressedKB": 538.12,
+    "totalJsChunks": 16,
+    "jsHeapUsedMB": 6.9,
+    "taskDurationMs": 1908.19,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 12.216999999989639,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.037100000001374,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses",
+        "url": "http://127.0.0.1:3000/api/v1/courses",
+        "status": 200,
+        "durationMs": 296.02479999999923,
+        "bodyBytes": 568488
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 354.20670000000973,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\app-courses-mobile.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/courses",
+    "routeName": "app-courses",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 1.9,
+    "fcp": 712,
+    "lcp": 1744,
+    "cls": 0.026,
+    "tbt": 280,
+    "totalLongTasksMs": 480,
+    "longTaskCount": 4,
+    "inp": 0,
+    "domContentLoaded": 84.7,
+    "timeToMainContent": 489.11,
+    "totalRequests": 31,
+    "totalJsUncompressedKB": 538.12,
+    "totalJsChunks": 16,
+    "jsHeapUsedMB": 6.83,
+    "taskDurationMs": 1895.14,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 47.29189999999653,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 4.775699999998324,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses",
+        "url": "http://127.0.0.1:3000/api/v1/courses",
+        "status": 200,
+        "durationMs": 234.13769999999204,
+        "bodyBytes": 568488
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 1093.0587000000087,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/courses",
+    "routeName": "app-courses",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 3.1,
+    "fcp": 1340,
+    "lcp": 2488,
+    "cls": 0.0316,
+    "tbt": 515,
+    "totalLongTasksMs": 665,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 162.5,
+    "timeToMainContent": 905.03,
+    "totalRequests": 31,
+    "totalJsUncompressedKB": 538.12,
+    "totalJsChunks": 16,
+    "jsHeapUsedMB": 6.83,
+    "taskDurationMs": 2648.46,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 13.130100000009406,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.072499999994761,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses",
+        "url": "http://127.0.0.1:3000/api/v1/courses",
+        "status": 200,
+        "durationMs": 241.19160000000556,
+        "bodyBytes": 568488
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 1129.3234999999986,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+    "routeName": "course-detail",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 8.6,
+    "fcp": 1160,
+    "lcp": 2360,
+    "cls": 0.0257,
+    "tbt": 320,
+    "totalLongTasksMs": 470,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 129.5,
+    "timeToMainContent": 751.37,
+    "totalRequests": 30,
+    "totalJsUncompressedKB": 546.74,
+    "totalJsChunks": 16,
+    "jsHeapUsedMB": 5.87,
+    "taskDurationMs": 2244.99,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 10.416900000011083,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.776400000002468,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 140.3176999999996,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 296.34249999999884,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\course-detail-mobile.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+    "routeName": "course-detail",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 5.8,
+    "fcp": 1076,
+    "lcp": 2144,
+    "cls": 0.0228,
+    "tbt": 262,
+    "totalLongTasksMs": 412,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 111.2,
+    "timeToMainContent": 667.47,
+    "totalRequests": 30,
+    "totalJsUncompressedKB": 546.74,
+    "totalJsChunks": 16,
+    "jsHeapUsedMB": 5.89,
+    "taskDurationMs": 2085.33,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 10.449400000012247,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 7.535499999998137,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 118.818299999999,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 329.3894999999902,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+    "routeName": "course-detail",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 6.2,
+    "fcp": 1240,
+    "lcp": 2544,
+    "cls": 0.0257,
+    "tbt": 353,
+    "totalLongTasksMs": 503,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 113.6,
+    "timeToMainContent": 830.82,
+    "totalRequests": 30,
+    "totalJsUncompressedKB": 546.74,
+    "totalJsChunks": 16,
+    "jsHeapUsedMB": 5.88,
+    "taskDurationMs": 2351.1,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 10.501699999993434,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.019100000004983,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 90.20160000000033,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 376.12080000000424,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/learn",
+    "routeName": "course-learn",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 6.2,
+    "fcp": 1300,
+    "lcp": 2728,
+    "cls": 0.2315,
+    "tbt": 329,
+    "totalLongTasksMs": 579,
+    "longTaskCount": 5,
+    "inp": 0,
+    "domContentLoaded": 144.7,
+    "timeToMainContent": 908.96,
+    "totalRequests": 24,
+    "totalJsUncompressedKB": 528.24,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 5.17,
+    "taskDurationMs": 2678.29,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 13.868699999991804,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.3430999999982305,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/documents",
+        "url": "http://127.0.0.1:3000/api/v1/documents",
+        "status": 200,
+        "durationMs": 75.59159999999974,
+        "bodyBytes": 13846
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 65.66389999999956,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "url": "http://127.0.0.1:3000/api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "status": 200,
+        "durationMs": 85.86549999999988,
+        "bodyBytes": 18913
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/notebooks/by-source",
+        "url": "http://127.0.0.1:3000/api/v1/notebooks/by-source",
+        "status": 200,
+        "durationMs": 24.848100000002887,
+        "bodyBytes": 2866
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/flashcards/due",
+        "url": "http://127.0.0.1:3000/api/v1/flashcards/due?includeAll=true&lessonId=86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "status": 200,
+        "durationMs": 15.291200000006938,
+        "bodyBytes": 2
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\course-learn-mobile.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/learn",
+    "routeName": "course-learn",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 7.2,
+    "fcp": 1536,
+    "lcp": 2936,
+    "cls": 0.2299,
+    "tbt": 461,
+    "totalLongTasksMs": 711,
+    "longTaskCount": 5,
+    "inp": 0,
+    "domContentLoaded": 177.4,
+    "timeToMainContent": 1113.15,
+    "totalRequests": 24,
+    "totalJsUncompressedKB": 528.24,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 5.15,
+    "taskDurationMs": 2863.57,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 13.696900000009919,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 7.400500000017928,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/documents",
+        "url": "http://127.0.0.1:3000/api/v1/documents",
+        "status": 200,
+        "durationMs": 76.7840000000142,
+        "bodyBytes": 13846
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 60.06539999999222,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "url": "http://127.0.0.1:3000/api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "status": 200,
+        "durationMs": 75.94440000000759,
+        "bodyBytes": 18913
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/notebooks/by-source",
+        "url": "http://127.0.0.1:3000/api/v1/notebooks/by-source",
+        "status": 200,
+        "durationMs": 22.073400000022957,
+        "bodyBytes": 2866
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/flashcards/due",
+        "url": "http://127.0.0.1:3000/api/v1/flashcards/due?includeAll=true&lessonId=86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "status": 200,
+        "durationMs": 33.32740000000922,
+        "bodyBytes": 2
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/learn",
+    "routeName": "course-learn",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 4.8,
+    "fcp": 1268,
+    "lcp": 2484,
+    "cls": 0.2299,
+    "tbt": 334,
+    "totalLongTasksMs": 434,
+    "longTaskCount": 2,
+    "inp": 0,
+    "domContentLoaded": 160.2,
+    "timeToMainContent": 925.25,
+    "totalRequests": 24,
+    "totalJsUncompressedKB": 528.24,
+    "totalJsChunks": 13,
+    "jsHeapUsedMB": 5.14,
+    "taskDurationMs": 2424.1,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 9.810599999997066,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.441900000005262,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/documents",
+        "url": "http://127.0.0.1:3000/api/v1/documents",
+        "status": 200,
+        "durationMs": 64.67180000001099,
+        "bodyBytes": 13846
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 61.380100000009406,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "url": "http://127.0.0.1:3000/api/v1/lessons/86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "status": 200,
+        "durationMs": 52.813200000004144,
+        "bodyBytes": 18913
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/notebooks/by-source",
+        "url": "http://127.0.0.1:3000/api/v1/notebooks/by-source",
+        "status": 200,
+        "durationMs": 22.93650000001071,
+        "bodyBytes": 2866
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/flashcards/due",
+        "url": "http://127.0.0.1:3000/api/v1/flashcards/due?includeAll=true&lessonId=86bdf75b-5a73-4058-ab6f-44a72c817f1d",
+        "status": 200,
+        "durationMs": 12.015099999989616,
+        "bodyBytes": 2
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/quiz",
+    "routeName": "course-quiz",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 5.6,
+    "fcp": 2144,
+    "lcp": 2144,
+    "cls": 0.0464,
+    "tbt": 1064,
+    "totalLongTasksMs": 1214,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 143.3,
+    "timeToMainContent": 834.51,
+    "totalRequests": 21,
+    "totalJsUncompressedKB": 467.74,
+    "totalJsChunks": 11,
+    "jsHeapUsedMB": 5.28,
+    "taskDurationMs": 2140.84,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 12.964999999996508,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 7.3677999999781605,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 59.49009999999544,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/practice-quizzes",
+        "url": "http://127.0.0.1:3000/api/v1/practice-quizzes?courseId=25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 22.518700000015087,
+        "bodyBytes": 30278
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/practice-quizzes/26d25335-f090-4bb2-8221-585112366408",
+        "url": "http://127.0.0.1:3000/api/v1/practice-quizzes/26d25335-f090-4bb2-8221-585112366408",
+        "status": 200,
+        "durationMs": 22.74210000000312,
+        "bodyBytes": 6291
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\course-quiz-mobile.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/quiz",
+    "routeName": "course-quiz",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 6.5,
+    "fcp": 1984,
+    "lcp": 1984,
+    "cls": 0.0464,
+    "tbt": 968,
+    "totalLongTasksMs": 1118,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 151.9,
+    "timeToMainContent": 867.79,
+    "totalRequests": 21,
+    "totalJsUncompressedKB": 467.74,
+    "totalJsChunks": 11,
+    "jsHeapUsedMB": 5.28,
+    "taskDurationMs": 1978.13,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 12.832800000003772,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.165899999992689,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 68.4195999999938,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/practice-quizzes",
+        "url": "http://127.0.0.1:3000/api/v1/practice-quizzes?courseId=25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 23.43210000000545,
+        "bodyBytes": 30278
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/practice-quizzes/26d25335-f090-4bb2-8221-585112366408",
+        "url": "http://127.0.0.1:3000/api/v1/practice-quizzes/26d25335-f090-4bb2-8221-585112366408",
+        "status": 200,
+        "durationMs": 29.00010000000475,
+        "bodyBytes": 6291
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/quiz",
+    "routeName": "course-quiz",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 5.5,
+    "fcp": 1936,
+    "lcp": 1936,
+    "cls": 0.0429,
+    "tbt": 865,
+    "totalLongTasksMs": 1015,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 134.7,
+    "timeToMainContent": 814.38,
+    "totalRequests": 21,
+    "totalJsUncompressedKB": 467.74,
+    "totalJsChunks": 11,
+    "jsHeapUsedMB": 5.29,
+    "taskDurationMs": 1940.27,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 13.967899999988731,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.042300000000978,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 58.807299999985844,
+        "bodyBytes": 12692
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/practice-quizzes",
+        "url": "http://127.0.0.1:3000/api/v1/practice-quizzes?courseId=25f79a81-8ac2-46ae-99e1-85975ff42a8b",
+        "status": 200,
+        "durationMs": 24.776400000002468,
+        "bodyBytes": 30278
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/practice-quizzes/26d25335-f090-4bb2-8221-585112366408",
+        "url": "http://127.0.0.1:3000/api/v1/practice-quizzes/26d25335-f090-4bb2-8221-585112366408",
+        "status": 200,
+        "durationMs": 16.326600000000326,
+        "bodyBytes": 6291
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/review",
+    "routeName": "review",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.7,
+    "fcp": 2500,
+    "lcp": 2500,
+    "cls": 0.018,
+    "tbt": 345,
+    "totalLongTasksMs": 545,
+    "longTaskCount": 4,
+    "inp": 0,
+    "domContentLoaded": 147.1,
+    "timeToMainContent": 854.89,
+    "totalRequests": 16,
+    "totalJsUncompressedKB": 440.64,
+    "totalJsChunks": 10,
+    "jsHeapUsedMB": 7.28,
+    "taskDurationMs": 2176.55,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 9.713500000012573,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.277200000011362,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/flashcards/due",
+        "url": "http://127.0.0.1:3000/api/v1/flashcards/due",
+        "status": 200,
+        "durationMs": 276.637000000017,
+        "bodyBytes": 1625051
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 416.59679999999935,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\review-mobile.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/review",
+    "routeName": "review",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2,
+    "fcp": 2508,
+    "lcp": 2508,
+    "cls": 0.018,
+    "tbt": 409,
+    "totalLongTasksMs": 659,
+    "longTaskCount": 5,
+    "inp": 0,
+    "domContentLoaded": 143.5,
+    "timeToMainContent": 920.59,
+    "totalRequests": 16,
+    "totalJsUncompressedKB": 440.64,
+    "totalJsChunks": 10,
+    "jsHeapUsedMB": 7.24,
+    "taskDurationMs": 2232.14,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 14.762500000011642,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 7.163200000009965,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/flashcards/due",
+        "url": "http://127.0.0.1:3000/api/v1/flashcards/due",
+        "status": 200,
+        "durationMs": 246.69080000001122,
+        "bodyBytes": 1625051
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 607.3025999999954,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/review",
+    "routeName": "review",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.5,
+    "fcp": 2448,
+    "lcp": 2448,
+    "cls": 0.018,
+    "tbt": 328,
+    "totalLongTasksMs": 578,
+    "longTaskCount": 5,
+    "inp": 0,
+    "domContentLoaded": 122.9,
+    "timeToMainContent": 758.37,
+    "totalRequests": 16,
+    "totalJsUncompressedKB": 440.64,
+    "totalJsChunks": 10,
+    "jsHeapUsedMB": 7.25,
+    "taskDurationMs": 2133.77,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 12.567199999990407,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.441200000001118,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/flashcards/due",
+        "url": "http://127.0.0.1:3000/api/v1/flashcards/due",
+        "status": 200,
+        "durationMs": 285.6622000000207,
+        "bodyBytes": 1625051
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 431.7477999999828,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/documents",
+    "routeName": "documents",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 3.6,
+    "fcp": 1392,
+    "lcp": 2292,
+    "cls": 0.0254,
+    "tbt": 478,
+    "totalLongTasksMs": 678,
+    "longTaskCount": 4,
+    "inp": 0,
+    "domContentLoaded": 138.5,
+    "timeToMainContent": 869.51,
+    "totalRequests": 25,
+    "totalJsUncompressedKB": 525.54,
+    "totalJsChunks": 15,
+    "jsHeapUsedMB": 5.97,
+    "taskDurationMs": 2220.26,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 16.331399999995483,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.535499999998137,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/documents",
+        "url": "http://127.0.0.1:3000/api/v1/documents",
+        "status": 200,
+        "durationMs": 141.10550000000512,
+        "bodyBytes": 13846
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 342.3085999999894,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\documents-mobile.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/documents",
+    "routeName": "documents",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 1.9,
+    "fcp": 1488,
+    "lcp": 2456,
+    "cls": 0.0301,
+    "tbt": 512,
+    "totalLongTasksMs": 712,
+    "longTaskCount": 4,
+    "inp": 0,
+    "domContentLoaded": 142.5,
+    "timeToMainContent": 906.79,
+    "totalRequests": 25,
+    "totalJsUncompressedKB": 525.54,
+    "totalJsChunks": 15,
+    "jsHeapUsedMB": 5.95,
+    "taskDurationMs": 2383.5,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 17.201399999990826,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 5.945199999987381,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/documents",
+        "url": "http://127.0.0.1:3000/api/v1/documents",
+        "status": 200,
+        "durationMs": 146.82500000001164,
+        "bodyBytes": 13846
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 368.60579999999027,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/documents",
+    "routeName": "documents",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.3,
+    "fcp": 1276,
+    "lcp": 2160,
+    "cls": 0.0255,
+    "tbt": 445,
+    "totalLongTasksMs": 595,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 145.5,
+    "timeToMainContent": 841.49,
+    "totalRequests": 25,
+    "totalJsUncompressedKB": 525.54,
+    "totalJsChunks": 15,
+    "jsHeapUsedMB": 5.92,
+    "taskDurationMs": 2092.27,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 13.237400000012713,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.477400000003399,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/documents",
+        "url": "http://127.0.0.1:3000/api/v1/documents",
+        "status": 200,
+        "durationMs": 111.30770000000484,
+        "bodyBytes": 13846
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 301.77270000000135,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/notes",
+    "routeName": "notes",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.5,
+    "fcp": 1372,
+    "lcp": 1372,
+    "cls": 0.0243,
+    "tbt": 648,
+    "totalLongTasksMs": 848,
+    "longTaskCount": 4,
+    "inp": 0,
+    "domContentLoaded": 147.6,
+    "timeToMainContent": 827.26,
+    "totalRequests": 24,
+    "totalJsUncompressedKB": 525.54,
+    "totalJsChunks": 15,
+    "jsHeapUsedMB": 5.99,
+    "taskDurationMs": 3117.47,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 12.2728000000061,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 7.574699999997392,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 355.37650000001304,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\notes-mobile.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/notes",
+    "routeName": "notes",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.2,
+    "fcp": 1592,
+    "lcp": 1592,
+    "cls": 0.0252,
+    "tbt": 810,
+    "totalLongTasksMs": 960,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 182,
+    "timeToMainContent": 1066.61,
+    "totalRequests": 24,
+    "totalJsUncompressedKB": 525.54,
+    "totalJsChunks": 15,
+    "jsHeapUsedMB": 6.43,
+    "taskDurationMs": 3389.29,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 10.839800000016112,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 7.326000000000931,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 331.77679999999236,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/notes",
+    "routeName": "notes",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2,
+    "fcp": 1668,
+    "lcp": 1668,
+    "cls": 0.0251,
+    "tbt": 752,
+    "totalLongTasksMs": 952,
+    "longTaskCount": 4,
+    "inp": 0,
+    "domContentLoaded": 166.9,
+    "timeToMainContent": 1109.76,
+    "totalRequests": 24,
+    "totalJsUncompressedKB": 525.54,
+    "totalJsChunks": 15,
+    "jsHeapUsedMB": 6.04,
+    "taskDurationMs": 3336.59,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 14.960299999976996,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.698399999993853,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 339.9158999999927,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/app/settings",
+    "routeName": "settings",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.1,
+    "fcp": 1244,
+    "lcp": 2412,
+    "cls": 0.0247,
+    "tbt": 351,
+    "totalLongTasksMs": 551,
+    "longTaskCount": 4,
+    "inp": 0,
+    "domContentLoaded": 137.7,
+    "timeToMainContent": 842.83,
+    "totalRequests": 27,
+    "totalJsUncompressedKB": 550.5,
+    "totalJsChunks": 16,
+    "jsHeapUsedMB": 5.94,
+    "taskDurationMs": 2240.8,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 12.790500000002794,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.2748999999894295,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 54.22609999999986,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 330.02720000001136,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\settings-mobile.png"
+  },
+  {
+    "run": 2,
+    "route": "/app/settings",
+    "routeName": "settings",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.5,
+    "fcp": 1568,
+    "lcp": 1568,
+    "cls": 0.0253,
+    "tbt": 451,
+    "totalLongTasksMs": 701,
+    "longTaskCount": 5,
+    "inp": 0,
+    "domContentLoaded": 157.6,
+    "timeToMainContent": 968,
+    "totalRequests": 27,
+    "totalJsUncompressedKB": 550.5,
+    "totalJsChunks": 16,
+    "jsHeapUsedMB": 5.93,
+    "taskDurationMs": 2857.93,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 16.277700000006007,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 7.948300000018207,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 67.82910000000265,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 428.03740000000107,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/app/settings",
+    "routeName": "settings",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.9,
+    "fcp": 1620,
+    "lcp": 2636,
+    "cls": 0.0264,
+    "tbt": 464,
+    "totalLongTasksMs": 664,
+    "longTaskCount": 4,
+    "inp": 0,
+    "domContentLoaded": 183.9,
+    "timeToMainContent": 1054.64,
+    "totalRequests": 27,
+    "totalJsUncompressedKB": 550.5,
+    "totalJsChunks": 16,
+    "jsHeapUsedMB": 5.94,
+    "taskDurationMs": 2549.21,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 16.340700000000652,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.971199999999953,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 137.21329999997397,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 332.7251999999862,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 1,
+    "route": "/workspace",
+    "routeName": "workspace",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.5,
+    "fcp": 2008,
+    "lcp": 2008,
+    "cls": 0.0395,
+    "tbt": 689,
+    "totalLongTasksMs": 939,
+    "longTaskCount": 5,
+    "inp": 0,
+    "domContentLoaded": 139.2,
+    "timeToMainContent": 843.36,
+    "totalRequests": 61,
+    "totalJsUncompressedKB": 546.34,
+    "totalJsChunks": 11,
+    "jsHeapUsedMB": 9.29,
+    "taskDurationMs": 4203.98,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 9.251399999979185,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.748099999997066,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 760.4414000000106,
+        "bodyBytes": 960759
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/52db4a51-8c0b-4b9f-a8aa-6fb77b3865fb/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/52db4a51-8c0b-4b9f-a8aa-6fb77b3865fb/progress",
+        "status": 200,
+        "durationMs": 49.66250000000582,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/2dbd5c6b-a9f0-40ce-851e-174a9b3a97bc/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/2dbd5c6b-a9f0-40ce-851e-174a9b3a97bc/progress",
+        "status": 200,
+        "durationMs": 51.53750000000582,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b87dce10-2ab6-4085-a133-f9d384568659/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b87dce10-2ab6-4085-a133-f9d384568659/progress",
+        "status": 200,
+        "durationMs": 52.46040000001085,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/progress",
+        "status": 200,
+        "durationMs": 54.37279999998282,
+        "bodyBytes": 173
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/691c1e78-dc5a-4f6a-9b59-c5bd5fb47506/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/691c1e78-dc5a-4f6a-9b59-c5bd5fb47506/progress",
+        "status": 200,
+        "durationMs": 54.975399999995716,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/43c1cb70-dcdd-4858-8fad-575d3c149cc7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/43c1cb70-dcdd-4858-8fad-575d3c149cc7/progress",
+        "status": 200,
+        "durationMs": 56.85519999999087,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/95ccb77b-8a25-42b2-b171-357e10838fd4/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/95ccb77b-8a25-42b2-b171-357e10838fd4/progress",
+        "status": 200,
+        "durationMs": 57.511599999998,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/c6e3d5f8-63e6-429e-87ea-71710670c2d0/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/c6e3d5f8-63e6-429e-87ea-71710670c2d0/progress",
+        "status": 200,
+        "durationMs": 58.76250000001164,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/5eaa4fe0-ad9a-494a-916c-e180df000964/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/5eaa4fe0-ad9a-494a-916c-e180df000964/progress",
+        "status": 200,
+        "durationMs": 60.250700000004144,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ca308099-e9da-431b-8787-fbf36554c740/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ca308099-e9da-431b-8787-fbf36554c740/progress",
+        "status": 200,
+        "durationMs": 62.42849999997998,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/3e9b8287-cdca-4e6a-a5f8-13678d9ea402/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/3e9b8287-cdca-4e6a-a5f8-13678d9ea402/progress",
+        "status": 200,
+        "durationMs": 62.36819999999716,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/5e0e3f41-caf9-41c3-9c39-8111f06bf3ba/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/5e0e3f41-caf9-41c3-9c39-8111f06bf3ba/progress",
+        "status": 200,
+        "durationMs": 69.211100000015,
+        "bodyBytes": 135
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/609e0b4e-0c7b-4dfb-a658-cd38616271f3/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/609e0b4e-0c7b-4dfb-a658-cd38616271f3/progress",
+        "status": 200,
+        "durationMs": 65.68760000000475,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b92b59df-7f4a-4deb-808b-69b3f8e2005f/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b92b59df-7f4a-4deb-808b-69b3f8e2005f/progress",
+        "status": 200,
+        "durationMs": 68.46240000001853,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/79b30acd-0bd5-41c8-8744-271ad7b496ce/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/79b30acd-0bd5-41c8-8744-271ad7b496ce/progress",
+        "status": 200,
+        "durationMs": 76.90050000001793,
+        "bodyBytes": 136
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b82099b1-bb01-4016-a063-84785b640083/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b82099b1-bb01-4016-a063-84785b640083/progress",
+        "status": 200,
+        "durationMs": 70.39749999999185,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/613d615e-a220-4e65-b1ea-2a3c1f273727/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/613d615e-a220-4e65-b1ea-2a3c1f273727/progress",
+        "status": 200,
+        "durationMs": 71.3183999999892,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/916e0bbe-9fa4-48a6-9679-244a6db6d979/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/916e0bbe-9fa4-48a6-9679-244a6db6d979/progress",
+        "status": 200,
+        "durationMs": 71.46280000000843,
+        "bodyBytes": 291
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/6c097ecf-3bf0-426e-8a7c-229dace84c3f/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/6c097ecf-3bf0-426e-8a7c-229dace84c3f/progress",
+        "status": 200,
+        "durationMs": 73.33280000000377,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/8f4cd6b1-e020-40a8-b1cc-018e7ac33090/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/8f4cd6b1-e020-40a8-b1cc-018e7ac33090/progress",
+        "status": 200,
+        "durationMs": 75.64680000001681,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/58032267-2a48-44a1-b2af-1e240ac6b32a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/58032267-2a48-44a1-b2af-1e240ac6b32a/progress",
+        "status": 200,
+        "durationMs": 76.93469999998342,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/2bd8deaa-37be-4c5b-b16c-52c18a3e9420/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/2bd8deaa-37be-4c5b-b16c-52c18a3e9420/progress",
+        "status": 200,
+        "durationMs": 78.538899999985,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/4e1811a8-e601-4e92-80d9-280c5a477706/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/4e1811a8-e601-4e92-80d9-280c5a477706/progress",
+        "status": 200,
+        "durationMs": 80.01939999999013,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/049c680d-e557-4c2d-823f-1895a2606794/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/049c680d-e557-4c2d-823f-1895a2606794/progress",
+        "status": 200,
+        "durationMs": 77.94219999999041,
+        "bodyBytes": 173
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/70952cf5-254a-4417-a334-bb73116bb808/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/70952cf5-254a-4417-a334-bb73116bb808/progress",
+        "status": 200,
+        "durationMs": 78.64390000002459,
+        "bodyBytes": 173
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/6a0ee877-44bb-4ced-91cf-faa502020a5a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/6a0ee877-44bb-4ced-91cf-faa502020a5a/progress",
+        "status": 200,
+        "durationMs": 81.07550000000629,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/9c0e11d2-7e4b-42b5-b001-c2089a8c747a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/9c0e11d2-7e4b-42b5-b001-c2089a8c747a/progress",
+        "status": 200,
+        "durationMs": 83.44839999999385,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e0090827-8d3c-4e4e-b9da-e840d4b86ead/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e0090827-8d3c-4e4e-b9da-e840d4b86ead/progress",
+        "status": 200,
+        "durationMs": 85.45959999997285,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/0934329f-b9ec-4c8f-9400-c0b53cae4a4b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/0934329f-b9ec-4c8f-9400-c0b53cae4a4b/progress",
+        "status": 200,
+        "durationMs": 88.37569999997504,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e38339dc-6338-478b-a0aa-d5c9c534d097/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e38339dc-6338-478b-a0aa-d5c9c534d097/progress",
+        "status": 200,
+        "durationMs": 90.5737000000081,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/157dafe8-8437-4cdd-9ff5-1a9b3ffaa4e5/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/157dafe8-8437-4cdd-9ff5-1a9b3ffaa4e5/progress",
+        "status": 200,
+        "durationMs": 92.3803000000189,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b629cd0c-7bdb-4f46-a192-f810bdc1a9ff/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b629cd0c-7bdb-4f46-a192-f810bdc1a9ff/progress",
+        "status": 200,
+        "durationMs": 93.89259999999194,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ead9f94f-0907-4fb9-bee7-ddb358483153/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ead9f94f-0907-4fb9-bee7-ddb358483153/progress",
+        "status": 200,
+        "durationMs": 96.34870000000228,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/3e23e340-4916-4fe6-8b6d-a001e5863bb5/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/3e23e340-4916-4fe6-8b6d-a001e5863bb5/progress",
+        "status": 200,
+        "durationMs": 98.62489999999525,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/c31f662f-a0e1-4bff-a44b-29befa722d58/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/c31f662f-a0e1-4bff-a44b-29befa722d58/progress",
+        "status": 200,
+        "durationMs": 100.11639999999898,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/7178ecaf-c7b6-4898-8eb8-a2480e1d708c/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/7178ecaf-c7b6-4898-8eb8-a2480e1d708c/progress",
+        "status": 200,
+        "durationMs": 101.9545999999973,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e8258c13-9299-406c-96a7-c449de04a24b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e8258c13-9299-406c-96a7-c449de04a24b/progress",
+        "status": 200,
+        "durationMs": 102.91810000000987,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/f40705bc-7b26-4289-8b4c-8918aa00cee7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/f40705bc-7b26-4289-8b4c-8918aa00cee7/progress",
+        "status": 200,
+        "durationMs": 104.61280000000261,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/241872b7-e3a2-4dc4-ab86-a6172bf5e713/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/241872b7-e3a2-4dc4-ab86-a6172bf5e713/progress",
+        "status": 200,
+        "durationMs": 106.58860000001732,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ad8cb726-ff17-4d06-95e9-af1266d90647/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ad8cb726-ff17-4d06-95e9-af1266d90647/progress",
+        "status": 200,
+        "durationMs": 118.05309999999008,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25fd2baf-9e7a-4f94-8c6c-abd80b788eb7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25fd2baf-9e7a-4f94-8c6c-abd80b788eb7/progress",
+        "status": 200,
+        "durationMs": 119.86199999999371,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/62126a64-8218-4b83-a693-b8fb24f57aa2/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/62126a64-8218-4b83-a693-b8fb24f57aa2/progress",
+        "status": 200,
+        "durationMs": 225.87710000001243,
+        "bodyBytes": 134
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/22222222-2222-4222-8222-222222222222/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/22222222-2222-4222-8222-222222222222/progress",
+        "status": 200,
+        "durationMs": 227.2554999999993,
+        "bodyBytes": 134
+      }
+    ],
+    "screenshot": "D:\\03_Study\\Studxy\\docs\\qa-round2\\screenshots\\c1-perf\\workspace-mobile.png"
+  },
+  {
+    "run": 2,
+    "route": "/workspace",
+    "routeName": "workspace",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.2,
+    "fcp": 1904,
+    "lcp": 1904,
+    "cls": 0.0395,
+    "tbt": 913,
+    "totalLongTasksMs": 1163,
+    "longTaskCount": 5,
+    "inp": 0,
+    "domContentLoaded": 136.3,
+    "timeToMainContent": 832.69,
+    "totalRequests": 18,
+    "totalJsUncompressedKB": 577.58,
+    "totalJsChunks": 12,
+    "jsHeapUsedMB": 9.27,
+    "taskDurationMs": 4472.94,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 8.462700000003679,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 9.074599999992643,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 399.6540999999852,
+        "bodyBytes": 960759
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/52db4a51-8c0b-4b9f-a8aa-6fb77b3865fb/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/52db4a51-8c0b-4b9f-a8aa-6fb77b3865fb/progress",
+        "status": 200,
+        "durationMs": 44.71510000000126,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/2dbd5c6b-a9f0-40ce-851e-174a9b3a97bc/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/2dbd5c6b-a9f0-40ce-851e-174a9b3a97bc/progress",
+        "status": 200,
+        "durationMs": 57.241600000008475,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b87dce10-2ab6-4085-a133-f9d384568659/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b87dce10-2ab6-4085-a133-f9d384568659/progress",
+        "status": 200,
+        "durationMs": 59.53729999999632,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25f79a81-8ac2-46ae-99e1-85975ff42a8b/progress",
+        "status": 200,
+        "durationMs": 61.98969999997644,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/43c1cb70-dcdd-4858-8fad-575d3c149cc7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/43c1cb70-dcdd-4858-8fad-575d3c149cc7/progress",
+        "status": 200,
+        "durationMs": 64.25649999998859,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/691c1e78-dc5a-4f6a-9b59-c5bd5fb47506/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/691c1e78-dc5a-4f6a-9b59-c5bd5fb47506/progress",
+        "status": 200,
+        "durationMs": 66.77030000000377,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/95ccb77b-8a25-42b2-b171-357e10838fd4/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/95ccb77b-8a25-42b2-b171-357e10838fd4/progress",
+        "status": 200,
+        "durationMs": 68.71630000000005,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/5eaa4fe0-ad9a-494a-916c-e180df000964/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/5eaa4fe0-ad9a-494a-916c-e180df000964/progress",
+        "status": 200,
+        "durationMs": 68.20469999997295,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/c6e3d5f8-63e6-429e-87ea-71710670c2d0/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/c6e3d5f8-63e6-429e-87ea-71710670c2d0/progress",
+        "status": 200,
+        "durationMs": 71.4658000000054,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ca308099-e9da-431b-8787-fbf36554c740/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ca308099-e9da-431b-8787-fbf36554c740/progress",
+        "status": 200,
+        "durationMs": 71.17430000001332,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/79b30acd-0bd5-41c8-8744-271ad7b496ce/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/79b30acd-0bd5-41c8-8744-271ad7b496ce/progress",
+        "status": 200,
+        "durationMs": 77.68280000000959,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/3e9b8287-cdca-4e6a-a5f8-13678d9ea402/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/3e9b8287-cdca-4e6a-a5f8-13678d9ea402/progress",
+        "status": 200,
+        "durationMs": 75.63960000002407,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b92b59df-7f4a-4deb-808b-69b3f8e2005f/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b92b59df-7f4a-4deb-808b-69b3f8e2005f/progress",
+        "status": 200,
+        "durationMs": 77.54309999998077,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/5e0e3f41-caf9-41c3-9c39-8111f06bf3ba/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/5e0e3f41-caf9-41c3-9c39-8111f06bf3ba/progress",
+        "status": 200,
+        "durationMs": 82.36069999999017,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/609e0b4e-0c7b-4dfb-a658-cd38616271f3/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/609e0b4e-0c7b-4dfb-a658-cd38616271f3/progress",
+        "status": 200,
+        "durationMs": 79.87059999999474,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b82099b1-bb01-4016-a063-84785b640083/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b82099b1-bb01-4016-a063-84785b640083/progress",
+        "status": 200,
+        "durationMs": 82.33770000000368,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/613d615e-a220-4e65-b1ea-2a3c1f273727/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/613d615e-a220-4e65-b1ea-2a3c1f273727/progress",
+        "status": 200,
+        "durationMs": 83.9033000000054,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/916e0bbe-9fa4-48a6-9679-244a6db6d979/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/916e0bbe-9fa4-48a6-9679-244a6db6d979/progress",
+        "status": 200,
+        "durationMs": 85.824099999998,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/6c097ecf-3bf0-426e-8a7c-229dace84c3f/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/6c097ecf-3bf0-426e-8a7c-229dace84c3f/progress",
+        "status": 200,
+        "durationMs": 86.88310000000638,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/8f4cd6b1-e020-40a8-b1cc-018e7ac33090/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/8f4cd6b1-e020-40a8-b1cc-018e7ac33090/progress",
+        "status": 200,
+        "durationMs": 87.4037000000244,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/58032267-2a48-44a1-b2af-1e240ac6b32a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/58032267-2a48-44a1-b2af-1e240ac6b32a/progress",
+        "status": 200,
+        "durationMs": 89.53510000000824,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/2bd8deaa-37be-4c5b-b16c-52c18a3e9420/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/2bd8deaa-37be-4c5b-b16c-52c18a3e9420/progress",
+        "status": 200,
+        "durationMs": 91.07300000000396,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/4e1811a8-e601-4e92-80d9-280c5a477706/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/4e1811a8-e601-4e92-80d9-280c5a477706/progress",
+        "status": 200,
+        "durationMs": 93.79610000000685,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/049c680d-e557-4c2d-823f-1895a2606794/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/049c680d-e557-4c2d-823f-1895a2606794/progress",
+        "status": 200,
+        "durationMs": 95.45040000000154,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/70952cf5-254a-4417-a334-bb73116bb808/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/70952cf5-254a-4417-a334-bb73116bb808/progress",
+        "status": 200,
+        "durationMs": 98.09419999999227,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/6a0ee877-44bb-4ced-91cf-faa502020a5a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/6a0ee877-44bb-4ced-91cf-faa502020a5a/progress",
+        "status": 200,
+        "durationMs": 99.88929999998072,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/9c0e11d2-7e4b-42b5-b001-c2089a8c747a/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/9c0e11d2-7e4b-42b5-b001-c2089a8c747a/progress",
+        "status": 200,
+        "durationMs": 101.68720000001485,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e0090827-8d3c-4e4e-b9da-e840d4b86ead/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e0090827-8d3c-4e4e-b9da-e840d4b86ead/progress",
+        "status": 200,
+        "durationMs": 103.80939999999828,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/0934329f-b9ec-4c8f-9400-c0b53cae4a4b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/0934329f-b9ec-4c8f-9400-c0b53cae4a4b/progress",
+        "status": 200,
+        "durationMs": 105.6872999999905,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e38339dc-6338-478b-a0aa-d5c9c534d097/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e38339dc-6338-478b-a0aa-d5c9c534d097/progress",
+        "status": 200,
+        "durationMs": 107.04170000000158,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/157dafe8-8437-4cdd-9ff5-1a9b3ffaa4e5/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/157dafe8-8437-4cdd-9ff5-1a9b3ffaa4e5/progress",
+        "status": 200,
+        "durationMs": 108.34229999998934,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/b629cd0c-7bdb-4f46-a192-f810bdc1a9ff/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/b629cd0c-7bdb-4f46-a192-f810bdc1a9ff/progress",
+        "status": 200,
+        "durationMs": 110.03819999998086,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ead9f94f-0907-4fb9-bee7-ddb358483153/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ead9f94f-0907-4fb9-bee7-ddb358483153/progress",
+        "status": 200,
+        "durationMs": 112.27739999999176,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/3e23e340-4916-4fe6-8b6d-a001e5863bb5/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/3e23e340-4916-4fe6-8b6d-a001e5863bb5/progress",
+        "status": 200,
+        "durationMs": 114.81579999998212,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/c31f662f-a0e1-4bff-a44b-29befa722d58/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/c31f662f-a0e1-4bff-a44b-29befa722d58/progress",
+        "status": 200,
+        "durationMs": 117.22870000000694,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/7178ecaf-c7b6-4898-8eb8-a2480e1d708c/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/7178ecaf-c7b6-4898-8eb8-a2480e1d708c/progress",
+        "status": 200,
+        "durationMs": 112.63310000000638,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/e8258c13-9299-406c-96a7-c449de04a24b/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/e8258c13-9299-406c-96a7-c449de04a24b/progress",
+        "status": 200,
+        "durationMs": 115.88329999998678,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/f40705bc-7b26-4289-8b4c-8918aa00cee7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/f40705bc-7b26-4289-8b4c-8918aa00cee7/progress",
+        "status": 200,
+        "durationMs": 118.5576000000001,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/241872b7-e3a2-4dc4-ab86-a6172bf5e713/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/241872b7-e3a2-4dc4-ab86-a6172bf5e713/progress",
+        "status": 200,
+        "durationMs": 121.05830000000424,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/ad8cb726-ff17-4d06-95e9-af1266d90647/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/ad8cb726-ff17-4d06-95e9-af1266d90647/progress",
+        "status": 200,
+        "durationMs": 123.8418000000238,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/25fd2baf-9e7a-4f94-8c6c-abd80b788eb7/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/25fd2baf-9e7a-4f94-8c6c-abd80b788eb7/progress",
+        "status": 200,
+        "durationMs": 127.04170000000158,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/62126a64-8218-4b83-a693-b8fb24f57aa2/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/62126a64-8218-4b83-a693-b8fb24f57aa2/progress",
+        "status": 200,
+        "durationMs": 228.58520000000135,
+        "bodyBytes": 0
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/courses/22222222-2222-4222-8222-222222222222/progress",
+        "url": "http://127.0.0.1:3000/api/v1/courses/22222222-2222-4222-8222-222222222222/progress",
+        "status": 200,
+        "durationMs": 231.0458000000217,
+        "bodyBytes": 0
+      }
+    ],
+    "screenshot": null
+  },
+  {
+    "run": 3,
+    "route": "/workspace",
+    "routeName": "workspace",
+    "viewport": "mobile",
+    "status": 200,
+    "ttfb": 2.3,
+    "fcp": 1972,
+    "lcp": 1972,
+    "cls": 0,
+    "tbt": 419,
+    "totalLongTasksMs": 569,
+    "longTaskCount": 3,
+    "inp": 0,
+    "domContentLoaded": 134.6,
+    "timeToMainContent": 885.07,
+    "totalRequests": 18,
+    "totalJsUncompressedKB": 577.58,
+    "totalJsChunks": 12,
+    "jsHeapUsedMB": 8.29,
+    "taskDurationMs": 4081.16,
+    "apiCalls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/refresh",
+        "url": "http://127.0.0.1:3000/api/v1/auth/refresh",
+        "status": 200,
+        "durationMs": 11.64069999998901,
+        "bodyBytes": 789
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "url": "http://127.0.0.1:3000/api/v1/auth/me",
+        "status": 200,
+        "durationMs": 6.998200000001816,
+        "bodyBytes": 250
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/workspace/dashboard",
+        "url": "http://127.0.0.1:3000/api/v1/workspace/dashboard",
+        "status": 200,
+        "durationMs": 407.70410000000265,
+        "bodyBytes": 960759
+      }
+    ],
+    "screenshot": null
+  }
+]
