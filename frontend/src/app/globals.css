@@ -4,7 +4,7 @@
 
 @theme {
   /* ==================== PHÔNG CHỮ & TYPOGRAPHY ==================== */
-  --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Be Vietnam Pro", "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: "Noto Serif", "Cambria", "Times New Roman", "Segoe UI", serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
@@ -12,112 +12,86 @@
   --max-w-reading-prose: 68ch;
   --leading-reading: 1.8;
 
-  /* ==================== BẢNG MÀU GIAO DIỆN CHÍNH ==================== */
-  --color-brand-50: #EEF2FF;
-  --color-brand-100: #E0E7FF;
-  --color-brand-500: #6366F1;
+  /* ==================== BẢNG MÀU GIAO DIỆN CHÍNH (CLEAN & CALM) ==================== */
+  --color-brand-50: #EEF0FD;
+  --color-brand-100: #E0E4FC;
+  --color-brand-500: #5E51E8;
   --color-brand-600: #4F46E5;
   --color-brand-700: #4338CA;
 
-  /* ==================== BẢNG MÀU NGỮ NGHĨA HIGHLIGHT (DECISION 13) ==================== */
-  --color-highlight-yellow: var(--highlight-yellow-bg);
-  --color-highlight-green: var(--highlight-green-bg);
-  --color-highlight-blue: var(--highlight-blue-bg);
-  --color-highlight-purple: var(--highlight-purple-bg);
-  --color-highlight-rose: var(--highlight-rose-bg);
+  --color-streak: #D97706;
+  --color-streak-amber: #F59E0B;
+  --color-success: #059669;
+  --color-success-mint: #10B981;
 
-  /* ==================== BẢNG MÀU FSRS STATUS (4 NÚT ĐÁNH GIÁ) ==================== */
-  --color-fsrs-again: #F43F5E;
-  --color-fsrs-hard: #F59E0B;
-  --color-fsrs-good: #10B981;
-  --color-fsrs-easy: #0EA5E9;
+  /* ==================== BÁN KÍNH BO GÓC CHUẨN ==================== */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
 
-  /* ==================== ĐỘ SÂU & BÓNG ĐỔ THẺ 3D ==================== */
+  /* ==================== ĐỘ SÂU & BÓNG ĐỔ ELEVATION ==================== */
+  --shadow-elevation-1: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  --shadow-elevation-2: 0 6px 16px -4px rgba(0, 0, 0, 0.07), 0 2px 6px -2px rgba(0, 0, 0, 0.03);
+  --shadow-elevation-3: 0 16px 36px -6px rgba(15, 23, 42, 0.12), 0 6px 14px -3px rgba(15, 23, 42, 0.05);
+  --shadow-accent-glow: 0 4px 14px 0 rgba(94, 81, 232, 0.22);
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
   --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
-  --shadow-card-front: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-card-hover: 0 20px 35px -5px rgba(99, 102, 241, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.06);
-  --shadow-floating-bar: 0 12px 30px -4px rgba(15, 23, 42, 0.18);
-
-  /* ==================== 3-TIER ELEVATION SURFACES (LINEAR/NOTION STANDARD) ==================== */
-  --color-surface-canvas: var(--surface-canvas);
-  --color-surface-panel: var(--surface-panel);
-  --color-surface-card: var(--surface-card);
-  --color-surface-elevated: var(--surface-elevated);
-
-  /* ==================== BÁN KÍNH BO GÓC ==================== */
-  --radius-xs: 0.25rem;
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
-  --radius-3xl: 2rem;
-  --radius-full: 9999px;
 
   /* ==================== MICRO-INTERACTION TIMING TOKENS ==================== */
   --duration-fast: 150ms;
-  --duration-normal: 200ms;
-  --duration-smooth: 250ms;
-  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
+  --duration-normal: 220ms;
+  --duration-smooth: 320ms;
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 :root {
-  --background: 210 40% 98%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 238.7 83.5% 66.7%;
-  --primary-foreground: 210 40% 98%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 238.7 83.5% 66.7%;
+  /* Clean & Calm Learning - Light Mode Tokens (WCAG 2.1 AA) */
+  --canvas-bg: #FBFBFD;
+  --surface-card: #FFFFFF;
+  --surface-elevated: #F3F4F7;
+  --text-primary: #18181B;
+  --text-secondary: #52525B;
+  --text-tertiary: #71717A;
+  --accent: #5E51E8;
+  --accent-hover: #4F46E5;
+  --accent-subtle: #EEF0FD;
+  --accent-text: #4F46E5;
+  --streak-accent: #B45309;
+  --streak-subtle: #FEF3C7;
+  --success-accent: #047857;
+  --success-subtle: #D1FAE5;
+  --border-calm: #E4E4E7;
+  --border-subtle: #F4F4F5;
+  --ring: #5E51E8;
 
-  /* ==================== 3-TIER ELEVATION SURFACES (LIGHT MODE) ==================== */
-  /* Surface 0 (Canvas) */
-  --surface-canvas: #F8FAFC;
-  /* Surface 1 (Panel/Sidebar) */
-  --surface-panel: #FFFFFF;
-  /* Surface 2 (Card/Elevated) */
-  --surface-card: #F1F5F9;
-  /* Surface 3 (Overlay/Elevated+) */
-  --surface-elevated: #E2E8F0;
+  /* Elevation Shadows */
+  --elevation-1: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  --elevation-2: 0 6px 16px -4px rgba(0, 0, 0, 0.07), 0 2px 6px -2px rgba(0, 0, 0, 0.03);
+  --elevation-3: 0 16px 36px -6px rgba(15, 23, 42, 0.12), 0 6px 14px -3px rgba(15, 23, 42, 0.05);
+  --accent-glow: 0 4px 14px 0 rgba(94, 81, 232, 0.22);
 
-  /* ==================== HIGH CONTRAST TYPOGRAPHY (WCAG AA > 4.5:1) ==================== */
-  --text-primary: #0F172A;
-  --text-secondary: #334155;
-  --text-muted: #475569;
-  --text-subtle: #64748B;
-  --border-subtle: #E2E8F0;
-  --border-default: #CBD5E1;
+  /* Unified Aliases for V1 & V2 backward compatibility */
+  --surface-canvas: var(--canvas-bg);
+  --surface-panel: var(--surface-card);
+  --bg-primary: var(--surface-card);
+  --bg-secondary: var(--canvas-bg);
+  --bg-tertiary: var(--surface-elevated);
+  --accent-v2: var(--accent);
+  --accent-hover: var(--accent-hover);
+  --accent-subtle-v2: var(--accent-subtle);
+  --border-v2: var(--border-calm);
+  --border-subtle-v2: var(--border-subtle);
+  --text-primary-v2: var(--text-primary);
+  --text-secondary-v2: var(--text-secondary);
+  --text-tertiary-v2: var(--text-tertiary);
 
-  /* Semantic Highlight Color Tokens (Light Mode - WCAG AA) */
+  /* Semantic Highlight Color Tokens */
   --highlight-yellow-bg: rgba(254, 240, 138, 0.78);
   --highlight-yellow-border: #EAB308;
   --highlight-green-bg: rgba(187, 247, 208, 0.78);
@@ -131,38 +105,47 @@
 }
 
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 6.5%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 6.5%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 238.7 83.5% 66.7%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --border: 217.2 32.6% 17.5%;
-  --ring: 238.7 83.5% 66.7%;
+  /* Clean & Calm Learning - Dark Mode Tokens (Anti-glare Zinc/Chì) */
+  --canvas-bg: #0F0F12;
+  --surface-card: #18181C;
+  --surface-elevated: #222228;
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --text-tertiary: #71717A;
+  --accent: #818CF8;
+  --accent-hover: #6366F1;
+  --accent-subtle: #1E1B4B;
+  --accent-text: #A5B4FC;
+  --streak-accent: #FBBF24;
+  --streak-subtle: #451A03;
+  --success-accent: #34D399;
+  --success-subtle: #064E3B;
+  --border-calm: #27272A;
+  --border-subtle: #1F1F23;
+  --ring: #818CF8;
 
-  /* ==================== 3-TIER ELEVATION SURFACES (DARK MODE) ==================== */
-  /* Surface 0 (Canvas) */
-  --surface-canvas: #020617;
-  /* Surface 1 (Panel/Sidebar) */
-  --surface-panel: #0F172A;
-  /* Surface 2 (Card/Elevated) */
-  --surface-card: #1E293B;
-  /* Surface 3 (Overlay/Elevated+) */
-  --surface-elevated: #334155;
+  /* Elevation Shadows (Dark) */
+  --elevation-1: 0 1px 3px 0 rgba(0, 0, 0, 0.35);
+  --elevation-2: 0 6px 16px -4px rgba(0, 0, 0, 0.5);
+  --elevation-3: 0 16px 36px -6px rgba(0, 0, 0, 0.7);
+  --accent-glow: 0 4px 14px 0 rgba(129, 140, 248, 0.25);
 
-  /* ==================== HIGH CONTRAST TYPOGRAPHY (WCAG AA > 4.5:1) ==================== */
-  --text-primary: #F8FAFC;
-  --text-secondary: #E2E8F0;
-  --text-muted: #CBD5E1;
-  --text-subtle: #94A3B8;
-  --border-subtle: #1E293B;
-  --border-default: #334155;
+  /* Unified Aliases (Dark) */
+  --surface-canvas: var(--canvas-bg);
+  --surface-panel: var(--surface-card);
+  --bg-primary: var(--surface-card);
+  --bg-secondary: var(--canvas-bg);
+  --bg-tertiary: var(--surface-elevated);
+  --accent-v2: var(--accent);
+  --accent-hover: var(--accent-hover);
+  --accent-subtle-v2: var(--accent-subtle);
+  --border-v2: var(--border-calm);
+  --border-subtle-v2: var(--border-subtle);
+  --text-primary-v2: var(--text-primary);
+  --text-secondary-v2: var(--text-secondary);
+  --text-tertiary-v2: var(--text-tertiary);
 
-  /* Semantic Highlight Color Tokens (Dark Mode - Desaturated Anti-Glare) */
+  /* Semantic Highlight Color Tokens (Dark) */
   --highlight-yellow-bg: rgba(161, 98, 7, 0.38);
   --highlight-yellow-border: #EAB308;
   --highlight-green-bg: rgba(21, 128, 61, 0.38);
@@ -175,6 +158,51 @@
   --highlight-rose-border: #F43F5E;
 }
 
+/* ==================== GLOBAL UTILITIES ==================== */
+.bg-canvas { background-color: var(--canvas-bg); }
+.bg-surface-canvas { background-color: var(--canvas-bg); }
+.bg-surface-panel { background-color: var(--surface-card); }
+.bg-surface-card { background-color: var(--surface-card); }
+.bg-surface-elevated { background-color: var(--surface-elevated); }
+
+.bg-bg-primary { background-color: var(--surface-card); }
+.bg-bg-secondary { background-color: var(--canvas-bg); }
+.bg-bg-tertiary { background-color: var(--surface-elevated); }
+
+.text-text-primary { color: var(--text-primary); }
+.text-text-secondary { color: var(--text-secondary); }
+.text-text-tertiary { color: var(--text-tertiary); }
+.text-accent { color: var(--accent); }
+.text-accent-high { color: var(--accent-text); }
+.text-streak { color: var(--streak-accent); }
+.text-success { color: var(--success-accent); }
+
+.bg-accent { background-color: var(--accent); }
+.bg-accent-hover:hover { background-color: var(--accent-hover); }
+.bg-accent-subtle { background-color: var(--accent-subtle); }
+.bg-streak-subtle { background-color: var(--streak-subtle); }
+.bg-success-subtle { background-color: var(--success-subtle); }
+
+.border-border { border-color: var(--border-calm); }
+.border-border-subtle { border-color: var(--border-subtle); }
+.border-accent { border-color: var(--accent); }
+.border-surface-card { border-color: var(--surface-card); }
+.border-surface-elevated { border-color: var(--surface-elevated); }
+
+.hover\:bg-bg-secondary:hover { background-color: var(--canvas-bg); }
+.hover\:bg-surface-elevated:hover { background-color: var(--surface-elevated); }
+.hover\:border-accent\/50:hover { border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+.hover\:text-text-primary:hover { color: var(--text-primary); }
+.hover\:text-accent:hover { color: var(--accent); }
+.hover\:bg-accent-subtle:hover { background-color: var(--accent-subtle); }
+
+/* Elevation Shadows */
+.shadow-elevation-1 { box-shadow: var(--elevation-1); }
+.shadow-elevation-2 { box-shadow: var(--elevation-2); }
+.shadow-elevation-3 { box-shadow: var(--elevation-3); }
+.shadow-accent-glow { box-shadow: var(--accent-glow); }
+
+/* Highlights */
 .swms-highlight-yellow {
   background-color: var(--highlight-yellow-bg);
   border-bottom: 2px solid var(--highlight-yellow-border);
@@ -194,26 +222,6 @@
 .swms-highlight-rose {
   background-color: var(--highlight-rose-bg);
   border-bottom: 2px solid var(--highlight-rose-border);
-}
-
-/* ==================== 3-TIER SURFACE UTILITY CLASSES ==================== */
-.bg-surface-canvas {
-  background-color: var(--surface-canvas);
-}
-.bg-surface-panel {
-  background-color: var(--surface-panel);
-}
-.bg-surface-card {
-  background-color: var(--surface-card);
-}
-.bg-surface-elevated {
-  background-color: var(--surface-elevated);
-}
-.border-surface-card {
-  border-color: var(--surface-card);
-}
-.border-surface-elevated {
-  border-color: var(--surface-elevated);
 }
 
 /* ==================== 3D FLASHCARD PERSPECTIVE & TRANSFORMS ==================== */
@@ -243,11 +251,7 @@
 
 /* ==================== ACCESSIBLE FOCUS-VISIBLE RINGS (WCAG 2.1 AA) ==================== */
 :focus-visible {
-  outline: 2px solid #6366F1;
-  outline-offset: 2px;
-}
-.dark :focus-visible {
-  outline: 2px solid #818CF8;
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 
@@ -255,33 +259,29 @@
   outline: none;
 }
 .focus-ring:focus-visible {
-  outline: 2px solid #6366F1;
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-}
-.dark .focus-ring:focus-visible {
-  outline: 2px solid #818CF8;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 25%, transparent);
 }
 
-/* ==================== MICRO-INTERACTION TRANSITIONS (150ms-250ms EASE) ==================== */
+/* ==================== MICRO-INTERACTION TRANSITIONS ==================== */
 .transition-micro {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 200ms;
+  transition-timing-function: var(--ease-smooth);
+  transition-duration: var(--duration-normal);
 }
 .transition-fast {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
+  transition-timing-function: var(--ease-smooth);
+  transition-duration: var(--duration-fast);
 }
 .transition-smooth {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  transition-duration: 250ms;
+  transition-timing-function: var(--ease-spring);
+  transition-duration: var(--duration-smooth);
 }
 
+/* Reduced motion accessibility */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -301,122 +301,41 @@
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1;
-  color: #475569;
-  background-color: #F1F5F9;
-  border: 1px solid #CBD5E1;
-  border-radius: 0.375rem;
+  color: var(--text-secondary);
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--border-calm);
+  border-radius: var(--radius-sm);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
-}
-
-.dark .swms-kbd {
-  color: #94A3B8;
-  background-color: #1E293B;
-  border-color: #334155;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
 }
 
 /* Khung kính mờ thanh lịch */
 .swms-glass-card {
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: color-mix(in srgb, var(--surface-card) 85%, transparent);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid var(--border-calm);
 }
 
-.dark .swms-glass-card {
-  background-color: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(30, 41, 59, 0.8);
-}
-
-/* Thanh cuộn tinh gọn cho lộ trình khóa học, bảng Markdown & khối mã */
+/* Thanh cuộn tinh gọn */
 .swms-thin-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
 }
-
 .swms-thin-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
 .swms-thin-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
-
 .swms-thin-scrollbar::-webkit-scrollbar-thumb {
   background-color: rgba(148, 163, 184, 0.45);
   border-radius: 9999px;
 }
-
 .dark .swms-thin-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(71, 85, 105, 0.65);
+  background-color: rgba(113, 113, 122, 0.5);
 }
-
-/* =====================================================================
-   STUDXY V2 DESIGN SYSTEM — NEW SEMANTIC TOKENS (Modern SaaS / Linear)
-   Used by /app/* routes. Old tokens preserved for /workspace backward compat.
-   ===================================================================== */
-
-:root {
-  /* Background tiers */
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F9FAFB;
-  --bg-tertiary: #F3F4F6;
-
-  /* Text hierarchy */
-  --text-primary-v2: #111827;
-  --text-secondary-v2: #6B7280;
-  --text-tertiary-v2: #9CA3AF;
-
-  /* Accent */
-  --accent-v2: #6366F1;
-  --accent-hover: #4F46E5;
-  --accent-subtle-v2: #EEF2FF;
-
-  /* Borders */
-  --border-v2: #E5E7EB;
-  --border-subtle-v2: #F3F4F6;
-}
-
-.dark {
-  --bg-primary: #0A0A0B;
-  --bg-secondary: #111113;
-  --bg-tertiary: #1A1A1D;
-
-  --text-primary-v2: #F9FAFB;
-  --text-secondary-v2: #9CA3AF;
-  --text-tertiary-v2: #6B7280;
-
-  --accent-v2: #818CF8;
-  --accent-hover: #6366F1;
-  --accent-subtle-v2: #1E1B4B;
-
-  --border-v2: #27272A;
-  --border-subtle-v2: #1F1F23;
-}
-
-/* V2 semantic utility classes — used by /app/* components */
-.bg-bg-primary { background-color: var(--bg-primary); }
-.bg-bg-secondary { background-color: var(--bg-secondary); }
-.bg-bg-tertiary { background-color: var(--bg-tertiary); }
-.text-text-primary { color: var(--text-primary-v2); }
-.text-text-secondary { color: var(--text-secondary-v2); }
-.text-text-tertiary { color: var(--text-tertiary-v2); }
-.text-accent { color: var(--accent-v2); }
-.bg-accent { background-color: var(--accent-v2); }
-.bg-accent-hover { background-color: var(--accent-hover); }
-.bg-accent-subtle { background-color: var(--accent-subtle-v2); }
-.border-accent { border-color: var(--accent-v2); }
-.border-border { border-color: var(--border-v2); }
-.border-border-subtle { border-color: var(--border-subtle-v2); }
-.hover\:bg-bg-secondary:hover { background-color: var(--bg-secondary); }
-.hover\:border-accent\/50:hover { border-color: color-mix(in srgb, var(--accent-v2) 50%, transparent); }
-.hover\:text-text-primary:hover { color: var(--text-primary-v2); }
-.hover\:text-accent:hover { color: var(--accent-v2); }
-.hover\:bg-accent-subtle:hover { background-color: var(--accent-subtle-v2); }
 
 /* Safe area for mobile bottom nav */
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-
