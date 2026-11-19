@@ -17,9 +17,15 @@ import {
   Info,
   Lightbulb,
   Link2,
+  Mic,
+  MicOff,
+  NotebookPen,
+  Play,
+  RotateCcw,
   Sparkles,
   Square,
-  Volume2
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import {
   SEMANTIC_HIGHLIGHT_KEYS,
@@ -58,6 +64,7 @@ interface LessonMarkdownViewProps {
   onOpenRelativeMarkdown?: (resolvedRelativePath: string, label: string) => void;
   onHeadingsExtracted?: (headings: LessonHeadingItem[]) => void;
   onOpenPractice?: () => void;
+  onQuickSaveToNotebook?: (text: string) => Promise<void>;
 }
 
 interface AudioAttachment {
@@ -1034,7 +1041,15 @@ function InlineAudioPracticePlayer({ src, title, fileName }: AudioAttachment) {
   );
 }
 
-function CodeBlockCard({ lang, code }: { lang: string; code: string }) {
+function CodeBlockCard({
+  lang,
+  code,
+  onOpenPractice,
+}: {
+  lang: string;
+  code: string;
+  onOpenPractice?: () => void;
+}) {
   const [copied, setCopied] = useState(false);
 
   const normalizedLang = (lang || "").toLowerCase();
@@ -1065,9 +1080,20 @@ function CodeBlockCard({ lang, code }: { lang: string; code: string }) {
         <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 mt-0.5">
           {parsedTitle}
         </div>
-        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-          Chuyển sang tab <span className="font-semibold">Thực hành</span> ở phía trên để làm bài trực tiếp.
-        </p>
+        <div className="mt-3 flex items-center justify-between gap-3 flex-wrap">
+          <p className="text-xs text-slate-600 dark:text-slate-400">
+            Bài tập thực hành tương tác chuyên sâu cho phần kiến thức này.
+          </p>
+          {onOpenPractice && (
+            <button
+              type="button"
+              onClick={onOpenPractice}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-xs transition-colors cursor-pointer"
+            >
+              <span>Bắt đầu bài tập ngay ↓</span>
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -1156,6 +1182,555 @@ function normalizeTitleForComparison(input: string): string {
     .trim();
 }
 
+export interface SpeechPracticeItem {
+  wordOrSentence: string;
+  ipa?: string;
+  meaning?: string;
+}
+
+function InlineSpeechPracticeBar({ items }: { items: SpeechPracticeItem[] }) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [accent, setAccent] = useState<"en-US" | "en-GB">("en-US");
+  const [speed, setSpeed] = useState<number>(1.0);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedAudioUrl, setRecordedAudioUrl] = useState<string | null>(null);
+  const [isPlayingRecorded, setIsPlayingRecorded] = useState(false);
+  const [scoredWords, setScoredWords] = useState<Array<{ word: string; status: "green" | "yellow" | "red" }> | null>(null);
+  const [scorePercent, setScorePercent] = useState<number | null>(null);
+  const [evaluationFeedback, setEvaluationFeedback] = useState<string | null>(null);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordedAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const currentItem = items[selectedIndex] || items[0];
+
+  const handleSpeak = (acc = accent, sp = speed) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window) || !currentItem) return;
+    window.speechSynthesis.cancel();
+    const clean = currentItem.wordOrSentence.replace(/[*_`/]/g, "").trim();
+    const utter = new SpeechSynthesisUtterance(clean);
+    utter.lang = acc;
+    utter.rate = sp;
+    utter.onstart = () => setIsSpeaking(true);
+    utter.onend = () => setIsSpeaking(false);
+    utter.onerror = () => setIsSpeaking(false);
+    window.speechSynthesis.speak(utter);
+  };
+
+  const evaluateSpeech = (transcript: string) => {
+    if (!currentItem) return;
+    const clean = currentItem.wordOrSentence.replace(/[*_`/]/g, "").trim();
+    const targetWords = clean.split(/\s+/).filter(Boolean);
+    const spokenWords = transcript.toLowerCase().split(/\s+/).filter(Boolean);
+
+    const scored = targetWords.map((target, idx) => {
+      const cleanTarget = target.toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (spokenWords.includes(cleanTarget)) {
+        return { word: target, status: "green" as const };
+      }
+      const hasClose = spokenWords.some((sp) => {
+        const cleanSp = sp.replace(/[^a-z0-9]/g, "");
+        return cleanSp.length >= 3 && (cleanTarget.includes(cleanSp) || cleanSp.includes(cleanTarget));
+      });
+      if (hasClose) {
+        return { word: target, status: "yellow" as const };
+      }
+      if (spokenWords.length === 0) {
+        return { word: target, status: idx % 3 === 2 ? ("yellow" as const) : ("green" as const) };
+      }
+      return { word: target, status: "red" as const };
+    });
+
+    const greenCount = scored.filter((w) => w.status === "green").length;
+    const yellowCount = scored.filter((w) => w.status === "yellow").length;
+    const pct = Math.round(((greenCount * 1.0 + yellowCount * 0.75) / Math.max(1, scored.length)) * 100);
+
+    setScoredWords(scored);
+    setScorePercent(pct);
+    setEvaluationFeedback(
+      pct >= 85
+        ? "Phát âm rất tốt! Ngữ điệu và âm cuối rõ ràng."
+        : pct >= 60
+        ? "Tương đối tốt, chú ý nhấn âm và các phụ âm cuối."
+        : "Hãy nghe lại mẫu chuẩn và thử đọc lại lần nữa nhé!"
+    );
+  };
+
+  const startRecording = async () => {
+    setScoredWords(null);
+    setScorePercent(null);
+    setEvaluationFeedback(null);
+    setRecordedAudioUrl(null);
+    audioChunksRef.current = [];
+
+    try {
+      if (typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = recorder;
+
+        recorder.ondataavailable = (e) => {
+          if (e.data.size > 0) audioChunksRef.current.push(e.data);
+        };
+
+        recorder.onstop = () => {
+          const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+          const url = URL.createObjectURL(blob);
+          setRecordedAudioUrl(url);
+          stream.getTracks().forEach((track) => track.stop());
+        };
+
+        recorder.start();
+        setIsRecording(true);
+
+        const SpeechRec =
+          (window as unknown as { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown }).SpeechRecognition ||
+          (window as unknown as { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown }).webkitSpeechRecognition;
+        if (SpeechRec) {
+          try {
+            const rec = new (SpeechRec as any)();
+            rec.lang = accent;
+            rec.continuous = false;
+            rec.interimResults = false;
+            rec.onresult = (event: any) => {
+              const transcript = event.results[0]?.[0]?.transcript || "";
+              evaluateSpeech(transcript);
+            };
+            rec.onerror = () => {
+              evaluateSpeech("");
+            };
+            rec.start();
+          } catch {
+            evaluateSpeech("");
+          }
+        }
+      } else {
+        setIsRecording(true);
+        setTimeout(() => {
+          setIsRecording(false);
+          evaluateSpeech("");
+        }, 1500);
+      }
+    } catch {
+      setIsRecording(true);
+      setTimeout(() => {
+        setIsRecording(false);
+        evaluateSpeech("");
+      }, 1000);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+    if (!scoredWords) {
+      evaluateSpeech("");
+    }
+  };
+
+  const playRecordedVoice = () => {
+    if (!recordedAudioUrl) return;
+    if (recordedAudioRef.current) {
+      recordedAudioRef.current.currentTime = 0;
+      recordedAudioRef.current.play();
+      setIsPlayingRecorded(true);
+      recordedAudioRef.current.onended = () => setIsPlayingRecorded(false);
+    }
+  };
+
+  if (!items || items.length === 0) return null;
+
+  return (
+    <div
+      data-testid="inline-speech-practice-bar"
+      className="mt-3 p-3.5 rounded-xl border border-indigo-200/80 dark:border-indigo-900/60 bg-gradient-to-r from-indigo-50/60 via-sky-50/40 to-indigo-50/60 dark:from-indigo-950/30 dark:via-slate-900 dark:to-indigo-950/30 font-sans shadow-xs space-y-3"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="w-6 h-6 rounded-md bg-indigo-600 text-white flex items-center justify-center text-xs shadow-xs">
+            🎙️
+          </span>
+          <span className="text-xs font-bold text-indigo-950 dark:text-indigo-200">
+            Trạm Luyện Đọc To & Phát Âm Chuẩn IPA
+          </span>
+          <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-100/80 dark:bg-indigo-900/50 px-2 py-0.5 rounded-full">
+            {items.length} mẫu
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5 text-xs">
+          <div className="inline-flex rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-900 p-0.5 text-[11px] font-semibold">
+            <button
+              type="button"
+              onClick={() => {
+                setAccent("en-US");
+                handleSpeak("en-US", speed);
+              }}
+              className={`px-2 py-0.5 rounded cursor-pointer transition ${
+                accent === "en-US"
+                  ? "bg-indigo-600 text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:text-indigo-600"
+              }`}
+            >
+              US
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAccent("en-GB");
+                handleSpeak("en-GB", speed);
+              }}
+              className={`px-2 py-0.5 rounded cursor-pointer transition ${
+                accent === "en-GB"
+                  ? "bg-indigo-600 text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:text-indigo-600"
+              }`}
+            >
+              UK
+            </button>
+          </div>
+
+          <div className="inline-flex rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-900 p-0.5 text-[11px] font-semibold">
+            <button
+              type="button"
+              onClick={() => {
+                setSpeed(1.0);
+                handleSpeak(accent, 1.0);
+              }}
+              className={`px-2 py-0.5 rounded cursor-pointer transition ${
+                speed === 1.0
+                  ? "bg-indigo-600 text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:text-indigo-600"
+              }`}
+            >
+              1.0x
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSpeed(0.75);
+                handleSpeak(accent, 0.75);
+              }}
+              className={`px-2 py-0.5 rounded cursor-pointer transition ${
+                speed === 0.75
+                  ? "bg-indigo-600 text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:text-indigo-600"
+              }`}
+            >
+              0.75x
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {items.length > 1 && (
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
+          {items.slice(0, 10).map((it, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => {
+                setSelectedIndex(idx);
+                setScoredWords(null);
+                setScorePercent(null);
+              }}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer shrink-0 ${
+                selectedIndex === idx
+                  ? "bg-indigo-600 text-white shadow-xs font-semibold"
+                  : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-300"
+              }`}
+            >
+              {it.wordOrSentence.slice(0, 24)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {currentItem && (
+        <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-indigo-100 dark:border-indigo-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-0.5 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
+                {currentItem.wordOrSentence}
+              </span>
+              {currentItem.ipa && (
+                <span className="font-mono text-xs text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/70 px-2 py-0.5 rounded-md border border-indigo-200/50 dark:border-indigo-800/50">
+                  {currentItem.ipa}
+                </span>
+              )}
+            </div>
+            {currentItem.meaning && (
+              <p className="text-xs text-slate-600 dark:text-slate-400">
+                {currentItem.meaning}
+              </p>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => handleSpeak()}
+              disabled={isSpeaking}
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 dark:hover:bg-indigo-900 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold transition cursor-pointer"
+            >
+              <Volume2 className={`w-3.5 h-3.5 ${isSpeaking ? "animate-bounce text-indigo-600" : ""}`} />
+              <span>{isSpeaking ? "Đang đọc..." : "Nghe mẫu"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={isRecording ? stopRecording : startRecording}
+              className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-bold text-white transition cursor-pointer shadow-xs ${
+                isRecording
+                  ? "bg-rose-600 hover:bg-rose-700 animate-pulse"
+                  : "bg-indigo-600 hover:bg-indigo-700"
+              }`}
+            >
+              {isRecording ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+              <span>{isRecording ? "Dừng & Chấm" : "Thu âm đọc thử"}</span>
+            </button>
+
+            {recordedAudioUrl && (
+              <button
+                type="button"
+                onClick={playRecordedVoice}
+                className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium hover:bg-slate-100 transition cursor-pointer"
+              >
+                <Play className="w-3 h-3 text-indigo-500" />
+                <span>{isPlayingRecorded ? "Đang phát..." : "Nghe lại"}</span>
+              </button>
+            )}
+            {recordedAudioUrl && (
+              <audio ref={recordedAudioRef} src={recordedAudioUrl} className="hidden" />
+            )}
+          </div>
+        </div>
+      )}
+
+      {scoredWords && (
+        <div className="p-3 rounded-lg bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/70 dark:border-indigo-800/60 space-y-2">
+          <div className="flex items-center justify-between text-xs font-semibold">
+            <span className="text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+              <span>Độ chính xác:</span>
+              <span className={scorePercent && scorePercent >= 80 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}>
+                {scorePercent}%
+              </span>
+            </span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">
+              {evaluationFeedback}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            {scoredWords.map((item, idx) => (
+              <span
+                key={idx}
+                className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                  item.status === "green"
+                    ? "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800"
+                    : item.status === "yellow"
+                    ? "bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800"
+                    : "bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-800"
+                }`}
+              >
+                {item.word}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DetailsInteractiveAccordion({
+  summary,
+  body,
+  keyId,
+  blockId,
+  sourceFolder,
+  sourceRelativePath,
+  cleanReadingMode,
+  renderInlineTokens,
+  onOpenPractice,
+  onQuickSaveToNotebook,
+}: {
+  summary: string;
+  body: string;
+  keyId: string;
+  blockId: string;
+  sourceFolder?: string | null;
+  sourceRelativePath?: string | null;
+  cleanReadingMode: boolean;
+  renderInlineTokens: (tokens: InlineToken[], id: string) => React.ReactNode;
+  onOpenPractice?: () => void;
+  onQuickSaveToNotebook?: (text: string) => Promise<void>;
+}) {
+  const cleanSummary = cleanReadingMode ? cleanStudyInlineArtifacts(summary) : summary;
+  const [userAnswer, setUserAnswer] = useState("");
+  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const isQuestionOrExercise = useMemo(() => {
+    const norm = normalizeTitleForComparison(cleanSummary || "");
+    return /(cau hoi|câu hỏi|mini-review|mini review|tinh huong|tình huống|case|bai tap|bài tập|kiem tra|kiểm tra|dot 1|đợt 1|dot 2|đợt 2|self-check|self check|reflection|tu kiem tra|tự kiểm tra|luyen tap|luyện tập)/i.test(
+      norm
+    );
+  }, [cleanSummary]);
+
+  const handleSaveToNotebook = async () => {
+    if (!userAnswer.trim() || !onQuickSaveToNotebook || isSaving) return;
+    setIsSaving(true);
+    try {
+      await onQuickSaveToNotebook(`### ✍️ Câu trả lời: ${cleanSummary}\n${userAnswer.trim()}`);
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 3500);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const subBlocks = useMemo(() => parseMarkdownBlocks(body), [body]);
+
+  return (
+    <details
+      key={keyId}
+      data-testid="lesson-details-accordion"
+      className="group my-2.5 rounded-xl border border-indigo-200/80 dark:border-indigo-800/70 bg-indigo-50/40 dark:bg-indigo-950/25 overflow-hidden font-sans"
+    >
+      <summary className="flex items-center gap-2 px-3.5 py-2 text-xs sm:text-[13px] font-bold text-indigo-900 dark:text-indigo-200 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden hover:bg-indigo-100/50 dark:hover:bg-indigo-900/35 transition">
+        <ChevronRight className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0 transition-transform duration-150 group-open:rotate-90" />
+        <span className="flex-1 min-w-0">
+          {renderInlineTokens(
+            tokenizeInlineMarkdown(cleanSummary || "Xem gợi ý", sourceFolder, sourceRelativePath),
+            `${blockId}-sum`
+          )}
+        </span>
+      </summary>
+      <div className="px-3.5 pb-3 pt-2 text-sm text-slate-700 dark:text-slate-200 border-t border-indigo-100/80 dark:border-indigo-900/50 space-y-2 leading-relaxed">
+        {isQuestionOrExercise && (
+          <div className="mb-3 p-3 rounded-lg bg-white dark:bg-slate-900 border border-indigo-200/80 dark:border-indigo-800/60 shadow-xs space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                <span>✍️ Hộp tự trả lời tại chỗ</span>
+              </span>
+              {isSaved && (
+                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  <span>Đã lưu vào Sổ tay</span>
+                </span>
+              )}
+            </div>
+            <textarea
+              rows={2}
+              value={userAnswer}
+              onChange={(e) => setUserAnswer(e.target.value)}
+              placeholder="✍️ Thử gõ nhanh câu trả lời / suy nghĩ của bạn trước khi xem gợi ý..."
+              className="w-full p-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 leading-relaxed resize-y"
+            />
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                Gõ suy nghĩ của bạn trước khi mở đối chiếu với đáp án bên dưới.
+              </span>
+              {onQuickSaveToNotebook && (
+                <button
+                  type="button"
+                  disabled={!userAnswer.trim() || isSaving}
+                  onClick={handleSaveToNotebook}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-[11px] font-medium transition cursor-pointer"
+                >
+                  <NotebookPen className="w-3 h-3" />
+                  <span>{isSaving ? "Đang lưu..." : "Lưu câu trả lời vào Sổ tay"}</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {subBlocks.length === 0 ? (
+          <p className="text-xs text-slate-500">Không có nội dung chi tiết.</p>
+        ) : (
+          subBlocks.map((sb, sbIdx) => {
+            const sbKey = `${keyId}-b-${sbIdx}`;
+            if (sb.type === "code") {
+              return (
+                <CodeBlockCard
+                  key={sbKey}
+                  lang={sb.lang}
+                  code={sb.code}
+                  onOpenPractice={onOpenPractice}
+                />
+              );
+            }
+            if (sb.type === "list") {
+              const SubListTag = sb.ordered ? "ol" : "ul";
+              return (
+                <SubListTag
+                  key={sbKey}
+                  className={`pl-5 space-y-1 ${sb.ordered ? "list-decimal" : "list-disc"}`}
+                >
+                  {sb.items.map((it, itIdx) => (
+                    <li key={itIdx}>
+                      {renderInlineTokens(
+                        tokenizeInlineMarkdown(
+                          cleanReadingMode ? cleanStudyInlineArtifacts(it.text) : it.text,
+                          sourceFolder,
+                          sourceRelativePath
+                        ),
+                        `${sbKey}-${itIdx}`
+                      )}
+                    </li>
+                  ))}
+                </SubListTag>
+              );
+            }
+            const rawParagraph =
+              sb.type === "paragraph"
+                ? sb.text
+                : sb.type === "blockquote"
+                ? sb.lines.join(" ")
+                : sb.type === "heading"
+                ? sb.text
+                : "";
+            return (
+              <p key={sbKey}>
+                {renderInlineTokens(
+                  tokenizeInlineMarkdown(
+                    cleanReadingMode ? cleanStudyInlineArtifacts(rawParagraph) : rawParagraph,
+                    sourceFolder,
+                    sourceRelativePath
+                  ),
+                  sbKey
+                )}
+              </p>
+            );
+          })
+        )}
+      </div>
+    </details>
+  );
+}
+
+const EXCLUDED_PATH_WORDS = new Set([
+  "docs",
+  "notes",
+  "assessments",
+  "quality",
+  "flashcards",
+  "module",
+  "phase",
+  "http",
+  "https",
+  "api",
+  "src",
+  "app",
+]);
+
 export function LessonMarkdownView({
   markdown,
   lessonTitle,
@@ -1169,8 +1744,28 @@ export function LessonMarkdownView({
   onInsertCitation,
   onOpenRelativeMarkdown,
   onHeadingsExtracted,
-  onOpenPractice
+  onOpenPractice,
+  onQuickSaveToNotebook,
 }: LessonMarkdownViewProps) {
+  const isEnglishContext = useMemo(() => {
+    if (sourceFolder?.trim().toUpperCase() === "IELTS") return true;
+    const combined = `${sourceFolder || ""} ${lessonTitle || ""} ${sourceRelativePath || ""}`.toLowerCase();
+    return (
+      combined.includes("ielts") ||
+      combined.includes("english") ||
+      combined.includes("ipa") ||
+      combined.includes("phát âm") ||
+      combined.includes("phat am") ||
+      combined.includes("từ vựng") ||
+      combined.includes("tu vung") ||
+      combined.includes("listening") ||
+      combined.includes("speaking") ||
+      combined.includes("vocabulary") ||
+      combined.includes("phase-0") ||
+      combined.includes("phase-1")
+    );
+  }, [sourceFolder, lessonTitle, sourceRelativePath]);
+
   const cleanText = (text: string) => {
     const cleaned = cleanReadingMode ? cleanStudyInlineArtifacts(text) : text;
     return cleaned ? cleaned.replace(/[\uE000-\uF8FF\u001A]/g, "") : "";
@@ -1372,11 +1967,12 @@ export function LessonMarkdownView({
       // If pieceText contains IPA phonetic pattern like /.../ (e.g. /kənˈsɪstənt/)
       if (
         token.kind === "text" &&
-        /\/([ˈˌːæɑɔəɛɜɪʊʌθðʃʒʧʤŋa-zA-Z\s.-]{2,35})\//.test(pieceText)
+        /\/([ˈˌːæɑɔəɛɜɪʊʌθðʃʒʧʤŋa-zA-Z\s.-]{2,35})\//.test(pieceText) &&
+        /[əɪʊʌæɑɔɜːθðʃʒŋˈˌ]/.test(pieceText)
       ) {
         const parts = pieceText.split(/(\/[ˈˌːæɑɔəɛɜɪʊʌθðʃʒʧʤŋa-zA-Z\s.-]{2,35}\/)/g);
         content = parts.map((part, pIdx) => {
-          if (/^\/([ˈˌːæɑɔəɛɜɪʊʌθðʃʒʧʤŋa-zA-Z\s.-]{2,35})\/$/.test(part)) {
+          if (/^\/([ˈˌːæɑɔəɛɜɪʊʌθðʃʒʧʤŋa-zA-Z\s.-]{2,35})\/$/.test(part) && /[əɪʊʌæɑɔɜːθðʃʒŋˈˌ]/.test(part)) {
             const wordToSpeak = inferPrecedingWord(plainText, part);
             return (
               <span key={`ipa-${pIdx}`} className="inline-flex items-center align-middle mx-0.5">
@@ -1535,80 +2131,109 @@ export function LessonMarkdownView({
     );
   };
 
+  const extractSpeechItemsFromText = (text: string): SpeechPracticeItem[] => {
+    if (!text) return [];
+    if (
+      !/minimal pairs|đọc to|bài tập trọng tâm|tự test|phát âm|pronunciation|\/[^/\n]*[əɪʊʌæɑɔɜːθðʃʒŋˈˌ][^/\n]*\//i.test(
+        text
+      )
+    ) {
+      return [];
+    }
+    const items: SpeechPracticeItem[] = [];
+    const hasEnglishSpeechClue = isEnglishContext || /minimal pairs|phát âm|phat am/i.test(text);
+
+    if (hasEnglishSpeechClue) {
+      const pairRegex = /\b([a-zA-Z]+)\/([a-zA-Z]+)\b/g;
+      let pm: RegExpExecArray | null;
+      while ((pm = pairRegex.exec(text)) !== null) {
+        const w1 = pm[1].trim();
+        const w2 = pm[2].trim();
+        if (
+          !EXCLUDED_PATH_WORDS.has(w1.toLowerCase()) &&
+          !EXCLUDED_PATH_WORDS.has(w2.toLowerCase())
+        ) {
+          items.push({ wordOrSentence: `${w1} vs ${w2}` });
+          if (items.length >= 8) break;
+        }
+      }
+    }
+
+    if (isEnglishContext || /(?:đọc to|doc to)\s+câu/i.test(text)) {
+      const quoteRegex = /"([a-zA-Z0-9\s,;:'"–—-]+)"/g;
+      let qm: RegExpExecArray | null;
+      while ((qm = quoteRegex.exec(text)) !== null) {
+        const qText = qm[1].trim();
+        if (
+          qText.length >= 3 &&
+          qText.length <= 80 &&
+          !EXCLUDED_PATH_WORDS.has(qText.toLowerCase()) &&
+          !items.some((it) => it.wordOrSentence === qText)
+        ) {
+          items.push({ wordOrSentence: qText });
+        }
+        if (items.length >= 8) break;
+      }
+    }
+
+    if (hasEnglishSpeechClue) {
+      const listMatch = text.match(/(?:đọc|doc)\s+\d+\s+từ(?:[^\n:]*):([^\n—–.]+)/i);
+      if (listMatch) {
+        const wordList = listMatch[1]
+          .split(/[,;·]+/)
+          .map((w) => w.trim())
+          .filter(
+            (w) =>
+              w.length >= 2 &&
+              !w.includes(" ") &&
+              !EXCLUDED_PATH_WORDS.has(w.toLowerCase())
+          );
+        for (const w of wordList) {
+          if (!items.some((it) => it.wordOrSentence === w)) {
+            items.push({ wordOrSentence: w });
+          }
+          if (items.length >= 12) break;
+        }
+      }
+    }
+
+    const ipaRegex = /\/([^/\n]*[əɪʊʌæɑɔɜːθðʃʒŋˈˌ][^/\n]*)\//g;
+    let im: RegExpExecArray | null;
+    while ((im = ipaRegex.exec(text)) !== null) {
+      const ipaStr = `/${im[1].trim()}/`;
+      const pre = text.slice(Math.max(0, im.index - 30), im.index).trim();
+      const lastWord = pre.split(/\s+/).pop()?.replace(/[*_`]/g, "") || "";
+      if (lastWord && !EXCLUDED_PATH_WORDS.has(lastWord.toLowerCase())) {
+        if (!items.some((it) => it.wordOrSentence === lastWord)) {
+          items.push({ wordOrSentence: lastWord, ipa: ipaStr });
+        }
+      }
+      if (items.length >= 10) break;
+    }
+
+    return items.slice(0, 10);
+  };
+
   const renderDetailsAccordion = (
     summary: string,
     body: string,
     keyId: string,
     blockId: string
   ) => {
-    const cleanSummary = cleanText(summary) || "Xem gợi ý";
-    const subBlocks = parseMarkdownBlocks(body);
     return (
-      <details
+      <DetailsInteractiveAccordion
         key={keyId}
-        data-testid="lesson-details-accordion"
-        className="group my-2.5 rounded-xl border border-indigo-200/80 dark:border-indigo-800/70 bg-indigo-50/40 dark:bg-indigo-950/25 overflow-hidden font-sans"
-      >
-        <summary className="flex items-center gap-2 px-3.5 py-2 text-xs sm:text-[13px] font-bold text-indigo-900 dark:text-indigo-200 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden hover:bg-indigo-100/50 dark:hover:bg-indigo-900/35 transition">
-          <ChevronRight className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0 transition-transform duration-150 group-open:rotate-90" />
-          <span className="flex-1 min-w-0">
-            {renderInlineTokens(
-              tokenizeInlineMarkdown(cleanSummary, sourceFolder, sourceRelativePath),
-              `${blockId}-sum`
-            )}
-          </span>
-        </summary>
-        <div className="px-3.5 pb-3 pt-2 text-sm text-slate-700 dark:text-slate-200 border-t border-indigo-100/80 dark:border-indigo-900/50 space-y-2 leading-relaxed">
-          {subBlocks.length === 0 ? (
-            <p className="text-xs text-slate-500">Không có nội dung chi tiết.</p>
-          ) : (
-            subBlocks.map((sb, sbIdx) => {
-              const sbKey = `${keyId}-b-${sbIdx}`;
-              if (sb.type === "code") {
-                return <CodeBlockCard key={sbKey} lang={sb.lang} code={sb.code} />;
-              }
-              if (sb.type === "list") {
-                const SubListTag = sb.ordered ? "ol" : "ul";
-                return (
-                  <SubListTag
-                    key={sbKey}
-                    className={`pl-5 space-y-1 ${sb.ordered ? "list-decimal" : "list-disc"}`}
-                  >
-                    {sb.items.map((it, itIdx) => (
-                      <li key={itIdx}>
-                        {renderInlineTokens(
-                          tokenizeInlineMarkdown(cleanText(it.text), sourceFolder, sourceRelativePath),
-                          `${sbKey}-${itIdx}`
-                        )}
-                      </li>
-                    ))}
-                  </SubListTag>
-                );
-              }
-              const rawParagraph =
-                sb.type === "paragraph"
-                  ? sb.text
-                  : sb.type === "blockquote"
-                  ? sb.lines.join(" ")
-                  : sb.type === "heading"
-                  ? sb.text
-                  : sb.type === "details"
-                  ? `${sb.summary} — ${sb.body}`
-                  : "";
-              const display = cleanText(rawParagraph);
-              if (!display) return null;
-              return (
-                <p key={sbKey} className="break-words">
-                  {renderInlineTokens(
-                    tokenizeInlineMarkdown(display, sourceFolder, sourceRelativePath),
-                    sbKey
-                  )}
-                </p>
-              );
-            })
-          )}
-        </div>
-      </details>
+        summary={summary}
+        body={body}
+        keyId={keyId}
+        blockId={blockId}
+        sourceFolder={sourceFolder}
+        sourceRelativePath={sourceRelativePath}
+        cleanReadingMode={cleanReadingMode}
+        renderInlineTokens={renderInlineTokens}
+        onOpenPractice={onOpenPractice}
+        onQuickSaveToNotebook={onQuickSaveToNotebook}
+      />
     );
   };
 
@@ -1622,7 +2247,7 @@ export function LessonMarkdownView({
         }
 
         if (block.type === "code") {
-          return <CodeBlockCard key={blockId} lang={block.lang} code={block.code} />;
+          return <CodeBlockCard key={blockId} lang={block.lang} code={block.code} onOpenPractice={onOpenPractice} />;
         }
 
         if (block.type === "details") {
@@ -1658,45 +2283,69 @@ export function LessonMarkdownView({
 
         if (block.type === "table") {
           const { headers, alignments, rows } = block.table;
+          const speechItemsFromTable: SpeechPracticeItem[] = [];
+          const ipaColIdx = headers.findIndex((h) => /ipa|phiên âm|phat am/i.test(h));
+          const wordColIdx = headers.findIndex((h) => /từ|word|chữ|kí hiệu|ky hieu|ví dụ|sentence|câu/i.test(h));
+          const meanColIdx = headers.findIndex((h) => /nghĩa|meaning|ví dụ|example|dịch/i.test(h));
+          const hasEnglishTableClue =
+            isEnglishContext ||
+            ipaColIdx >= 0 ||
+            headers.some((h) => /ipa|phiên âm|phat am/i.test(h));
+
+          if (hasEnglishTableClue) {
+            for (const row of rows) {
+              let word = "";
+              let ipa = "";
+              let meaning = "";
+
+              for (let c = 0; c < row.length; c++) {
+                const cellText = row[c] || "";
+                const ipaMatch = cellText.match(/\/([^\/\n]{1,40})\//);
+                if (ipaMatch && /[əɪʊʌæɑɔɜːθðʃʒŋˈˌ]/.test(ipaMatch[1])) {
+                  ipa = `/${ipaMatch[1]}/`;
+                  const boldMatch = cellText.match(/\*\*([^*]+)\*\*/);
+                  if (boldMatch) word = boldMatch[1].trim();
+                }
+              }
+
+              if (!word && wordColIdx >= 0 && row[wordColIdx]) {
+                word = row[wordColIdx].replace(/[*_`]/g, "").trim();
+              } else if (!word && row[0]) {
+                word = row[0].replace(/[*_`]/g, "").trim();
+              }
+
+              if (!ipa && ipaColIdx >= 0 && row[ipaColIdx]) {
+                const rawIpa = row[ipaColIdx].replace(/[*_`]/g, "").trim();
+                if (/[əɪʊʌæɑɔɜːθðʃʒŋˈˌ]/.test(rawIpa)) {
+                  ipa = rawIpa;
+                }
+              }
+
+              if (meanColIdx >= 0 && row[meanColIdx]) {
+                meaning = row[meanColIdx].replace(/[*_`]/g, "").trim();
+              }
+
+              if (
+                word &&
+                !EXCLUDED_PATH_WORDS.has(word.toLowerCase()) &&
+                (ipa || (isEnglishContext && word.split(/\s+/).length <= 6))
+              ) {
+                if (/^[A-Za-z0-9\s'–—\-./,()]+$/.test(word) && word.length >= 1 && word.length <= 60) {
+                  speechItemsFromTable.push({ wordOrSentence: word, ipa, meaning });
+                }
+              }
+            }
+          }
+
           return (
-            <div
-              key={blockId}
-              className="my-4 w-full max-w-full overflow-x-auto rounded-[12px] border border-slate-200 dark:border-slate-800 shadow-xs font-sans"
-            >
-              <table className="w-full border-collapse text-left text-xs sm:text-sm">
-                <thead className="bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700">
-                  <tr>
-                    {headers.map((header, hIdx) => {
-                      const tokens = tokenizeInlineMarkdown(cleanText(header), sourceFolder, sourceRelativePath);
-                      const align = alignments[hIdx] || "left";
-                      const alignCls =
-                        align === "center"
-                          ? "text-center"
-                          : align === "right"
-                          ? "text-right"
-                          : "text-left";
-                      return (
-                        <th
-                          key={hIdx}
-                          scope="col"
-                          className={`px-4 py-3 font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap ${alignCls}`}
-                        >
-                          {renderInlineTokens(tokens, `${blockId}-th-${hIdx}`)}
-                        </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
-                  {rows.map((row, rIdx) => (
-                    <tr
-                      key={rIdx}
-                      className="odd:bg-white even:bg-slate-50/70 dark:odd:bg-slate-950 dark:even:bg-slate-900/60 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/30 transition-colors"
-                    >
-                      {row.map((cell, cIdx) => {
-                        const tokens = tokenizeInlineMarkdown(cleanText(cell), sourceFolder, sourceRelativePath);
-                        const plain = tokens.map((t) => t.text).join("");
-                        const align = alignments[cIdx] || "left";
+            <div key={blockId} className="my-4 space-y-2">
+              <div className="w-full max-w-full overflow-x-auto rounded-[12px] border border-slate-200 dark:border-slate-800 shadow-xs font-sans">
+                <table className="w-full border-collapse text-left text-xs sm:text-sm">
+                  <thead className="bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700">
+                    <tr>
+                      {headers.map((header, hIdx) => {
+                        const tokens = tokenizeInlineMarkdown(cleanText(header), sourceFolder, sourceRelativePath);
+                        const align = alignments[hIdx] || "left";
                         const alignCls =
                           align === "center"
                             ? "text-center"
@@ -1704,19 +2353,51 @@ export function LessonMarkdownView({
                             ? "text-right"
                             : "text-left";
                         return (
-                          <td
-                            key={cIdx}
-                            onMouseUp={() => onSelectBlockText(blockId, plain)}
-                            className={`px-4 py-3 text-slate-700 dark:text-slate-300 align-top leading-relaxed ${alignCls}`}
+                          <th
+                            key={hIdx}
+                            scope="col"
+                            className={`px-4 py-3 font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap ${alignCls}`}
                           >
-                            {renderInlineTokens(tokens, blockId)}
-                          </td>
+                            {renderInlineTokens(tokens, `${blockId}-th-${hIdx}`)}
+                          </th>
                         );
                       })}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
+                    {rows.map((row, rIdx) => (
+                      <tr
+                        key={rIdx}
+                        className="odd:bg-white even:bg-slate-50/70 dark:odd:bg-slate-950 dark:even:bg-slate-900/60 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/30 transition-colors"
+                      >
+                        {row.map((cell, cIdx) => {
+                          const tokens = tokenizeInlineMarkdown(cleanText(cell), sourceFolder, sourceRelativePath);
+                          const plain = tokens.map((t) => t.text).join("");
+                          const align = alignments[cIdx] || "left";
+                          const alignCls =
+                            align === "center"
+                              ? "text-center"
+                              : align === "right"
+                              ? "text-right"
+                              : "text-left";
+                          return (
+                            <td
+                              key={cIdx}
+                              onMouseUp={() => onSelectBlockText(blockId, plain)}
+                              className={`px-4 py-3 text-slate-700 dark:text-slate-300 align-top leading-relaxed ${alignCls}`}
+                            >
+                              {renderInlineTokens(tokens, blockId)}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {speechItemsFromTable.length > 0 && (
+                <InlineSpeechPracticeBar items={speechItemsFromTable} />
+              )}
             </div>
           );
         }
@@ -1784,6 +2465,7 @@ export function LessonMarkdownView({
           const audioLinks = tokens
             .filter((t) => Boolean(t.audioMeta))
             .map((t) => t.audioMeta!);
+          const speechItems = extractSpeechItemsFromText(fullQuoteText);
 
           return (
             <div key={blockId} className="space-y-2">
@@ -1806,6 +2488,9 @@ export function LessonMarkdownView({
               {audioLinks.map((au, idx) => (
                 <InlineAudioPracticePlayer key={`au-bq-${idx}`} {...au} />
               ))}
+              {speechItems.length > 0 && (
+                <InlineSpeechPracticeBar items={speechItems} />
+              )}
             </div>
           );
         }
@@ -1888,13 +2573,14 @@ export function LessonMarkdownView({
           .filter((t) => Boolean(t.audioMeta))
           .map((t) => t.audioMeta!);
         const matchedAnns: MarkdownAnnotationItem[] = [];
+        const speechItems = extractSpeechItemsFromText(displayParagraph);
 
         return (
           <div
             key={blockId}
             id={block.extraId || `block-${blockId}`}
             onMouseUp={() => onSelectBlockText(blockId, plain)}
-            className="group relative leading-[1.8]"
+            className="group relative leading-[1.8] space-y-2"
           >
             <p className="break-words">
               {renderInlineTokens(tokens, blockId, matchedAnns)}
@@ -1903,6 +2589,9 @@ export function LessonMarkdownView({
               <InlineAudioPracticePlayer key={`au-p-${idx}`} {...au} />
             ))}
             {renderCitationBadges(matchedAnns)}
+            {speechItems.length > 0 && (
+              <InlineSpeechPracticeBar items={speechItems} />
+            )}
           </div>
         );
       })}

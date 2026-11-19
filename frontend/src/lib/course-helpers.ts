@@ -137,6 +137,253 @@ export function classifyCourseDomain(course: CourseLike): CourseDomainMeta {
   return { id: "other", label: "Chủ đề khác" };
 }
 
+export function isTestOrJunkCourse(course: CourseLike): boolean {
+  const text = normalizeVi(`${course.title || ""} ${course.description || ""} ${course.courseId || course.id || ""}`);
+  return /(small-3p|marker-12p|large-305p|ietf-rfc7995|mixed-scanned-text|double click test|test doc|dummy|fixture)/.test(
+    text
+  );
+}
+
+export function isCurriculumStandardCourse(course: CourseLike): boolean {
+  const rawCombined = `${course.title || ""} ${(course as { slug?: string }).slug || ""} ${course.description || ""}`;
+  const norm = normalizeVi(rawCombined);
+  return (
+    /document-course-/.test(rawCombined) ||
+    /(ielts|tieng anh|english|\.net|c#|csharp|fullstack|full-stack|dau tu|tai chinh|ky nang song|tam ly hoc|he dieu hanh|hoc may|phap luat)/.test(
+      norm
+    )
+  );
+}
+
+export function sortCoursesSmartly<T extends CourseLike>(courses: T[]): T[] {
+  return [...courses].sort((a, b) => {
+    const aJunk = isTestOrJunkCourse(a);
+    const bJunk = isTestOrJunkCourse(b);
+    if (aJunk !== bJunk) return aJunk ? 1 : -1;
+
+    const aStd = isCurriculumStandardCourse(a);
+    const bStd = isCurriculumStandardCourse(b);
+    if (aStd !== bStd) return aStd ? -1 : 1;
+
+    const aProg = getCourseProgress(a);
+    const bProg = getCourseProgress(b);
+    const aInProg = aProg > 0 && aProg < 100;
+    const bInProg = bProg > 0 && bProg < 100;
+    if (aInProg !== bInProg) return aInProg ? -1 : 1;
+
+    const aLessons = getCourseLessonCount(a);
+    const bLessons = getCourseLessonCount(b);
+    if (aLessons !== bLessons) return bLessons - aLessons;
+
+    if (aProg !== bProg) return bProg - aProg;
+
+    return 0;
+  });
+}
+
+/**
+ * Strips repeated chapter/phase/part numbering prefixes (e.g. "Chương 1: Chương 3: ...")
+ * so UI never renders duplicated prefixes.
+ */
+export function stripChapterPrefix(title: string): string {
+  if (!title) return "";
+  let result = title.trim();
+  const prefixRegex =
+    /^(?:Chương|Chuong|Chapter|Phần|Phan|Chặng|Chang|Phase|Giai\s*đoạn|Module|Unit|Part|Section)\s*\d+\s*[:.\-–—]\s*/i;
+  let guard = 0;
+  while (prefixRegex.test(result) && guard < 5) {
+    const stripped = result.replace(prefixRegex, "").trim();
+    if (!stripped) break;
+    result = stripped;
+    guard++;
+  }
+  return result;
+}
+
+export interface CourseVisualTheme {
+  domainId: Exclude<CourseDomainId, "all">;
+  domainLabel: string;
+  accentBarClass: string;
+  badgeBgClass: string;
+  iconBgClass: string;
+  iconTextClass: string;
+  ringColor: string;
+  levelLabel: string;
+  estimatedHoursLabel: string;
+}
+
+export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
+  const domain = classifyCourseDomain(course);
+  const lessons = Math.max(1, getCourseLessonCount(course));
+  const estHours = Math.max(1, Math.round((lessons * 25) / 60));
+  const norm = normalizeVi(`${course.title || ""} ${course.description || ""}`);
+
+  let levelLabel = "Lộ trình thực chiến";
+  if (/(co ban|nhap mon|nen tang|phase 0|tu con so 0|dai cuong|basics)/.test(norm)) {
+    levelLabel = "Nền tảng → Vững chắc";
+  } else if (/(mastery|chuyen sau|nang cao|microservices|ddd|48 tuan|28 tuan|fullstack|full-stack)/.test(norm)) {
+    levelLabel = "Chuyên sâu toàn diện";
+  }
+
+  switch (domain.id) {
+    case "technology":
+      return {
+        domainId: "technology",
+        domainLabel: domain.label,
+        accentBarClass: "from-indigo-500 via-violet-500 to-sky-500",
+        badgeBgClass: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800",
+        iconBgClass: "bg-indigo-500/10 border-indigo-500/20",
+        iconTextClass: "text-indigo-600 dark:text-indigo-400",
+        ringColor: "#6366F1",
+        levelLabel,
+        estimatedHoursLabel: `~${estHours} giờ học`,
+      };
+    case "language":
+      return {
+        domainId: "language",
+        domainLabel: domain.label,
+        accentBarClass: "from-sky-500 via-cyan-500 to-teal-500",
+        badgeBgClass: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800",
+        iconBgClass: "bg-sky-500/10 border-sky-500/20",
+        iconTextClass: "text-sky-600 dark:text-sky-400",
+        ringColor: "#0EA5E9",
+        levelLabel,
+        estimatedHoursLabel: `~${estHours} giờ học`,
+      };
+    case "business":
+      return {
+        domainId: "business",
+        domainLabel: domain.label,
+        accentBarClass: "from-emerald-500 via-teal-500 to-lime-500",
+        badgeBgClass: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800",
+        iconBgClass: "bg-emerald-500/10 border-emerald-500/20",
+        iconTextClass: "text-emerald-600 dark:text-emerald-400",
+        ringColor: "#10B981",
+        levelLabel,
+        estimatedHoursLabel: `~${estHours} giờ học`,
+      };
+    case "law":
+      return {
+        domainId: "law",
+        domainLabel: domain.label,
+        accentBarClass: "from-amber-500 via-orange-500 to-rose-500",
+        badgeBgClass: "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800",
+        iconBgClass: "bg-amber-500/10 border-amber-500/20",
+        iconTextClass: "text-amber-600 dark:text-amber-400",
+        ringColor: "#F59E0B",
+        levelLabel,
+        estimatedHoursLabel: `~${estHours} giờ học`,
+      };
+    case "science":
+      return {
+        domainId: "science",
+        domainLabel: domain.label,
+        accentBarClass: "from-purple-500 via-fuchsia-500 to-pink-500",
+        badgeBgClass: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800",
+        iconBgClass: "bg-purple-500/10 border-purple-500/20",
+        iconTextClass: "text-purple-600 dark:text-purple-400",
+        ringColor: "#A855F7",
+        levelLabel,
+        estimatedHoursLabel: `~${estHours} giờ học`,
+      };
+    default:
+      return {
+        domainId: "other",
+        domainLabel: domain.label,
+        accentBarClass: "from-rose-500 via-pink-500 to-amber-500",
+        badgeBgClass: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800",
+        iconBgClass: "bg-rose-500/10 border-rose-500/20",
+        iconTextClass: "text-rose-600 dark:text-rose-400",
+        ringColor: "#F43F5E",
+        levelLabel,
+        estimatedHoursLabel: `~${estHours} giờ học`,
+      };
+  }
+}
+
+export function extractCourseSkillTags(course: CourseLike): string[] {
+  const raw = `${course.title || ""} ${course.description || ""} ${course.category || ""}`;
+  const norm = normalizeVi(raw);
+  const tags: string[] = [];
+
+  const rules: Array<[RegExp, string]> = [
+    [/(\.net|c#|csharp)/, "C# / .NET 10"],
+    [/\b(react|next\.js|nextjs)\b/, "React & Next.js"],
+    [/\b(typescript|javascript)\b/, "TypeScript"],
+    [/\b(sql|database|ef core)\b/, "SQL & EF Core"],
+    [/\b(microservices|ddd|event sourcing)\b/, "Kiến trúc Phân tán"],
+    [/\b(he dieu hanh|bo nho ao|tlb|phan trang)\b/, "OS & Quản lý bộ nhớ"],
+    [/\b(hoc may|machine learning|deep learning)\b/, "AI & Machine Learning"],
+    [/\b(python)\b/, "Python"],
+    [/\b(ielts)\b/, "IELTS 4 Kỹ năng"],
+    [/\b(listening|speaking|ipa|phat am)\b/, "Nghe & Phát âm IPA"],
+    [/\b(tai chinh ca nhan|ngan sach|50\/30\/20|dong tien)\b/, "Ngân sách 50/30/20"],
+    [/\b(dau tu|chung khoan|co phieu|dinh gia)\b/, "Đầu tư & Định giá"],
+    [/\b(tam ly|nhan thuc|cbt)\b/, "Tâm lý học hành vi"],
+    [/\b(ky nang song|giao tiep|thuyet trinh|dam phan)\b/, "Giao tiếp NVC"],
+    [/\b(phap luat|hien phap|dan su|hinh su)\b/, "Pháp lý đại cương"],
+  ];
+
+  for (const [pattern, label] of rules) {
+    if (pattern.test(norm) && !tags.includes(label)) {
+      tags.push(label);
+    }
+    if (tags.length >= 3) break;
+  }
+
+  if (tags.length < 3) {
+    const domain = classifyCourseDomain(course);
+    if (domain.id === "technology") tags.push("Lab Code & Debug");
+    else if (domain.id === "language") tags.push("Shadowing & Dictation");
+    else if (domain.id === "business") tags.push("Biểu đồ & Tính toán");
+    else if (domain.id === "law") tags.push("Trích dẫn & Case");
+    else if (domain.id === "science") tags.push("Tư duy Feynman");
+    else tags.push("Roleplay Tình huống");
+  }
+
+  if (tags.length < 3) {
+    tags.push("Quiz & FSRS v5");
+  }
+
+  return tags.slice(0, 3);
+}
+
+/**
+ * Cleans Cloze syntax {{c1::answer}} or {{c1::answer::hint}} from quiz questions
+ * so learners see a clean blank instead of raw cloze markup or leaked answers.
+ */
+export function formatCleanQuizPrompt(
+  rawQuestion: string,
+  isEvaluated = false,
+  solution?: string | null
+): string {
+  if (!rawQuestion) return "";
+  return rawQuestion.replace(/\{\{c\d+::([^}:]+)(?:::([^}]+))?\}\}/g, (_m, ans, hint) => {
+    if (isEvaluated) {
+      return `[ ${solution?.trim() || ans.trim()} ]`;
+    }
+    return hint ? `[ ______ (${hint.trim()}) ]` : "[ ______ ]";
+  });
+}
+
+/**
+ * Deduplicates identical documents/notebooks while preserving searchability.
+ */
+export function deduplicateByTitle<T extends { title?: string; fileName?: string; totalPages?: number | null; pageCount?: number | null }>(
+  items: T[]
+): T[] {
+  const seen = new Map<string, T>();
+  for (const item of items) {
+    const base = normalizeVi(item.title || item.fileName || "");
+    const pages = item.totalPages ?? item.pageCount ?? "";
+    const key = base ? `${base}::${pages}` : JSON.stringify(item);
+    if (!seen.has(key)) {
+      seen.set(key, item);
+    }
+  }
+  return Array.from(seen.values());
+}
+
 /**
  * Deduplicates duplicate test/generated courses with identical normalized titles.
  * Keeps the highest-signal copy: higher progress, more lessons, newer timestamp.

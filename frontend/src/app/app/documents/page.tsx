@@ -15,7 +15,7 @@ import {
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { fetchDashboardCached } from "@/lib/api-client";
 import { Button, Card, Badge, EmptyState } from "@/components/ui";
-import { getCourseId, normalizeVi, type CourseLike } from "@/lib/course-helpers";
+import { deduplicateByTitle, getCourseId, normalizeVi, type CourseLike } from "@/lib/course-helpers";
 
 interface DocumentItem {
   id?: string;
@@ -154,20 +154,23 @@ export default function DocumentsPage() {
     router.push(`/app/courses/${validCourseId}/learn?doc=${docId}`);
   };
 
+  const uniqueDocuments = useMemo(() => deduplicateByTitle(documents), [documents]);
+
   const filteredDocuments = useMemo(() => {
     const q = normalizeVi(searchQuery);
-    if (!q) return documents;
-    return documents.filter((doc) => {
+    const sourceList = q ? documents : uniqueDocuments;
+    if (!q) return sourceList;
+    return sourceList.filter((doc) => {
       const text = normalizeVi(
         `${doc.title || ""} ${doc.fileName || ""} ${doc.category || ""}`
       );
       return text.includes(q);
     });
-  }, [documents, searchQuery]);
+  }, [documents, uniqueDocuments, searchQuery]);
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10 min-h-[80vh] space-y-6">
+      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh] space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="h-10 w-48 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
           <div className="h-9 w-36 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
@@ -183,7 +186,7 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10 min-h-[80vh]">
+    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -191,7 +194,10 @@ export default function DocumentsPage() {
             Tài liệu
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            {documents.length} tài liệu PDF dùng cho việc đọc và trích dẫn kiến thức.
+            {uniqueDocuments.length} tài liệu PDF dùng cho việc đọc và trích dẫn kiến thức
+            {documents.length > uniqueDocuments.length
+              ? ` (đã gom ${documents.length - uniqueDocuments.length} bản sao trùng).`
+              : "."}
           </p>
         </div>
 

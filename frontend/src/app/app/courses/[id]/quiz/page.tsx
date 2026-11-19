@@ -21,6 +21,7 @@ import {
   getClientRequestHeaders,
   useWorkspaceStore,
 } from "@/stores/useWorkspaceStore";
+import { formatCleanQuizPrompt } from "@/lib/course-helpers";
 
 interface QuizListItem {
   id: string;
@@ -262,21 +263,31 @@ export default function CourseQuizPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-10 min-h-[80vh] space-y-6">
+      <div className="max-w-[1360px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-10 min-h-[80vh] space-y-6">
         <div className="h-6 w-32 rounded bg-[var(--surface-elevated)] animate-pulse" />
         <div className="h-10 w-72 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
-        <div className="h-16 w-full rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
-        <div className="space-y-4 pt-2">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="h-40 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
-          ))}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
+          <div className="lg:col-span-4 h-72 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="lg:col-span-8 space-y-4">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-40 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
+  const answeredCount = quizDetail
+    ? quizDetail.items.filter((it) => Boolean(it.evaluatedAt)).length
+    : 0;
+  const accuracyPct =
+    quizDetail && answeredCount > 0
+      ? Math.round((quizDetail.correctItems * 100) / answeredCount)
+      : 0;
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-10 min-h-[80vh]">
+    <div className="max-w-[1360px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-10 min-h-[80vh]">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3 min-w-0">
@@ -377,69 +388,130 @@ export default function CourseQuizPage() {
             </div>
           )}
 
-          {/* Desktop 2-Column Sidebar Selector */}
-          {quizzes.length > 1 && (
-            <aside
-              data-testid="quiz-sidebar-selector"
-              className="hidden lg:flex lg:col-span-4 flex-col rounded-lg border border-border bg-bg-secondary p-3.5 sticky top-4"
-            >
-              <div className="flex items-center justify-between gap-2 mb-2.5">
-                <span className="text-xs font-semibold text-text-primary">
-                  Danh sách bài kiểm tra
+          {/* Desktop 2-Column Sidebar: Quiz Selector + Question Navigator + Stats */}
+          <aside
+            data-testid="quiz-sidebar-selector"
+            className="hidden lg:flex lg:col-span-4 flex-col gap-4 sticky top-4"
+          >
+            {/* Question Map & Score Card */}
+            <div className="rounded-xl border border-border bg-bg-secondary p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+                  Bảng câu hỏi &amp; Tiến độ
                 </span>
-                <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-bg-primary border border-border text-text-tertiary">
-                  {quizzes.length} bài
+                <span className="text-xs font-bold text-accent">
+                  {answeredCount}/{quizDetail.items.length} đã chấm
                 </span>
               </div>
 
-              <div className="relative mb-2.5">
-                <Search className="w-3.5 h-3.5 text-text-tertiary absolute left-2.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  data-testid="quiz-search-input"
-                  value={quizQuery}
-                  onChange={(e) => setQuizQuery(e.target.value)}
-                  placeholder="Lọc bài kiểm tra..."
-                  className="w-full h-8 pl-8 pr-2.5 rounded-md border border-border bg-bg-primary text-xs text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent"
-                />
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-lg bg-bg-primary border border-border p-2">
+                  <p className="text-[10px] text-text-tertiary">Số câu</p>
+                  <p className="text-sm font-bold text-text-primary">{quizDetail.items.length}</p>
+                </div>
+                <div className="rounded-lg bg-bg-primary border border-border p-2">
+                  <p className="text-[10px] text-text-tertiary">Đúng</p>
+                  <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                    {quizDetail.correctItems}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-bg-primary border border-border p-2">
+                  <p className="text-[10px] text-text-tertiary">Tỷ lệ</p>
+                  <p className="text-sm font-bold text-accent">{accuracyPct}%</p>
+                </div>
               </div>
 
-              <div className="max-h-[460px] overflow-y-auto swms-thin-scrollbar space-y-1 pr-0.5">
-                {quizzes
-                  .filter((q) =>
-                    q.title.toLowerCase().includes(quizQuery.trim().toLowerCase())
-                  )
-                  .map((q) => {
-                    const active = selectedQuizId === q.id;
-                    return (
-                      <button
-                        key={q.id}
-                        type="button"
-                        onClick={() => handleSelectQuiz(q.id)}
-                        className={`w-full text-left px-3 py-2 rounded-md text-xs transition cursor-pointer flex items-center justify-between gap-2 ${
-                          active
-                            ? "bg-accent text-white font-medium"
-                            : "bg-bg-primary text-text-secondary border border-border/60 hover:text-text-primary hover:border-border"
-                        }`}
-                      >
-                        <span className="truncate">{q.title}</span>
-                        <span
-                          className={`text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0 ${
+              <div className="grid grid-cols-5 gap-1.5 pt-1">
+                {quizDetail.items.map((qItem, qIdx) => {
+                  const done = Boolean(qItem.evaluatedAt);
+                  const ok = qItem.isCorrect === true;
+                  const wrong = qItem.isCorrect === false;
+                  return (
+                    <button
+                      key={qItem.id}
+                      type="button"
+                      onClick={() =>
+                        document
+                          .getElementById(`quiz-item-${qIdx + 1}`)
+                          ?.scrollIntoView({ behavior: "smooth", block: "center" })
+                      }
+                      className={`h-8 rounded-md text-xs font-semibold border transition cursor-pointer ${
+                        ok
+                          ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300"
+                          : wrong
+                            ? "bg-rose-500/15 border-rose-500/40 text-rose-700 dark:text-rose-300"
+                            : done
+                              ? "bg-accent-subtle border-accent/40 text-accent"
+                              : "bg-bg-primary border-border text-text-secondary hover:border-accent"
+                      }`}
+                    >
+                      {qIdx + 1}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {quizzes.length > 1 && (
+              <div className="rounded-xl border border-border bg-bg-secondary p-3.5 flex flex-col">
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <span className="text-xs font-semibold text-text-primary">
+                    Danh sách bài kiểm tra
+                  </span>
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-bg-primary border border-border text-text-tertiary">
+                    {quizzes.length} bài
+                  </span>
+                </div>
+
+                <div className="relative mb-2.5">
+                  <Search className="w-3.5 h-3.5 text-text-tertiary absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    data-testid="quiz-search-input"
+                    value={quizQuery}
+                    onChange={(e) => setQuizQuery(e.target.value)}
+                    placeholder="Lọc bài kiểm tra..."
+                    className="w-full h-8 pl-8 pr-2.5 rounded-md border border-border bg-bg-primary text-xs text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent"
+                  />
+                </div>
+
+                <div className="max-h-[400px] overflow-y-auto swms-thin-scrollbar space-y-1 pr-0.5">
+                  {quizzes
+                    .filter((q) =>
+                      q.title.toLowerCase().includes(quizQuery.trim().toLowerCase())
+                    )
+                    .map((q) => {
+                      const active = selectedQuizId === q.id;
+                      return (
+                        <button
+                          key={q.id}
+                          type="button"
+                          onClick={() => handleSelectQuiz(q.id)}
+                          className={`w-full text-left px-3 py-2 rounded-md text-xs transition cursor-pointer flex items-center justify-between gap-2 ${
                             active
-                              ? "bg-white/20 text-white"
-                              : "bg-bg-secondary text-text-tertiary"
+                              ? "bg-accent text-white font-medium"
+                              : "bg-bg-primary text-text-secondary border border-border/60 hover:text-text-primary hover:border-border"
                           }`}
                         >
-                          {q.correctItems}/{q.totalItems}
-                        </span>
-                      </button>
-                    );
-                  })}
+                          <span className="line-clamp-2 leading-snug">{q.title}</span>
+                          <span
+                            className={`text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0 ${
+                              active
+                                ? "bg-white/20 text-white"
+                                : "bg-bg-secondary text-text-tertiary"
+                            }`}
+                          >
+                            {q.correctItems}/{q.totalItems}
+                          </span>
+                        </button>
+                      );
+                    })}
+                </div>
               </div>
-            </aside>
-          )}
+            )}
+          </aside>
 
-          <div className={`${quizzes.length > 1 ? "lg:col-span-8" : "lg:col-span-12"} space-y-6`}>
+          <div className="lg:col-span-8 space-y-6">
             {/* Quiz Summary Banner */}
             <div className="rounded-lg border border-border bg-bg-secondary p-5 flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -471,16 +543,22 @@ export default function CourseQuizPage() {
                   typeof item.prompt === "string"
                     ? { question: item.prompt }
                     : item.prompt;
-                const questionText =
+                const rawQuestionText =
                   promptObj?.question || `Câu hỏi #${idx + 1}`;
                 const rubricCriteria = promptObj?.rubricCriteria ?? [];
                 const draft = draftAnswers[item.id] ?? "";
                 const isSubmitting = Boolean(submittingIds[item.id]);
                 const isEvaluated = Boolean(item.evaluatedAt);
+                const questionText = formatCleanQuizPrompt(
+                  rawQuestionText,
+                  isEvaluated,
+                  item.clozeSolution
+                );
 
                 return (
                   <div
                     key={item.id}
+                    id={`quiz-item-${idx + 1}`}
                     data-testid={`quiz-item-${idx + 1}`}
                     className="rounded-lg border border-border bg-bg-primary p-5 space-y-4"
                   >

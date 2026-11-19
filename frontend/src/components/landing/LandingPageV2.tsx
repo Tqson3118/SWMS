@@ -233,8 +233,8 @@ function PreviewSection() {
                 <div className="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500 px-3 uppercase tracking-wider">
                   Gần đây
                 </div>
-                {["Calculus II", "Triết học 101", "React Patterns"].map((c) => (
-                  <div key={c} className="px-3 py-1.5 text-xs text-neutral-500 dark:text-neutral-400 truncate">
+                {["IELTS 7.5+ Mastery", ".NET 10 & React", "Tài Chính Cá Nhân"].map((c) => (
+                  <div key={c} className="px-3 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 truncate">
                     {c}
                   </div>
                 ))}
@@ -242,24 +242,62 @@ function PreviewSection() {
             </div>
 
             {/* Main content mock */}
-            <div className="flex-1 p-6">
-              <div className="h-4 w-40 bg-neutral-200 dark:bg-neutral-700 rounded mb-3" />
-              <div className="h-3 w-64 bg-neutral-100 dark:bg-neutral-800 rounded mb-6" />
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30 border border-indigo-100 dark:border-indigo-900/30 p-4 h-24">
-                  <div className="h-3 w-20 bg-indigo-200 dark:bg-indigo-800 rounded mb-2" />
-                  <div className="h-2 w-32 bg-indigo-100 dark:bg-indigo-900/50 rounded" />
+            <div className="flex-1 p-5 sm:p-6 bg-neutral-50/40 dark:bg-neutral-900/30">
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <div>
+                  <div className="text-sm font-bold text-neutral-900 dark:text-white">
+                    Chào Sơn, hôm nay học gì?
+                  </div>
+                  <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                    Mục tiêu tuần này: 4/5 ngày · Chuỗi 7 ngày liên tiếp
+                  </div>
                 </div>
-                <div className="rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-100 dark:border-emerald-900/30 p-4 h-24">
-                  <div className="h-3 w-16 bg-emerald-200 dark:bg-emerald-800 rounded mb-2" />
-                  <div className="h-2 w-28 bg-emerald-100 dark:bg-emerald-900/50 rounded" />
+                <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/50">
+                  Sẵn sàng ôn tập
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-lg bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/40 dark:to-violet-950/30 border border-indigo-100 dark:border-indigo-900/40 p-3.5 sm:p-4">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 mb-1">
+                    <span>Đang học dở</span>
+                    <span>68%</span>
+                  </div>
+                  <div className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white truncate">
+                    .NET 10 & React FullStack
+                  </div>
+                  <div className="mt-2 h-1.5 w-full rounded-full bg-indigo-100 dark:bg-indigo-900/50 overflow-hidden">
+                    <div className="h-full w-2/3 rounded-full bg-indigo-600" />
+                  </div>
+                </div>
+                <div className="rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/30 border border-emerald-100 dark:border-emerald-900/40 p-3.5 sm:p-4">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 mb-1">
+                    <span>Ôn tập FSRS v5</span>
+                    <span>Hôm nay</span>
+                  </div>
+                  <div className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white truncate">
+                    24 thẻ đến hạn
+                  </div>
+                  <div className="mt-1.5 text-[11px] text-emerald-700/80 dark:text-emerald-300/80 truncate">
+                    Nghe phát âm + Active Recall
+                  </div>
                 </div>
               </div>
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="rounded-lg border border-neutral-100 dark:border-neutral-800 p-3 h-20">
-                    <div className="h-3 w-16 bg-neutral-200 dark:bg-neutral-700 rounded mb-2" />
-                    <div className="h-2 w-full bg-neutral-100 dark:bg-neutral-800 rounded" />
+              <div className="mt-3 sm:mt-4 grid grid-cols-3 gap-2.5 sm:gap-3">
+                {[
+                  { title: "IELTS Speaking", tag: "Nói & IPA", color: "bg-sky-500" },
+                  { title: "Tài chính 101", tag: "Case study", color: "bg-amber-500" },
+                  { title: "Tâm lý học", tag: "Roadmap 48T", color: "bg-rose-500" },
+                ].map((card) => (
+                  <div key={card.title} className="rounded-lg border border-neutral-200/70 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-2.5 sm:p-3">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className={`w-2 h-2 rounded-full ${card.color}`} />
+                      <span className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 truncate">
+                        {card.tag}
+                      </span>
+                    </div>
+                    <div className="text-[11px] sm:text-xs font-semibold text-neutral-900 dark:text-white truncate">
+                      {card.title}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -372,8 +410,8 @@ const STEPS = [
 function WorkflowSection() {
   return (
     <section data-testid="landing-workflow-section" className="px-6 py-24 bg-neutral-50 dark:bg-neutral-950/50">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-16">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-white tracking-tight mb-4">
             Quy trình đơn giản
           </h2>
@@ -382,28 +420,25 @@ function WorkflowSection() {
           </p>
         </div>
 
-        <div className="space-y-6">
-          {STEPS.map((s, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {STEPS.map((s) => (
             <div
               key={s.step}
-              className="flex items-start gap-5 group"
+              className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 flex flex-col justify-between transition-all hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-sm"
             >
-              <div className="shrink-0 w-12 h-12 rounded-xl bg-neutral-900 dark:bg-white flex items-center justify-center">
-                <span className="text-sm font-bold text-white dark:text-neutral-900 font-mono">
-                  {s.step}
-                </span>
-              </div>
-              <div className="pt-1">
-                <h3 className="text-base font-semibold text-neutral-900 dark:text-white mb-1">
+              <div>
+                <div className="w-11 h-11 rounded-xl bg-neutral-900 dark:bg-white flex items-center justify-center mb-4">
+                  <span className="text-sm font-bold text-white dark:text-neutral-900 font-mono">
+                    {s.step}
+                  </span>
+                </div>
+                <h3 className="text-base font-semibold text-neutral-900 dark:text-white mb-2">
                   {s.title}
                 </h3>
                 <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
                   {s.description}
                 </p>
               </div>
-              {i < STEPS.length - 1 && (
-                <div className="hidden" /> /* Divider handled by space-y */
-              )}
             </div>
           ))}
         </div>

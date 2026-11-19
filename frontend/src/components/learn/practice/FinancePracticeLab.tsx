@@ -26,6 +26,11 @@ import {
   Sliders,
   DollarSign,
   Activity,
+  Briefcase,
+  FileText,
+  BookmarkPlus,
+  CheckSquare,
+  Calculator,
 } from "lucide-react";
 
 export interface PracticeModuleProps {
@@ -40,7 +45,7 @@ export interface PracticeModuleProps {
 
 export type FinancePracticeLabProps = PracticeModuleProps;
 
-type ActiveTab = "budget" | "compound" | "debt" | "trading";
+type ActiveTab = "budget" | "compound" | "debt" | "trading" | "cases";
 
 // Định dạng tiền tệ VNĐ chuẩn
 function formatVND(value: number): string {
@@ -84,7 +89,7 @@ function detectDefaultTab(courseTitle: string, lessonTitle: string, md: string):
   if (/\b(tra no|no nan|qua cau tuyet|tuyet lo|snowball|avalanche|khoan no|tin dung|vay)\b/.test(combined)) {
     return "debt";
   }
-  if (/\b(nen|candlestick|co phieu|chung khoan|trading|bieu do|rui ro|entry|stop-loss|take-profit|p\/e|roe)\b/.test(combined)) {
+  if (/\b(bieu do nen|nen nhat|candlestick|co phieu|chung khoan|trading|bieu do|rui ro|entry|stop-loss|take-profit|p\/e|roe)\b/.test(combined)) {
     return "trading";
   }
 
@@ -2423,6 +2428,243 @@ function CandlestickRiskLab({
 // =============================================================================
 // COMPONENT CHÍNH: FinancePracticeLab
 // =============================================================================
+interface ExtractedFinanceCaseStudyLabProps {
+  lessonMarkdown: string;
+  lessonTitle: string;
+  onSaveToNotebook: (text: string) => Promise<void>;
+  onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
+}
+
+function ExtractedFinanceCaseStudyLab({
+  lessonMarkdown,
+  lessonTitle,
+  onSaveToNotebook,
+  onCreateFlashcardQuick,
+}: ExtractedFinanceCaseStudyLabProps) {
+  const extractedCase = useMemo(() => {
+    const lines = (lessonMarkdown || "").split(/\r?\n/);
+    const tables: string[][] = [];
+    let currentTable: string[] = [];
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
+        currentTable.push(trimmed);
+      } else if (currentTable.length > 0) {
+        if (currentTable.length >= 2) tables.push([...currentTable]);
+        currentTable = [];
+      }
+    }
+    if (currentTable.length >= 2) tables.push(currentTable);
+
+    const keyPoints: string[] = [];
+    const bulletRegex = /(?:^|\n)(?:[-*•]|\d+\.)\s+(?:\*\*|\[\s*\])?([A-ZÀ-Ỹa-zà-ỹ0-9][^\n]{15,140})/g;
+    let bm: RegExpExecArray | null;
+    while ((bm = bulletRegex.exec(lessonMarkdown || "")) !== null) {
+      if (keyPoints.length < 8) keyPoints.push(bm[1].trim().replace(/\*+/g, ""));
+    }
+
+    return { tables, keyPoints };
+  }, [lessonMarkdown]);
+
+  const [monthlyIncome, setMonthlyIncome] = useState(25_000_000);
+  const [savingRate, setSavingRate] = useState(20);
+  const [investmentReturn, setInvestmentReturn] = useState(10);
+  const [years, setYears] = useState(15);
+  const [personalSolution, setPersonalSolution] = useState("");
+  const [savedSuccess, setSavedSuccess] = useState(false);
+
+  const monthlySavings = (monthlyIncome * savingRate) / 100;
+  const totalContributed = monthlySavings * 12 * years;
+  const projectedWealth = useMemo(() => {
+    const monthlyRate = investmentReturn / 100 / 12;
+    const months = years * 12;
+    if (monthlyRate === 0) return totalContributed;
+    return monthlySavings * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+  }, [monthlySavings, investmentReturn, years, totalContributed]);
+
+  const handleSaveCase = async () => {
+    const content = [
+      `### 📊 Kế Hoạch Tài Chính & Tình Huống Bài Học: ${lessonTitle}`,
+      `- **Thu nhập giả định:** ${formatVND(monthlyIncome)} / tháng`,
+      `- **Tỷ lệ tiết kiệm / đầu tư:** ${savingRate}% (${formatVND(monthlySavings)} / tháng)`,
+      `- **Lãi suất kỳ vọng:** ${investmentReturn}% / năm | Thời gian: ${years} năm`,
+      `- **Tổng vốn tự tích lũy:** ${formatVND(totalContributed)}`,
+      `- **Giá trị tài sản dự kiến (lãi kép):** ${formatVND(Math.round(projectedWealth))}`,
+      personalSolution.trim() ? `\n#### Kế hoạch hành động & Phân tích cá nhân:\n${personalSolution}` : "",
+    ].filter(Boolean).join("\n");
+
+    await onSaveToNotebook(content);
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 3000);
+  };
+
+  const handleCreateCard = async () => {
+    if (!onCreateFlashcardQuick) return;
+    await onCreateFlashcardQuick(
+      `Mục tiêu tích lũy bài "${lessonTitle}":`,
+      `Thu nhập ${formatVND(monthlyIncome)}, tiết kiệm ${savingRate}% (${formatVND(monthlySavings)}/tháng) với lãi ${investmentReturn}%/năm sau ${years} năm đạt ${formatVND(Math.round(projectedWealth))}.`
+    );
+  };
+
+  return (
+    <div data-testid="finance-case-study-lab" className="space-y-6 p-4 sm:p-6 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm text-zinc-900 dark:text-zinc-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-200 dark:border-zinc-800">
+        <div>
+          <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider inline-flex items-center gap-1.5">
+            <Briefcase className="w-3.5 h-3.5" />
+            Tình Huống Thực Tế & Bảng Kế Hoạch Bài Học
+          </span>
+          <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 mt-0.5">
+            {lessonTitle}
+          </h3>
+        </div>
+        <div className="flex items-center gap-2">
+          {onCreateFlashcardQuick && (
+            <button
+              type="button"
+              onClick={handleCreateCard}
+              className="px-3 py-1.5 rounded-lg border border-purple-200 dark:border-purple-800 text-xs font-medium text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/50 transition cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 inline mr-1" />
+              Tạo Thẻ Tình Huống
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Case Overview & Tables from Lesson */}
+      {extractedCase.tables.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+            <Calculator className="w-3.5 h-3.5 text-purple-500" />
+            Dữ liệu Bảng trích xuất từ bài học:
+          </h4>
+          <div className="overflow-x-auto p-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-xs font-mono">
+            {extractedCase.tables.slice(0, 2).map((tbl, tIdx) => (
+              <pre key={tIdx} className="whitespace-pre overflow-x-auto text-zinc-700 dark:text-zinc-300">
+                {tbl.join("\n")}
+              </pre>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Simulation Controls */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/60 dark:border-purple-800/60">
+        <div>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 block mb-1">
+            Thu nhập hàng tháng:
+          </label>
+          <input
+            type="number"
+            step="1000000"
+            value={monthlyIncome}
+            onChange={(e) => setMonthlyIncome(Math.max(1_000_000, Number(e.target.value)))}
+            className="w-full px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-semibold"
+          />
+          <span className="text-[11px] text-zinc-500 mt-0.5 block">{formatVND(monthlyIncome)}</span>
+        </div>
+
+        <div>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 block mb-1">
+            Tỷ lệ tiết kiệm ({savingRate}%):
+          </label>
+          <input
+            type="range"
+            min="5"
+            max="60"
+            step="1"
+            value={savingRate}
+            onChange={(e) => setSavingRate(Number(e.target.value))}
+            className="w-full cursor-pointer accent-purple-600"
+          />
+          <span className="text-[11px] text-zinc-500 mt-0.5 block">{formatVND(monthlySavings)} / tháng</span>
+        </div>
+
+        <div>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 block mb-1">
+            Lãi suất danh nghĩa ({investmentReturn}%/năm):
+          </label>
+          <input
+            type="range"
+            min="4"
+            max="20"
+            step="0.5"
+            value={investmentReturn}
+            onChange={(e) => setInvestmentReturn(Number(e.target.value))}
+            className="w-full cursor-pointer accent-purple-600"
+          />
+          <span className="text-[11px] text-zinc-500 mt-0.5 block">Kỳ vọng quỹ chỉ số / đa tài sản</span>
+        </div>
+
+        <div>
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 block mb-1">
+            Thời gian tích lũy ({years} năm):
+          </label>
+          <input
+            type="range"
+            min="3"
+            max="35"
+            step="1"
+            value={years}
+            onChange={(e) => setYears(Number(e.target.value))}
+            className="w-full cursor-pointer accent-purple-600"
+          />
+          <span className="text-[11px] text-zinc-500 mt-0.5 block">{years * 12} kỳ đóng góp</span>
+        </div>
+      </div>
+
+      {/* Projections Card */}
+      <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <span className="text-xs text-zinc-500 block">Tổng vốn tự đóng góp ({years} năm):</span>
+          <span className="text-lg font-bold text-zinc-800 dark:text-zinc-200">{formatVND(totalContributed)}</span>
+        </div>
+        <div>
+          <span className="text-xs text-purple-600 dark:text-purple-400 font-semibold block">Tài sản dự kiến (Kèm lãi kép):</span>
+          <span className="text-2xl font-extrabold text-purple-700 dark:text-purple-300">{formatVND(Math.round(projectedWealth))}</span>
+        </div>
+      </div>
+
+      {/* User Notes / Personal Solution */}
+      <div className="space-y-2">
+        <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block">
+          Ghi chú phân tích tình huống & Cam kết cá nhân:
+        </label>
+        <textarea
+          rows={4}
+          value={personalSolution}
+          onChange={(e) => setPersonalSolution(e.target.value)}
+          placeholder="Ghi lại các nhận định cá nhân: ví dụ phân bổ các quỹ khẩn cấp, cắt giảm chi phí lãng phí, kế hoạch tăng thu nhập..."
+          className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xs text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-purple-500 leading-relaxed"
+        />
+      </div>
+
+      <div className="flex items-center justify-between pt-2">
+        {savedSuccess ? (
+          <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4" />
+            Đã lưu kế hoạch vào Sổ tay học tập!
+          </span>
+        ) : (
+          <span className="text-xs text-zinc-500">
+            Dữ liệu tính toán dựa trên công thức Annuity Future Value
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={handleSaveCase}
+          className="min-h-[44px] px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-semibold text-white inline-flex items-center gap-2 transition cursor-pointer shadow-sm"
+        >
+          <BookmarkPlus className="w-4 h-4" />
+          <span>Lưu Kế Hoạch Vào Sổ Tay</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function FinancePracticeLab({
   courseId,
   courseTitle,
@@ -2470,7 +2712,7 @@ export function FinancePracticeLab({
         </div>
 
         {/* Thanh tab cuộn mượt / responsive */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-x-auto max-w-full">
+        <div className="flex items-center flex-wrap gap-1.5 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 max-w-full">
           <button
             type="button"
             data-testid="tab-budget"
@@ -2523,6 +2765,19 @@ export function FinancePracticeLab({
             <CandlestickChart className="w-4 h-4" />
             4. Biểu Đồ Nến & Rủi Ro
           </button>
+          <button
+            type="button"
+            data-testid="tab-cases"
+            onClick={() => setActiveTab("cases")}
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${
+              activeTab === "cases"
+                ? "bg-white dark:bg-zinc-800 text-purple-600 dark:text-purple-300 shadow-sm"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+            }`}
+          >
+            <Briefcase className="w-4 h-4" />
+            5. Tình Huống Bài Học (Case Study)
+          </button>
         </div>
       </div>
 
@@ -2538,6 +2793,14 @@ export function FinancePracticeLab({
         {activeTab === "debt" && <DebtPayoffLab onSaveToNotebook={onSaveToNotebook} />}
         {activeTab === "trading" && (
           <CandlestickRiskLab
+            onSaveToNotebook={onSaveToNotebook}
+            onCreateFlashcardQuick={onCreateFlashcardQuick}
+          />
+        )}
+        {activeTab === "cases" && (
+          <ExtractedFinanceCaseStudyLab
+            lessonMarkdown={lessonMarkdown}
+            lessonTitle={lessonTitle}
             onSaveToNotebook={onSaveToNotebook}
             onCreateFlashcardQuick={onCreateFlashcardQuick}
           />

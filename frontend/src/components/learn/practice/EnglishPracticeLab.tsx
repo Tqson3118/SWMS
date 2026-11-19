@@ -400,10 +400,78 @@ function extractPracticeContent(
     topicDisplay = "Tiếng Anh Công Nghệ & Tài Chính";
   }
 
-  // 3. Extract custom sentences from Markdown
+  // 3. Extract custom sentences and vocabulary from Markdown
   const extractedSentences: Array<{ text: string; meaningVi?: string; ipa?: string }> = [];
 
-  // Match bold phrases or vocabulary lines: **Word** (/ipa/): meaning
+  // 3a. Table rows with IPA or vocabulary (e.g. | Chữ | /eɪ/ | word | or | /æ/ | happy, angry | ...)
+  const mdLines = markdown.split("\n");
+  for (const line of mdLines) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) continue;
+    const cells = trimmed.split("|").map(c => c.trim()).filter(Boolean);
+    if (cells.length < 2) continue;
+    if (cells.some(c => /^:?-+:?$/.test(c))) continue;
+
+    const ipaCellIdx = cells.findIndex(c => /\/[^/]+\//.test(c));
+    if (ipaCellIdx !== -1) {
+      const rawIpa = cells[ipaCellIdx].match(/\/[^/]+\//)?.[0] || "";
+      const otherCells = cells.filter((_, idx) => idx !== ipaCellIdx);
+      const enCandidates = otherCells.flatMap(c => {
+        const clean = c.replace(/[*_`]/g, "").trim();
+        return clean.split(/[,;·•\/]/).map(w => w.trim()).filter(w => /^[A-Za-z\s'-]{2,40}$/.test(w));
+      });
+      const noteCell = otherCells.find(c => /[à-ỹÀ-Ỹ]/.test(c)) || "";
+      if (enCandidates.length > 0) {
+        const word = enCandidates[0];
+        if (!extractedSentences.some(s => s.text.toLowerCase() === word.toLowerCase())) {
+          extractedSentences.push({
+            text: word,
+            meaningVi: noteCell ? `${word}: ${noteCell}` : `Từ vựng phát âm: ${word} (${rawIpa})`,
+            ipa: rawIpa,
+          });
+        }
+      }
+    }
+  }
+
+  // 3b. Minimal pairs: "Minimal pairs ...: bad/bag · pat/pad" or "fat/vat"
+  const minimalPairPattern = /(?:minimal\s*pairs?|cặp\s*từ\s*tối\s*thiểu)[^:\n]*:\s*([^\n]+)/gi;
+  let mpm;
+  while ((mpm = minimalPairPattern.exec(markdown)) !== null) {
+    const rawPairs = mpm[1];
+    const pairs = rawPairs.split(/[·•,;]/).map(p => p.trim());
+    for (const pair of pairs) {
+      const cleanPair = pair.replace(/[*_`]/g, "").trim();
+      if (/^[A-Za-z]+\s*\/\s*[A-Za-z]+$/.test(cleanPair)) {
+        if (!extractedSentences.some(s => s.text === cleanPair)) {
+          extractedSentences.push({
+            text: cleanPair,
+            meaningVi: `Cặp từ tối thiểu phân biệt âm: ${cleanPair}`,
+            ipa: "",
+          });
+        }
+      }
+    }
+  }
+
+  // 3c. Self-test lists: e.g. "đọc to 20 lần: "think, thank, the, them, father""
+  const selfTestPattern = /đọc\s*to\s*(?:\d+\s*lần)?\s*:\s*["“']?([^"”\n]{10,200})["”']?/gi;
+  let stm;
+  while ((stm = selfTestPattern.exec(markdown)) !== null) {
+    const listStr = stm[1].trim();
+    const items = listStr.split(/[,;·•]/).map(w => w.trim().replace(/[*_`]/g, "")).filter(w => /^[A-Za-z\s'-]{2,40}$/.test(w));
+    for (const item of items) {
+      if (!extractedSentences.some(s => s.text.toLowerCase() === item.toLowerCase())) {
+        extractedSentences.push({
+          text: item,
+          meaningVi: `Luyện tập phát âm từ: ${item}`,
+          ipa: "",
+        });
+      }
+    }
+  }
+
+  // 3d. Match bold phrases or vocabulary lines: **Word** (/ipa/): meaning
   const boldVocabPattern = /\*\*([A-Za-z0-9\s'-]{2,40})\*\*\s*(?:\(([^)]+)\))?\s*[-:–—]\s*([^\n]+)/g;
   let vm;
   while ((vm = boldVocabPattern.exec(markdown)) !== null) {
@@ -411,15 +479,17 @@ function extractPracticeContent(
     const potentialIpa = vm[2]?.trim() || "";
     const meaning = vm[3].trim().replace(/\*+/g, "");
     if (/^[A-Za-z\s'-]+$/.test(word) && word.length > 3) {
-      extractedSentences.push({
-        text: `The term "${word}" is commonly used to describe ${meaning.toLowerCase().slice(0, 70)}.`,
-        meaningVi: `Thuật ngữ "${word}": ${meaning}`,
-        ipa: potentialIpa ? (potentialIpa.startsWith("/") ? potentialIpa : `/${potentialIpa}/`) : ""
-      });
+      if (!extractedSentences.some(s => s.text.toLowerCase() === word.toLowerCase())) {
+        extractedSentences.push({
+          text: `The term "${word}" is commonly used to describe ${meaning.toLowerCase().slice(0, 70)}.`,
+          meaningVi: `Thuật ngữ "${word}": ${meaning}`,
+          ipa: potentialIpa ? (potentialIpa.startsWith("/") ? potentialIpa : `/${potentialIpa}/`) : ""
+        });
+      }
     }
   }
 
-  // Match bullet points with full English sentences: - "Sentence." - Nghĩa
+  // 3e. Match bullet points with full English sentences: - "Sentence." - Nghĩa
   const bulletPattern = /(?:^|\n)[-*•]\s*["“']?([A-Z][a-zA-Z0-9\s,;:'"–—-]{18,180}[.!?])["”']?(?:\s*[-–—:]\s*([^\n]+))?/g;
   let bm;
   while ((bm = bulletPattern.exec(markdown)) !== null) {
@@ -430,7 +500,7 @@ function extractPracticeContent(
     }
   }
 
-  // 4. Assemble drill list
+  // 4. Assemble drill list (expand up to 20 drills, removing the .slice(0, 3) restriction)
   const baseDefaultPack =
     topicCategory === "ielts"
       ? DEFAULT_IELTS_DRILLS
@@ -440,8 +510,8 @@ function extractPracticeContent(
 
   const resultDrills: ExtractedDrill[] = [];
 
-  // Pair extracted sentences with drills
-  extractedSentences.slice(0, 3).forEach((item, idx) => {
+  const maxDrills = Math.min(20, Math.max(5, extractedSentences.length));
+  extractedSentences.slice(0, maxDrills).forEach((item, idx) => {
     const matchedAudio = audioUrls[idx] || null;
     resultDrills.push({
       id: `extracted-${idx + 1}`,
@@ -450,13 +520,13 @@ function extractPracticeContent(
       ipa: item.ipa || "",
       meaningVi: item.meaningVi || "Nội dung trích xuất trực tiếp từ bài giảng hiện tại.",
       audioUrl: matchedAudio,
-      speakingPrompt: `How would you explain the significance of "${item.text.slice(0, 45)}..." in the context of this lesson?`,
+      speakingPrompt: `How would you explain the significance or pronunciation of "${item.text.slice(0, 45)}" in this lesson?`,
       speakingOutline: [
         "Ý nghĩa cốt lõi của khái niệm hoặc câu nói trong bài học",
         "Ví dụ minh họa thực tế mà bạn từng quan sát hoặc áp dụng",
         "Góc nhìn cá nhân và bài học rút ra"
       ],
-      sampleAnswer: `In the context of ${lessonTitle || "this topic"}, understanding this concept is vital. It lays the groundwork for structured thinking and clear expression. Applying it consistently will yield substantial improvements.`,
+      sampleAnswer: `In the context of ${lessonTitle || "this topic"}, mastering "${item.text.slice(0, 30)}" with accurate pronunciation and intonation is vital. It lays the groundwork for structured thinking and clear expression. Applying it consistently will yield substantial improvements.`,
       keyPhrases: [
         item.text.split(" ").slice(0, 3).join(" ").toLowerCase(),
         "vital concept",
@@ -1283,7 +1353,7 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
               <span>Câu trước</span>
             </button>
 
-            <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+            <div className="flex items-center gap-1.5 flex-wrap justify-center py-1 max-w-full">
               {drills.map((drill, idx) => (
                 <button
                   key={drill.id}

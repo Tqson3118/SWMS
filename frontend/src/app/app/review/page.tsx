@@ -12,12 +12,22 @@ import {
   Zap,
   AlertCircle,
   BookOpen,
+  Keyboard,
+  Layers,
   Plus,
+  Sparkles,
+  Volume2,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { fetchDashboardCached } from "@/lib/api-client";
 import { enqueueOfflineMutation, removeOfflineMutation } from "@/lib/offline-queue";
 import { getReviewCapSettings } from "@/lib/review-settings";
+import {
+  deduplicateCourses,
+  formatCleanQuizPrompt,
+  sortCoursesSmartly,
+  type CourseLike,
+} from "@/lib/course-helpers";
 
 interface FlashcardTagItem {
   id: string;
@@ -194,11 +204,12 @@ function ReviewPageContent() {
           estimatedMinutes = rs.estimatedMinutes ?? Math.max(1, Math.ceil(totalDue * 0.5));
 
           const rawCourses = Array.isArray(dashData.courses) ? dashData.courses : [];
+          const sortedCourses = sortCoursesSmartly(deduplicateCourses(rawCourses as CourseLike[]));
           setCourses(
-            rawCourses
-              .map((c: { id?: string; courseId?: string; title?: string }) => ({
-                id: c.id ?? c.courseId ?? "",
-                title: c.title ?? "Khóa học",
+            sortedCourses
+              .map((c) => ({
+                id: String(c.id ?? c.courseId ?? ""),
+                title: String(c.title ?? "Khóa học"),
               }))
               .filter((c: CourseFilterOption) => Boolean(c.id))
           );
@@ -759,9 +770,9 @@ function ReviewPageContent() {
         </div>
       )}
 
-      {/* Card area */}
-      <div className="flex-1 flex items-center justify-center px-4 py-6">
-        <div className="w-full max-w-xl">
+      {/* Card area — 2-Column FSRS Memory Workstation */}
+      <div className="flex-1 max-w-[1320px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="lg:col-span-8 w-full">
           {/* Card */}
           <div
             className="perspective-1200 cursor-pointer"
@@ -771,12 +782,12 @@ function ReviewPageContent() {
               className={`relative preserve-3d transition-transform duration-500 ${
                 isFlipped ? "rotate-y-180" : ""
               }`}
-              style={{ minHeight: "300px" }}
+              style={{ minHeight: "340px" }}
             >
               {/* Front */}
               <div
                 data-testid="review-card-front"
-                className="absolute inset-0 backface-hidden rounded-xl border border-border bg-bg-primary p-6 flex flex-col shadow-xs"
+                className="absolute inset-0 backface-hidden rounded-2xl border border-border bg-bg-primary p-6 sm:p-8 flex flex-col shadow-xs"
               >
                 <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
                   <div className="flex flex-wrap items-center gap-1.5">
@@ -793,19 +804,38 @@ function ReviewPageContent() {
                       </span>
                     ))}
                   </div>
-                  {currentCard?.sourceTitleSnapshot && (
-                    <span className="inline-flex items-center gap-1 text-[11px] text-text-tertiary truncate max-w-[200px]">
-                      <BookOpen className="w-3 h-3 shrink-0" />
-                      <span className="truncate">
-                        {currentCard.sourceTitleSnapshot}
-                        {currentCard.pageNumber ? ` (tr.${currentCard.pageNumber})` : ""}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+                        window.speechSynthesis.cancel();
+                        const text = formatCleanQuizPrompt(currentCard?.frontText || "", isFlipped);
+                        const utter = new SpeechSynthesisUtterance(text);
+                        utter.lang = /[àáạảãâăđêôơư]/i.test(text) ? "vi-VN" : "en-US";
+                        window.speechSynthesis.speak(utter);
+                      }}
+                      title="Đọc to câu hỏi"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-border bg-bg-secondary text-[11px] font-medium text-text-secondary hover:text-accent transition cursor-pointer"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                      <span>Nghe</span>
+                    </button>
+                    {currentCard?.sourceTitleSnapshot && (
+                      <span className="inline-flex items-center gap-1 text-[11px] text-text-tertiary truncate max-w-[220px]">
+                        <BookOpen className="w-3 h-3 shrink-0" />
+                        <span className="truncate">
+                          {currentCard.sourceTitleSnapshot}
+                          {currentCard.pageNumber ? ` (tr.${currentCard.pageNumber})` : ""}
+                        </span>
                       </span>
-                    </span>
-                  )}
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex-1 flex items-center justify-center px-2">
-                  <div className="text-lg text-text-primary text-center leading-relaxed whitespace-pre-wrap">
+                  <div className="text-lg sm:text-xl text-text-primary text-center leading-relaxed whitespace-pre-wrap">
                     {currentCard?.frontText
                       ? hasClozeSyntax
                         ? renderClozeText(currentCard.frontText, false)
@@ -822,7 +852,7 @@ function ReviewPageContent() {
               {/* Back */}
               <div
                 data-testid="review-card-back"
-                className="absolute inset-0 backface-hidden rotate-y-180 rounded-xl border border-border bg-bg-primary p-6 flex flex-col shadow-xs overflow-y-auto"
+                className="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl border border-border bg-bg-primary p-6 sm:p-8 flex flex-col shadow-xs overflow-y-auto"
               >
                 <div className="flex items-center justify-between text-[11px] text-text-tertiary mb-3">
                   <span>
@@ -844,7 +874,7 @@ function ReviewPageContent() {
 
                 <div className="flex-1 flex flex-col items-center justify-center gap-3 px-2">
                   {hasClozeSyntax && currentCard?.frontText && (
-                    <div className="text-base text-text-primary text-center leading-relaxed whitespace-pre-wrap">
+                    <div className="text-base sm:text-lg text-text-primary text-center leading-relaxed whitespace-pre-wrap">
                       {renderClozeText(currentCard.frontText, true)}
                     </div>
                   )}
@@ -853,7 +883,7 @@ function ReviewPageContent() {
                       className={`text-center leading-relaxed whitespace-pre-wrap ${
                         hasClozeSyntax
                           ? "text-sm text-text-secondary border-t border-border-subtle pt-3 w-full"
-                          : "text-base text-text-primary font-medium"
+                          : "text-base sm:text-lg text-text-primary font-medium"
                       }`}
                     >
                       {currentCard.backText}
@@ -871,7 +901,7 @@ function ReviewPageContent() {
 
           {/* Rating buttons — only visible when flipped */}
           {isFlipped ? (
-            <div className="mt-6 grid grid-cols-4 gap-2.5">
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {([
                 {
                   key: "again" as const,
@@ -912,7 +942,7 @@ function ReviewPageContent() {
                   data-testid={`review-rate-${idx + 1}`}
                   disabled={isSubmitting}
                   onClick={() => void handleRate(btn.key)}
-                  className={`h-16 rounded-lg border border-border bg-bg-primary text-sm font-medium transition cursor-pointer flex flex-col items-center justify-center gap-0.5 disabled:opacity-50 ${btn.color}`}
+                  className={`h-16 rounded-xl border border-border bg-bg-primary text-sm font-medium transition cursor-pointer flex flex-col items-center justify-center gap-0.5 disabled:opacity-50 ${btn.color}`}
                 >
                   <span>{btn.label}</span>
                   <span className="text-[11px] font-normal opacity-80">{btn.interval}</span>
@@ -926,13 +956,109 @@ function ReviewPageContent() {
                 type="button"
                 data-testid="review-flip-btn"
                 onClick={() => setIsFlipped(true)}
-                className="h-10 px-6 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition cursor-pointer"
+                className="h-10 px-8 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent-hover transition cursor-pointer shadow-xs"
               >
                 Hiện đáp án (Space)
               </button>
             </div>
           )}
         </div>
+
+        {/* Right Companion Column: FSRS Stats, Upcoming Queue & Shortcuts */}
+        <aside className="lg:col-span-4 space-y-4">
+          <div className="rounded-xl border border-border bg-bg-secondary p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-accent" />
+                <span>Chỉ số FSRS thẻ hiện tại</span>
+              </span>
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-accent-subtle text-accent">
+                {cardStateLabel}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-lg bg-bg-primary border border-border p-2.5">
+                <p className="text-[10px] text-text-tertiary">Độ bền</p>
+                <p className="text-sm font-bold text-text-primary">
+                  {currentCard && currentCard.stability > 0
+                    ? `${currentCard.stability.toFixed(1)}d`
+                    : "Mới"}
+                </p>
+              </div>
+              <div className="rounded-lg bg-bg-primary border border-border p-2.5">
+                <p className="text-[10px] text-text-tertiary">Độ khó</p>
+                <p className="text-sm font-bold text-text-primary">
+                  {currentCard ? currentCard.difficulty.toFixed(1) : "0.0"}
+                </p>
+              </div>
+              <div className="rounded-lg bg-bg-primary border border-border p-2.5">
+                <p className="text-[10px] text-text-tertiary">Số lần lặp</p>
+                <p className="text-sm font-bold text-text-primary">
+                  {currentCard?.reps ?? 0}
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-border/70 flex items-center justify-between text-xs text-text-secondary">
+              <span>Phiên hôm nay: {currentIndex + 1}/{queue.cards.length}</span>
+              <span>{totalBacklog > 0 ? `+${totalBacklog} thẻ tồn` : "Hàng đợi tối ưu"}</span>
+            </div>
+          </div>
+
+          {/* Upcoming Cards Preview */}
+          <div className="rounded-xl border border-border bg-bg-secondary p-4 space-y-2.5">
+            <div className="flex items-center justify-between text-xs font-semibold text-text-primary">
+              <span className="inline-flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-accent" />
+                <span>Thẻ sắp tới trong hàng đợi</span>
+              </span>
+              <span className="text-[11px] text-text-tertiary">
+                Còn {Math.max(0, queue.cards.length - currentIndex - 1)} thẻ
+              </span>
+            </div>
+
+            {queue.cards.slice(currentIndex + 1, currentIndex + 4).length > 0 ? (
+              <div className="space-y-1.5">
+                {queue.cards.slice(currentIndex + 1, currentIndex + 4).map((upcoming, uIdx) => (
+                  <div
+                    key={upcoming.id}
+                    className="rounded-lg border border-border bg-bg-primary px-3 py-2 text-xs text-text-secondary"
+                  >
+                    <p className="line-clamp-2 leading-relaxed">
+                      <span className="font-semibold text-accent mr-1.5">#{currentIndex + uIdx + 2}</span>
+                      {formatCleanQuizPrompt(upcoming.frontText || "Thẻ ghi nhớ", false)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-text-tertiary">Đây là thẻ cuối cùng trong phiên ôn tập này.</p>
+            )}
+          </div>
+
+          {/* Keyboard Shortcuts */}
+          <div className="rounded-xl border border-border bg-bg-secondary p-4 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-text-primary">
+              <Keyboard className="w-3.5 h-3.5 text-accent" />
+              <span>Phím tắt tốc độ cao</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-[11px] text-text-secondary">
+              <div className="flex items-center justify-between bg-bg-primary border border-border rounded px-2.5 py-1.5">
+                <span>Lật thẻ</span>
+                <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-bg-tertiary border border-border">Space</kbd>
+              </div>
+              <div className="flex items-center justify-between bg-bg-primary border border-border rounded px-2.5 py-1.5">
+                <span>Đánh giá</span>
+                <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-bg-tertiary border border-border">1 - 4</kbd>
+              </div>
+              <div className="flex items-center justify-between bg-bg-primary border border-border rounded px-2.5 py-1.5 col-span-2">
+                <span>Hoàn tác đánh giá vừa rồi</span>
+                <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-bg-tertiary border border-border">Z</kbd>
+              </div>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   );

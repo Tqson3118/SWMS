@@ -9,8 +9,10 @@ import {
   Clock,
   ChevronsUpDown,
   Search,
+  Sparkles,
   X
 } from "lucide-react";
+import { stripChapterPrefix } from "@/lib/course-helpers";
 
 export interface RoadmapLessonItem {
   id: string;
@@ -155,8 +157,11 @@ export function CourseRoadmapSidebar({
     >
       {/* Course Mini Progress Summary */}
       <div className="rounded-lg bg-bg-primary border border-border p-2.5 space-y-1.5">
-        <div className="flex items-center justify-between gap-2">
-          <span className="font-semibold text-text-primary truncate text-[11px]">
+        <div className="flex items-start justify-between gap-2">
+          <span
+            title={courseTitle}
+            className="font-semibold text-text-primary line-clamp-2 leading-snug text-[11px]"
+          >
             {courseTitle}
           </span>
           <span className="shrink-0 px-1.5 py-0.5 rounded bg-accent-subtle text-accent text-[10px] font-semibold">
@@ -270,7 +275,9 @@ export function CourseRoadmapSidebar({
                       <ChevronRight className="w-3.5 h-3.5 text-text-tertiary shrink-0 mt-0.5" />
                     )}
                     <span className="font-semibold text-text-primary text-[11px] leading-snug line-clamp-2 break-words">
-                      {chapter.title}
+                      {stripChapterPrefix(chapter.title)
+                        ? `Chương ${chIdx + 1}: ${stripChapterPrefix(chapter.title)}`
+                        : chapter.title}
                     </span>
                   </div>
                   <span
@@ -357,6 +364,19 @@ export function CourseRoadmapSidebar({
           })
         )}
       </div>
+
+      {/* Compact Study Tip Footer (prevents empty sidebar void on short courses) */}
+      {!compact && (
+        <div className="rounded-lg border border-border/80 bg-bg-primary/90 p-2.5 space-y-1 shrink-0">
+          <div className="flex items-center gap-1.5 text-[10px] font-semibold text-accent">
+            <Sparkles className="w-3 h-3 shrink-0" />
+            <span>Mẹo học sâu hiệu quả</span>
+          </div>
+          <p className="text-[10px] text-text-tertiary leading-relaxed">
+            Bôi đen đoạn quan trọng để tạo thẻ FSRS 1-click, rồi cuộn xuống cuối bài để làm Quiz &amp; Lab thực hành ngay.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

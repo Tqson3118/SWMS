@@ -22,7 +22,12 @@ import {
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { setAccessToken, fetchDashboardCached } from "@/lib/api-client";
-import { deduplicateCourses, getCourseId, getCourseProgress } from "@/lib/course-helpers";
+import {
+  deduplicateCourses,
+  getCourseId,
+  getCourseProgress,
+  sortCoursesSmartly,
+} from "@/lib/course-helpers";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -103,10 +108,10 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         setUserName(data.user?.fullName ?? "Học viên");
         setUserEmail(data.user?.email ?? "");
 
-        // Extract recent courses (top 4, deduplicated)
+        // Extract recent courses (top 4, deduplicated & smartly sorted)
         const rawCourses = Array.isArray(data.courses) ? data.courses : [];
-        const uniqueCourses = deduplicateCourses(
-          rawCourses as Record<string, unknown>[]
+        const uniqueCourses = sortCoursesSmartly(
+          deduplicateCourses(rawCourses as Record<string, unknown>[])
         );
         setRecentCourses(
           uniqueCourses.slice(0, 4).map((c) => ({
@@ -290,14 +295,15 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 <Link
                   key={course.id}
                   href={`/app/courses/${course.id}`}
-                  className={`flex items-center gap-2.5 h-8 px-2.5 rounded-[8px] text-sm transition ${
+                  title={course.title}
+                  className={`flex items-start gap-2.5 min-h-[34px] py-1.5 px-2.5 rounded-[8px] text-sm transition ${
                     pathname === `/app/courses/${course.id}`
                       ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] font-medium"
                       : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
                   }`}
                 >
-                  <BookOpen className="w-3.5 h-3.5 shrink-0 opacity-60" />
-                  <span className="flex-1 truncate text-[13px]">
+                  <BookOpen className="w-3.5 h-3.5 shrink-0 opacity-60 mt-0.5" />
+                  <span className="flex-1 line-clamp-2 leading-snug text-[12px]">
                     {course.title}
                   </span>
                 </Link>
@@ -358,7 +364,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           title="Chế độ bàn làm việc nhiều khung trên máy tính (/workspace)"
         >
           <LayoutGrid className="w-4 h-4 shrink-0" />
-          {!collapsed && <span className="truncate">Giao diện nhiều khung (Classic)</span>}
+          {!collapsed && <span>Giao diện Classic (Split)</span>}
         </Link>
 
         {/* Settings */}

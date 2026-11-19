@@ -1007,7 +1007,53 @@ export function PsychologyLifeSkillsLab({
   onCreateFlashcardQuick,
 }: PracticeModuleProps) {
   // Navigation tabs
-  const [activeTab, setActiveTab] = useState<"roleplay" | "biases" | "cbt">("roleplay");
+  const [activeTab, setActiveTab] = useState<"roleplay" | "biases" | "cbt" | "lesson-cases">("roleplay");
+
+  // Extracted action steps & reflections from current lessonMarkdown
+  const extractedLessonCases = useMemo(() => {
+    const md = lessonMarkdown || "";
+    const actions: string[] = [];
+    const reflections: string[] = [];
+
+    const bulletRegex = /(?:^|\n)(?:[-*•]|\d+\.)\s+(?:\[\s*\]\s*)?(?:\*\*)?([^*\n]{12,150})/g;
+    let bm: RegExpExecArray | null;
+    while ((bm = bulletRegex.exec(md)) !== null) {
+      const text = bm[1].replace(/\*+/g, "").trim();
+      if (!text || text.startsWith("LO-") || text.startsWith("[")) continue;
+      if (/\?$/.test(text) || /(câu hỏi|tình huống|suy ngẫm|case|ví dụ|thực hành)/i.test(text)) {
+        if (reflections.length < 6 && !reflections.includes(text)) reflections.push(text);
+      } else if (actions.length < 8 && !actions.includes(text)) {
+        actions.push(text);
+      }
+    }
+
+    const detailsQRegex = /<summary[^>]*>([^<]{8,140})<\/summary>/gi;
+    let dm: RegExpExecArray | null;
+    while ((dm = detailsQRegex.exec(md)) !== null) {
+      const q = dm[1].replace(/[*_`]/g, "").trim();
+      if (q && reflections.length < 8 && !reflections.includes(q)) {
+        reflections.push(q);
+      }
+    }
+
+    if (actions.length === 0) {
+      actions.push(
+        `Áp dụng 1 nguyên tắc cốt lõi của "${lessonTitle}" trong 24 giờ tới.`,
+        "Ghi lại 1 tình huống thực tế bạn đã quan sát được hôm nay mà không phán xét.",
+        "Chia sẻ tóm tắt bài học cho một người bạn theo kỹ thuật Feynman."
+      );
+    }
+    if (reflections.length === 0) {
+      reflections.push(
+        `Điều gì trong bài "${lessonTitle}" thay đổi góc nhìn của bạn nhiều nhất?`,
+        "Trong tình huống căng thẳng sắp tới, bạn sẽ phản ứng khác đi như thế nào?"
+      );
+    }
+    return { actions, reflections };
+  }, [lessonMarkdown, lessonTitle]);
+
+  const [checkedActions, setCheckedActions] = useState<Record<number, boolean>>({});
+  const [lessonReflectionNote, setLessonReflectionNote] = useState("");
 
   // Notifications feedback toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -1349,9 +1395,9 @@ ${chatHistory
               <Brain className="w-3.5 h-3.5" />
               <span>Phòng Thực Hành Tâm Lý Học & Kỹ Năng Sống</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
               {lessonTitle || "Giao Tiếp Thấu Cảm & Tự Chủ Tâm Trí"}
-            </h1>
+            </h2>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 max-w-2xl leading-relaxed">
               Áp dụng khoa học não bộ và liệu pháp CBT vào các tình huống đời sống thực tế:
               lắng nghe không phán xét, từ chối có ranh giới và hóa giải bẫy tâm lý thường ngày.
@@ -1405,6 +1451,20 @@ ${chatHistory
           >
             <Heart className="w-4 h-4" />
             <span>3. Gỡ Rối Suy Nghĩ CBT (5 Bước)</span>
+          </button>
+
+          <button
+            type="button"
+            data-testid="tab-lesson-cases"
+            onClick={() => setActiveTab("lesson-cases")}
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+              activeTab === "lesson-cases"
+                ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
+                : "bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700"
+            }`}
+          >
+            <BookmarkCheck className="w-4 h-4" />
+            <span>4. Checklist &amp; Tình Huống Bài Học</span>
           </button>
         </div>
       </div>
@@ -2126,6 +2186,110 @@ ${chatHistory
               >
                 <BookOpen className="w-4 h-4" />
                 <span>Xuất & Lưu bản gỡ rối vào Sổ tay</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+          TAB 4: CHECKLIST HÀNH ĐỘNG & TÌNH HUỐNG TỪ CHÍNH BÀI HỌC
+         ===================================================================== */}
+      {activeTab === "lesson-cases" && (
+        <div className="space-y-5 animate-in fade-in duration-200">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span>Checklist Hành Động Của Bài Học</span>
+                </h3>
+                <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                  {Object.values(checkedActions).filter(Boolean).length}/{extractedLessonCases.actions.length} đã chọn
+                </span>
+              </div>
+              <div className="space-y-2">
+                {extractedLessonCases.actions.map((act, idx) => {
+                  const isChecked = Boolean(checkedActions[idx]);
+                  return (
+                    <label
+                      key={idx}
+                      className={`flex items-start gap-2.5 p-3 rounded-xl border text-xs leading-relaxed cursor-pointer transition ${
+                        isChecked
+                          ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/25 text-zinc-900 dark:text-zinc-100"
+                          : "border-zinc-200 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-800/40 text-zinc-700 dark:text-zinc-300"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() =>
+                          setCheckedActions((prev) => ({ ...prev, [idx]: !prev[idx] }))
+                        }
+                        className="mt-0.5 accent-emerald-600"
+                      />
+                      <span className={isChecked ? "line-through opacity-80" : ""}>{act}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 space-y-3">
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-indigo-500" />
+                <span>Câu Hỏi &amp; Tình Huống Suy Ngẫm</span>
+              </h3>
+              <ul className="space-y-2">
+                {extractedLessonCases.reflections.map((q, idx) => (
+                  <li
+                    key={idx}
+                    className="p-3 rounded-xl border border-indigo-200/70 dark:border-indigo-900/50 bg-indigo-50/40 dark:bg-indigo-950/20 text-xs text-zinc-800 dark:text-zinc-200 leading-relaxed"
+                  >
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400 mr-1.5">
+                      #{idx + 1}
+                    </span>
+                    {q}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 space-y-3">
+            <label className="text-sm font-bold text-zinc-900 dark:text-zinc-100 block">
+              ✍️ Kế hoạch áp dụng &amp; Tự phản chiếu cho bài &ldquo;{lessonTitle}&rdquo;:
+            </label>
+            <textarea
+              rows={4}
+              value={lessonReflectionNote}
+              onChange={(e) => setLessonReflectionNote(e.target.value)}
+              placeholder="Ghi lại câu trả lời của bạn cho các tình huống trên và 1 thay đổi cụ thể bạn sẽ áp dụng tuần này..."
+              className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-500"
+            />
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <button
+                type="button"
+                disabled={isSaving || (!lessonReflectionNote.trim() && Object.values(checkedActions).filter(Boolean).length === 0)}
+                onClick={async () => {
+                  setIsSaving(true);
+                  try {
+                    const doneList = extractedLessonCases.actions
+                      .filter((_, i) => checkedActions[i])
+                      .map((a) => `- [x] ${a}`)
+                      .join("\n");
+                    await onSaveToNotebook(
+                      `### 🌱 Checklist & Phản chiếu (${lessonTitle})\n${doneList ? `${doneList}\n\n` : ""}${lessonReflectionNote.trim()}`
+                    );
+                    showToast("Đã lưu checklist & suy ngẫm vào Sổ tay!");
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
+                className="min-h-[42px] px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold transition cursor-pointer inline-flex items-center gap-2"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Lưu Checklist &amp; Suy Ngẫm Vào Sổ Tay</span>
               </button>
             </div>
           </div>

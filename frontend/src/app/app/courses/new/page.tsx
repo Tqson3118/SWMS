@@ -1,21 +1,25 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   BookOpen,
   ChevronRight,
+  Compass,
   FileUp,
   Loader2,
   Package,
   Download,
   Sparkles,
   Upload,
+  Zap,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { Button, Card } from "@/components/ui";
+import { stripChapterPrefix } from "@/lib/course-helpers";
+import { LEARNING_ROADMAPS, STUDY_USE_CASES } from "@/lib/learning-roadmaps";
 
 interface PreviewChapter {
   title: string;
@@ -26,11 +30,6 @@ interface WizardPreviewData {
   title?: string;
   description?: string;
   chapters?: PreviewChapter[];
-}
-
-function stripChapterPrefix(title: string): string {
-  if (!title) return "";
-  return title.replace(/^(?:Chương|Chapter|Phần)\s*\d+\s*[:.\-–—]\s*/i, "").trim();
 }
 
 export default function NewCoursePage() {
@@ -46,6 +45,16 @@ export default function NewCoursePage() {
 
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
+  const aiTopicInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const topicParam = params.get("topic");
+    if (topicParam && topicParam.trim()) {
+      setAiTopic(topicParam.trim());
+    }
+  }, []);
 
   const getHeaders = () => {
     const effectiveUserId =
@@ -244,9 +253,9 @@ export default function NewCoursePage() {
   const anyLoading = uploadLoading || aiLoading || importLoading;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10">
+    <div className="max-w-[1320px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10">
       {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-[var(--text-tertiary)] mb-6">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-[var(--text-tertiary)] mb-5">
         <Link href="/app/courses" className="hover:text-[var(--text-primary)] transition">
           Khóa học
         </Link>
@@ -254,12 +263,12 @@ export default function NewCoursePage() {
         <span className="text-[var(--text-primary)] font-medium">Tạo khóa học mới</span>
       </nav>
 
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
           Tạo khóa học mới
         </h1>
         <p className="text-sm text-[var(--text-secondary)] mt-1.5">
-          Chọn cách khởi tạo phù hợp từ tài liệu sẵn có, gợi ý theo chủ đề hoặc nhập gói lưu trữ.
+          Chọn cách khởi tạo phù hợp từ tài liệu sẵn có, gợi ý theo chủ đề, mẫu Use Case hoặc nhập gói lưu trữ.
         </p>
       </div>
 
@@ -270,173 +279,244 @@ export default function NewCoursePage() {
         </div>
       )}
 
-      <div className="space-y-4">
-        {/* Method 1: Upload Document */}
-        <Card className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-[10px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
-              <FileUp className="w-5 h-5 text-[#5E51E8] dark:text-[#818CF8]" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-base font-semibold text-[var(--text-primary)] mb-1">
-                1. Tạo từ tài liệu sẵn có
-              </h2>
-              <p className="text-sm text-[var(--text-secondary)] mb-4">
-                Tải lên giáo trình PDF, tài liệu Word, TXT hoặc Markdown để tự động chia chương và bài học.
-              </p>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="lg:col-span-7 space-y-4">
+          {/* Method 1: Upload Document */}
+          <Card className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-[10px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+                <FileUp className="w-5 h-5 text-[#5E51E8] dark:text-[#818CF8]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-base font-semibold text-[var(--text-primary)] mb-1">
+                  1. Tạo từ tài liệu sẵn có
+                </h2>
+                <p className="text-sm text-[var(--text-secondary)] mb-4">
+                  Tải lên giáo trình PDF, tài liệu Word, TXT hoặc Markdown để tự động chia chương và bài học.
+                </p>
 
-              <input
-                ref={uploadInputRef}
-                type="file"
-                accept=".pdf,.doc,.docx,.txt,.md,.zip,.swm"
-                onChange={handleFileUpload}
-                className="hidden"
-                disabled={anyLoading}
-              />
-              <Button
-                variant="primary"
-                disabled={anyLoading}
-                isLoading={uploadLoading}
-                onClick={() => uploadInputRef.current?.click()}
-                leftIcon={<Upload className="w-4 h-4" />}
-              >
-                <span>{uploadLoading ? "Đang xử lý tài liệu..." : "Chọn tệp tài liệu"}</span>
-              </Button>
-            </div>
-          </div>
-        </Card>
-
-        {/* Method 2: AI Topic Generator */}
-        <Card className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-[10px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-[#5E51E8] dark:text-[#818CF8]" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-base font-semibold text-[var(--text-primary)] mb-1">
-                2. Tạo lộ trình theo chủ đề với AI
-              </h2>
-              <p className="text-sm text-[var(--text-secondary)] mb-4">
-                Nhập tên môn học, kỹ năng hoặc mục tiêu bạn muốn chinh phục để hệ thống thiết kế đề cương chi tiết.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-2">
                 <input
-                  type="text"
-                  value={aiTopic}
-                  onChange={(e) => {
-                    setAiTopic(e.target.value);
-                    if (previewData) setPreviewData(null);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleAiCreate();
-                  }}
-                  placeholder="Ví dụ: Thiết kế hệ thống Backend, Tiếng Anh giao tiếp..."
+                  ref={uploadInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt,.md,.zip,.swm"
+                  onChange={handleFileUpload}
+                  className="hidden"
                   disabled={anyLoading}
-                  className="flex-1 h-9 px-3 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8]"
                 />
-                <div className="flex items-center gap-2">
+                <Button
+                  variant="primary"
+                  disabled={anyLoading}
+                  isLoading={uploadLoading}
+                  onClick={() => uploadInputRef.current?.click()}
+                  leftIcon={<Upload className="w-4 h-4" />}
+                >
+                  <span>{uploadLoading ? "Đang xử lý tài liệu..." : "Chọn tệp tài liệu"}</span>
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          {/* Method 2: AI Topic Generator */}
+          <Card className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-[10px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5 text-[#5E51E8] dark:text-[#818CF8]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-base font-semibold text-[var(--text-primary)] mb-1">
+                  2. Tạo lộ trình theo chủ đề với AI
+                </h2>
+                <p className="text-sm text-[var(--text-secondary)] mb-4">
+                  Nhập tên môn học, kỹ năng hoặc chọn nhanh từ bộ mẫu gợi ý để hệ thống thiết kế đề cương chi tiết.
+                </p>
+
+                <div className="space-y-2.5">
+                  <input
+                    ref={aiTopicInputRef}
+                    type="text"
+                    value={aiTopic}
+                    onChange={(e) => {
+                      setAiTopic(e.target.value);
+                      if (previewData) setPreviewData(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleAiCreate();
+                    }}
+                    placeholder="Ví dụ: Thiết kế hệ thống Backend, Tiếng Anh giao tiếp..."
+                    disabled={anyLoading}
+                    className="w-full h-10 px-3.5 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8]"
+                  />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      disabled={anyLoading || !aiTopic.trim()}
+                      onClick={handleAiPreview}
+                      className="shrink-0"
+                    >
+                      Xem trước
+                    </Button>
+                    <Button
+                      variant="primary"
+                      disabled={anyLoading || !aiTopic.trim()}
+                      isLoading={aiLoading}
+                      onClick={handleAiCreate}
+                      className="shrink-0"
+                    >
+                      <span>{previewData ? "Lưu & Mở khóa học" : "Tạo khóa học"}</span>
+                    </Button>
+                  </div>
+                </div>
+
+                {previewData && (
+                  <div className="mt-4 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] p-4">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-[#5E51E8] dark:text-[#818CF8] mb-1">
+                      <BookOpen className="w-3.5 h-3.5" />
+                      <span>Bản xem trước đề cương</span>
+                    </div>
+                    <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1">
+                      {previewData.title || aiTopic}
+                    </h3>
+                    {previewData.description && (
+                      <p className="text-xs text-[var(--text-secondary)] mb-3">{previewData.description}</p>
+                    )}
+                    {Array.isArray(previewData.chapters) && previewData.chapters.length > 0 && (
+                      <div className="space-y-2 max-h-56 overflow-y-auto swms-thin-scrollbar pr-1">
+                        {previewData.chapters.map((ch, idx) => (
+                          <div key={idx} className="text-xs rounded-[8px] bg-[var(--surface-card)] p-2.5 border border-[var(--border-calm)]">
+                            <p className="font-semibold text-[var(--text-primary)] mb-1">
+                              Chương {idx + 1}: {stripChapterPrefix(ch.title) || ch.title}
+                            </p>
+                            {Array.isArray(ch.lessons) && ch.lessons.length > 0 && (
+                              <ul className="list-disc list-inside text-[var(--text-secondary)] space-y-0.5">
+                                {ch.lessons.map((l, lIdx) => (
+                                  <li key={lIdx}>{l.title}</li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+
+          {/* Method 3: Import SWM ZIP */}
+          <Card className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-[10px] bg-[var(--surface-elevated)] border border-[var(--border-calm)] flex items-center justify-center shrink-0">
+                <Package className="w-5 h-5 text-[var(--text-secondary)]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-base font-semibold text-[var(--text-primary)] mb-1">
+                  3. Nhập gói khóa học (.swm / .zip)
+                </h2>
+                <p className="text-sm text-[var(--text-secondary)] mb-4">
+                  Khôi phục khóa học đã xuất trước đó hoặc nhập giáo trình do người khác chia sẻ.
+                </p>
+
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  accept=".zip,.swm"
+                  onChange={handleImportSwm}
+                  className="hidden"
+                  disabled={anyLoading}
+                />
+                <div className="flex flex-wrap items-center gap-2.5">
                   <Button
                     variant="secondary"
-                    disabled={anyLoading || !aiTopic.trim()}
-                    onClick={handleAiPreview}
-                    className="shrink-0"
+                    disabled={anyLoading}
+                    isLoading={importLoading}
+                    onClick={() => importInputRef.current?.click()}
+                    leftIcon={<Package className="w-4 h-4" />}
                   >
-                    Xem trước
+                    <span>{importLoading ? "Đang nhập gói..." : "Chọn tệp SWM / ZIP"}</span>
                   </Button>
-                  <Button
-                    variant="primary"
-                    disabled={anyLoading || !aiTopic.trim()}
-                    isLoading={aiLoading}
-                    onClick={handleAiCreate}
-                    className="shrink-0"
+                  <a
+                    href="/templates/lo-trinh-mau-swm.zip"
+                    download="lo-trinh-mau-swm.zip"
+                    data-testid="download-swm-template-btn"
+                    className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-secondary)] hover:text-[#5E51E8] hover:border-[#5E51E8]/40 transition"
                   >
-                    <span>{previewData ? "Lưu & Mở khóa học" : "Tạo khóa học"}</span>
-                  </Button>
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Tải gói lộ trình mẫu (.zip)</span>
+                  </a>
                 </div>
               </div>
-
-              {previewData && (
-                <div className="mt-4 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] p-4">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-[#5E51E8] dark:text-[#818CF8] mb-1">
-                    <BookOpen className="w-3.5 h-3.5" />
-                    <span>Bản xem trước đề cương</span>
-                  </div>
-                  <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1">
-                    {previewData.title || aiTopic}
-                  </h3>
-                  {previewData.description && (
-                    <p className="text-xs text-[var(--text-secondary)] mb-3">{previewData.description}</p>
-                  )}
-                  {Array.isArray(previewData.chapters) && previewData.chapters.length > 0 && (
-                    <div className="space-y-2 max-h-56 overflow-y-auto swms-thin-scrollbar pr-1">
-                      {previewData.chapters.map((ch, idx) => (
-                        <div key={idx} className="text-xs rounded-[8px] bg-[var(--surface-card)] p-2.5 border border-[var(--border-calm)]">
-                          <p className="font-semibold text-[var(--text-primary)] mb-1">
-                            Chương {idx + 1}: {stripChapterPrefix(ch.title)}
-                          </p>
-                          {Array.isArray(ch.lessons) && ch.lessons.length > 0 && (
-                            <ul className="list-disc list-inside text-[var(--text-secondary)] space-y-0.5">
-                              {ch.lessons.map((l, lIdx) => (
-                                <li key={lIdx}>{l.title}</li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
 
-        {/* Method 3: Import SWM ZIP */}
-        <Card className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-[10px] bg-[var(--surface-elevated)] border border-[var(--border-calm)] flex items-center justify-center shrink-0">
-              <Package className="w-5 h-5 text-[var(--text-secondary)]" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-base font-semibold text-[var(--text-primary)] mb-1">
-                3. Nhập gói khóa học (.swm / .zip)
-              </h2>
-              <p className="text-sm text-[var(--text-secondary)] mb-4">
-                Khôi phục khóa học đã xuất trước đó hoặc nhập giáo trình do người khác chia sẻ.
+        {/* Right Column: 1-Click Use Cases & Roadmap Templates */}
+        <aside className="lg:col-span-5 space-y-4">
+          <Card className="p-5 space-y-4">
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#5E51E8] dark:text-[#A5B4FC]">
+                <Compass className="w-4 h-4" />
+                <span>Mẫu Lộ Trình &amp; Use Cases Khởi Tạo Nhanh</span>
+              </div>
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                Chọn 1 mẫu thực chiến bên dưới để điền sẵn chủ đề cho trình tạo khóa học AI.
               </p>
+            </div>
 
-              <input
-                ref={importInputRef}
-                type="file"
-                accept=".zip,.swm"
-                onChange={handleImportSwm}
-                className="hidden"
-                disabled={anyLoading}
-              />
-              <div className="flex flex-wrap items-center gap-2.5">
-                <Button
-                  variant="secondary"
-                  disabled={anyLoading}
-                  isLoading={importLoading}
-                  onClick={() => importInputRef.current?.click()}
-                  leftIcon={<Package className="w-4 h-4" />}
+            <div className="space-y-2.5 max-h-[540px] overflow-y-auto swms-thin-scrollbar pr-1">
+              {STUDY_USE_CASES.slice(0, 6).map((uc) => (
+                <button
+                  key={uc.id}
+                  type="button"
+                  onClick={() => {
+                    setAiTopic(uc.aiTemplateTopic);
+                    setPreviewData(null);
+                    aiTopicInputRef.current?.focus();
+                  }}
+                  className="w-full text-left rounded-xl border border-[var(--border-calm)] bg-[var(--surface-elevated)]/60 hover:border-[#5E51E8] hover:bg-[#EEF0FD]/50 dark:hover:bg-[#1E1B4B]/40 p-3 transition cursor-pointer group space-y-1"
                 >
-                  <span>{importLoading ? "Đang nhập gói..." : "Chọn tệp SWM / ZIP"}</span>
-                </Button>
-                <a
-                  href="/templates/lo-trinh-mau-swm.zip"
-                  download="lo-trinh-mau-swm.zip"
-                  data-testid="download-swm-template-btn"
-                  className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-secondary)] hover:text-[#5E51E8] hover:border-[#5E51E8]/40 transition"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Tải gói lộ trình mẫu (.zip)</span>
-                </a>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[var(--surface-card)] border border-[var(--border-calm)] text-[#5E51E8] dark:text-[#A5B4FC]">
+                      {uc.persona}
+                    </span>
+                    <span className="text-[11px] font-medium text-[var(--text-tertiary)] group-hover:text-[#5E51E8] inline-flex items-center gap-1">
+                      <Zap className="w-3 h-3" />
+                      <span>Dùng mẫu</span>
+                    </span>
+                  </div>
+                  <p className="text-xs font-semibold text-[var(--text-primary)] leading-snug">
+                    {uc.title}
+                  </p>
+                  <p className="text-[11px] text-[var(--text-tertiary)] line-clamp-1">
+                    Chủ đề: {uc.aiTemplateTopic}
+                  </p>
+                </button>
+              ))}
+
+              <div className="pt-2 border-t border-[var(--border-calm)]">
+                <p className="text-[11px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-2">
+                  Gợi ý chặng từ {LEARNING_ROADMAPS.length} lộ trình
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {LEARNING_ROADMAPS.slice(0, 4).map((rm) => (
+                    <button
+                      key={rm.id}
+                      type="button"
+                      onClick={() => {
+                        setAiTopic(rm.milestones[0]?.aiTopicPrompt || rm.title);
+                        setPreviewData(null);
+                        aiTopicInputRef.current?.focus();
+                      }}
+                      className="px-2.5 py-1 rounded-lg border border-[var(--border-calm)] bg-[var(--surface-card)] hover:border-[#5E51E8] text-[11px] font-medium text-[var(--text-secondary)] hover:text-[#5E51E8] transition cursor-pointer"
+                    >
+                      + {rm.category}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </aside>
       </div>
     </div>
   );

@@ -202,21 +202,37 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 md:pb-8 min-h-[80vh] space-y-6">
+      <div className="max-w-[1320px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-8 min-h-[80vh] space-y-6">
         <div className="h-10 w-40 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="h-44 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
-        ))}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-7 space-y-4">
+            {[0, 1].map((i) => (
+              <div key={i} className="h-44 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+            ))}
+          </div>
+          <div className="lg:col-span-5 space-y-4">
+            {[0, 1].map((i) => (
+              <div key={i} className="h-44 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 md:pb-8 min-h-[80vh]">
-      <h1 className="text-2xl font-bold text-text-primary mb-8">Cài đặt</h1>
+    <div className="max-w-[1320px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-8 min-h-[80vh]">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-text-primary">Cài đặt</h1>
+        <p className="text-sm text-text-secondary mt-1">
+          Quản lý tài khoản, mô hình AI cá nhân, giới hạn ôn tập FSRS và tùy biến giao diện đọc.
+        </p>
+      </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="lg:col-span-7 space-y-6">
       {/* Section 1: Tài khoản */}
-      <Card className="p-6 mb-6 bg-[var(--surface-card)]">
+      <Card className="p-6 bg-[var(--surface-card)]">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
           <User className="w-4 h-4" />
           Tài khoản
@@ -396,7 +412,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Section 2: Cấu hình AI */}
-      <Card className="p-6 mb-6 bg-[var(--surface-card)]">
+      <Card className="p-6 bg-[var(--surface-card)]">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
           <Bot className="w-4 h-4" />
           Cấu hình AI
@@ -468,7 +484,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Section 2b: Giới hạn ôn tập hàng ngày (Daily Review Cap) */}
-      <Card className="p-6 mb-6 bg-[var(--surface-card)]">
+      <Card className="p-6 bg-[var(--surface-card)]">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
           <Brain className="w-4 h-4 text-accent" />
           Giới hạn ôn tập hàng ngày (Daily Review Cap)
@@ -540,9 +556,11 @@ export default function SettingsPage() {
           </div>
         </form>
       </Card>
+        </div>
 
+        <div className="lg:col-span-5 space-y-6">
       {/* Section 3: Giao diện */}
-      <Card className="p-6 mb-6 bg-[var(--surface-card)]">
+      <Card className="p-6 bg-[var(--surface-card)]">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
           <Sun className="w-4 h-4" />
           Giao diện
@@ -633,7 +651,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Section 4: Phím tắt */}
-      <Card className="p-6 mb-6 bg-[var(--surface-card)]">
+      <Card className="p-6 bg-[var(--surface-card)]">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
           <Keyboard className="w-4 h-4" />
           Phím tắt
@@ -667,7 +685,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Section 5: Thông tin ứng dụng */}
-      <Card className="p-6 mb-6 bg-[var(--surface-card)]">
+      <Card className="p-6 bg-[var(--surface-card)]">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
           <Info className="w-4 h-4" />
           Thông tin ứng dụng
@@ -714,6 +732,8 @@ export default function SettingsPage() {
           </div>
         </div>
       </Card>
+        </div>
+      </div>
     </div>
   );
 }

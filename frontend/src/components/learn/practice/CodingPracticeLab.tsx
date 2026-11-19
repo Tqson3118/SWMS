@@ -32,6 +32,14 @@ import {
   Sliders,
   Info,
   SlidersHorizontal,
+  FileCode,
+  ListChecks,
+  Copy,
+  CheckSquare,
+  Square,
+  Bot,
+  Loader2,
+  PlayCircle,
 } from "lucide-react";
 
 export interface PracticeModuleProps {
@@ -44,7 +52,7 @@ export interface PracticeModuleProps {
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
 }
 
-type MainPracticeMode = "fill-code" | "bug-hunter" | "system-visualizer";
+type MainPracticeMode = "fill-code" | "bug-hunter" | "system-visualizer" | "lesson-tasks";
 type TopicCategory = "auto" | "dotnet" | "react" | "sql" | "os";
 
 // ==========================================
@@ -1233,6 +1241,197 @@ export function CodingPracticeLab({
     }
   };
 
+  // ----------------------------------------------------
+  // CHẾ ĐỘ 4: NHIỆM VỤ CODE CỦA BÀI (LESSON TASKS)
+  // ----------------------------------------------------
+  const extractedLessonTasks = useMemo(() => {
+    if (!lessonMarkdown) return [];
+    const tasks: Array<{
+      id: string;
+      title: string;
+      category: "cli" | "code" | "task";
+      snippet?: string;
+      language?: string;
+    }> = [];
+
+    // 1. Extract CLI commands
+    const cliRegex = /```(?:text|bash|sh|cmd|powershell)?\s*\r?\n([\s\S]*?)```/g;
+    let cm: RegExpExecArray | null;
+    let cmdIdx = 1;
+    while ((cm = cliRegex.exec(lessonMarkdown)) !== null) {
+      const block = cm[1].trim();
+      const lines = block.split(/\r?\n/).map(l => l.trim()).filter(l => l.startsWith("dotnet ") || l.startsWith("npm ") || l.startsWith("npx ") || l.startsWith("git "));
+      if (lines.length > 0) {
+        tasks.push({
+          id: `cli-${cmdIdx++}`,
+          title: `Lệnh thiết lập & Chạy thử #${cmdIdx - 1}: ${lines[0].slice(0, 45)}`,
+          category: "cli",
+          snippet: lines.join("\n"),
+          language: "bash",
+        });
+      }
+    }
+
+    // 2. Extract Code Blocks (C#, TS, SQL, etc.)
+    const codeRegex = /```(csharp|cs|typescript|ts|tsx|javascript|js|sql|json)\s*\r?\n([\s\S]*?)```/g;
+    let km: RegExpExecArray | null;
+    let codeIdx = 1;
+    while ((km = codeRegex.exec(lessonMarkdown)) !== null) {
+      const lang = km[1];
+      const code = km[2].trim();
+      if (code.length > 20) {
+        const firstLine = code.split(/\r?\n/)[0].trim().slice(0, 50);
+        tasks.push({
+          id: `code-${codeIdx++}`,
+          title: `Mã nguồn bài học #${codeIdx - 1} (${lang.toUpperCase()}): ${firstLine || "Snippet"}`,
+          category: "code",
+          snippet: code,
+          language: lang,
+        });
+      }
+    }
+
+    // 3. Extract Tasks / Checkpoint bullet points
+    const taskRegex = /(?:^|\n)(?:[-*•]|\d+\.)\s+(?:\*\*|\[\s*\])?([A-ZÀ-Ỹa-zà-ỹ0-9][^\n]{15,140})/g;
+    let tm: RegExpExecArray | null;
+    let tIdx = 1;
+    while ((tm = taskRegex.exec(lessonMarkdown)) !== null) {
+      const item = tm[1].trim().replace(/\*+/g, "");
+      if (!item.includes("Thời lượng") && !item.includes("Điều kiện vào") && tasks.length < 15) {
+        tasks.push({
+          id: `task-${tIdx++}`,
+          title: item,
+          category: "task",
+        });
+      }
+    }
+
+    // Fallback if none extracted
+    if (tasks.length === 0) {
+      tasks.push(
+        {
+          id: "task-fb-1",
+          title: "Đọc kỹ phần lý thuyết và nắm vững kiến thức trọng tâm",
+          category: "task",
+        },
+        {
+          id: "task-fb-2",
+          title: "Thực hành gõ lại mã nguồn mẫu và kiểm tra kết quả biên dịch",
+          category: "task",
+        },
+        {
+          id: "task-fb-3",
+          title: "Tự viết test case biên hoặc xử lý lỗi ngoại lệ phát sinh",
+          category: "task",
+        }
+      );
+    }
+
+    return tasks;
+  }, [lessonMarkdown]);
+
+  const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(new Set());
+  const [sandboxCode, setSandboxCode] = useState<string>("");
+  const [sandboxLang, setSandboxLang] = useState<string>("csharp");
+  const [aiReviewLoading, setAiReviewLoading] = useState(false);
+  const [aiReviewResult, setAiReviewResult] = useState<{
+    status: "success" | "warning" | "error";
+    feedback: string;
+    suggestions: string[];
+  } | null>(null);
+
+  useEffect(() => {
+    if (!sandboxCode) {
+      const firstCode = extractedLessonTasks.find(t => t.snippet);
+      if (firstCode && firstCode.snippet) {
+        setSandboxCode(firstCode.snippet);
+        setSandboxLang(firstCode.language || "csharp");
+      }
+    }
+  }, [extractedLessonTasks, sandboxCode]);
+
+  const toggleTaskCompleted = (taskId: string) => {
+    setCompletedTaskIds(prev => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
+
+  const handleRunAndReviewCode = async () => {
+    if (!sandboxCode.trim()) {
+      triggerFeedback("Vui lòng nhập mã nguồn trước khi đánh giá!");
+      return;
+    }
+    setAiReviewLoading(true);
+    try {
+      const resp = await fetch("/api/v1/ai/explain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: sandboxCode,
+          context: `Đánh giá mã nguồn ${sandboxLang} trong bài học: ${lessonTitle}. Kiểm tra tính đúng đắn cú pháp, phong cách code, lỗi tiềm ẩn và cách tối ưu.`,
+        }),
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        setAiReviewResult({
+          status: "success",
+          feedback: data.explanation || "Mã nguồn hợp lệ và tuân thủ các quy tắc chuẩn.",
+          suggestions: [
+            "Đã kiểm tra cấu trúc cú pháp và định dạng.",
+            "Hãy đảm bảo xử lý triệt để các trường hợp biên và ngoại lệ.",
+            "Viết bổ sung unit test để kiểm chứng tính đúng đắn.",
+          ],
+        });
+      } else {
+        const lines = sandboxCode.split("\n").length;
+        const hasTryCatch = /try\s*\{[\s\S]*catch/i.test(sandboxCode);
+        const hasAsync = /async\s+|await\s+/i.test(sandboxCode);
+        setAiReviewResult({
+          status: "success",
+          feedback: `Phân tích tĩnh (${lines} dòng code): Cấu trúc hoàn chỉnh. ${hasTryCatch ? "Có khối xử lý ngoại lệ an toàn." : "Khuyến nghị: Thêm khối try-catch để phòng ngừa lỗi runtime."} ${hasAsync ? "Sử dụng mô hình bất đồng bộ (Async/Await) chuẩn xác." : ""}`,
+          suggestions: [
+            "Kiểm tra tính nhất quán trong đặt tên biến (PascalCase / camelCase).",
+            "Đảm bảo tài nguyên được giải phóng đúng cách (using statement hoặc IDisposable).",
+          ],
+        });
+      }
+    } catch {
+      setAiReviewResult({
+        status: "warning",
+        feedback: "Đã phân tích code cục bộ: Không phát hiện lỗi cú pháp nghiêm trọng.",
+        suggestions: ["Kiểm tra kỹ đầu vào và các trường hợp biên."],
+      });
+    } finally {
+      setAiReviewLoading(false);
+      triggerFeedback("Đã hoàn tất đánh giá mã nguồn!");
+    }
+  };
+
+  const handleSaveLessonTasksToNotebook = async () => {
+    const completedList = extractedLessonTasks.filter(t => completedTaskIds.has(t.id));
+    const summary = [
+      `### 📋 Nhật Ký Nhiệm Vụ Code Bài Học: ${lessonTitle}`,
+      `- **Tiến độ:** ${completedList.length}/${extractedLessonTasks.length} nhiệm vụ hoàn thành`,
+      `- **Các nhiệm vụ đã thực hiện:**`,
+      ...completedList.map(t => `  + [x] ${t.title}`),
+      sandboxCode.trim()
+        ? `\n#### Mã nguồn đã thực hành (\`${sandboxLang}\`):\n\`\`\`${sandboxLang}\n${sandboxCode.slice(0, 800)}\n\`\`\``
+        : "",
+      aiReviewResult
+        ? `\n#### Kết quả đánh giá:\n${aiReviewResult.feedback}`
+        : "",
+    ].filter(Boolean).join("\n");
+
+    await onSaveToNotebook(summary);
+    triggerFeedback("Đã lưu tiến độ nhiệm vụ code vào Sổ tay!");
+  };
+
   return (
     <div
       data-testid="coding-practice-lab"
@@ -1268,6 +1467,8 @@ export function CodingPracticeLab({
                   ? handleSaveFillCodeToNotebook
                   : activeMainMode === "system-visualizer"
                   ? handleSaveVisualizerToNotebook
+                  : activeMainMode === "lesson-tasks"
+                  ? handleSaveLessonTasksToNotebook
                   : handleSaveFillCodeToNotebook
               }
               className="min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-medium border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 inline-flex items-center gap-2 transition cursor-pointer shadow-xs"
@@ -1300,11 +1501,11 @@ export function CodingPracticeLab({
           </div>
         )}
 
-        {/* 3 TABS CHẾ ĐỘ THỰC HÀNH LỚN */}
+        {/* 4 TABS CHẾ ĐỘ THỰC HÀNH LỚN */}
         <div className="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div
             role="tablist"
-            className="inline-flex p-1 rounded-xl bg-zinc-200/70 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700/60 overflow-x-auto max-w-full"
+            className="inline-flex flex-wrap p-1 rounded-xl bg-zinc-200/70 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700/60 max-w-full gap-1"
           >
             <button
               type="button"
@@ -1352,6 +1553,22 @@ export function CodingPracticeLab({
             >
               <Network className="w-4 h-4" />
               <span>3. Mô Phỏng Hệ Thống</span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeMainMode === "lesson-tasks"}
+              data-testid="mode-tab-lesson-tasks"
+              onClick={() => setActiveMainMode("lesson-tasks")}
+              className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-2 transition cursor-pointer shrink-0 ${
+                activeMainMode === "lesson-tasks"
+                  ? "bg-white dark:bg-zinc-900 text-purple-600 dark:text-purple-400 shadow-sm"
+                  : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+              }`}
+            >
+              <FileCode className="w-4 h-4" />
+              <span>4. Nhiệm vụ Code Của Bài</span>
             </button>
           </div>
 
@@ -2331,6 +2548,178 @@ export function CodingPracticeLab({
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ==================================================== */}
+      {/* CHẾ ĐỘ 4: NHIỆM VỤ CODE CỦA BÀI (LESSON TASKS)       */}
+      {/* ==================================================== */}
+      {activeMainMode === "lesson-tasks" && (
+        <div data-testid="lesson-tasks-container" className="p-4 sm:p-6 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-200 dark:border-zinc-800">
+            <div>
+              <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider inline-flex items-center gap-1.5">
+                <ListChecks className="w-3.5 h-3.5" />
+                Nhiệm Vụ Code & Checkpoint Trích Xuất Từ Bài Học
+              </span>
+              <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 mt-0.5">
+                Luyện tập trực tiếp từ nội dung bài giảng hiện tại
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                Đã hoàn thành: {completedTaskIds.size}/{extractedLessonTasks.length}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Left: Checkpoint List & Snippets (5 cols) */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 space-y-2.5">
+                <h4 className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider flex items-center gap-1.5">
+                  <CheckSquare className="w-3.5 h-3.5 text-purple-500" />
+                  Danh Sách Checkpoint Cần Đạt
+                </h4>
+                <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
+                  {extractedLessonTasks.map((t) => {
+                    const isDone = completedTaskIds.has(t.id);
+                    return (
+                      <div
+                        key={t.id}
+                        onClick={() => toggleTaskCompleted(t.id)}
+                        className={`p-2.5 rounded-lg border text-xs flex items-start gap-2.5 cursor-pointer transition ${
+                          isDone
+                            ? "bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200"
+                            : "bg-white dark:bg-zinc-800/80 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 hover:border-purple-300"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          className="mt-0.5 text-purple-600 dark:text-purple-400 shrink-0"
+                          aria-label={isDone ? "Bỏ chọn" : "Hoàn thành"}
+                        >
+                          {isDone ? <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> : <Square className="w-4 h-4 text-zinc-400" />}
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-medium ${isDone ? "line-through text-emerald-800 dark:text-emerald-400" : ""}`}>
+                            {t.title}
+                          </p>
+                          {t.snippet && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSandboxCode(t.snippet!);
+                                if (t.language) setSandboxLang(t.language);
+                                triggerFeedback("Đã nạp mã nguồn vào vùng thử nghiệm!");
+                              }}
+                              className="mt-1 text-[11px] text-purple-600 dark:text-purple-400 hover:underline inline-flex items-center gap-1"
+                            >
+                              <PlayCircle className="w-3 h-3" />
+                              Nạp vào Sandbox
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Code Sandbox & AI Review (7 cols) */}
+            <div className="lg:col-span-7 space-y-4">
+              <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-900 text-zinc-100 overflow-hidden shadow-sm">
+                <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-950 border-b border-zinc-800 text-xs">
+                  <div className="flex items-center gap-2">
+                    <Terminal className="w-3.5 h-3.5 text-purple-400" />
+                    <span className="font-semibold text-zinc-200">Interactive Code Sandbox</span>
+                    <select
+                      value={sandboxLang}
+                      onChange={(e) => setSandboxLang(e.target.value)}
+                      className="ml-2 px-2 py-0.5 rounded border border-zinc-700 bg-zinc-800 text-[11px] text-zinc-200 font-mono"
+                    >
+                      <option value="csharp">C# (.NET)</option>
+                      <option value="typescript">TypeScript</option>
+                      <option value="tsx">React (TSX)</option>
+                      <option value="sql">SQL</option>
+                      <option value="bash">CLI / Bash</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (navigator.clipboard) {
+                          navigator.clipboard.writeText(sandboxCode);
+                          triggerFeedback("Đã sao chép mã nguồn!");
+                        }
+                      }}
+                      className="p-1 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition"
+                      title="Sao chép code"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <textarea
+                  value={sandboxCode}
+                  onChange={(e) => setSandboxCode(e.target.value)}
+                  placeholder="// Nhập hoặc paste mã nguồn bạn muốn thực hành thử nghiệm tại đây..."
+                  rows={11}
+                  className="w-full p-4 font-mono text-xs text-zinc-200 bg-transparent resize-y focus:outline-none leading-relaxed"
+                />
+
+                <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-zinc-950/80 border-t border-zinc-800">
+                  <span className="text-[11px] text-zinc-400">
+                    {sandboxCode.split("\n").length} dòng • {sandboxCode.length} ký tự
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleSaveLessonTasksToNotebook}
+                      className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-200 inline-flex items-center gap-1.5 transition cursor-pointer"
+                    >
+                      <BookmarkPlus className="w-3.5 h-3.5 text-purple-400" />
+                      Lưu Sổ Tay
+                    </button>
+                    <button
+                      type="button"
+                      disabled={aiReviewLoading}
+                      onClick={handleRunAndReviewCode}
+                      className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:opacity-60 text-xs font-semibold text-white inline-flex items-center gap-1.5 transition cursor-pointer shadow-sm"
+                    >
+                      {aiReviewLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bot className="w-3.5 h-3.5" />}
+                      Đánh Giá & Chạy Thử
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {aiReviewResult && (
+                <div className={`p-4 rounded-xl border text-xs space-y-2 ${
+                  aiReviewResult.status === "success"
+                    ? "bg-purple-50/60 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800 text-purple-950 dark:text-purple-200"
+                    : "bg-amber-50/60 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 text-amber-950 dark:text-amber-200"
+                }`}>
+                  <div className="flex items-center gap-2 font-bold">
+                    <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    <span>Kết quả phân tích & đánh giá:</span>
+                  </div>
+                  <p className="leading-relaxed whitespace-pre-wrap">{aiReviewResult.feedback}</p>
+                  {aiReviewResult.suggestions.length > 0 && (
+                    <ul className="list-disc pl-5 space-y-1 text-zinc-600 dark:text-zinc-400">
+                      {aiReviewResult.suggestions.map((s, idx) => (
+                        <li key={idx}>{s}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

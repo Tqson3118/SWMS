@@ -25,11 +25,15 @@ import { fetchDashboardCached } from "@/lib/api-client";
 import {
   classifyCourseDomain,
   deduplicateCourses,
+  extractCourseSkillTags,
   getCourseId,
   getCourseLessonCount,
   getCourseProgress,
+  getCourseVisualTheme,
+  sortCoursesSmartly,
   type CourseLike,
 } from "@/lib/course-helpers";
+import { LearningRoadmapsShowcase } from "@/components/dashboard/LearningRoadmapsShowcase";
 import {
   getVietnameseGreetingName,
   getReviewCapSettings,
@@ -154,7 +158,7 @@ export default function DashboardPage() {
             ? data.courses
             : [];
 
-      const unique = deduplicateCourses(rawCourses);
+      const unique = sortCoursesSmartly(deduplicateCourses(rawCourses));
       setCourses(unique);
 
       const activeCourse =
@@ -271,7 +275,7 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10 min-h-[80vh] space-y-6">
+      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh] space-y-6">
         <div className="h-10 w-64 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {[0, 1, 2, 3].map((i) => (
@@ -288,7 +292,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10 min-h-[80vh]">
+    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
@@ -696,47 +700,66 @@ export default function DashboardPage() {
         </div>
 
         {courses.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             {courses.slice(0, 4).map((course) => {
               const id = getCourseId(course);
               const progress = getCourseProgress(course);
               const lessonCount = getCourseLessonCount(course);
-              const domain = classifyCourseDomain(course);
+              const theme = getCourseVisualTheme(course);
+              const skillTags = extractCourseSkillTags(course);
               return (
                 <Link
                   key={id}
                   href={`/app/courses/${id}`}
-                  className="group rounded-lg border border-border bg-bg-primary p-4 hover:border-accent/60 transition flex flex-col justify-between min-h-[144px]"
+                  className="group rounded-xl border border-border bg-bg-primary hover:border-accent/60 hover:shadow-sm transition overflow-hidden flex flex-col justify-between min-h-[176px]"
                 >
-                  <div>
-                    <span className="inline-block text-[11px] font-medium text-text-tertiary bg-bg-tertiary rounded-md px-2 py-0.5 mb-2.5">
-                      {domain.label}
-                    </span>
-                    <h3 className="text-sm font-semibold text-text-primary group-hover:text-accent transition line-clamp-2">
-                      {course.title || "Khóa học"}
-                    </h3>
-                  </div>
-
-                  <div className="mt-4">
-                    <div className="flex items-center justify-between text-xs text-text-tertiary mb-1.5">
-                      <span>{lessonCount > 0 ? `${lessonCount} bài` : "Chưa có bài"}</span>
-                      <span
-                        className={
-                          progress === 100
-                            ? "text-emerald-600 dark:text-emerald-400 font-medium"
-                            : "font-medium text-text-secondary"
-                        }
-                      >
-                        {progress === 100 ? "Hoàn thành" : `${progress}%`}
-                      </span>
+                  <div className={`h-1.5 w-full bg-gradient-to-r ${theme.accentBarClass}`} />
+                  <div className="p-4 flex-1 flex flex-col justify-between gap-3">
+                    <div>
+                      <div className="flex items-center justify-between gap-1.5 mb-2">
+                        <span className={`inline-block text-[10px] font-semibold border rounded-md px-2 py-0.5 ${theme.badgeBgClass}`}>
+                          {theme.domainLabel}
+                        </span>
+                        <span className="text-[11px] text-text-tertiary shrink-0">
+                          {theme.estimatedHoursLabel}
+                        </span>
+                      </div>
+                      <h3 className="text-sm font-semibold text-text-primary group-hover:text-accent transition line-clamp-2 leading-snug mb-2">
+                        {course.title || "Khóa học"}
+                      </h3>
+                      <div className="flex flex-wrap gap-1">
+                        {skillTags.slice(0, 2).map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-1.5 py-0.5 rounded bg-bg-secondary border border-border text-[10px] font-medium text-text-secondary"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    <div className="w-full h-1 bg-bg-tertiary rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${
-                          progress === 100 ? "bg-emerald-500" : "bg-accent"
-                        }`}
-                        style={{ width: `${progress}%` }}
-                      />
+
+                    <div>
+                      <div className="flex items-center justify-between text-xs text-text-tertiary mb-1.5">
+                        <span>{lessonCount > 0 ? `${lessonCount} bài giảng` : "Chưa có bài"}</span>
+                        <span
+                          className={
+                            progress === 100
+                              ? "text-emerald-600 dark:text-emerald-400 font-semibold"
+                              : "font-semibold text-text-primary"
+                          }
+                        >
+                          {progress === 100 ? "Hoàn thành" : `${progress}%`}
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            progress === 100 ? "bg-emerald-500" : "bg-accent"
+                          }`}
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -758,6 +781,11 @@ export default function DashboardPage() {
             </Link>
           </div>
         )}
+      </div>
+
+      {/* Multi-Stage Learning Roadmaps & Real-World Use Cases */}
+      <div className="mb-10">
+        <LearningRoadmapsShowcase courses={courses} compact={true} />
       </div>
 
       {/* Workspace Shortcuts (Level 2 entry points) */}

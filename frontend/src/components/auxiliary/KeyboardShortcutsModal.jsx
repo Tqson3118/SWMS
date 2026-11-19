@@ -191,6 +191,8 @@ export function KeyboardShortcutsModal({ isOpen, onClose, initialTab = "all" }) 
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === "Escape" && isOpen) {
+                e.preventDefault();
+                e.stopPropagation();
                 onClose();
                 return;
             }
@@ -216,14 +218,19 @@ export function KeyboardShortcutsModal({ isOpen, onClose, initialTab = "all" }) 
         };
         if (isOpen) {
             document.body.style.overflow = "hidden";
-            window.addEventListener("keydown", handleKeyDown);
+            window.addEventListener("keydown", handleKeyDown, { capture: true });
+            requestAnimationFrame(() => {
+                if (modalRef.current) {
+                    modalRef.current.focus();
+                }
+            });
         }
         else {
             document.body.style.overflow = "unset";
         }
         return () => {
             document.body.style.overflow = "unset";
-            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keydown", handleKeyDown, { capture: true });
         };
     }, [isOpen, onClose]);
     const filteredShortcuts = useMemo(() => {
@@ -244,7 +251,7 @@ export function KeyboardShortcutsModal({ isOpen, onClose, initialTab = "all" }) 
             if (e.target === e.currentTarget)
                 onClose();
         }}>
-      <div ref={modalRef} className="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100">
+      <div ref={modalRef} tabIndex={-1} className="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100 outline-none">
         {/* Header */}
         <div className="flex items-start justify-between p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/70">
           <div className="flex items-center gap-3">

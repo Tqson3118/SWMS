@@ -26,12 +26,18 @@ import {
   Moon,
   NotebookPen,
   PanelLeft,
+  Pause,
+  Play,
   Plus,
+  RotateCcw,
   Save,
   Sparkles,
   Sun,
+  Timer,
   Trash2,
   Type,
+  Volume2,
+  VolumeX,
   X,
   Zap,
   ZoomIn,
@@ -43,11 +49,7 @@ import {
   useWorkspaceStore,
 } from "@/stores/useWorkspaceStore";
 import { invalidateDashboardCache } from "@/lib/api-client";
-
-function stripChapterPrefix(title: string): string {
-  if (!title) return "";
-  return title.replace(/^(?:Chương|Chapter|Phần)\s*\d+\s*[:.\-–—]\s*/i, "").trim();
-}
+import { stripChapterPrefix } from "@/lib/course-helpers";
 import {
   CourseRoadmapSidebar,
   type RoadmapChapterItem,
@@ -411,7 +413,57 @@ export function CourseLearningWorkspace({
   const renderTaskRef = useRef<RenderTask | null>(null);
   const pageCacheRef = useRef<Map<number, DocumentPageDto>>(new Map());
   const readerScrollRef = useRef<HTMLDivElement | null>(null);
+  const inlinePracticeRef = useRef<HTMLDivElement | null>(null);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Pomodoro Focus Timer (25m Study / 5m Break) & Quick Lesson TTS
+  const [pomoSecondsLeft, setPomoSecondsLeft] = useState(25 * 60);
+  const [pomoRunning, setPomoRunning] = useState(false);
+  const [pomoPhase, setPomoPhase] = useState<"focus" | "break">("focus");
+  const [isSpeakingSummary, setIsSpeakingSummary] = useState(false);
+
+  useEffect(() => {
+    if (!pomoRunning) return;
+    const timer = setInterval(() => {
+      setPomoSecondsLeft((prev) => {
+        if (prev <= 1) {
+          const nextPhase = pomoPhase === "focus" ? "break" : "focus";
+          setPomoPhase(nextPhase);
+          setPomoRunning(false);
+          return nextPhase === "focus" ? 25 * 60 : 5 * 60;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [pomoRunning, pomoPhase]);
+
+  const formattedPomoTime = `${String(Math.floor(pomoSecondsLeft / 60)).padStart(2, "0")}:${String(
+    pomoSecondsLeft % 60
+  ).padStart(2, "0")}`;
+
+  const handleToggleSpeakLessonSummary = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window) || !lesson) return;
+    if (isSpeakingSummary) {
+      window.speechSynthesis.cancel();
+      setIsSpeakingSummary(false);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const raw = (lesson.contentMarkdown || lesson.plainText || "")
+      .replace(/```[\s\S]*?```/g, " ")
+      .replace(/[#*_`>\[\]|]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 600);
+    const utter = new SpeechSynthesisUtterance(`${lesson.title}. ${raw}`);
+    utter.lang = /[àáạảãâăđêôơư]/i.test(lesson.title + raw) ? "vi-VN" : "en-US";
+    utter.rate = 1.0;
+    utter.onstart = () => setIsSpeakingSummary(true);
+    utter.onend = () => setIsSpeakingSummary(false);
+    utter.onerror = () => setIsSpeakingSummary(false);
+    window.speechSynthesis.speak(utter);
+  };
 
   // Warn user before reload/navigation if note has unsaved changes (STU-03)
   useEffect(() => {
@@ -1652,7 +1704,8 @@ export function CourseLearningWorkspace({
 
           <Link
             href={isStandalone ? "/app/documents" : `/app/courses/${courseId}`}
-            className="inline-flex items-center gap-1.5 h-8 px-2 rounded-md text-xs sm:text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition max-w-[180px] sm:max-w-[240px]"
+            title={isStandalone ? "Tài liệu" : course?.title || "Khóa học"}
+            className="inline-flex items-center gap-1.5 h-8 px-2 rounded-md text-xs sm:text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition max-w-[220px] sm:max-w-[340px] lg:max-w-[440px]"
           >
             <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate">
@@ -1663,7 +1716,10 @@ export function CourseLearningWorkspace({
           {(lesson?.title || docMeta?.title) && (
             <>
               <span className="text-text-tertiary hidden md:inline">/</span>
-              <span className="hidden md:inline text-xs sm:text-sm font-medium text-text-primary truncate max-w-[260px]">
+              <span
+                title={lesson?.title || docMeta?.title || ""}
+                className="hidden md:inline text-xs sm:text-sm font-medium text-text-primary truncate max-w-[280px] lg:max-w-[420px] xl:max-w-[540px]"
+              >
                 {lesson?.title || docMeta?.title}
               </span>
             </>
@@ -1672,6 +1728,33 @@ export function CourseLearningWorkspace({
 
         {/* Right Controls */}
         <div className="flex items-center gap-1.5 shrink-0">
+          {/* Compact Pomodoro Focus Timer */}
+          <div className="hidden lg:inline-flex items-center gap-1 h-8 px-2 rounded-md border border-border bg-bg-secondary text-xs">
+            <button
+              type="button"
+              onClick={() => setPomoRunning((r) => !r)}
+              title={pomoRunning ? "Tạm dừng đồng hồ Pomodoro" : "Bắt đầu phiên tập trung 25 phút"}
+              className="inline-flex items-center gap-1 font-mono font-semibold text-text-primary hover:text-accent cursor-pointer"
+            >
+              <Timer className={`w-3.5 h-3.5 ${pomoRunning ? "text-accent animate-pulse" : "text-text-tertiary"}`} />
+              <span>{formattedPomoTime}</span>
+              {pomoRunning ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPomoRunning(false);
+                setPomoPhase("focus");
+                setPomoSecondsLeft(25 * 60);
+              }}
+              title="Đặt lại 25:00"
+              className="p-0.5 text-text-tertiary hover:text-text-primary cursor-pointer"
+              aria-label="Đặt lại đồng hồ Pomodoro"
+            >
+              <RotateCcw className="w-3 h-3" />
+            </button>
+          </div>
+
           {totalLessonCount > 0 && (
             <span className="hidden sm:inline-flex items-center h-7 px-2.5 rounded-md bg-bg-secondary border border-border text-xs font-medium text-text-secondary">
               {completedCount}/{totalLessonCount} • {percentCompleted}%
@@ -1872,7 +1955,7 @@ export function CourseLearningWorkspace({
         <main className="flex-1 min-w-[320px] flex flex-col bg-[var(--surface-card)] overflow-hidden relative">
           {/* Workspace Switcher Bar: Bài giảng / Thực hành / Tài liệu PDF / Song song */}
           {(hasLesson || hasPdf || availableDocs.length > 0) && (
-            <div className="h-11 px-4 border-b border-border-subtle bg-bg-secondary/30 flex items-center justify-between gap-2 shrink-0 overflow-x-auto swms-thin-scrollbar flex-nowrap">
+            <div className="h-11 px-2 sm:px-4 border-b border-border-subtle bg-bg-secondary/30 flex items-center justify-between gap-2 shrink-0 overflow-x-auto swms-thin-scrollbar flex-nowrap">
               <div className="inline-flex items-center rounded-md border border-border bg-bg-primary p-0.5 flex-nowrap gap-0.5 shrink-0">
                 {hasLesson && (
                   <>
@@ -1880,26 +1963,26 @@ export function CourseLearningWorkspace({
                       type="button"
                       data-testid="center-tab-lesson"
                       onClick={() => setCenterTab("lesson")}
-                      className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded text-xs font-medium transition cursor-pointer ${
+                      className={`inline-flex items-center gap-1 h-7 px-2 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                         centerTab === "lesson"
                           ? "bg-accent text-white"
                           : "text-text-secondary hover:text-text-primary"
                       }`}
                     >
-                      <BookOpen className="w-3.5 h-3.5" />
+                      <BookOpen className="w-3.5 h-3.5 shrink-0" />
                       <span>Bài giảng</span>
                     </button>
                     <button
                       type="button"
                       data-testid="center-tab-practice"
                       onClick={() => setCenterTab("practice")}
-                      className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded text-xs font-medium transition cursor-pointer ${
+                      className={`inline-flex items-center gap-1 h-7 px-2 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                         centerTab === "practice"
                           ? "bg-accent text-white"
                           : "text-text-secondary hover:text-text-primary"
                       }`}
                     >
-                      <FlaskConical className="w-3.5 h-3.5" />
+                      <FlaskConical className="w-3.5 h-3.5 shrink-0" />
                       <span>Thực hành</span>
                     </button>
                   </>
@@ -1917,13 +2000,13 @@ export function CourseLearningWorkspace({
                           setCenterTab("pdf");
                         }
                       }}
-                      className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded text-xs font-medium transition cursor-pointer ${
+                      className={`inline-flex items-center gap-1 h-7 px-2 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                         centerTab === "pdf"
                           ? "bg-accent text-white"
                           : "text-text-secondary hover:text-text-primary"
                       }`}
                     >
-                      <FileText className="w-3.5 h-3.5" />
+                      <FileText className="w-3.5 h-3.5 shrink-0" />
                       <span>Tài liệu PDF</span>
                     </button>
                     {hasLesson && (
@@ -1937,13 +2020,13 @@ export function CourseLearningWorkspace({
                             setCenterTab("split");
                           }
                         }}
-                        className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded text-xs font-medium transition cursor-pointer ${
+                        className={`inline-flex items-center gap-1 h-7 px-2 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                           centerTab === "split"
                             ? "bg-accent text-white"
                             : "text-text-secondary hover:text-text-primary"
                         }`}
                       >
-                        <Layers className="w-3.5 h-3.5" />
+                        <Layers className="w-3.5 h-3.5 shrink-0" />
                         <span>Song song</span>
                       </button>
                     )}
@@ -2127,14 +2210,14 @@ export function CourseLearningWorkspace({
                 ) : hasLesson && lesson ? (
                   <article
                     data-testid="reading-prose-column"
-                    className={`max-w-[72ch] mx-auto px-4 sm:px-8 py-8 ${
+                    className={`max-w-4xl mx-auto px-4 sm:px-8 py-6 ${
                       serifFont ? "font-serif" : ""
                     }`}
                     style={{ fontSize: `${fontSizePx}px` }}
                   >
                     {/* Clean Lesson Header */}
-                    <header className="mb-6 pb-5 border-b border-border-subtle">
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-text-tertiary mb-2">
+                    <header className="mb-5 pb-4 border-b border-border-subtle space-y-3">
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
                         {activeChapterTitle && (
                           <span className="px-2 py-0.5 rounded bg-bg-secondary border border-border">
                             {activeChapterTitle}
@@ -2150,6 +2233,51 @@ export function CourseLearningWorkspace({
                       <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-text-primary leading-snug">
                         {lesson.title}
                       </h1>
+
+                      {/* Lesson Quick-Action Bar */}
+                      <div className="flex flex-wrap items-center gap-2 pt-1 font-sans">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (inlinePracticeRef.current) {
+                              inlinePracticeRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                            } else {
+                              setCenterTab("practice");
+                            }
+                          }}
+                          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-accent-subtle text-accent border border-accent/25 hover:bg-accent hover:text-white text-xs font-semibold transition cursor-pointer"
+                        >
+                          <Zap className="w-3.5 h-3.5" />
+                          <span>Thực hành &amp; Quiz ngay ↓</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleToggleSpeakLessonSummary}
+                          className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border text-xs font-medium transition cursor-pointer ${
+                            isSpeakingSummary
+                              ? "border-accent bg-accent text-white"
+                              : "border-border bg-bg-secondary text-text-secondary hover:text-text-primary"
+                          }`}
+                        >
+                          {isSpeakingSummary ? (
+                            <VolumeX className="w-3.5 h-3.5" />
+                          ) : (
+                            <Volume2 className="w-3.5 h-3.5" />
+                          )}
+                          <span>{isSpeakingSummary ? "Dừng đọc" : "Nghe tóm tắt bài"}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRightPanel("drawer");
+                            setDrawerTab("notebook");
+                          }}
+                          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-bg-secondary text-xs font-medium text-text-secondary hover:text-text-primary transition cursor-pointer"
+                        >
+                          <NotebookPen className="w-3.5 h-3.5" />
+                          <span>Mở Sổ tay</span>
+                        </button>
+                      </div>
                     </header>
 
                     {/* Video Embed */}
@@ -2193,10 +2321,44 @@ export function CourseLearningWorkspace({
                       onOpenRelativeMarkdown={handleOpenRelativeMarkdown}
                       onHeadingsExtracted={setHeadings}
                       onOpenPractice={() => {
-                        setCenterTab("practice");
-                        readerScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                        if (inlinePracticeRef.current) {
+                          inlinePracticeRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                        } else {
+                          setCenterTab("practice");
+                          readerScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                        }
                       }}
+                      onQuickSaveToNotebook={handleSaveToNotebook}
                     />
+
+                    {/* Inline Practice Lab */}
+                    <section
+                      ref={inlinePracticeRef}
+                      data-testid="inline-practice-section"
+                      className="mt-12 pt-8 border-t-2 border-dashed border-border"
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className="h-6 w-1.5 rounded-full bg-accent" />
+                          <h2 className="text-lg font-semibold text-text-primary">
+                            Thực hành bài học (Interactive Practice Lab)
+                          </h2>
+                        </div>
+                        <span className="text-xs text-text-tertiary">
+                          Luyện tập tại chỗ không cần chuyển trang
+                        </span>
+                      </div>
+                      <LessonPracticeLab
+                        isEmbedded={true}
+                        courseId={courseId}
+                        courseTitle={course?.title || "Khóa học"}
+                        lessonId={lesson.id}
+                        lessonTitle={lesson.title}
+                        lessonMarkdown={lesson.contentMarkdown || ""}
+                        onSaveToNotebook={handleSaveToNotebook}
+                        onCreateFlashcardQuick={(front, back) => handleCreateFlashcardQuick(front, back)}
+                      />
+                    </section>
 
                     {/* Lesson Navigation & Completion Footer */}
                     <footer className="mt-12 pt-6 border-t border-border flex flex-wrap items-center justify-between gap-3">
@@ -2442,6 +2604,88 @@ export function CourseLearningWorkspace({
             )}
           </div>
         </main>
+
+        {/* Right Companion Rail on Wide Screens when drawer & toc are closed (eliminates dead whitespace) */}
+        {rightPanel === "closed" && centerTab === "lesson" && hasLesson && lesson && (
+          <aside
+            data-testid="lesson-companion-rail"
+            className="hidden xl:flex w-72 shrink-0 border-l border-[var(--border-calm)] bg-[var(--canvas-bg)]/30 flex-col h-full overflow-hidden p-3 space-y-3"
+          >
+            <div className="rounded-xl border border-border bg-bg-primary p-3 space-y-2.5">
+              <div className="flex items-center justify-between text-xs font-semibold text-text-primary">
+                <span className="inline-flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-accent" />
+                  <span>Trợ lý bài học</span>
+                </span>
+                <span className="text-[11px] font-medium text-text-tertiary">
+                  {effectiveAnnotations.length} highlight · {flashcards.length} thẻ
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    inlinePracticeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                  }
+                  className="h-8 px-2 rounded-lg bg-accent text-white text-[11px] font-semibold hover:bg-accent-hover transition cursor-pointer inline-flex items-center justify-center gap-1"
+                >
+                  <Zap className="w-3 h-3" />
+                  <span>Làm bài tập</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRightPanel("drawer");
+                    setDrawerTab("notebook");
+                  }}
+                  className="h-8 px-2 rounded-lg border border-border bg-bg-secondary text-text-primary text-[11px] font-medium hover:border-accent transition cursor-pointer inline-flex items-center justify-center gap-1"
+                >
+                  <NotebookPen className="w-3 h-3" />
+                  <span>Ghi chú</span>
+                </button>
+              </div>
+            </div>
+
+            {headings.length > 0 && (
+              <div className="flex-1 min-h-0 rounded-xl border border-border bg-bg-primary flex flex-col overflow-hidden">
+                <div className="px-3 py-2.5 border-b border-border flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+                    Mục lục trong bài
+                  </span>
+                  <span className="text-[10px] text-text-tertiary">{headings.length} mục</span>
+                </div>
+                <nav className="flex-1 overflow-y-auto swms-thin-scrollbar p-2 space-y-0.5">
+                  {headings.map((h) => (
+                    <button
+                      key={h.id}
+                      type="button"
+                      onClick={() => {
+                        document.getElementById(h.id)?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
+                      }}
+                      className="block w-full text-left text-xs text-text-secondary hover:text-accent hover:bg-bg-secondary py-1.5 px-2 rounded transition line-clamp-2 leading-snug cursor-pointer"
+                      style={{ paddingLeft: `${Math.max(8, (h.level - 1) * 10)}px` }}
+                    >
+                      {h.text}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            )}
+
+            <div className="rounded-xl border border-border bg-bg-primary p-3 space-y-1.5 shrink-0">
+              <div className="flex items-center justify-between text-[11px] font-semibold text-text-primary">
+                <span>Phím tắt học tập</span>
+                <Brain className="w-3.5 h-3.5 text-accent" />
+              </div>
+              <p className="text-[11px] text-text-tertiary leading-relaxed">
+                Bôi đen bất kỳ đoạn văn nào để tô màu 5 nhóm ý, hỏi AI giải thích hoặc tạo thẻ FSRS 1-click.
+              </p>
+            </div>
+          </aside>
+        )}
 
         {/* Right Contextual Panel: TOC */}
         {rightPanel === "toc" && headings.length > 0 && (

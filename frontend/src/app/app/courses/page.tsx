@@ -28,14 +28,19 @@ import {
   COURSE_DOMAINS,
   classifyCourseDomain,
   deduplicateCourses,
+  extractCourseSkillTags,
   getCourseChapterCount,
   getCourseId,
   getCourseLessonCount,
   getCourseProgress,
+  getCourseVisualTheme,
   normalizeVi,
+  sortCoursesSmartly,
   type CourseDomainId,
   type CourseLike,
 } from "@/lib/course-helpers";
+import { LearningRoadmapsShowcase } from "@/components/dashboard/LearningRoadmapsShowcase";
+import { Sparkles, Clock } from "lucide-react";
 
 type StatusFilter = "all" | "in_progress" | "not_started" | "completed";
 
@@ -84,7 +89,7 @@ export default function CoursesCatalogPage() {
     fetchCourses();
   }, [fetchCourses]);
 
-  const deduplicatedList = useMemo(() => deduplicateCourses(rawCourses), [rawCourses]);
+  const deduplicatedList = useMemo(() => sortCoursesSmartly(deduplicateCourses(rawCourses)), [rawCourses]);
   const baseCourses = hideDuplicates ? deduplicatedList : rawCourses;
   const hiddenDuplicatesCount = Math.max(0, rawCourses.length - deduplicatedList.length);
 
@@ -132,7 +137,7 @@ export default function CoursesCatalogPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10 min-h-[80vh] space-y-6">
+      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh] space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="h-10 w-48 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
           <div className="h-9 w-36 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
@@ -143,9 +148,9 @@ export default function CoursesCatalogPage() {
             <div key={i} className="h-9 w-24 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {[0, 1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-52 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+            <div key={i} className="h-56 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
           ))}
         </div>
       </div>
@@ -153,7 +158,7 @@ export default function CoursesCatalogPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-10 min-h-[80vh]">
+    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -305,106 +310,123 @@ export default function CoursesCatalogPage() {
 
       {/* Course Grid */}
       {visibleCourses.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {visibleCourses.map((course) => {
             const id = getCourseId(course);
             const progress = getCourseProgress(course);
             const lessonCount = getCourseLessonCount(course);
             const chapterCount = getCourseChapterCount(course);
-            const domain = classifyCourseDomain(course);
+            const theme = getCourseVisualTheme(course);
+            const skillTags = extractCourseSkillTags(course);
 
             return (
               <Card
                 key={id}
                 hoverable
-                className="p-5 flex flex-col justify-between"
+                className="overflow-hidden flex flex-col justify-between p-0"
               >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-2.5">
-                    <Badge
-                      variant={
-                        domain.id === "language"
-                          ? "brand"
-                          : domain.id === "technology"
-                          ? "brand"
-                          : "neutral"
-                      }
-                      size="sm"
-                    >
-                      {domain.label}
-                    </Badge>
-                    {progress === 100 ? (
-                      <Badge variant="success" size="sm">
-                        <CheckCircle2 className="w-3 h-3" />
-                        <span>Hoàn thành</span>
-                      </Badge>
-                    ) : progress > 0 ? (
-                      <span className="text-[11px] font-semibold text-[#5E51E8] dark:text-[#818CF8] shrink-0">
-                        {progress}%
+                <div className={`h-1.5 w-full bg-gradient-to-r ${theme.accentBarClass}`} />
+                <div className="p-5 flex-1 flex flex-col justify-between gap-4">
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-2.5">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[11px] font-semibold ${theme.badgeBgClass}`}
+                      >
+                        {theme.domainLabel}
                       </span>
-                    ) : (
-                      <span className="text-[11px] text-[var(--text-tertiary)] shrink-0">Mới</span>
-                    )}
+                      {progress === 100 ? (
+                        <Badge variant="success" size="sm">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>Hoàn thành</span>
+                        </Badge>
+                      ) : progress > 0 ? (
+                        <span className="text-[11px] font-bold text-[#5E51E8] dark:text-[#818CF8] shrink-0">
+                          {progress}% đã học
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-medium text-[var(--text-tertiary)] shrink-0">
+                          {theme.levelLabel}
+                        </span>
+                      )}
+                    </div>
+
+                    <Link
+                      href={`/app/courses/${id}`}
+                      title={course.title || "Khóa học"}
+                      className="block text-base font-semibold text-[var(--text-primary)] hover:text-[#5E51E8] dark:hover:text-[#818CF8] transition line-clamp-2 leading-snug mb-1.5"
+                    >
+                      {course.title || "Khóa học"}
+                    </Link>
+
+                    <p className="text-xs text-[var(--text-secondary)] line-clamp-2 leading-relaxed mb-3">
+                      {course.description ||
+                        "Lộ trình học theo chương, bài giảng tương tác, phòng thực hành và thẻ nhớ FSRS."}
+                    </p>
+
+                    <div className="flex flex-wrap gap-1.5">
+                      {skillTags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center px-2 py-0.5 rounded-md bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px] font-medium text-[var(--text-secondary)]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
 
-                  <Link
-                    href={`/app/courses/${id}`}
-                    className="block text-sm font-semibold text-[var(--text-primary)] hover:text-[#5E51E8] dark:hover:text-[#818CF8] transition line-clamp-2 mb-1.5"
-                  >
-                    {course.title || "Khóa học"}
-                  </Link>
-
-                  {course.description ? (
-                    <p className="text-xs text-[var(--text-secondary)] line-clamp-2 mb-3">
-                      {course.description}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-[var(--text-tertiary)] mb-3">
-                      Lộ trình học theo chương và bài giảng tương tác.
-                    </p>
-                  )}
-                </div>
-
-                <div className="pt-2">
-                  <div className="flex items-center gap-1.5 text-xs text-[var(--text-tertiary)] mb-2.5">
-                    {chapterCount > 0 && (
-                      <>
+                  <div className="pt-3 border-t border-[var(--border-calm)]">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-tertiary)] mb-2.5">
+                      <div className="flex items-center gap-1.5">
+                        {chapterCount > 0 && (
+                          <>
+                            <span className="inline-flex items-center gap-1">
+                              <Layers className="w-3.5 h-3.5" />
+                              {chapterCount} chương
+                            </span>
+                            <span>·</span>
+                          </>
+                        )}
                         <span className="inline-flex items-center gap-1">
-                          <Layers className="w-3.5 h-3.5" />
-                          {chapterCount} chương
+                          <BookOpen className="w-3.5 h-3.5" />
+                          {lessonCount} bài
                         </span>
                         <span>·</span>
-                      </>
-                    )}
-                    <span className="inline-flex items-center gap-1">
-                      <BookOpen className="w-3.5 h-3.5" />
-                      {lessonCount} bài
-                    </span>
-                  </div>
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          {theme.estimatedHoursLabel}
+                        </span>
+                      </div>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#5E51E8] dark:text-[#A5B4FC]">
+                        <Sparkles className="w-3 h-3" />
+                        Lab &amp; Quiz
+                      </span>
+                    </div>
 
-                  <ProgressBar
-                    value={progress}
-                    color={progress === 100 ? "success" : "brand"}
-                    size="sm"
-                    className="mb-4"
-                  />
+                    <ProgressBar
+                      value={progress}
+                      color={progress === 100 ? "success" : "brand"}
+                      size="sm"
+                      className="mb-3.5"
+                    />
 
-                  <div className="flex items-center gap-2">
-                    <Link href={`/app/courses/${id}`} className="flex-1">
-                      <Button variant="secondary" size="sm" className="w-full">
-                        Xem lộ trình
-                      </Button>
-                    </Link>
-                    <Link href={`/app/courses/${id}/learn`} className="flex-1">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        className="w-full"
-                        leftIcon={<Play className="w-3 h-3" />}
-                      >
-                        {progress > 0 ? "Tiếp tục" : "Học ngay"}
-                      </Button>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link href={`/app/courses/${id}`} className="flex-1">
+                        <Button variant="secondary" size="sm" className="w-full">
+                          Xem lộ trình
+                        </Button>
+                      </Link>
+                      <Link href={`/app/courses/${id}/learn`} className="flex-1">
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          className="w-full"
+                          leftIcon={<Play className="w-3 h-3" />}
+                        >
+                          {progress > 0 ? "Tiếp tục" : "Học ngay"}
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -445,6 +467,11 @@ export default function CoursesCatalogPage() {
           }
         />
       )}
+
+      {/* Roadmaps & Use Cases Explorer */}
+      <div className="mt-10">
+        <LearningRoadmapsShowcase courses={baseCourses} compact={true} />
+      </div>
     </div>
   );
 }

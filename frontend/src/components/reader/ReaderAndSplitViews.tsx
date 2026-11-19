@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 import {
   Lightbulb,
@@ -53,6 +54,18 @@ import {
   LessonMarkdownView,
   type LessonHeadingItem
 } from "@/components/reader/LessonMarkdownView";
+
+const LessonPracticeLab = dynamic(
+  () => import("@/components/learn/LessonPracticeLab").then((mod) => mod.LessonPracticeLab),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="py-6 text-center text-xs text-slate-500">
+        Đang tải phòng thực hành bài học...
+      </div>
+    ),
+  }
+);
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function toNullableUuid(val?: string | number | null): string | null {
@@ -1546,6 +1559,64 @@ export function ReaderAndSplitViews({
     }
   };
 
+  const handleSaveInlinePracticeToNotebook = async (quoteText: string) => {
+    const trimmed = quoteText.trim();
+    if (!trimmed) return;
+    if (activeLessonId) {
+      const prevDraft = notebookDraftTextBySource[activeLessonId] || "";
+      setNotebookDraftText(activeLessonId, prevDraft ? `${prevDraft}\n\n${trimmed}` : trimmed);
+    }
+    if (notebook) {
+      const updatedContent: AstNode[] = [
+        ...(notebook.contentAst?.content || []),
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: `[Thực hành bài học] ${trimmed}` }],
+        },
+      ];
+      try {
+        await saveNotebookWithSingleWriterLock({
+          id: notebook.id,
+          baseVersion: notebook.version,
+          title: notebook.title,
+          contentAst: { type: "doc", content: updatedContent },
+        });
+      } catch {
+        // Fallback stored in notebookDraftTextBySource
+      }
+    }
+    showToast("Đã lưu kết quả thực hành vào sổ tay.");
+  };
+
+  const handleCreateFlashcardQuickFromPractice = async (frontInput?: string, backInput?: string) => {
+    const rawFront = (frontInput || "").trim();
+    if (!rawFront) return;
+    const derivedBack = (backInput || "").trim() || rawFront;
+    try {
+      const resp = await fetch("/api/v1/flashcards", {
+        method: "POST",
+        headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({
+          lessonId: activeLessonId || null,
+          documentId: isDocMode ? (activeDocumentId || null) : null,
+          annotationId: null,
+          cardType: "basic",
+          sourceTitleSnapshot: lesson?.title || "Bài học",
+          sourceQuoteSnapshot: rawFront,
+          frontText: rawFront,
+          backText: derivedBack,
+          tagNames: ["Thuc-Hanh"],
+        }),
+      });
+      if (resp.ok) {
+        onDataMutated();
+        showToast("Đã tạo thẻ ghi nhớ từ bài tập.");
+      }
+    } catch {
+      showToast("Lỗi khi tạo thẻ.");
+    }
+  };
+
   const handleReconcileOrphan = async (
     annId: string,
     action: "reanchor" | "keep_unanchored" | "delete"
@@ -2709,6 +2780,7 @@ export function ReaderAndSplitViews({
             }}
             onOpenRelativeMarkdown={handleOpenRelativeMarkdown}
             onHeadingsExtracted={(headings) => setExtractedHeadings(headings)}
+            onQuickSaveToNotebook={handleSaveInlinePracticeToNotebook}
           />
         ) : (
           <div className="space-y-5 text-slate-800 dark:text-slate-200">
@@ -2763,6 +2835,36 @@ export function ReaderAndSplitViews({
               );
             })}
           </div>
+        )}
+
+        {/* Inline Practice Lab */}
+        {activeLessonId && !isDocMode && shouldRenderMarkdown && (
+          <section
+            data-testid="inline-practice-section"
+            className="mt-10 pt-8 border-t-2 border-dashed border-slate-200 dark:border-slate-800"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="h-6 w-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  Thực hành bài học (Interactive Practice Lab)
+                </h2>
+              </div>
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                Luyện tập tại chỗ không cần chuyển trang
+              </span>
+            </div>
+            <LessonPracticeLab
+              isEmbedded={true}
+              courseId={activeCourseCid || activeCourse?.id || ""}
+              courseTitle={activeCourse?.title || "Khóa học"}
+              lessonId={activeLessonId}
+              lessonTitle={localLessonTitles[activeLessonId] || lesson?.title || "Bài học"}
+              lessonMarkdown={rawMarkdown || lesson?.contentMarkdown || ""}
+              onSaveToNotebook={handleSaveInlinePracticeToNotebook}
+              onCreateFlashcardQuick={handleCreateFlashcardQuickFromPractice}
+            />
+          </section>
         )}
 
         {/* Prominent Footer Bar: Prev Lesson, Status & Mark Complete & Continue */}
