@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
+import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 /**
  * Single-Writer Tab Coordination via Web Locks API (navigator.locks) + BroadcastChannel
  * and 409 "Keep Both" Conflict Fork Handler (Decision B, ADR-002 & ADR-022).
@@ -26,7 +27,8 @@ export function useNotebookAutoSave(notebookId, onRemoteVersionUpdate, onConflic
             try {
                 const resp = await fetch(`/api/v1/notebooks/${params.id}`, {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
+                    headers: getClientRequestHeaders({ "Content-Type": "application/json" }),
+                    credentials: "include",
                     body: JSON.stringify({
                         mutationId: crypto.randomUUID(),
                         baseVersion: params.baseVersion,

@@ -714,16 +714,9 @@ export function CourseCatalogGrid({
                 />
 
                 <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  {/* Top Meta: Domain Badge + Progress Status */}
+                  {/* Top Meta: Progress Status (Domain badge already inside graphic banner) */}
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${domain.badgeClass}`}
-                      >
-                        <DomainIcon className="w-3.5 h-3.5 shrink-0" />
-                        <span className="truncate max-w-[165px]">{domain.badgeLabel}</span>
-                      </span>
-
+                    <div className="flex items-center justify-end gap-2">
                       <span
                         data-testid="course-progress-badge"
                         className={`px-2.5 py-1 rounded-full text-[11px] font-bold shrink-0 ${statusBadgeClass}`}

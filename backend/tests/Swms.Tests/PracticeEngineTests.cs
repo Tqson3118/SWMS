@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Swms.Api.Domain.Entities;
@@ -21,6 +22,27 @@ public class PracticeEngineTests
             .WithWebHostBuilder(builder =>
             {
                 builder.UseSetting("Database:InMemoryName", dbName);
+            });
+    }
+
+    private static WebApplicationFactory<Program> CreateRealSqliteFactory(SqliteConnection openConnection)
+    {
+        return new WebApplicationFactory<Program>()
+            .WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    var descriptors = services
+                        .Where(d => d.ServiceType == typeof(DbContextOptions<SwmsDbContext>) ||
+                                    (d.ServiceType.IsGenericType &&
+                                     d.ServiceType.Name.StartsWith("IDbContextOptionsConfiguration", StringComparison.Ordinal)))
+                        .ToList();
+                    foreach (var d in descriptors)
+                    {
+                        services.Remove(d);
+                    }
+                    services.AddDbContext<SwmsDbContext>(options => options.UseSqlite(openConnection));
+                });
             });
     }
 
@@ -330,5 +352,53 @@ public class PracticeEngineTests
         var cfg = stroopAct.GetProperty("configJson").GetString();
         Assert.Contains("trialsCount", cfg);
         Assert.Contains("words", cfg);
+    }
+
+    [Fact]
+    public async Task Test8_RealSqliteProvider_GetAllPracticeEndpoints_DoesNotThrowDateTimeOffsetOrderException()
+    {
+        await using var conn = new SqliteConnection("Data Source=:memory:");
+        await conn.OpenAsync();
+
+        await using var factory = CreateRealSqliteFactory(conn);
+        using var client = factory.CreateClient();
+
+        // 1. Create a practice attempt on real SQLite with CreatedAt DateTimeOffset
+        var attempt = new RecordPracticeAttemptRequest(
+            ActivityId: null,
+            CourseId: SeedDataInitializer.EnglishCourseId,
+            LessonId: SeedDataInitializer.EnglishLesson11Id,
+            ActivityType: "dictation",
+            ActivityKey: "real-sqlite-test-key",
+            ActivityTitle: "Real SQLite Test Dictation",
+            Score: 95.0,
+            MaxScore: 100,
+            IsPassed: true,
+            DetailJson: "{\"words\":10}",
+            DurationSeconds: 30
+        );
+        var postRes = await client.PostAsJsonAsync("/api/v1/practice/attempts", attempt);
+        Assert.Equal(HttpStatusCode.OK, postRes.StatusCode);
+
+        // 2. Call GET /api/v1/practice/activities on real SQLite (must not throw SQLite DateTimeOffset OrderBy exception)
+        var actRes = await client.GetAsync($"/api/v1/practice/activities?courseId={SeedDataInitializer.EnglishCourseId}");
+        Assert.Equal(HttpStatusCode.OK, actRes.StatusCode);
+        var activities = await actRes.Content.ReadFromJsonAsync<List<JsonElement>>();
+        Assert.NotNull(activities);
+        Assert.NotEmpty(activities);
+
+        // 3. Call GET /api/v1/practice/attempts on real SQLite (must not throw SQLite DateTimeOffset OrderBy exception)
+        var attRes = await client.GetAsync($"/api/v1/practice/attempts?courseId={SeedDataInitializer.EnglishCourseId}&limit=10");
+        Assert.Equal(HttpStatusCode.OK, attRes.StatusCode);
+        var attemptsList = await attRes.Content.ReadFromJsonAsync<List<JsonElement>>();
+        Assert.NotNull(attemptsList);
+        Assert.NotEmpty(attemptsList);
+        Assert.Contains(attemptsList, a => a.GetProperty("activityKey").GetString() == "real-sqlite-test-key");
+
+        // 4. Call GET /api/v1/practice/stats on real SQLite (must not throw SQLite DateTimeOffset OrderBy exception)
+        var statsRes = await client.GetAsync("/api/v1/practice/stats");
+        Assert.Equal(HttpStatusCode.OK, statsRes.StatusCode);
+        var stats = await statsRes.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(stats.GetProperty("totalAttempts").GetInt32() >= 1);
     }
 }

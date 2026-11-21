@@ -2001,9 +2001,9 @@ ${activeProblem.explanation}`;
                 Đã nạp toàn bộ các dòng vào vùng sắp xếp bên phải.
               </div>
             ) : (
-              bankLines.map((item) => (
+              bankLines.map((item, idx) => (
                 <button
-                  key={item.id}
+                  key={item.id ? `${item.id}-${idx}` : `bank-${idx}`}
                   type="button"
                   data-testid="parsons-bank-line"
                   onClick={() => moveToWorkspace(item)}
@@ -2054,7 +2054,7 @@ ${activeProblem.explanation}`;
 
                 return (
                   <div
-                    key={item.id}
+                    key={item.id ? `${item.id}-${idx}` : `ws-${idx}`}
                     data-testid="parsons-workspace-line"
                     className={`p-2 rounded-lg border font-mono text-xs flex items-center justify-between transition ${
                       hasCheck
@@ -2252,7 +2252,7 @@ export function CodingPracticeLab({
                 expected: blankWord,
                 acceptableAnswers: [blankWord],
                 hint: `Từ khóa dòng ${candidateLineIndex + 1}`,
-                chips: [blankWord, "return", "await", "const"],
+                chips: Array.from(new Set([blankWord, "return", "await", "const"])),
                 explanation: `Từ khóa '${blankWord}' giữ vai trò thực thi cốt lõi tại dòng này.`,
               },
             ],
@@ -2955,8 +2955,8 @@ export function CodingPracticeLab({
           </div>
 
           {/* Chọn chủ đề / Thích ứng bài học */}
-          <div className="flex items-center gap-1.5 text-xs">
-            <span className="text-zinc-600 dark:text-zinc-400 hidden sm:inline">Chủ đề:</span>
+          <div className="flex items-center gap-1.5 text-xs shrink-0">
+            <span className="text-zinc-600 dark:text-zinc-400 hidden sm:inline whitespace-nowrap shrink-0">Chủ đề:</span>
             <select
               data-testid="topic-category-select"
               value={selectedTopic}
@@ -3139,9 +3139,9 @@ export function CodingPracticeLab({
                   <span className="text-xs text-zinc-600 dark:text-zinc-400 min-w-[70px]">
                     Vị trí #{b.blankIndex + 1}:
                   </span>
-                  {b.chips.map((chip) => (
+                  {b.chips.map((chip, chipIdx) => (
                     <button
-                      key={chip}
+                      key={`${b.id}-${chip}-${chipIdx}`}
                       type="button"
                       data-testid={`code-chip-${b.id}-${chip}`}
                       onClick={() => handleFillInput(b.id, chip)}

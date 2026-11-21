@@ -116,6 +116,13 @@ export default function WorkspacePage() {
                 toggleDarkMode();
                 return;
             }
+            if (e.key === "Escape") {
+                if (isShortcutsOpen) {
+                    e.preventDefault();
+                    setIsShortcutsOpen(false);
+                    return;
+                }
+            }
             if (isShortcutsOpen || commandPaletteOpen || aiConfigModalOpen || document.querySelector('[role="dialog"]')) {
                 return;
             }

@@ -1755,7 +1755,7 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
 
           <button
             type="button"
-            data-testid="practice-tab-word-map"
+            data-testid="practice-tab-word_map"
             onClick={() => setActiveMode("word_map")}
             className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-semibold min-h-[48px] transition-all ${
               activeMode === "word_map"

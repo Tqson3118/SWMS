@@ -1164,7 +1164,7 @@ export function PersonalWorkspaceDashboard({
                       <div
                         key={`lib-course-${cid || course.title}`}
                         data-testid="course-card-item"
-                        className="py-3 flex flex-wrap items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 px-2 rounded-xl transition"
+                        className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 px-2 rounded-xl transition"
                       >
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
@@ -1186,7 +1186,7 @@ export function PersonalWorkspaceDashboard({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1.5 shrink-0">
+                        <div className="flex flex-wrap items-center gap-1.5 shrink-0">
                           <button
                             type="button"
                             onClick={() => {
@@ -1229,9 +1229,9 @@ export function PersonalWorkspaceDashboard({
                   ).map((doc) => (
                     <div
                       key={doc.id}
-                      className="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 px-2 rounded-xl transition"
+                      className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 px-2 rounded-xl transition"
                     >
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate flex items-center gap-1.5">
                           <FileText className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                           <span>{doc.title}</span>
@@ -1305,9 +1305,9 @@ export function PersonalWorkspaceDashboard({
                         {visibleLessons.map((les) => (
                           <div
                             key={les.id}
-                            className="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 px-2 rounded-xl transition"
+                            className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 px-2 rounded-xl transition"
                           >
-                            <div className="min-w-0">
+                            <div className="min-w-0 flex-1">
                               <div className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate flex items-center gap-1.5">
                                 <BookOpen className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                                 <span>{les.title}</span>
@@ -1316,7 +1316,7 @@ export function PersonalWorkspaceDashboard({
                                 Bài học • Phiên bản v{les.currentVersion}
                               </div>
                             </div>
-                            <div className="flex items-center gap-1.5 shrink-0">
+                            <div className="flex flex-wrap items-center gap-1.5 shrink-0">
                               <button
                                 type="button"
                                 onClick={() => {
@@ -1364,9 +1364,9 @@ export function PersonalWorkspaceDashboard({
                   (libraryFilter === "notebook" ? data.notebooks : data.notebooks.slice(0, 4)).map((nb) => (
                     <div
                       key={nb.id}
-                      className="py-3 flex items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 px-2 rounded-xl transition"
+                      className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 px-2 rounded-xl transition"
                     >
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate flex items-center gap-1.5">
                           <PenTool className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                           <span>[Ghi chú] {nb.title}</span>
@@ -1375,20 +1375,22 @@ export function PersonalWorkspaceDashboard({
                           Bản ghi chú tổng hợp • v{nb.version}
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (nb.primarySourceLessonId) {
-                            setActiveLesson(nb.primarySourceLessonId);
-                          } else if (nb.primarySourceDocumentId) {
-                            setActiveDocument(nb.primarySourceDocumentId);
-                          }
-                          setActiveMode("split");
-                        }}
-                        className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white text-xs font-semibold transition cursor-pointer shrink-0 min-h-[42px]"
-                      >
-                        Mở ghi chú
-                      </button>
+                      <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (nb.primarySourceLessonId) {
+                              setActiveLesson(nb.primarySourceLessonId);
+                            } else if (nb.primarySourceDocumentId) {
+                              setActiveDocument(nb.primarySourceDocumentId);
+                            }
+                            setActiveMode("split");
+                          }}
+                          className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white text-xs font-semibold transition cursor-pointer min-h-[42px]"
+                        >
+                          Mở ghi chú
+                        </button>
+                      </div>
                     </div>
                   ))}
 

@@ -227,21 +227,21 @@ export default function LibraryPage() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex items-center gap-1 mb-6 border-b border-[var(--border-calm)] overflow-x-auto">
+      <div className="flex flex-wrap sm:flex-nowrap items-center gap-1 sm:gap-1.5 mb-6 border-b border-[var(--border-calm)] max-w-full overflow-x-auto no-scrollbar">
         {FILTER_TABS.map((tab) => (
           <button
             key={tab.key}
             type="button"
             data-testid={`library-filter-${tab.key}`}
             onClick={() => setLibraryFilter(tab.key)}
-            className={`px-3.5 py-2.5 text-sm font-medium transition cursor-pointer -mb-px whitespace-nowrap flex items-center gap-1.5 ${
+            className={`px-2.5 sm:px-3.5 py-2 text-xs sm:text-sm font-medium transition cursor-pointer -mb-px whitespace-nowrap flex items-center gap-1 sm:gap-1.5 shrink-0 ${
               libraryFilter === tab.key
                 ? "text-[#5E51E8] dark:text-[#818CF8] border-b-2 border-[#5E51E8] dark:border-[#818CF8] font-semibold"
                 : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
             }`}
           >
             <span>{tab.label}</span>
-            <span className="text-[11px] px-1.5 py-0.5 rounded-[5px] bg-[var(--surface-elevated)] text-[var(--text-secondary)]">
+            <span className="text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-[5px] bg-[var(--surface-elevated)] text-[var(--text-secondary)]">
               {countsByType[tab.key]}
             </span>
           </button>

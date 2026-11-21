@@ -415,7 +415,7 @@ export default function CourseDetailPage() {
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md border text-xs font-semibold ${theme.badgeBgClass}`}>
-                  {domain.label}
+                  {theme.domainLabel}
                 </span>
                 <Badge variant="neutral" size="sm">
                   {theme.levelLabel}

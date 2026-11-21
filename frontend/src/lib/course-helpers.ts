@@ -115,11 +115,13 @@ export function classifyCourseDomain(course: CourseLike): CourseDomainMeta {
   }
 
   // 4. Science & Math - ensure \b word boundaries so "khoa hoc" (course) doesn't match "hoa hoc" (chemistry) or "khoa hoc" (science)
+  // Ensure psychology and communication courses are excluded from matching "khoa hoc"
   const isScience =
-    /(\btoan hoc\b|\btoan cao cap\b|\btoan roi rac\b|\bgiai tich\b|\bdai so\b|\bmath\b|\bvat ly\b|\bphysics\b|\bhoa hoc\b|\bchemistry\b|\bsinh hoc\b|\bbiology\b|\bxac suat\b|\bthong ke\b|\bstatistics\b|\bkhoa hoc tu nhien\b)/.test(
+    !/(tam ly|ky nang song|giao tiep)/.test(combined) &&
+    (/(\btoan hoc\b|\btoan cao cap\b|\btoan roi rac\b|\bgiai tich\b|\bdai so\b|\bmath\b|\bvat ly\b|\bphysics\b|\bhoa hoc\b|\bchemistry\b|\bsinh hoc\b|\bbiology\b|\bxac suat\b|\bthong ke\b|\bstatistics\b|\bkhoa hoc tu nhien\b)/.test(
       combined
     ) ||
-    (/\bkhoa học\b/i.test(rawCombined) && !/\b(khóa học|khoá học)\b/i.test(rawCombined));
+      (/\bkhoa học\b/i.test(rawCombined) && !/\b(khóa học|khoá học)\b/i.test(rawCombined)));
 
   if (isScience) {
     return { id: "science", label: "Khoa học & Toán" };
@@ -287,6 +289,19 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
         estimatedHoursLabel: `~${estHours} giờ học`,
       };
     default:
+      if (/(tam ly|ky nang song|giao tiep)/.test(norm)) {
+        return {
+          domainId: "other",
+          domainLabel: "Tâm lý & Kỹ năng sống",
+          accentBarClass: "from-rose-500 via-pink-500 to-amber-500",
+          badgeBgClass: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800",
+          iconBgClass: "bg-rose-500/10 border-rose-500/20",
+          iconTextClass: "text-rose-600 dark:text-rose-400",
+          ringColor: "#F43F5E",
+          levelLabel,
+          estimatedHoursLabel: `~${estHours} giờ học`,
+        };
+      }
       return {
         domainId: "other",
         domainLabel: domain.label,
@@ -304,37 +319,46 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
 export function extractCourseSkillTags(course: CourseLike): string[] {
   const raw = `${course.title || ""} ${course.description || ""} ${course.category || ""}`;
   const norm = normalizeVi(raw);
+  const domain = classifyCourseDomain(course);
   const tags: string[] = [];
 
-  const rules: Array<[RegExp, string]> = [
-    [/(\.net|c#|csharp)/, "C# / .NET 10"],
-    [/\b(react|next\.js|nextjs)\b/, "React & Next.js"],
-    [/\b(typescript|javascript)\b/, "TypeScript"],
-    [/\b(sql|database|ef core)\b/, "SQL & EF Core"],
-    [/\b(microservices|ddd|event sourcing)\b/, "Kiến trúc Phân tán"],
-    [/\b(he dieu hanh|bo nho ao|tlb|phan trang)\b/, "OS & Quản lý bộ nhớ"],
-    [/\b(hoc may|machine learning|deep learning)\b/, "AI & Machine Learning"],
-    [/\b(python)\b/, "Python"],
-    [/\b(ielts)\b/, "IELTS 4 Kỹ năng"],
-    [/\b(listening|speaking|ipa|phat am)\b/, "Nghe & Phát âm IPA"],
-    [/\b(tai chinh ca nhan|ngan sach|50\/30\/20|dong tien)\b/, "Ngân sách 50/30/20"],
-    [/\b(dau tu|chung khoan|co phieu|dinh gia)\b/, "Đầu tư & Định giá"],
-    [/\b(tam ly|nhan thuc|cbt)\b/, "Tâm lý học hành vi"],
-    [/\b(ky nang song|giao tiep|thuyet trinh|dam phan)\b/, "Giao tiếp NVC"],
-    [/\b(phap luat|hien phap|dan su|hinh su)\b/, "Pháp lý đại cương"],
-  ];
+  if (domain.id === "language") {
+    if (/\b(ielts)\b/.test(norm)) tags.push("IELTS 4 Kỹ năng");
+    if (/\b(word map|mind map|so do tu vung|tu vung|vocabulary)\b/.test(norm)) tags.push("Word Map");
+    if (/\b(ipa|phat am|speaking|chuan ipa)\b/.test(norm)) tags.push("Chấm phát âm IPA");
+    if (/\b(shadowing|dictation|chep chinh ta|listening|nghe)\b/.test(norm)) tags.push("Shadowing & Dictation");
+  } else {
+    const rules: Array<[RegExp, string]> = [
+      [/(\.net|c#|csharp)/, "C# / .NET 10"],
+      [/\b(react|next\.js|nextjs)\b/, "React & Next.js"],
+      [/\b(typescript|javascript)\b/, "TypeScript"],
+      [/\b(sql|database|ef core)\b/, "SQL & EF Core"],
+      [/\b(microservices|ddd|event sourcing)\b/, "Kiến trúc Phân tán"],
+      [/\b(he dieu hanh|bo nho ao|tlb|phan trang)\b/, "OS & Quản lý bộ nhớ"],
+      [/\b(hoc may|machine learning|deep learning)\b/, "AI & Machine Learning"],
+      [/\b(python)\b/, "Python"],
+      [/\b(tai chinh ca nhan|ngan sach|50\/30\/20|dong tien)\b/, "Ngân sách 50/30/20"],
+      [/\b(dau tu|chung khoan|co phieu|dinh gia)\b/, "Đầu tư & Định giá"],
+      [/\b(tam ly|nhan thuc|cbt)\b/, "Tâm lý học hành vi"],
+      [/\b(ky nang song|giao tiep|thuyet trinh|dam phan)\b/, "Giao tiếp NVC"],
+      [/\b(phap luat|hien phap|dan su|hinh su)\b/, "Pháp lý đại cương"],
+    ];
 
-  for (const [pattern, label] of rules) {
-    if (pattern.test(norm) && !tags.includes(label)) {
-      tags.push(label);
+    for (const [pattern, label] of rules) {
+      if (pattern.test(norm) && !tags.includes(label)) {
+        tags.push(label);
+      }
+      if (tags.length >= 3) break;
     }
-    if (tags.length >= 3) break;
   }
 
   if (tags.length < 3) {
-    const domain = classifyCourseDomain(course);
     if (domain.id === "technology") tags.push("Lab Code & Debug");
-    else if (domain.id === "language") tags.push("Shadowing & Dictation");
+    else if (domain.id === "language") {
+      if (!tags.includes("Word Map")) tags.push("Word Map");
+      if (tags.length < 3 && !tags.includes("Chấm phát âm IPA")) tags.push("Chấm phát âm IPA");
+      if (tags.length < 3 && !tags.includes("Shadowing & Dictation")) tags.push("Shadowing & Dictation");
+    }
     else if (domain.id === "business") tags.push("Biểu đồ & Tính toán");
     else if (domain.id === "law") tags.push("Trích dẫn & Case");
     else if (domain.id === "science") tags.push("Tư duy Feynman");

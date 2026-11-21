@@ -213,6 +213,14 @@ export default function WorkspacePage() {
         return;
       }
 
+      if (e.key === "Escape") {
+        if (isShortcutsOpen) {
+          e.preventDefault();
+          setIsShortcutsOpen(false);
+          return;
+        }
+      }
+
       if (
         isShortcutsOpen ||
         commandPaletteOpen ||

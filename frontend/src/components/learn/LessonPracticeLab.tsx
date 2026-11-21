@@ -155,19 +155,20 @@ function detectPreferredMode(courseTitle: string, lessonTitle: string, md: strin
   if (/```practice-case\b/i.test(md)) return "recall";
 
   const titleNorm = stripDiacritics(`${courseTitle} ${lessonTitle}`);
-  if (
-    /\b(tam ly|ky nang|giao tiep|cam xuc|cbt|life skills|psychology|eq|nvc|self-awareness|attachment)\b/.test(
-      titleNorm
-    )
-  ) {
-    return "recall";
-  }
+  // 1. Prioritize English so "Tiếng Anh Giao Tiếp" or "English Communication" opens English Practice Lab
   if (
     /\b(ielts|tieng anh|english|listening|speaking|vocabulary|grammar|phat am|shadowing|dictation|pronunciation|ipa)\b/.test(
       titleNorm
     )
   ) {
     return "english";
+  }
+  if (
+    /\b(tam ly|ky nang|giao tiep|cam xuc|cbt|life skills|psychology|eq|nvc|self-awareness|attachment)\b/.test(
+      titleNorm
+    )
+  ) {
+    return "recall";
   }
   if (
     /\b(tai chinh|dau tu|chung khoan|investing|finance|bieu do nen|candlestick|co phieu|ngan sach|lai kep|tra no|snowball|avalanche|personal finance|thue thu nhap)\b/.test(
@@ -187,18 +188,18 @@ function detectPreferredMode(courseTitle: string, lessonTitle: string, md: strin
   // Fallback sang xét md.slice(0, 1500)
   const mdNorm = stripDiacritics(md.slice(0, 1500));
   if (
-    /\b(tam ly|ky nang|giao tiep|cam xuc|cbt|life skills|psychology|eq|nvc|self-awareness|attachment)\b/.test(
-      mdNorm
-    )
-  ) {
-    return "recall";
-  }
-  if (
     /\b(ielts|tieng anh|english|listening|speaking|vocabulary|grammar|phat am|shadowing|dictation|pronunciation|ipa)\b/.test(
       mdNorm
     )
   ) {
     return "english";
+  }
+  if (
+    /\b(tam ly|ky nang|giao tiep|cam xuc|cbt|life skills|psychology|eq|nvc|self-awareness|attachment)\b/.test(
+      mdNorm
+    )
+  ) {
+    return "recall";
   }
   if (
     /\b(tai chinh|dau tu|chung khoan|investing|finance|bieu do nen|nen nhat|candlestick|co phieu|dong tien|danh muc dau tu|trai phieu|ngan sach|lai kep|tra no|snowball|avalanche|personal finance|thue thu nhap)\b/.test(

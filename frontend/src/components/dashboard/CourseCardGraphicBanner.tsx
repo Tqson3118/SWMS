@@ -316,7 +316,9 @@ export function CourseCardGraphicBanner({
         </div>
       );
 
-    default:
+    default: {
+      const isPsychology = domainLabel.includes("Tâm lý") || domainLabel.includes("Kỹ năng");
+      const DomainIcon = isPsychology ? Brain : Compass;
       return (
         <div
           className={`relative h-24 w-full overflow-hidden bg-gradient-to-br from-rose-600 via-pink-700 to-amber-800 text-white p-3.5 flex flex-col justify-between ${className}`}
@@ -336,7 +338,7 @@ export function CourseCardGraphicBanner({
           {/* Banner Meta Row */}
           <div className="relative z-10 flex items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/15 backdrop-blur-md text-white border border-white/20">
-              <Compass className="w-3.5 h-3.5 shrink-0 text-rose-200" />
+              <DomainIcon className="w-3.5 h-3.5 shrink-0 text-rose-200" />
               <span>{domainLabel}</span>
             </span>
 
@@ -360,10 +362,11 @@ export function CourseCardGraphicBanner({
           {/* Bottom Vector Deco */}
           <div className="relative z-10 flex items-center justify-end">
             <div className="p-2 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 shadow-inner">
-              <Compass className="w-5 h-5 text-rose-100" />
+              <DomainIcon className="w-5 h-5 text-rose-100" />
             </div>
           </div>
         </div>
       );
+    }
   }
 }

@@ -3045,6 +3045,7 @@ export function PortfolioSimulatorLab({
         <div className="flex items-center gap-2">
           <button
             type="button"
+            data-testid="portfolio-record-btn"
             onClick={handleRecord}
             className="min-h-[44px] px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition cursor-pointer flex items-center gap-1.5 shadow-xs"
           >

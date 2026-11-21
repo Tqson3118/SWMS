@@ -322,7 +322,8 @@ try {
             "e2e/course-creation-studio.spec.ts",
             "e2e/v2-app-completeness.spec.ts",
             "e2e/reader-polish-and-roadmap.spec.ts",
-            "e2e/v2-topdown-sitemap.spec.ts"
+            "e2e/v2-topdown-sitemap.spec.ts",
+            "e2e/practice-expansion-live.spec.ts"
         )
     } else {
         $targetSuites = $Suites

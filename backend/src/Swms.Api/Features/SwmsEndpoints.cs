@@ -1511,15 +1511,22 @@ public static class SwmsEndpoints
             var existing = await db.CourseEnrollments.FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == id);
             if (existing == null)
             {
-                db.CourseEnrollments.Add(new CourseEnrollment
+                try
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = userId,
-                    CourseId = id,
-                    Role = "student",
-                    EnrolledAt = DateTimeOffset.UtcNow
-                });
-                await db.SaveChangesAsync();
+                    db.CourseEnrollments.Add(new CourseEnrollment
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = userId,
+                        CourseId = id,
+                        Role = "student",
+                        EnrolledAt = DateTimeOffset.UtcNow
+                    });
+                    await db.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    // Idempotent: concurrent request already enrolled user
+                }
             }
             return Results.Ok(new { enrolled = true, courseId = id });
         });
@@ -5534,10 +5541,12 @@ public static class SwmsEndpoints
                 q = q.Where(pa => pa.LessonId == lessonId.Value);
             }
 
-            var activities = await q
+            var activities = (await q
+                .OrderBy(pa => pa.OrderIndex)
+                .ToListAsync())
                 .OrderBy(pa => pa.OrderIndex)
                 .ThenBy(pa => pa.CreatedAt)
-                .ToListAsync();
+                .ToList();
 
             var actIds = activities.Select(a => a.Id).ToHashSet();
             var userAttempts = await db.PracticeAttempts
@@ -5697,10 +5706,11 @@ public static class SwmsEndpoints
             }
 
             var takeLimit = Math.Clamp(limit ?? 20, 1, 100);
-            var attempts = await q
+            var rawAttempts = await q.ToListAsync();
+            var attempts = rawAttempts
                 .OrderByDescending(pa => pa.CreatedAt)
                 .Take(takeLimit)
-                .ToListAsync();
+                .ToList();
 
             return Results.Ok(attempts);
         });
@@ -5711,10 +5721,11 @@ public static class SwmsEndpoints
             SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
-            var userAttempts = await db.PracticeAttempts
+            var userAttempts = (await db.PracticeAttempts
                 .Where(pa => pa.UserId == userId)
+                .ToListAsync())
                 .OrderByDescending(pa => pa.CreatedAt)
-                .ToListAsync();
+                .ToList();
 
             var totalAttempts = userAttempts.Count;
             var averageScore = totalAttempts > 0 ? Math.Round(userAttempts.Average(pa => pa.Score), 1) : 0.0;

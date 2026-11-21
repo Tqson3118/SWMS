@@ -219,6 +219,7 @@ export function KeyboardShortcutsModal({ isOpen, onClose, initialTab = "all" }) 
         if (isOpen) {
             document.body.style.overflow = "hidden";
             window.addEventListener("keydown", handleKeyDown, { capture: true });
+            document.addEventListener("keydown", handleKeyDown, { capture: true });
             requestAnimationFrame(() => {
                 if (modalRef.current) {
                     modalRef.current.focus();
@@ -231,6 +232,7 @@ export function KeyboardShortcutsModal({ isOpen, onClose, initialTab = "all" }) 
         return () => {
             document.body.style.overflow = "unset";
             window.removeEventListener("keydown", handleKeyDown, { capture: true });
+            document.removeEventListener("keydown", handleKeyDown, { capture: true });
         };
     }, [isOpen, onClose]);
     const filteredShortcuts = useMemo(() => {

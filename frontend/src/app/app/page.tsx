@@ -144,6 +144,7 @@ export default function DashboardPage() {
   const [documentsCount, setDocumentsCount] = useState(0);
   const [notebooksCount, setNotebooksCount] = useState(0);
   const [practiceStats, setPracticeStats] = useState<PracticeStatsData | null>(null);
+  const [practiceStatsError, setPracticeStatsError] = useState<string | null>(null);
   const [nextLessonInfo, setNextLessonInfo] = useState<NextLessonInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -151,6 +152,7 @@ export default function DashboardPage() {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setFetchError(null);
+    setPracticeStatsError(null);
     setNextLessonInfo(null);
     try {
       const effectiveUserId =
@@ -190,7 +192,12 @@ export default function DashboardPage() {
         const pStats = await practiceStatsResp.json().catch(() => null);
         if (pStats && typeof pStats.totalAttempts === "number") {
           setPracticeStats(pStats);
+          setPracticeStatsError(null);
+        } else {
+          setPracticeStatsError("Dữ liệu thống kê luyện tập không hợp lệ.");
         }
+      } else {
+        setPracticeStatsError("Không thể tải dữ liệu thống kê luyện tập từ máy chủ.");
       }
 
       const extraCourses =
@@ -566,8 +573,29 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          {/* 4 QUICK STAT TILES */}
-          <div data-testid="today-practice-stats" className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {/* ZERO-FACADE: IF practiceStats fails with network/server error, show error banner with retry */}
+          {practiceStatsError ? (
+            <div
+              data-testid="today-practice-error"
+              className="p-4 rounded-lg border border-red-500/30 bg-red-500/5 text-sm text-red-600 dark:text-red-400 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+            >
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{practiceStatsError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={fetchData}
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-border text-xs font-medium text-text-primary hover:bg-bg-secondary cursor-pointer self-start sm:self-auto shrink-0"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                Thử lại
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* 4 QUICK STAT TILES */}
+              <div data-testid="today-practice-stats" className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-3 rounded-lg border border-border bg-bg-primary">
               <span className="text-[11px] text-text-tertiary flex items-center gap-1">
                 <Flame className="w-3.5 h-3.5 text-amber-500" />
@@ -738,6 +766,8 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
+          )}
+            </>
           )}
         </div>
 

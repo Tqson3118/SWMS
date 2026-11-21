@@ -326,6 +326,7 @@ export default function CoursesCatalogPage() {
           {COURSE_DOMAINS.map((domain) => {
             const count = domainCounts[domain.id];
             if (count === 0 && selectedDomain !== domain.id) return null;
+            const displayLabel = domain.id === "other" ? "Tâm lý & Kỹ năng sống" : domain.label;
             return (
               <button
                 key={domain.id}
@@ -337,7 +338,7 @@ export default function CoursesCatalogPage() {
                     : "bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-calm)] hover:bg-[var(--surface-elevated)]"
                 }`}
               >
-                <span>{domain.label}</span>
+                <span>{displayLabel}</span>
                 <span className="opacity-75">({count})</span>
               </button>
             );

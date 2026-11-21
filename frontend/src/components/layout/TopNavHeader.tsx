@@ -173,14 +173,14 @@ export function TopNavHeader({
   return (
     <header
       data-testid="global-top-header"
-      className="sticky top-0 z-50 h-14 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md px-1.5 sm:px-2.5 lg:px-3 xl:px-5 flex items-center justify-between gap-1 sm:gap-1.5 lg:gap-2"
+      className="sticky top-0 z-50 h-14 w-full max-w-full overflow-x-clip border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md px-1 sm:px-2.5 lg:px-3 xl:px-5 flex items-center justify-between gap-1 sm:gap-1.5 lg:gap-2"
     >
       {/* Left: Brand & Breadcrumb (never shrinks below logo on mobile/tablet) */}
-      <div className="flex items-center gap-1.5 lg:gap-2 shrink-0 lg:shrink lg:flex-1 min-w-0 relative z-10">
+      <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 shrink-0 lg:shrink lg:flex-1 min-w-0 relative z-10">
         <Link
           href="/"
           data-testid="brand-logo-link"
-          className="relative z-10 flex items-center gap-2 font-bold tracking-tight text-[#5E51E8] dark:text-[#818CF8] shrink-0 focus:outline-none focus:ring-2 focus:ring-[#5E51E8] rounded-md px-1 sm:px-1.5 py-1 cursor-pointer group"
+          className="relative z-10 flex items-center gap-1.5 sm:gap-2 font-bold tracking-tight text-[#5E51E8] dark:text-[#818CF8] shrink-0 focus:outline-none focus:ring-2 focus:ring-[#5E51E8] rounded-md px-1 sm:px-1.5 py-1 cursor-pointer group"
           title="Về Trang chủ Studxy"
         >
           <span className="inline-flex items-center justify-center w-7 h-7 rounded-[8px] bg-[#5E51E8] dark:bg-[#818CF8] text-white dark:text-[#0F0F12] text-xs font-extrabold shadow-sm group-hover:scale-105 transition-transform">
@@ -193,11 +193,11 @@ export function TopNavHeader({
         <Link
           href="/app"
           data-testid="header-back-to-app-btn"
-          className="inline-flex items-center gap-1 px-2 py-1 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] text-[#4F46E5] dark:text-[#A5B4FC] border border-[#5E51E8]/20 text-xs font-semibold hover:opacity-90 transition shrink-0"
+          className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] text-[#4F46E5] dark:text-[#A5B4FC] border border-[#5E51E8]/20 text-xs font-semibold hover:opacity-90 transition shrink-0"
           title="Chuyển sang không gian học tập mới (/app)"
         >
           <BookOpen className="w-3.5 h-3.5 shrink-0" />
-          <span className="text-[11px] font-semibold">Vào App</span>
+          <span className="text-[11px] font-semibold hidden xs:inline sm:inline">Vào App</span>
         </Link>
 
         <span className="text-[var(--border-calm)] hidden lg:inline shrink-0">/</span>
@@ -224,10 +224,10 @@ export function TopNavHeader({
       </div>
 
       {/* Center: Mode Switcher + Command Palette */}
-      <div className="flex items-center gap-1 lg:gap-1.5 shrink-0">
+      <div className="flex items-center gap-0.5 sm:gap-1.5 shrink min-w-0">
         <nav
           aria-label="Chế độ không gian học tập"
-          className="flex items-center bg-slate-100 dark:bg-slate-900 p-0.5 sm:p-1 rounded-xl border border-slate-200/70 dark:border-slate-800"
+          className="flex items-center bg-slate-100 dark:bg-slate-900 p-0.5 sm:p-1 rounded-xl border border-slate-200/70 dark:border-slate-800 max-w-full overflow-x-auto no-scrollbar"
         >
           {modes.map((m) => {
             const isActive = activeMode === m.id;
@@ -238,7 +238,7 @@ export function TopNavHeader({
                 type="button"
                 data-testid={`mode-tab-${m.id}`}
                 onClick={() => setActiveMode(m.id)}
-                className={`min-w-[36px] min-h-[38px] px-1.5 lg:px-2 xl:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1 xl:gap-1.5 cursor-pointer whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                className={`min-w-[28px] sm:min-w-[36px] min-h-[32px] sm:min-h-[38px] p-1 sm:px-1.5 lg:px-2 xl:px-3 sm:py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1 xl:gap-1.5 cursor-pointer whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                   isActive
                     ? "bg-indigo-600 text-white shadow-sm"
                     : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
@@ -268,7 +268,7 @@ export function TopNavHeader({
           type="button"
           data-testid="cmd-k-trigger"
           onClick={() => setCommandPaletteOpen(true)}
-          className="min-w-[36px] min-h-[38px] flex items-center justify-center gap-1.5 px-2 xl:px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-slate-700 dark:text-slate-300 transition cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="min-w-[28px] sm:min-w-[36px] min-h-[32px] sm:min-h-[38px] p-1 sm:px-2 xl:px-3 sm:py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-slate-700 dark:text-slate-300 transition cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 flex items-center justify-center gap-1.5"
           title="Mở bảng lệnh & tìm kiếm nhanh (Ctrl+K / Cmd+K)"
         >
           <Search className="w-3.5 h-3.5 text-slate-400" />
@@ -280,17 +280,17 @@ export function TopNavHeader({
       </div>
 
       {/* Right: AI & Storage Quota Indicator + Streak + Theme + Avatar */}
-      <div className="flex items-center gap-1 lg:gap-1.5 shrink-0 relative">
+      <div className="flex items-center gap-0.5 sm:gap-1 lg:gap-1.5 shrink-0 relative">
         <div ref={quotaRef} className="relative">
           <button
             type="button"
             data-testid="quota-indicator-btn"
             onClick={() => setQuotaOpen((prev) => !prev)}
-            className={`min-w-[36px] min-h-[38px] px-1.5 lg:px-2.5 xl:px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1 lg:gap-1.5 cursor-pointer whitespace-nowrap transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${quotaColorClass}`}
+            className={`min-w-[30px] sm:min-w-[36px] min-h-[32px] sm:min-h-[38px] px-1 sm:px-1.5 lg:px-2.5 xl:px-3 py-1 sm:py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1 lg:gap-1.5 cursor-pointer whitespace-nowrap transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${quotaColorClass}`}
           >
             <Sparkles className="w-3.5 h-3.5 shrink-0" />
             <span className="hidden lg:inline">AI: {creditsUsed}/{creditsLimit}</span>
-            <span className="lg:hidden">AI:{creditsUsed}</span>
+            <span className="lg:hidden text-[11px]">AI:{creditsUsed}</span>
             <span className="hidden 2xl:inline text-slate-400">|</span>
             <HardDrive className="w-3.5 h-3.5 hidden 2xl:inline shrink-0" />
             <span className="hidden 2xl:inline">{storageMbUsed}/{storageMbLimit} MB</span>
@@ -440,7 +440,7 @@ export function TopNavHeader({
           onClick={toggleDarkMode}
           aria-label="Chuyển đổi giao diện Sáng/Tối"
           title="Chuyển đổi giao diện Sáng/Tối"
-          className="w-9 h-9 xl:w-10 xl:h-10 flex items-center justify-center p-1.5 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors"
+          className="w-8 h-8 sm:w-9 sm:h-9 xl:w-10 xl:h-10 flex items-center justify-center p-1 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors"
         >
           {darkMode ? (
             <Sun className="w-4 h-4 text-amber-400 stroke-[2]" />
@@ -454,12 +454,12 @@ export function TopNavHeader({
             type="button"
             data-testid="user-profile-btn"
             onClick={() => setAvatarMenuOpen((prev) => !prev)}
-            className="min-w-[36px] min-h-[36px] flex items-center justify-center gap-1.5 p-1 rounded-full hover:ring-2 hover:ring-indigo-500/50 transition cursor-pointer"
+            className="min-w-[30px] sm:min-w-[36px] min-h-[30px] sm:min-h-[36px] flex items-center justify-center gap-1 sm:gap-1.5 p-0.5 sm:p-1 rounded-full hover:ring-2 hover:ring-indigo-500/50 transition cursor-pointer"
             title="Hồ sơ người dùng & Tài khoản"
             aria-expanded={avatarMenuOpen}
             aria-haspopup="true"
           >
-            <div className="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center">
+            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-indigo-600 text-white text-[11px] sm:text-xs font-bold flex items-center justify-center">
               {userInitials}
             </div>
             <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 hidden 2xl:inline">

@@ -1710,10 +1710,10 @@ export function CourseLearningWorkspace({
           <Link
             href={isStandalone ? "/app/documents" : `/app/courses/${courseId}`}
             title={isStandalone ? "Tài liệu" : course?.title || "Khóa học"}
-            className="inline-flex items-center gap-1.5 h-8 px-2 rounded-md text-xs sm:text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition max-w-[220px] sm:max-w-[340px] lg:max-w-[440px]"
+            className="inline-flex items-center gap-1.5 h-8 px-2 rounded-md text-xs sm:text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition max-w-[160px] sm:max-w-[340px] lg:max-w-[440px] min-w-0"
           >
             <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
-            <span className="truncate">
+            <span className="truncate" title={isStandalone ? "Tài liệu" : course?.title || "Khóa học"}>
               {isStandalone ? "Tài liệu" : course?.title || "Khóa học"}
             </span>
           </Link>
@@ -1987,15 +1987,15 @@ export function CourseLearningWorkspace({
         <main className="flex-1 min-w-[320px] flex flex-col bg-[var(--surface-card)] overflow-hidden relative">
           {/* Workspace Switcher Bar: Bài giảng / Thực hành / Tài liệu PDF / Song song */}
           {(hasLesson || hasPdf || availableDocs.length > 0) && (
-            <div className="h-11 px-2 sm:px-4 border-b border-border-subtle bg-bg-secondary/30 flex items-center justify-between gap-2 shrink-0 overflow-x-auto swms-thin-scrollbar flex-nowrap">
-              <div className="inline-flex items-center rounded-md border border-border bg-bg-primary p-0.5 flex-nowrap gap-0.5 shrink-0">
+            <div className="h-11 px-2 sm:px-4 border-b border-border-subtle bg-bg-secondary/30 flex items-center justify-between gap-1.5 sm:gap-2 shrink-0 overflow-x-auto no-scrollbar swms-thin-scrollbar max-w-full">
+              <div className="inline-flex items-center rounded-md border border-border bg-bg-primary p-0.5 flex-nowrap gap-0.5 shrink-0 overflow-x-auto no-scrollbar">
                 {hasLesson && (
                   <>
                     <button
                       type="button"
                       data-testid="center-tab-lesson"
                       onClick={() => setCenterTab("lesson")}
-                      className={`inline-flex items-center gap-1 h-7 px-2 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                      className={`inline-flex items-center gap-1 h-7 px-1.5 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                         centerTab === "lesson"
                           ? "bg-accent text-white"
                           : "text-text-secondary hover:text-text-primary"
@@ -2008,7 +2008,7 @@ export function CourseLearningWorkspace({
                       type="button"
                       data-testid="center-tab-practice"
                       onClick={() => setCenterTab("practice")}
-                      className={`inline-flex items-center gap-1 h-7 px-2 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                      className={`inline-flex items-center gap-1 h-7 px-1.5 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                         centerTab === "practice"
                           ? "bg-accent text-white"
                           : "text-text-secondary hover:text-text-primary"
@@ -2032,7 +2032,7 @@ export function CourseLearningWorkspace({
                           setCenterTab("pdf");
                         }
                       }}
-                      className={`inline-flex items-center gap-1 h-7 px-2 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                      className={`inline-flex items-center gap-1 h-7 px-1.5 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                         centerTab === "pdf"
                           ? "bg-accent text-white"
                           : "text-text-secondary hover:text-text-primary"
@@ -2052,7 +2052,7 @@ export function CourseLearningWorkspace({
                             setCenterTab("split");
                           }
                         }}
-                        className={`inline-flex items-center gap-1 h-7 px-2 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                        className={`inline-flex items-center gap-1 h-7 px-1.5 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                           centerTab === "split"
                             ? "bg-accent text-white"
                             : "text-text-secondary hover:text-text-primary"
@@ -2067,7 +2067,7 @@ export function CourseLearningWorkspace({
               </div>
 
               {availableDocs.length > 0 ? (
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                   <label htmlFor="learn-pdf-selector" className="text-[11px] text-text-tertiary hidden sm:inline">
                     PDF tham chiếu:
                   </label>
@@ -2079,7 +2079,7 @@ export function CourseLearningWorkspace({
                       const chosen = e.target.value;
                       if (chosen) handleSelectPdfDocument(chosen);
                     }}
-                    className="h-7 max-w-[230px] rounded-md border border-border bg-bg-primary px-2 text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-accent"
+                    className="h-7 max-w-[130px] sm:max-w-[230px] rounded-md border border-border bg-bg-primary px-1.5 sm:px-2 text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-accent truncate"
                   >
                     <option value="">Chọn PDF đọc song song...</option>
                     {availableDocs.map((d) => (
