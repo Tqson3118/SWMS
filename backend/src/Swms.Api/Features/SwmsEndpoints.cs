@@ -130,6 +130,20 @@ public record UpdateLessonRequest(
     int? EstimatedMinutes = null
 );
 
+public record RecordPracticeAttemptRequest(
+    Guid? ActivityId,
+    Guid CourseId,
+    Guid? LessonId,
+    string? ActivityType,
+    string? ActivityKey,
+    string? ActivityTitle,
+    double Score,
+    int? MaxScore = 100,
+    bool? IsPassed = null,
+    string? DetailJson = null,
+    int? DurationSeconds = null
+);
+
 public static class SwmsEndpoints
 {
     private static async Task<HashSet<string>> GetSqliteTableColumnsAsync(SwmsDbContext db, string tableName)
@@ -169,6 +183,42 @@ public static class SwmsEndpoints
                     ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(128);
                     ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(500);
                     CREATE UNIQUE INDEX IF NOT EXISTS ix_users_google_sub ON users (google_sub) WHERE google_sub IS NOT NULL;
+
+                    CREATE TABLE IF NOT EXISTS practice_activities (
+                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+                        lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
+                        order_index INT NOT NULL DEFAULT 0,
+                        type VARCHAR(50) NOT NULL,
+                        title VARCHAR(255) NOT NULL,
+                        description TEXT,
+                        config JSONB NOT NULL DEFAULT '{}'::jsonb,
+                        passing_score INT NOT NULL DEFAULT 70,
+                        is_seeded BOOLEAN NOT NULL DEFAULT FALSE,
+                        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_practice_activities_course_lesson ON practice_activities(course_id, lesson_id);
+
+                    CREATE TABLE IF NOT EXISTS practice_attempts (
+                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        activity_id UUID REFERENCES practice_activities(id) ON DELETE SET NULL,
+                        course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+                        lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
+                        activity_type VARCHAR(50) NOT NULL,
+                        activity_key VARCHAR(100) NOT NULL,
+                        activity_title VARCHAR(255) NOT NULL,
+                        score DOUBLE PRECISION NOT NULL DEFAULT 0,
+                        max_score INT NOT NULL DEFAULT 100,
+                        is_passed BOOLEAN NOT NULL DEFAULT FALSE,
+                        detail JSONB NOT NULL DEFAULT '{}'::jsonb,
+                        duration_seconds INT,
+                        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_practice_attempts_user_date ON practice_attempts(user_id, created_at DESC);
+                    CREATE INDEX IF NOT EXISTS idx_practice_attempts_user_course_lesson ON practice_attempts(user_id, course_id, lesson_id);
+                    CREATE INDEX IF NOT EXISTS idx_practice_attempts_user_key ON practice_attempts(user_id, activity_key);
                 ");
             }
             catch { }
@@ -210,6 +260,44 @@ public static class SwmsEndpoints
             ");
             await db.Database.ExecuteSqlRawAsync(@"
                 CREATE UNIQUE INDEX IF NOT EXISTS ix_user_lesson_progress_user_id_lesson_id ON user_lesson_progress (user_id, lesson_id);
+            ");
+
+            await db.Database.ExecuteSqlRawAsync(@"
+                CREATE TABLE IF NOT EXISTS practice_activities (
+                    id TEXT NOT NULL PRIMARY KEY,
+                    course_id TEXT NOT NULL,
+                    lesson_id TEXT,
+                    order_index INTEGER NOT NULL DEFAULT 0,
+                    type TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    description TEXT,
+                    config TEXT NOT NULL DEFAULT '{}',
+                    passing_score INTEGER NOT NULL DEFAULT 70,
+                    is_seeded INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS ix_practice_activities_course_lesson ON practice_activities (course_id, lesson_id);
+
+                CREATE TABLE IF NOT EXISTS practice_attempts (
+                    id TEXT NOT NULL PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    activity_id TEXT,
+                    course_id TEXT NOT NULL,
+                    lesson_id TEXT,
+                    activity_type TEXT NOT NULL,
+                    activity_key TEXT NOT NULL,
+                    activity_title TEXT NOT NULL,
+                    score REAL NOT NULL DEFAULT 0,
+                    max_score INTEGER NOT NULL DEFAULT 100,
+                    is_passed INTEGER NOT NULL DEFAULT 0,
+                    detail TEXT NOT NULL DEFAULT '{}',
+                    duration_seconds INTEGER,
+                    created_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS ix_practice_attempts_user_created ON practice_attempts (user_id, created_at);
+                CREATE INDEX IF NOT EXISTS ix_practice_attempts_user_course_lesson ON practice_attempts (user_id, course_id, lesson_id);
+                CREATE INDEX IF NOT EXISTS ix_practice_attempts_user_key ON practice_attempts (user_id, activity_key);
             ");
         }
         catch { }
@@ -290,6 +378,7 @@ public static class SwmsEndpoints
         MapNotebookEndpoints(api);
         MapFlashcardAndTagEndpoints(api);
         MapPracticeQuizAndAiEndpoints(api);
+        MapPracticeEngineEndpoints(api);
     }
 
     private static bool IsTestUserHeaderAllowed(HttpContext ctx)
@@ -5411,5 +5500,312 @@ public static class SwmsEndpoints
         }
 
         return tagId;
+    }
+
+    // ========================================================================
+    // 8. PRACTICE ENGINE (PRACTICE ACTIVITIES & ATTEMPTS)
+    // ========================================================================
+    private static void MapPracticeEngineEndpoints(RouteGroupBuilder api)
+    {
+        var practiceGroup = api.MapGroup("/practice");
+
+        // 1. GET /api/v1/practice/activities?courseId=...&lessonId=...
+        practiceGroup.MapGet("/activities", async (
+            Guid courseId,
+            Guid? lessonId,
+            HttpContext http,
+            SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            if (course == null)
+            {
+                return Results.NotFound(new { error = "Không tìm thấy khóa học." });
+            }
+
+            if (!await CanReadCourseAsync(db, course, userId))
+            {
+                return Results.StatusCode(StatusCodes.Status403Forbidden);
+            }
+
+            var q = db.PracticeActivities.Where(pa => pa.CourseId == courseId);
+            if (lessonId.HasValue && lessonId.Value != Guid.Empty)
+            {
+                q = q.Where(pa => pa.LessonId == lessonId.Value);
+            }
+
+            var activities = await q
+                .OrderBy(pa => pa.OrderIndex)
+                .ThenBy(pa => pa.CreatedAt)
+                .ToListAsync();
+
+            var actIds = activities.Select(a => a.Id).ToHashSet();
+            var userAttempts = await db.PracticeAttempts
+                .Where(pa => pa.UserId == userId && pa.CourseId == courseId)
+                .ToListAsync();
+
+            var attemptsByActId = userAttempts
+                .Where(pa => pa.ActivityId.HasValue && actIds.Contains(pa.ActivityId.Value))
+                .ToLookup(pa => pa.ActivityId!.Value);
+            var attemptsByKey = userAttempts.ToLookup(pa => pa.ActivityKey);
+
+            var response = activities.Select(a =>
+            {
+                var attempts = attemptsByActId[a.Id]
+                    .Concat(attemptsByKey[a.Id.ToString()])
+                    .DistinctBy(x => x.Id)
+                    .ToList();
+
+                var bestScore = attempts.Count > 0 ? (double?)attempts.Max(x => x.Score) : null;
+                var isPassed = attempts.Any(x => x.IsPassed);
+                var lastAttempt = attempts.OrderByDescending(x => x.CreatedAt).FirstOrDefault();
+
+                return new
+                {
+                    a.Id,
+                    a.CourseId,
+                    a.LessonId,
+                    a.OrderIndex,
+                    a.Type,
+                    a.Title,
+                    a.Description,
+                    a.ConfigJson,
+                    a.PassingScore,
+                    a.IsSeeded,
+                    a.CreatedAt,
+                    a.UpdatedAt,
+                    userStatus = new
+                    {
+                        attemptCount = attempts.Count,
+                        bestScore,
+                        isPassed,
+                        lastScore = lastAttempt?.Score,
+                        lastAttemptAt = lastAttempt?.CreatedAt
+                    }
+                };
+            });
+
+            return Results.Ok(response);
+        });
+
+        // 2. POST /api/v1/practice/attempts
+        practiceGroup.MapPost("/attempts", async (
+            RecordPracticeAttemptRequest req,
+            HttpContext http,
+            SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            var maxScore = req.MaxScore.GetValueOrDefault(100);
+            if (maxScore <= 0) maxScore = 100;
+
+            if (req.Score < 0 || req.Score > maxScore)
+            {
+                return Results.BadRequest(new { error = "Điểm số không hợp lệ (phải từ 0 đến điểm tối đa)." });
+            }
+
+            var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == req.CourseId);
+            if (course == null)
+            {
+                return Results.NotFound(new { error = "Không tìm thấy khóa học." });
+            }
+
+            if (!await CanReadCourseAsync(db, course, userId))
+            {
+                return Results.StatusCode(StatusCodes.Status403Forbidden);
+            }
+
+            // Verify activity if ActivityId is provided
+            PracticeActivity? activity = null;
+            if (req.ActivityId.HasValue && req.ActivityId.Value != Guid.Empty)
+            {
+                activity = await db.PracticeActivities.FirstOrDefaultAsync(a => a.Id == req.ActivityId.Value);
+                if (activity != null && activity.CourseId != req.CourseId)
+                {
+                    return Results.BadRequest(new { error = "Hoạt động thực hành không thuộc khóa học này." });
+                }
+            }
+
+            var passingScore = activity?.PassingScore ?? 70;
+            var isPassed = req.IsPassed ?? (req.Score >= passingScore);
+            var safeDetail = string.IsNullOrWhiteSpace(req.DetailJson) ? "{}" : SanitizeDangerousHtml(req.DetailJson) ?? "{}";
+
+            var actType = string.IsNullOrWhiteSpace(req.ActivityType)
+                ? (activity?.Type ?? "practice")
+                : req.ActivityType;
+            var actTitle = string.IsNullOrWhiteSpace(req.ActivityTitle)
+                ? (activity?.Title ?? "Bài tập thực hành")
+                : req.ActivityTitle;
+            var actKey = string.IsNullOrWhiteSpace(req.ActivityKey)
+                ? (req.ActivityId?.ToString() ?? actType)
+                : req.ActivityKey;
+
+            var attempt = new PracticeAttempt
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                ActivityId = req.ActivityId,
+                CourseId = req.CourseId,
+                LessonId = req.LessonId,
+                ActivityType = actType,
+                ActivityKey = actKey,
+                ActivityTitle = actTitle,
+                Score = Math.Round(req.Score, 2),
+                MaxScore = maxScore,
+                IsPassed = isPassed,
+                DetailJson = safeDetail,
+                DurationSeconds = req.DurationSeconds,
+                CreatedAt = DateTimeOffset.UtcNow
+            };
+
+            db.PracticeAttempts.Add(attempt);
+            await db.SaveChangesAsync();
+
+            return Results.Ok(attempt);
+        });
+
+        // 3. GET /api/v1/practice/attempts?courseId=...&lessonId=...&type=...&limit=...
+        practiceGroup.MapGet("/attempts", async (
+            Guid? courseId,
+            Guid? lessonId,
+            string? type,
+            int? limit,
+            HttpContext http,
+            SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            if (courseId.HasValue && courseId.Value != Guid.Empty)
+            {
+                var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == courseId.Value);
+                if (course != null && !await CanReadCourseAsync(db, course, userId))
+                {
+                    return Results.StatusCode(StatusCodes.Status403Forbidden);
+                }
+            }
+
+            var q = db.PracticeAttempts.Where(pa => pa.UserId == userId);
+            if (courseId.HasValue && courseId.Value != Guid.Empty)
+            {
+                q = q.Where(pa => pa.CourseId == courseId.Value);
+            }
+            if (lessonId.HasValue && lessonId.Value != Guid.Empty)
+            {
+                q = q.Where(pa => pa.LessonId == lessonId.Value);
+            }
+            if (!string.IsNullOrWhiteSpace(type))
+            {
+                q = q.Where(pa => pa.ActivityType == type);
+            }
+
+            var takeLimit = Math.Clamp(limit ?? 20, 1, 100);
+            var attempts = await q
+                .OrderByDescending(pa => pa.CreatedAt)
+                .Take(takeLimit)
+                .ToListAsync();
+
+            return Results.Ok(attempts);
+        });
+
+        // 4. GET /api/v1/practice/stats
+        practiceGroup.MapGet("/stats", async (
+            HttpContext http,
+            SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            var userAttempts = await db.PracticeAttempts
+                .Where(pa => pa.UserId == userId)
+                .OrderByDescending(pa => pa.CreatedAt)
+                .ToListAsync();
+
+            var totalAttempts = userAttempts.Count;
+            var averageScore = totalAttempts > 0 ? Math.Round(userAttempts.Average(pa => pa.Score), 1) : 0.0;
+            var passedCount = userAttempts.Count(pa => pa.IsPassed);
+            var todayUtc = DateTimeOffset.UtcNow.Date;
+            var todayAttempts = userAttempts.Count(pa => pa.CreatedAt.UtcDateTime.Date == todayUtc);
+
+            var activeDates = userAttempts
+                .Select(pa => pa.CreatedAt.UtcDateTime.Date)
+                .Distinct()
+                .OrderByDescending(d => d)
+                .ToList();
+
+            var streakDays = 0;
+            if (activeDates.Count > 0)
+            {
+                var checkDate = todayUtc;
+                if (!activeDates.Contains(checkDate))
+                {
+                    checkDate = todayUtc.AddDays(-1);
+                }
+                while (activeDates.Contains(checkDate))
+                {
+                    streakDays++;
+                    checkDate = checkDate.AddDays(-1);
+                }
+            }
+            if (streakDays == 0)
+            {
+                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                streakDays = user?.StreakDays ?? 0;
+            }
+
+            var needsReview = userAttempts
+                .GroupBy(pa => pa.ActivityKey)
+                .Select(g => g.OrderByDescending(x => x.CreatedAt).First())
+                .Where(latest => !latest.IsPassed || latest.Score < 70)
+                .Select(latest => new
+                {
+                    latest.ActivityKey,
+                    latest.ActivityTitle,
+                    latest.ActivityType,
+                    latest.CourseId,
+                    latest.LessonId,
+                    latest.Score,
+                    latest.CreatedAt
+                })
+                .Take(10)
+                .ToList();
+
+            var recentHistory = userAttempts
+                .Take(15)
+                .Select(pa => new
+                {
+                    pa.Id,
+                    pa.ActivityKey,
+                    pa.ActivityTitle,
+                    pa.ActivityType,
+                    pa.Score,
+                    pa.MaxScore,
+                    pa.IsPassed,
+                    pa.CreatedAt
+                })
+                .ToList();
+
+            var last7Days = Enumerable.Range(0, 7)
+                .Select(i => todayUtc.AddDays(-6 + i))
+                .Select(date =>
+                {
+                    var dayAttempts = userAttempts.Where(pa => pa.CreatedAt.UtcDateTime.Date == date).ToList();
+                    return new
+                    {
+                        date = date.ToString("yyyy-MM-dd"),
+                        dayName = date.ToString("ddd"),
+                        count = dayAttempts.Count,
+                        avgScore = dayAttempts.Count > 0 ? Math.Round(dayAttempts.Average(x => x.Score), 1) : 0.0
+                    };
+                })
+                .ToList();
+
+            return Results.Ok(new
+            {
+                totalAttempts,
+                averageScore,
+                passedCount,
+                todayAttempts,
+                streakDays,
+                needsReview,
+                recentHistory,
+                chartData = last7Days
+            });
+        });
     }
 }

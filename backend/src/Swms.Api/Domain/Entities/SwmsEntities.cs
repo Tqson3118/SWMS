@@ -459,3 +459,46 @@ public class BackgroundJob
     public DateTimeOffset? StartedAt { get; set; }
     public DateTimeOffset? CompletedAt { get; set; }
 }
+
+public class PracticeActivity
+{
+    [Key]
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid CourseId { get; set; }
+    public Guid? LessonId { get; set; }
+    public int OrderIndex { get; set; } = 0;
+    [Required, MaxLength(50)]
+    public string Type { get; set; } = string.Empty;
+    [Required, MaxLength(255)]
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    [Required]
+    public string ConfigJson { get; set; } = "{}";
+    public int PassingScore { get; set; } = 70;
+    public bool IsSeeded { get; set; } = false;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public class PracticeAttempt
+{
+    [Key]
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid UserId { get; set; }
+    public Guid? ActivityId { get; set; }
+    public Guid CourseId { get; set; }
+    public Guid? LessonId { get; set; }
+    [Required, MaxLength(50)]
+    public string ActivityType { get; set; } = string.Empty;
+    [Required, MaxLength(100)]
+    public string ActivityKey { get; set; } = string.Empty;
+    [Required, MaxLength(255)]
+    public string ActivityTitle { get; set; } = string.Empty;
+    public double Score { get; set; } = 0.0;
+    public int MaxScore { get; set; } = 100;
+    public bool IsPassed { get; set; } = false;
+    [Required]
+    public string DetailJson { get; set; } = "{}";
+    public int? DurationSeconds { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}

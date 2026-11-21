@@ -17,6 +17,19 @@ public static class SeedDataInitializer
     public static readonly Guid DefaultNotebookId = Guid.Parse("66666666-6666-4666-8666-666666666666");
     public static readonly Guid DefaultQuizId = Guid.Parse("77777777-7777-4777-8777-777777777777");
 
+    // English Communication Course & Lesson UUIDs (Phase B Seed)
+    public static readonly Guid EnglishCourseId = Guid.Parse("22222222-2222-4222-8222-222222222223");
+    public static readonly Guid EnglishChapter1Id = Guid.Parse("33333333-3333-4333-8333-333333333334");
+    public static readonly Guid EnglishChapter2Id = Guid.Parse("33333333-3333-4333-8333-333333333335");
+    public static readonly Guid EnglishChapter3Id = Guid.Parse("33333333-3333-4333-8333-333333333336");
+
+    public static readonly Guid EnglishLesson11Id = Guid.Parse("44444444-4444-4444-8444-444444444446");
+    public static readonly Guid EnglishLesson12Id = Guid.Parse("44444444-4444-4444-8444-444444444447");
+    public static readonly Guid EnglishLesson21Id = Guid.Parse("44444444-4444-4444-8444-444444444448");
+    public static readonly Guid EnglishLesson22Id = Guid.Parse("44444444-4444-4444-8444-444444444449");
+    public static readonly Guid EnglishLesson31Id = Guid.Parse("44444444-4444-4444-8444-444444444450");
+    public static readonly Guid EnglishLesson32Id = Guid.Parse("44444444-4444-4444-8444-444444444451");
+
     // Stable Block UUIDs inside Lesson 3.2 AST
     public static readonly Guid BlockHeading1Id = Guid.Parse("aaaaaaa1-1111-4111-8111-111111111111");
     public static readonly Guid BlockPara1Id = Guid.Parse("aaaaaaa2-2222-4222-8222-222222222222");
@@ -46,6 +59,7 @@ public static class SeedDataInitializer
             {
                 await Features.DocumentCourseSyncService.SyncAllFromDocumentsAsync(db, documentRootPath);
                 await EnsurePersonalFinanceSeededAsync(db);
+                await EnsureEnglishCommunicationCourseSeededAsync(db);
                 return;
             }
 
@@ -739,6 +753,7 @@ public static class SeedDataInitializer
         // 6. Sync all curated document-library courses cleanly, falling back to PF zip only if document library is absent
         await Features.DocumentCourseSyncService.SyncAllFromDocumentsAsync(db, documentRootPath);
         await EnsurePersonalFinanceSeededAsync(db);
+        await EnsureEnglishCommunicationCourseSeededAsync(db);
         }
         finally
         {
@@ -772,5 +787,968 @@ public static class SeedDataInitializer
                 // Non-critical fallback
             }
         }
+    }
+
+    private static string BuildLessonAst(string title, string p1, string p2)
+    {
+        var ast = new
+        {
+            type = "doc",
+            content = new object[]
+            {
+                new
+                {
+                    type = "heading",
+                    attrs = new { level = 1, block_id = Guid.NewGuid().ToString() },
+                    content = new[] { new { type = "text", text = title } }
+                },
+                new
+                {
+                    type = "paragraph",
+                    attrs = new { block_id = Guid.NewGuid().ToString() },
+                    content = new[] { new { type = "text", text = p1 } }
+                },
+                new
+                {
+                    type = "paragraph",
+                    attrs = new { block_id = Guid.NewGuid().ToString() },
+                    content = new[] { new { type = "text", text = p2 } }
+                }
+            }
+        };
+        return JsonSerializer.Serialize(ast);
+    }
+
+    public static async Task EnsureEnglishCommunicationCourseSeededAsync(SwmsDbContext db)
+    {
+        var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == EnglishCourseId || c.Slug == "tieng-anh-giao-tiep-thuc-chien-a2-b1");
+        if (course != null)
+        {
+            var hasActivities = await db.PracticeActivities.AnyAsync(pa => pa.CourseId == course.Id);
+            if (hasActivities) return;
+        }
+
+        var now = DateTimeOffset.UtcNow;
+
+        if (course == null)
+        {
+            course = new Course
+            {
+                Id = EnglishCourseId,
+                InstructorId = DefaultUserId,
+                Title = "Tiếng Anh Giao Tiếp Thực Chiến (A2 → B1)",
+                Slug = "tieng-anh-giao-tiep-thuc-chien-a2-b1",
+                Description = "Khóa học giao tiếp phản xạ thực chiến A2 đến B1 dành cho sinh viên và người đi làm, trang bị phương pháp Shadowing, Nghe - Chép chính tả (Dictation), Luyện phát âm chuẩn IPA và Sơ đồ từ vựng Mind Map.",
+                Visibility = "public",
+                IsPublished = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            db.Courses.Add(course);
+
+            var enrollmentExists = await db.CourseEnrollments.AnyAsync(e => e.UserId == DefaultUserId && e.CourseId == EnglishCourseId);
+            if (!enrollmentExists)
+            {
+                db.CourseEnrollments.Add(new CourseEnrollment
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = DefaultUserId,
+                    CourseId = EnglishCourseId,
+                    Role = "student",
+                    EnrolledAt = now
+                });
+            }
+        }
+
+        // Chapters
+        var chapters = new List<Chapter>();
+        if (!await db.Chapters.AnyAsync(ch => ch.Id == EnglishChapter1Id))
+        {
+            chapters.Add(new Chapter
+            {
+                Id = EnglishChapter1Id,
+                CourseId = EnglishCourseId,
+                Title = "Chương 1: Phản Xạ Giao Tiếp Đời Thường (Social & Daily Life)",
+                SortOrder = 1,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+        if (!await db.Chapters.AnyAsync(ch => ch.Id == EnglishChapter2Id))
+        {
+            chapters.Add(new Chapter
+            {
+                Id = EnglishChapter2Id,
+                CourseId = EnglishCourseId,
+                Title = "Chương 2: Tiếng Anh Công Sở & Giao Tiếp Đội Nhóm (Workplace Communication)",
+                SortOrder = 2,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+        if (!await db.Chapters.AnyAsync(ch => ch.Id == EnglishChapter3Id))
+        {
+            chapters.Add(new Chapter
+            {
+                Id = EnglishChapter3Id,
+                CourseId = EnglishCourseId,
+                Title = "Chương 3: Thuyết Trình, Đàm Phán & Phản Biện (Presentation & Negotiation)",
+                SortOrder = 3,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+        if (chapters.Count > 0)
+        {
+            db.Chapters.AddRange(chapters);
+            await db.SaveChangesAsync();
+        }
+
+        // Lessons
+        var lessonsToAdd = new List<Lesson>();
+
+        // 1.1
+        if (!await db.Lessons.AnyAsync(l => l.Id == EnglishLesson11Id))
+        {
+            var title = "Bài 1.1: Small Talk, Giới Thiệu Bản Thân & Phản Xạ Tự Nhiên";
+            var md = @"# Bài 1.1: Small Talk, Giới Thiệu Bản Thân & Phản Xạ Tự Nhiên
+
+## 1. Mục tiêu bài học (Learning Objectives)
+- Nắm vững cấu trúc giới thiệu bản thân 3 bước: Hook - Background - Passion.
+- Mở đầu cuộc trò chuyện tự nhiên trong các sự kiện giao lưu văn hóa và quốc tế.
+- Làm chủ kỹ năng Shadowing ngữ điệu bản xứ và Dictation nghe chép chính tả câu hội thoại đời sống.
+
+## 2. Đoạn hội thoại mẫu (Model Dialogue)
+- **Alex:** Hi there! Is this seat taken?
+- **Mai:** No, please go ahead. Beautiful morning for a conference, isn't it?
+- **Alex:** Absolutely! I'm Alex from Melbourne. Are you attending the tech workshop today?
+- **Mai:** Yes, exactly! I'm Mai, a software engineer based in Hanoi. It is a pleasure to meet you.
+
+## 3. Cụm từ then chốt (Key Phrases & IPA)
+- **break the ice** `/breɪk ðiː aɪs/`: Phá vỡ sự ngại ngùng ban đầu.
+- **pleasure to meet you** `/ˈpleʒə tuː miːt juː/`: Rất hân hạnh được gặp bạn.
+- **fruitful collaboration** `/ˈfruːtfl kəˌlæbəˈreɪʃn/`: Sự hợp tác hiệu quả và đem lại thành quả tốt đẹp.";
+            lessonsToAdd.Add(new Lesson
+            {
+                Id = EnglishLesson11Id,
+                ChapterId = EnglishChapter1Id,
+                Title = title,
+                Slug = "small-talk-gioi-thieu-ban-than-phan-xa",
+                SortOrder = 1,
+                CurrentVersion = 1,
+                EstimatedMinutes = 15,
+                ContentMarkdown = md,
+                PlainText = md,
+                ContentAstJson = BuildLessonAst(title, "Nắm vững kỹ năng mở đầu cuộc trò chuyện tự nhiên.", "Thực hành Shadowing và Dictation phản xạ."),
+                IsPublished = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        // 1.2
+        if (!await db.Lessons.AnyAsync(l => l.Id == EnglishLesson12Id))
+        {
+            var title = "Bài 1.2: Hỏi Đường, Mua Sắm & Xử Lý Tình Huống Thực Tế";
+            var md = @"# Bài 1.2: Hỏi Đường, Mua Sắm & Xử Lý Tình Huống Thực Tế
+
+## 1. Mục tiêu bài học (Learning Objectives)
+- Sử dụng các mẫu câu chỉ đường (giving directions), hỏi giá và thanh toán không tiền mặt.
+- Xử lý các tình huống bất ngờ khi du lịch hoặc công tác nước ngoài.
+
+## 2. Đoạn hội thoại mẫu (Model Dialogue)
+- **Tourist:** Excuse me, could you tell me how to get to the central station?
+- **Local:** Sure! Walk straight for two blocks, then turn left at the traffic light. You can't miss it.
+- **Tourist:** Thank you so much! Is it within walking distance?
+- **Local:** Yes, it takes about ten minutes on foot.";
+            lessonsToAdd.Add(new Lesson
+            {
+                Id = EnglishLesson12Id,
+                ChapterId = EnglishChapter1Id,
+                Title = title,
+                Slug = "hoi-duong-mua-sam-xu-ly-tinh-huong",
+                SortOrder = 2,
+                CurrentVersion = 1,
+                EstimatedMinutes = 15,
+                ContentMarkdown = md,
+                PlainText = md,
+                ContentAstJson = BuildLessonAst(title, "Hỏi đường và xử lý các tình huống đời sống.", "Mẫu câu thực tế và phản xạ nhanh."),
+                IsPublished = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        // 2.1
+        if (!await db.Lessons.AnyAsync(l => l.Id == EnglishLesson21Id))
+        {
+            var title = "Bài 2.1: Viết Email Công Việc, Đặt Lịch Hẹn & Báo Cáo Tiến Độ";
+            var md = @"# Bài 2.1: Viết Email Công Việc, Đặt Lịch Hẹn & Báo Cáo Tiến Độ
+
+## 1. Mục tiêu bài học (Learning Objectives)
+- Viết email công việc chuẩn mực với phong thái trang trọng (professional tone).
+- Đặt lịch hẹn, hoãn lịch khéo léo và báo cáo tiến độ tuần theo phương pháp SMART.
+
+## 2. Mẫu Email công việc (Sample Email)
+Dear Mr. Johnson,
+I am writing to provide a brief status update regarding our quarterly deliverables. All key milestones have been completed on schedule. Would you be available for a brief sync tomorrow at 3 PM?
+Best regards,
+Mai Tran";
+            lessonsToAdd.Add(new Lesson
+            {
+                Id = EnglishLesson21Id,
+                ChapterId = EnglishChapter2Id,
+                Title = title,
+                Slug = "viet-email-cong-viec-dat-lich-hen-bao-cao",
+                SortOrder = 1,
+                CurrentVersion = 1,
+                EstimatedMinutes = 20,
+                ContentMarkdown = md,
+                PlainText = md,
+                ContentAstJson = BuildLessonAst(title, "Viết email chuyên nghiệp và cập nhật tiến độ công việc.", "Cấu trúc văn phong văn phòng chuẩn quốc tế."),
+                IsPublished = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        // 2.2
+        if (!await db.Lessons.AnyAsync(l => l.Id == EnglishLesson22Id))
+        {
+            var title = "Bài 2.2: Hội Họp Trực Tuyến, Trình Bày Ý Kiến & Thống Nhất Phương Án";
+            var md = @"# Bài 2.2: Hội Họp Trực Tuyến, Trình Bày Ý Kiến & Thống Nhất Phương Án
+
+## 1. Mục tiêu bài học (Learning Objectives)
+- Làm chủ các cụm từ điều phối cuộc họp online (virtual meetings etiquette).
+- Bày tỏ sự đồng thuận, phản biện nhẹ nhàng (diplomatic disagreement) và tổng kết biên bản hành động.
+
+## 2. Đoạn hội thoại cuộc họp (Meeting Dialogue)
+- **Chair:** Let's get down to business. Mai, could you walk us through the technical architecture?
+- **Mai:** Certainly. As you can see on slide four, we have decoupled the frontend from our API services to maximize scalability.
+- **David:** I see your point, but have we taken network latency into account?";
+            lessonsToAdd.Add(new Lesson
+            {
+                Id = EnglishLesson22Id,
+                ChapterId = EnglishChapter2Id,
+                Title = title,
+                Slug = "hoi-hop-truc-tuyen-trinh-bay-y-kien",
+                SortOrder = 2,
+                CurrentVersion = 1,
+                EstimatedMinutes = 20,
+                ContentMarkdown = md,
+                PlainText = md,
+                ContentAstJson = BuildLessonAst(title, "Hội họp trực tuyến và diễn đạt ý kiến chuyên môn.", "Kỹ năng phản biện ngoại giao và thuyết phục."),
+                IsPublished = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        // 3.1
+        if (!await db.Lessons.AnyAsync(l => l.Id == EnglishLesson31Id))
+        {
+            var title = "Bài 3.1: Cấu Trúc Bài Thuyết Trình Tinh Gọn (Opening - Body - Conclusion)";
+            var md = @"# Bài 3.1: Cấu Trúc Bài Thuyết Trình Tinh Gọn (Opening - Body - Conclusion)
+
+## 1. Mục tiêu bài học (Learning Objectives)
+- Xây dựng bài thuyết trình tiếng Anh 5 phút theo cấu trúc Opening - Body - Conclusion.
+- Sử dụng các từ nối chuyển ý (signposting language) để giữ sự chú ý của khán giả.
+
+## 2. Cấu trúc thuyết trình mẫu
+- **Opening:** Good morning everyone, today I'm excited to present our innovative product strategy.
+- **Signposting:** Moving on to our next key metric, let's take a look at customer retention.
+- **Conclusion:** To wrap up, investing in continuous learning is the single highest-yield decision.";
+            lessonsToAdd.Add(new Lesson
+            {
+                Id = EnglishLesson31Id,
+                ChapterId = EnglishChapter3Id,
+                Title = title,
+                Slug = "cau-truc-bai-thuyet-trinh-tinh-gon",
+                SortOrder = 1,
+                CurrentVersion = 1,
+                EstimatedMinutes = 25,
+                ContentMarkdown = md,
+                PlainText = md,
+                ContentAstJson = BuildLessonAst(title, "Cấu trúc bài thuyết trình tiếng Anh tinh gọn.", "Kỹ thuật dẫn dắt và giữ chân người nghe."),
+                IsPublished = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        // 3.2
+        if (!await db.Lessons.AnyAsync(l => l.Id == EnglishLesson32Id))
+        {
+            var title = "Bài 3.2: Đàm Phán Lợi Ích, Phản Biện Khéo Léo & Thuyết Phục Đối Tác";
+            var md = @"# Bài 3.2: Đàm Phán Lợi Ích, Phản Biện Khéo Léo & Thuyết Phục Đối Tác
+
+## 1. Mục tiêu bài học (Learning Objectives)
+- Nắm vững kỹ thuật đàm phán nguyên tắc (principled negotiation: win-win solution).
+- Xử lý phản hồi từ chối bằng các câu hỏi làm rõ (clarifying questions) thay vì tranh cãi.
+
+## 2. Đoạn hội thoại đàm phán mẫu
+- **Client:** The timeline seems a bit tight for our internal review process.
+- **Consultant:** We completely understand your concern. If we deliver the core module by Friday, would that give your team sufficient time to review?";
+            lessonsToAdd.Add(new Lesson
+            {
+                Id = EnglishLesson32Id,
+                ChapterId = EnglishChapter3Id,
+                Title = title,
+                Slug = "dam-phan-loi-ich-phan-bien-kheo-leo",
+                SortOrder = 2,
+                CurrentVersion = 1,
+                EstimatedMinutes = 25,
+                ContentMarkdown = md,
+                PlainText = md,
+                ContentAstJson = BuildLessonAst(title, "Đàm phán nguyên tắc và tìm giải pháp win-win.", "Thuyết phục đối tác chuyên nghiệp."),
+                IsPublished = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        if (lessonsToAdd.Count > 0)
+        {
+            db.Lessons.AddRange(lessonsToAdd);
+            await db.SaveChangesAsync();
+        }
+
+        // Practice Activities for the lessons
+        var activities = new List<PracticeActivity>
+        {
+            // Lesson 1.1 Activities
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson11Id,
+                OrderIndex = 1,
+                Type = "shadowing",
+                Title = "Shadowing: Giới thiệu bản thân và mở đầu cuộc trò chuyện",
+                Description = "Nghe và nói đuổi theo câu nói với ngữ điệu tự nhiên, chọn tốc độ 0.75x - 1.25x và so sánh giọng của bạn.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "It is a pleasure to meet you, and I look forward to our fruitful collaboration.",
+                    ipa = "/ɪt ɪz ə ˈpleʒə tuː miːt juː, ænd aɪ lʊk ˈfɔːwəd tuː ˈaʊə ˈfruːtfl kəˌlæbəˈreɪʃn/",
+                    meaningVi = "Rất hân hạnh được gặp bạn, và tôi rất mong đợi vào sự hợp tác hiệu quả của chúng ta.",
+                    keyPhrases = new[] { "pleasure to meet you", "look forward to", "fruitful collaboration" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson11Id,
+                OrderIndex = 2,
+                Type = "dictation",
+                Title = "Dictation: Nghe và chép chính tả câu Small Talk",
+                Description = "Nghe câu hội thoại và gõ lại chính xác từng từ để rèn luyện thính giác tiếng Anh giao tiếp.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "Making a positive first impression helps build long-term trust in professional relationships.",
+                    ipa = "/ˈmeɪkɪŋ ə ˈpɒzətɪv fɜːst ɪmˈpreʃn helps bɪld ˈlɒŋ tɜːm trʌst ɪn prəˈfeʃənl rɪˈleɪʃnʃɪps/",
+                    meaningVi = "Tạo ấn tượng ban đầu tích cực giúp xây dựng sự tin cậy lâu dài trong các mối quan hệ chuyên nghiệp.",
+                    wordChips = new[] { "Making", "a", "positive", "first", "impression", "helps", "build", "long-term", "trust", "in", "professional", "relationships" },
+                    distractors = new[] { "however", "therefore", "crucial", "often" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson11Id,
+                OrderIndex = 3,
+                Type = "pronunciation",
+                Title = "Chấm phát âm: Ngữ điệu câu chào hỏi chuyên nghiệp",
+                Description = "Đọc to câu mục tiêu và nhận dạng giọng nói tự động để phát hiện các từ phát âm chưa chuẩn.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "I look forward to learning more about your background and recent projects.",
+                    ipa = "/aɪ lʊk ˈfɔːwəd tuː ˈlɜːnɪŋ mɔːr əˈbaʊt jɔː ˈbækɡraʊnd ænd ˈriːsnt ˈprɒdʒekts/",
+                    meaningVi = "Tôi rất mong được tìm hiểu thêm về nền tảng học vấn và các dự án gần đây của bạn.",
+                    targetWords = new[] { "look", "forward", "learning", "background", "recent", "projects" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson11Id,
+                OrderIndex = 4,
+                Type = "word_map",
+                Title = "Sơ đồ từ vựng: Introduce & Relationship Building",
+                Description = "Khám phá sơ đồ tư duy (Word Map) quanh từ khóa introduce: collocations, phrasal verbs, từ đồng nghĩa và lưu vào Flashcard FSRS.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    centralWord = "introduce",
+                    ipa = "/ˌɪntrəˈdjuːs/",
+                    meaningVi = "Giới thiệu, làm quen, đưa vào áp dụng",
+                    collocations = new object[]
+                    {
+                        new { text = "introduce oneself", ipa = "/ˌɪntrəˈdjuːs wʌnˈself/", meaningVi = "Tự giới thiệu bản thân", example = "Allow me to introduce myself to the whole engineering team." },
+                        new { text = "introduce new ideas", ipa = "/ˌɪntrəˈdjuːs njuː aɪˈdɪəz/", meaningVi = "Đưa ra các ý tưởng mới", example = "She introduced innovative concepts during the kick-off meeting." },
+                        new { text = "introduce changes", ipa = "/ˌɪntrəˈdjuːs ˈtʃeɪndʒɪz/", meaningVi = "Áp dụng những cải tiến mới", example = "Management plans to introduce flexible working hours." }
+                    },
+                    phrasalVerbs = new object[]
+                    {
+                        new { text = "reach out to", ipa = "/riːtʃ aʊt tuː/", meaningVi = "Chủ động liên hệ, làm quen", example = "Feel free to reach out to me anytime on LinkedIn." },
+                        new { text = "break the ice", ipa = "/breɪk ðiː aɪs/", meaningVi = "Phá băng sự e ngại ban đầu", example = "Telling a light joke helped break the ice at the table." }
+                    },
+                    synonyms = new object[]
+                    {
+                        new { text = "present", ipa = "/prɪˈzent/", meaningVi = "Trình bày, giới thiệu", example = "Let me present our newest team member." },
+                        new { text = "acquaint", ipa = "/əˈkweɪnt/", meaningVi = "Làm quen với", example = "You should acquaint yourself with company guidelines." }
+                    },
+                    contextExamples = new object[]
+                    {
+                        new { sentence = "She introduced herself with remarkable confidence and warmth.", meaningVi = "Cô ấy tự giới thiệu bản thân với sự tự tin và ấm áp đáng nể." }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+
+            // Lesson 1.2 Activities
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson12Id,
+                OrderIndex = 1,
+                Type = "shadowing",
+                Title = "Shadowing: Hỏi đường và chỉ phương hướng",
+                Description = "Luyện phản xạ nghe và lặp lại câu hỏi đường thông dụng.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "Could you tell me the quickest way to get to the international terminal?",
+                    ipa = "/kəd juː tel miː ðə ˈkwɪkɪst weɪ tuː ɡet tuː ði ˌɪntəˈnæʃnəl ˈtɜːmɪnl/",
+                    meaningVi = "Bạn có thể chỉ giúp tôi đường nhanh nhất để đến nhà ga quốc tế được không?",
+                    keyPhrases = new[] { "quickest way", "get to", "international terminal" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson12Id,
+                OrderIndex = 2,
+                Type = "dictation",
+                Title = "Dictation: Tình huống mua sắm & thanh toán",
+                Description = "Nghe câu đề nghị thanh toán và kiểm tra độ chính xác.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "Excuse me, do you accept contactless payments or credit cards here?",
+                    ipa = "/ɪkˈskjuːs miː, duː juː əkˈsept ˈkɒntæktləs ˈpeɪmənts ɔː ˈkredɪt kɑːdz hɪə/",
+                    meaningVi = "Xin lỗi, ở đây có chấp nhận thanh toán chạm hoặc thẻ tín dụng không?",
+                    wordChips = new[] { "Excuse", "me", "do", "you", "accept", "contactless", "payments", "or", "credit", "cards", "here" },
+                    distractors = new[] { "cash", "exchange", "refund" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson12Id,
+                OrderIndex = 3,
+                Type = "pronunciation",
+                Title = "Chấm phát âm: Câu chỉ đường chuẩn xác",
+                Description = "Luyện phát âm từ vựng chỉ phương hướng và khoảng cách.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "Go straight ahead for two blocks, then turn left at the intersection.",
+                    ipa = "/ɡəʊ streɪt əˈhed fɔː tuː blɒks, ðen tɜːn left æt ði ˈɪntəsekʃn/",
+                    meaningVi = "Đi thẳng hai dãy nhà nữa, sau đó rẽ trái ở ngã tư.",
+                    targetWords = new[] { "straight", "ahead", "blocks", "turn", "intersection" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson12Id,
+                OrderIndex = 4,
+                Type = "word_map",
+                Title = "Sơ đồ từ vựng: Direction & Navigation",
+                Description = "Khám phá sơ đồ tư duy về từ khóa navigate và các cụm từ chỉ hướng.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    centralWord = "navigate",
+                    ipa = "/ˈnævɪɡeɪt/",
+                    meaningVi = "Định vị, dò đường, vượt qua tình huống phức tạp",
+                    collocations = new object[]
+                    {
+                        new { text = "navigate the city", ipa = "/ˈnævɪɡeɪt ðə ˈsɪti/", meaningVi = "Dò đường trong thành phố", example = "Google Maps makes it easy to navigate unfamiliar cities." },
+                        new { text = "navigate challenges", ipa = "/ˈnævɪɡeɪt ˈtʃælɪndʒɪz/", meaningVi = "Vượt qua thử thách", example = "We successfully navigated several logistical hurdles." }
+                    },
+                    phrasalVerbs = new object[]
+                    {
+                        new { text = "head towards", ipa = "/hed təˈwɔːdz/", meaningVi = "Đi về hướng", example = "Head towards the landmark and you will spot the station." },
+                        new { text = "turn out", ipa = "/tɜːn aʊt/", meaningVi = "Hóa ra là", example = "The shortcut turned out to be much faster." }
+                    },
+                    synonyms = new object[]
+                    {
+                        new { text = "guide", ipa = "/ɡaɪd/", meaningVi = "Dẫn đường", example = "She kindly guided us through the market." },
+                        new { text = "maneuver", ipa = "/məˈnuːvə/", meaningVi = "Điều động, xoay xở", example = "He maneuvered his luggage through the crowded lobby." }
+                    },
+                    contextExamples = new object[]
+                    {
+                        new { sentence = "Navigating public transit in a foreign country builds great confidence.", meaningVi = "Tự đi lại bằng phương tiện công cộng ở nước ngoài rèn luyện sự tự tin rất lớn." }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+
+            // Lesson 2.1 Activities
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson21Id,
+                OrderIndex = 1,
+                Type = "shadowing",
+                Title = "Shadowing: Viết email công việc và cập nhật tiến độ",
+                Description = "Nghe và phát âm câu email công sở chuẩn xác.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "I am writing to provide a concise update regarding our project milestones and next deliverables.",
+                    ipa = "/aɪ æm ˈraɪtɪŋ tuː prəˈvaɪd ə kənˈsaɪs ˌʌpˈdeɪt rɪˈɡɑːdɪŋ ˈaʊə ˈprɒdʒekt ˈmaɪlstəʊnz ænd nekst dɪˈlɪvərəblz/",
+                    meaningVi = "Tôi viết thư này nhằm cung cấp cập nhật cô đọng về các mốc dự án và sản phẩm bàn giao tiếp theo.",
+                    keyPhrases = new[] { "concise update", "project milestones", "next deliverables" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson21Id,
+                OrderIndex = 2,
+                Type = "dictation",
+                Title = "Dictation: Lời đề nghị đặt lịch hẹn",
+                Description = "Nghe câu hẹn lịch gặp và gõ lại đúng chính tả.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "Would you be available for a brief sync tomorrow afternoon to review the proposed budget?",
+                    ipa = "/wʊd juː biː əˈveɪləbl fɔːr ə briːf sɪŋk təˈmɒrəʊ ˌɑːftəˈnuːn tuː rɪˈvjuː ðə prəˈpəʊzd ˈbʌdʒɪt/",
+                    meaningVi = "Anh/chị có tiện dành chút thời gian họp nhanh vào chiều mai để xem qua ngân sách đề xuất không?",
+                    wordChips = new[] { "Would", "you", "be", "available", "for", "a", "brief", "sync", "tomorrow", "afternoon", "to", "review", "the", "proposed", "budget" },
+                    distractors = new[] { "schedule", "reschedule", "postpone" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson21Id,
+                OrderIndex = 3,
+                Type = "pronunciation",
+                Title = "Chấm phát âm: Đề xuất giải pháp bằng văn phong trang trọng",
+                Description = "Đọc câu đề xuất giải pháp với ngữ điệu tự tin, lịch thiệp.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "We recommend prioritizing automated testing to streamline future release cycles.",
+                    ipa = "/wiː ˌrekəˈmend praɪˈɒrətaɪzɪŋ ˈɔːtəmeɪtɪd ˈtestɪŋ tuː ˈstriːmlaɪn ˈfjuːtʃə rɪˈliːs ˈsaɪklz/",
+                    meaningVi = "Chúng tôi khuyến nghị ưu tiên kiểm thử tự động để tối ưu hóa chu kỳ phát hành trong tương lai.",
+                    targetWords = new[] { "recommend", "prioritizing", "automated", "streamline", "release", "cycles" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson21Id,
+                OrderIndex = 4,
+                Type = "word_map",
+                Title = "Sơ đồ từ vựng: Prioritize & Workflow Optimization",
+                Description = "Khám phá sơ đồ tư duy quanh từ khóa prioritize và lưu vào Flashcard FSRS.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    centralWord = "prioritize",
+                    ipa = "/praɪˈɒrətaɪz/",
+                    meaningVi = "Ưu tiên, đặt lên hàng đầu",
+                    collocations = new object[]
+                    {
+                        new { text = "prioritize tasks", ipa = "/praɪˈɒrətaɪz tɑːsks/", meaningVi = "Sắp xếp thứ tự ưu tiên công việc", example = "Product managers must prioritize tasks based on user impact." },
+                        new { text = "top priority", ipa = "/tɒp praɪˈɒrəti/", meaningVi = "Ưu tiên hàng đầu", example = "System stability is our team's top priority this quarter." }
+                    },
+                    phrasalVerbs = new object[]
+                    {
+                        new { text = "focus on", ipa = "/ˈfəʊkəs ɒn/", meaningVi = "Tập trung vào", example = "Let's focus on resolving the blocking defects first." },
+                        new { text = "set aside", ipa = "/set əˈsaɪd/", meaningVi = "Tạm gác lại", example = "We set aside minor feature requests for the next sprint." }
+                    },
+                    synonyms = new object[]
+                    {
+                        new { text = "emphasize", ipa = "/ˈemfəsaɪz/", meaningVi = "Nhấn mạnh, chú trọng", example = "The team emphasizes clean code architecture." },
+                        new { text = "highlight", ipa = "/ˈhaɪlaɪt/", meaningVi = "Nêu bật", example = "The report highlights major risk factors." }
+                    },
+                    contextExamples = new object[]
+                    {
+                        new { sentence = "Prioritizing high-leverage activities maximizes overall team productivity.", meaningVi = "Ưu tiên các hoạt động có đòn bẩy cao giúp tối đa hóa năng suất toàn đội ngũ." }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+
+            // Lesson 2.2 Activities
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson22Id,
+                OrderIndex = 1,
+                Type = "shadowing",
+                Title = "Shadowing: Trình bày quan điểm trong cuộc họp",
+                Description = "Nghe và nói câu phát biểu đóng góp ý kiến trong buổi họp.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "From my perspective, allocating more resources to documentation will reduce onboarding time.",
+                    ipa = "/frɒm maɪ pəˈspektɪv, ˈæləkeɪtɪŋ mɔː rɪˈsɔːsɪz tuː ˌdɒkjumenˈteɪʃn wɪl rɪˈdjuːs ˈɒnbɔːdɪŋ taɪm/",
+                    meaningVi = "Theo góc nhìn của tôi, việc phân bổ thêm nguồn lực cho tài liệu hướng dẫn sẽ giúp giảm thời gian tiếp nhận nhân sự mới.",
+                    keyPhrases = new[] { "from my perspective", "allocating resources", "onboarding time" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson22Id,
+                OrderIndex = 2,
+                Type = "dictation",
+                Title = "Dictation: Phản biện mang tính xây dựng",
+                Description = "Nghe câu phản biện lịch sự và chép lại.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "I see your point, but we should also evaluate the long-term maintenance costs.",
+                    ipa = "/aɪ siː jɔː pɔɪnt, bʌt wiː ʃʊd ˈɔːlsəʊ ɪˈvæljueɪt ðə ˈlɒŋ tɜːm ˈmeɪntənəns kɒsts/",
+                    meaningVi = "Tôi hiểu ý của bạn, nhưng chúng ta cũng nên đánh giá chi phí bảo trì lâu dài.",
+                    wordChips = new[] { "I", "see", "your", "point", "but", "we", "should", "also", "evaluate", "the", "long-term", "maintenance", "costs" },
+                    distractors = new[] { "disagree", "reject", "however" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson22Id,
+                OrderIndex = 3,
+                Type = "pronunciation",
+                Title = "Chấm phát âm: Thống nhất phương án hành động",
+                Description = "Luyện phát âm câu chốt hành động sau cuộc họp.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "Let us summarize the action items and assign clear ownership for each deliverable.",
+                    ipa = "/let ʌs ˈsʌməraɪz ði ˈækʃn ˈaɪtəmz ænd əˈsaɪn klɪər ˈəʊnəʃɪp fɔːr iːtʃ dɪˈlɪvərəbl/",
+                    meaningVi = "Chúng ta hãy tóm tắt các đầu việc cần làm và phân công người chịu trách nhiệm rõ ràng cho từng sản phẩm bàn giao.",
+                    targetWords = new[] { "summarize", "action", "items", "assign", "ownership", "deliverable" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson22Id,
+                OrderIndex = 4,
+                Type = "word_map",
+                Title = "Sơ đồ từ vựng: Collaborate & Cross-Functional Teams",
+                Description = "Khám phá sơ đồ tư duy từ khóa collaborate và tạo thẻ Flashcard FSRS.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    centralWord = "collaborate",
+                    ipa = "/kəˈlæbəreɪt/",
+                    meaningVi = "Hợp tác, cộng tác làm việc cùng nhau",
+                    collocations = new object[]
+                    {
+                        new { text = "collaborate closely", ipa = "/kəˈlæbəreɪt ˈkləʊsli/", meaningVi = "Hợp tác chặt chẽ", example = "Engineering and product teams collaborate closely on roadmap planning." },
+                        new { text = "cross-disciplinary collaboration", ipa = "/krɒs ˈdɪsəplɪnəri kəˌlæbəˈreɪʃn/", meaningVi = "Hợp tác liên ngành", example = "Cross-disciplinary collaboration drives remarkable breakthroughs." }
+                    },
+                    phrasalVerbs = new object[]
+                    {
+                        new { text = "team up with", ipa = "/tiːm ʌp wɪð/", meaningVi = "Hợp tác cùng", example = "We teamed up with our design agency to launch the redesign." },
+                        new { text = "bounce ideas off", ipa = "/baʊns aɪˈdɪəz ɒf/", meaningVi = "Trao đổi ý kiến thử", example = "I'd love to bounce a few ideas off you before the presentation." }
+                    },
+                    synonyms = new object[]
+                    {
+                        new { text = "cooperate", ipa = "/kəʊˈɒpəreɪt/", meaningVi = "Hợp tác", example = "Both teams cooperated smoothly to meet the launch deadline." },
+                        new { text = "coordinate", ipa = "/kəʊˈɔːdɪneɪt/", meaningVi = "Phối hợp điều phối", example = "We need to coordinate the rollout schedule." }
+                    },
+                    contextExamples = new object[]
+                    {
+                        new { sentence = "Effective collaboration requires transparent communication and shared accountability.", meaningVi = "Sự hợp tác hiệu quả đòi hỏi sự giao tiếp minh bạch và trách nhiệm chung." }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+
+            // Lesson 3.1 Activities
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson31Id,
+                OrderIndex = 1,
+                Type = "shadowing",
+                Title = "Shadowing: Mở đầu bài thuyết trình hấp dẫn",
+                Description = "Nghe và phát âm câu mở đầu lôi cuốn sự chú ý của khán giả.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "Today I would like to demonstrate how continuous learning accelerates professional development.",
+                    ipa = "/təˈdeɪ aɪ wʊd laɪk tuː ˈdemənstreɪt haʊ kənˈtɪnjuəs ˈlɜːnɪŋ əkˈseləreɪts prəˈfeʃənl dɪˈveləpmənt/",
+                    meaningVi = "Hôm nay tôi muốn chứng minh việc học tập liên tục tăng tốc sự phát triển nghề nghiệp như thế nào.",
+                    keyPhrases = new[] { "demonstrate", "continuous learning", "accelerates development" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson31Id,
+                OrderIndex = 2,
+                Type = "dictation",
+                Title = "Dictation: Dẫn dắt chuyển ý (Signposting)",
+                Description = "Nghe câu chuyển ý trong bài nói và chép lại.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "Now that we have covered the theoretical foundation, let us examine the practical implications.",
+                    ipa = "/naʊ ðæt wiː hæv ˈkʌvəd ðə ˌθɪəˈretɪkl faʊnˈdeɪʃn, let ʌs ɪɡˈzæmɪn ðə ˈpræktɪkl ˌɪmplɪˈkeɪʃnz/",
+                    meaningVi = "Sau khi đã đi qua phần cơ sở lý thuyết, bây giờ chúng ta hãy cùng xem xét các ứng dụng thực tế.",
+                    wordChips = new[] { "Now", "that", "we", "have", "covered", "the", "theoretical", "foundation", "let", "us", "examine", "the", "practical", "implications" },
+                    distractors = new[] { "furthermore", "subsequently", "contrary" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson31Id,
+                OrderIndex = 3,
+                Type = "pronunciation",
+                Title = "Chấm phát âm: Đúc kết thông điệp thuyết trình",
+                Description = "Luyện phát âm câu kết luận bài nói với sức nặng và sự thuyết phục.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "In conclusion, disciplined daily practice yields compound interest in communication mastery.",
+                    ipa = "/ɪn kənˈkluːʒn, ˈdɪsəplɪnd ˈdeɪli ˈpræktɪs jiːldz ˈkɒmpaʊnd ˈɪntrəst ɪn kəˌmjuːnɪˈkeɪʃn ˈmɑːstəri/",
+                    meaningVi = "Tóm lại, sự luyện tập có kỷ luật mỗi ngày mang lại hiệu ứng lãi kép cho việc làm chủ kỹ năng giao tiếp.",
+                    targetWords = new[] { "conclusion", "disciplined", "practice", "compound", "communication", "mastery" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson31Id,
+                OrderIndex = 4,
+                Type = "word_map",
+                Title = "Sơ đồ từ vựng: Demonstrate & Visual Communication",
+                Description = "Khám phá sơ đồ tư duy từ khóa demonstrate và tạo thẻ Flashcard FSRS.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    centralWord = "demonstrate",
+                    ipa = "/ˈdemənstreɪt/",
+                    meaningVi = "Chứng minh, thị phạm, làm rõ",
+                    collocations = new object[]
+                    {
+                        new { text = "demonstrate capability", ipa = "/ˈdemənstreɪt ˌkeɪpəˈbɪləti/", meaningVi = "Chứng minh năng lực", example = "The prototype clearly demonstrates our technical capability." },
+                        new { text = "demonstrate commitment", ipa = "/ˈdemənstreɪt kəˈmɪtmənt/", meaningVi = "Thể hiện sự cam kết", example = "The founder demonstrated deep commitment to customer satisfaction." }
+                    },
+                    phrasalVerbs = new object[]
+                    {
+                        new { text = "point out", ipa = "/pɔɪnt aʊt/", meaningVi = "Chỉ ra", example = "The speaker pointed out several hidden assumptions." },
+                        new { text = "spell out", ipa = "/spel aʊt/", meaningVi = "Giải thích cặn kẽ", example = "Let me spell out the primary benefits for you." }
+                    },
+                    synonyms = new object[]
+                    {
+                        new { text = "illustrate", ipa = "/ˈɪləstreɪt/", meaningVi = "Minh họa", example = "This diagram illustrates the message processing pipeline." },
+                        new { text = "exemplify", ipa = "/ɪɡˈzemplɪfaɪ/", meaningVi = "Là ví dụ điển hình", example = "His presentation exemplified concise storytelling." }
+                    },
+                    contextExamples = new object[]
+                    {
+                        new { sentence = "A well-structured presentation demonstrates analytical rigor and audience empathy.", meaningVi = "Một bài thuyết trình có cấu trúc tốt thể hiện sự chặt chẽ về phân tích và sự thấu cảm với khán giả." }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+
+            // Lesson 3.2 Activities
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson32Id,
+                OrderIndex = 1,
+                Type = "shadowing",
+                Title = "Shadowing: Đàm phán và tìm giải pháp đôi bên cùng có lợi",
+                Description = "Nghe và nói câu đàm phán nguyên tắc win-win.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "Our objective is to reach a mutually beneficial agreement that safeguards both parties' long-term interests.",
+                    ipa = "/ˈaʊər əbˈdʒektɪv ɪz tuː riːtʃ ə ˈmjuːtʃuəli ˌbenɪˈfɪʃl əˈɡriːmənt ðæt ˈseɪfɡɑːdz bəʊθ ˈpɑːtiz ˈlɒŋ tɜːm ˈɪntrəsts/",
+                    meaningVi = "Mục tiêu của chúng tôi là đạt được thỏa thuận đôi bên cùng có lợi nhằm bảo vệ lợi ích dài hạn của cả hai phía.",
+                    keyPhrases = new[] { "mutually beneficial", "safeguards interests", "long-term agreement" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson32Id,
+                OrderIndex = 2,
+                Type = "dictation",
+                Title = "Dictation: Nhượng bộ chiến lược có điều kiện",
+                Description = "Nghe câu đàm phán có điều kiện và chép lại.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "We could adjust the delivery schedule on condition that the scope remains clearly defined.",
+                    ipa = "/wiː kʊd əˈdʒʌst ðə dɪˈlɪvəri ˈʃedjuːl ɒn kənˈdɪʃn ðæt ðə skəʊp rɪˈmeɪnz ˈklɪəli dɪˈfaɪnd/",
+                    meaningVi = "Chúng tôi có thể điều chỉnh tiến độ giao hàng với điều kiện là phạm vi công việc vẫn được xác định rõ ràng.",
+                    wordChips = new[] { "We", "could", "adjust", "the", "delivery", "schedule", "on", "condition", "that", "the", "scope", "remains", "clearly", "defined" },
+                    distractors = new[] { "however", "provided", "otherwise" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson32Id,
+                OrderIndex = 3,
+                Type = "pronunciation",
+                Title = "Chấm phát âm: Đặt câu hỏi làm rõ sự từ chối",
+                Description = "Luyện phát âm câu hỏi làm rõ để mở rộng không gian đàm phán.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    sentence = "Could you elaborate on the main constraints preventing your team from adopting this timeline?",
+                    ipa = "/kəd juː ɪˈlæbəreɪt ɒn ðə meɪn kənˈstreɪnts prɪˈventɪŋ jɔː tiːm frəm əˈdɒptɪŋ ðɪs ˈtaɪmlaɪn/",
+                    meaningVi = "Bạn có thể chia sẻ cụ thể hơn về những rào cản chính khiến đội ngũ của bạn chưa thể áp dụng mốc thời gian này được không?",
+                    targetWords = new[] { "elaborate", "constraints", "preventing", "adopting", "timeline" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = Guid.NewGuid(),
+                CourseId = EnglishCourseId,
+                LessonId = EnglishLesson32Id,
+                OrderIndex = 4,
+                Type = "word_map",
+                Title = "Sơ đồ từ vựng: Negotiate & Principled Compromise",
+                Description = "Khám phá sơ đồ tư duy từ khóa negotiate và lưu vào Flashcard FSRS.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    centralWord = "negotiate",
+                    ipa = "/nɪˈɡəʊʃieɪt/",
+                    meaningVi = "Đàm phán, thương lượng, dàn xếp",
+                    collocations = new object[]
+                    {
+                        new { text = "negotiate terms", ipa = "/nɪˈɡəʊʃieɪt tɜːmz/", meaningVi = "Thương lượng điều khoản", example = "We spent weeks negotiating favorable contractual terms." },
+                        new { text = "successful negotiation", ipa = "/səkˈsesfl ˌneɡəʊʃiˈeɪʃn/", meaningVi = "Cuộc đàm phán thành công", example = "The successful negotiation laid the groundwork for future expansion." }
+                    },
+                    phrasalVerbs = new object[]
+                    {
+                        new { text = "settle on", ipa = "/ˈsetl ɒn/", meaningVi = "Đồng ý chốt lại ở", example = "After long debate, they settled on a compromise figure." },
+                        new { text = "iron out", ipa = "/ˈaɪən aʊt/", meaningVi = "Giải quyết các khúc mắc", example = "We still need to iron out a few technical details." }
+                    },
+                    synonyms = new object[]
+                    {
+                        new { text = "bargain", ipa = "/ˈbɑːɡən/", meaningVi = "Mặc cả, thương lượng", example = "Both partners bargained hard for equity shares." },
+                        new { text = "arbitrate", ipa = "/ˈɑːbɪtreɪt/", meaningVi = "Đứng ra hòa giải", example = "A neutral advisor helped arbitrate the dispute." }
+                    },
+                    contextExamples = new object[]
+                    {
+                        new { sentence = "Mastering principled negotiation enables you to resolve conflicts with grace and confidence.", meaningVi = "Làm chủ nghệ thuật đàm phán nguyên tắc cho phép bạn giải quyết các xung đột một cách khéo léo và tự tin." }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            }
+        };
+
+        db.PracticeActivities.AddRange(activities);
+        await db.SaveChangesAsync();
     }
 }

@@ -514,3 +514,44 @@ CREATE INDEX IF NOT EXISTS idx_notebook_embeddings_hnsw
 ON notebook_embeddings 
 USING hnsw (embedding vector_cosine_ops) 
 WITH (m = 16, ef_construction = 128);
+
+-- ----------------------------------------------------------------------------
+-- 10. PRACTICE ENGINE (PRACTICE ACTIVITIES & ATTEMPTS)
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS practice_activities (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
+    order_index INT NOT NULL DEFAULT 0,
+    type VARCHAR(50) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    config JSONB NOT NULL DEFAULT '{}'::jsonb,
+    passing_score INT NOT NULL DEFAULT 70,
+    is_seeded BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_practice_activities_course_lesson ON practice_activities(course_id, lesson_id);
+
+CREATE TABLE IF NOT EXISTS practice_attempts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    activity_id UUID REFERENCES practice_activities(id) ON DELETE SET NULL,
+    course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
+    activity_type VARCHAR(50) NOT NULL,
+    activity_key VARCHAR(100) NOT NULL,
+    activity_title VARCHAR(255) NOT NULL,
+    score DOUBLE PRECISION NOT NULL DEFAULT 0,
+    max_score INT NOT NULL DEFAULT 100,
+    is_passed BOOLEAN NOT NULL DEFAULT FALSE,
+    detail JSONB NOT NULL DEFAULT '{}'::jsonb,
+    duration_seconds INT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_practice_attempts_user_date ON practice_attempts(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_practice_attempts_user_course_lesson ON practice_attempts(user_id, course_id, lesson_id);
+CREATE INDEX IF NOT EXISTS idx_practice_attempts_user_key ON practice_attempts(user_id, activity_key);
