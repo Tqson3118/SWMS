@@ -442,7 +442,7 @@ function AuthPageContent() {
             S
           </span>
           <span className="text-sm font-bold tracking-tight text-[var(--text-primary)]">
-            Studxy · Không gian học tập thông minh
+            Studxy<span className="hidden sm:inline"> · Không gian học tập thông minh</span>
           </span>
         </Link>
 

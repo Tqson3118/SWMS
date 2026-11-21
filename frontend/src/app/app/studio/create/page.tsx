@@ -190,7 +190,7 @@ export default function CreateCoursePage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 md:pb-8">
+    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh]">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <Link

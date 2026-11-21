@@ -253,7 +253,7 @@ export default function NewCoursePage() {
   const anyLoading = uploadLoading || aiLoading || importLoading;
 
   return (
-    <div className="max-w-[1320px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10">
+    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10">
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-[var(--text-tertiary)] mb-5">
         <Link href="/app/courses" className="hover:text-[var(--text-primary)] transition">

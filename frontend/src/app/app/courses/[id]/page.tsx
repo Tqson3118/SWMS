@@ -7,6 +7,7 @@ import {
   AlertCircle,
   BookOpen,
   Brain,
+  Check,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
@@ -71,6 +72,83 @@ interface CourseDetail {
 }
 
 type LessonFilter = "all" | "pending" | "completed";
+
+function getLessonPracticeChips(domainId: string, lessonTitle: string): string[] {
+  const norm = normalizeVi(lessonTitle);
+  if (domainId === "language") {
+    if (/nghe|listening|audio|wav|hoi thoai/.test(norm)) return ["Nghe & Chép", "Phát âm IPA", "Quiz"];
+    if (/doc|reading|passage/.test(norm)) return ["Đọc hiểu", "Từ vựng FSRS", "Quiz"];
+    if (/viet|writing|essay/.test(norm)) return ["Luyện viết", "Ngữ pháp"];
+    return ["Luyện nghe nói", "Flashcard FSRS", "Quiz"];
+  }
+  if (domainId === "technology") {
+    if (/database|sql|du lieu/.test(norm)) return ["SQL Lab", "Query Test", "Quiz"];
+    if (/thuat toan|cau truc/.test(norm)) return ["Code Lab", "Benchmark"];
+    if (/api|service|microservice/.test(norm)) return ["API Drill", "Code Lab", "Quiz"];
+    return ["Code Lab", "Debug Test", "Quiz"];
+  }
+  if (domainId === "business") {
+    if (/ngan sach|dong tien|tai chinh/.test(norm)) return ["Bảng tính FCF", "Case Study", "Quiz"];
+    if (/dau tu|co phieu|tai san/.test(norm)) return ["Mô hình đầu tư", "Thực hành"];
+    return ["Case Study", "Thẻ nhớ FSRS", "Quiz"];
+  }
+  if (domainId === "law") {
+    return ["Tình huống án lệ", "Văn bản luật", "Quiz"];
+  }
+  if (domainId === "science") {
+    return ["Giải bài tập", "Công thức", "Quiz"];
+  }
+  return ["Tình huống thực tế", "Thẻ nhớ FSRS", "Quiz"];
+}
+
+function getCourseLearningOutcomes(domainId: string): string[] {
+  if (domainId === "language") {
+    return [
+      "Làm chủ 4 kỹ năng Nghe, Nói, Đọc, Viết theo lộ trình bài bản.",
+      "Luyện phản xạ Nghe & Chép chính tả và phát âm chuẩn âm vị quốc tế.",
+      "Ghi nhớ từ vựng dài hạn với thuật toán ngắt quãng FSRS v5.",
+      "Đánh giá tiến bộ định kỳ qua hệ thống bài thi Quiz thực chiến.",
+    ];
+  }
+  if (domainId === "technology") {
+    return [
+      "Nắm vững kiến trúc, tư duy thiết kế và cấu trúc hệ thống chịu tải cao.",
+      "Thực hành viết mã, debug và kiểm thử trực tiếp trong Code Lab.",
+      "Áp dụng Best Practices, Design Patterns và xử lý tình huống thực tế.",
+      "Tự tin xây dựng sản phẩm hoàn chỉnh và đáp ứng tiêu chuẩn ngành.",
+    ];
+  }
+  if (domainId === "business") {
+    return [
+      "Quản lý dòng tiền cá nhân và doanh nghiệp, thiết lập quỹ dự phòng.",
+      "Thực hành phân tích báo cáo tài chính và định giá tài sản sinh lời.",
+      "Xây dựng chiến lược phân bổ vốn và quản trị rủi ro đầu tư bền vững.",
+      "Hệ thống hóa tư duy kinh tế và ra quyết định tài chính kỷ luật.",
+    ];
+  }
+  if (domainId === "law") {
+    return [
+      "Nắm vững hệ thống quy phạm pháp luật và nguyên tắc áp dụng thực tiễn.",
+      "Phân tích các tình huống tranh chấp pháp lý và án lệ điển hình.",
+      "Hệ thống hóa thuật ngữ pháp lý và quy trình tố tụng chuẩn xác.",
+      "Rèn luyện tư duy lập luận pháp lý sắc bén và tuân thủ chuẩn mực.",
+    ];
+  }
+  if (domainId === "science") {
+    return [
+      "Hiểu sâu bản chất các định lý, công thức và nguyên lý toán học / khoa học.",
+      "Rèn luyện phương pháp giải bài tập logic từ cơ bản đến phức tạp.",
+      "Áp dụng tư duy phân tích định lượng vào các bài toán thực tiễn.",
+      "Củng cố phản xạ giải đề qua ngân hàng câu hỏi trắc nghiệm & tự luận.",
+    ];
+  }
+  return [
+    "Hệ thống hóa toàn bộ kiến thức cốt lõi theo từng chặng rõ ràng.",
+    "Rèn luyện kỹ năng thực hành tương tác qua các tình huống giả lập.",
+    "Khắc sâu kiến thức dài hạn với hệ thống thẻ nhớ thông minh FSRS.",
+    "Tự tin ứng dụng kiến thức vào công việc và cuộc sống hàng ngày.",
+  ];
+}
 
 export default function CourseDetailPage() {
   const params = useParams();
@@ -258,7 +336,7 @@ export default function CourseDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-[1360px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh] space-y-6">
+      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh] space-y-6">
         <div className="h-6 w-32 rounded bg-[var(--surface-elevated)] animate-pulse" />
         <div className="h-10 w-96 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
         <div className="h-20 w-full rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
@@ -316,7 +394,7 @@ export default function CourseDetailPage() {
     : `/app/courses/${courseId}/learn`;
 
   return (
-    <div className="max-w-[1360px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10">
+    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10">
       {/* Breadcrumb */}
       <nav
         aria-label="Breadcrumb"
@@ -383,6 +461,22 @@ export default function CourseDetailPage() {
                     {tag}
                   </span>
                 ))}
+              </div>
+
+              {/* Core Learning Outcomes */}
+              <div className="mt-4 pt-3.5 border-t border-[var(--border-calm)]/70">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5 text-[#5E51E8] dark:text-[#A5B4FC]" />
+                  <span>Mục tiêu đầu ra cốt lõi</span>
+                </h4>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[var(--text-secondary)]">
+                  {getCourseLearningOutcomes(domain.id).map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="leading-relaxed">{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
 
@@ -700,46 +794,105 @@ export default function CourseDetailPage() {
                     </button>
 
                     {isOpen && lessons.length > 0 && (
-                      <div className="divide-y divide-[var(--border-calm)] border-t border-[var(--border-calm)]">
-                        {lessons.map((lesson) => {
-                          const completed = isDone(lesson);
-                          const isNext = lesson.id === nextLesson?.id && !completed;
-                          const mins = lesson.durationMinutes ?? lesson.estimatedMinutes;
-                          return (
-                            <Link
-                              key={lesson.id}
-                              href={`/app/courses/${courseId}/learn?lesson=${lesson.id}`}
-                              className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--surface-elevated)] transition group"
-                            >
-                              {completed ? (
-                                <CheckCircle2 className="w-4 h-4 text-[#059669] dark:text-[#34D399] shrink-0" />
-                              ) : isNext ? (
-                                <Play className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8] shrink-0" />
-                              ) : (
-                                <Circle className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" />
-                              )}
+                      <div className="p-4 sm:p-5 border-t border-[var(--border-calm)] bg-[var(--surface-card)]">
+                        <div className="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-800">
+                          {lessons.map((lesson, lesIdx) => {
+                            const completed = isDone(lesson);
+                            const isNext = lesson.id === nextLesson?.id && !completed;
+                            const mins = lesson.durationMinutes ?? lesson.estimatedMinutes ?? 15;
+                            const chips = getLessonPracticeChips(domain.id, lesson.title);
 
-                              <span
-                                className={`text-sm flex-1 min-w-0 leading-snug line-clamp-2 ${
-                                  completed
-                                    ? "text-[var(--text-tertiary)]"
-                                    : isNext
-                                      ? "text-[#5E51E8] dark:text-[#818CF8] font-medium"
-                                      : "text-[var(--text-primary)]"
-                                } group-hover:text-[#5E51E8] dark:group-hover:text-[#818CF8] transition`}
+                            return (
+                              <div
+                                key={lesson.id}
+                                className="relative group flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-[var(--border-calm)] hover:border-[#5E51E8]/50 bg-[var(--surface-elevated)]/50 hover:bg-[var(--surface-elevated)] transition shadow-2xs"
                               >
-                                {lesson.title}
-                              </span>
+                                {/* Timeline Node Icon Connector */}
+                                <div
+                                  className={`absolute -left-6 sm:-left-8 top-4 -translate-x-1/2 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-bold shadow-xs transition ${
+                                    completed
+                                      ? "bg-emerald-500 border-emerald-500 text-white"
+                                      : isNext
+                                      ? "bg-[#5E51E8] border-[#5E51E8] text-white ring-4 ring-[#5E51E8]/20 animate-pulse"
+                                      : "bg-[var(--surface-card)] border-[var(--border-calm)] text-[var(--text-tertiary)]"
+                                  }`}
+                                >
+                                  {completed ? (
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                  ) : isNext ? (
+                                    <Play className="w-2.5 h-2.5 fill-current ml-0.5" />
+                                  ) : (
+                                    <span>{lesIdx + 1}</span>
+                                  )}
+                                </div>
 
-                              {mins ? (
-                                <span className="text-xs text-[var(--text-tertiary)] flex items-center gap-1 shrink-0">
-                                  <Clock className="w-3 h-3" />
-                                  {mins} phút
-                                </span>
-                              ) : null}
-                            </Link>
-                          );
-                        })}
+                                {/* Lesson Info */}
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                                    <span
+                                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider ${
+                                        completed
+                                          ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
+                                          : isNext
+                                          ? "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800"
+                                          : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
+                                      }`}
+                                    >
+                                      {completed ? "Đã xong" : isNext ? "Tiếp theo" : `Bài ${lesIdx + 1}`}
+                                    </span>
+                                    {mins && (
+                                      <span className="text-xs text-[var(--text-tertiary)] flex items-center gap-1">
+                                        <Clock className="w-3 h-3" />
+                                        {mins} phút
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <Link
+                                    href={`/app/courses/${courseId}/learn?lesson=${lesson.id}`}
+                                    title={lesson.title}
+                                    className="block text-sm font-semibold text-[var(--text-primary)] hover:text-[#5E51E8] dark:hover:text-[#818CF8] transition line-clamp-2 leading-snug break-words"
+                                  >
+                                    {lesson.title}
+                                  </Link>
+
+                                  {/* Activity Chips */}
+                                  <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                                    {chips.map((chip, cIdx) => (
+                                      <span
+                                        key={cIdx}
+                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--surface-card)] border border-[var(--border-calm)] text-[var(--text-secondary)] shadow-2xs"
+                                      >
+                                        <Sparkles className="w-2.5 h-2.5 text-[#5E51E8] dark:text-[#A5B4FC]" />
+                                        <span>{chip}</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Direct CTA button */}
+                                <div className="shrink-0 self-start sm:self-center pt-1 sm:pt-0">
+                                  <Link href={`/app/courses/${courseId}/learn?lesson=${lesson.id}`}>
+                                    <Button
+                                      variant={isNext ? "primary" : completed ? "secondary" : "outline"}
+                                      size="sm"
+                                      className="whitespace-nowrap"
+                                      leftIcon={
+                                        completed ? (
+                                          <Check className="w-3.5 h-3.5" />
+                                        ) : (
+                                          <Play className="w-3.5 h-3.5 fill-current" />
+                                        )
+                                      }
+                                    >
+                                      <span>{completed ? "Ôn lại" : isNext ? "Học ngay" : "Bắt đầu"}</span>
+                                    </Button>
+                                  </Link>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
                   </Card>

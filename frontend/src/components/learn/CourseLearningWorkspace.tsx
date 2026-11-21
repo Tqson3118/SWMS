@@ -23,6 +23,8 @@ import {
   Layers,
   List,
   Loader2,
+  Maximize2,
+  Minimize2,
   Moon,
   NotebookPen,
   PanelLeft,
@@ -354,6 +356,7 @@ export function CourseLearningWorkspace({
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const [roadmapOpen, setRoadmapOpen] = useState(true);
+  const [focusReadingMode, setFocusReadingMode] = useState(false);
   const [centerTab, setCenterTab] = useState<CenterViewTab>(
     initialDocId && !initialLessonId ? "pdf" : "lesson"
   );
@@ -1047,12 +1050,14 @@ export function CourseLearningWorkspace({
     };
   }, [noteDirty, noteBody, noteTitle, notebook, saveNotebookNow]);
 
-  // 7. Global shortcuts (Ctrl+\ toggle roadmap, Ctrl+S save note)
+  // 7. Global shortcuts (Ctrl+\ toggle roadmap, Ctrl+S save note, Esc exit focus)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "\\") {
         e.preventDefault();
         setRoadmapOpen((prev) => !prev);
+      } else if (e.key === "Escape" && focusReadingMode) {
+        setFocusReadingMode(false);
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         if (rightPanel === "drawer" && drawerTab === "notebook" && notebook) {
           e.preventDefault();
@@ -1062,7 +1067,7 @@ export function CourseLearningWorkspace({
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [rightPanel, drawerTab, notebook, saveNotebookNow]);
+  }, [rightPanel, drawerTab, notebook, saveNotebookNow, focusReadingMode]);
 
   const setMobileTocOpen = useCallback((open: boolean) => {
     setRoadmapOpen(open);
@@ -1761,6 +1766,33 @@ export function CourseLearningWorkspace({
             </span>
           )}
 
+          {/* Focus Reading Mode Toggle */}
+          <button
+            type="button"
+            data-testid="focus-mode-toggle-btn"
+            onClick={() => {
+              setFocusReadingMode((prev) => {
+                const next = !prev;
+                if (next) {
+                  setRightPanel("closed");
+                  setRoadmapOpen(false);
+                } else {
+                  setRoadmapOpen(true);
+                }
+                return next;
+              });
+            }}
+            title={focusReadingMode ? "Thoát chế độ tập trung" : "Chế độ đọc tập trung (Focus Mode)"}
+            className={`h-8 px-2.5 rounded-md border text-xs font-semibold inline-flex items-center gap-1.5 transition cursor-pointer ${
+              focusReadingMode
+                ? "border-indigo-600 bg-indigo-600 text-white shadow-xs"
+                : "border-border bg-bg-primary text-text-secondary hover:text-text-primary hover:bg-bg-secondary"
+            }`}
+          >
+            {focusReadingMode ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            <span className="hidden md:inline">{focusReadingMode ? "Thoát tập trung" : "Tập trung"}</span>
+          </button>
+
           {/* Aa Typography Popover */}
           <div className="relative">
             <button
@@ -1905,7 +1937,7 @@ export function CourseLearningWorkspace({
       {/* Main 3-column Body */}
       <div className="flex-1 min-h-0 flex relative overflow-hidden">
         {/* Left: Course Roadmap */}
-        {hasRoadmap && roadmapOpen && (
+        {hasRoadmap && roadmapOpen && !focusReadingMode && (
           <aside
             className={`w-72 shrink-0 border-r border-[var(--border-calm)] bg-[var(--canvas-bg)]/30 h-full overflow-hidden p-3 ${
               rightPanel !== "closed" ? "hidden xl:block" : "hidden md:block"
@@ -2210,11 +2242,29 @@ export function CourseLearningWorkspace({
                 ) : hasLesson && lesson ? (
                   <article
                     data-testid="reading-prose-column"
-                    className={`max-w-4xl mx-auto px-4 sm:px-8 py-6 ${
+                    className={`mx-auto px-4 sm:px-8 py-6 transition-all duration-200 ${
+                      focusReadingMode ? "max-w-3xl" : "max-w-4xl"
+                    } ${
                       serifFont ? "font-serif" : ""
                     }`}
                     style={{ fontSize: `${fontSizePx}px` }}
                   >
+                    {/* Focus Mode Notification Banner */}
+                    {focusReadingMode && (
+                      <div className="mb-4 px-3.5 py-2 rounded-xl bg-indigo-50/90 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/80 flex items-center justify-between text-xs text-indigo-900 dark:text-indigo-200 font-sans shadow-2xs">
+                        <span className="flex items-center gap-2">
+                          <Maximize2 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                          <span>Chế độ đọc tập trung — Đã ẩn các thanh bên để bạn hoàn toàn tập trung vào nội dung bài học.</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setFocusReadingMode(false)}
+                          className="font-bold underline hover:text-indigo-600 dark:hover:text-indigo-300 ml-2 shrink-0 cursor-pointer"
+                        >
+                          Thoát
+                        </button>
+                      </div>
+                    )}
                     {/* Clean Lesson Header */}
                     <header className="mb-5 pb-4 border-b border-border-subtle space-y-3">
                       <div className="flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
@@ -2376,6 +2426,22 @@ export function CourseLearningWorkspace({
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (inlinePracticeRef.current) {
+                              inlinePracticeRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                            } else {
+                              setCenterTab("practice");
+                            }
+                          }}
+                          data-testid="scroll-to-practice-lab-btn"
+                          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-indigo-200 dark:border-indigo-800 bg-indigo-50/70 dark:bg-indigo-950/40 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition cursor-pointer"
+                        >
+                          <FlaskConical className="w-3.5 h-3.5" />
+                          <span>Thực hành cuối bài ↓</span>
+                        </button>
+
                         <button
                           type="button"
                           disabled={isCompleting}

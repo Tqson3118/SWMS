@@ -202,7 +202,7 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-[1320px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-8 min-h-[80vh] space-y-6">
+      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-8 min-h-[80vh] space-y-6">
         <div className="h-10 w-40 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-7 space-y-4">
@@ -221,7 +221,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-[1320px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-8 min-h-[80vh]">
+    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-8 min-h-[80vh]">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-text-primary">Cài đặt</h1>
         <p className="text-sm text-text-secondary mt-1">

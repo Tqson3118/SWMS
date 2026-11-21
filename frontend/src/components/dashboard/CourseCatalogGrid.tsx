@@ -22,6 +22,8 @@ import {
   X
 } from "lucide-react";
 import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspaceStore";
+import { CourseCardGraphicBanner } from "@/components/dashboard/CourseCardGraphicBanner";
+import type { CourseDomainId } from "@/lib/course-helpers";
 
 export interface CourseLessonSummaryDto {
   id: string;
@@ -686,6 +688,15 @@ export function CourseCatalogGrid({
                 ? "Tiếp tục học"
                 : "Vào học ngay";
 
+            const domainIdForBanner: CourseDomainId =
+              domain.filterKey === "programming"
+                ? "technology"
+                : domain.filterKey === "finance"
+                ? "business"
+                : domain.filterKey === "language"
+                ? "language"
+                : "other";
+
             return (
               <article
                 key={`course-${cid || course.slug || course.title}`}
@@ -694,8 +705,13 @@ export function CourseCatalogGrid({
                 data-course-slug={course.slug || ""}
                 className="group relative rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/95 shadow-2xs hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-700/80 transition-all overflow-hidden flex flex-col justify-between"
               >
-                {/* Top Domain Accent Bar */}
-                <div className={`h-1.5 w-full ${domain.accentBarClass}`} />
+                {/* Visual Thematic Header Banner */}
+                <CourseCardGraphicBanner
+                  domainId={domainIdForBanner}
+                  domainLabel={domain.badgeLabel}
+                  progressPercent={percent}
+                  className="h-20"
+                />
 
                 <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                   {/* Top Meta: Domain Badge + Progress Status */}

@@ -40,9 +40,11 @@ import {
   type CourseLike,
 } from "@/lib/course-helpers";
 import { LearningRoadmapsShowcase } from "@/components/dashboard/LearningRoadmapsShowcase";
-import { Sparkles, Clock } from "lucide-react";
+import { CourseCardGraphicBanner } from "@/components/dashboard/CourseCardGraphicBanner";
+import { Sparkles, Clock, Target, Filter } from "lucide-react";
 
 type StatusFilter = "all" | "in_progress" | "not_started" | "completed";
+type LevelFilter = "all" | "foundation" | "advanced";
 
 export default function CoursesCatalogPage() {
   const { activeUserHeaderId } = useWorkspaceStore();
@@ -53,6 +55,7 @@ export default function CoursesCatalogPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDomain, setSelectedDomain] = useState<CourseDomainId>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [levelFilter, setLevelFilter] = useState<LevelFilter>("all");
   const [hideDuplicates, setHideDuplicates] = useState(true);
 
   const fetchCourses = useCallback(async () => {
@@ -104,12 +107,19 @@ export default function CoursesCatalogPage() {
       }
 
       const progress = getCourseProgress(course);
-      if (statusFilter === "in_progress") return progress > 0 && progress < 100;
-      if (statusFilter === "not_started") return progress === 0;
-      if (statusFilter === "completed") return progress === 100;
+      if (statusFilter === "in_progress" && !(progress > 0 && progress < 100)) return false;
+      if (statusFilter === "not_started" && progress !== 0) return false;
+      if (statusFilter === "completed" && progress !== 100) return false;
+
+      if (levelFilter !== "all") {
+        const theme = getCourseVisualTheme(course);
+        if (levelFilter === "foundation" && !theme.levelLabel.includes("Nền tảng")) return false;
+        if (levelFilter === "advanced" && !theme.levelLabel.includes("Chuyên sâu")) return false;
+      }
+
       return true;
     });
-  }, [baseCourses, searchQuery, statusFilter]);
+  }, [baseCourses, searchQuery, statusFilter, levelFilter]);
 
   const domainCounts = useMemo(() => {
     const counts: Record<CourseDomainId, number> = {
@@ -246,29 +256,56 @@ export default function CoursesCatalogPage() {
           )}
         </div>
 
-        {/* Status Filter Pills */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          {(
-            [
-              { id: "all", label: "Tất cả trạng thái" },
-              { id: "in_progress", label: "Đang học" },
-              { id: "not_started", label: "Chưa học" },
-              { id: "completed", label: "Hoàn thành" },
-            ] as { id: StatusFilter; label: string }[]
-          ).map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setStatusFilter(item.id)}
-              className={`h-9 min-h-[36px] px-3 rounded-[8px] text-xs font-medium transition cursor-pointer ${
-                statusFilter === item.id
-                  ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12]"
-                  : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-calm)]"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
+        {/* Status & Level Filter Pills */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs font-semibold text-[var(--text-tertiary)] mr-1">Trạng thái:</span>
+            {(
+              [
+                { id: "all", label: "Tất cả trạng thái" },
+                { id: "in_progress", label: "Đang học" },
+                { id: "not_started", label: "Chưa học" },
+                { id: "completed", label: "Hoàn thành" },
+              ] as { id: StatusFilter; label: string }[]
+            ).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setStatusFilter(item.id)}
+                className={`h-8 min-h-[32px] px-3 rounded-[8px] text-xs font-medium transition cursor-pointer ${
+                  statusFilter === item.id
+                    ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12]"
+                    : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-calm)]"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs font-semibold text-[var(--text-tertiary)] mr-1">Trình độ:</span>
+            {(
+              [
+                { id: "all", label: "Tất cả" },
+                { id: "foundation", label: "Nền tảng" },
+                { id: "advanced", label: "Chuyên sâu" },
+              ] as { id: LevelFilter; label: string }[]
+            ).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setLevelFilter(item.id)}
+                className={`h-8 min-h-[32px] px-3 rounded-[8px] text-xs font-medium transition cursor-pointer ${
+                  levelFilter === item.id
+                    ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12]"
+                    : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-calm)]"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Domain Filter Tabs */}
@@ -310,7 +347,7 @@ export default function CoursesCatalogPage() {
 
       {/* Course Grid */}
       {visibleCourses.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
           {visibleCourses.map((course) => {
             const id = getCourseId(course);
             const progress = getCourseProgress(course);
@@ -319,55 +356,47 @@ export default function CoursesCatalogPage() {
             const theme = getCourseVisualTheme(course);
             const skillTags = extractCourseSkillTags(course);
 
+            const primaryCtaLabel =
+              progress === 100 ? "Ôn lại bài" : progress > 0 ? "Tiếp tục học" : "Bắt đầu học";
+
             return (
               <Card
                 key={id}
                 hoverable
-                className="overflow-hidden flex flex-col justify-between p-0"
+                className="overflow-hidden flex flex-col justify-between p-0 shadow-xs hover:shadow-md transition-all duration-200"
               >
-                <div className={`h-1.5 w-full bg-gradient-to-r ${theme.accentBarClass}`} />
-                <div className="p-5 flex-1 flex flex-col justify-between gap-4">
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-2.5">
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[11px] font-semibold ${theme.badgeBgClass}`}
-                      >
-                        {theme.domainLabel}
-                      </span>
-                      {progress === 100 ? (
-                        <Badge variant="success" size="sm">
-                          <CheckCircle2 className="w-3 h-3" />
-                          <span>Hoàn thành</span>
-                        </Badge>
-                      ) : progress > 0 ? (
-                        <span className="text-[11px] font-bold text-[#5E51E8] dark:text-[#818CF8] shrink-0">
-                          {progress}% đã học
-                        </span>
-                      ) : (
-                        <span className="text-[11px] font-medium text-[var(--text-tertiary)] shrink-0">
-                          {theme.levelLabel}
-                        </span>
-                      )}
-                    </div>
+                {/* Visual Thematic Header Banner */}
+                <CourseCardGraphicBanner
+                  domainId={theme.domainId}
+                  domainLabel={theme.domainLabel}
+                  progressPercent={progress}
+                  levelLabel={theme.levelLabel}
+                />
 
+                <div className="p-5 flex-1 flex flex-col justify-between gap-4">
+                  <div className="min-w-0">
                     <Link
                       href={`/app/courses/${id}`}
                       title={course.title || "Khóa học"}
-                      className="block text-base font-semibold text-[var(--text-primary)] hover:text-[#5E51E8] dark:hover:text-[#818CF8] transition line-clamp-2 leading-snug mb-1.5"
+                      className="block text-base font-bold text-[var(--text-primary)] hover:text-[#5E51E8] dark:hover:text-[#818CF8] transition line-clamp-2 leading-snug mb-1.5 break-words min-w-0"
                     >
                       {course.title || "Khóa học"}
                     </Link>
 
-                    <p className="text-xs text-[var(--text-secondary)] line-clamp-2 leading-relaxed mb-3">
+                    <p
+                      title={course.description || ""}
+                      className="text-xs text-[var(--text-secondary)] line-clamp-2 leading-relaxed mb-3 break-words"
+                    >
                       {course.description ||
                         "Lộ trình học theo chương, bài giảng tương tác, phòng thực hành và thẻ nhớ FSRS."}
                     </p>
 
                     <div className="flex flex-wrap gap-1.5">
-                      {skillTags.map((tag) => (
+                      {skillTags.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className="inline-flex items-center px-2 py-0.5 rounded-md bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px] font-medium text-[var(--text-secondary)]"
+                          className="inline-flex items-center px-2 py-0.5 rounded-md bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px] font-medium text-[var(--text-secondary)] truncate max-w-[180px]"
+                          title={tag}
                         >
                           {tag}
                         </span>
@@ -375,42 +404,47 @@ export default function CoursesCatalogPage() {
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-[var(--border-calm)]">
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-tertiary)] mb-2.5">
-                      <div className="flex items-center gap-1.5">
+                  <div className="pt-3 border-t border-[var(--border-calm)] space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-tertiary)]">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         {chapterCount > 0 && (
                           <>
-                            <span className="inline-flex items-center gap-1">
+                            <span className="inline-flex items-center gap-1 font-medium">
                               <Layers className="w-3.5 h-3.5" />
                               {chapterCount} chương
                             </span>
                             <span>·</span>
                           </>
                         )}
-                        <span className="inline-flex items-center gap-1">
+                        <span className="inline-flex items-center gap-1 font-medium">
                           <BookOpen className="w-3.5 h-3.5" />
                           {lessonCount} bài
                         </span>
                         <span>·</span>
-                        <span className="inline-flex items-center gap-1">
+                        <span className="inline-flex items-center gap-1 font-medium">
                           <Clock className="w-3.5 h-3.5" />
                           {theme.estimatedHoursLabel}
                         </span>
                       </div>
-                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#5E51E8] dark:text-[#A5B4FC]">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#5E51E8] dark:text-[#A5B4FC]">
                         <Sparkles className="w-3 h-3" />
                         Lab &amp; Quiz
                       </span>
                     </div>
 
-                    <ProgressBar
-                      value={progress}
-                      color={progress === 100 ? "success" : "brand"}
-                      size="sm"
-                      className="mb-3.5"
-                    />
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-xs font-semibold text-[var(--text-secondary)]">
+                        <span>Tiến độ</span>
+                        <span className="text-[var(--text-primary)] font-bold">{progress}%</span>
+                      </div>
+                      <ProgressBar
+                        value={progress}
+                        color={progress === 100 ? "success" : "brand"}
+                        size="sm"
+                      />
+                    </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 pt-1">
                       <Link href={`/app/courses/${id}`} className="flex-1">
                         <Button variant="secondary" size="sm" className="w-full">
                           Xem lộ trình
@@ -421,9 +455,9 @@ export default function CoursesCatalogPage() {
                           variant="primary"
                           size="sm"
                           className="w-full"
-                          leftIcon={<Play className="w-3 h-3" />}
+                          leftIcon={<Play className="w-3 h-3 fill-current" />}
                         >
-                          {progress > 0 ? "Tiếp tục" : "Học ngay"}
+                          {primaryCtaLabel}
                         </Button>
                       </Link>
                     </div>

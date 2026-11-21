@@ -75,9 +75,9 @@ export default function StudioListPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 md:pb-8">
+    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">Studio</h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
@@ -104,7 +104,7 @@ export default function StudioListPage() {
           }}
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5">
           {courses.map((course) => {
             const id = getCourseId(course);
             const lessonCount = getLessonCount(course);
@@ -114,9 +114,12 @@ export default function StudioListPage() {
                 hoverable
                 className="p-5 flex flex-col justify-between"
               >
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 flex-1">
+                    <h3
+                      title={course.title}
+                      className="text-sm sm:text-base font-semibold text-[var(--text-primary)] line-clamp-2 flex-1 min-w-0 break-words"
+                    >
                       {course.title}
                     </h3>
                   </div>

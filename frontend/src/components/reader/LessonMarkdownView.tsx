@@ -118,7 +118,8 @@ type ParsedBlock =
         | "CAUTION"
         | "EXAMPLE"
         | "SUMMARY"
-        | "FORMULA";
+        | "FORMULA"
+        | "CONCEPT";
       lines: string[];
     }
   | { type: "table"; table: TableData }
@@ -772,10 +773,11 @@ function parseMarkdownBlocks(rawMarkdown: string): ParsedBlock[] {
         | "EXAMPLE"
         | "SUMMARY"
         | "FORMULA"
+        | "CONCEPT"
         | undefined;
       if (quoteLines.length > 0) {
         const calloutMatch = quoteLines[0].match(
-          /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|EXAMPLE|SUMMARY|FORMULA)\]\s*(.*)$/i
+          /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION|EXAMPLE|SUMMARY|FORMULA|CONCEPT)\]\s*(.*)$/i
         );
         if (calloutMatch) {
           callout = calloutMatch[1].toUpperCase() as typeof callout;
@@ -829,6 +831,12 @@ function parseMarkdownBlocks(rawMarkdown: string): ParsedBlock[] {
             )
           ) {
             callout = "NOTE";
+          } else if (
+            /^(?:[🔑🧠🏷️]|(?:\*\*|__)?(?:khai niem|dinh nghia|tu khoa|concept|definition|keyword))/i.test(
+              norm
+            )
+          ) {
+            callout = "CONCEPT";
           }
         }
       }
@@ -2454,6 +2462,12 @@ export function LessonMarkdownView({
               titleColor: "text-indigo-800 dark:text-indigo-300",
               label: "Tóm tắt & Điểm cốt lõi",
               icon: <BookOpen className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            },
+            CONCEPT: {
+              container: "border-l-teal-500 bg-teal-50/80 dark:bg-teal-950/30 border-teal-200 dark:border-teal-900/60 text-slate-800 dark:text-slate-200",
+              titleColor: "text-teal-800 dark:text-teal-300",
+              label: "Từ khóa & Khái niệm then chốt",
+              icon: <Sparkles className="w-4 h-4 text-teal-600 dark:text-teal-400" />
             }
           };
 

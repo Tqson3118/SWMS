@@ -215,7 +215,7 @@ function PreviewSection() {
             {/* Sidebar mock */}
             <div className="w-48 shrink-0 border-r border-neutral-100 dark:border-neutral-800 p-3 hidden sm:block">
               <div className="space-y-1">
-                {["Tổng quan", "Thư viện", "Ôn tập", "Studio"].map((item, i) => (
+                {["Tổng quan", "Khóa học", "Tài liệu", "Sổ tay", "Ôn tập"].map((item, i) => (
                   <div
                     key={item}
                     className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium ${

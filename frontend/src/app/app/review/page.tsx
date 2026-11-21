@@ -771,7 +771,7 @@ function ReviewPageContent() {
       )}
 
       {/* Card area — 2-Column FSRS Memory Workstation */}
-      <div className="flex-1 max-w-[1320px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-8 w-full">
           {/* Card */}
           <div
