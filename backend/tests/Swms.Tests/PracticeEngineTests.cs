@@ -259,4 +259,76 @@ public class PracticeEngineTests
         Assert.NotNull(generalBList);
         Assert.DoesNotContain(generalBList, item => item.GetProperty("activityKey").GetString() == "priv-shadow-key");
     }
+
+    [Fact]
+    public async Task Test5_GetActivities_ReturnsSeededInvestingCourseActivities()
+    {
+        await using var factory = CreateIsolatedFactory();
+        using var client = factory.CreateClient();
+
+        var url = $"/api/v1/practice/activities?courseId={SeedDataInitializer.InvestingCourseId}&lessonId={SeedDataInitializer.InvestingLesson11Id}";
+        var res = await client.GetAsync(url);
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+
+        var activities = await res.Content.ReadFromJsonAsync<List<JsonElement>>();
+        Assert.NotNull(activities);
+        Assert.True(activities.Count >= 2, $"Expected at least 2 activities, found {activities.Count}");
+
+        var types = activities.Select(a => a.GetProperty("type").GetString()).ToList();
+        Assert.Contains("compound_calculator", types);
+        Assert.Contains("behavioral_quiz", types);
+
+        var compoundAct = activities.First(a => a.GetProperty("type").GetString() == "compound_calculator");
+        var cfg = compoundAct.GetProperty("configJson").GetString();
+        Assert.Contains("initialPrincipal", cfg);
+        Assert.Contains("monthlyDca", cfg);
+    }
+
+    [Fact]
+    public async Task Test6_GetActivities_ReturnsSeededCodingCourseActivities()
+    {
+        await using var factory = CreateIsolatedFactory();
+        using var client = factory.CreateClient();
+
+        var url = $"/api/v1/practice/activities?courseId={SeedDataInitializer.CodingCourseId}&lessonId={SeedDataInitializer.CodingLesson11Id}";
+        var res = await client.GetAsync(url);
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+
+        var activities = await res.Content.ReadFromJsonAsync<List<JsonElement>>();
+        Assert.NotNull(activities);
+        Assert.True(activities.Count >= 2, $"Expected at least 2 activities, found {activities.Count}");
+
+        var types = activities.Select(a => a.GetProperty("type").GetString()).ToList();
+        Assert.Contains("js_sandbox", types);
+        Assert.Contains("parsons", types);
+
+        var jsAct = activities.First(a => a.GetProperty("type").GetString() == "js_sandbox");
+        var cfg = jsAct.GetProperty("configJson").GetString();
+        Assert.Contains("starterCode", cfg);
+        Assert.Contains("testCases", cfg);
+    }
+
+    [Fact]
+    public async Task Test7_GetActivities_ReturnsSeededPsychologyCourseActivities()
+    {
+        await using var factory = CreateIsolatedFactory();
+        using var client = factory.CreateClient();
+
+        var url = $"/api/v1/practice/activities?courseId={SeedDataInitializer.PsychologyCourseId}&lessonId={SeedDataInitializer.PsychologyLesson11Id}";
+        var res = await client.GetAsync(url);
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+
+        var activities = await res.Content.ReadFromJsonAsync<List<JsonElement>>();
+        Assert.NotNull(activities);
+        Assert.True(activities.Count >= 2, $"Expected at least 2 activities, found {activities.Count}");
+
+        var types = activities.Select(a => a.GetProperty("type").GetString()).ToList();
+        Assert.Contains("stroop_test", types);
+        Assert.Contains("psych_scenario", types);
+
+        var stroopAct = activities.First(a => a.GetProperty("type").GetString() == "stroop_test");
+        var cfg = stroopAct.GetProperty("configJson").GetString();
+        Assert.Contains("trialsCount", cfg);
+        Assert.Contains("words", cfg);
+    }
 }

@@ -1,6 +1,10 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { invalidateDashboardCache } from "@/lib/api-client";
+import { Timer, Activity, ListChecks, CheckSquare, Target, Play, RotateCcw } from "lucide-react";
+
 import {
   Brain,
   MessageSquare,
@@ -997,6 +1001,714 @@ const CBT_PRESETS: CbtPreset[] = [
    MAIN COMPONENT: PsychologyLifeSkillsLab
    ========================================================================= */
 
+
+// =============================================================================
+// CÔNG CỤ 5: PHÒNG THÍ NGHIỆM NHẬN THỨC & TÂM LÝ HỌC THỰC NGHIỆM
+// (Thí nghiệm Stroop, Đo lường Working Memory Span & Nhật ký Tự phản chiếu CBT ABCDE)
+// =============================================================================
+
+export interface CognitiveLabsShowcaseProps {
+  courseTitle: string;
+  lessonTitle: string;
+  lessonMarkdown?: string;
+  onSaveToNotebook: (text: string) => Promise<void>;
+  onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
+  onRecordAttempt?: (params: any) => Promise<void>;
+}
+
+type CognitiveSubLab = "stroop" | "memory-span" | "cbt-journal";
+
+interface StroopTrial {
+  word: string;
+  wordMeaning: string;
+  colorName: "Đỏ" | "Xanh dương" | "Xanh lá" | "Vàng";
+  colorClass: string;
+  isCongruent: boolean;
+}
+
+const STROOP_TRIALS: StroopTrial[] = [
+  { word: "ĐỎ", wordMeaning: "Đỏ", colorName: "Đỏ", colorClass: "text-red-600 dark:text-red-400 border-red-500", isCongruent: true },
+  { word: "XANH DƯƠNG", wordMeaning: "Xanh dương", colorName: "Đỏ", colorClass: "text-red-600 dark:text-red-400 border-red-500", isCongruent: false },
+  { word: "XANH LÁ", wordMeaning: "Xanh lá", colorName: "Xanh lá", colorClass: "text-emerald-600 dark:text-emerald-400 border-emerald-500", isCongruent: true },
+  { word: "VÀNG", wordMeaning: "Vàng", colorName: "Xanh dương", colorClass: "text-blue-600 dark:text-blue-400 border-blue-500", isCongruent: false },
+  { word: "ĐỎ", wordMeaning: "Đỏ", colorName: "Vàng", colorClass: "text-amber-500 dark:text-amber-300 border-amber-400", isCongruent: false },
+  { word: "VÀNG", wordMeaning: "Vàng", colorName: "Vàng", colorClass: "text-amber-500 dark:text-amber-300 border-amber-400", isCongruent: true },
+  { word: "XANH LÁ", wordMeaning: "Xanh lá", colorName: "Đỏ", colorClass: "text-red-600 dark:text-red-400 border-red-500", isCongruent: false },
+  { word: "XANH DƯƠNG", wordMeaning: "Xanh dương", colorName: "Xanh dương", colorClass: "text-blue-600 dark:text-blue-400 border-blue-500", isCongruent: true },
+  { word: "ĐỎ", wordMeaning: "Đỏ", colorName: "Xanh lá", colorClass: "text-emerald-600 dark:text-emerald-400 border-emerald-500", isCongruent: false },
+  { word: "XANH LÁ", wordMeaning: "Xanh lá", colorName: "Vàng", colorClass: "text-amber-500 dark:text-amber-300 border-amber-400", isCongruent: false },
+];
+
+export function CognitiveLabsShowcase({
+  courseTitle,
+  lessonTitle,
+  lessonMarkdown,
+  onSaveToNotebook,
+  onCreateFlashcardQuick,
+  onRecordAttempt,
+}: CognitiveLabsShowcaseProps) {
+  const [activeSubLab, setActiveSubLab] = useState<CognitiveSubLab>("stroop");
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  // ----------------------------------------------------
+  // SUB-LAB 1: STROOP TEST
+  // ----------------------------------------------------
+  const [stroopTrialIdx, setStroopTrialIdx] = useState<number>(0);
+  const [stroopIsRunning, setStroopIsRunning] = useState<boolean>(false);
+  const [stroopStartTime, setStroopStartTime] = useState<number>(0);
+  const [stroopRecords, setStroopRecords] = useState<Array<{
+    trial: number;
+    isCongruent: boolean;
+    isCorrect: boolean;
+    reactionTimeMs: number;
+  }>>([]);
+  const [stroopCompleted, setStroopCompleted] = useState<boolean>(false);
+
+  const startStroopTest = () => {
+    setStroopTrialIdx(0);
+    setStroopRecords([]);
+    setStroopCompleted(false);
+    setStroopIsRunning(true);
+    setStroopStartTime(performance.now());
+  };
+
+  const handleStroopAnswer = (chosenColor: "Đỏ" | "Xanh dương" | "Xanh lá" | "Vàng") => {
+    if (!stroopIsRunning || stroopCompleted) return;
+    const now = performance.now();
+    const rt = Math.round(now - stroopStartTime);
+    const currentTrial = STROOP_TRIALS[stroopTrialIdx];
+    const isCorrect = chosenColor === currentTrial.colorName;
+
+    const newRecord = {
+      trial: stroopTrialIdx + 1,
+      isCongruent: currentTrial.isCongruent,
+      isCorrect,
+      reactionTimeMs: rt,
+    };
+
+    const updatedRecords = [...stroopRecords, newRecord];
+    setStroopRecords(updatedRecords);
+
+    if (stroopTrialIdx + 1 < STROOP_TRIALS.length) {
+      setStroopTrialIdx(prev => prev + 1);
+      setStroopStartTime(performance.now());
+    } else {
+      setStroopIsRunning(false);
+      setStroopCompleted(true);
+
+      const correctCount = updatedRecords.filter(r => r.isCorrect).length;
+      const score = Math.round((correctCount / updatedRecords.length) * 100);
+
+      const conRecs = updatedRecords.filter(r => r.isCongruent && r.isCorrect);
+      const inconRecs = updatedRecords.filter(r => !r.isCongruent && r.isCorrect);
+      const avgCon = conRecs.length > 0 ? Math.round(conRecs.reduce((a, b) => a + b.reactionTimeMs, 0) / conRecs.length) : 0;
+      const avgIncon = inconRecs.length > 0 ? Math.round(inconRecs.reduce((a, b) => a + b.reactionTimeMs, 0) / inconRecs.length) : 0;
+      const interferenceMs = avgIncon - avgCon;
+
+      if (onRecordAttempt) {
+        onRecordAttempt({
+          mode: "stroop_test",
+          score,
+          maxScore: 100,
+          isPassed: score >= 70,
+          activityTitle: `${lessonTitle || courseTitle} · Thí nghiệm Stroop`,
+          activityKey: "psych-stroop-test",
+          details: {
+            correctCount,
+            totalTrials: updatedRecords.length,
+            avgCongruentMs: avgCon,
+            avgIncongruentMs: avgIncon,
+            interferenceMs,
+          }
+        });
+      }
+    }
+  };
+
+  const stroopStats = useMemo(() => {
+    if (stroopRecords.length === 0) return null;
+    const correctCount = stroopRecords.filter(r => r.isCorrect).length;
+    const conRecs = stroopRecords.filter(r => r.isCongruent && r.isCorrect);
+    const inconRecs = stroopRecords.filter(r => !r.isCongruent && r.isCorrect);
+    const avgCon = conRecs.length > 0 ? Math.round(conRecs.reduce((a, b) => a + b.reactionTimeMs, 0) / conRecs.length) : 0;
+    const avgIncon = inconRecs.length > 0 ? Math.round(inconRecs.reduce((a, b) => a + b.reactionTimeMs, 0) / inconRecs.length) : 0;
+    const interferenceMs = avgIncon - avgCon;
+    return {
+      accuracy: Math.round((correctCount / stroopRecords.length) * 100),
+      avgCon,
+      avgIncon,
+      interferenceMs,
+    };
+  }, [stroopRecords]);
+
+  // ----------------------------------------------------
+  // SUB-LAB 2: MEMORY SPAN & CHUNKING
+  // ----------------------------------------------------
+  const [spanLevel, setSpanLevel] = useState<number>(4);
+  const [currentSequence, setCurrentSequence] = useState<string>("");
+  const [showSequence, setShowSequence] = useState<boolean>(false);
+  const [userRecallInput, setUserRecallInput] = useState<string>("");
+  const [spanResult, setSpanResult] = useState<{ passed: boolean; expected: string; actual: string } | null>(null);
+  const [maxSpanAchieved, setMaxSpanAchieved] = useState<number>(0);
+  const [isSpanRunning, setIsSpanRunning] = useState<boolean>(false);
+  const [chunkingMode, setChunkingMode] = useState<"raw" | "chunked">("raw");
+
+  const startMemoryTest = (level: number, mode: "raw" | "chunked") => {
+    setSpanLevel(level);
+    setChunkingMode(mode);
+    setSpanResult(null);
+    setUserRecallInput("");
+    setIsSpanRunning(true);
+
+    // Sinh dãy số ngẫu nhiên
+    let digits = "";
+    for (let i = 0; i < level; i++) {
+      digits += Math.floor(Math.random() * 10).toString();
+    }
+    setCurrentSequence(digits);
+    setShowSequence(true);
+
+    // Ẩn số sau thời gian tỉ lệ với độ dài (ví dụ: 1500ms + level * 300ms)
+    setTimeout(() => {
+      setShowSequence(false);
+    }, 1500 + level * 300);
+  };
+
+  const handleVerifyRecall = () => {
+    const cleanActual = userRecallInput.replace(/\D/g, "");
+    const cleanExpected = currentSequence;
+    const isOk = cleanActual === cleanExpected;
+
+    setSpanResult({
+      passed: isOk,
+      expected: cleanExpected,
+      actual: cleanActual,
+    });
+    setIsSpanRunning(false);
+
+    if (isOk && spanLevel > maxSpanAchieved) {
+      setMaxSpanAchieved(spanLevel);
+    }
+
+    if (onRecordAttempt) {
+      const score = isOk ? Math.min(100, Math.round((spanLevel / 8) * 100)) : 40;
+      onRecordAttempt({
+        mode: "memory_span",
+        score,
+        maxScore: 100,
+        isPassed: isOk && spanLevel >= 5,
+        activityTitle: `${lessonTitle || courseTitle} · Memory Span (Level ${spanLevel})`,
+        activityKey: `psych-memory-span-${spanLevel}`,
+        details: {
+          level: spanLevel,
+          mode: chunkingMode,
+          passed: isOk,
+          maxSpan: Math.max(maxSpanAchieved, isOk ? spanLevel : 0),
+        }
+      });
+    }
+  };
+
+  // ----------------------------------------------------
+  // SUB-LAB 3: GUIDED CBT REFLECTION JOURNAL (MÔ HÌNH ABCDE)
+  // ----------------------------------------------------
+  const [cbtA, setCbtA] = useState<string>("Nhận được email phản hồi từ khách hàng / cấp trên chỉ ra 3 lỗi trong báo cáo.");
+  const [cbtB, setCbtB] = useState<string>("'Mình làm ăn thật tệ hại, chắc chắn họ nghĩ mình vô dụng và mình sắp bị sa thải.' (Bẫy tư duy: Trầm trọng hóa & Đọc suy nghĩ)");
+  const [cbtC, setCbtC] = useState<string>("Tim đập nhanh, lo âu 8/10, muốn trì hoãn né tránh mở tiếp email để sửa.");
+  const [cbtD, setCbtD] = useState<string>("Bằng chứng thực tế: Họ đã khen phần phân tích dữ liệu tuần trước. 3 lỗi này là lỗi định dạng có thể sửa trong 15 phút. Không có ai đề cập đến sa thải cả.");
+  const [cbtE, setCbtE] = useState<string>("'Sai sót là cơ hội hoàn thiện quy trình kiểm tra chéo (checklist). Mình sẽ dành 15 phút sửa ngay và cảm ơn họ đã góp ý kịp thời.' Cảm xúc: Tự tin và bình tĩnh hơn (Lo âu giảm xuống 2/10).");
+
+  const handleSaveCbtJournal = async () => {
+    const markdown = `### 🧠 Nhật Ký Phản Chiếu Nhận Thức CBT (Mô hình ABCDE)
+- **Bài học:** ${lessonTitle} (${courseTitle})
+- **A (Sự kiện kích hoạt):** ${cbtA}
+- **B (Niềm tin / Suy nghĩ tự động):** ${cbtB}
+- **C (Hệ quả cảm xúc & phản ứng):** ${cbtC}
+- **D (Tranh biện & Thách thức):** ${cbtD}
+- **E (Niềm tin mới cân bằng):** ${cbtE}`;
+
+    await onSaveToNotebook(markdown);
+    setFeedback("Đã lưu Nhật ký CBT vào Sổ tay!");
+    setTimeout(() => setFeedback(null), 3000);
+
+    if (onRecordAttempt) {
+      onRecordAttempt({
+        mode: "reflection_journal",
+        score: 100,
+        maxScore: 100,
+        isPassed: true,
+        activityTitle: `${lessonTitle || courseTitle} · Nhật ký Tự phản chiếu CBT ABCDE`,
+        activityKey: "psych-cbt-abcde-journal",
+        details: {
+          hasDisputation: cbtD.length > 20,
+          hasEffectiveBelief: cbtE.length > 20,
+        }
+      });
+    }
+  };
+
+  const handleSaveFlashcard = async (title: string, concept: string, takeaway: string) => {
+    if (!onCreateFlashcardQuick) return;
+    const front = `Tâm lý học Nhận thức: ${title}`;
+    const back = `**Khái niệm:**\n${concept}\n\n**Ứng dụng thực tiễn:**\n${takeaway}`;
+    await onCreateFlashcardQuick(front, back);
+    setFeedback("Đã lưu nguyên lý nhận thức vào Flashcard FSRS!");
+    setTimeout(() => setFeedback(null), 3000);
+  };
+
+  return (
+    <div data-testid="cognitive-labs-container" className="space-y-6">
+      {/* HEADER & SUB-TABS */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800">
+        <div>
+          <h2 className="text-sm sm:text-base font-bold flex items-center gap-2 text-purple-950 dark:text-purple-200">
+            <Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            Phòng Thí Nghiệm Nhận Thức & Khoa Học Não Bộ (Cognitive Labs)
+          </h2>
+          <p className="text-xs text-purple-700 dark:text-purple-300 mt-0.5">
+            Trực tiếp trải nghiệm các hiện tượng tâm lý học thực nghiệm và rèn luyện năng lực phản chiếu bản thân.
+          </p>
+        </div>
+
+        <div className="flex items-center flex-wrap gap-1.5 p-1 rounded-xl bg-white dark:bg-zinc-900 border border-purple-200 dark:border-purple-800">
+          <button
+            type="button"
+            data-testid="subtab-stroop"
+            onClick={() => setActiveSubLab("stroop")}
+            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+              activeSubLab === "stroop"
+                ? "bg-purple-600 text-white shadow-sm"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+            }`}
+          >
+            <Timer className="w-3.5 h-3.5" />
+            1. Thí Nghiệm Stroop
+          </button>
+          <button
+            type="button"
+            data-testid="subtab-memory-span"
+            onClick={() => setActiveSubLab("memory-span")}
+            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+              activeSubLab === "memory-span"
+                ? "bg-purple-600 text-white shadow-sm"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+            }`}
+          >
+            <Activity className="w-3.5 h-3.5" />
+            2. Trí Nhớ & Chunking
+          </button>
+          <button
+            type="button"
+            data-testid="subtab-cbt-journal"
+            onClick={() => setActiveSubLab("cbt-journal")}
+            className={`min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+              activeSubLab === "cbt-journal"
+                ? "bg-purple-600 text-white shadow-sm"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            3. Nhật Ký CBT (ABCDE)
+          </button>
+        </div>
+      </div>
+
+      {/* FEEDBACK TOAST */}
+      {feedback && (
+        <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4" />
+          <span>{feedback}</span>
+        </div>
+      )}
+
+      {/* SUB-LAB 1: STROOP TEST */}
+      {activeSubLab === "stroop" && (
+        <div data-testid="stroop-test-container" className="space-y-6">
+          <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                <Target className="w-4 h-4 text-purple-600" />
+                Mục tiêu: Đo lường sự xung đột giữa Hệ thống 1 (Tự động đọc chữ) và Hệ thống 2 (Kiểm soát ức chế chọn màu mực)
+              </span>
+              <span className="text-[11px] font-mono text-zinc-500">
+                10 Lượt kiểm tra chuẩn hóa
+              </span>
+            </div>
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              <strong>Quy tắc quan trọng:</strong> Hãy bấm nút chọn <strong>MÀU MỰC CỦA CHỮ</strong> nhanh nhất có thể, bất kể từ đó đang viết gì! Ví dụ: Từ viết là &ldquo;XANH&rdquo; nhưng màu mực là <strong>ĐỎ</strong> thì bạn phải chọn <strong>ĐỎ</strong>.
+            </p>
+          </div>
+
+          {!stroopIsRunning && !stroopCompleted && (
+            <div className="text-center py-12 rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 space-y-4">
+              <div className="text-4xl">🔴 🔵 🟢 🟡</div>
+              <h3 className="text-base font-bold text-zinc-800 dark:text-zinc-200">
+                Sẵn sàng thử thách phản xạ não bộ?
+              </h3>
+              <p className="text-xs text-zinc-500 max-w-md mx-auto">
+                Hệ thống sẽ đo thời gian phản hồi (Reaction Time) chính xác đến mili-giây (ms) bằng Web Performance API.
+              </p>
+              <button
+                type="button"
+                data-testid="stroop-start-btn"
+                onClick={startStroopTest}
+                className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition cursor-pointer shadow-sm inline-flex items-center gap-2"
+              >
+                <Play className="w-4 h-4 fill-white" />
+                Bắt Đầu Bài Test (10 Lượt)
+              </button>
+            </div>
+          )}
+
+          {stroopIsRunning && (
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-6 text-center">
+              <div className="flex items-center justify-between text-xs text-zinc-500 border-b border-zinc-200 dark:border-zinc-800 pb-3">
+                <span>Lượt: <strong className="text-purple-600 text-sm">{stroopTrialIdx + 1}</strong> / {STROOP_TRIALS.length}</span>
+                <span>Chọn màu mực nhanh nhất có thể!</span>
+              </div>
+
+              {/* TARGET WORD DISPLAY */}
+              <div className="py-8">
+                <div
+                  data-testid="stroop-target-word"
+                  className={`text-4xl sm:text-5xl font-black tracking-wider transition-all select-none ${STROOP_TRIALS[stroopTrialIdx].colorClass}`}
+                >
+                  {STROOP_TRIALS[stroopTrialIdx].word}
+                </div>
+              </div>
+
+              {/* 4 ANSWER BUTTONS */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg mx-auto">
+                <button
+                  type="button"
+                  data-testid="stroop-btn-red"
+                  onClick={() => handleStroopAnswer("Đỏ")}
+                  className="min-h-[48px] px-4 py-2.5 rounded-xl border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 font-bold text-xs hover:bg-red-100 dark:hover:bg-red-900/60 transition cursor-pointer"
+                >
+                  🔴 ĐỎ
+                </button>
+                <button
+                  type="button"
+                  data-testid="stroop-btn-blue"
+                  onClick={() => handleStroopAnswer("Xanh dương")}
+                  className="min-h-[48px] px-4 py-2.5 rounded-xl border border-blue-300 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-bold text-xs hover:bg-blue-100 dark:hover:bg-blue-900/60 transition cursor-pointer"
+                >
+                  🔵 XANH DƯƠNG
+                </button>
+                <button
+                  type="button"
+                  data-testid="stroop-btn-green"
+                  onClick={() => handleStroopAnswer("Xanh lá")}
+                  className="min-h-[48px] px-4 py-2.5 rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold text-xs hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer"
+                >
+                  🟢 XANH LÁ
+                </button>
+                <button
+                  type="button"
+                  data-testid="stroop-btn-yellow"
+                  onClick={() => handleStroopAnswer("Vàng")}
+                  className="min-h-[48px] px-4 py-2.5 rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-bold text-xs hover:bg-amber-100 dark:hover:bg-amber-900/60 transition cursor-pointer"
+                >
+                  🟡 VÀNG
+                </button>
+              </div>
+            </div>
+          )}
+
+          {stroopCompleted && stroopStats && (
+            <div data-testid="stroop-results-card" className="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-6">
+              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                    Báo Cáo Phân Tích Hiệu Ứng Stroop
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={startStroopTest}
+                  className="text-xs text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Làm lại bài test
+                </button>
+              </div>
+
+              {/* STATS TILES */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 text-center">
+                  <span className="text-[11px] text-zinc-500 block">Độ chính xác</span>
+                  <span className="text-xl font-black text-purple-700 dark:text-purple-300">{stroopStats.accuracy}%</span>
+                </div>
+                <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-center">
+                  <span className="text-[11px] text-zinc-500 block">Trùng khớp (Congruent)</span>
+                  <span className="text-xl font-black text-emerald-700 dark:text-emerald-300">{stroopStats.avgCon} ms</span>
+                </div>
+                <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-center">
+                  <span className="text-[11px] text-zinc-500 block">Bất đồng (Incongruent)</span>
+                  <span className="text-xl font-black text-amber-700 dark:text-amber-300">{stroopStats.avgIncon} ms</span>
+                </div>
+                <div className="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 text-center">
+                  <span className="text-[11px] text-zinc-500 block">Hiệu ứng Nhiễu (Interference)</span>
+                  <span className="text-xl font-black text-blue-700 dark:text-blue-300">+{stroopStats.interferenceMs} ms</span>
+                </div>
+              </div>
+
+              {/* SCIENTIFIC EXPLANATION */}
+              <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs space-y-2 leading-relaxed">
+                <h4 className="font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-purple-600" />
+                  Ý nghĩa khoa học của chỉ số Nhiễu +{stroopStats.interferenceMs}ms:
+                </h4>
+                <p className="text-zinc-600 dark:text-zinc-400">
+                  Khi từ và màu mực bất đồng, Hệ thống 1 (Automatic Reading) tự động giải mã ngữ nghĩa từ trong 150-200ms đầu tiên. Vỏ não tiền trán (Dorsolateral Prefrontal Cortex) của bạn phải kích hoạt cơ chế ức chế phản xạ (Inhibitory Control) để chọn đúng màu mực, khiến thời gian phản ứng bị chậm lại trung bình {stroopStats.interferenceMs}ms.
+                </p>
+              </div>
+
+              {/* ACTIONS */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleSaveFlashcard(
+                    "Hiệu ứng Stroop (Stroop Interference Effect)",
+                    "Hiện tượng não bộ mất nhiều thời gian hơn để xử lý khi màu sắc thực tế của chữ xung đột với ý nghĩa chữ viết.",
+                    "Minh họa sự tranh chấp giữa Hệ thống 1 (Tự động, nhanh, bản năng) và Hệ thống 2 (Ý thức, kiểm soát, chậm)."
+                  )}
+                  className="px-3.5 py-1.5 rounded-lg border border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 text-purple-800 dark:text-purple-300 text-xs font-semibold inline-flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Lưu Khái Niệm Vào Flashcard FSRS
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SUB-LAB 2: MEMORY SPAN & CHUNKING */}
+      {activeSubLab === "memory-span" && (
+        <div data-testid="memory-span-container" className="space-y-6">
+          <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-purple-600" />
+                Định luật Miller (7 ± 2) & Kỹ thuật Phân nhóm (Chunking)
+              </span>
+              <span className="text-[11px] font-mono text-zinc-500">
+                Kỷ lục cao nhất: {maxSpanAchieved} chữ số
+              </span>
+            </div>
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              Trí nhớ làm việc (Working Memory) của con người có giới hạn vật lý khoảng 4 đến 7 đơn vị thông tin rời rạc. Tuy nhiên, bằng cách <strong>Chunking (nhóm thông tin)</strong>, chúng ta có thể ghi nhớ chuỗi 10-12 số một cách dễ dàng.
+            </p>
+          </div>
+
+          {/* LEVEL SELECTOR */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Chọn độ dài chuỗi:</span>
+            {[4, 5, 6, 7, 8].map((lvl) => (
+              <button
+                key={lvl}
+                type="button"
+                data-testid={`span-lvl-btn-${lvl}`}
+                disabled={isSpanRunning}
+                onClick={() => startMemoryTest(lvl, chunkingMode)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition cursor-pointer ${
+                  spanLevel === lvl
+                    ? "bg-purple-600 border-purple-600 text-white"
+                    : "bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-purple-400"
+                }`}
+              >
+                Level {lvl} ({lvl} số)
+              </button>
+            ))}
+
+            <div className="ml-auto flex items-center gap-2">
+              <span className="text-xs text-zinc-500">Chế độ hiển thị:</span>
+              <button
+                type="button"
+                onClick={() => setChunkingMode(chunkingMode === "raw" ? "chunked" : "raw")}
+                className="px-2.5 py-1 rounded border border-zinc-300 dark:border-zinc-700 text-xs font-mono text-zinc-700 dark:text-zinc-300 cursor-pointer"
+              >
+                {chunkingMode === "raw" ? "Số rời rạc (0 9 1 2)" : "Phân nhóm (0912-345)"}
+              </button>
+            </div>
+          </div>
+
+          {/* ACTIVE TRIAL DISPLAY */}
+          <div className="p-8 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-center space-y-4">
+            {showSequence ? (
+              <div className="space-y-2">
+                <span className="text-xs text-zinc-400 uppercase tracking-widest">Hãy tập trung ghi nhớ chuỗi số:</span>
+                <div data-testid="memory-sequence-display" className="text-3xl sm:text-4xl font-mono font-black text-purple-600 dark:text-purple-400 tracking-widest">
+                  {chunkingMode === "chunked" && currentSequence.length >= 6
+                    ? `${currentSequence.slice(0, 3)}-${currentSequence.slice(3, 6)}${currentSequence.slice(6) ? `-${currentSequence.slice(6)}` : ""}`
+                    : currentSequence.split("").join(" ")}
+                </div>
+              </div>
+            ) : isSpanRunning ? (
+              <div className="space-y-3 max-w-sm mx-auto">
+                <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block">
+                  Nhập lại chính xác chuỗi số vừa xuất hiện:
+                </span>
+                <input
+                  type="text"
+                  data-testid="memory-recall-input"
+                  value={userRecallInput}
+                  onChange={(e) => setUserRecallInput(e.target.value)}
+                  placeholder="Nhập chuỗi số..."
+                  className="w-full text-center text-xl font-mono font-bold p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 focus:outline-none focus:border-purple-500"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  data-testid="memory-verify-btn"
+                  onClick={handleVerifyRecall}
+                  className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition cursor-pointer"
+                >
+                  Xác Nhận Kết Quả
+                </button>
+              </div>
+            ) : spanResult ? (
+              <div className="space-y-3">
+                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold ${
+                  spanResult.passed
+                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                    : "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
+                }`}>
+                  {spanResult.passed ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                  {spanResult.passed ? `Chính xác! Bạn đã ghi nhớ trọn vẹn ${spanLevel} chữ số.` : `Chưa chính xác ở chuỗi ${spanLevel} số.`}
+                </div>
+                <div className="text-xs font-mono text-zinc-500">
+                  Chuỗi gốc: <span className="font-bold text-zinc-800 dark:text-zinc-200">{spanResult.expected}</span> | Bạn nhập: <span className="font-bold text-zinc-800 dark:text-zinc-200">{spanResult.actual || "(trống)"}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => startMemoryTest(spanLevel, chunkingMode)}
+                  className="px-4 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
+                >
+                  Thử lại chuỗi khác
+                </button>
+              </div>
+            ) : (
+              <div className="text-xs text-zinc-500 py-4">
+                Bấm vào một trong các Level phía trên để bắt đầu thử nghiệm trí nhớ làm việc.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* SUB-LAB 3: GUIDED CBT REFLECTION JOURNAL (ABCDE) */}
+      {activeSubLab === "cbt-journal" && (
+        <div data-testid="cbt-journal-container" className="space-y-6">
+          <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-2">
+            <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <Brain className="w-4 h-4 text-purple-600" />
+              Liệu Pháp Nhận Thức - Hành Vi (CBT): Mô Hình ABCDE Tái Cấu Trúc Nhận Thức
+            </span>
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              Không phải sự việc bên ngoài (A) gây ra cảm xúc tiêu cực (C), mà chính là niềm tin và diễn giải méo mó của chúng ta (B). Bằng cách tranh biện phản biện (D), bạn tạo ra niềm tin mới tích cực và bền bỉ (E).
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-2">
+              <label className="text-xs font-bold text-zinc-800 dark:text-zinc-200 block">
+                A — Activating Event (Sự kiện kích hoạt khách quan):
+              </label>
+              <textarea
+                data-testid="cbt-input-a"
+                rows={2}
+                value={cbtA}
+                onChange={(e) => setCbtA(e.target.value)}
+                className="w-full p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-purple-500"
+              />
+            </div>
+
+            <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/20 space-y-2">
+              <label className="text-xs font-bold text-amber-900 dark:text-amber-300 block">
+                B — Beliefs (Niềm tin / Suy nghĩ tự động tiêu cực &amp; Bẫy nhận thức):
+              </label>
+              <textarea
+                data-testid="cbt-input-b"
+                rows={2}
+                value={cbtB}
+                onChange={(e) => setCbtB(e.target.value)}
+                className="w-full p-2.5 rounded-lg border border-amber-300 dark:border-amber-700 bg-white dark:bg-zinc-900 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-purple-500"
+              />
+            </div>
+
+            <div className="p-4 rounded-xl border border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/20 space-y-2">
+              <label className="text-xs font-bold text-red-900 dark:text-red-300 block">
+                C — Consequences (Hệ quả cảm xúc &amp; Phản ứng sinh lý):
+              </label>
+              <textarea
+                data-testid="cbt-input-c"
+                rows={2}
+                value={cbtC}
+                onChange={(e) => setCbtC(e.target.value)}
+                className="w-full p-2.5 rounded-lg border border-red-300 dark:border-red-700 bg-white dark:bg-zinc-900 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-purple-500"
+              />
+            </div>
+
+            <div className="p-4 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20 space-y-2">
+              <label className="text-xs font-bold text-blue-900 dark:text-blue-300 block">
+                D — Disputation (Thách thức &amp; Tranh biện phản biện dựa trên sự thật):
+              </label>
+              <textarea
+                data-testid="cbt-input-d"
+                rows={2}
+                value={cbtD}
+                onChange={(e) => setCbtD(e.target.value)}
+                className="w-full p-2.5 rounded-lg border border-blue-300 dark:border-blue-700 bg-white dark:bg-zinc-900 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-purple-500"
+              />
+            </div>
+
+            <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-950/20 space-y-2">
+              <label className="text-xs font-bold text-emerald-900 dark:text-emerald-300 block">
+                E — Effective New Belief (Niềm tin mới cân bằng &amp; Hành động kiến tạo):
+              </label>
+              <textarea
+                data-testid="cbt-input-e"
+                rows={2}
+                value={cbtE}
+                onChange={(e) => setCbtE(e.target.value)}
+                className="w-full p-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-zinc-900 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-purple-500"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => handleSaveFlashcard(
+                "Mô hình CBT ABCDE Tái Cấu Trúc Nhận Thức",
+                "A (Activating Event) -> B (Belief) -> C (Consequence) -> D (Disputation) -> E (Effective New Belief).",
+                "Áp dụng khi gặp cảm xúc tiêu cực dâng trào: viết ra suy nghĩ tự động (B) và tìm bằng chứng phản biện (D) để bình tĩnh lại."
+              )}
+              className="px-3.5 py-2 rounded-lg border border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 text-purple-800 dark:text-purple-300 text-xs font-semibold inline-flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Lưu Mô Hình Vào Flashcard FSRS
+            </button>
+
+            <button
+              type="button"
+              data-testid="cbt-save-journal-btn"
+              onClick={handleSaveCbtJournal}
+              className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition cursor-pointer shadow-sm inline-flex items-center gap-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              Lưu Nhật Ký CBT Vào Sổ Tay &amp; Ghi Nhận Luyện Tập
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function PsychologyLifeSkillsLab({
   courseId,
   courseTitle,
@@ -1007,7 +1719,99 @@ export function PsychologyLifeSkillsLab({
   onCreateFlashcardQuick,
 }: PracticeModuleProps) {
   // Navigation tabs
-  const [activeTab, setActiveTab] = useState<"roleplay" | "biases" | "cbt" | "lesson-cases">("roleplay");
+  const [activeTab, setActiveTab] = useState<"roleplay" | "biases" | "cbt" | "lesson-cases" | "cognitive-labs">("roleplay");
+
+  const [dbActivities, setDbActivities] = useState<any[]>([]);
+  const [practiceAttempts, setPracticeAttempts] = useState<any[]>([]);
+  const [isLoadingBackend, setIsLoadingBackend] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadBackendPractice() {
+      setIsLoadingBackend(true);
+      try {
+        const headers = getClientRequestHeaders();
+        const actUrl = `/api/v1/practice/activities?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}`;
+        const attUrl = `/api/v1/practice/attempts?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}`;
+
+        const [actRes, attRes] = await Promise.all([
+          fetch(actUrl, { headers }).catch(() => null),
+          fetch(attUrl, { headers }).catch(() => null),
+        ]);
+
+        if (actRes && actRes.ok) {
+          const actData = await actRes.json();
+          if (isMounted && Array.isArray(actData)) {
+            setDbActivities(actData);
+          }
+        }
+        if (attRes && attRes.ok) {
+          const attData = await attRes.json();
+          if (isMounted && Array.isArray(attData)) {
+            setPracticeAttempts(attData);
+          }
+        }
+      } catch {
+        // ignore
+      } finally {
+        if (isMounted) setIsLoadingBackend(false);
+      }
+    }
+    loadBackendPractice();
+    return () => {
+      isMounted = false;
+    };
+  }, [courseId, lessonId]);
+
+  const recordPracticeAttempt = useCallback(
+    async (params: {
+      mode: string;
+      score: number;
+      maxScore?: number;
+      isPassed?: boolean;
+      details?: any;
+      durationSeconds?: number;
+      activityTitle?: string;
+      activityKey?: string;
+    }) => {
+      try {
+        const headers = getClientRequestHeaders();
+        const dbAct = dbActivities.find(a => a.type === params.mode || a.id === params.activityKey);
+        const passed = params.isPassed ?? (params.score >= (dbAct?.passingScore ?? 70));
+        const payload = {
+          activityId: dbAct?.id || null,
+          courseId,
+          lessonId: lessonId || null,
+          activityType: params.mode,
+          activityKey: params.activityKey || `${courseId}-${lessonId || "general"}-${params.mode}`,
+          activityTitle: params.activityTitle || `${lessonTitle || courseTitle} · ${params.mode}`,
+          score: Math.max(0, Math.min(params.maxScore || 100, Math.round(params.score))),
+          maxScore: params.maxScore || 100,
+          isPassed: passed,
+          detailJson: JSON.stringify(params.details || {}),
+          durationSeconds: params.durationSeconds || null,
+        };
+
+        const res = await fetch("/api/v1/practice/attempts", {
+          method: "POST",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          const saved = await res.json();
+          setPracticeAttempts(prev => [saved, ...prev]);
+          invalidateDashboardCache();
+        }
+      } catch {
+        // ignore
+      }
+    },
+    [courseId, lessonId, lessonTitle, courseTitle, dbActivities]
+  );
 
   // Extracted action steps & reflections from current lessonMarkdown
   const extractedLessonCases = useMemo(() => {
@@ -1465,6 +2269,20 @@ ${chatHistory
           >
             <BookmarkCheck className="w-4 h-4" />
             <span>4. Checklist &amp; Tình Huống Bài Học</span>
+          </button>
+
+          <button
+            type="button"
+            data-testid="tab-cognitive-labs"
+            onClick={() => setActiveTab("cognitive-labs")}
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+              activeTab === "cognitive-labs"
+                ? "bg-purple-600 text-white shadow-md shadow-purple-500/20"
+                : "bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700"
+            }`}
+          >
+            <Brain className="w-4 h-4" />
+            <span>5. Phòng Thí Nghiệm Nhận Thức (Cognitive Labs)</span>
           </button>
         </div>
       </div>
@@ -2190,6 +3008,20 @@ ${chatHistory
             </div>
           </div>
         </div>
+      )}
+
+      {/* =====================================================================
+          TAB 5: PHÒNG THÍ NGHIỆM NHẬN THỨC (COGNITIVE LABS)
+          ===================================================================== */}
+      {activeTab === "cognitive-labs" && (
+        <CognitiveLabsShowcase
+          courseTitle={courseTitle}
+          lessonTitle={lessonTitle}
+          lessonMarkdown={lessonMarkdown}
+          onSaveToNotebook={onSaveToNotebook}
+          onCreateFlashcardQuick={onCreateFlashcardQuick}
+          onRecordAttempt={recordPracticeAttempt}
+        />
       )}
 
       {/* =====================================================================

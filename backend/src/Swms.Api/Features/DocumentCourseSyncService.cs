@@ -208,9 +208,28 @@ public static class DocumentCourseSyncService
 
     public static (string? SourceFolder, string Category) ResolveCourseMetadata(string? courseSlug, string? title = null, string? astSourceFolder = null)
     {
-        if (!string.IsNullOrWhiteSpace(courseSlug) && DefinitionBySlug.TryGetValue(courseSlug, out var def))
+        if (!string.IsNullOrWhiteSpace(courseSlug))
         {
-            return (def.SourceFolder, def.Category);
+            if (DefinitionBySlug.TryGetValue(courseSlug, out var def))
+            {
+                return (def.SourceFolder, def.Category);
+            }
+            if (courseSlug.Equals("dau-tu-quan-tri-danh-muc-thuc-chien", StringComparison.OrdinalIgnoreCase))
+            {
+                return (null, "Tài chính & Đầu tư");
+            }
+            if (courseSlug.Equals("lap-trinh-javascript-tu-duy-giai-quyet-van-de", StringComparison.OrdinalIgnoreCase))
+            {
+                return (null, "Lập trình & Công nghệ");
+            }
+            if (courseSlug.Equals("tam-ly-hoc-ung-dung-khoa-hoc-tri-nho", StringComparison.OrdinalIgnoreCase))
+            {
+                return (null, "Tâm lý & Kỹ năng sống");
+            }
+            if (courseSlug.Equals("tieng-anh-giao-tiep-thuc-chien-a2-b1", StringComparison.OrdinalIgnoreCase))
+            {
+                return (null, "Ngoại ngữ");
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(astSourceFolder) && DefinitionByFolder.TryGetValue(astSourceFolder, out var byFolder))
@@ -220,6 +239,18 @@ public static class DocumentCourseSyncService
 
         if (!string.IsNullOrWhiteSpace(title))
         {
+            if (title.Contains("Đầu tư & Quản trị Danh mục", StringComparison.OrdinalIgnoreCase))
+            {
+                return (null, "Tài chính & Đầu tư");
+            }
+            if (title.Contains("JavaScript & Tư duy Giải quyết", StringComparison.OrdinalIgnoreCase))
+            {
+                return (null, "Lập trình & Công nghệ");
+            }
+            if (title.Contains("Tâm lý học Ứng dụng & Khoa học Trí nhớ", StringComparison.OrdinalIgnoreCase))
+            {
+                return (null, "Tâm lý & Kỹ năng sống");
+            }
             if (title.Contains("Hệ điều hành", StringComparison.OrdinalIgnoreCase) ||
                 title.Contains("Paging", StringComparison.OrdinalIgnoreCase))
             {

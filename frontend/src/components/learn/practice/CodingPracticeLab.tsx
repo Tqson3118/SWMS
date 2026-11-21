@@ -1,6 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { invalidateDashboardCache } from "@/lib/api-client";
+import { ArrowUp, ArrowDown } from "lucide-react";
+
 import {
   Code2,
   Bug,
@@ -40,6 +44,7 @@ import {
   Bot,
   Loader2,
   PlayCircle,
+  Target,
 } from "lucide-react";
 
 export interface PracticeModuleProps {
@@ -52,7 +57,7 @@ export interface PracticeModuleProps {
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
 }
 
-type MainPracticeMode = "fill-code" | "bug-hunter" | "system-visualizer" | "lesson-tasks";
+type MainPracticeMode = "fill-code" | "bug-hunter" | "system-visualizer" | "lesson-tasks" | "js-sandbox" | "parsons";
 type TopicCategory = "auto" | "dotnet" | "react" | "sql" | "os";
 
 // ==========================================
@@ -926,6 +931,1259 @@ await tx.CommitAsync();`,
   },
 ];
 
+
+// =============================================================================
+// CÔNG CỤ 5: WEB WORKER JAVASCRIPT / TYPESCRIPT SANDBOX
+// (Cách ly an toàn trong Worker, Timeout 2000ms, Đo lường hiệu năng)
+// =============================================================================
+
+export interface JsWorkerSandboxLabProps {
+  lessonMarkdown?: string;
+  lessonTitle?: string;
+  onSaveToNotebook: (text: string) => Promise<void>;
+  onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
+  onRecordAttempt?: (params: any) => Promise<void>;
+}
+
+interface CodingChallenge {
+  id: string;
+  title: string;
+  difficulty: "Dễ" | "Trung bình" | "Nâng cao";
+  timeLimitMs: number;
+  description: string;
+  starterCode: string;
+  solutionCode: string;
+  hint: string;
+  testCases: Array<{
+    name: string;
+    input: any[];
+    expected: any;
+  }>;
+}
+
+const JS_CHALLENGES: CodingChallenge[] = [
+  {
+    id: "two-sum",
+    title: "1. Two Sum (Tìm Cặp Chỉ Số Bằng Target)",
+    difficulty: "Dễ",
+    timeLimitMs: 2000,
+    description: "Cho một mảng số nguyên `nums` và một số nguyên `target`. Hãy trả về chỉ số của hai số sao cho tổng của chúng bằng `target`. Giả định mỗi đầu vào có đúng một nghiệm và không dùng cùng một phần tử hai lần. Yêu cầu độ phức tạp O(n) sử dụng Map hoặc Hash Table.",
+    starterCode: `function twoSum(nums, target) {
+  // Gợi ý: Sử dụng Map để lưu { giá trị: chỉ số }
+  const seen = new Map();
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i];
+    if (seen.has(complement)) {
+      return [seen.get(complement), i];
+    }
+    seen.set(nums[i], i);
+  }
+  return [];
+}`,
+    solutionCode: `function twoSum(nums, target) {
+  const seen = new Map();
+  for (let i = 0; i < nums.length; i++) {
+    const diff = target - nums[i];
+    if (seen.has(diff)) return [seen.get(diff), i];
+    seen.set(nums[i], i);
+  }
+  return [];
+}`,
+    hint: "Dùng Map để tra cứu số bù (target - nums[i]) trong O(1).",
+    testCases: [
+      { name: "Cơ bản: [2, 7, 11, 15], target = 9", input: [[2, 7, 11, 15], 9], expected: [0, 1] },
+      { name: "Các số nhỏ: [3, 2, 4], target = 6", input: [[3, 2, 4], 6], expected: [1, 2] },
+      { name: "Phần tử giống nhau: [3, 3], target = 6", input: [[3, 3], 6], expected: [0, 1] },
+      { name: "Số âm: [-1, -2, -3, -4, -5], target = -8", input: [[-1, -2, -3, -4, -5], -8], expected: [2, 4] }
+    ]
+  },
+  {
+    id: "deep-clone",
+    title: "2. Deep Clone Object (Sao Chép Sâu Đối Tượng)",
+    difficulty: "Trung bình",
+    timeLimitMs: 2000,
+    description: "Viết hàm `deepClone(obj)` sao chép đệ quy toàn bộ thuộc tính của một đối tượng JavaScript bao gồm mảng lồng nhau, đối tượng lồng nhau, tránh tham chiếu cùng ô nhớ. Xử lý các kiểu nguyên thủy, null, array và object thuần.",
+    starterCode: `function deepClone(obj) {
+  if (obj === null || typeof obj !== "object") {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => deepClone(item));
+  }
+  const cloned = {};
+  for (const key of Object.keys(obj)) {
+    cloned[key] = deepClone(obj[key]);
+  }
+  return cloned;
+}`,
+    solutionCode: `function deepClone(obj) {
+  if (obj === null || typeof obj !== "object") return obj;
+  if (Array.isArray(obj)) return obj.map(deepClone);
+  const copy = {};
+  for (const k in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, k)) {
+      copy[k] = deepClone(obj[k]);
+    }
+  }
+  return copy;
+}`,
+    hint: "Kiểm tra null trước typeof === 'object', phân nhánh Array.isArray và duyệt Object.keys.",
+    testCases: [
+      { name: "Đối tượng lồng: { a: 1, b: { c: 2 } }", input: [{ a: 1, b: { c: 2 } }], expected: { a: 1, b: { c: 2 } } },
+      { name: "Mảng lồng đối tượng: [{ id: 1 }, { id: 2 }]", input: [[{ id: 1 }, { id: 2 }]], expected: [{ id: 1 }, { id: 2 }] },
+      { name: "Giá trị nguyên thủy & null: 42", input: [42], expected: 42 }
+    ]
+  },
+  {
+    id: "lru-cache-lookup",
+    title: "3. LRU Cache - Thuật Toán Thay Thế Bộ Nhớ Đệm",
+    difficulty: "Nâng cao",
+    timeLimitMs: 2000,
+    description: "Triển khai hàm mô phỏng cơ chế bộ nhớ đệm `simulateLRU(capacity, operations)`. Operations gồm chuỗi các lệnh ['PUT', key, val] hoặc ['GET', key]. Trả về danh sách kết quả các lệnh GET (-1 nếu không tìm thấy key). Khi dung lượng vượt quá capacity, xóa key ít được truy cập nhất gần đây.",
+    starterCode: `function simulateLRU(capacity, operations) {
+  const cache = new Map(); // Map trong JS lưu giữ thứ tự insertion
+  const results = [];
+
+  for (const op of operations) {
+    const type = op[0];
+    const key = op[1];
+    if (type === "GET") {
+      if (!cache.has(key)) {
+        results.push(-1);
+      } else {
+        const val = cache.get(key);
+        // Làm mới thứ tự truy cập: xóa rồi set lại vào cuối
+        cache.delete(key);
+        cache.set(key, val);
+        results.push(val);
+      }
+    } else if (type === "PUT") {
+      const val = op[2];
+      if (cache.has(key)) {
+        cache.delete(key);
+      } else if (cache.size >= capacity) {
+        // Xóa phần tử đầu tiên (ít truy cập nhất)
+        const firstKey = cache.keys().next().value;
+        cache.delete(firstKey);
+      }
+      cache.set(key, val);
+    }
+  }
+  return results;
+}`,
+    solutionCode: `function simulateLRU(capacity, operations) {
+  const cache = new Map();
+  const results = [];
+  for (const op of operations) {
+    const type = op[0];
+    const key = op[1];
+    if (type === "GET") {
+      if (!cache.has(key)) {
+        results.push(-1);
+      } else {
+        const val = cache.get(key);
+        cache.delete(key);
+        cache.set(key, val);
+        results.push(val);
+      }
+    } else if (type === "PUT") {
+      const val = op[2];
+      if (cache.has(key)) {
+        cache.delete(key);
+      } else if (cache.size >= capacity) {
+        const oldest = cache.keys().next().value;
+        cache.delete(oldest);
+      }
+      cache.set(key, val);
+    }
+  }
+  return results;
+}`,
+    hint: "Map trong JS duy trì thứ tự nạp key. Dùng cache.keys().next().value để lấy key cũ nhất trong O(1).",
+    testCases: [
+      {
+        name: "PUT 1->1, PUT 2->2, GET 1, PUT 3->3, GET 2 (bị loại), GET 3",
+        input: [
+          2,
+          [
+            ["PUT", 1, 1],
+            ["PUT", 2, 2],
+            ["GET", 1],
+            ["PUT", 3, 3],
+            ["GET", 2],
+            ["GET", 3],
+          ]
+        ],
+        expected: [1, -1, 3]
+      }
+    ]
+  }
+];
+
+export function JsWorkerSandboxLab({
+  lessonMarkdown,
+  lessonTitle,
+  onSaveToNotebook,
+  onCreateFlashcardQuick,
+  onRecordAttempt,
+}: JsWorkerSandboxLabProps) {
+  const [selectedChallengeId, setSelectedChallengeId] = useState<string>(JS_CHALLENGES[0].id);
+  const activeChallenge = useMemo(() => {
+    return JS_CHALLENGES.find(c => c.id === selectedChallengeId) || JS_CHALLENGES[0];
+  }, [selectedChallengeId]);
+
+  const [userCode, setUserCode] = useState<string>(activeChallenge.starterCode);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [testResults, setTestResults] = useState<Array<{
+    name: string;
+    passed: boolean;
+    actual: any;
+    expected: any;
+    error?: string;
+  }> | null>(null);
+  const [consoleLogs, setConsoleLogs] = useState<string[]>([]);
+  const [executionTimeMs, setExecutionTimeMs] = useState<number | null>(null);
+  const [workerError, setWorkerError] = useState<string | null>(null);
+  const [showHint, setShowHint] = useState<boolean>(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  // Khi đổi challenge, reset code và kết quả
+  useEffect(() => {
+    setUserCode(activeChallenge.starterCode);
+    setTestResults(null);
+    setConsoleLogs([]);
+    setExecutionTimeMs(null);
+    setWorkerError(null);
+    setShowHint(false);
+  }, [activeChallenge]);
+
+  // Trích xuất code block từ lessonMarkdown nếu có
+  const extractedSnippets = useMemo(() => {
+    if (!lessonMarkdown) return [];
+    const jsRegex = /```(?:javascript|js|ts|typescript)\r?\n([\s\S]*?)```/g;
+    const items: Array<{ title: string; code: string }> = [];
+    let match: RegExpExecArray | null;
+    let count = 0;
+    while ((match = jsRegex.exec(lessonMarkdown)) !== null) {
+      count++;
+      items.push({
+        title: `Đoạn mã trích xuất #${count} từ bài học`,
+        code: match[1].trim(),
+      });
+    }
+    return items;
+  }, [lessonMarkdown]);
+
+  // CHẠY KIỂM THỬ TRONG WEB WORKER VỚI BLOB URL VÀ TIMEOUT 2000MS
+  const runCodeInWorker = () => {
+    setIsRunning(true);
+    setWorkerError(null);
+    setTestResults(null);
+    setConsoleLogs([]);
+    setExecutionTimeMs(null);
+
+    const startTime = performance.now();
+
+    // Mã nguồn worker đóng gói
+    const workerScript = `
+self.onmessage = function(e) {
+  const { code, testCases } = e.data;
+  const capturedLogs = [];
+
+  const customConsole = {
+    log: function(...args) {
+      capturedLogs.push(args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' '));
+    },
+    warn: function(...args) {
+      capturedLogs.push('[CẢNH BÁO] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' '));
+    },
+    error: function(...args) {
+      capturedLogs.push('[LỖI] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' '));
+    }
+  };
+
+  try {
+    const wrapped = new Function(
+      'console',
+      code + ';\\nreturn (typeof twoSum === "function" ? twoSum : (typeof deepClone === "function" ? deepClone : (typeof simulateLRU === "function" ? simulateLRU : (typeof solution === "function" ? solution : null))));'
+    );
+    const targetFn = wrapped(customConsole);
+
+    if (!targetFn) {
+      self.postMessage({
+        type: 'ERROR',
+        error: 'Không tìm thấy hàm kiểm thử tương ứng (ví dụ: twoSum, deepClone, simulateLRU hoặc solution). Vui lòng kiểm tra tên hàm!',
+        logs: capturedLogs
+      });
+      return;
+    }
+
+    const results = [];
+    for (const tc of testCases) {
+      try {
+        const actual = targetFn(...tc.input);
+        const passed = JSON.stringify(actual) === JSON.stringify(tc.expected);
+        results.push({
+          name: tc.name,
+          passed: passed,
+          actual: actual,
+          expected: tc.expected
+        });
+      } catch (tcErr) {
+        results.push({
+          name: tc.name,
+          passed: false,
+          actual: null,
+          expected: tc.expected,
+          error: tcErr && tcErr.message ? tcErr.message : String(tcErr)
+        });
+      }
+    }
+
+    self.postMessage({
+      type: 'SUCCESS',
+      results: results,
+      logs: capturedLogs
+    });
+  } catch (parseErr) {
+    self.postMessage({
+      type: 'ERROR',
+      error: parseErr && parseErr.message ? parseErr.message : String(parseErr),
+      logs: capturedLogs
+    });
+  }
+};
+`;
+
+    const blob = new Blob([workerScript], { type: "application/javascript" });
+    const blobUrl = URL.createObjectURL(blob);
+    let worker: Worker | null = null;
+    let timer: any = null;
+
+    try {
+      worker = new Worker(blobUrl);
+
+      // Thiết lập timeout 2000ms
+      timer = setTimeout(() => {
+        if (worker) {
+          worker.terminate();
+          URL.revokeObjectURL(blobUrl);
+        }
+        setIsRunning(false);
+        setWorkerError("⏱️ LỖI QUÁ THỜI GIAN: Mã thực thi vượt quá 2000ms! Vui lòng kiểm tra vòng lặp vô tận (infinite loop) hoặc thuật toán đệ quy.");
+      }, activeChallenge.timeLimitMs || 2000);
+
+      worker.onmessage = (event) => {
+        clearTimeout(timer);
+        const endTime = performance.now();
+        setExecutionTimeMs(Math.round(endTime - startTime));
+        setIsRunning(false);
+
+        if (worker) worker.terminate();
+        URL.revokeObjectURL(blobUrl);
+
+        const data = event.data;
+        if (data.type === "SUCCESS") {
+          setTestResults(data.results);
+          setConsoleLogs(data.logs || []);
+
+          const passedCount = data.results.filter((r: any) => r.passed).length;
+          const totalCount = data.results.length;
+          const score = Math.round((passedCount / totalCount) * 100);
+          const isPassed = score === 100;
+
+          if (onRecordAttempt) {
+            onRecordAttempt({
+              mode: "js_sandbox",
+              score,
+              maxScore: 100,
+              isPassed,
+              activityTitle: `${activeChallenge.title} · Web Worker Sandbox`,
+              activityKey: `coding-sandbox-${activeChallenge.id}`,
+              durationSeconds: Math.max(1, Math.round((endTime - startTime) / 1000)),
+              details: {
+                challengeId: activeChallenge.id,
+                passedCount,
+                totalCount,
+                executionTimeMs: Math.round(endTime - startTime),
+                tests: data.results,
+              }
+            });
+          }
+        } else {
+          setWorkerError(`Lỗi thực thi: ${data.error}`);
+          setConsoleLogs(data.logs || []);
+        }
+      };
+
+      worker.onerror = (wErr) => {
+        clearTimeout(timer);
+        setIsRunning(false);
+        if (worker) worker.terminate();
+        URL.revokeObjectURL(blobUrl);
+        setWorkerError(`Lỗi Worker Runtime: ${wErr.message}`);
+      };
+
+      worker.postMessage({
+        code: userCode,
+        testCases: activeChallenge.testCases,
+      });
+    } catch (createErr: any) {
+      clearTimeout(timer);
+      setIsRunning(false);
+      URL.revokeObjectURL(blobUrl);
+      setWorkerError(`Không thể khởi tạo Web Worker: ${createErr.message}`);
+    }
+  };
+
+  const handleSaveToNotebook = async () => {
+    const passedCount = testResults ? testResults.filter(r => r.passed).length : 0;
+    const content = `### Ghi chép Thực Hành: ${activeChallenge.title}
+**Độ khó:** ${activeChallenge.difficulty} | **Thời gian chạy:** ${executionTimeMs ?? 0}ms
+**Kết quả kiểm thử:** ${passedCount}/${activeChallenge.testCases.length} Test cases đạt
+
+\`\`\`javascript
+${userCode}
+\`\`\`
+${testResults ? `**Chi tiết kết quả:**\n` + testResults.map(r => `- ${r.passed ? "✅" : "❌"} ${r.name}: ${r.passed ? "Passed" : (r.error || "Failed")}`).join("\n") : ""}`;
+
+    await onSaveToNotebook(content);
+    setFeedback("Đã lưu lời giải và kết quả Sandbox vào Sổ tay!");
+    setTimeout(() => setFeedback(null), 3000);
+  };
+
+  const handleCreateFlashcard = async () => {
+    if (!onCreateFlashcardQuick) return;
+    const front = `Lập trình: Thuật toán giải quyết bài toán ${activeChallenge.title}`;
+    const back = `${activeChallenge.description}\n\n**Mã nguồn tối ưu mẫu:**\n\`\`\`javascript\n${activeChallenge.solutionCode}\n\`\`\`\n\n**Nguyên lý cốt lõi:**\n${activeChallenge.hint}`;
+    await onCreateFlashcardQuick(front, back);
+    setFeedback("Đã lưu thuật toán vào Flashcard FSRS!");
+    setTimeout(() => setFeedback(null), 3000);
+  };
+
+  return (
+    <div data-testid="js-sandbox-container" className="space-y-6">
+      {/* HEADER & SELECTOR */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+        <div>
+          <h2 className="text-sm sm:text-base font-bold flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
+            <Cpu className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            Web Worker Sandbox (JavaScript / TypeScript Execution Engine)
+          </h2>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
+            Mã nguồn được cách ly an toàn trong Web Worker riêng biệt. Giới hạn 2000ms chống treo giao diện.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 whitespace-nowrap">Chọn bài thử thách:</label>
+          <select
+            data-testid="js-sandbox-challenge-select"
+            value={selectedChallengeId}
+            onChange={(e) => setSelectedChallengeId(e.target.value)}
+            className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            {JS_CHALLENGES.map((c) => (
+              <option key={c.id} value={c.id}>
+                [{c.difficulty}] {c.title}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* FEEDBACK BANNER */}
+      {feedback && (
+        <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4" />
+          <span>{feedback}</span>
+        </div>
+      )}
+
+      {/* MAIN LAYOUT: DESCRIPTION & EDITOR */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left: Problem statement & Test cases overview (5 cols) */}
+        <div className="lg:col-span-5 space-y-4">
+          <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                activeChallenge.difficulty === "Dễ"
+                  ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300"
+                  : activeChallenge.difficulty === "Trung bình"
+                  ? "bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300"
+                  : "bg-red-100 text-red-800 dark:bg-red-950/80 dark:text-red-300"
+              }`}>
+                Độ khó: {activeChallenge.difficulty}
+              </span>
+              <span className="text-[11px] font-mono text-zinc-500">
+                Timeout: {activeChallenge.timeLimitMs}ms
+              </span>
+            </div>
+
+            <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">
+              {activeChallenge.description}
+            </p>
+
+            <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800">
+              <h3 className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 mb-2">Bộ kiểm thử (Test Cases):</h3>
+              <div className="space-y-1.5">
+                {activeChallenge.testCases.map((tc, idx) => (
+                  <div key={idx} className="p-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[11px]">
+                    <div className="font-semibold text-zinc-800 dark:text-zinc-200">{tc.name}</div>
+                    <div className="text-zinc-500 font-mono mt-0.5">
+                      Kỳ vọng: <span className="text-purple-600 dark:text-purple-400">{JSON.stringify(tc.expected)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Hint toggle */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setShowHint(!showHint)}
+                className="text-xs text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 font-medium cursor-pointer"
+              >
+                <HelpCircle className="w-3.5 h-3.5" />
+                {showHint ? "Ẩn gợi ý giải thuật" : "Xem gợi ý giải thuật"}
+              </button>
+              {showHint && (
+                <div className="mt-2 p-2.5 rounded-lg bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800 text-xs text-purple-900 dark:text-purple-300">
+                  {activeChallenge.hint}
+                </div>
+              )}
+            </div>
+
+            {/* Extracted lesson snippets if any */}
+            {extractedSnippets.length > 0 && (
+              <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
+                <span className="text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1">
+                  <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
+                  Mã từ bài học hiện tại:
+                </span>
+                {extractedSnippets.slice(0, 2).map((snip, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setUserCode(snip.code)}
+                    className="w-full text-left p-2 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 hover:border-purple-400 text-[11px] font-mono text-zinc-700 dark:text-zinc-300 truncate block transition cursor-pointer"
+                  >
+                    Nạp: {snip.title}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Code Editor & Execution Results (7 cols) */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-950 text-zinc-100 overflow-hidden shadow-sm">
+            {/* Editor Topbar */}
+            <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900 border-b border-zinc-800 text-xs">
+              <div className="flex items-center gap-2">
+                <Terminal className="w-4 h-4 text-emerald-400" />
+                <span className="font-mono text-zinc-200 font-semibold">solution.js (Web Worker Isolation)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setUserCode(activeChallenge.starterCode)}
+                  className="px-2 py-1 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition text-[11px] flex items-center gap-1"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  Khôi phục
+                </button>
+              </div>
+            </div>
+
+            {/* Editor Textarea */}
+            <textarea
+              data-testid="js-sandbox-code-editor"
+              value={userCode}
+              onChange={(e) => setUserCode(e.target.value)}
+              rows={14}
+              className="w-full p-4 font-mono text-xs text-emerald-400 bg-zinc-950 resize-y focus:outline-none leading-relaxed border-none selection:bg-purple-900 selection:text-white"
+              spellCheck={false}
+            />
+
+            {/* Action Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-zinc-900/90 border-t border-zinc-800">
+              <div className="flex items-center gap-3 text-[11px] text-zinc-400">
+                <span>{userCode.split("\n").length} dòng</span>
+                {executionTimeMs !== null && (
+                  <span className="text-emerald-400 font-mono">
+                    ⚡ {executionTimeMs} ms
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleSaveToNotebook}
+                  className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-200 font-medium inline-flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  <BookmarkPlus className="w-3.5 h-3.5 text-purple-400" />
+                  Lưu Sổ Tay
+                </button>
+                {onCreateFlashcardQuick && (
+                  <button
+                    type="button"
+                    onClick={handleCreateFlashcard}
+                    className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-200 font-medium inline-flex items-center gap-1.5 transition cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    Lưu FSRS
+                  </button>
+                )}
+                <button
+                  type="button"
+                  data-testid="js-sandbox-run-btn"
+                  disabled={isRunning}
+                  onClick={runCodeInWorker}
+                  className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-xs font-bold text-white inline-flex items-center gap-1.5 transition cursor-pointer shadow-sm"
+                >
+                  {isRunning ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Đang chạy trong Worker...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4 fill-white" />
+                      Chạy Thử Nghiệm & Kiểm Thử
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* WORKER ERROR DISPLAY */}
+          {workerError && (
+            <div data-testid="js-sandbox-error" className="p-4 rounded-xl bg-red-950/40 border border-red-800 text-red-200 text-xs space-y-2">
+              <div className="flex items-center gap-2 font-bold text-red-400">
+                <AlertTriangle className="w-4 h-4" />
+                <span>Lỗi Thực Thi Mã Nguồn:</span>
+              </div>
+              <p className="font-mono whitespace-pre-wrap">{workerError}</p>
+            </div>
+          )}
+
+          {/* TEST RESULTS DISPLAY */}
+          {testResults && (
+            <div data-testid="js-sandbox-results" className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-3">
+              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2">
+                <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-purple-600" />
+                  Kết quả kiểm thử ({testResults.filter(r => r.passed).length}/{testResults.length} Đạt)
+                </span>
+                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                  testResults.every(r => r.passed)
+                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                    : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                }`}>
+                  {Math.round((testResults.filter(r => r.passed).length / testResults.length) * 100)}% Điểm
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                {testResults.map((tr, idx) => (
+                  <div
+                    key={idx}
+                    className={`p-3 rounded-lg border text-xs space-y-1 ${
+                      tr.passed
+                        ? "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/60"
+                        : "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-800/60"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between font-semibold">
+                      <span className="flex items-center gap-1.5">
+                        {tr.passed ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        ) : (
+                          <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
+                        )}
+                        <span className={tr.passed ? "text-emerald-900 dark:text-emerald-200" : "text-red-900 dark:text-red-200"}>
+                          {tr.name}
+                        </span>
+                      </span>
+                      <span className="text-[11px] font-mono">
+                        {tr.passed ? "PASS" : "FAIL"}
+                      </span>
+                    </div>
+
+                    {!tr.passed && (
+                      <div className="font-mono text-[11px] text-zinc-600 dark:text-zinc-400 pl-5 space-y-0.5">
+                        <div>Thực tế: <span className="text-red-600 dark:text-red-400">{JSON.stringify(tr.actual)}</span></div>
+                        <div>Kỳ vọng: <span className="text-emerald-600 dark:text-emerald-400">{JSON.stringify(tr.expected)}</span></div>
+                        {tr.error && <div className="text-red-500">Lỗi: {tr.error}</div>}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Console Logs Stream */}
+              {consoleLogs.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800">
+                  <span className="text-[11px] font-bold text-zinc-500 flex items-center gap-1 mb-1">
+                    <Terminal className="w-3.5 h-3.5" />
+                    Console Logs ({consoleLogs.length} dòng):
+                  </span>
+                  <div className="p-2.5 rounded-lg bg-zinc-900 text-zinc-300 font-mono text-[11px] max-h-32 overflow-y-auto space-y-1">
+                    {consoleLogs.map((log, lIdx) => (
+                      <div key={lIdx} className="leading-tight">{log}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// CÔNG CỤ 6: PARSONS PROBLEM (GHÉP & SẮP XẾP DÒNG CODE THEO THỨ TỰ LOGIC)
+// (Hỗ trợ Touch/Mobile 390px qua nút Up/Down và Thao Tác 1 Chạm)
+// =============================================================================
+
+export interface ParsonsProblemLabProps {
+  onSaveToNotebook: (text: string) => Promise<void>;
+  onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
+  onRecordAttempt?: (params: any) => Promise<void>;
+}
+
+interface ParsonsProblem {
+  id: string;
+  title: string;
+  category: string;
+  goal: string;
+  explanation: string;
+  correctLines: string[];
+  initialShuffled: string[];
+}
+
+const PARSONS_PROBLEMS: ParsonsProblem[] = [
+  {
+    id: "parsons-binary-search",
+    title: "1. Thuật Toán Tìm Kiếm Nhị Phân (Binary Search)",
+    category: "Cấu trúc dữ liệu & Thuật toán",
+    goal: "Sắp xếp các dòng mã nguồn theo đúng trình tự thuật toán tìm kiếm nhị phân chia đôi phạm vi.",
+    explanation: "Đầu tiên khởi tạo left=0 và right=length-1. Trong vòng lặp while(left <= right), tính mid, so sánh arr[mid] với target để quyết định co cụm phạm vi left hoặc right. Nếu không tìm thấy, trả về -1.",
+    correctLines: [
+      "function binarySearch(arr, target) {",
+      "  let left = 0, right = arr.length - 1;",
+      "  while (left <= right) {",
+      "    const mid = Math.floor((left + right) / 2);",
+      "    if (arr[mid] === target) return mid;",
+      "    if (arr[mid] < target) left = mid + 1;",
+      "    else right = mid - 1;",
+      "  }",
+      "  return -1;",
+      "}"
+    ],
+    initialShuffled: [
+      "    if (arr[mid] === target) return mid;",
+      "  let left = 0, right = arr.length - 1;",
+      "function binarySearch(arr, target) {",
+      "    else right = mid - 1;",
+      "  while (left <= right) {",
+      "  return -1;",
+      "    if (arr[mid] < target) left = mid + 1;",
+      "    const mid = Math.floor((left + right) / 2);",
+      "  }",
+      "}"
+    ]
+  },
+  {
+    id: "parsons-async-retry",
+    title: "2. Fetch Dữ Liệu Bất Đồng Bộ Với Thử Lại (Exponential Backoff)",
+    category: "JavaScript Async & Networking",
+    goal: "Xếp thứ tự các bước thực hiện retry cơ chế trễ hàm mũ khi mạng gặp sự cố tạm thời.",
+    explanation: "Bắt đầu với vòng lặp từ 0 đến retries. Trong try block gọi fetch và kiểm tra response.ok. Nếu bắt được lỗi ở lần thử cuối cùng thì throw; ngược lại delay với thời gian nhân đôi 2^i trước vòng tiếp theo.",
+    correctLines: [
+      "async function fetchWithRetry(url, maxRetries = 3) {",
+      "  for (let attempt = 0; attempt < maxRetries; attempt++) {",
+      "    try {",
+      "      const res = await fetch(url);",
+      "      if (res.ok) return await res.json();",
+      "    } catch (err) {",
+      "      if (attempt === maxRetries - 1) throw err;",
+      "      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));",
+      "    }",
+      "  }",
+      "}"
+    ],
+    initialShuffled: [
+      "    } catch (err) {",
+      "      if (attempt === maxRetries - 1) throw err;",
+      "async function fetchWithRetry(url, maxRetries = 3) {",
+      "      if (res.ok) return await res.json();",
+      "  for (let attempt = 0; attempt < maxRetries; attempt++) {",
+      "    try {",
+      "      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));",
+      "      const res = await fetch(url);",
+      "  }",
+      "    }",
+      "}"
+    ]
+  },
+  {
+    id: "parsons-jwt-middleware",
+    title: "3. Xác Thực Token JWT Trong Express / Node.js Middleware",
+    category: "Bảo mật & Backend API",
+    goal: "Sắp xếp pipeline xác thực Bearer token: đọc header, kiểm tra prefix, verify chữ ký và gán user vào request context.",
+    explanation: "Trích xuất chuỗi Authorization từ req.headers. Kiểm tra bắt đầu bằng 'Bearer '. Cắt chuỗi lấy token thuần, gọi jwt.verify(). Nếu hợp lệ gán req.user và gọi next(); ngược lại trả mã lỗi 401 hoặc 403.",
+    correctLines: [
+      "function authMiddleware(req, res, next) {",
+      "  const authHeader = req.headers['authorization'];",
+      "  if (!authHeader || !authHeader.startsWith('Bearer ')) {",
+      "    return res.status(401).json({ error: 'Thiếu Token hợp lệ' });",
+      "  }",
+      "  const token = authHeader.split(' ')[1];",
+      "  try {",
+      "    const decoded = jwt.verify(token, process.env.JWT_SECRET);",
+      "    req.user = decoded;",
+      "    next();",
+      "  } catch (err) {",
+      "    return res.status(403).json({ error: 'Token hết hạn hoặc không hợp lệ' });",
+      "  }",
+      "}"
+    ],
+    initialShuffled: [
+      "  const token = authHeader.split(' ')[1];",
+      "  if (!authHeader || !authHeader.startsWith('Bearer ')) {",
+      "function authMiddleware(req, res, next) {",
+      "    const decoded = jwt.verify(token, process.env.JWT_SECRET);",
+      "    return res.status(401).json({ error: 'Thiếu Token hợp lệ' });",
+      "  const authHeader = req.headers['authorization'];",
+      "  }",
+      "    req.user = decoded;",
+      "  try {",
+      "    next();",
+      "    return res.status(403).json({ error: 'Token hết hạn hoặc không hợp lệ' });",
+      "  } catch (err) {",
+      "  }",
+      "}"
+    ]
+  }
+];
+
+export function ParsonsProblemLab({
+  onSaveToNotebook,
+  onCreateFlashcardQuick,
+  onRecordAttempt,
+}: ParsonsProblemLabProps) {
+  const [selectedProblemId, setSelectedProblemId] = useState<string>(PARSONS_PROBLEMS[0].id);
+  const activeProblem = useMemo(() => {
+    return PARSONS_PROBLEMS.find(p => p.id === selectedProblemId) || PARSONS_PROBLEMS[0];
+  }, [selectedProblemId]);
+
+  // Danh sách dòng trong Bank (chưa chọn) và Workspace (đã xếp)
+  const [bankLines, setBankLines] = useState<Array<{ id: string; text: string }>>([]);
+  const [workspaceLines, setWorkspaceLines] = useState<Array<{ id: string; text: string }>>([]);
+  const [checkResult, setCheckResult] = useState<{
+    isAllCorrect: boolean;
+    score: number;
+    checkedLines: Array<{ id: string; text: string; isCorrectPosition: boolean }>;
+  } | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  // Khởi tạo lại khi đổi problem
+  useEffect(() => {
+    const initial = activeProblem.initialShuffled.map((line, idx) => ({
+      id: `${activeProblem.id}-line-${idx}-${line.trim().slice(0, 8)}`,
+      text: line,
+    }));
+    setBankLines(initial);
+    setWorkspaceLines([]);
+    setCheckResult(null);
+  }, [activeProblem]);
+
+  // Chuyển dòng từ Bank sang Workspace
+  const moveToWorkspace = (item: { id: string; text: string }) => {
+    setBankLines(prev => prev.filter(x => x.id !== item.id));
+    setWorkspaceLines(prev => [...prev, item]);
+    setCheckResult(null);
+  };
+
+  // Trả dòng từ Workspace về Bank
+  const moveToBank = (item: { id: string; text: string }) => {
+    setWorkspaceLines(prev => prev.filter(x => x.id !== item.id));
+    setBankLines(prev => [...prev, item]);
+    setCheckResult(null);
+  };
+
+  // Đổi thứ tự trong Workspace (Up / Down)
+  const moveWorkspaceLine = (index: number, direction: "up" | "down") => {
+    if (direction === "up" && index === 0) return;
+    if (direction === "down" && index === workspaceLines.length - 1) return;
+    const targetIdx = direction === "up" ? index - 1 : index + 1;
+    const updated = [...workspaceLines];
+    const temp = updated[index];
+    updated[index] = updated[targetIdx];
+    updated[targetIdx] = temp;
+    setWorkspaceLines(updated);
+    setCheckResult(null);
+  };
+
+  // Nạp toàn bộ vào workspace
+  const moveAllToWorkspace = () => {
+    setWorkspaceLines(prev => [...prev, ...bankLines]);
+    setBankLines([]);
+    setCheckResult(null);
+  };
+
+  // Khôi phục ban đầu
+  const resetProblem = () => {
+    const initial = activeProblem.initialShuffled.map((line, idx) => ({
+      id: `${activeProblem.id}-line-${idx}-${line.trim().slice(0, 8)}`,
+      text: line,
+    }));
+    setBankLines(initial);
+    setWorkspaceLines([]);
+    setCheckResult(null);
+  };
+
+  // KIỂM TRA THỨ TỰ DÒNG
+  const handleCheckOrder = () => {
+    const expected = activeProblem.correctLines;
+    const current = workspaceLines;
+
+    let correctCount = 0;
+    const checked = current.map((item, idx) => {
+      const isCorrect = idx < expected.length && item.text === expected[idx];
+      if (isCorrect) correctCount++;
+      return {
+        id: item.id,
+        text: item.text,
+        isCorrectPosition: isCorrect,
+      };
+    });
+
+    const isAllCorrect = current.length === expected.length && correctCount === expected.length;
+    const score = Math.round((correctCount / expected.length) * 100);
+
+    setCheckResult({
+      isAllCorrect,
+      score,
+      checkedLines: checked,
+    });
+
+    if (onRecordAttempt) {
+      onRecordAttempt({
+        mode: "parsons",
+        score,
+        maxScore: 100,
+        isPassed: isAllCorrect,
+        activityTitle: `${activeProblem.title} · Parsons Problem`,
+        activityKey: `coding-parsons-${activeProblem.id}`,
+        details: {
+          problemId: activeProblem.id,
+          totalLines: expected.length,
+          correctLinesPlaced: correctCount,
+          isAllCorrect,
+        }
+      });
+    }
+  };
+
+  const handleSaveToNotebook = async () => {
+    const content = `### Ghi chép Bài Tập Parsons: ${activeProblem.title}
+**Mục tiêu:** ${activeProblem.goal}
+**Điểm đạt:** ${checkResult ? checkResult.score : 0}%
+
+\`\`\`javascript
+${activeProblem.correctLines.join("\n")}
+\`\`\`
+
+**Giải thích logic từng bước:**
+${activeProblem.explanation}`;
+
+    await onSaveToNotebook(content);
+    setFeedback("Đã lưu lời giải bài toán Parsons vào Sổ tay!");
+    setTimeout(() => setFeedback(null), 3000);
+  };
+
+  const handleCreateFlashcard = async () => {
+    if (!onCreateFlashcardQuick) return;
+    const front = `Parsons Problem: Trình tự logic của ${activeProblem.title}`;
+    const back = `**Mục tiêu:** ${activeProblem.goal}\n\n**Mã nguồn chuẩn:**\n\`\`\`javascript\n${activeProblem.correctLines.join("\n")}\n\`\`\`\n\n**Nguyên lý:**\n${activeProblem.explanation}`;
+    await onCreateFlashcardQuick(front, back);
+    setFeedback("Đã lưu quy trình mã nguồn vào Flashcard FSRS!");
+    setTimeout(() => setFeedback(null), 3000);
+  };
+
+  return (
+    <div data-testid="parsons-container" className="space-y-6">
+      {/* HEADER & SELECTOR */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+        <div>
+          <h2 className="text-sm sm:text-base font-bold flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
+            <ListChecks className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            Parsons Problem (Thực Hành Sắp Xếp Trật Tự Dòng Code)
+          </h2>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
+            Ghép các dòng mã nguồn xáo trộn vào vị trí thực thi chính xác. Rèn luyện tư duy luồng điều khiển.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400 whitespace-nowrap">Chọn bài tập:</label>
+          <select
+            data-testid="parsons-problem-select"
+            value={selectedProblemId}
+            onChange={(e) => setSelectedProblemId(e.target.value)}
+            className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            {PARSONS_PROBLEMS.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.title}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* FEEDBACK BANNER */}
+      {feedback && (
+        <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4" />
+          <span>{feedback}</span>
+        </div>
+      )}
+
+      {/* PROBLEM GOAL CARD */}
+      <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+            <Target className="w-4 h-4 text-indigo-600" />
+            Mục tiêu bài toán: {activeProblem.goal}
+          </span>
+          <span className="text-[11px] text-zinc-500">
+            Tổng cộng: {activeProblem.correctLines.length} dòng code
+          </span>
+        </div>
+      </div>
+
+      {/* TWO COLUMN INTERACTION (AVAILABLE BANK vs WORKSPACE) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left: Available Bank */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+              <Layers className="w-4 h-4 text-zinc-500" />
+              Kho Dòng Code Chưa Chọn ({bankLines.length})
+            </span>
+            {bankLines.length > 0 && (
+              <button
+                type="button"
+                onClick={moveAllToWorkspace}
+                className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+              >
+                Chuyển tất cả vào vùng xếp &rarr;
+              </button>
+            )}
+          </div>
+
+          <div
+            data-testid="parsons-bank"
+            className="p-3 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/60 min-h-[280px] space-y-2"
+          >
+            {bankLines.length === 0 ? (
+              <div className="text-center py-10 text-xs text-zinc-400 italic">
+                Đã nạp toàn bộ các dòng vào vùng sắp xếp bên phải.
+              </div>
+            ) : (
+              bankLines.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  data-testid="parsons-bank-line"
+                  onClick={() => moveToWorkspace(item)}
+                  className="w-full text-left p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-indigo-400 dark:hover:border-indigo-600 font-mono text-xs text-zinc-800 dark:text-zinc-200 shadow-sm transition flex items-center justify-between group cursor-pointer"
+                  title="Bấm để đưa sang vùng sắp xếp"
+                >
+                  <span className="truncate whitespace-pre">{item.text}</span>
+                  <span className="text-[11px] text-indigo-500 opacity-0 group-hover:opacity-100 transition whitespace-nowrap ml-2">
+                    + Thêm
+                  </span>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Right: Workspace (Reorderable) */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+              <Code2 className="w-4 h-4 text-indigo-600" />
+              Vùng Code Của Bạn ({workspaceLines.length}/{activeProblem.correctLines.length})
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={resetProblem}
+                className="text-[11px] text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer flex items-center gap-1"
+              >
+                <RotateCcw className="w-3 h-3" />
+                Làm lại
+              </button>
+            </div>
+          </div>
+
+          <div
+            data-testid="parsons-workspace"
+            className="p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-950 min-h-[280px] space-y-2"
+          >
+            {workspaceLines.length === 0 ? (
+              <div className="text-center py-12 text-xs text-zinc-500 italic">
+                Chưa có dòng nào. Bấm vào các dòng ở kho bên trái để chuyển vào đây và sắp xếp trật tự.
+              </div>
+            ) : (
+              workspaceLines.map((item, idx) => {
+                const checked = checkResult?.checkedLines.find(c => c.id === item.id);
+                const hasCheck = checkResult !== null && checked !== undefined;
+
+                return (
+                  <div
+                    key={item.id}
+                    data-testid="parsons-workspace-line"
+                    className={`p-2 rounded-lg border font-mono text-xs flex items-center justify-between transition ${
+                      hasCheck
+                        ? checked?.isCorrectPosition
+                          ? "bg-emerald-950/40 border-emerald-500 text-emerald-300"
+                          : "bg-red-950/40 border-red-500 text-red-300"
+                        : "bg-zinc-900 border-zinc-800 text-zinc-200 hover:border-zinc-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <span className="text-[10px] font-mono text-zinc-500 w-4 text-right shrink-0">
+                        {idx + 1}
+                      </span>
+                      <span className="truncate whitespace-pre">{item.text}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1 ml-2 shrink-0">
+                      {/* Mobile friendly Up/Down buttons */}
+                      <button
+                        type="button"
+                        aria-label="Di chuyển lên"
+                        disabled={idx === 0}
+                        onClick={() => moveWorkspaceLine(idx, "up")}
+                        className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 disabled:opacity-30 cursor-pointer"
+                        title="Di chuyển lên"
+                      >
+                        <ArrowUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Di chuyển xuống"
+                        disabled={idx === workspaceLines.length - 1}
+                        onClick={() => moveWorkspaceLine(idx, "down")}
+                        className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 disabled:opacity-30 cursor-pointer"
+                        title="Di chuyển xuống"
+                      >
+                        <ArrowDown className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Xóa khỏi vùng code"
+                        onClick={() => moveToBank(item)}
+                        className="p-1 rounded text-zinc-500 hover:text-red-400 hover:bg-zinc-800 cursor-pointer text-xs ml-1"
+                        title="Trả về kho"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleSaveToNotebook}
+                className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-xs text-zinc-800 dark:text-zinc-200 font-medium inline-flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <BookmarkPlus className="w-3.5 h-3.5 text-indigo-500" />
+                Lưu Sổ Tay
+              </button>
+              {onCreateFlashcardQuick && (
+                <button
+                  type="button"
+                  onClick={handleCreateFlashcard}
+                  className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-xs text-zinc-800 dark:text-zinc-200 font-medium inline-flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  Lưu FSRS
+                </button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              data-testid="parsons-check-btn"
+              disabled={workspaceLines.length === 0}
+              onClick={handleCheckOrder}
+              className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-xs font-bold text-white inline-flex items-center gap-2 transition cursor-pointer shadow-sm"
+            >
+              <CheckSquare className="w-4 h-4" />
+              Kiểm Tra Thứ Tự ({workspaceLines.length}/{activeProblem.correctLines.length})
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* CHECK RESULT EXPLANATION */}
+      {checkResult && (
+        <div
+          data-testid="parsons-result-card"
+          className={`p-4 rounded-xl border text-xs space-y-3 ${
+            checkResult.isAllCorrect
+              ? "bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200"
+              : "bg-amber-50/60 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 text-amber-950 dark:text-amber-200"
+          }`}
+        >
+          <div className="flex items-center justify-between font-bold">
+            <span className="flex items-center gap-2">
+              {checkResult.isAllCorrect ? (
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              ) : (
+                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              )}
+              {checkResult.isAllCorrect
+                ? "Xuất sắc! Toàn bộ các dòng code đã được sắp xếp đúng trình tự logic."
+                : `Chưa chính xác: Đạt ${checkResult.score}% số dòng đúng vị trí. Xem các dòng viền đỏ để điều chỉnh!`}
+            </span>
+            <span className="text-sm font-extrabold">{checkResult.score} / 100 Điểm</span>
+          </div>
+
+          <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800">
+            <p className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">
+              Giải thích trình tự logic thuật toán:
+            </p>
+            <p className="leading-relaxed text-zinc-700 dark:text-zinc-300">
+              {activeProblem.explanation}
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function CodingPracticeLab({
   courseId,
   courseTitle,
@@ -1017,6 +2275,98 @@ export function CodingPracticeLab({
   const [activeMainMode, setActiveMainMode] = useState<MainPracticeMode>("fill-code");
   const [selectedTopic, setSelectedTopic] = useState<TopicCategory>("auto");
   const currentEffectiveCategory = selectedTopic === "auto" ? detectedCategory : selectedTopic;
+
+  const [dbActivities, setDbActivities] = useState<any[]>([]);
+  const [practiceAttempts, setPracticeAttempts] = useState<any[]>([]);
+  const [isLoadingBackend, setIsLoadingBackend] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadBackendPractice() {
+      setIsLoadingBackend(true);
+      try {
+        const headers = getClientRequestHeaders();
+        const actUrl = `/api/v1/practice/activities?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}`;
+        const attUrl = `/api/v1/practice/attempts?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}`;
+
+        const [actRes, attRes] = await Promise.all([
+          fetch(actUrl, { headers }).catch(() => null),
+          fetch(attUrl, { headers }).catch(() => null),
+        ]);
+
+        if (actRes && actRes.ok) {
+          const actData = await actRes.json();
+          if (isMounted && Array.isArray(actData)) {
+            setDbActivities(actData);
+          }
+        }
+        if (attRes && attRes.ok) {
+          const attData = await attRes.json();
+          if (isMounted && Array.isArray(attData)) {
+            setPracticeAttempts(attData);
+          }
+        }
+      } catch {
+        // ignore
+      } finally {
+        if (isMounted) setIsLoadingBackend(false);
+      }
+    }
+    loadBackendPractice();
+    return () => {
+      isMounted = false;
+    };
+  }, [courseId, lessonId]);
+
+  const recordPracticeAttempt = useCallback(
+    async (params: {
+      mode: string;
+      score: number;
+      maxScore?: number;
+      isPassed?: boolean;
+      details?: any;
+      durationSeconds?: number;
+      activityTitle?: string;
+      activityKey?: string;
+    }) => {
+      try {
+        const headers = getClientRequestHeaders();
+        const dbAct = dbActivities.find(a => a.type === params.mode || a.id === params.activityKey);
+        const passed = params.isPassed ?? (params.score >= (dbAct?.passingScore ?? 70));
+        const payload = {
+          activityId: dbAct?.id || null,
+          courseId,
+          lessonId: lessonId || null,
+          activityType: params.mode,
+          activityKey: params.activityKey || `${courseId}-${lessonId || "general"}-${params.mode}`,
+          activityTitle: params.activityTitle || `${lessonTitle || courseTitle} · ${params.mode}`,
+          score: Math.max(0, Math.min(params.maxScore || 100, Math.round(params.score))),
+          maxScore: params.maxScore || 100,
+          isPassed: passed,
+          detailJson: JSON.stringify(params.details || {}),
+          durationSeconds: params.durationSeconds || null,
+        };
+
+        const res = await fetch("/api/v1/practice/attempts", {
+          method: "POST",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          const saved = await res.json();
+          setPracticeAttempts(prev => [saved, ...prev]);
+          invalidateDashboardCache();
+        }
+      } catch {
+        // ignore
+      }
+    },
+    [courseId, lessonId, lessonTitle, courseTitle, dbActivities]
+  );
 
   // Banner thông báo
   const [feedbackMsg, setFeedbackMsg] = useState<{ text: string; type: "success" | "info" } | null>(null);
@@ -1569,6 +2919,38 @@ export function CodingPracticeLab({
             >
               <FileCode className="w-4 h-4" />
               <span>4. Nhiệm vụ Code Của Bài</span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeMainMode === "js-sandbox"}
+              data-testid="mode-tab-js-sandbox"
+              onClick={() => setActiveMainMode("js-sandbox")}
+              className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-2 transition cursor-pointer shrink-0 ${
+                activeMainMode === "js-sandbox"
+                  ? "bg-white dark:bg-zinc-900 text-purple-600 dark:text-purple-400 shadow-sm"
+                  : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+              }`}
+            >
+              <Cpu className="w-4 h-4" />
+              <span>5. Web Worker Sandbox JS/TS</span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeMainMode === "parsons"}
+              data-testid="mode-tab-parsons"
+              onClick={() => setActiveMainMode("parsons")}
+              className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-2 transition cursor-pointer shrink-0 ${
+                activeMainMode === "parsons"
+                  ? "bg-white dark:bg-zinc-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                  : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+              }`}
+            >
+              <ListChecks className="w-4 h-4" />
+              <span>6. Ghép Dòng Code (Parsons)</span>
             </button>
           </div>
 
@@ -2721,6 +4103,24 @@ export function CodingPracticeLab({
             </div>
           </div>
         </div>
+      )}
+
+      {activeMainMode === "js-sandbox" && (
+        <JsWorkerSandboxLab
+          lessonMarkdown={lessonMarkdown}
+          lessonTitle={lessonTitle}
+          onSaveToNotebook={onSaveToNotebook}
+          onCreateFlashcardQuick={onCreateFlashcardQuick}
+          onRecordAttempt={recordPracticeAttempt}
+        />
+      )}
+
+      {activeMainMode === "parsons" && (
+        <ParsonsProblemLab
+          onSaveToNotebook={onSaveToNotebook}
+          onCreateFlashcardQuick={onCreateFlashcardQuick}
+          onRecordAttempt={recordPracticeAttempt}
+        />
       )}
 
       {/* FOOTER */}

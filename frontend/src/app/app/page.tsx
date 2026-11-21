@@ -19,6 +19,8 @@ import {
   RefreshCw,
   Search,
   TrendingUp,
+  Target,
+  Sparkles,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { fetchDashboardCached } from "@/lib/api-client";
@@ -40,6 +42,39 @@ import {
   type ReviewCapSettings,
 } from "@/lib/review-settings";
 import { EmptyState, Card, StatCard, ProgressBar, Badge } from "@/components/ui";
+
+interface PracticeStatsData {
+  totalAttempts: number;
+  averageScore: number;
+  passedCount: number;
+  todayAttempts: number;
+  streakDays: number;
+  needsReview: Array<{
+    activityKey: string;
+    activityTitle: string;
+    activityType: string;
+    courseId: string;
+    lessonId?: string | null;
+    score: number;
+    createdAt: string;
+  }>;
+  recentHistory: Array<{
+    id: string;
+    activityKey: string;
+    activityTitle: string;
+    activityType: string;
+    score: number;
+    maxScore: number;
+    isPassed: boolean;
+    createdAt: string;
+  }>;
+  last7Days: Array<{
+    date: string;
+    dayName: string;
+    count: number;
+    avgScore: number;
+  }>;
+}
 
 interface DashboardUser {
   id: string;
@@ -108,6 +143,7 @@ export default function DashboardPage() {
   const [quizzes, setQuizzes] = useState<DashboardQuizItem[]>([]);
   const [documentsCount, setDocumentsCount] = useState(0);
   const [notebooksCount, setNotebooksCount] = useState(0);
+  const [practiceStats, setPracticeStats] = useState<PracticeStatsData | null>(null);
   const [nextLessonInfo, setNextLessonInfo] = useState<NextLessonInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -123,11 +159,12 @@ export default function DashboardPage() {
       const headers = getClientRequestHeaders(
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
-      const [data, coursesResp] = await Promise.all([
+      const [data, coursesResp, practiceStatsResp] = await Promise.all([
         fetchDashboardCached({
           headers: effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
         }),
         fetch("/api/v1/courses", { headers }).catch(() => null),
+        fetch("/api/v1/practice/stats", { headers }).catch(() => null),
       ]);
 
       if (!data) {
@@ -148,6 +185,13 @@ export default function DashboardPage() {
       setDocumentsCount(Array.isArray(data.documents) ? data.documents.length : 0);
       setNotebooksCount(Array.isArray(data.notebooks) ? data.notebooks.length : 0);
       setQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
+
+      if (practiceStatsResp && practiceStatsResp.ok) {
+        const pStats = await practiceStatsResp.json().catch(() => null);
+        if (pStats && typeof pStats.totalAttempts === "number") {
+          setPracticeStats(pStats);
+        }
+      }
 
       const extraCourses =
         coursesResp && coursesResp.ok ? await coursesResp.json().catch(() => null) : null;
@@ -490,11 +534,211 @@ export default function DashboardPage() {
       <section data-testid="today-stats-roadmap" className="mb-10">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold text-text-primary">
-            Thống kê học tập &amp; Lộ trình cá nhân hóa
+            Luyện tập hôm nay &amp; Thống kê học tập cá nhân hóa
           </h2>
           <span className="text-xs text-text-tertiary">
-            Cập nhật trực tiếp từ tiến độ của bạn
+            Cập nhật trực tiếp từ Practice Engine &amp; FSRS
           </span>
+        </div>
+
+        {/* TODAY'S PRACTICE HUB */}
+        <div data-testid="today-practice-hub" className="mb-6 rounded-xl border border-border bg-bg-secondary p-5 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-accent-subtle text-accent">
+                <Target className="w-4 h-4" />
+              </span>
+              <div>
+                <h3 className="text-sm font-bold text-text-primary">
+                  Hub Luyện Tập Hôm Nay (Practice &amp; Recall Hub)
+                </h3>
+                <p className="text-xs text-text-tertiary">
+                  Theo dõi chuỗi thực hành, phản hồi Web Worker, mô phỏng tài chính &amp; bài tập nhận thức
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/app/courses"
+              className="text-xs font-semibold text-accent hover:underline inline-flex items-center gap-1 self-start sm:self-auto"
+            >
+              <span>Vào phòng luyện tập khóa học</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* 4 QUICK STAT TILES */}
+          <div data-testid="today-practice-stats" className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="p-3 rounded-lg border border-border bg-bg-primary">
+              <span className="text-[11px] text-text-tertiary flex items-center gap-1">
+                <Flame className="w-3.5 h-3.5 text-amber-500" />
+                Chuỗi luyện tập
+              </span>
+              <p className="text-lg font-bold text-amber-600 dark:text-amber-400 mt-1">
+                {practiceStats?.streakDays ?? user.streakDays} ngày
+              </p>
+            </div>
+            <div className="p-3 rounded-lg border border-border bg-bg-primary">
+              <span className="text-[11px] text-text-tertiary flex items-center gap-1">
+                <Target className="w-3.5 h-3.5 text-indigo-500" />
+                Tổng lượt thực hành
+              </span>
+              <p className="text-lg font-bold text-text-primary mt-1">
+                {practiceStats?.totalAttempts ?? 0} lượt
+              </p>
+            </div>
+            <div className="p-3 rounded-lg border border-border bg-bg-primary">
+              <span className="text-[11px] text-text-tertiary flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                Điểm trung bình
+              </span>
+              <p className="text-lg font-bold text-purple-600 dark:text-purple-400 mt-1">
+                {practiceStats?.averageScore ?? 0} / 100
+              </p>
+            </div>
+            <div className="p-3 rounded-lg border border-border bg-bg-primary">
+              <span className="text-[11px] text-text-tertiary flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                Lượt đạt chuẩn
+              </span>
+              <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                {practiceStats?.passedCount ?? 0} bài
+              </p>
+            </div>
+          </div>
+
+          {/* ZERO-FACADE: IF totalAttempts === 0, RENDER FRIENDLY EMPTY STATE */}
+          {(!practiceStats || practiceStats.totalAttempts === 0) ? (
+            <div data-testid="today-practice-empty-state" className="p-6 rounded-lg border border-dashed border-border bg-bg-primary text-center space-y-3">
+              <div className="text-2xl">🎯</div>
+              <h4 className="text-xs sm:text-sm font-semibold text-text-primary">
+                Bạn chưa có lượt luyện tập tương tác nào
+              </h4>
+              <p className="text-xs text-text-tertiary max-w-md mx-auto">
+                Hãy mở một bài học trong khóa học của bạn và chọn tab <strong>Luyện tập</strong> để thực hành Sandbox Web Worker, mô phỏng danh mục tài chính hoặc bài tập nhận thức Stroop.
+              </p>
+              <div>
+                <Link
+                  href="/app/courses"
+                  className="px-4 py-2 rounded-lg bg-accent text-accent-contrast text-xs font-semibold inline-flex items-center gap-1.5 hover:opacity-90 transition"
+                >
+                  <span>Bắt đầu luyện tập ngay</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              {/* REAL SVG SCORE PROGRESS CHART (7 COLS) */}
+              <div data-testid="today-practice-chart" className="lg:col-span-7 rounded-lg border border-border bg-bg-primary p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-text-primary flex items-center gap-1.5">
+                    <BarChart3 className="w-3.5 h-3.5 text-accent" />
+                    Biểu đồ điểm số 7 ngày gần nhất (Dữ liệu thật)
+                  </span>
+                  <span className="text-[11px] text-text-tertiary">
+                    {practiceStats.todayAttempts} lượt hôm nay
+                  </span>
+                </div>
+
+                {/* SVG CHART */}
+                <div className="w-full h-36">
+                  <svg viewBox="0 0 420 120" className="w-full h-full">
+                    {/* Grid lines */}
+                    <line x1="30" y1="20" x2="410" y2="20" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="3 3" />
+                    <line x1="30" y1="60" x2="410" y2="60" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="3 3" />
+                    <line x1="30" y1="100" x2="410" y2="100" stroke="currentColor" strokeOpacity="0.1" />
+
+                    <text x="5" y="24" fontSize="9" fill="currentColor" opacity="0.4">100</text>
+                    <text x="5" y="64" fontSize="9" fill="currentColor" opacity="0.4">50</text>
+                    <text x="15" y="104" fontSize="9" fill="currentColor" opacity="0.4">0</text>
+
+                    {/* Bars / Points for last 7 days */}
+                    {practiceStats.last7Days && practiceStats.last7Days.map((d, idx) => {
+                      const x = 50 + idx * 52;
+                      const barH = (d.avgScore / 100) * 80;
+                      const y = 100 - barH;
+                      const hasAttempts = d.count > 0;
+
+                      return (
+                        <g key={d.date}>
+                          {hasAttempts ? (
+                            <>
+                              <rect
+                                x={x - 12}
+                                y={y}
+                                width={24}
+                                height={barH}
+                                rx="4"
+                                fill="#8b5cf6"
+                                fillOpacity="0.8"
+                              />
+                              <text x={x} y={Math.max(16, y - 4)} textAnchor="middle" fontSize="9" fontWeight="bold" fill="#8b5cf6">
+                                {Math.round(d.avgScore)}
+                              </text>
+                            </>
+                          ) : (
+                            <circle cx={x} cy="100" r="2.5" fill="currentColor" opacity="0.2" />
+                          )}
+                          <text x={x} y="115" textAnchor="middle" fontSize="9" fill="currentColor" opacity="0.6">
+                            {d.dayName}
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+                </div>
+              </div>
+
+              {/* REVIEW HUB: ITEMS NEEDING PRACTICE (5 COLS) */}
+              <div data-testid="today-practice-needs-review" className="lg:col-span-5 rounded-lg border border-border bg-bg-primary p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-text-primary flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-amber-500" />
+                    Cần Luyện Tập Lại (Điểm &lt; 70)
+                  </span>
+                  <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                    {practiceStats.needsReview.length} bài
+                  </span>
+                </div>
+
+                {practiceStats.needsReview.length === 0 ? (
+                  <div className="py-6 text-center space-y-1">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500 mx-auto" />
+                    <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                      Tất cả các bài luyện tập gần đây đều đạt chuẩn!
+                    </p>
+                    <p className="text-[11px] text-text-tertiary">
+                      Tiếp tục duy trì phong độ và thử thách các bài tập mới.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                    {practiceStats.needsReview.map((item, idx) => (
+                      <div
+                        key={item.activityKey || idx}
+                        className="p-2.5 rounded-lg border border-amber-200 dark:border-amber-800/60 bg-amber-50/50 dark:bg-amber-950/20 text-xs flex items-center justify-between gap-2"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-text-primary truncate">
+                            {item.activityTitle}
+                          </p>
+                          <span className="text-[11px] text-amber-700 dark:text-amber-300 font-mono">
+                            Điểm gần nhất: {Math.round(item.score)}/100
+                          </span>
+                        </div>
+                        <Link
+                          href={`/app/courses/${item.courseId}/learn${item.lessonId ? `?lessonId=${item.lessonId}` : ""}#practice`}
+                          className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-white text-[11px] font-bold shrink-0 transition"
+                        >
+                          Luyện lại &rarr;
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

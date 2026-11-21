@@ -31,7 +31,14 @@ import {
   BookmarkPlus,
   CheckSquare,
   Calculator,
+  BarChart2,
+  Layers,
+  Award,
+  RefreshCw,
+  SlidersHorizontal,
 } from "lucide-react";
+import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
+import { invalidateDashboardCache } from "@/lib/api-client";
 
 export interface PracticeModuleProps {
   courseId: string;
@@ -45,7 +52,7 @@ export interface PracticeModuleProps {
 
 export type FinancePracticeLabProps = PracticeModuleProps;
 
-type ActiveTab = "budget" | "compound" | "debt" | "trading" | "cases";
+type ActiveTab = "budget" | "compound" | "debt" | "trading" | "cases" | "portfolio" | "behavioral";
 
 // Định dạng tiền tệ VNĐ chuẩn
 function formatVND(value: number): string {
@@ -80,10 +87,16 @@ function stripDiacritics(input: string): string {
 function detectDefaultTab(courseTitle: string, lessonTitle: string, md: string): ActiveTab {
   const combined = stripDiacritics(`${courseTitle} ${lessonTitle} ${md.slice(0, 1000)}`);
 
+  if (/\b(danh muc|portfolio|phan bo|asset allocation|rebalance)\b/.test(combined)) {
+    return "portfolio";
+  }
+  if (/\b(fomo|loss aversion|anchoring|sunk cost|thien kien|tam ly|behavioral)\b/.test(combined)) {
+    return "behavioral";
+  }
   if (/\b(ngan sach|chi tieu|50\/30\/20|du phong|khan cap|dong tien|budget)\b/.test(combined)) {
     return "budget";
   }
-  if (/\b(lai kep|lam phat|tich luy|compound|muc tieu tai chinh|lai suat|huu tri)\b/.test(combined)) {
+  if (/\b(lai kep|lam phat|tich luy|compound|dca|muc tieu tai chinh|lai suat|huu tri)\b/.test(combined)) {
     return "compound";
   }
   if (/\b(tra no|no nan|qua cau tuyet|tuyet lo|snowball|avalanche|khoan no|tin dung|vay)\b/.test(combined)) {
@@ -522,10 +535,15 @@ ${isLowSavings ? "\n> ⚠️ **Lưu ý:** Tỷ lệ tiết kiệm dưới 10% s�
 function CompoundInterestLab({
   onSaveToNotebook,
   onCreateFlashcardQuick,
+  onRecordAttempt,
 }: {
   onSaveToNotebook: (text: string) => Promise<void>;
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
+  onRecordAttempt?: (params: any) => Promise<void>;
 }) {
+  const [showYearlyTable, setShowYearlyTable] = useState(false);
+  const [fireChoice, setFireChoice] = useState<number | null>(null);
+  const [fireAnswerChecked, setFireAnswerChecked] = useState(false);
   const [initialCapital, setInitialCapital] = useState<number>(50_000_000);
   const [monthlyDeposit, setMonthlyDeposit] = useState<number>(5_000_000);
   const [annualRate, setAnnualRate] = useState<number>(10);
@@ -543,6 +561,7 @@ function CompoundInterestLab({
       year: number;
       principal: number;
       nominalFV: number;
+      savingsFV: number;
       interest: number;
       realFV: number;
     }> = [];
@@ -560,6 +579,11 @@ function CompoundInterestLab({
           monthlyDeposit * ((Math.pow(1 + monthlyRate, m) - 1) / monthlyRate);
       }
 
+      const savingsRate = 0.06 / 12;
+      const savingsFV =
+        initialCapital * Math.pow(1 + savingsRate, m) +
+        monthlyDeposit * ((Math.pow(1 + savingsRate, m) - 1) / savingsRate);
+
       const interest = Math.max(0, nominalFV - principal);
       const realFV = nominalFV / Math.pow(1 + inflationRate / 100, y);
 
@@ -567,6 +591,7 @@ function CompoundInterestLab({
         year: y,
         principal,
         nominalFV,
+        savingsFV,
         interest,
         realFV,
       });
@@ -578,6 +603,7 @@ function CompoundInterestLab({
   const finalYear = yearlyData[yearlyData.length - 1] || {
     principal: initialCapital,
     nominalFV: initialCapital,
+    savingsFV: initialCapital,
     interest: 0,
     realFV: initialCapital,
     year: years,
@@ -605,11 +631,25 @@ function CompoundInterestLab({
   const scaleY = (val: number) => padT + plotH - (val / maxVal) * plotH;
   const scaleX = (index: number) => padL + (index / Math.max(1, yearlyData.length - 1)) * plotW;
 
-  // Đường Path SVG cho Sức mua thực tế
+  // Đường Path SVG cho Sức mua thực tế & Gửi tiết kiệm & Đầu tư DCA
   const realPathD = useMemo(() => {
     if (yearlyData.length === 0) return "";
     return yearlyData
       .map((d, i) => `${i === 0 ? "M" : "L"} ${scaleX(i).toFixed(1)} ${scaleY(d.realFV).toFixed(1)}`)
+      .join(" ");
+  }, [yearlyData, maxVal]);
+
+  const savingsPathD = useMemo(() => {
+    if (yearlyData.length === 0) return "";
+    return yearlyData
+      .map((d, i) => `${i === 0 ? "M" : "L"} ${scaleX(i).toFixed(1)} ${scaleY(d.savingsFV).toFixed(1)}`)
+      .join(" ");
+  }, [yearlyData, maxVal]);
+
+  const nominalPathD = useMemo(() => {
+    if (yearlyData.length === 0) return "";
+    return yearlyData
+      .map((d, i) => `${i === 0 ? "M" : "L"} ${scaleX(i).toFixed(1)} ${scaleY(d.nominalFV).toFixed(1)}`)
       .join(" ");
   }, [yearlyData, maxVal]);
 
@@ -856,15 +896,19 @@ function CompoundInterestLab({
               <span className="font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
                 Biểu Đồ Tăng Trưởng Tài Sản & Sức Mua
               </span>
-              {/* Chú giải */}
-              <div className="flex items-center gap-3 text-[11px]">
+              {/* Chú giải 4 đường/lớp */}
+              <div className="flex flex-wrap items-center gap-3 text-[11px]">
                 <div className="flex items-center gap-1">
                   <span className="w-2.5 h-2.5 rounded-sm bg-blue-500 inline-block" />
-                  <span className="text-zinc-600 dark:text-zinc-400">Vốn gốc</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">Vốn tự bỏ ra</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-3 h-0.5 bg-blue-600 inline-block" />
+                  <span className="text-zinc-600 dark:text-zinc-400">Tiết kiệm 6%</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block" />
-                  <span className="text-zinc-600 dark:text-zinc-400">Lãi kép</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">Đầu tư DCA</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="w-3 h-0.5 border-t-2 border-dashed border-amber-500 inline-block" />
@@ -997,16 +1041,152 @@ function CompoundInterestLab({
                 <span className="text-blue-600 dark:text-blue-400">
                   Gốc: <strong>{formatVND(activeFocusYear.principal)}</strong>
                 </span>
-                <span className="text-emerald-600 dark:text-emerald-400">
-                  Lãi: <strong>{formatVND(activeFocusYear.interest)}</strong>
+                <span className="text-blue-800 dark:text-blue-300">
+                  Tiết kiệm (6%): <strong>{formatVND(activeFocusYear.savingsFV || 0)}</strong>
                 </span>
-                <span className="text-zinc-900 dark:text-zinc-100 font-bold">
-                  Tổng: {formatVND(activeFocusYear.nominalFV)}
+                <span className="text-emerald-600 dark:text-emerald-400">
+                  Đầu tư DCA: <strong>{formatVND(activeFocusYear.nominalFV)}</strong>
                 </span>
                 <span className="text-amber-600 dark:text-amber-400">
-                  Sức mua: <strong>{formatVND(activeFocusYear.realFV)}</strong>
+                  Sức mua thực: <strong>{formatVND(activeFocusYear.realFV)}</strong>
                 </span>
               </div>
+            </div>
+
+            {/* Nút bật/tắt Bảng so sánh từng năm */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setShowYearlyTable(!showYearlyTable)}
+                className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-semibold inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>{showYearlyTable ? "Thu gọn bảng số liệu từng năm" : "Xem bảng so sánh chi tiết từng năm (DCA vs Tiết kiệm vs Lạm phát)"}</span>
+              </button>
+
+              {showYearlyTable && (
+                <div className="mt-3 overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="bg-zinc-100 dark:bg-zinc-800 text-[11px] font-bold text-zinc-700 dark:text-zinc-300 uppercase">
+                      <tr>
+                        <th className="p-2.5">Năm</th>
+                        <th className="p-2.5">Vốn tự bỏ</th>
+                        <th className="p-2.5">Gửi Tiết Kiệm (6%)</th>
+                        <th className="p-2.5 text-emerald-600 dark:text-emerald-400">Đầu tư DCA ({annualRate}%)</th>
+                        <th className="p-2.5 text-amber-600 dark:text-amber-400">Sức mua thực ({inflationRate}%)</th>
+                        <th className="p-2.5">Chênh lệch DCA vs TK</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 font-mono text-[11px]">
+                      {yearlyData.map((d) => {
+                        const diff = d.nominalFV - (d.savingsFV || 0);
+                        return (
+                          <tr key={d.year} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/60">
+                            <td className="p-2.5 font-sans font-bold">Năm {d.year}</td>
+                            <td className="p-2.5 text-zinc-600 dark:text-zinc-400">{formatCompactVND(d.principal)}</td>
+                            <td className="p-2.5 text-blue-600 dark:text-blue-400">{formatCompactVND(d.savingsFV || 0)}</td>
+                            <td className="p-2.5 font-bold text-emerald-600 dark:text-emerald-400">{formatCompactVND(d.nominalFV)}</td>
+                            <td className="p-2.5 text-amber-600 dark:text-amber-400">{formatCompactVND(d.realFV)}</td>
+                            <td className="p-2.5 font-bold text-emerald-700 dark:text-emerald-300">
+                              +{formatCompactVND(diff)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* BÀI TẬP THỰC HÀNH CÓ CHẤM ĐIỂM: MỤC TIÊU TỰ DO TÀI CHÍNH FIRE */}
+            <div className="mt-4 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/70 bg-emerald-50/50 dark:bg-emerald-950/20 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 uppercase tracking-wide">
+                  <Award className="w-4 h-4 text-emerald-600" />
+                  Bài Tập Thực Hành: Tính Mục Tiêu Độc Lập Tài Chính FIRE
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-semibold">
+                  Chấm điểm thật
+                </span>
+              </div>
+              <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                <strong>Tình huống:</strong> Bạn đặt mục tiêu tích lũy quỹ FIRE <strong>3 tỷ VNĐ</strong> sau <strong>15 năm</strong>, với vốn ban đầu là 50 triệu và lãi suất kép kỳ vọng <strong>12%/năm</strong>. Số tiền đóng góp định kỳ DCA mỗi tháng tối thiểu cần chuẩn bị ước tính là bao nhiêu?
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {[
+                  { id: 0, text: "A. Khoảng 3.5 – 4.5 triệu VNĐ/tháng", isCorrect: false },
+                  { id: 1, text: "B. Khoảng 5.5 – 6.5 triệu VNĐ/tháng (Chính xác ~ 5.9 tr)", isCorrect: true },
+                  { id: 2, text: "C. Khoảng 12.0 – 15.0 triệu VNĐ/tháng", isCorrect: false },
+                  { id: 3, text: "D. Khoảng 20.0 – 25.0 triệu VNĐ/tháng", isCorrect: false },
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => {
+                      setFireChoice(opt.id);
+                      setFireAnswerChecked(false);
+                    }}
+                    className={`p-2.5 rounded-lg border text-left text-xs transition cursor-pointer ${
+                      fireChoice === opt.id
+                        ? "border-emerald-500 bg-emerald-100/60 dark:bg-emerald-900/40 text-emerald-900 dark:text-emerald-100 font-medium"
+                        : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50"
+                    }`}
+                  >
+                    {opt.text}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[11px] text-zinc-500">
+                  Dựa trên công thức giá trị tương lai dòng tiền niên kim (Annuity FV)
+                </span>
+                <button
+                  type="button"
+                  disabled={fireChoice === null}
+                  onClick={async () => {
+                    if (fireChoice === null) return;
+                    setFireAnswerChecked(true);
+                    const isCorrect = fireChoice === 1;
+                    const score = isCorrect ? 100 : 40;
+                    if (onRecordAttempt) {
+                      await onRecordAttempt({
+                        activityType: "compound_calculator",
+                        activityKey: "fire-goal-dca-calc",
+                        activityTitle: "Thực hành tính mục tiêu tự do tài chính FIRE",
+                        score,
+                        isPassed: isCorrect,
+                        detailJson: JSON.stringify({
+                          chosenOption: fireChoice,
+                          isCorrect,
+                          targetFund: 3_000_000_000,
+                          years: 15,
+                          rate: 12,
+                        }),
+                      });
+                    }
+                  }}
+                  className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold text-xs transition cursor-pointer"
+                >
+                  Kiểm tra & Ghi điểm
+                </button>
+              </div>
+
+              {fireAnswerChecked && (
+                <div className={`p-3 rounded-lg border text-xs leading-relaxed space-y-1 ${
+                  fireChoice === 1
+                    ? "bg-emerald-100/70 border-emerald-300 dark:bg-emerald-950/60 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200"
+                    : "bg-amber-100/70 border-amber-300 dark:bg-amber-950/60 dark:border-amber-800 text-amber-900 dark:text-amber-200"
+                }`}>
+                  <div className="font-bold flex items-center gap-1.5">
+                    {fireChoice === 1 ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertTriangle className="w-4 h-4 text-amber-600" />}
+                    <span>{fireChoice === 1 ? "Chính xác! (100/100 điểm)" : "Chưa chính xác (40/100 điểm)"}</span>
+                  </div>
+                  <p>
+                    <strong>Giải thích chi tiết:</strong> Với FV = 3.000.000.000 đ, PV = 50.000.000 đ, r = 12%/12 = 1%/tháng, n = 180 tháng. Áp dụng công thức dòng tiền đều: sau 15 năm vốn 50 triệu ban đầu tăng lên ~ 299 triệu; phần còn lại ~ 2.701 tỷ cần được bù đắp bởi khoản đóng góp định kỳ DCA khoảng <strong>5.88 triệu VNĐ/tháng</strong> (tổng vốn gốc tự bỏ khoảng 1.1 tỷ, còn lại 1.9 tỷ là lãi kép sinh sôi).
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -2665,6 +2845,677 @@ function ExtractedFinanceCaseStudyLab({
   );
 }
 
+// =============================================================================
+// CÔNG CỤ 6: MÔ PHỎNG PHÂN BỔ DANH MỤC ĐẦU TƯ ĐA TÀI SẢN (DỮ LIỆU MẪU)
+// =============================================================================
+export interface PortfolioSimulatorLabProps {
+  onSaveToNotebook: (text: string) => Promise<void>;
+  onRecordAttempt?: (params: any) => Promise<void>;
+}
+
+export function PortfolioSimulatorLab({
+  onSaveToNotebook,
+  onRecordAttempt,
+}: PortfolioSimulatorLabProps) {
+  const [growth, setGrowth] = useState<number>(40);
+  const [dividend, setDividend] = useState<number>(25);
+  const [bonds, setBonds] = useState<number>(20);
+  const [gold, setGold] = useState<number>(10);
+  const [cash, setCash] = useState<number>(5);
+  const [scenario, setScenario] = useState<"bull" | "inflation" | "recession">("bull");
+  const [isRecorded, setIsRecorded] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  const totalAllocation = growth + dividend + bonds + gold + cash;
+  const is100 = totalAllocation === 100;
+
+  const normalizeAllocations = () => {
+    if (totalAllocation === 0) {
+      setGrowth(40); setDividend(25); setBonds(20); setGold(10); setCash(5);
+      return;
+    }
+    const factor = 100 / totalAllocation;
+    const g = Math.round(growth * factor);
+    const d = Math.round(dividend * factor);
+    const b = Math.round(bonds * factor);
+    const goldNew = Math.round(gold * factor);
+    const c = 100 - (g + d + b + goldNew);
+    setGrowth(g); setDividend(d); setBonds(b); setGold(goldNew); setCash(c);
+  };
+
+  const scenarioMeta = useMemo(() => {
+    if (scenario === "bull") {
+      return {
+        label: "Thị trường Tăng trưởng (Bull Market)",
+        desc: "Kinh tế mở rộng, lợi nhuận doanh nghiệp tăng vọt, lãi suất thấp.",
+        rates: { growth: 24, dividend: 14, bonds: 6, gold: 4, cash: 4 },
+        drawdownFactor: 0.12,
+      };
+    }
+    if (scenario === "inflation") {
+      return {
+        label: "Lạm phát cao (High Inflation)",
+        desc: "Giá cả leo thang, ngân hàng trung ương thắt chặt tiền tệ, hàng hóa & vàng hưởng lợi.",
+        rates: { growth: 8, dividend: 12, bonds: 3, gold: 22, cash: 5 },
+        drawdownFactor: 0.18,
+      };
+    }
+    return {
+      label: "Suy thoái kinh tế (Recession)",
+      desc: "Thị trường sụt giảm sâu, định giá nén lại, trái phiếu & tiền mặt bảo vệ tài sản.",
+      rates: { growth: -28, dividend: -12, bonds: 9, gold: 15, cash: 4 },
+      drawdownFactor: 0.32,
+    };
+  }, [scenario]);
+
+  const expectedReturn = useMemo(() => {
+    const { rates } = scenarioMeta;
+    return Math.round(
+      ((growth * rates.growth +
+        dividend * rates.dividend +
+        bonds * rates.bonds +
+        gold * rates.gold +
+        cash * rates.cash) /
+        100) *
+        10
+    ) / 10;
+  }, [growth, dividend, bonds, gold, cash, scenarioMeta]);
+
+  const maxDrawdown = useMemo(() => {
+    if (scenario === "bull") {
+      return Math.round(-(growth * 0.15 + dividend * 0.08 + bonds * 0.02 + gold * 0.04));
+    }
+    if (scenario === "inflation") {
+      return Math.round(-(growth * 0.22 + dividend * 0.14 + bonds * 0.06 + gold * 0.04));
+    }
+    return Math.round(-(growth * 0.45 + dividend * 0.25 + bonds * 0.02 + gold * 0.05));
+  }, [growth, dividend, bonds, gold, scenario]);
+
+  const volatility = useMemo(() => {
+    const raw = Math.sqrt(
+      Math.pow((growth / 100) * 0.24, 2) +
+      Math.pow((dividend / 100) * 0.14, 2) +
+      Math.pow((bonds / 100) * 0.05, 2) +
+      Math.pow((gold / 100) * 0.16, 2)
+    ) * 100;
+    return Math.max(3.5, Math.round(raw * 10) / 10);
+  }, [growth, dividend, bonds, gold]);
+
+  // Dự phóng 10 năm từ vốn gốc 100 triệu VNĐ
+  const initialFund = 100_000_000;
+  const growthPoints = useMemo(() => {
+    const pts: { year: number; val: number }[] = [];
+    const r = expectedReturn / 100;
+    for (let y = 0; y <= 10; y++) {
+      pts.push({ year: y, val: Math.round(initialFund * Math.pow(1 + r, y)) });
+    }
+    return pts;
+  }, [expectedReturn]);
+
+  const svgW = 600;
+  const svgH = 200;
+  const padL = 60;
+  const padR = 20;
+  const padT = 20;
+  const padB = 30;
+  const plotW = svgW - padL - padR;
+  const plotH = svgH - padT - padB;
+
+  const maxVal = Math.max(1, ...growthPoints.map((p) => p.val), initialFund * 1.1);
+  const minVal = Math.min(...growthPoints.map((p) => p.val), initialFund * 0.8);
+  const valRange = Math.max(1, maxVal - minVal);
+
+  const scaleX = (y: number) => padL + (y / 10) * plotW;
+  const scaleY = (v: number) => padT + plotH - ((v - minVal) / valRange) * plotH;
+
+  const lineD = useMemo(() => {
+    return growthPoints
+      .map((p, i) => `${i === 0 ? "M" : "L"} ${scaleX(p.year).toFixed(1)} ${scaleY(p.val).toFixed(1)}`)
+      .join(" ");
+  }, [growthPoints, maxVal, minVal]);
+
+  const handleRecord = async () => {
+    if (!onRecordAttempt) return;
+    await onRecordAttempt({
+      activityType: "portfolio_sim",
+      activityKey: `portfolio-sim-${scenario}`,
+      activityTitle: `Mô phỏng Phân bổ Danh mục (${scenarioMeta.label})`,
+      score: 100,
+      isPassed: true,
+      detailJson: JSON.stringify({
+        isSampleData: true,
+        allocations: { growth, dividend, bonds, gold, cash },
+        scenario,
+        expectedReturn,
+        maxDrawdown,
+        volatility,
+      }),
+    });
+    setIsRecorded(true);
+    setFeedback("Đã lưu kết quả mô phỏng danh mục mẫu vào Practice Engine!");
+    setTimeout(() => setFeedback(null), 3500);
+  };
+
+  const handleSaveNotebook = async () => {
+    setIsSaving(true);
+    const md = `### 📊 Mô Phỏng Phân Bổ Danh Mục Đa Tài Sản (Dữ Liệu Mẫu)
+> **Ghi chú bắt buộc:** Dữ liệu mẫu lịch sử mô phỏng phục vụ thực hành — không phải khuyến nghị đầu tư.
+
+- **Kịch bản vĩ mô:** ${scenarioMeta.label}
+- **Cơ cấu phân bổ danh mục:**
+  - Cổ phiếu tăng trưởng: ${growth}%
+  - Cổ phiếu cổ tức: ${dividend}%
+  - Trái phiếu chính phủ: ${bonds}%
+  - Vàng phòng vệ: ${gold}%
+  - Tiền mặt / Tiết kiệm: ${cash}%
+- **Chỉ số danh mục dự phóng:**
+  - 📈 Lợi suất kỳ vọng: **${expectedReturn}% / năm**
+  - 📉 Mức sụt giảm tối đa ước tính (Max Drawdown): **${maxDrawdown}%**
+  - ⚡ Độ biến động hàng năm (Volatility): **${volatility}%**
+  - 💰 Giá trị vốn 100 triệu sau 10 năm: **${formatVND(growthPoints[10].val)}**
+`;
+    try {
+      await onSaveToNotebook(md);
+      setFeedback("Đã lưu kết quả phân bổ vào Sổ tay!");
+      setTimeout(() => setFeedback(null), 3000);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-200">
+      {/* KHUYẾN CÁO BẮT BUỘC ZERO-FACADE */}
+      <div className="p-3.5 rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 text-xs font-semibold flex items-center gap-2.5 shadow-xs">
+        <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0" />
+        <span>Dữ liệu mẫu lịch sử mô phỏng phục vụ thực hành — không phải khuyến nghị đầu tư</span>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 dark:border-zinc-800 pb-3">
+        <div>
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+            <PieChart className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            Mô Phỏng Phân Bổ Danh Mục Đa Tài Sản (Portfolio Simulator)
+          </h2>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
+            Phân bổ tỷ trọng 5 lớp tài sản, đo lường lợi suất kỳ vọng, mức sụt giảm tối đa (Max Drawdown) và độ biến động qua 3 kịch bản kinh tế.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleRecord}
+            className="min-h-[44px] px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition cursor-pointer flex items-center gap-1.5 shadow-xs"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            Ghi nhận Practice Engine
+          </button>
+        </div>
+      </div>
+
+      {feedback && (
+        <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <span>{feedback}</span>
+        </div>
+      )}
+
+      {/* Grid: Tỷ trọng bên trái, Kịch bản & Biểu đồ bên phải */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Cột 1: Sliders Phân bổ 5 lớp tài sản */}
+        <div className="lg:col-span-5 space-y-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/40 p-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+              <SlidersHorizontal className="w-4 h-4 text-indigo-500" />
+              Tỷ Trọng Tài Sản (%)
+            </h3>
+            <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+              is100
+                ? "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300"
+                : "bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300"
+            }`}>
+              Tổng: {totalAllocation}%
+            </span>
+          </div>
+
+          {!is100 && (
+            <div className="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 text-[11px] text-red-700 dark:text-red-300 flex items-center justify-between gap-2">
+              <span>Tổng tỷ trọng phải bằng đúng 100%.</span>
+              <button
+                type="button"
+                onClick={normalizeAllocations}
+                className="font-bold underline cursor-pointer hover:text-red-900"
+              >
+                Cân bằng 100%
+              </button>
+            </div>
+          )}
+
+          {/* 1. Cổ phiếu tăng trưởng */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="font-medium text-zinc-700 dark:text-zinc-300">1. Cổ phiếu tăng trưởng</span>
+              <span className="font-bold text-indigo-600 dark:text-indigo-400">{growth}%</span>
+            </div>
+            <input
+              type="range" min={0} max={100} step={5} value={growth}
+              onChange={(e) => setGrowth(Number(e.target.value))}
+              className="w-full accent-indigo-600 cursor-pointer min-h-[44px]"
+            />
+          </div>
+
+          {/* 2. Cổ phiếu cổ tức */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="font-medium text-zinc-700 dark:text-zinc-300">2. Cổ phiếu cổ tức & phòng thủ</span>
+              <span className="font-bold text-blue-600 dark:text-blue-400">{dividend}%</span>
+            </div>
+            <input
+              type="range" min={0} max={100} step={5} value={dividend}
+              onChange={(e) => setDividend(Number(e.target.value))}
+              className="w-full accent-blue-600 cursor-pointer min-h-[44px]"
+            />
+          </div>
+
+          {/* 3. Trái phiếu chính phủ */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="font-medium text-zinc-700 dark:text-zinc-300">3. Trái phiếu chính phủ / DN uy tín</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">{bonds}%</span>
+            </div>
+            <input
+              type="range" min={0} max={100} step={5} value={bonds}
+              onChange={(e) => setBonds(Number(e.target.value))}
+              className="w-full accent-emerald-600 cursor-pointer min-h-[44px]"
+            />
+          </div>
+
+          {/* 4. Vàng */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="font-medium text-zinc-700 dark:text-zinc-300">4. Vàng phòng vệ lạm phát</span>
+              <span className="font-bold text-amber-600 dark:text-amber-400">{gold}%</span>
+            </div>
+            <input
+              type="range" min={0} max={100} step={5} value={gold}
+              onChange={(e) => setGold(Number(e.target.value))}
+              className="w-full accent-amber-600 cursor-pointer min-h-[44px]"
+            />
+          </div>
+
+          {/* 5. Tiền mặt */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="font-medium text-zinc-700 dark:text-zinc-300">5. Tiền mặt / Tiền gửi thanh khoản</span>
+              <span className="font-bold text-zinc-600 dark:text-zinc-400">{cash}%</span>
+            </div>
+            <input
+              type="range" min={0} max={100} step={5} value={cash}
+              onChange={(e) => setCash(Number(e.target.value))}
+              className="w-full accent-zinc-600 cursor-pointer min-h-[44px]"
+            />
+          </div>
+        </div>
+
+        {/* Cột 2: Chọn kịch bản vĩ mô & Chỉ số danh mục */}
+        <div className="lg:col-span-7 space-y-4">
+          {/* Bộ chọn Kịch bản Vĩ mô */}
+          <div className="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-2">
+            <span className="text-xs font-bold uppercase text-zinc-600 dark:text-zinc-400">
+              Chọn Kịch Bản Vĩ Mô Mô Phỏng:
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {[
+                { id: "bull", name: "Thị trường Tăng trưởng", icon: TrendingUp, color: "text-emerald-600" },
+                { id: "inflation", name: "Lạm phát cao", icon: Flame, color: "text-amber-600" },
+                { id: "recession", name: "Suy thoái kinh tế", icon: TrendingDown, color: "text-red-600" },
+              ].map((sc) => {
+                const Icon = sc.icon;
+                const isAct = scenario === sc.id;
+                return (
+                  <button
+                    key={sc.id}
+                    type="button"
+                    onClick={() => setScenario(sc.id as any)}
+                    className={`p-2.5 rounded-lg border text-xs font-semibold transition cursor-pointer flex flex-col items-center gap-1.5 ${
+                      isAct
+                        ? "border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 shadow-xs"
+                        : "border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 ${sc.color}`} />
+                    <span className="text-center">{sc.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] text-zinc-500 italic mt-1">{scenarioMeta.desc}</p>
+          </div>
+
+          {/* 3 Thẻ Chỉ Số Cốt Lõi */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+              <span className="text-[10px] font-bold uppercase text-zinc-500">Lợi Suất Dự Phóng</span>
+              <div className={`text-base font-extrabold mt-0.5 ${expectedReturn >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                {expectedReturn > 0 ? `+${expectedReturn}` : expectedReturn}%
+              </div>
+              <span className="text-[10px] text-zinc-500">Mỗi năm</span>
+            </div>
+            <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+              <span className="text-[10px] font-bold uppercase text-zinc-500">Max Drawdown</span>
+              <div className="text-base font-extrabold text-red-600 mt-0.5">
+                {maxDrawdown}%
+              </div>
+              <span className="text-[10px] text-zinc-500">Sụt giảm ước tính</span>
+            </div>
+            <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+              <span className="text-[10px] font-bold uppercase text-zinc-500">Độ Biến Động</span>
+              <div className="text-base font-extrabold text-amber-600 mt-0.5">
+                ±{volatility}%
+              </div>
+              <span className="text-[10px] text-zinc-500">Độ lệch chuẩn</span>
+            </div>
+          </div>
+
+          {/* SVG Biểu đồ đường tăng trưởng mô phỏng 10 năm */}
+          <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+                <BarChart2 className="w-4 h-4 text-indigo-500" />
+                Đường Tăng Trưởng Mô Phỏng 10 Năm (Vốn mẫu: 100 tr)
+              </span>
+              <span className="font-mono text-indigo-600 dark:text-indigo-400 font-bold">
+                Năm 10: {formatCompactVND(growthPoints[10].val)}
+              </span>
+            </div>
+
+            <div className="w-full bg-zinc-50 dark:bg-zinc-950/50 rounded-lg p-2 border border-zinc-100 dark:border-zinc-800">
+              <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full h-auto block select-none">
+                <line x1={padL} y1={padT} x2={padL} y2={padT + plotH} stroke="currentColor" className="text-zinc-300 dark:text-zinc-700" strokeWidth="1" />
+                <line x1={padL} y1={padT + plotH} x2={svgW - padR} y2={padT + plotH} stroke="currentColor" className="text-zinc-300 dark:text-zinc-700" strokeWidth="1" />
+
+                <path d={lineD} fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+                {growthPoints.map((p) => (
+                  <circle
+                    key={p.year}
+                    cx={scaleX(p.year)}
+                    cy={scaleY(p.val)}
+                    r={3}
+                    fill="#6366f1"
+                    stroke="#ffffff"
+                    strokeWidth="1.5"
+                  />
+                ))}
+              </svg>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={handleSaveNotebook}
+            className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-xs hover:bg-indigo-700 transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+          >
+            <BookmarkPlus className="w-4 h-4" />
+            Lưu Kết Quả Phân Bổ Vào Sổ Tay
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// CÔNG CỤ 7: QUIZ THIÊN KIẾN HÀNH VI ĐẦU TƯ (BEHAVIORAL FINANCE QUIZ)
+// =============================================================================
+export interface BehavioralFinanceQuizLabProps {
+  onSaveToNotebook: (text: string) => Promise<void>;
+  onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
+  onRecordAttempt?: (params: any) => Promise<void>;
+}
+
+export function BehavioralFinanceQuizLab({
+  onSaveToNotebook,
+  onCreateFlashcardQuick,
+  onRecordAttempt,
+}: BehavioralFinanceQuizLabProps) {
+  const [userAnswers, setUserAnswers] = useState<Record<string, number>>({});
+  const [showExplanations, setShowExplanations] = useState<Record<string, boolean>>({});
+  const [savedFlashcards, setSavedFlashcards] = useState<Record<string, boolean>>({});
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const questions = useMemo(() => [
+    {
+      id: "fomo",
+      biasTitle: "1. FOMO & Tâm Lý Bầy Đàn (Herd Mentality)",
+      scenario: "Một mã cổ phiếu tăng trần 7 phiên liên tiếp với khối lượng đột biến, khắp các diễn đàn mạng xã hội đều bàn tán sôi nổi. Bạn chưa nghiên cứu báo cáo tài chính của doanh nghiệp này. Quyết định đúng đắn theo kỷ luật đầu tư là gì?",
+      options: [
+        "Đặt lệnh mua bằng mọi giá vào phiên mở cửa ngày mai",
+        "Dùng đòn bẩy margin tối đa để bắt trọn con sóng",
+        "Giữ bình tĩnh, không mua đuổi khi thiếu biên an toàn và chỉ đầu tư vào tài sản hiểu rõ",
+        "Bán toàn bộ danh mục chuyển sang mã nóng này"
+      ],
+      correctIndex: 2,
+      explanation: "FOMO là thiên kiến tâm lý khiến nhà đầu tư bỏ qua phân tích cơ bản để mua theo cảm xúc hưng phấn của đám đông, thường dẫn đến việc mua đúng vùng đỉnh chu kỳ.",
+      fcFront: "Thiên kiến FOMO (Fear of Missing Out) trong đầu tư là gì?",
+      fcBack: "FOMO là tâm lý sợ bỏ lỡ cơ hội làm giàu nhanh, khiến nhà đầu tư bỏ qua phân tích cơ bản và định giá để mua đuổi theo đám đông, thường dẫn đến mua ở vùng giá đỉnh.",
+    },
+    {
+      id: "loss_aversion",
+      biasTitle: "2. Thiên Kiến Sợ Thua Lỗ (Loss Aversion)",
+      scenario: "Bạn mua cổ phiếu với nguyên tắc cắt lỗ nghiêm ngặt ở mức -7%. Hiện giá đã giảm -10% do triển vọng kinh doanh cốt lõi của công ty xấu đi rõ rệt. Bạn có xu hướng:",
+      options: [
+        "Không bán vì tin rằng 'chưa bán là chưa lỗ', tiếp tục gồng lỗ hy vọng giá hồi phục",
+        "Thực hiện kỷ luật cắt lỗ ngay lập tức để bảo toàn 90% vốn và tái phân bổ sang cơ hội tốt hơn",
+        "Vay nợ thêm để bắt đáy trung bình giá xuống bất chấp rủi ro phá sản",
+        "Xóa app giao dịch và phớt lờ thực tế"
+      ],
+      correctIndex: 1,
+      explanation: "Nỗi đau mất tiền lớn gấp 2 đến 2.5 lần niềm vui kiếm được cùng số tiền. Điều này khiến nhà đầu tư từ chối chấp nhận sai lầm và ôm giữ tài sản xấu quá lâu.",
+      fcFront: "Tại sao thiên kiến Loss Aversion nguy hiểm với nhà đầu tư?",
+      fcBack: "Nỗi đau của khoản lỗ khiến nhà đầu tư từ chối cắt lỗ, giữ tài sản suy giảm chất lượng quá lâu và dẫn đến cháy tài khoản hoặc chôn vốn vĩnh viễn.",
+    },
+    {
+      id: "anchoring",
+      biasTitle: "3. Thiên Kiến Mỏ Neo (Anchoring Bias)",
+      scenario: "Cổ phiếu X từng đạt đỉnh 120.000đ/cổ phiếu. Doanh nghiệp sau đó mất 60% thị phần và giá giảm về 45.000đ. Nhiều người cho rằng 45.000đ là 'quá rẻ' so với 120.000đ nên mua vào. Lỗi tư duy ở đây là gì?",
+      options: [
+        "Định giá chuẩn theo Benjamin Graham",
+        "Bị neo vào mức giá đỉnh quá khứ (120k) mà không định giá lại năng lực tạo tiền hiện tại của doanh nghiệp",
+        "Đầu tư giá trị thuần túy",
+        "Quản trị rủi ro danh mục"
+      ],
+      correctIndex: 1,
+      explanation: "Giá quá khứ không mang lại giá trị tương lai. Nếu năng lực tạo lợi nhuận suy giảm vĩnh viễn, mức giá 45.000đ vẫn có thể là đắt đỏ.",
+      fcFront: "Thiên kiến Mỏ neo (Anchoring Bias) trong định giá cổ phiếu là gì?",
+      fcBack: "Là xu hướng lấy mức giá đỉnh trong quá khứ làm mốc tham chiếu để cho rằng giá hiện tại là 'rẻ', thay vì định giá dựa trên dòng tiền và năng lực tạo lợi nhuận hiện tại.",
+    },
+    {
+      id: "sunk_cost",
+      biasTitle: "4. Ảo Tưởng Chi Phí Chìm (Sunk Cost Fallacy)",
+      scenario: "Một dự án kinh doanh bạn rót 200 triệu đã phát hiện lỗi kiến trúc không thể sửa đổi và chắc chắn tiếp tục thua lỗ nặng. Quyết định hợp lý là gì?",
+      options: [
+        "Rót thêm 100 triệu nữa để hy vọng 'cứu vãn' 200 triệu ban đầu",
+        "Chấp nhận dừng lại, cắt lỗ để bảo vệ số tiền còn lại và tập trung nguồn lực mới",
+        "Đổ lỗi cho hoàn cảnh và tiếp tục chịu lỗ hàng tháng",
+        "Giấu kín để người khác không biết mình sai"
+      ],
+      correctIndex: 1,
+      explanation: "200 triệu đã chi là chi phí chìm không thể thu hồi. Quyết định tương lai chỉ được dựa trên chi phí và lợi ích tương lai, không thể cứu tiền quá khứ bằng cách đổ thêm tiền mới.",
+      fcFront: "Ảo tưởng Chi phí chìm (Sunk Cost Fallacy) là gì?",
+      fcBack: "Là xu hướng tiếp tục đầu tư tiền bạc, thời gian vào một dự án/tài sản thua lỗ chỉ vì tiếc những chi phí đã bỏ ra trong quá khứ mà không thể thu hồi.",
+    },
+    {
+      id: "contrarian",
+      biasTitle: "5. Tư Duy Ngược Dòng (Contrarian Mindset)",
+      scenario: "Trong cơn hoảng loạn của thị trường, một doanh nghiệp bán lẻ đầu ngành không nợ vay bị bán tháo khiến P/E giảm về mức kỷ lục 8x. Hành động của nhà đầu tư lý trí là gì?",
+      options: [
+        "Bán tháo theo đám đông vì sợ thị trường sập",
+        "Rà soát biên an toàn, định giá dòng tiền và kiên định giải ngân từng phần (DCA)",
+        "Đóng tài khoản không theo dõi",
+        "Kêu gọi mọi người tẩy chay thị trường"
+      ],
+      correctIndex: 1,
+      explanation: "Warren Buffett khuyên: 'Hãy tham lam khi người khác sợ hãi'. Khủng hoảng hoảng loạn chính là thời điểm tài sản tốt được bán với giá chiết khấu sâu nhất.",
+      fcFront: "Tư duy ngược dòng (Contrarian Investing) dựa trên nguyên lý nào?",
+      fcBack: "Dựa trên nguyên lý tâm lý đám đông thường thái quá ở cả hai đầu: quá hưng phấn khi giá tăng và quá sợ hãi khi giá giảm. Nhà đầu tư lý trí mua vào khi biên an toàn cao trong hoảng loạn.",
+    }
+  ], []);
+
+  const totalAnswered = Object.keys(userAnswers).length;
+  const correctCount = questions.filter((q) => userAnswers[q.id] === q.correctIndex).length;
+
+  const handleSelectAnswer = async (qId: string, optIdx: number) => {
+    setUserAnswers((prev) => ({ ...prev, [qId]: optIdx }));
+    setShowExplanations((prev) => ({ ...prev, [qId]: true }));
+
+    const updated = { ...userAnswers, [qId]: optIdx };
+    if (Object.keys(updated).length === questions.length && onRecordAttempt) {
+      const score = Math.round((questions.filter((q) => updated[q.id] === q.correctIndex).length / questions.length) * 100);
+      await onRecordAttempt({
+        activityType: "behavioral_quiz",
+        activityKey: "behavioral-finance-5biases",
+        activityTitle: "Quiz Thiên Kiến Tâm Lý Nhà Đầu Tư",
+        score,
+        isPassed: score >= 70,
+        detailJson: JSON.stringify(updated),
+      });
+    }
+  };
+
+  const handleSaveFlashcard = async (q: typeof questions[0]) => {
+    if (savedFlashcards[q.id]) return;
+    try {
+      if (onCreateFlashcardQuick) {
+        await onCreateFlashcardQuick(q.fcFront, q.fcBack);
+      } else {
+        const headers = getClientRequestHeaders();
+        await fetch("/api/v1/flashcards", {
+          method: "POST",
+          headers: { ...headers, "Content-Type": "application/json" },
+          body: JSON.stringify({ frontText: q.fcFront, backText: q.fcBack }),
+        });
+      }
+      setSavedFlashcards((prev) => ({ ...prev, [q.id]: true }));
+      setToastMessage(`Đã lưu "${q.biasTitle}" vào Flashcard FSRS!`);
+      setTimeout(() => setToastMessage(null), 3000);
+    } catch {
+      // non-blocking
+    }
+  };
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-200">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 dark:border-zinc-800 pb-3">
+        <div>
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            Quiz Thiên Kiến Hành Vi Đầu Tư (Behavioral Finance)
+          </h2>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
+            Nhận diện 5 cạm bẫy tâm lý kinh điển và lưu nguyên lý vào Flashcard FSRS để rèn luyện thói quen đầu tư lý trí.
+          </p>
+        </div>
+        <div className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+          Đã làm: {totalAnswered}/{questions.length} · Đúng: {correctCount}/{questions.length}
+        </div>
+      </div>
+
+      {toastMessage && (
+        <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {questions.map((q) => {
+          const selected = userAnswers[q.id];
+          const hasAnswered = selected !== undefined;
+          const isCorrect = selected === q.correctIndex;
+          const isCardSaved = savedFlashcards[q.id];
+
+          return (
+            <div
+              key={q.id}
+              className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">
+                  {q.biasTitle}
+                </span>
+                {hasAnswered && (
+                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
+                    isCorrect
+                      ? "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300"
+                      : "bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300"
+                  }`}>
+                    {isCorrect ? "Đúng (+20 điểm)" : "Chưa chính xác"}
+                  </span>
+                )}
+              </div>
+
+              <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                {q.scenario}
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                {q.options.map((optText, optIdx) => {
+                  const isThisSelected = selected === optIdx;
+                  return (
+                    <button
+                      key={optIdx}
+                      type="button"
+                      onClick={() => handleSelectAnswer(q.id, optIdx)}
+                      className={`p-2.5 rounded-lg border text-left text-xs transition cursor-pointer ${
+                        isThisSelected
+                          ? isThisSelected === (optIdx === q.correctIndex)
+                            ? "border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-100 font-semibold"
+                            : "border-red-500 bg-red-50/80 dark:bg-red-950/40 text-red-900 dark:text-red-100 font-semibold"
+                          : "border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 text-zinc-700 dark:text-zinc-300"
+                      }`}
+                    >
+                      {optText}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {showExplanations[q.id] && (
+                <div className={`p-3 rounded-lg border text-xs leading-relaxed space-y-2 ${
+                  isCorrect
+                    ? "bg-emerald-50/60 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-900/40 text-emerald-900 dark:text-emerald-200"
+                    : "bg-amber-50/60 border-amber-200 dark:bg-amber-950/30 dark:border-amber-900/40 text-amber-900 dark:text-amber-200"
+                }`}>
+                  <p>
+                    <strong>Nguyên lý cốt lõi:</strong> {q.explanation}
+                  </p>
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-[11px] text-zinc-500">
+                      Ôn tập thường xuyên giúp hình thành phản xạ kỷ luật trước biến động giá.
+                    </span>
+                    <button
+                      type="button"
+                      disabled={isCardSaved}
+                      onClick={() => handleSaveFlashcard(q)}
+                      className="px-3 py-1 rounded-md bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-[11px] font-semibold transition cursor-pointer flex items-center gap-1.5"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      {isCardSaved ? "Đã lưu vào FSRS" : "Lưu nguyên lý vào Flashcard FSRS"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function FinancePracticeLab({
   courseId,
   courseTitle,
@@ -2681,18 +3532,109 @@ export function FinancePracticeLab({
   );
 
   const [activeTab, setActiveTab] = useState<ActiveTab>(defaultTab);
+  const [dbActivities, setDbActivities] = useState<any[]>([]);
+  const [practiceAttempts, setPracticeAttempts] = useState<any[]>([]);
+  const [isLoadingBackend, setIsLoadingBackend] = useState(false);
 
   // Cập nhật tab khi đổi bài học
   useEffect(() => {
     setActiveTab(defaultTab);
   }, [defaultTab]);
 
+  useEffect(() => {
+    let isMounted = true;
+    async function loadBackendPractice() {
+      setIsLoadingBackend(true);
+      try {
+        const headers = getClientRequestHeaders();
+        const actUrl = `/api/v1/practice/activities?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}`;
+        const attUrl = `/api/v1/practice/attempts?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}`;
+
+        const [actRes, attRes] = await Promise.all([
+          fetch(actUrl, { headers }).catch(() => null),
+          fetch(attUrl, { headers }).catch(() => null),
+        ]);
+
+        if (actRes && actRes.ok) {
+          const actData = await actRes.json();
+          if (isMounted && Array.isArray(actData)) {
+            setDbActivities(actData);
+          }
+        }
+        if (attRes && attRes.ok) {
+          const attData = await attRes.json();
+          if (isMounted && Array.isArray(attData)) {
+            setPracticeAttempts(attData);
+          }
+        }
+      } catch {
+        // ignore
+      } finally {
+        if (isMounted) setIsLoadingBackend(false);
+      }
+    }
+    loadBackendPractice();
+    return () => {
+      isMounted = false;
+    };
+  }, [courseId, lessonId]);
+
+  const recordPracticeAttempt = useCallback(
+    async (params: {
+      mode: string;
+      score: number;
+      maxScore?: number;
+      isPassed?: boolean;
+      details?: any;
+      durationSeconds?: number;
+      activityTitle?: string;
+      activityKey?: string;
+    }) => {
+      try {
+        const headers = getClientRequestHeaders();
+        const dbAct = dbActivities.find(a => a.type === params.mode || a.id === params.activityKey);
+        const passed = params.isPassed ?? (params.score >= (dbAct?.passingScore ?? 70));
+        const payload = {
+          activityId: dbAct?.id || null,
+          courseId,
+          lessonId: lessonId || null,
+          activityType: params.mode,
+          activityKey: params.activityKey || `${courseId}-${lessonId || "general"}-${params.mode}`,
+          activityTitle: params.activityTitle || `${lessonTitle || courseTitle} · ${params.mode}`,
+          score: Math.max(0, Math.min(params.maxScore || 100, Math.round(params.score))),
+          maxScore: params.maxScore || 100,
+          isPassed: passed,
+          detailJson: JSON.stringify(params.details || {}),
+          durationSeconds: params.durationSeconds || null,
+        };
+
+        const res = await fetch("/api/v1/practice/attempts", {
+          method: "POST",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          const saved = await res.json();
+          setPracticeAttempts(prev => [saved, ...prev]);
+          invalidateDashboardCache();
+        }
+      } catch {
+        // ignore
+      }
+    },
+    [courseId, lessonId, lessonTitle, courseTitle, dbActivities]
+  );
+
   return (
     <div
       data-testid="finance-practice-lab"
       className="w-full space-y-6 p-4 sm:p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 shadow-sm transition-all"
     >
-      {/* Thanh điều hướng 4 Tab công cụ */}
+      {/* Thanh điều hướng 7 Tab công cụ */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-4">
         <div>
           <div className="flex items-center gap-2">
@@ -2778,6 +3720,32 @@ export function FinancePracticeLab({
             <Briefcase className="w-4 h-4" />
             5. Tình Huống Bài Học (Case Study)
           </button>
+          <button
+            type="button"
+            data-testid="tab-portfolio"
+            onClick={() => setActiveTab("portfolio")}
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${
+              activeTab === "portfolio"
+                ? "bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-300 shadow-sm"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            6. Mô Phỏng Danh Mục (MẪU)
+          </button>
+          <button
+            type="button"
+            data-testid="tab-behavioral"
+            onClick={() => setActiveTab("behavioral")}
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${
+              activeTab === "behavioral"
+                ? "bg-white dark:bg-zinc-800 text-amber-600 dark:text-amber-300 shadow-sm"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            7. Quiz Thiên Kiến Đầu Tư
+          </button>
         </div>
       </div>
 
@@ -2788,6 +3756,7 @@ export function FinancePracticeLab({
           <CompoundInterestLab
             onSaveToNotebook={onSaveToNotebook}
             onCreateFlashcardQuick={onCreateFlashcardQuick}
+            onRecordAttempt={recordPracticeAttempt}
           />
         )}
         {activeTab === "debt" && <DebtPayoffLab onSaveToNotebook={onSaveToNotebook} />}
@@ -2803,6 +3772,19 @@ export function FinancePracticeLab({
             lessonTitle={lessonTitle}
             onSaveToNotebook={onSaveToNotebook}
             onCreateFlashcardQuick={onCreateFlashcardQuick}
+          />
+        )}
+        {activeTab === "portfolio" && (
+          <PortfolioSimulatorLab
+            onSaveToNotebook={onSaveToNotebook}
+            onRecordAttempt={recordPracticeAttempt}
+          />
+        )}
+        {activeTab === "behavioral" && (
+          <BehavioralFinanceQuizLab
+            onSaveToNotebook={onSaveToNotebook}
+            onCreateFlashcardQuick={onCreateFlashcardQuick}
+            onRecordAttempt={recordPracticeAttempt}
           />
         )}
       </div>

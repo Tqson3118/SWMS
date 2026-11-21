@@ -70,8 +70,8 @@ export function LearningRoadmapsShowcase({
           </div>
           <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">
             {activeTab === "roadmaps"
-              ? "6 Lộ Trình Học Tập Chuyên Sâu Theo Giai Đoạn"
-              : "8 Kịch Bản Ứng Dụng (Use Cases) Thực Chiến"}
+              ? `${LEARNING_ROADMAPS.length} Lộ Trình Học Tập Chuyên Sâu Theo Giai Đoạn`
+              : `${STUDY_USE_CASES.length} Kịch Bản Ứng Dụng (Use Cases) Thực Chiến`}
           </h2>
           <p className="text-xs text-[var(--text-secondary)]">
             {activeTab === "roadmaps"
