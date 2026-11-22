@@ -383,16 +383,22 @@ test.describe("Practice Expansion & Interactive Roadmaps (UX Suite)", () => {
       page.getByText("Dữ liệu mẫu lịch sử mô phỏng phục vụ thực hành — không phải khuyến nghị đầu tư")
     ).toBeVisible();
 
-    // Verify allocation sliders and normalize button
+    // Verify allocation sliders and normalize button (first shift slider off 100% so normalize button appears)
+    const firstSlider = page.locator('[data-testid="portfolio-simulator-lab"] input[type="range"]').first();
+    await expect(firstSlider).toBeVisible();
+    await firstSlider.fill("50");
+    await expect(page.getByText("Tổng: 110%")).toBeVisible();
+
     const normalizeBtn = page.getByRole("button", { name: /Cân bằng 100%/i });
     await expect(normalizeBtn).toBeVisible();
     await normalizeBtn.click();
+    await expect(page.getByText("Tổng: 100%")).toBeVisible();
 
     // Scenario toggle
     const inflationScenarioBtn = page.getByRole("button", { name: /Lạm phát cao/i });
     if (await inflationScenarioBtn.isVisible()) {
       await inflationScenarioBtn.click();
-      await expect(page.getByText(/Lạm phát/i).first()).toBeVisible();
+      await expect(page.getByTestId("portfolio-simulator-lab").getByText(/Lạm phát cao/i).first()).toBeVisible();
     }
 
     // 4. Tab 7: Behavioral Finance Quiz
