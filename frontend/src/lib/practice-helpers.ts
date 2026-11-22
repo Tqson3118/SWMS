@@ -98,10 +98,15 @@ export function resolvePracticeSelection(
   if (rawType === "quiz") return { labMode: "english", englishTab: "quiz" };
 
   if (rawType === "roleplay") {
-    const looksLikeEnglish =
+    const looksLikeLanguage =
       rawKey.startsWith("roleplay-") ||
-      /\b(ielts|tieng anh|english)\b/.test(stripDiacriticsLower(`${courseTitle} ${lessonTitle}`));
-    if (looksLikeEnglish) {
+      rawKey.startsWith("ja-") ||
+      rawKey.startsWith("zh-") ||
+      rawKey.startsWith("en-") ||
+      /\b(ielts|tieng anh|english|tieng nhat|japanese|jlpt|n5|hiragana|katakana|tieng trung|chinese|hsk|hsk1|pinyin)\b/.test(
+        stripDiacriticsLower(`${courseTitle} ${lessonTitle}`)
+      );
+    if (looksLikeLanguage) {
       return { labMode: "english", englishTab: "roleplay" };
     }
     if (rawKey.startsWith("psych-") || isPsychologyCourseOrLesson(courseTitle, lessonTitle, lessonMarkdown)) {

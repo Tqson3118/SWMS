@@ -1,4 +1,4 @@
-import { classifyCourseDomain, type CourseLike } from "./course-helpers.ts";
+import { classifyCourseDomain, extractCourseSkillTags, type CourseLike } from "./course-helpers.ts";
 
 interface TestCase {
   course: CourseLike;
@@ -137,6 +137,22 @@ const testCases: TestCase[] = [
     expectedDomainId: "business",
     expectedLabel: "Kinh tế & Quản trị",
   },
+  {
+    course: {
+      title: "Tiếng Nhật Sơ Cấp (N5)",
+      description: "Khóa học tiếng Nhật nền tảng JLPT N5: Hiragana, Katakana, giao tiếp đời sống.",
+    },
+    expectedDomainId: "language",
+    expectedLabel: "Ngoại ngữ",
+  },
+  {
+    course: {
+      title: "Tiếng Trung Sơ Cấp (HSK1)",
+      description: "Khóa học tiếng Trung giao tiếp chuẩn HSK1: Pinyin, 4 thanh điệu và chữ Hán cơ bản.",
+    },
+    expectedDomainId: "language",
+    expectedLabel: "Ngoại ngữ",
+  },
 ];
 
 let failed = 0;
@@ -152,6 +168,23 @@ for (const tc of testCases) {
       `PASS: [${result.id}] "${tc.course.title}"`
     );
   }
+}
+
+// Verify Japanese & Chinese skill tags are tailored to N5 / HSK1 (not English IPA)
+const jaTags = extractCourseSkillTags({ title: "Tiếng Nhật Sơ Cấp (N5)", description: "JLPT N5 Hiragana Katakana" });
+if (!jaTags.includes("JLPT N5") || jaTags.includes("Chấm phát âm IPA")) {
+  console.error(`FAIL: Unexpected Japanese skill tags: ${jaTags.join(", ")}`);
+  failed++;
+} else {
+  console.log(`PASS: Japanese skill tags -> ${jaTags.join(", ")}`);
+}
+
+const zhTags = extractCourseSkillTags({ title: "Tiếng Trung Sơ Cấp (HSK1)", description: "HSK1 Pinyin Thanh điệu" });
+if (!zhTags.includes("HSK1 Chuẩn") || zhTags.includes("Chấm phát âm IPA")) {
+  console.error(`FAIL: Unexpected Chinese skill tags: ${zhTags.join(", ")}`);
+  failed++;
+} else {
+  console.log(`PASS: Chinese skill tags -> ${zhTags.join(", ")}`);
 }
 
 if (failed > 0) {

@@ -6,7 +6,13 @@ import {
   evaluateTranslationAnswer,
   evaluateGrammarFixAnswer,
   evaluateRoleplayOffline,
+  evaluateDictationAnswer,
   normalizePracticeActivities,
+  normalizeTextForComparison,
+  normalizePinyin,
+  katakanaToHiragana,
+  detectCourseLanguageFromText,
+  detectLanguageFromActivities,
   filterItemsByDifficulty,
   parseClozeTemplate,
   GRADING_LABELS,
@@ -332,6 +338,240 @@ runTest("Schema Normalizer: merges legacy single ConfigJson and extended multi-i
 
   const allItems = filterItemsByDifficulty(bank.shadowing, "all");
   assert.equal(allItems.length, 3);
+});
+
+// 8. CJK Japanese (ja-JP): normalization, Kana vs Katakana rules, pronunciation tips & offline roleplay
+runTest("CJK Japanese (ja-JP): NFKC normalization, strict Katakana vs Hiragana/Kanji matching", () => {
+  // Full-width punctuation and spaces stripped while preserving prolonged vowel mark ー
+  assert.equal(normalizeTextForComparison("これは　コーヒーです。", "ja-JP"), "これはコーヒーです");
+  assert.equal(katakanaToHiragana("コーヒー"), "こーひー");
+
+  // Strict Katakana test (allowKanaEquivalence = false): must NOT accept Hiragana こーひー for コーヒー
+  const katakanaTranslate: TranslatePracticeItem = {
+    id: "ja-kata-1",
+    lang: "ja-JP",
+    difficulty: "easy",
+    title: "Katakana test",
+    sourceVi: "Đây là cà phê.",
+    hintKeywords: ["コーヒー"],
+    acceptedAnswers: ["これはコーヒーです。"],
+    sampleAnswer: "これはコーヒーです。",
+    allowKanaEquivalence: false,
+  };
+  const exactKata = evaluateTranslationAnswer(katakanaTranslate, "これはコーヒーです");
+  assert.equal(exactKata.score, 100);
+  assert.equal(exactKata.isExactMatch, true);
+
+  const wrongScriptHira = evaluateTranslationAnswer(katakanaTranslate, "これはこーひーです");
+  assert.equal(wrongScriptHira.isExactMatch, false);
+  assert.ok(wrongScriptHira.score < 100, `Katakana test should not score 100 for Hiragana, got ${wrongScriptHira.score}`);
+
+  // When allowKanaEquivalence is explicitly enabled, Kana variants match
+  const flexibleKana: TranslatePracticeItem = { ...katakanaTranslate, allowKanaEquivalence: true };
+  const flexRes = evaluateTranslationAnswer(flexibleKana, "これはこーひーです");
+  assert.equal(flexRes.score, 100);
+  assert.equal(flexRes.isExactMatch, true);
+
+  // Kanji+Kana and pure Hiragana both accepted when listed in acceptedAnswers
+  const jpIntro: TranslatePracticeItem = {
+    id: "ja-intro-1",
+    lang: "ja-JP",
+    difficulty: "easy",
+    title: "Quốc tịch",
+    sourceVi: "Tôi là người Việt Nam.",
+    hintKeywords: ["ベトナムじん"],
+    acceptedAnswers: ["私はベトナム人です。", "わたしはベトナムじんです。"],
+    sampleAnswer: "私はベトナム人です。",
+  };
+  assert.equal(evaluateTranslationAnswer(jpIntro, "私はベトナム人です").score, 100);
+  assert.equal(evaluateTranslationAnswer(jpIntro, "わたしは ベトナムじんです！").score, 100);
+});
+
+runTest("CJK Japanese (ja-JP): character alignment & Vietnamese tips (long vowel, sokuon, tsu/su/shi/chi/r)", () => {
+  // Web Speech API returns Hiragana for Kanji target -> reading fallback matches cleanly
+  const kanjiVsHira = evaluatePronunciationWords(
+    "私は学生です",
+    "わたしはがくせいです",
+    "ja-JP",
+    "わたしはがくせいです / watashi wa gakusei desu"
+  );
+  assert.equal(kanjiVsHira.score, 100);
+
+  // Missing sokuon っ -> detects ja_sokuon tip
+  const sokuonRes = evaluatePronunciationWords("ちょっとまってください", "ちょとまてください", "ja-JP");
+  assert.ok(sokuonRes.score > 60 && sokuonRes.score < 100);
+  assert.ok(sokuonRes.tips.some((t) => t.category === "ja_sokuon"), "Expected ja_sokuon tip");
+
+  // Missing long vowel ー -> detects ja_long_vowel tip
+  const longVowelRes = evaluatePronunciationWords("コーヒーをください", "コヒをください", "ja-JP");
+  assert.ok(longVowelRes.tips.some((t) => t.category === "ja_long_vowel"), "Expected ja_long_vowel tip");
+
+  // Confusable つ/す & し/ち -> marks near and triggers ja_consonants tip
+  const consRes = evaluatePronunciationWords("つくえのしたにあります", "すくえのちたにあります", "ja-JP");
+  assert.ok(consRes.nearCount >= 2, `Expected near match for つ/す and し/ち, got ${consRes.nearCount}`);
+  assert.ok(consRes.tips.some((t) => t.category === "ja_consonants"), "Expected ja_consonants tip");
+});
+
+// 9. CJK Chinese (zh-CN): Pinyin normalization (toned vs tone numbers vs toneless), Cloze/Translate notices, tips & roleplay
+runTest("CJK Chinese (zh-CN): normalizePinyin handles tone marks, tone numbers, ü/v, and toneless modes", () => {
+  assert.equal(normalizePinyin("zhōng wén", "tone_numbers"), "zhong1 wen2");
+  assert.equal(normalizePinyin("zhōngwén", "tone_numbers"), "zhong1 wen2");
+  assert.equal(normalizePinyin("zhong1 wen2", "tone_numbers"), "zhong1 wen2");
+  assert.equal(normalizePinyin("zhong1wen2", "tone_numbers"), "zhong1 wen2");
+  assert.equal(normalizePinyin("zhōng wén", "toneless"), "zhong wen");
+  assert.equal(normalizePinyin("zhong1 wen2", "toneless"), "zhong wen");
+  assert.equal(normalizePinyin("lǜ chá", "tone_numbers"), "lü4 cha2");
+  assert.equal(normalizePinyin("lv4 cha2", "tone_numbers"), "lü4 cha2");
+  assert.equal(normalizePinyin("xièxie", "tone_numbers"), "xie4 xie");
+  assert.equal(normalizePinyin("xie4 xie5", "tone_numbers"), "xie4 xie");
+});
+
+runTest("CJK Chinese (zh-CN): Translate & Cloze grade Hanzi, toned Pinyin, and toneless Pinyin with UI toneNoticeVi", () => {
+  // Case A: Exercise explicitly accepts Hanzi, toned Pinyin, and toneless Pinyin
+  const trFlexible: TranslatePracticeItem = {
+    id: "zh-tr-flex",
+    lang: "zh-CN",
+    difficulty: "easy",
+    title: "Chào hỏi",
+    sourceVi: "Xin chào! Bạn khỏe không?",
+    hintKeywords: ["你好", "吗"],
+    acceptedAnswers: ["你好！你好吗？", "nǐ hǎo nǐ hǎo ma", "ni hao ni hao ma"],
+    sampleAnswer: "你好！你好吗？",
+    reading: "nǐ hǎo! nǐ hǎo ma?",
+  };
+  assert.equal(evaluateTranslationAnswer(trFlexible, "你好，你好吗？").score, 100);
+  assert.equal(evaluateTranslationAnswer(trFlexible, "ni3 hao3 ni3 hao3 ma").score, 100);
+
+  const tonelessOk = evaluateTranslationAnswer(trFlexible, "ni hao ni hao ma");
+  assert.equal(tonelessOk.score, 100);
+  assert.equal(tonelessOk.matchedViaTonelessPinyin, true);
+  assert.ok(tonelessOk.toneNoticeVi && tonelessOk.toneNoticeVi.includes("thanh điệu"), "Expected tone reminder notice");
+
+  // Case B: Strict toned Pinyin (toneless NOT in acceptedAnswers)
+  const trStrict: TranslatePracticeItem = {
+    id: "zh-tr-strict",
+    lang: "zh-CN",
+    difficulty: "medium",
+    title: "Nói tiếng Trung",
+    sourceVi: "Tôi nói tiếng Trung.",
+    hintKeywords: ["中文"],
+    acceptedAnswers: ["我说中文。", "wǒ shuō Zhōngwén"],
+    sampleAnswer: "我说中文。",
+    reading: "wǒ shuō Zhōngwén",
+  };
+  assert.equal(evaluateTranslationAnswer(trStrict, "wo3 shuo1 zhong1 wen2").score, 100);
+  const tonelessPartial = evaluateTranslationAnswer(trStrict, "wo shuo zhongwen");
+  assert.equal(tonelessPartial.score, 85);
+  assert.equal(tonelessPartial.matchedViaTonelessPinyin, true);
+  assert.ok(tonelessPartial.toneNoticeVi?.includes("thiếu dấu thanh điệu"));
+
+  const wrongTone = evaluateTranslationAnswer(trStrict, "wo2 shuo4 zhong3 wen1");
+  assert.equal(wrongTone.score, 75);
+  assert.ok(wrongTone.toneNoticeVi?.includes("sai thanh điệu"));
+
+  // Cloze toneless Pinyin reminder
+  const clozeZh: ClozePracticeItem = {
+    id: "zh-cl-1",
+    lang: "zh-CN",
+    difficulty: "easy",
+    title: "Điền 很",
+    promptVi: "Điền phó từ",
+    template: "我{{0}}好。",
+    blanks: [{ acceptedAnswers: ["很", "hěn", "hen3", "hen"] }],
+    fullSentence: "我很好。",
+    reading: "wǒ hěn hǎo",
+    meaningVi: "Tôi rất khỏe.",
+  };
+  const clToneless = evaluateClozeAnswers(clozeZh, ["hen"]);
+  assert.equal(clToneless.isAllCorrect, true);
+  assert.ok(clToneless.toneNoticeVi?.includes("thanh điệu"));
+});
+
+runTest("CJK Chinese (zh-CN): pronunciation character alignment & Vietnamese tips (tones, aspirated, retroflex)", () => {
+  const res = evaluatePronunciationWords(
+    "请问去车站怎么走",
+    "问去站怎么走",
+    "zh-CN",
+    "qǐngwèn qù chēzhàn zěnme zǒu"
+  );
+  assert.ok(res.score > 50 && res.score < 90);
+  const tipCats = new Set(res.tips.map((t) => t.category));
+  assert.ok(tipCats.has("cjk_tone_pitch"), "Expected 4-tones tip");
+  assert.ok(tipCats.has("zh_aspirated"), "Expected aspirated tip for 请/车");
+  assert.ok(tipCats.has("zh_retroflex"), "Expected retroflex tip for 车");
+});
+
+runTest("CJK Roleplay Offline & Dictation & Language Detection", () => {
+  const jaRp: RoleplayPracticeItem = {
+    id: "ja-rp-test",
+    lang: "ja-JP",
+    difficulty: "easy",
+    title: "Chào hỏi N5",
+    scenarioVi: "Gặp thầy buổi sáng",
+    aiRole: "Thầy Tanaka",
+    aiPrompt: "おはようございます！おげんきですか。",
+    aiPromptReading: "ohayou gozaimasu! ogenki desu ka?",
+    aiPromptVi: "Chào buổi sáng! Em khỏe không?",
+    userGoalVi: "Chào lại và cảm ơn",
+    expectedKeywords: ["おはよう|ohayou", "げんき|元気", "ありがとう"],
+    sampleResponses: ["おはようございます！はい、げんきです。ありがとうございます。"],
+    minWords: 8,
+  };
+  const jaEval = evaluateRoleplayOffline(jaRp, "おはようございます！元気です、ありがとうございます。");
+  assert.equal(jaEval.gradingMode, "keyword_offline");
+  assert.equal(jaEval.gradingLabelVi, "Chấm theo từ khóa (offline)");
+  assert.equal(jaEval.matchedKeywords.length, 3);
+  assert.ok(jaEval.score >= 85, `Expected ja offline roleplay score >= 85, got ${jaEval.score}`);
+
+  const zhRp: RoleplayPracticeItem = {
+    id: "zh-rp-test",
+    lang: "zh-CN",
+    difficulty: "easy",
+    title: "Gọi trà HSK1",
+    scenarioVi: "Gọi đồ uống ở quán trà",
+    aiRole: "Phục vụ",
+    aiPrompt: "您想喝茶还是喝咖啡？",
+    aiPromptReading: "nín xiǎng hē chá háishi hē kāfēi?",
+    aiPromptVi: "Quý khách muốn uống trà hay cà phê?",
+    userGoalVi: "Gọi 1 tách trà nóng",
+    expectedKeywords: ["一杯|yi bei", "茶|cha", "谢谢|xie xie"],
+    sampleResponses: ["请给我一杯热茶，谢谢！"],
+    minWords: 6,
+  };
+  const zhEval = evaluateRoleplayOffline(zhRp, "请给我一杯热茶，谢谢！");
+  assert.equal(zhEval.gradingMode, "keyword_offline");
+  assert.equal(zhEval.gradingLabelVi, "Chấm theo từ khóa (offline)");
+  assert.equal(zhEval.matchedKeywords.length, 3);
+  assert.ok(zhEval.score >= 85, `Expected zh offline roleplay score >= 85, got ${zhEval.score}`);
+
+  // CJK Dictation does NOT strip CJK characters
+  const jaDict = evaluateDictationAnswer({
+    targetSentence: "わたしはベトナムじんです",
+    subMode: "chips",
+    typedText: "",
+    placedChips: ["わたし", "は", "ベトナムじん", "です"],
+    lang: "ja-JP",
+    wordChips: ["わたし", "は", "ベトナムじん", "です"],
+  });
+  assert.equal(jaDict.accuracy, 100);
+
+  const zhDictType = evaluateDictationAnswer({
+    targetSentence: "我是越南人",
+    subMode: "type",
+    typedText: "我是越南人。",
+    placedChips: [],
+    lang: "zh-CN",
+  });
+  assert.equal(zhDictType.accuracy, 100);
+
+  // Language auto-detection
+  assert.equal(detectCourseLanguageFromText("Tiếng Nhật Sơ Cấp (N5)", "Bài 1.1: Hiragana"), "ja-JP");
+  assert.equal(detectCourseLanguageFromText("Tiếng Trung Sơ Cấp (HSK1)", "Bài 1.1: Pinyin"), "zh-CN");
+  assert.equal(detectCourseLanguageFromText("Tiếng Anh Giao Tiếp Thực Chiến (A2 → B1)", "Bài 1.1"), "en-US");
+  assert.equal(
+    detectLanguageFromActivities([{ type: "shadowing", configJson: JSON.stringify({ lang: "zh-CN" }) }], "Khóa học"),
+    "zh-CN"
+  );
 });
 
 console.log(`\n✅ All ${passed} language-practice unit tests passed!`);

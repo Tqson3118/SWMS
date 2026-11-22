@@ -18,6 +18,7 @@ import {
 export interface WordMapNode {
   text: string;
   ipa?: string;
+  reading?: string;
   meaningVi: string;
   example?: string;
 }
@@ -25,15 +26,17 @@ export interface WordMapNode {
 export interface WordMapData {
   centralWord: string;
   ipa?: string;
+  reading?: string;
   meaningVi: string;
   collocations: WordMapNode[];
   phrasalVerbs: WordMapNode[];
   synonyms: WordMapNode[];
-  contextExamples: Array<{ sentence: string; meaningVi: string }>;
+  contextExamples: Array<{ sentence: string; reading?: string; meaningVi: string }>;
 }
 
 export interface EnglishWordMapViewProps {
   wordMap: WordMapData;
+  lang?: "en-US" | "en-GB" | "ja-JP" | "zh-CN";
   onSpeak: (text: string, rate?: number) => void;
   onSaveToFlashcard: (params: { front: string; back: string; ipa?: string; example?: string }) => Promise<void>;
   onComplete: () => Promise<void>;
@@ -43,12 +46,14 @@ export interface EnglishWordMapViewProps {
 
 export default function EnglishWordMapView({
   wordMap,
+  lang = "en-US",
   onSpeak,
   onSaveToFlashcard,
   onComplete,
   isCompleted = false,
   bestScore = null,
 }: EnglishWordMapViewProps) {
+  const isCjk = lang === "ja-JP" || lang === "zh-CN";
   const [selectedNode, setSelectedNode] = useState<WordMapNode | null>(null);
   const [savedKeys, setSavedKeys] = useState<Record<string, boolean>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -61,7 +66,7 @@ export default function EnglishWordMapView({
       await onSaveToFlashcard({
         front: node.text,
         back: node.meaningVi,
-        ipa: node.ipa,
+        ipa: node.reading || node.ipa,
         example: node.example,
       });
       setSavedKeys(prev => ({ ...prev, [node.text]: true }));
@@ -77,7 +82,7 @@ export default function EnglishWordMapView({
       await onSaveToFlashcard({
         front: wordMap.centralWord,
         back: wordMap.meaningVi,
-        ipa: wordMap.ipa,
+        ipa: wordMap.reading || wordMap.ipa,
         example: wordMap.contextExamples?.[0]?.sentence,
       });
       setSavedKeys(prev => ({ ...prev, [wordMap.centralWord]: true }));
@@ -149,7 +154,12 @@ export default function EnglishWordMapView({
                 <Volume2 className="w-4 h-4" />
               </button>
             </div>
-            {wordMap.ipa && (
+            {wordMap.reading && (
+              <p className="font-mono text-sm text-amber-100 tracking-wide bg-white/10 px-3 py-0.5 rounded-full inline-block">
+                {wordMap.reading}
+              </p>
+            )}
+            {wordMap.ipa && wordMap.ipa !== wordMap.reading && (
               <p className="font-mono text-sm text-indigo-100 tracking-wider">{wordMap.ipa}</p>
             )}
             <p className="text-xs sm:text-sm text-indigo-50 font-medium">{wordMap.meaningVi}</p>
@@ -209,9 +219,9 @@ export default function EnglishWordMapView({
                       <span className="text-sm font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100">
                         {item.text}
                       </span>
-                      {item.ipa && (
+                      {(item.reading || item.ipa) && (
                         <span className="text-[11px] font-mono text-[#5E51E8] dark:text-[#818CF8]">
-                          {item.ipa}
+                          {item.reading || item.ipa}
                         </span>
                       )}
                     </div>
@@ -262,7 +272,9 @@ export default function EnglishWordMapView({
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary,#52525b)] dark:text-zinc-300">
-                  2. Cụm Động Từ & Thành Ngữ (Phrasal Verbs)
+                  {isCjk
+                    ? "2. Cụm Mở Rộng & Mẫu Câu Giao Tiếp"
+                    : "2. Cụm Động Từ & Thành Ngữ (Phrasal Verbs)"}
                 </h3>
               </div>
               <span className="text-[11px] font-semibold text-purple-600 dark:text-purple-400">
@@ -286,9 +298,9 @@ export default function EnglishWordMapView({
                       <span className="text-sm font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100">
                         {item.text}
                       </span>
-                      {item.ipa && (
+                      {(item.reading || item.ipa) && (
                         <span className="text-[11px] font-mono text-purple-600 dark:text-purple-400">
-                          {item.ipa}
+                          {item.reading || item.ipa}
                         </span>
                       )}
                     </div>
@@ -363,9 +375,9 @@ export default function EnglishWordMapView({
                       <span className="text-sm font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100">
                         {item.text}
                       </span>
-                      {item.ipa && (
+                      {(item.reading || item.ipa) && (
                         <span className="text-[11px] font-mono text-blue-600 dark:text-blue-400">
-                          {item.ipa}
+                          {item.reading || item.ipa}
                         </span>
                       )}
                     </div>
@@ -442,6 +454,11 @@ export default function EnglishWordMapView({
                       <Volume2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
+                  {ex.reading && (
+                    <p className="text-xs font-mono text-[#5E51E8] dark:text-[#818CF8]">
+                      {ex.reading}
+                    </p>
+                  )}
                   <p className="text-xs text-[var(--text-secondary,#52525b)] dark:text-zinc-400 italic">
                     {ex.meaningVi}
                   </p>

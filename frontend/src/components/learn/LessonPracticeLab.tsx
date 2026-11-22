@@ -28,6 +28,7 @@ import {
 import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { invalidateDashboardCache } from "@/lib/api-client";
 import { formatCleanQuizPrompt } from "@/lib/course-helpers";
+import { detectCourseLanguageFromText } from "@/lib/language-practice";
 import { resolvePracticeSelection } from "@/lib/practice-helpers";
 
 export interface LessonPracticeLabProps {
@@ -158,11 +159,12 @@ function detectPreferredMode(courseTitle: string, lessonTitle: string, md: strin
   if (/```practice-case\b/i.test(md)) return "recall";
 
   const titleNorm = stripDiacritics(`${courseTitle} ${lessonTitle}`);
-  // 1. Prioritize English so "Tiếng Anh Giao Tiếp" or "English Communication" opens English Practice Lab
+  // 1. Prioritize Languages (English, Japanese N5, Chinese HSK1) so language courses always open Language Practice Lab
   if (
-    /\b(ielts|tieng anh|english|listening|speaking|vocabulary|grammar|phat am|shadowing|dictation|pronunciation|ipa)\b/.test(
+    /\b(ielts|tieng anh|english|tieng nhat|japanese|jlpt|n5|n4|n3|hiragana|katakana|kanji|tieng trung|chinese|hsk|hsk1|hsk2|pinyin|hanzi|listening|speaking|vocabulary|grammar|phat am|shadowing|dictation|pronunciation|ipa)\b/.test(
       titleNorm
-    )
+    ) ||
+    /[\u3040-\u30ff]/.test(`${courseTitle} ${lessonTitle}`)
   ) {
     return "english";
   }
@@ -191,9 +193,10 @@ function detectPreferredMode(courseTitle: string, lessonTitle: string, md: strin
   // Fallback sang xét md.slice(0, 1500)
   const mdNorm = stripDiacritics(md.slice(0, 1500));
   if (
-    /\b(ielts|tieng anh|english|listening|speaking|vocabulary|grammar|phat am|shadowing|dictation|pronunciation|ipa)\b/.test(
+    /\b(ielts|tieng anh|english|tieng nhat|japanese|jlpt|n5|hiragana|katakana|kanji|tieng trung|chinese|hsk|hsk1|pinyin|hanzi|listening|speaking|vocabulary|grammar|phat am|shadowing|dictation|pronunciation|ipa)\b/.test(
       mdNorm
-    )
+    ) ||
+    /[\u3040-\u30ff]/.test(md.slice(0, 1500))
   ) {
     return "english";
   }
@@ -724,8 +727,20 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
     }
   };
 
+  const detectedLanguage = useMemo(
+    () => detectCourseLanguageFromText(courseTitle, lessonTitle, lessonMarkdown),
+    [courseTitle, lessonTitle, lessonMarkdown]
+  );
+
+  const languageModeLabel =
+    detectedLanguage === "ja-JP"
+      ? "Tiếng Nhật (N5) · Nghe & Nói"
+      : detectedLanguage === "zh-CN"
+      ? "Tiếng Trung (HSK1) · Nghe & Nói"
+      : "Tiếng Anh · Nghe & Nói";
+
   const PRACTICE_MODES = [
-    { id: "english" as const, label: "Tiếng Anh · Nghe & Nói", icon: Headphones },
+    { id: "english" as const, label: languageModeLabel, icon: Headphones },
     { id: "code" as const, label: "Lập trình · Code & Săn lỗi", icon: Code2 },
     { id: "finance" as const, label: "Tài chính · Tính toán & Biểu đồ", icon: CandlestickChart },
     { id: "recall" as const, label: "Kỹ năng & Tình huống", icon: Brain },
@@ -751,6 +766,10 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
               <span>
                 {isEmbedded
                   ? "Thực hành ngay cho bài học này"
+                  : mode === "english" && detectedLanguage === "ja-JP"
+                  ? "Phòng thực hành Tiếng Nhật (N5)"
+                  : mode === "english" && detectedLanguage === "zh-CN"
+                  ? "Phòng thực hành Tiếng Trung (HSK1)"
                   : "Phòng thực hành chuyên sâu theo bài học"}
               </span>
             </p>

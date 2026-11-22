@@ -5218,7 +5218,7 @@ public static class SwmsEndpoints
     private static string NormalizePracticeText(string? input, string lang)
     {
         if (string.IsNullOrWhiteSpace(input)) return string.Empty;
-        var s = input.Trim().ToLowerInvariant()
+        var s = input.Normalize(System.Text.NormalizationForm.FormKC).Trim().ToLowerInvariant()
             .Replace('’', '\'')
             .Replace('‘', '\'')
             .Replace('-', ' ');
@@ -5227,7 +5227,7 @@ public static class SwmsEndpoints
                     lang.StartsWith("zh", StringComparison.OrdinalIgnoreCase);
         if (isCjk)
         {
-            return Regex.Replace(s, @"[\s。、，．！？；：「」『』（）()【】\[\],.!?;:'""~～\-—–]", string.Empty);
+            return Regex.Replace(s, @"[\s。、，．！？；：「」『』（）()【】\[\]《》〈〉,.!?;:'""~～〜\-—–·•・]", string.Empty);
         }
 
         // Preserve Vietnamese words cleanly by stripping diacritics before ASCII punctuation cleanup
@@ -5259,6 +5259,36 @@ public static class SwmsEndpoints
         return s;
     }
 
+    private static string KatakanaToHiragana(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return string.Empty;
+        var chars = input.ToCharArray();
+        for (int i = 0; i < chars.Length; i++)
+        {
+            if (chars[i] >= '\u30A1' && chars[i] <= '\u30F6')
+            {
+                chars[i] = (char)(chars[i] - 0x60);
+            }
+        }
+        return new string(chars);
+    }
+
+    private static string StripPinyinTonesCompact(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+        var decomposed = input.Normalize(System.Text.NormalizationForm.FormD).ToLowerInvariant();
+        var sb = new System.Text.StringBuilder(decomposed.Length);
+        foreach (var ch in decomposed)
+        {
+            if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(ch) != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                sb.Append(ch);
+            }
+        }
+        var stripped = sb.ToString().Replace("u:", "u").Replace("v", "u");
+        return Regex.Replace(stripped, @"[\s0-9。、，．！？；：「」『』（）()【】\[\]《》〈〉,.!?;:'""~～\-—–·•]", string.Empty);
+    }
+
     private static (List<string> Matched, List<string> Missing) ComputeKeywordMatches(
         string userResponse,
         List<string>? expectedKeywords,
@@ -5268,18 +5298,57 @@ public static class SwmsEndpoints
         var missing = new List<string>();
         if (expectedKeywords == null || expectedKeywords.Count == 0) return (matched, missing);
 
+        var isJa = lang.StartsWith("ja", StringComparison.OrdinalIgnoreCase);
+        var isZh = lang.StartsWith("zh", StringComparison.OrdinalIgnoreCase);
+
         var normResp = NormalizePracticeText(userResponse, lang);
+        var hiraResp = isJa ? KatakanaToHiragana(normResp) : normResp;
+        var pinyinResp = isZh ? StripPinyinTonesCompact(userResponse) : string.Empty;
         var respTokens = normResp.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         foreach (var rawKw in expectedKeywords.Where(k => !string.IsNullOrWhiteSpace(k)))
         {
             var kw = rawKw.Trim();
-            var normKw = NormalizePracticeText(kw, lang);
-            if (string.IsNullOrWhiteSpace(normKw)) continue;
+            var alternatives = kw.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (alternatives.Length == 0) continue;
 
-            var kwTokens = normKw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            var hit = normResp.Contains(normKw, StringComparison.Ordinal) ||
-                      (kwTokens.Length > 0 && kwTokens.All(kt => respTokens.Contains(kt, StringComparer.Ordinal)));
+            var hit = false;
+            foreach (var alt in alternatives)
+            {
+                var normKw = NormalizePracticeText(alt, lang);
+                if (string.IsNullOrWhiteSpace(normKw)) continue;
+
+                if (normResp.Contains(normKw, StringComparison.Ordinal))
+                {
+                    hit = true;
+                    break;
+                }
+                if (isJa)
+                {
+                    var hiraKw = KatakanaToHiragana(normKw);
+                    if (!string.IsNullOrEmpty(hiraKw) && hiraResp.Contains(hiraKw, StringComparison.Ordinal))
+                    {
+                        hit = true;
+                        break;
+                    }
+                }
+                if (isZh && !Regex.IsMatch(alt, @"[\u3400-\u9FFF]"))
+                {
+                    var pinyinKw = StripPinyinTonesCompact(alt);
+                    if (!string.IsNullOrEmpty(pinyinKw) && pinyinResp.Contains(pinyinKw, StringComparison.Ordinal))
+                    {
+                        hit = true;
+                        break;
+                    }
+                }
+                var kwTokens = normKw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (kwTokens.Length > 0 && kwTokens.All(kt => respTokens.Contains(kt, StringComparer.Ordinal)))
+                {
+                    hit = true;
+                    break;
+                }
+            }
+
             if (hit) matched.Add(kw);
             else missing.Add(kw);
         }

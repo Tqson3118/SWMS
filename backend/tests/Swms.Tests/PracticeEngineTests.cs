@@ -1061,4 +1061,177 @@ public class PracticeEngineTests
         Assert.Equal("User custom content without marker", reloaded.ContentMarkdown);
         Assert.Equal(2, reloaded.CurrentVersion);
     }
+
+    [Fact]
+    public async Task Test16_JapaneseN5_And_ChineseHsk1_SeededCompletely_NoGuidCollisions_Idempotent_And_OfflineCjkGradingWorks()
+    {
+        var dbName = $"SwmsCjkSeedTestDb_{Guid.NewGuid():N}";
+        await using var factory = new WebApplicationFactory<Program>()
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("Database:InMemoryName", dbName);
+                builder.UseSetting("AiProxy:BaseUrl", "http://127.0.0.1:59995");
+                builder.UseSetting("AiProxy:TimeoutSeconds", "2");
+            });
+
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
+
+        // 1. Verify both courses exist, are published, public, and DefaultUserId is enrolled
+        var jaCourse = await db.Courses.FirstOrDefaultAsync(c => c.Id == SeedDataInitializer.JapaneseCourseId);
+        var zhCourse = await db.Courses.FirstOrDefaultAsync(c => c.Id == SeedDataInitializer.ChineseCourseId);
+        Assert.NotNull(jaCourse);
+        Assert.NotNull(zhCourse);
+        Assert.Equal("tieng-nhat-so-cap-n5", jaCourse!.Slug);
+        Assert.Equal("tieng-trung-so-cap-hsk1", zhCourse!.Slug);
+        Assert.Equal("public", jaCourse.Visibility);
+        Assert.Equal("public", zhCourse.Visibility);
+        Assert.True(jaCourse.IsPublished);
+        Assert.True(zhCourse.IsPublished);
+
+        Assert.True(await db.CourseEnrollments.AnyAsync(e =>
+            e.UserId == SeedDataInitializer.DefaultUserId && e.CourseId == SeedDataInitializer.JapaneseCourseId));
+        Assert.True(await db.CourseEnrollments.AnyAsync(e =>
+            e.UserId == SeedDataInitializer.DefaultUserId && e.CourseId == SeedDataInitializer.ChineseCourseId));
+
+        // 2. Verify 3 chapters x 2 lessons = 6 lessons for each course, and all GUIDs are strictly unique
+        var jaChapters = await db.Chapters.Where(c => c.CourseId == SeedDataInitializer.JapaneseCourseId).OrderBy(c => c.SortOrder).ToListAsync();
+        var zhChapters = await db.Chapters.Where(c => c.CourseId == SeedDataInitializer.ChineseCourseId).OrderBy(c => c.SortOrder).ToListAsync();
+        Assert.Equal(3, jaChapters.Count);
+        Assert.Equal(3, zhChapters.Count);
+
+        var jaLessonIds = new[]
+        {
+            SeedDataInitializer.JapaneseLesson11Id, SeedDataInitializer.JapaneseLesson12Id,
+            SeedDataInitializer.JapaneseLesson21Id, SeedDataInitializer.JapaneseLesson22Id,
+            SeedDataInitializer.JapaneseLesson31Id, SeedDataInitializer.JapaneseLesson32Id
+        };
+        var zhLessonIds = new[]
+        {
+            SeedDataInitializer.ChineseLesson11Id, SeedDataInitializer.ChineseLesson12Id,
+            SeedDataInitializer.ChineseLesson21Id, SeedDataInitializer.ChineseLesson22Id,
+            SeedDataInitializer.ChineseLesson31Id, SeedDataInitializer.ChineseLesson32Id
+        };
+
+        // Check GUID non-collision across existing & new IDs
+        var allKnownGuids = new[]
+        {
+            SeedDataInitializer.PersonalCourseId, SeedDataInitializer.AcademicCourseId,
+            SeedDataInitializer.EnglishCourseId, SeedDataInitializer.InvestingCourseId,
+            SeedDataInitializer.CodingCourseId, SeedDataInitializer.PsychologyCourseId,
+            SeedDataInitializer.JapaneseCourseId, SeedDataInitializer.ChineseCourseId,
+            SeedDataInitializer.JapaneseChapter1Id, SeedDataInitializer.JapaneseChapter2Id, SeedDataInitializer.JapaneseChapter3Id,
+            SeedDataInitializer.ChineseChapter1Id, SeedDataInitializer.ChineseChapter2Id, SeedDataInitializer.ChineseChapter3Id
+        }.Concat(jaLessonIds).Concat(zhLessonIds).ToList();
+        Assert.Equal(allKnownGuids.Count, allKnownGuids.Distinct().Count());
+
+        var jaLessons = await db.Lessons.Where(l => jaLessonIds.Contains(l.Id)).ToListAsync();
+        var zhLessons = await db.Lessons.Where(l => zhLessonIds.Contains(l.Id)).ToListAsync();
+        Assert.Equal(6, jaLessons.Count);
+        Assert.Equal(6, zhLessons.Count);
+
+        foreach (var ch in jaChapters)
+        {
+            Assert.Equal(2, jaLessons.Count(l => l.ChapterId == ch.Id));
+        }
+        foreach (var ch in zhChapters)
+        {
+            Assert.Equal(2, zhLessons.Count(l => l.ChapterId == ch.Id));
+        }
+
+        // 3. Verify all 12 lessons have marker + all required PracticeActivities with lang ja-JP / zh-CN and item counts
+        var minCountsByType = new Dictionary<string, int>
+        {
+            ["shadowing"] = 9,
+            ["dictation"] = 6,
+            ["pronunciation"] = 6,
+            ["word_map"] = 3,
+            ["cloze"] = 4,
+            ["translate"] = 4,
+            ["grammar_fix"] = 3,
+            ["roleplay"] = 3
+        };
+
+        async Task AssertCourseActivitiesAsync(Guid courseId, Guid[] lessonIds, string expectedLang)
+        {
+            var acts = await db.PracticeActivities.Where(pa => pa.CourseId == courseId).ToListAsync();
+            foreach (var lessonId in lessonIds)
+            {
+                var lesson = await db.Lessons.FirstAsync(l => l.Id == lessonId);
+                Assert.Contains(JapaneseChinesePracticeContent.UpgradeMarker, lesson.ContentMarkdown);
+
+                var lessonActs = acts.Where(a => a.LessonId == lessonId).ToList();
+                var orderIndices = lessonActs.Select(a => a.OrderIndex).ToList();
+                Assert.Equal(orderIndices.Count, orderIndices.Distinct().Count());
+
+                foreach (var (actType, minItems) in minCountsByType)
+                {
+                    var act = lessonActs.FirstOrDefault(a => a.Type == actType);
+                    Assert.NotNull(act);
+                    using var doc = JsonDocument.Parse(act!.ConfigJson);
+                    Assert.Equal(expectedLang, doc.RootElement.GetProperty("lang").GetString());
+                    var items = doc.RootElement.GetProperty("items");
+                    Assert.True(items.GetArrayLength() >= minItems,
+                        $"Lesson {lessonId} ({expectedLang}) type '{actType}' had {items.GetArrayLength()} items, expected >= {minItems}");
+                }
+            }
+        }
+
+        await AssertCourseActivitiesAsync(SeedDataInitializer.JapaneseCourseId, jaLessonIds, "ja-JP");
+        await AssertCourseActivitiesAsync(SeedDataInitializer.ChineseCourseId, zhLessonIds, "zh-CN");
+
+        // 4. Verify Idempotency & User-edit preservation (CurrentVersion == 2)
+        var targetCourseIds = new[] { SeedDataInitializer.JapaneseCourseId, SeedDataInitializer.ChineseCourseId };
+        var countBefore = await db.PracticeActivities.CountAsync(pa => targetCourseIds.Contains(pa.CourseId));
+
+        var editedJa = await db.Lessons.FirstAsync(l => l.Id == SeedDataInitializer.JapaneseLesson11Id);
+        editedJa.CurrentVersion = 2;
+        editedJa.ContentMarkdown = "# Ghi chú N5 tự biên soạn của học viên";
+        await db.SaveChangesAsync();
+
+        await SeedDataInitializer.EnsureJapaneseAndChineseCoursesSeededAsync(db);
+        await SeedDataInitializer.EnsureJapaneseAndChineseCoursesSeededAsync(db);
+
+        var countAfter = await db.PracticeActivities.CountAsync(pa => targetCourseIds.Contains(pa.CourseId));
+        Assert.Equal(countBefore, countAfter);
+
+        var reloadedJa = await db.Lessons.AsNoTracking().FirstAsync(l => l.Id == SeedDataInitializer.JapaneseLesson11Id);
+        Assert.Equal(2, reloadedJa.CurrentVersion);
+        Assert.Equal("# Ghi chú N5 tự biên soạn của học viên", reloadedJa.ContentMarkdown);
+
+        // 5. Verify offline deterministic roleplay evaluation for both ja-JP and zh-CN via HTTP endpoint
+        using var client = factory.CreateClient();
+
+        var jaRoleplayReq = new AiEvaluatePracticeRequest(
+            Mode: "roleplay",
+            Lang: "ja-JP",
+            Prompt: "おはようございます！おげんきですか。",
+            UserResponse: "おはようございます！はい、元気です。ありがとうございます。",
+            ExpectedKeywords: new List<string> { "おはよう|ohayou", "げんき|元気", "ありがとう" },
+            SampleAnswer: "おはようございます！はい、げんきです。ありがとうございます。"
+        );
+        var jaEvalRes = await client.PostAsJsonAsync("/api/v1/ai/evaluate-practice", jaRoleplayReq);
+        Assert.Equal(HttpStatusCode.OK, jaEvalRes.StatusCode);
+        var jaEvalJson = await jaEvalRes.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.False(jaEvalJson.GetProperty("usedLiveEndpoint").GetBoolean());
+        Assert.Equal("Chấm theo từ khóa (offline)", jaEvalJson.GetProperty("gradingLabelVi").GetString());
+        Assert.True(jaEvalJson.GetProperty("score").GetInt32() >= 80,
+            $"Expected ja-JP offline score >= 80, got {jaEvalJson.GetProperty("score").GetInt32()}");
+
+        var zhRoleplayReq = new AiEvaluatePracticeRequest(
+            Mode: "roleplay",
+            Lang: "zh-CN",
+            Prompt: "您想喝茶还是喝咖啡？",
+            UserResponse: "请给我一杯热茶，谢谢！",
+            ExpectedKeywords: new List<string> { "一杯|yi bei", "茶|cha", "谢谢|xie xie" },
+            SampleAnswer: "请给我一杯热茶，谢谢！"
+        );
+        var zhEvalRes = await client.PostAsJsonAsync("/api/v1/ai/evaluate-practice", zhRoleplayReq);
+        Assert.Equal(HttpStatusCode.OK, zhEvalRes.StatusCode);
+        var zhEvalJson = await zhEvalRes.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.False(zhEvalJson.GetProperty("usedLiveEndpoint").GetBoolean());
+        Assert.Equal("Chấm theo từ khóa (offline)", zhEvalJson.GetProperty("gradingLabelVi").GetString());
+        Assert.True(zhEvalJson.GetProperty("score").GetInt32() >= 80,
+            $"Expected zh-CN offline score >= 80, got {zhEvalJson.GetProperty("score").GetInt32()}");
+    }
 }

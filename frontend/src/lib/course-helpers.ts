@@ -87,9 +87,9 @@ export function classifyCourseDomain(course: CourseLike): CourseDomainMeta {
   const rawCombined = `${course.category || ""} ${course.title || ""} ${course.description || ""}`;
   const combined = normalizeVi(rawCombined);
 
-  // 1. Language - prioritize language so "Tiếng Anh cho Dân IT" or "Bài học Tiếng Anh" match language
+  // 1. Language - prioritize language so "Tiếng Anh cho Dân IT", "Tiếng Nhật N5", "Tiếng Trung HSK1" match language
   if (
-    /(tieng anh|english|ielts|toeic|toefl|ngoai ngu|tieng nhat|japanese|tieng trung|chinese|tieng han|korean|ngu phap|tu vung|vocabulary|phat am|listening|reading|writing|speaking|grammar|pronunciation)/.test(
+    /(tieng anh|english|ielts|toeic|toefl|ngoai ngu|tieng nhat|japanese|jlpt|\bn5\b|\bn4\b|\bn3\b|hiragana|katakana|kanji|tieng trung|chinese|\bhsk\d?\b|pinyin|hanzi|tieng han|korean|ngu phap|tu vung|vocabulary|phat am|listening|reading|writing|speaking|grammar|pronunciation)/.test(
       combined
     )
   ) {
@@ -151,7 +151,7 @@ export function isCurriculumStandardCourse(course: CourseLike): boolean {
   const norm = normalizeVi(rawCombined);
   return (
     /document-course-/.test(rawCombined) ||
-    /(ielts|tieng anh|english|\.net|c#|csharp|fullstack|full-stack|dau tu|tai chinh|ky nang song|tam ly hoc|he dieu hanh|hoc may|phap luat)/.test(
+    /(ielts|tieng anh|english|tieng nhat|japanese|jlpt|\bn5\b|tieng trung|chinese|\bhsk\d?\b|\.net|c#|csharp|fullstack|full-stack|dau tu|tai chinh|ky nang song|tam ly hoc|he dieu hanh|hoc may|phap luat)/.test(
       norm
     )
   );
@@ -221,7 +221,7 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
   const norm = normalizeVi(`${course.title || ""} ${course.description || ""}`);
 
   let levelLabel = "Lộ trình thực chiến";
-  if (/(co ban|nhap mon|nen tang|phase 0|tu con so 0|dai cuong|basics)/.test(norm)) {
+  if (/(co ban|nhap mon|nen tang|phase 0|tu con so 0|dai cuong|basics|so cap|\bn5\b|\bhsk1\b)/.test(norm)) {
     levelLabel = "Nền tảng → Vững chắc";
   } else if (/(mastery|chuyen sau|nang cao|microservices|ddd|48 tuan|28 tuan|fullstack|full-stack)/.test(norm)) {
     levelLabel = "Chuyên sâu toàn diện";
@@ -323,10 +323,22 @@ export function extractCourseSkillTags(course: CourseLike): string[] {
   const tags: string[] = [];
 
   if (domain.id === "language") {
-    if (/\b(ielts)\b/.test(norm)) tags.push("IELTS 4 Kỹ năng");
-    if (/\b(word map|mind map|so do tu vung|tu vung|vocabulary)\b/.test(norm)) tags.push("Word Map");
-    if (/\b(ipa|phat am|speaking|chuan ipa)\b/.test(norm)) tags.push("Chấm phát âm IPA");
-    if (/\b(shadowing|dictation|chep chinh ta|listening|nghe)\b/.test(norm)) tags.push("Shadowing & Dictation");
+    const isJapanese = /(tieng nhat|japanese|jlpt|\bn5\b|hiragana|katakana)/.test(norm);
+    const isChinese = /(tieng trung|chinese|\bhsk\d?\b|pinyin|hanzi)/.test(norm);
+    if (isJapanese) {
+      tags.push("JLPT N5");
+      tags.push("Hiragana & Katakana");
+      tags.push("Shadowing & Dictation");
+    } else if (isChinese) {
+      tags.push("HSK1 Chuẩn");
+      tags.push("Pinyin & Thanh điệu");
+      tags.push("Shadowing & Dictation");
+    } else {
+      if (/\b(ielts)\b/.test(norm)) tags.push("IELTS 4 Kỹ năng");
+      if (/\b(word map|mind map|so do tu vung|tu vung|vocabulary)\b/.test(norm)) tags.push("Word Map");
+      if (/\b(ipa|phat am|speaking|chuan ipa)\b/.test(norm)) tags.push("Chấm phát âm IPA");
+      if (/\b(shadowing|dictation|chep chinh ta|listening|nghe)\b/.test(norm)) tags.push("Shadowing & Dictation");
+    }
   } else {
     const rules: Array<[RegExp, string]> = [
       [/(\.net|c#|csharp)/, "C# / .NET 10"],

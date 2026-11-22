@@ -49,13 +49,19 @@ import {
   DIFFICULTY_LABELS,
   GRADING_LABELS,
   buildDefaultEnglishWriteInPacks,
+  detectLanguageFromActivities,
+  evaluateDictationAnswer,
   evaluatePronunciationWords,
   filterItemsByDifficulty,
+  isCjkLanguage,
   normalizePracticeActivities,
+  normalizeTextForComparison,
+  tokenizeText,
   type ClozePracticeItem,
   type DifficultyFilter,
   type DifficultyLevel,
   type GrammarFixPracticeItem,
+  type LanguageCode,
   type RoleplayPracticeItem,
   type SentenceDrillItem,
   type TranslatePracticeItem,
@@ -100,11 +106,12 @@ type VoiceAccent = "en-US" | "en-GB";
 
 interface ExtractedDrill {
   id: string;
-  lang?: VoiceAccent;
+  lang?: LanguageCode;
   difficulty: DifficultyLevel;
   topic: string;
   sentence: string;
   ipa: string;
+  reading?: string;
   meaningVi: string;
   audioUrl: string | null;
   speakingPrompt: string;
@@ -635,9 +642,34 @@ function extractPracticeContent(
   return { drills: resultDrills, detectedTopic: topicDisplay };
 }
 
-// Generate dynamic Mini-Quiz from drills
-function generateQuizFromDrills(drills: ExtractedDrill[]): QuizQuestion[] {
+// Generate dynamic Mini-Quiz from drills (EN + CJK aware)
+function generateQuizFromDrills(drills: ExtractedDrill[], lang: LanguageCode = "en-US"): QuizQuestion[] {
   const quizList: QuizQuestion[] = [];
+
+  if (isCjkLanguage(lang)) {
+    const meaningPool = drills.map((d) => d.meaningVi).filter(Boolean);
+    drills.slice(0, 6).forEach((drill, idx) => {
+      const distractors = meaningPool.filter((m) => m !== drill.meaningVi).slice(0, 3);
+      const fallbackMeanings =
+        lang === "ja-JP"
+          ? ["Hẹn gặp lại vào ngày mai.", "Tôi muốn mua vé tàu điện.", "Xin lỗi, nhà ga ở đâu vậy?"]
+          : ["Hẹn gặp lại vào ngày mai.", "Xin hỏi cái này bao nhiêu tiền?", "Tôi rất thích ăn cơm Trung Quốc."];
+      const rawOptions = Array.from(new Set([drill.meaningVi, ...distractors, ...fallbackMeanings])).slice(0, 4);
+      const options = [...rawOptions].sort((a, b) => ((a.length + idx) % 5) - ((b.length + idx) % 5));
+      const readingLine = drill.reading ? `\nPhiên âm: ${drill.reading}` : "";
+      quizList.push({
+        id: `quiz-cjk-${idx + 1}`,
+        difficulty: drill.difficulty || (idx % 3 === 0 ? "easy" : idx % 3 === 1 ? "medium" : "hard"),
+        question: `Chọn nghĩa tiếng Việt đúng nhất cho câu ${lang === "ja-JP" ? "tiếng Nhật" : "tiếng Trung"} sau:\n"${drill.sentence}"${readingLine}`,
+        options,
+        correctAnswer: drill.meaningVi,
+        explanation: `"${drill.sentence}"${drill.reading ? ` (${drill.reading})` : ""} nghĩa là: "${drill.meaningVi}".`,
+        sourceSentence: drill.sentence,
+        meaningVi: drill.meaningVi,
+      });
+    });
+    return quizList;
+  }
 
   drills.forEach((drill, idx) => {
     const words = drill.sentence
@@ -694,8 +726,6 @@ export function EnglishPracticeLab({
     () => extractPracticeContent(lessonMarkdown, lessonTitle, courseTitle),
     [lessonMarkdown, lessonTitle, courseTitle]
   );
-
-  const quizQuestions = useMemo(() => generateQuizFromDrills(drills), [drills]);
 
   // Backend Practice Activities & Attempts state
   const [dbActivities, setDbActivities] = useState<any[]>([]);
@@ -794,20 +824,50 @@ export function EnglishPracticeLab({
     };
   }, [courseId, lessonId]);
 
+  // Auto-detect course language from DB activities (item.lang) or course/lesson title
+  const courseLang: LanguageCode = useMemo(
+    () => detectLanguageFromActivities(dbActivities, courseTitle, lessonTitle, lessonMarkdown),
+    [dbActivities, courseTitle, lessonTitle, lessonMarkdown]
+  );
+  const isCjkCourse = isCjkLanguage(courseLang);
+  const effectiveLang: LanguageCode = isCjkCourse ? courseLang : voiceAccent;
+
+  const displayTopic =
+    courseLang === "ja-JP"
+      ? "Tiếng Nhật Sơ Cấp (N5)"
+      : courseLang === "zh-CN"
+      ? "Tiếng Trung Sơ Cấp (HSK1)"
+      : detectedTopic;
+
+  const translateTabLabel =
+    courseLang === "ja-JP"
+      ? "Dịch Việt → Nhật"
+      : courseLang === "zh-CN"
+      ? "Dịch Việt → Trung"
+      : "Dịch Việt → Anh";
+
+  const fsrsLangTag =
+    courseLang === "ja-JP"
+      ? "tieng-nhat"
+      : courseLang === "zh-CN"
+      ? "tieng-trung"
+      : "tieng-anh";
+
   // Normalize all backend practice activities (legacy single ConfigJson + extended multi-item schema)
   const normalizedBank = useMemo(
-    () => normalizePracticeActivities(dbActivities, voiceAccent),
-    [dbActivities, voiceAccent]
+    () => normalizePracticeActivities(dbActivities, effectiveLang),
+    [dbActivities, effectiveLang]
   );
 
   const toExtractedDrill = useCallback(
     (item: SentenceDrillItem): ExtractedDrill => ({
       id: item.id,
-      lang: item.lang === "en-GB" ? "en-GB" : "en-US",
+      lang: item.lang || effectiveLang,
       difficulty: item.difficulty,
       topic: item.topic || `${lessonTitle || courseTitle} (Bài học chuẩn hóa)`,
       sentence: item.sentence,
       ipa: item.ipa,
+      reading: item.reading,
       meaningVi: item.meaningVi,
       audioUrl: item.audioUrl,
       speakingPrompt: item.speakingPrompt,
@@ -819,27 +879,35 @@ export function EnglishPracticeLab({
       sourceActivityId: item.sourceActivityId,
       passingScore: item.passingScore,
     }),
-    [lessonTitle, courseTitle]
+    [lessonTitle, courseTitle, effectiveLang]
   );
 
-  // Per-mode normalized lists (merging backend seeded activities + lesson/default drills)
+  // Per-mode normalized lists (merging backend seeded activities + lesson/default drills; never pollute CJK courses with English defaults)
   const allShadowingDrills = useMemo(() => {
     const fromDb = normalizedBank.shadowing.map(toExtractedDrill);
+    if (isCjkCourse && fromDb.length > 0) return fromDb;
     const seen = new Set(fromDb.map((d) => d.sentence.trim().toLowerCase()));
     return [...fromDb, ...drills.filter((d) => !seen.has(d.sentence.trim().toLowerCase()))];
-  }, [normalizedBank.shadowing, drills, toExtractedDrill]);
+  }, [normalizedBank.shadowing, drills, toExtractedDrill, isCjkCourse]);
 
   const allDictationDrills = useMemo(() => {
     const fromDb = normalizedBank.dictation.map(toExtractedDrill);
+    if (isCjkCourse && fromDb.length > 0) return fromDb;
     const seen = new Set(fromDb.map((d) => d.sentence.trim().toLowerCase()));
     return [...fromDb, ...drills.filter((d) => !seen.has(d.sentence.trim().toLowerCase()))];
-  }, [normalizedBank.dictation, drills, toExtractedDrill]);
+  }, [normalizedBank.dictation, drills, toExtractedDrill, isCjkCourse]);
 
   const allSpeakingDrills = useMemo(() => {
     const fromDb = normalizedBank.pronunciation.map(toExtractedDrill);
+    if (isCjkCourse && fromDb.length > 0) return fromDb;
     const seen = new Set(fromDb.map((d) => d.sentence.trim().toLowerCase()));
     return [...fromDb, ...drills.filter((d) => !seen.has(d.sentence.trim().toLowerCase()))];
-  }, [normalizedBank.pronunciation, drills, toExtractedDrill]);
+  }, [normalizedBank.pronunciation, drills, toExtractedDrill, isCjkCourse]);
+
+  const quizQuestions = useMemo(
+    () => generateQuizFromDrills(isCjkCourse && allShadowingDrills.length > 0 ? allShadowingDrills : drills, effectiveLang),
+    [isCjkCourse, allShadowingDrills, drills, effectiveLang]
+  );
 
   const allWordMaps: WordMapPracticeItem[] = useMemo(() => {
     if (normalizedBank.wordMaps.length > 0) {
@@ -1060,7 +1128,7 @@ export function EnglishPracticeLab({
       case "speaking": return "Luyện nói & Phát âm";
       case "word_map": return "Sơ đồ từ vựng (Word Map)";
       case "cloze": return "Điền chỗ trống (Cloze)";
-      case "translate": return "Dịch Việt → Anh";
+      case "translate": return translateTabLabel;
       case "grammar_fix": return "Sửa lỗi ngữ pháp";
       case "roleplay": return "Nhập vai hội thoại (Roleplay)";
       case "quiz": return "Trắc nghiệm nhanh";
@@ -1169,7 +1237,7 @@ export function EnglishPracticeLab({
               sourceQuoteSnapshot: cleanFront,
               frontText: cleanFront,
               backText: cleanBack,
-              tagNames: ["tieng-anh", "loi-sai-luyen-tap", "fsrs"],
+              tagNames: [fsrsLangTag, "loi-sai-luyen-tap", "fsrs"],
               deduplicateByFront: true,
             }),
           });
@@ -1220,7 +1288,7 @@ export function EnglishPracticeLab({
             sourceQuoteSnapshot: cleanFront,
             frontText: cleanFront,
             backText: cleanBack,
-            tagNames: ["tieng-anh", "tu-vung", "fsrs"],
+            tagNames: [fsrsLangTag, "tu-vung", "fsrs"],
             deduplicateByFront: true,
           }),
         });
@@ -1322,6 +1390,8 @@ export function EnglishPracticeLab({
     const sentenceWords =
       activeDrill.wordChips && activeDrill.wordChips.length > 0
         ? activeDrill.wordChips
+        : isCjkCourse
+        ? Array.from(normalizeTextForComparison(activeDrill.sentence, effectiveLang))
         : activeDrill.sentence
             .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")
             .split(/\s+/)
@@ -1330,6 +1400,10 @@ export function EnglishPracticeLab({
     const distractors =
       activeDrill.distractors && activeDrill.distractors.length > 0
         ? activeDrill.distractors
+        : courseLang === "ja-JP"
+        ? ["です", "ます", "から"]
+        : courseLang === "zh-CN"
+        ? ["吗", "呢", "很"]
         : ["however", "therefore", "always", "crucial", "often", "their", "moreover"];
     const chosenDistractors = distractors.slice(0, 3);
     const allWords = [...sentenceWords, ...chosenDistractors];
@@ -1340,7 +1414,7 @@ export function EnglishPracticeLab({
 
     setAvailableChips(chips);
     setPlacedChips([]);
-  }, [safeActiveIndex, activeDrill]);
+  }, [safeActiveIndex, activeDrill, isCjkCourse, courseLang, effectiveLang]);
 
   // Clean up timers & audio URLs on unmount
   useEffect(() => {
@@ -1424,12 +1498,12 @@ export function EnglishPracticeLab({
             // Audio file failed to load, fallback seamlessly to SpeechSynthesis
             setAudioErrorNotice("File âm thanh bài học chưa tải được; tự động chuyển sang giọng đọc máy chuẩn.");
             sampleAudioRef.current = null;
-            playWebSpeechTts(activeDrill.sentence, rate, voiceAccent);
+            playWebSpeechTts(activeDrill.sentence, rate, effectiveLang);
           };
 
           setIsPlayingSample(true);
           sampleAudioRef.current.play().catch(() => {
-            playWebSpeechTts(activeDrill.sentence, rate, voiceAccent);
+            playWebSpeechTts(activeDrill.sentence, rate, effectiveLang);
           });
           return;
         } catch {
@@ -1438,12 +1512,12 @@ export function EnglishPracticeLab({
       }
 
       // Fallback: Web Speech API
-      playWebSpeechTts(activeDrill.sentence, rate, voiceAccent);
+      playWebSpeechTts(activeDrill.sentence, rate, effectiveLang);
     },
-    [isPlayingSample, activeDrill, ttsSpeed, voiceAccent]
+    [isPlayingSample, activeDrill, ttsSpeed, effectiveLang]
   );
 
-  const playWebSpeechTts = (text: string, rate: number, lang: VoiceAccent) => {
+  const playWebSpeechTts = (text: string, rate: number, lang: LanguageCode) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       showToast("Trình duyệt không hỗ trợ Web Speech API TTS.", "warning");
       return;
@@ -1451,6 +1525,14 @@ export function EnglishPracticeLab({
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = lang;
+    const voices = window.speechSynthesis.getVoices?.() || [];
+    const targetPrefix = lang.toLowerCase().slice(0, 2);
+    const exactVoice =
+      voices.find((v) => v.lang.toLowerCase() === lang.toLowerCase()) ||
+      voices.find((v) => v.lang.toLowerCase().startsWith(targetPrefix));
+    if (exactVoice) {
+      utter.voice = exactVoice;
+    }
     utter.rate = rate;
     utter.onstart = () => setIsPlayingSample(true);
     utter.onend = () => setIsPlayingSample(false);
@@ -1463,7 +1545,15 @@ export function EnglishPracticeLab({
     window.speechSynthesis.cancel();
     setIsSpeakingSlowWord(word);
     const utter = new SpeechSynthesisUtterance(word);
-    utter.lang = voiceAccent;
+    utter.lang = effectiveLang;
+    const voices = window.speechSynthesis.getVoices?.() || [];
+    const targetPrefix = effectiveLang.toLowerCase().slice(0, 2);
+    const exactVoice =
+      voices.find((v) => v.lang.toLowerCase() === effectiveLang.toLowerCase()) ||
+      voices.find((v) => v.lang.toLowerCase().startsWith(targetPrefix));
+    if (exactVoice) {
+      utter.voice = exactVoice;
+    }
     utter.rate = 0.65; // Slow & clear pronunciation
     utter.onend = () => setIsSpeakingSlowWord(null);
     utter.onerror = () => setIsSpeakingSlowWord(null);
@@ -1542,7 +1632,7 @@ export function EnglishPracticeLab({
     if (SpeechRecognition) {
       try {
         const recognition = new SpeechRecognition();
-        recognition.lang = voiceAccent;
+        recognition.lang = effectiveLang;
         recognition.interimResults = true;
         recognition.continuous = true;
 
@@ -1609,10 +1699,15 @@ export function EnglishPracticeLab({
 
   const pronunciationEval = useMemo(() => {
     if (!activeDrill) {
-      return evaluatePronunciationWords("", "", voiceAccent);
+      return evaluatePronunciationWords("", "", effectiveLang);
     }
-    return evaluatePronunciationWords(activeDrill.sentence, effectiveSpokenText, voiceAccent);
-  }, [activeDrill, effectiveSpokenText, voiceAccent]);
+    return evaluatePronunciationWords(
+      activeDrill.sentence,
+      effectiveSpokenText,
+      effectiveLang,
+      activeDrill.reading
+    );
+  }, [activeDrill, effectiveSpokenText, effectiveLang]);
 
   const shadowingWordResults = pronunciationEval.words;
   const shadowingAccuracy = effectiveSpokenText ? pronunciationEval.score : 0;
@@ -1740,77 +1835,23 @@ export function EnglishPracticeLab({
     }
   };
 
-  // ----------------- MODE 2: DICTATION EVALUATION -----------------
-  const dictationAccuracy = useMemo(() => {
-    if (!activeDrill) return 0;
-    const targetWords = activeDrill.sentence
-      .toLowerCase()
-      .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")
-      .split(/\s+/)
-      .filter(Boolean);
-
-    let userWords: string[] = [];
-    if (dictationSubMode === "type") {
-      userWords = dictationTyped
-        .toLowerCase()
-        .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")
-        .split(/\s+/)
-        .filter(Boolean);
-    } else {
-      userWords = placedChips.map(c => cleanWord(c.word));
+  // ----------------- MODE 2: DICTATION EVALUATION (EN + CJK) -----------------
+  const dictationEval = useMemo(() => {
+    if (!activeDrill) {
+      return { accuracy: 0, diffItems: [] as Array<{ targetWord?: string; userWord?: string; status: "correct" | "typo" | "missing" | "extra" }> };
     }
-
-    if (userWords.length === 0) return 0;
-    let hits = 0;
-    targetWords.forEach((tw, i) => {
-      if (userWords[i] === tw) hits++;
+    return evaluateDictationAnswer({
+      targetSentence: activeDrill.sentence,
+      subMode: dictationSubMode,
+      typedText: dictationTyped,
+      placedChips: placedChips.map((c) => c.word),
+      lang: effectiveLang,
+      wordChips: activeDrill.wordChips,
     });
-    const maxLen = Math.max(targetWords.length, userWords.length);
-    return Math.round((hits / maxLen) * 100);
-  }, [activeDrill, dictationSubMode, dictationTyped, placedChips]);
+  }, [activeDrill, dictationSubMode, dictationTyped, placedChips, effectiveLang]);
 
-  // Diff comparison items for dictation
-  const dictationDiffItems = useMemo(() => {
-    if (!activeDrill) return [];
-    const targetWords = activeDrill.sentence
-      .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")
-      .split(/\s+/)
-      .filter(Boolean);
-
-    let userWords: string[] = [];
-    if (dictationSubMode === "type") {
-      userWords = dictationTyped
-        .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")
-        .split(/\s+/)
-        .filter(Boolean);
-    } else {
-      userWords = placedChips.map(c => c.word);
-    }
-
-    const maxLen = Math.max(targetWords.length, userWords.length);
-    const items: Array<{
-      targetWord?: string;
-      userWord?: string;
-      status: "correct" | "typo" | "missing" | "extra";
-    }> = [];
-
-    for (let i = 0; i < maxLen; i++) {
-      const tw = targetWords[i];
-      const uw = userWords[i];
-      if (tw && uw) {
-        if (cleanWord(tw) === cleanWord(uw)) {
-          items.push({ targetWord: tw, userWord: uw, status: "correct" });
-        } else {
-          items.push({ targetWord: tw, userWord: uw, status: "typo" });
-        }
-      } else if (tw && !uw) {
-        items.push({ targetWord: tw, status: "missing" });
-      } else if (!tw && uw) {
-        items.push({ userWord: uw, status: "extra" });
-      }
-    }
-    return items;
-  }, [activeDrill, dictationSubMode, dictationTyped, placedChips]);
+  const dictationAccuracy = dictationEval.accuracy;
+  const dictationDiffItems = dictationEval.diffItems;
 
   const missedDictationWords = useMemo(() => {
     return Array.from(
@@ -1886,19 +1927,24 @@ export function EnglishPracticeLab({
   };
 
   // ----------------- MODE 3: SPEAKING AI FEEDBACK -----------------
-  // Live target vocabulary detection in Speaking
+  // Live target vocabulary detection in Speaking (EN + CJK aware)
   const detectedPhrasesStatus = useMemo(() => {
     if (!activeDrill) return [];
-    const fullText = `${spokenTranscript} ${speakingNotes} ${manualTranscriptInput}`.toLowerCase();
+    const combinedRaw = `${spokenTranscript} ${speakingNotes} ${manualTranscriptInput}`;
+    const fullNorm = normalizeTextForComparison(combinedRaw, effectiveLang);
     return activeDrill.keyPhrases.map(phrase => {
-      const phraseNorm = phrase.toLowerCase().replace(/[^a-z0-9 ]/g, "");
-      const words = phraseNorm.split(" ").filter(Boolean);
+      const phraseNorm = normalizeTextForComparison(phrase, effectiveLang);
+      if (!phraseNorm) return { phrase, isMatched: false };
+      if (isCjkCourse) {
+        return { phrase, isMatched: fullNorm.includes(phraseNorm) };
+      }
+      const words = tokenizeText(phrase, effectiveLang);
       const isMatched =
-        fullText.includes(phraseNorm) ||
-        (words.length >= 2 && words.every(w => fullText.includes(w)));
+        fullNorm.includes(phraseNorm) ||
+        (words.length >= 2 && words.every(w => fullNorm.includes(w)));
       return { phrase, isMatched };
     });
-  }, [spokenTranscript, speakingNotes, manualTranscriptInput, activeDrill]);
+  }, [spokenTranscript, speakingNotes, manualTranscriptInput, activeDrill, effectiveLang, isCjkCourse]);
 
   const detectedCount = detectedPhrasesStatus.filter(p => p.isMatched).length;
 
@@ -1921,7 +1967,7 @@ export function EnglishPracticeLab({
         headers,
         body: JSON.stringify({
           mode: "speaking",
-          lang: voiceAccent,
+          lang: effectiveLang,
           prompt: `${activeDrill.speakingPrompt}\nDàn ý gợi ý: ${activeDrill.speakingOutline.join(" | ")}`,
           userResponse: userSpokenContent,
           expectedKeywords: activeDrill.keyPhrases,
@@ -2095,14 +2141,22 @@ export function EnglishPracticeLab({
                 </span>
               )}
               <span className="text-xs text-[var(--text-secondary,#71717a)] dark:text-zinc-400">
-                Chủ đề: <strong className="text-[var(--text-primary,#18181b)] dark:text-zinc-200">{detectedTopic}</strong>
+                Chủ đề: <strong className="text-[var(--text-primary,#18181b)] dark:text-zinc-200">{displayTopic}</strong>
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100 tracking-tight">
-              Luyện Tập Tiếng Anh & IELTS Chuyên Sâu
+              {courseLang === "ja-JP"
+                ? "Phòng thực hành Tiếng Nhật (N5)"
+                : courseLang === "zh-CN"
+                ? "Phòng thực hành Tiếng Trung (HSK1)"
+                : "Luyện Tập Tiếng Anh & IELTS Chuyên Sâu"}
             </h2>
             <p className="text-sm text-[var(--text-secondary,#52525b)] dark:text-zinc-400 mt-0.5">
-              Tích hợp công nghệ nhận diện giọng nói, nghe mẫu chuẩn bản xứ và hỗ trợ tối ưu trên điện thoại.
+              {courseLang === "ja-JP"
+                ? "Luyện nghe nói chuẩn giọng Nhật (ja-JP), Hiragana/Katakana/Kanji, Sơ đồ từ vựng và Nhập vai giao tiếp N5."
+                : courseLang === "zh-CN"
+                ? "Luyện nghe nói chuẩn giọng Trung (zh-CN), Pinyin 4 thanh điệu, Chữ Hán cơ bản và Nhập vai giao tiếp HSK1."
+                : "Tích hợp công nghệ nhận diện giọng nói, nghe mẫu chuẩn bản xứ và hỗ trợ tối ưu trên điện thoại."}
             </p>
           </div>
 
@@ -2120,30 +2174,43 @@ export function EnglishPracticeLab({
               </div>
             )}
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center rounded-xl bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 p-1 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700">
-                <button
-                  type="button"
-                  onClick={() => setVoiceAccent("en-US")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold min-h-[38px] transition-all ${
-                    voiceAccent === "en-US"
-                      ? "bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 text-[#5E51E8] dark:text-[#818CF8] shadow-xs"
-                      : "text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
-                  }`}
+              {isCjkCourse ? (
+                <div
+                  data-testid={`language-badge-${courseLang}`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold min-h-[40px] bg-sky-500/12 text-sky-800 dark:text-sky-200 border border-sky-500/30"
                 >
-                  🇺🇸 Anh - Mỹ
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setVoiceAccent("en-GB")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold min-h-[38px] transition-all ${
-                    voiceAccent === "en-GB"
-                      ? "bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 text-[#5E51E8] dark:text-[#818CF8] shadow-xs"
-                      : "text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
-                  }`}
-                >
-                  🇬🇧 Anh - Anh
-                </button>
-              </div>
+                  <span>
+                    {courseLang === "ja-JP"
+                      ? "🇯🇵 Tiếng Nhật (ja-JP)"
+                      : "🇨🇳 Tiếng Trung (zh-CN)"}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center rounded-xl bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 p-1 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700">
+                  <button
+                    type="button"
+                    onClick={() => setVoiceAccent("en-US")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold min-h-[38px] transition-all ${
+                      voiceAccent === "en-US"
+                        ? "bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 text-[#5E51E8] dark:text-[#818CF8] shadow-xs"
+                        : "text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
+                    }`}
+                  >
+                    🇺🇸 Anh - Mỹ
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVoiceAccent("en-GB")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold min-h-[38px] transition-all ${
+                      voiceAccent === "en-GB"
+                        ? "bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 text-[#5E51E8] dark:text-[#818CF8] shadow-xs"
+                        : "text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
+                    }`}
+                  >
+                    🇬🇧 Anh - Anh
+                  </button>
+                </div>
+              )}
 
               <div className="flex items-center rounded-xl bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 p-1 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700">
                 {[0.75, 1.0, 1.25].map(rate => (
@@ -2248,7 +2315,7 @@ export function EnglishPracticeLab({
             }`}
           >
             <Languages className="w-4 h-4 shrink-0" />
-            <span>6. Dịch Việt → Anh</span>
+            <span>6. {translateTabLabel}</span>
           </button>
 
           <button
@@ -2486,7 +2553,7 @@ export function EnglishPracticeLab({
                 <DifficultyBadge difficulty={activeDrill.difficulty} />
               </div>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-medium">
-                {activeDrill.audioUrl ? "Audio bản xứ kèm bài học" : `Giọng đọc Web Speech (${voiceAccent})`}
+                {activeDrill.audioUrl ? "Audio bản xứ kèm bài học" : `Giọng đọc Web Speech (${effectiveLang})`}
               </span>
             </div>
 
@@ -2495,7 +2562,15 @@ export function EnglishPracticeLab({
               <p className="text-xl sm:text-2xl font-semibold text-[var(--text-primary,#18181b)] dark:text-zinc-100 leading-relaxed">
                 {activeDrill.sentence}
               </p>
-              {activeDrill.ipa && (
+              {activeDrill.reading && (
+                <div
+                  data-testid="shadowing-reading"
+                  className="inline-block px-3 py-1 rounded-lg bg-sky-500/10 border border-sky-500/20 text-xs sm:text-sm font-mono text-sky-800 dark:text-sky-200 mr-2"
+                >
+                  {activeDrill.reading}
+                </div>
+              )}
+              {activeDrill.ipa && activeDrill.ipa !== activeDrill.reading && (
                 <div className="inline-block px-3 py-1 rounded-lg bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800/80 text-xs font-mono text-[#5E51E8] dark:text-[#818CF8]">
                   {activeDrill.ipa}
                 </div>
@@ -2634,7 +2709,13 @@ export function EnglishPracticeLab({
                   data-testid="shadowing-manual-transcript"
                   value={manualTranscriptInput}
                   onChange={e => setManualTranscriptInput(e.target.value)}
-                  placeholder="Gõ hoặc dán câu tiếng Anh bạn vừa nói vào đây để chấm từng từ..."
+                  placeholder={
+                    courseLang === "ja-JP"
+                      ? "Gõ hoặc dán câu tiếng Nhật (Hiragana/Katakana/Kanji) bạn vừa đọc để chấm từng ký tự..."
+                      : courseLang === "zh-CN"
+                      ? "Gõ hoặc dán câu tiếng Trung (Chữ Hán hoặc Pinyin) bạn vừa đọc để chấm từng ký tự..."
+                      : "Gõ hoặc dán câu tiếng Anh bạn vừa nói vào đây để chấm từng từ..."
+                  }
                   className="flex-1 px-3 py-2 rounded-lg text-xs bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 min-h-[42px]"
                 />
                 {effectiveSpokenText && (
@@ -2834,12 +2915,29 @@ export function EnglishPracticeLab({
             {/* Hint or Answer Reveal */}
             {showFirstLetterHint && (
               <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-800 dark:text-amber-200 space-y-1">
-                <span className="font-bold">Gợi ý chữ cái đầu của từng từ:</span>
+                <span className="font-bold">
+                  {isCjkCourse ? "Gợi ý phiên âm & cụm từ đầu:" : "Gợi ý chữ cái đầu của từng từ:"}
+                </span>
+                {isCjkCourse && activeDrill.reading && (
+                  <p className="font-mono text-sm text-[#5E51E8] dark:text-[#818CF8]">
+                    {activeDrill.reading}
+                  </p>
+                )}
                 <p className="font-mono text-sm tracking-widest">
-                  {activeDrill.sentence
-                    .split(/\s+/)
-                    .map(w => w[0] + "_".repeat(Math.max(1, w.length - 1)))
-                    .join(" ")}
+                  {isCjkCourse
+                    ? (activeDrill.wordChips && activeDrill.wordChips.length > 0
+                        ? activeDrill.wordChips
+                        : Array.from(normalizeTextForComparison(activeDrill.sentence, effectiveLang))
+                      )
+                        .map((w) => {
+                          const chars = Array.from(w);
+                          return chars.length <= 1 ? chars[0] : `${chars[0]}${"＿".repeat(chars.length - 1)}`;
+                        })
+                        .join(" · ")
+                    : activeDrill.sentence
+                        .split(/\s+/)
+                        .map(w => w[0] + "_".repeat(Math.max(1, w.length - 1)))
+                        .join(" ")}
                 </p>
               </div>
             )}
@@ -2848,6 +2946,9 @@ export function EnglishPracticeLab({
               <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-800 dark:text-emerald-200 space-y-1">
                 <span className="font-bold">Đáp án chuẩn:</span>
                 <p className="text-sm font-semibold">{activeDrill.sentence}</p>
+                {activeDrill.reading && (
+                  <p className="font-mono text-xs text-emerald-700 dark:text-emerald-300">{activeDrill.reading}</p>
+                )}
                 <p className="italic text-xs text-emerald-700 dark:text-emerald-300">{activeDrill.meaningVi}</p>
               </div>
             )}
@@ -2862,7 +2963,13 @@ export function EnglishPracticeLab({
                     setDictationChecked(false);
                   }}
                   rows={3}
-                  placeholder="Gõ lại câu tiếng Anh bạn nghe được vào đây..."
+                  placeholder={
+                    courseLang === "ja-JP"
+                      ? "Gõ lại câu tiếng Nhật bạn nghe được vào đây..."
+                      : courseLang === "zh-CN"
+                      ? "Gõ lại câu tiếng Trung bạn nghe được vào đây..."
+                      : "Gõ lại câu tiếng Anh bạn nghe được vào đây..."
+                  }
                   className="w-full p-4 rounded-xl text-base bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 text-[var(--text-primary,#18181b)] dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#5E51E8]"
                 />
 
@@ -3179,7 +3286,7 @@ export function EnglishPracticeLab({
             <div className="p-4 rounded-xl bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800/70 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 space-y-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#5E51E8] dark:text-[#818CF8]">
-                  Câu mục tiêu chấm phát âm ({voiceAccent}):
+                  Câu mục tiêu chấm phát âm ({effectiveLang}):
                 </span>
                 <button
                   type="button"
@@ -3193,7 +3300,12 @@ export function EnglishPracticeLab({
               <p className="text-base sm:text-lg font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100 leading-relaxed">
                 {activeDrill.sentence}
               </p>
-              {activeDrill.ipa && (
+              {activeDrill.reading && (
+                <p className="font-mono text-xs sm:text-sm text-sky-700 dark:text-sky-300">
+                  {activeDrill.reading}
+                </p>
+              )}
+              {activeDrill.ipa && activeDrill.ipa !== activeDrill.reading && (
                 <p className="font-mono text-xs text-[#5E51E8] dark:text-[#818CF8]">{activeDrill.ipa}</p>
               )}
               <p className="text-xs text-[var(--text-secondary,#52525b)] dark:text-zinc-400 italic">
@@ -3467,7 +3579,8 @@ export function EnglishPracticeLab({
 
           <EnglishWordMapView
             wordMap={activeWordMap}
-            onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, voiceAccent)}
+            lang={effectiveLang}
+            onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, effectiveLang)}
             onSaveToFlashcard={handleSaveToFlashcardDirect}
             onComplete={async () => {
               await recordPracticeAttempt({
@@ -3500,18 +3613,18 @@ export function EnglishPracticeLab({
         <ClozePracticeView
           item={activeClozeItem}
           indexLabel={`Câu ${safeActiveIndex + 1} / ${filteredClozeItems.length}`}
-          onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, voiceAccent)}
+          onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, effectiveLang)}
           onRecordAttempt={recordPracticeAttempt}
           onAutoSaveMistakes={autoSaveMistakesToFsrs}
         />
       )}
 
-      {/* ----------------- CHẾ ĐỘ 6: DỊCH VIỆT -> ANH (TRANSLATE) ----------------- */}
+      {/* ----------------- CHẾ ĐỘ 6: DỊCH VIỆT -> NGÔN NGỮ ĐÍCH (TRANSLATE) ----------------- */}
       {activeMode === "translate" && activeTranslateItem && (
         <TranslatePracticeView
           item={activeTranslateItem}
           indexLabel={`Câu ${safeActiveIndex + 1} / ${filteredTranslateItems.length}`}
-          onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, voiceAccent)}
+          onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, effectiveLang)}
           onRecordAttempt={recordPracticeAttempt}
           onAutoSaveMistakes={autoSaveMistakesToFsrs}
         />
@@ -3522,7 +3635,7 @@ export function EnglishPracticeLab({
         <GrammarFixPracticeView
           item={activeGrammarFixItem}
           indexLabel={`Câu ${safeActiveIndex + 1} / ${filteredGrammarFixItems.length}`}
-          onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, voiceAccent)}
+          onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, effectiveLang)}
           onRecordAttempt={recordPracticeAttempt}
           onAutoSaveMistakes={autoSaveMistakesToFsrs}
         />
@@ -3533,10 +3646,10 @@ export function EnglishPracticeLab({
         <RoleplayPracticeView
           item={activeRoleplayItem}
           indexLabel={`Tình huống ${safeActiveIndex + 1} / ${filteredRoleplayItems.length}`}
-          voiceLang={voiceAccent}
+          voiceLang={effectiveLang}
           ttsSpeed={ttsSpeed}
           contextTitle={`${courseTitle} · ${lessonTitle}`}
-          onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, voiceAccent)}
+          onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, effectiveLang)}
           onRecordAttempt={recordPracticeAttempt}
           onAutoSaveMistakes={autoSaveMistakesToFsrs}
         />

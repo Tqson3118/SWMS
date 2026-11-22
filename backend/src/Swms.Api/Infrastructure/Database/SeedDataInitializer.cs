@@ -69,6 +69,30 @@ public static class SeedDataInitializer
     public static readonly Guid PsychologyLesson31Id = Guid.Parse("44444444-4444-4444-8444-444444444468");
     public static readonly Guid PsychologyLesson32Id = Guid.Parse("44444444-4444-4444-8444-444444444469");
 
+    // Japanese N5 Beginner Course & Lessons (s3c Seed)
+    public static readonly Guid JapaneseCourseId = Guid.Parse("22222222-2222-4222-8222-222222222227");
+    public static readonly Guid JapaneseChapter1Id = Guid.Parse("33333333-3333-4333-8333-333333333346");
+    public static readonly Guid JapaneseChapter2Id = Guid.Parse("33333333-3333-4333-8333-333333333347");
+    public static readonly Guid JapaneseChapter3Id = Guid.Parse("33333333-3333-4333-8333-333333333348");
+    public static readonly Guid JapaneseLesson11Id = Guid.Parse("44444444-4444-4444-8444-444444444470");
+    public static readonly Guid JapaneseLesson12Id = Guid.Parse("44444444-4444-4444-8444-444444444471");
+    public static readonly Guid JapaneseLesson21Id = Guid.Parse("44444444-4444-4444-8444-444444444472");
+    public static readonly Guid JapaneseLesson22Id = Guid.Parse("44444444-4444-4444-8444-444444444473");
+    public static readonly Guid JapaneseLesson31Id = Guid.Parse("44444444-4444-4444-8444-444444444474");
+    public static readonly Guid JapaneseLesson32Id = Guid.Parse("44444444-4444-4444-8444-444444444475");
+
+    // Chinese HSK1 Beginner Course & Lessons (s3c Seed)
+    public static readonly Guid ChineseCourseId = Guid.Parse("22222222-2222-4222-8222-222222222228");
+    public static readonly Guid ChineseChapter1Id = Guid.Parse("33333333-3333-4333-8333-333333333349");
+    public static readonly Guid ChineseChapter2Id = Guid.Parse("33333333-3333-4333-8333-333333333350");
+    public static readonly Guid ChineseChapter3Id = Guid.Parse("33333333-3333-4333-8333-333333333351");
+    public static readonly Guid ChineseLesson11Id = Guid.Parse("44444444-4444-4444-8444-444444444476");
+    public static readonly Guid ChineseLesson12Id = Guid.Parse("44444444-4444-4444-8444-444444444477");
+    public static readonly Guid ChineseLesson21Id = Guid.Parse("44444444-4444-4444-8444-444444444478");
+    public static readonly Guid ChineseLesson22Id = Guid.Parse("44444444-4444-4444-8444-444444444479");
+    public static readonly Guid ChineseLesson31Id = Guid.Parse("44444444-4444-4444-8444-444444444480");
+    public static readonly Guid ChineseLesson32Id = Guid.Parse("44444444-4444-4444-8444-444444444481");
+
     // Stable Block UUIDs inside Lesson 3.2 AST
     public static readonly Guid BlockHeading1Id = Guid.Parse("aaaaaaa1-1111-4111-8111-111111111111");
     public static readonly Guid BlockPara1Id = Guid.Parse("aaaaaaa2-2222-4222-8222-222222222222");
@@ -100,6 +124,7 @@ public static class SeedDataInitializer
                 await EnsurePersonalFinanceSeededAsync(db);
                 await EnsureEnglishCommunicationCourseSeededAsync(db);
                 await EnsurePracticeExpansionCoursesSeededAsync(db);
+                await EnsureJapaneseAndChineseCoursesSeededAsync(db);
                 return;
             }
 
@@ -795,6 +820,7 @@ public static class SeedDataInitializer
         await EnsurePersonalFinanceSeededAsync(db);
         await EnsureEnglishCommunicationCourseSeededAsync(db);
         await EnsurePracticeExpansionCoursesSeededAsync(db);
+        await EnsureJapaneseAndChineseCoursesSeededAsync(db);
         }
         finally
         {
@@ -4004,5 +4030,10 @@ const totalIncome = transactions
         }
 
         await WriteInPracticeContent.EnsureWriteInActivitiesSeededAsync(db, now);
+    }
+
+    public static Task EnsureJapaneseAndChineseCoursesSeededAsync(SwmsDbContext db)
+    {
+        return JapaneseChinesePracticeContent.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
     }
 }

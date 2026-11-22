@@ -279,6 +279,11 @@ export function ClozePracticeView({
       {/* Meaning & Hints box */}
       {showHints && (
         <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-200 space-y-2 animate-fadeIn">
+          {item.reading && (
+            <p className="font-mono text-[#5E51E8] dark:text-[#818CF8]">
+              <strong>Phiên âm gợi ý:</strong> {item.reading}
+            </p>
+          )}
           {item.meaningVi && (
             <p>
               <strong>Nghĩa cả câu:</strong> {item.meaningVi}
@@ -391,6 +396,21 @@ export function ClozePracticeView({
             ))}
           </div>
 
+          {result.toneNoticeVi && (
+            <div
+              data-testid="pinyin-tone-notice"
+              className="p-3 rounded-lg bg-sky-500/10 border border-sky-500/30 text-xs text-sky-900 dark:text-sky-200 flex items-start gap-2"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-sky-600 dark:text-sky-400" />
+              <span>{result.toneNoticeVi}</span>
+            </div>
+          )}
+
+          {item.reading && (
+            <p className="text-xs font-mono text-[#5E51E8] dark:text-[#818CF8]">
+              <strong>Phiên âm:</strong> {item.reading}
+            </p>
+          )}
           {item.meaningVi && (
             <p className="text-xs text-[var(--text-secondary,#52525b)] dark:text-zinc-300 italic">
               <strong>Dịch nghĩa:</strong> {item.meaningVi}
@@ -476,6 +496,20 @@ export function TranslatePracticeView({
     }
   };
 
+  const translateLabel =
+    item.lang === "ja-JP"
+      ? "Dịch Việt → Nhật"
+      : item.lang === "zh-CN"
+      ? "Dịch Việt → Trung"
+      : "Dịch Việt → Anh";
+
+  const translatePlaceholder =
+    item.lang === "ja-JP"
+      ? "Nhập bản dịch tiếng Nhật (chấp nhận Kanji+Kana hoặc Hiragana theo quy định bài học)..."
+      : item.lang === "zh-CN"
+      ? "Nhập bản dịch tiếng Trung bằng Chữ Hán hoặc Pinyin (có dấu thanh nǐ hǎo, số thanh ni3 hao3, hoặc không dấu nếu bài hỗ trợ)..."
+      : "Nhập bản dịch tiếng Anh của bạn tại đây (hỗ trợ cả dạng viết tắt như I'm, don't)...";
+
   return (
     <div
       data-testid="practice-panel-translate"
@@ -485,7 +519,7 @@ export function TranslatePracticeView({
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold text-[var(--text-secondary,#71717a)] dark:text-zinc-400 uppercase tracking-wider">
-              Dịch Việt → Anh · {indexLabel}
+              {translateLabel} · {indexLabel}
             </span>
             <DifficultyBadge difficulty={item.difficulty} />
           </div>
@@ -540,7 +574,7 @@ export function TranslatePracticeView({
             setResult(null);
           }}
           rows={3}
-          placeholder="Nhập bản dịch tiếng Anh của bạn tại đây (hỗ trợ cả dạng viết tắt như I'm, don't)..."
+          placeholder={translatePlaceholder}
           className="w-full p-4 rounded-xl text-sm sm:text-base bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 text-[var(--text-primary,#18181b)] dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#5E51E8]"
         />
 
@@ -594,6 +628,16 @@ export function TranslatePracticeView({
             {result.feedbackVi}
           </p>
 
+          {result.toneNoticeVi && (
+            <div
+              data-testid="pinyin-tone-notice"
+              className="p-3 rounded-lg bg-sky-500/10 border border-sky-500/30 text-xs text-sky-900 dark:text-sky-200 flex items-start gap-2"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-sky-600 dark:text-sky-400" />
+              <span>{result.toneNoticeVi}</span>
+            </div>
+          )}
+
           {result.missingTokens.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5 text-xs">
               <span className="font-semibold text-rose-700 dark:text-rose-300">Từ cần bổ sung/chỉnh:</span>
@@ -625,6 +669,11 @@ export function TranslatePracticeView({
             <p className="text-sm font-semibold text-emerald-950 dark:text-emerald-100">
               {item.sampleAnswer}
             </p>
+            {item.reading && (
+              <p className="text-xs font-mono text-emerald-800 dark:text-emerald-300">
+                {item.reading}
+              </p>
+            )}
             {item.acceptedAnswers.length > 1 && (
               <div className="text-xs text-emerald-800 dark:text-emerald-300 space-y-0.5 pt-1 border-t border-emerald-500/20">
                 <span className="font-semibold">Các cách diễn đạt khác cũng được chấp nhận:</span>
@@ -791,7 +840,13 @@ export function GrammarFixPracticeView({
             setResult(null);
           }}
           rows={3}
-          placeholder="Viết lại câu tiếng Anh đã sửa lỗi hoàn chỉnh..."
+          placeholder={
+            item.lang === "ja-JP"
+              ? "Viết lại câu tiếng Nhật đã sửa lỗi hoàn chỉnh..."
+              : item.lang === "zh-CN"
+              ? "Viết lại câu tiếng Trung đã sửa lỗi hoàn chỉnh..."
+              : "Viết lại câu tiếng Anh đã sửa lỗi hoàn chỉnh..."
+          }
           className="w-full p-4 rounded-xl text-sm sm:text-base bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 text-[var(--text-primary,#18181b)] dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#5E51E8]"
         />
 
@@ -862,6 +917,11 @@ export function GrammarFixPracticeView({
             <p className="text-sm font-semibold text-emerald-950 dark:text-emerald-100">
               {item.correctedSentence}
             </p>
+            {item.reading && (
+              <p className="text-xs font-mono text-emerald-800 dark:text-emerald-300">
+                {item.reading}
+              </p>
+            )}
           </div>
 
           <div className="p-3 rounded-lg bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 text-xs text-[var(--text-secondary,#52525b)] dark:text-zinc-300 leading-relaxed">
@@ -1164,6 +1224,12 @@ export function RoleplayPracticeView({
           &quot;{item.aiPrompt}&quot;
         </p>
 
+        {item.aiPromptReading && (
+          <p className="text-xs sm:text-sm font-mono text-[#5E51E8] dark:text-[#818CF8]">
+            {item.aiPromptReading}
+          </p>
+        )}
+
         {item.aiPromptVi && (
           <p className="text-xs text-[var(--text-secondary,#52525b)] dark:text-zinc-400 italic">
             Dịch: {item.aiPromptVi}
@@ -1234,7 +1300,13 @@ export function RoleplayPracticeView({
             setResult(null);
           }}
           rows={3}
-          placeholder="Nhập hoặc đọc câu phản hồi của bạn bằng tiếng Anh..."
+          placeholder={
+            voiceLang === "ja-JP"
+              ? "Nhập hoặc đọc câu phản hồi của bạn bằng tiếng Nhật (Kanji/Hiragana/Katakana)..."
+              : voiceLang === "zh-CN"
+              ? "Nhập hoặc đọc câu phản hồi của bạn bằng tiếng Trung (Chữ Hán hoặc Pinyin)..."
+              : "Nhập hoặc đọc câu phản hồi của bạn bằng tiếng Anh..."
+          }
           className="w-full p-4 rounded-xl text-sm sm:text-base bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 text-[var(--text-primary,#18181b)] dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#5E51E8]"
         />
 
@@ -1352,6 +1424,11 @@ export function RoleplayPracticeView({
               <p className="text-sm font-semibold text-[var(--text-primary,#18181b)] dark:text-zinc-100">
                 {result.correctedVersion}
               </p>
+              {item.sampleReading && (
+                <p className="text-xs font-mono text-[#5E51E8] dark:text-[#818CF8]">
+                  {item.sampleReading}
+                </p>
+              )}
             </div>
           )}
         </div>

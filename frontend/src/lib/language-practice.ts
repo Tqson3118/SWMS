@@ -84,7 +84,7 @@ export interface WordMapPracticeItem {
   collocations: WordMapNodeItem[];
   phrasalVerbs: WordMapNodeItem[];
   synonyms: WordMapNodeItem[];
-  contextExamples: Array<{ sentence: string; meaningVi: string }>;
+  contextExamples: Array<{ sentence: string; reading?: string; meaningVi: string }>;
   sourceActivityId?: string;
   passingScore?: number;
 }
@@ -92,6 +92,7 @@ export interface WordMapPracticeItem {
 export interface ClozeBlankSpec {
   id?: string;
   acceptedAnswers: string[];
+  allowKanaEquivalence?: boolean;
   hintVi?: string;
   explanationVi?: string;
 }
@@ -106,6 +107,7 @@ export interface ClozePracticeItem {
   template: string;
   blanks: ClozeBlankSpec[];
   fullSentence?: string;
+  reading?: string;
   meaningVi: string;
   explanationVi?: string;
   sourceActivityId?: string;
@@ -121,6 +123,8 @@ export interface TranslatePracticeItem {
   hintKeywords: string[];
   acceptedAnswers: string[];
   sampleAnswer: string;
+  reading?: string;
+  allowKanaEquivalence?: boolean;
   grammarNoteVi?: string;
   sourceActivityId?: string;
   passingScore?: number;
@@ -135,6 +139,8 @@ export interface GrammarFixPracticeItem {
   errorTypeHintVi: string;
   correctedSentence: string;
   acceptedAnswers: string[];
+  reading?: string;
+  allowKanaEquivalence?: boolean;
   meaningVi?: string;
   explanationVi: string;
   sourceActivityId?: string;
@@ -149,10 +155,12 @@ export interface RoleplayPracticeItem {
   scenarioVi: string;
   aiRole: string;
   aiPrompt: string;
+  aiPromptReading?: string;
   aiPromptVi: string;
   userGoalVi: string;
   expectedKeywords: string[];
   sampleResponses: string[];
+  sampleReading?: string;
   minWords: number;
   sourceActivityId?: string;
   passingScore?: number;
@@ -188,7 +196,12 @@ export type VietnamesePronunciationTipCategory =
   | "ending_sounds"
   | "s_es_ed_endings"
   | "confusable_pairs"
-  | "cjk_tone_pitch";
+  | "cjk_tone_pitch"
+  | "ja_long_vowel"
+  | "ja_sokuon"
+  | "ja_consonants"
+  | "zh_aspirated"
+  | "zh_retroflex";
 
 export interface VietnamesePronunciationTip {
   id: string;
@@ -219,6 +232,8 @@ export interface ClozeBlankResult {
   userAnswer: string;
   acceptedAnswers: string[];
   isCorrect: boolean;
+  matchedViaTonelessPinyin?: boolean;
+  toneNoticeVi?: string;
   hintVi?: string;
   explanationVi?: string;
 }
@@ -229,6 +244,7 @@ export interface ClozeEvaluationResult {
   totalBlanks: number;
   isAllCorrect: boolean;
   blanks: ClozeBlankResult[];
+  toneNoticeVi?: string;
 }
 
 export interface TranslationEvaluationResult {
@@ -240,6 +256,8 @@ export interface TranslationEvaluationResult {
   matchedKeywords: string[];
   missingKeywords: string[];
   feedbackVi: string;
+  matchedViaTonelessPinyin?: boolean;
+  toneNoticeVi?: string;
 }
 
 export interface GrammarFixEvaluationResult {
@@ -319,6 +337,258 @@ export function isCjkLanguage(lang: LanguageCode): boolean {
   return lang === "ja-JP" || lang === "zh-CN";
 }
 
+export function detectCourseLanguageFromText(
+  courseTitle: string,
+  lessonTitle = "",
+  markdown = ""
+): LanguageCode {
+  const stripVi = (s: string) =>
+    (s || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D")
+      .toLowerCase();
+
+  const headerNorm = stripVi(`${courseTitle} ${lessonTitle}`);
+  if (
+    /\b(tieng nhat|japanese|jlpt|n5|n4|n3|hiragana|katakana|kanji|nihongo)\b/.test(headerNorm) ||
+    /[\u3040-\u30ff]/.test(`${courseTitle} ${lessonTitle}`)
+  ) {
+    return "ja-JP";
+  }
+  if (
+    /\b(tieng trung|chinese|hsk|hsk1|hsk2|hsk3|pinyin|hanzi|mandarin|zhongwen)\b/.test(headerNorm)
+  ) {
+    return "zh-CN";
+  }
+
+  const bodySample = markdown.slice(0, 1800);
+  if (/[\u3040-\u30ff]/.test(bodySample)) {
+    return "ja-JP";
+  }
+  const bodyNorm = stripVi(bodySample);
+  if (/\b(tieng nhat|hiragana|katakana|jlpt|n5)\b/.test(bodyNorm)) {
+    return "ja-JP";
+  }
+  if (/\b(tieng trung|pinyin|hsk1|hsk|thanh dieu|chu han)\b/.test(bodyNorm)) {
+    return "zh-CN";
+  }
+  return "en-US";
+}
+
+export function detectLanguageFromActivities(
+  activities: RawPracticeActivity[],
+  courseTitle = "",
+  lessonTitle = "",
+  markdown = ""
+): LanguageCode {
+  for (const act of activities || []) {
+    const cfg = safeParseJson(act.configJson);
+    if (!cfg) continue;
+    if (typeof cfg.lang === "string" && cfg.lang.trim()) {
+      const parsed = normalizeLanguageCode(cfg.lang, "en-US");
+      if (isCjkLanguage(parsed)) return parsed;
+    }
+    if (Array.isArray(cfg.items)) {
+      for (const it of cfg.items) {
+        if (it && typeof it.lang === "string" && it.lang.trim()) {
+          const parsed = normalizeLanguageCode(it.lang, "en-US");
+          if (isCjkLanguage(parsed)) return parsed;
+        }
+      }
+    }
+  }
+  return detectCourseLanguageFromText(courseTitle, lessonTitle, markdown);
+}
+
+export function hasCjkCharacters(input: string): boolean {
+  return /[\u3040-\u30ff\u3400-\u9fff]/.test(input || "");
+}
+
+export function hasJapaneseKana(input: string): boolean {
+  return /[\u3040-\u30ff]/.test(input || "");
+}
+
+export function hasKatakana(input: string): boolean {
+  return /[\u30a1-\u30f6]/.test(input || "");
+}
+
+export function katakanaToHiragana(input: string): string {
+  if (!input) return "";
+  return input.replace(/[\u30a1-\u30f6]/g, (ch) =>
+    String.fromCharCode(ch.charCodeAt(0) - 0x60)
+  );
+}
+
+export function hiraganaToKatakana(input: string): string {
+  if (!input) return "";
+  return input.replace(/[\u3041-\u3096]/g, (ch) =>
+    String.fromCharCode(ch.charCodeAt(0) + 0x60)
+  );
+}
+
+const PINYIN_TONE_MAP: Record<string, [string, number]> = {
+  ā: ["a", 1], á: ["a", 2], ǎ: ["a", 3], à: ["a", 4],
+  ē: ["e", 1], é: ["e", 2], ě: ["e", 3], è: ["e", 4],
+  ī: ["i", 1], í: ["i", 2], ǐ: ["i", 3], ì: ["i", 4],
+  ō: ["o", 1], ó: ["o", 2], ǒ: ["o", 3], ò: ["o", 4],
+  ū: ["u", 1], ú: ["u", 2], ǔ: ["u", 3], ù: ["u", 4],
+  ǖ: ["ü", 1], ǘ: ["ü", 2], ǚ: ["ü", 3], ǜ: ["ü", 4],
+};
+
+const PINYIN_VOWEL_SET = new Set(["a", "o", "e", "i", "u", "ü"]);
+const PINYIN_INITIALS = [
+  "zh", "ch", "sh",
+  "b", "p", "m", "f", "d", "t", "n", "l",
+  "g", "k", "h", "j", "q", "x", "r", "z", "c", "s", "y", "w",
+];
+const PINYIN_FINALS = [
+  "iang", "iong", "uang", "ueng",
+  "iao", "iou", "uai", "uei", "ang", "eng", "ing", "ong",
+  "ai", "ei", "ao", "ou", "an", "en", "in", "un", "ün",
+  "ia", "ie", "iu", "ua", "uo", "ui", "üe", "ue", "er",
+  "a", "o", "e", "i", "u", "ü",
+];
+
+export function isPinyinText(input: string): boolean {
+  if (!input || !input.trim()) return false;
+  if (hasCjkCharacters(input)) return false;
+  return /[a-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü]/i.test(input);
+}
+
+export function hasPinyinToneMarksOrNumbers(input: string): boolean {
+  if (!input) return false;
+  return /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]|[a-zü][1-4](?![0-9])/i.test(input);
+}
+
+/**
+ * Normalizes Mandarin Pinyin across tone marks ("zhōng wén" / "zhōngwén"),
+ * tone numbers ("zhong1 wen2" / "zhong1wen2"), and toneless forms ("zhong wen").
+ */
+export function normalizePinyin(
+  input: string,
+  mode: "tone_numbers" | "toneless" = "tone_numbers"
+): string {
+  if (!input) return "";
+  const cleaned = input
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/u:/g, "ü")
+    .replace(/([ln])v/g, "$1ü")
+    .replace(/[’‘`´]/g, "'")
+    .replace(/[。、，．！？；：「」『』（）()【】\[\]《》〈〉,.!?;:"“”~～\-—–·•]/g, " ")
+    .trim();
+
+  if (!cleaned) return "";
+
+  const chunks = cleaned.split(/[\s']+/).filter(Boolean);
+  const syllables: string[] = [];
+
+  for (const chunk of chunks) {
+    // Separate plain chars and tone marks
+    let plain = "";
+    const charTones: number[] = [];
+    for (const ch of chunk) {
+      const mapped = PINYIN_TONE_MAP[ch];
+      if (mapped) {
+        plain += mapped[0];
+        charTones.push(mapped[1]);
+      } else {
+        plain += ch;
+        charTones.push(0);
+      }
+    }
+
+    let pos = 0;
+    while (pos < plain.length) {
+      // Non-letter characters (e.g. standalone numbers) pass through cleanly
+      if (!/[a-zü]/.test(plain[pos])) {
+        if (/[1-5]/.test(plain[pos])) {
+          pos++;
+          continue;
+        }
+        let endNum = pos + 1;
+        while (endNum < plain.length && !/[a-zü]/.test(plain[endNum])) endNum++;
+        syllables.push(plain.slice(pos, endNum));
+        pos = endNum;
+        continue;
+      }
+
+      const startPos = pos;
+      let initial = "";
+      for (const init of PINYIN_INITIALS) {
+        if (plain.startsWith(init, pos)) {
+          // Ensure initial is followed by a vowel (or another valid letter)
+          const afterInit = plain[pos + init.length];
+          if (afterInit && PINYIN_VOWEL_SET.has(afterInit)) {
+            initial = init;
+            break;
+          }
+        }
+      }
+
+      const afterInitPos = pos + initial.length;
+      let finalStr = "";
+      for (const fin of PINYIN_FINALS) {
+        if (plain.startsWith(fin, afterInitPos)) {
+          // Avoid stealing 'g' or 'n' when next char is a vowel starting the next syllable (e.g. "jinan" -> "ji"+"nan")
+          const nextCh = plain[afterInitPos + fin.length];
+          if (fin.endsWith("ng") && nextCh && PINYIN_VOWEL_SET.has(nextCh)) {
+            continue;
+          }
+          if (fin.endsWith("n") && fin.length > 1 && nextCh && PINYIN_VOWEL_SET.has(nextCh)) {
+            continue;
+          }
+          finalStr = fin;
+          break;
+        }
+      }
+
+      if (!finalStr) {
+        // Fallback: consume until next digit or end of chunk
+        let endPos = pos + 1;
+        while (endPos < plain.length && /[a-zü]/.test(plain[endPos])) endPos++;
+        const rawSyl = plain.slice(startPos, endPos);
+        let tone = 0;
+        for (let k = startPos; k < endPos; k++) {
+          if (charTones[k] > 0) tone = charTones[k];
+        }
+        if (endPos < plain.length && /[1-5]/.test(plain[endPos])) {
+          const digit = Number(plain[endPos]);
+          if (digit >= 1 && digit <= 4) tone = digit;
+          endPos++;
+        }
+        syllables.push(
+          mode === "tone_numbers" && tone >= 1 && tone <= 4 ? `${rawSyl}${tone}` : rawSyl
+        );
+        pos = endPos;
+        continue;
+      }
+
+      let endPos = afterInitPos + finalStr.length;
+      let tone = 0;
+      for (let k = startPos; k < endPos; k++) {
+        if (charTones[k] > 0) tone = charTones[k];
+      }
+      if (endPos < plain.length && /[1-5]/.test(plain[endPos])) {
+        const digit = Number(plain[endPos]);
+        if (digit >= 1 && digit <= 4) tone = digit;
+        else if (digit === 5) tone = 0;
+        endPos++;
+      }
+
+      const baseSyl = `${initial}${finalStr}`;
+      syllables.push(
+        mode === "tone_numbers" && tone >= 1 && tone <= 4 ? `${baseSyl}${tone}` : baseSyl
+      );
+      pos = endPos;
+    }
+  }
+
+  return syllables.join(" ").trim();
+}
+
 const ENGLISH_CONTRACTIONS: ReadonlyArray<[RegExp, string]> = [
   [/\bi'm\b/g, "i am"],
   [/\byou're\b/g, "you are"],
@@ -384,9 +654,9 @@ export function normalizeTextForComparison(
     .toLowerCase();
 
   if (isCjkLanguage(lang)) {
-    // Strip CJK & ASCII punctuation and whitespace for clean CJK comparison
+    // Strip CJK & ASCII punctuation and whitespace (preserve Japanese prolonged sound mark ー U+30FC)
     return s
-      .replace(/[\s。、，．！？；：「」『』（）()【】\[\],.!?;:'"~～\-—–·•]/g, "")
+      .replace(/[\s。、，．！？；：「」『』（）()【】\[\]《》〈〉,.!?;:'"~～〜\-—–·•・]/g, "")
       .trim();
   }
 
@@ -422,12 +692,17 @@ export function tokenizeText(text: string, lang: LanguageCode = "en-US"): string
   if (!text || !text.trim()) return [];
   if (isCjkLanguage(lang)) {
     const trimmed = text.trim();
-    // If space-separated (e.g. romaji / pinyin / segmented), split by spaces; otherwise segment by characters
-    if (/\s/.test(trimmed) && !/[\u3040-\u30ff\u3400-\u9fff]/.test(trimmed)) {
-      return trimmed
-        .split(/\s+/)
-        .map((t) => cleanWordToken(t, "en-US"))
-        .filter(Boolean);
+    if (!hasCjkCharacters(trimmed)) {
+      if (lang === "zh-CN" && isPinyinText(trimmed)) {
+        const py = normalizePinyin(trimmed, "toneless");
+        return py ? py.split(/\s+/).filter(Boolean) : [];
+      }
+      if (/\s/.test(trimmed)) {
+        return trimmed
+          .split(/\s+/)
+          .map((t) => cleanWordToken(t, "en-US"))
+          .filter(Boolean);
+      }
     }
     const cleaned = normalizeTextForComparison(trimmed, lang);
     return Array.from(cleaned).filter(Boolean);
@@ -463,6 +738,15 @@ export function levenshteinDistance(a: string, b: string): number {
 // 1. PRONUNCIATION EVALUATION & VIETNAMESE LEARNER TIPS
 // ============================================================================
 
+const JA_NEAR_KANA_PAIRS = new Set([
+  "つ:す", "す:つ", "つ:ず", "ず:つ", "す:ず", "ず:す",
+  "し:ち", "ち:し", "し:じ", "じ:し", "ち:じ", "じ:ち",
+  "じ:ぢ", "ぢ:じ", "ず:づ", "づ:ず",
+  "は:わ", "わ:は", "お:を", "を:お",
+  "ー:う", "う:ー", "ー:い", "い:ー", "ー:あ", "あ:ー", "ー:え", "え:ー", "ー:お", "お:ー",
+  "ら:だ", "だ:ら", "り:ぢ", "る:づ", "れ:で", "で:れ", "ろ:ど", "ど:ろ",
+]);
+
 function isNearMatchWord(target: string, spoken: string, lang: LanguageCode): {
   status: WordPronunciationStatus;
   distance: number;
@@ -481,7 +765,34 @@ function isNearMatchWord(target: string, spoken: string, lang: LanguageCode): {
     return { status: "correct", distance: 0 };
   }
 
-  if (isCjkLanguage(lang)) {
+  if (lang === "ja-JP") {
+    const tHira = katakanaToHiragana(target);
+    const sHira = katakanaToHiragana(spoken);
+    if (tHira === sHira) {
+      return { status: "correct", distance: 0 };
+    }
+    if (tHira.length === 1 && sHira.length === 1 && JA_NEAR_KANA_PAIRS.has(`${tHira}:${sHira}`)) {
+      return { status: "near", distance: 1 };
+    }
+    const dist = levenshteinDistance(tHira, sHira);
+    if (tHira.length >= 2 && dist === 1) {
+      return { status: "near", distance: dist };
+    }
+    return { status: "wrong", distance: dist };
+  }
+
+  if (lang === "zh-CN") {
+    if (isPinyinText(target) && isPinyinText(spoken)) {
+      const tToned = normalizePinyin(target, "tone_numbers");
+      const sToned = normalizePinyin(spoken, "tone_numbers");
+      if (tToned === sToned) return { status: "correct", distance: 0 };
+      const tBase = normalizePinyin(target, "toneless");
+      const sBase = normalizePinyin(spoken, "toneless");
+      if (tBase === sBase) return { status: "near", distance: 1 };
+      const pDist = levenshteinDistance(tBase, sBase);
+      if (tBase.length >= 3 && pDist === 1) return { status: "near", distance: 1 };
+      return { status: "wrong", distance: pDist };
+    }
     const dist = levenshteinDistance(target, spoken);
     if (target.length >= 2 && dist === 1) {
       return { status: "near", distance: dist };
@@ -511,56 +822,31 @@ function isNearMatchWord(target: string, spoken: string, lang: LanguageCode): {
   return { status: "wrong", distance: dist };
 }
 
-export function evaluatePronunciationWords(
+function extractHiraganaReading(reading?: string): string {
+  if (!reading) return "";
+  const kanaOnly = Array.from(reading.normalize("NFKC"))
+    .filter((ch) => /[\u3040-\u30ffー]/.test(ch))
+    .join("");
+  return kanaOnly;
+}
+
+function alignPronunciationCore(
+  displayTargets: string[],
+  spokenTokens: string[],
+  lang: LanguageCode,
   targetSentence: string,
-  spokenTranscript: string,
-  lang: LanguageCode = "en-US"
+  targetReading?: string
 ): PronunciationEvaluationResult {
   const isCjk = isCjkLanguage(lang);
 
-  // Split display target tokens cleanly (expand hyphenated English tokens? Keep display token but compare flexibly)
-  const displayTargets: string[] = isCjk
-    ? Array.from(normalizeTextForComparison(targetSentence, lang))
-    : targetSentence
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean);
-
-  if (displayTargets.length === 0) {
-    return {
-      score: 0,
-      words: [],
-      correctCount: 0,
-      nearCount: 0,
-      wrongCount: 0,
-      missedWords: [],
-      tips: [],
-    };
-  }
-
-  if (!spokenTranscript || !spokenTranscript.trim()) {
-    const emptyWords: PronunciationWordResult[] = displayTargets.map((w) => ({
-      word: w,
-      cleanTarget: cleanWordToken(w, lang),
-      status: "wrong",
-      distance: cleanWordToken(w, lang).length,
-    }));
-    return {
-      score: 0,
-      words: emptyWords,
-      correctCount: 0,
-      nearCount: 0,
-      wrongCount: emptyWords.length,
-      missedWords: displayTargets,
-      tips: [],
-    };
-  }
-
-  // Expand hyphenated words in target for alignment if spoken text split them ("long-term" vs "long term")
   const expandedTargets: Array<{ displayIdx: number; token: string }> = [];
-  if (isCjk) {
+  if (isCjk && hasCjkCharacters(displayTargets.join(""))) {
     displayTargets.forEach((ch, idx) => {
       expandedTargets.push({ displayIdx: idx, token: ch });
+    });
+  } else if (lang === "zh-CN" && isPinyinText(displayTargets.join(" "))) {
+    displayTargets.forEach((syl, idx) => {
+      expandedTargets.push({ displayIdx: idx, token: syl });
     });
   } else {
     displayTargets.forEach((raw, idx) => {
@@ -576,11 +862,10 @@ export function evaluatePronunciationWords(
     });
   }
 
-  const spokenTokens = tokenizeText(spokenTranscript, lang);
   const m = expandedTargets.length;
   const n = spokenTokens.length;
 
-  // Needleman-Wunsch style DP alignment so dropped or inserted words don't misalign the rest of the sentence
+  // Needleman-Wunsch style DP alignment so dropped or inserted words/chars don't misalign the rest of the sentence
   const dp: number[][] = Array.from({ length: m + 1 }, () => Array<number>(n + 1).fill(0));
   const choice: number[][] = Array.from({ length: m + 1 }, () => Array<number>(n + 1).fill(0));
   // choice: 1 = match/sub (i-1, j-1), 2 = delete target (i-1, j), 3 = insert spoken (i, j-1)
@@ -620,9 +905,9 @@ export function evaluatePronunciationWords(
 
   // Backtrack alignment
   const alignedForExpanded: Array<{ spoken?: string; status: WordPronunciationStatus; distance: number }> =
-    Array.from({ length: m }, (_, i) => ({
+    Array.from({ length: m }, (_, idx) => ({
       status: "wrong",
-      distance: expandedTargets[i].token.length,
+      distance: expandedTargets[idx].token.length,
     }));
 
   let i = m;
@@ -697,7 +982,7 @@ export function evaluatePronunciationWords(
     .filter((w) => w.status === "wrong" || w.status === "near")
     .map((w) => w.word);
 
-  const tips = detectVietnamesePronunciationTips(words, targetSentence, lang);
+  const tips = detectVietnamesePronunciationTips(words, targetSentence, lang, targetReading);
 
   return {
     score,
@@ -708,6 +993,78 @@ export function evaluatePronunciationWords(
     missedWords,
     tips,
   };
+}
+
+export function evaluatePronunciationWords(
+  targetSentence: string,
+  spokenTranscript: string,
+  lang: LanguageCode = "en-US",
+  targetReading?: string
+): PronunciationEvaluationResult {
+  const isCjk = isCjkLanguage(lang);
+
+  const displayTargets: string[] = isCjk
+    ? Array.from(normalizeTextForComparison(targetSentence, lang))
+    : targetSentence
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+  if (displayTargets.length === 0) {
+    return {
+      score: 0,
+      words: [],
+      correctCount: 0,
+      nearCount: 0,
+      wrongCount: 0,
+      missedWords: [],
+      tips: [],
+    };
+  }
+
+  if (!spokenTranscript || !spokenTranscript.trim()) {
+    const emptyWords: PronunciationWordResult[] = displayTargets.map((w) => ({
+      word: w,
+      cleanTarget: cleanWordToken(w, lang),
+      status: "wrong",
+      distance: cleanWordToken(w, lang).length,
+    }));
+    return {
+      score: 0,
+      words: emptyWords,
+      correctCount: 0,
+      nearCount: 0,
+      wrongCount: emptyWords.length,
+      missedWords: displayTargets,
+      tips: [],
+    };
+  }
+
+  // Chinese manual Pinyin fallback when spokenTranscript is Pinyin and targetReading has Pinyin
+  if (lang === "zh-CN" && isPinyinText(spokenTranscript) && targetReading && isPinyinText(targetReading)) {
+    const pyTargets = normalizePinyin(targetReading, "tone_numbers").split(/\s+/).filter(Boolean);
+    const pySpoken = normalizePinyin(spokenTranscript, "tone_numbers").split(/\s+/).filter(Boolean);
+    if (pyTargets.length > 0 && pySpoken.length > 0) {
+      return alignPronunciationCore(pyTargets, pySpoken, lang, targetSentence, targetReading);
+    }
+  }
+
+  const spokenTokens = tokenizeText(spokenTranscript, lang);
+  const directEval = alignPronunciationCore(displayTargets, spokenTokens, lang, targetSentence, targetReading);
+
+  // Japanese Kanji vs Kana fallback: Web Speech API may output pure Hiragana for a Kanji sentence
+  if (lang === "ja-JP" && targetReading && directEval.score < 100) {
+    const hiraReading = extractHiraganaReading(targetReading);
+    if (hiraReading.length >= 2) {
+      const hiraTargets = Array.from(normalizeTextForComparison(hiraReading, "ja-JP"));
+      const readingEval = alignPronunciationCore(hiraTargets, spokenTokens, "ja-JP", targetSentence, targetReading);
+      if (readingEval.score > directEval.score) {
+        return readingEval;
+      }
+    }
+  }
+
+  return directEval;
 }
 
 // Vietnamese learner pronunciation trap sets
@@ -771,38 +1128,153 @@ function matchesConfusablePairs(clean: string): boolean {
   return false;
 }
 
+const ZH_ASPIRATED_HANZI = new Set(
+  Array.from("朋友苹果便宜票旁边胖怕排片他她它太天听同学图铁条痛看开块咖啡课客口快可请去七钱前起气秋菜茶吃车出穿床长常城超草次从错")
+);
+const ZH_RETROFLEX_HANZI = new Set(
+  Array.from("这中张知站找住桌重准着真茶吃车出穿床长常城超十是师书水谁少睡时山商上说人日热认肉让")
+);
+
 export function detectVietnamesePronunciationTips(
   wordResults: PronunciationWordResult[],
   targetSentence?: string,
-  lang: LanguageCode = "en-US"
+  lang: LanguageCode = "en-US",
+  reading?: string
 ): VietnamesePronunciationTip[] {
   const problemItems = wordResults.filter((w) => w.status === "wrong" || w.status === "near");
 
   if (isCjkLanguage(lang)) {
     if (problemItems.length === 0) return [];
     const sampleChars = Array.from(new Set(problemItems.map((p) => p.word))).slice(0, 6);
+    const problemJoined = problemItems.map((p) => p.word).join("");
+    const readingLower = (reading || "").toLowerCase();
+
     if (lang === "ja-JP") {
-      return [
-        {
+      const tips: VietnamesePronunciationTip[] = [];
+      const hiraProblem = katakanaToHiragana(problemJoined);
+      const hiraSentence = katakanaToHiragana(targetSentence || "");
+
+      // Check if any missed character is directly part of a long vowel (ー / おう / えい / おお / ああ)
+      const missedIndices = wordResults
+        .map((w, idx) => (w.status === "wrong" || w.status === "near" ? idx : -1))
+        .filter((idx) => idx >= 0);
+      const fullCleanHira = katakanaToHiragana(
+        wordResults.map((w) => w.word).join("")
+      );
+      const hasLongVowelProblem =
+        hiraProblem.includes("ー") ||
+        missedIndices.some((idx) => {
+          const pairPrev = idx > 0 ? fullCleanHira.slice(idx - 1, idx + 1) : "";
+          const pairNext = idx + 1 < fullCleanHira.length ? fullCleanHira.slice(idx, idx + 2) : "";
+          return /(?:おう|こう|そう|とう|のう|ほう|もう|よう|ろう|ごう|ぞう|どう|ぼう|ぽう|えい|けい|せい|てい|ねい|へい|めい|れい|げい|ぜい|でい|べい|ぺい|おお|ああ|うう)/.test(
+            pairPrev
+          ) ||
+            /(?:おう|こう|そう|とう|のう|ほう|もう|よう|ろう|ごう|ぞう|どう|ぼう|ぽう|えい|けい|せい|てい|ねい|へい|めい|れい|げい|ぜい|でい|べい|ぺい|おお|ああ|うう)/.test(
+              pairNext
+            );
+        });
+
+      const hasSokuonProblem = hiraProblem.includes("っ") || (readingLower.includes("tt") && hiraSentence.includes("っ"));
+      const hasConsonantProblem = /[つすずしちじらりるれろ]/.test(hiraProblem);
+
+      if (hasLongVowelProblem) {
+        tips.push({
+          id: "cjk-ja-long-vowel",
+          category: "ja_long_vowel",
+          title: "Trường âm tiếng Nhật (ー / おう / えい)",
+          adviceVi:
+            "Kéo dài nguyên âm đủ 2 phách (mora) khi gặp dấu trường âm (ー) hoặc tổ hợp おう / えい (ví dụ: コーヒー, ありがとう, せんせい). Rút ngắn trường âm sẽ làm đổi nghĩa từ (ビール bia ≠ ビル tòa nhà).",
+          exampleWords: sampleChars,
+        });
+      }
+
+      if (hasSokuonProblem) {
+        tips.push({
+          id: "cjk-ja-sokuon",
+          category: "ja_sokuon",
+          title: "Âm ngắt (Sokuon っ / ッ)",
+          adviceVi:
+            "Gặp chữ っ / ッ nhỏ, cần khựng lại đúng 1 nhịp (nén hơi trước khi bật phụ âm sau) như ちょっと (chotto), きって (kitte), ゆっくり (yukkuri). Không đọc lướt liền thành âm đơn.",
+          exampleWords: sampleChars,
+        });
+      }
+
+      if (hasConsonantProblem) {
+        tips.push({
+          id: "cjk-ja-consonants",
+          category: "ja_consonants",
+          title: "Phân biệt âm つ/す, し/ち và hàng r (r/d)",
+          adviceVi:
+            "Người Việt dễ nhầm つ (đặt đầu lưỡi sát chân răng trên rồi bật hơi 'ts') với す ('s'), し (mềm 'sh') với ち ('ch'), và đọc hàng ら/り/る/れ/ろ thành 'd' hoặc rung mạnh. Hãy chạm thật nhẹ đầu lưỡi lên lợi trên như âm trung gian giữa l và r.",
+          exampleWords: sampleChars,
+        });
+      }
+
+      if (tips.length === 0) {
+        tips.push({
           id: "cjk-ja-pitch",
           category: "cjk_tone_pitch",
           title: "Cao độ (Pitch Accent), trường âm & âm ngắt tiếng Nhật",
           adviceVi:
-            "Chú ý kéo dài đúng trường âm (ー / おう / えい), ngừng nhẹ 1 nhịp ở âm ngắt (っ) và giữ cao độ tự nhiên thay vì thêm thanh sắc/huyền tiếng Việt.",
+            "Chú ý kéo dài đúng trường âm (ー / おう / えい), ngừng nhẹ 1 nhịp ở âm ngắt (っ), phân biệt つ/す · し/ち · r/d và giữ cao độ tự nhiên thay vì thêm thanh sắc/huyền tiếng Việt.",
           exampleWords: sampleChars,
-        },
-      ];
+        });
+      }
+      return tips;
     }
-    return [
+
+    // zh-CN: Chinese 4 tones + aspirated (p/t/k/q/c/ch vs b/d/g/j/z/zh) + retroflex (zh/ch/sh/r)
+    const tips: VietnamesePronunciationTip[] = [
       {
         id: "cjk-zh-tone",
         category: "cjk_tone_pitch",
-        title: "Thanh điệu (4 thanh) & âm bật hơi tiếng Trung",
+        title: "4 Thanh điệu tiếng Trung (đặc biệt thanh 1 cao ngang & thanh 3 xuống-lên)",
         adviceVi:
-          "Phân biệt rõ 4 thanh điệu (ngang, lên, xuống-lên, dứt khoát xuống) và nhóm âm đầu lưỡi/uốn lưỡi (z/c/s vs zh/ch/sh, j/q/x).",
-          exampleWords: sampleChars,
+          "Giữ thanh 1 (ā) thật cao và phẳng như hát một nốt kéo dài (không tụt giọng như thanh ngang tiếng Việt); thanh 2 (á) lên dứt khoát; thanh 3 (ǎ) hạ thấp rồi vồng lên (hoặc đọc nửa thanh 3 trầm khi đứng trước âm tiết khác); thanh 4 (à) rơi mạnh và gọn.",
+        exampleWords: sampleChars,
       },
     ];
+
+    const problemCharsArr = Array.from(problemJoined);
+    const hasAspirated =
+      problemCharsArr.some((ch) => ZH_ASPIRATED_HANZI.has(ch)) ||
+      (readingLower.length > 0 &&
+        /(?:^|\s)(?:p|t|k|q|c(?!h)|ch)[aoeiuüāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/.test(readingLower) &&
+        (isPinyinText(problemJoined) || problemItems.length >= 2));
+
+    const hasRetroflex =
+      problemCharsArr.some((ch) => ZH_RETROFLEX_HANZI.has(ch)) ||
+      (readingLower.length > 0 &&
+        /(?:^|\s)(?:zh|ch|sh|r)[aoeiuüāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/.test(readingLower) &&
+        (isPinyinText(problemJoined) || problemItems.length >= 2));
+
+    if (hasAspirated) {
+      tips.push({
+        id: "cjk-zh-aspirated",
+        category: "zh_aspirated",
+        title: "Âm bật hơi (p/t/k/q/c/ch) vs không bật hơi (b/d/g/j/z/zh)",
+        adviceVi:
+          "Đặt một tờ giấy trước miệng: nhóm bật hơi p, t, k, q, c, ch phải đẩy luồng hơi mạnh làm rung giấy, còn nhóm b, d, g, j, z, zh không bật hơi và không rung dây thanh kiểu 'b/đ' tiếng Việt.",
+        exampleWords: problemCharsArr.filter((ch) => ZH_ASPIRATED_HANZI.has(ch)).slice(0, 6).length > 0
+          ? problemCharsArr.filter((ch) => ZH_ASPIRATED_HANZI.has(ch)).slice(0, 6)
+          : sampleChars,
+      });
+    }
+
+    if (hasRetroflex) {
+      tips.push({
+        id: "cjk-zh-retroflex",
+        category: "zh_retroflex",
+        title: "Nhóm âm uốn lưỡi (zh / ch / sh / r)",
+        adviceVi:
+          "Uốn cong đầu lưỡi chạm nhẹ vòm miệng trên khi phát âm zh, ch, sh, r (ví dụ: 中国 zhōngguó, 吃饭 chīfàn, 老师 lǎoshī, 认识 rènshi), phân biệt rõ với nhóm đầu lưỡi thẳng z, c, s.",
+        exampleWords: problemCharsArr.filter((ch) => ZH_RETROFLEX_HANZI.has(ch)).slice(0, 6).length > 0
+          ? problemCharsArr.filter((ch) => ZH_RETROFLEX_HANZI.has(ch)).slice(0, 6)
+          : sampleChars,
+      });
+    }
+
+    return tips;
   }
 
   // If everything was pronounced correctly and no problem words exist, return no error tips
@@ -964,6 +1436,83 @@ export function parseClozeTemplate(
   return fallbackSegments;
 }
 
+type CjkAnswerMatchKind =
+  | "exact"
+  | "kana_equiv"
+  | "pinyin_toned"
+  | "pinyin_toneless_explicit"
+  | "pinyin_toneless_fallback"
+  | "pinyin_wrong_tone"
+  | "none";
+
+function matchSingleAnswerCandidate(
+  userRaw: string,
+  candidateRaw: string,
+  lang: LanguageCode,
+  allowKanaEquivalence = false
+): CjkAnswerMatchKind {
+  const normUser = normalizeTextForComparison(userRaw, lang);
+  const normCand = normalizeTextForComparison(candidateRaw, lang);
+  if (!normUser || !normCand) return "none";
+
+  if (normUser === normCand) {
+    // Distinguish explicit toneless pinyin candidate in zh-CN so we can show a helpful tone reminder
+    if (
+      lang === "zh-CN" &&
+      isPinyinText(userRaw) &&
+      isPinyinText(candidateRaw) &&
+      !hasPinyinToneMarksOrNumbers(userRaw) &&
+      !hasPinyinToneMarksOrNumbers(candidateRaw)
+    ) {
+      return "pinyin_toneless_explicit";
+    }
+    return "exact";
+  }
+
+  if (lang === "ja-JP" && allowKanaEquivalence) {
+    if (katakanaToHiragana(normUser) === katakanaToHiragana(normCand)) {
+      return "kana_equiv";
+    }
+  }
+
+  if (lang === "zh-CN" && isPinyinText(userRaw) && isPinyinText(candidateRaw)) {
+    const userToned = normalizePinyin(userRaw, "tone_numbers").replace(/\s+/g, "");
+    const candToned = normalizePinyin(candidateRaw, "tone_numbers").replace(/\s+/g, "");
+    const userToneless = normalizePinyin(userRaw, "toneless").replace(/\s+/g, "");
+    const candToneless = normalizePinyin(candidateRaw, "toneless").replace(/\s+/g, "");
+
+    const candHasTones = hasPinyinToneMarksOrNumbers(candidateRaw);
+    const userHasTones = hasPinyinToneMarksOrNumbers(userRaw);
+
+    if (candHasTones) {
+      if (userHasTones && userToned === candToned) {
+        return "pinyin_toned";
+      }
+      if (!userHasTones && userToneless === candToneless) {
+        return "pinyin_toneless_fallback";
+      }
+      if (userHasTones && userToneless === candToneless && userToned !== candToned) {
+        return "pinyin_wrong_tone";
+      }
+    } else if (!userHasTones && userToneless === candToneless) {
+      return "pinyin_toneless_explicit";
+    }
+  }
+
+  return "none";
+}
+
+function findTonedPinyinReference(candidates: string[], fallbackReading?: string): string {
+  const tonedFromCandidates = candidates.find(
+    (c) => isPinyinText(c) && hasPinyinToneMarksOrNumbers(c)
+  );
+  if (tonedFromCandidates) return tonedFromCandidates;
+  if (fallbackReading && isPinyinText(fallbackReading) && hasPinyinToneMarksOrNumbers(fallbackReading)) {
+    return fallbackReading;
+  }
+  return "";
+}
+
 export function evaluateClozeAnswers(
   item: ClozePracticeItem,
   userInputs: string[]
@@ -979,20 +1528,56 @@ export function evaluateClozeAnswers(
     };
   }
 
+  const toneNotices: string[] = [];
+
   const results: ClozeBlankResult[] = item.blanks.map((spec, idx) => {
     const rawUser = (userInputs[idx] ?? "").trim();
     const normUser = normalizeTextForComparison(rawUser, item.lang);
-    const isCorrect =
-      normUser.length > 0 &&
-      spec.acceptedAnswers.some(
-        (ans) => normalizeTextForComparison(ans, item.lang) === normUser
+
+    let isCorrect = false;
+    let matchedViaTonelessPinyin = false;
+    let toneNoticeVi: string | undefined;
+
+    if (normUser.length > 0) {
+      const kinds = spec.acceptedAnswers.map((ans) =>
+        matchSingleAnswerCandidate(rawUser, ans, item.lang, Boolean(spec.allowKanaEquivalence))
       );
+
+      if (kinds.includes("exact") || kinds.includes("kana_equiv") || kinds.includes("pinyin_toned")) {
+        isCorrect = true;
+      } else if (kinds.includes("pinyin_toneless_explicit")) {
+        isCorrect = true;
+        matchedViaTonelessPinyin = true;
+        const tonedRef = findTonedPinyinReference(spec.acceptedAnswers, item.reading);
+        toneNoticeVi = tonedRef
+          ? `Ô #${idx + 1}: Đã chấp nhận Pinyin không dấu theo quy định bài tập — hãy ghi nhớ thanh điệu chuẩn: "${tonedRef}".`
+          : `Ô #${idx + 1}: Đã chấp nhận Pinyin không dấu — hãy chú ý thanh điệu chuẩn khi phát âm.`;
+        toneNotices.push(toneNoticeVi);
+      } else if (kinds.includes("pinyin_toneless_fallback")) {
+        isCorrect = false;
+        matchedViaTonelessPinyin = true;
+        const tonedRef = findTonedPinyinReference(spec.acceptedAnswers, item.reading);
+        toneNoticeVi = tonedRef
+          ? `Ô #${idx + 1}: Bạn gõ đúng âm tiết Pinyin nhưng thiếu dấu thanh điệu. Hãy nhập đúng thanh điệu (ví dụ "${tonedRef}" hoặc dùng số thanh 1–4).`
+          : `Ô #${idx + 1}: Đúng âm tiết Pinyin nhưng thiếu dấu thanh điệu (dùng dấu thanh hoặc số 1–4).`;
+        toneNotices.push(toneNoticeVi);
+      } else if (kinds.includes("pinyin_wrong_tone")) {
+        isCorrect = false;
+        const tonedRef = findTonedPinyinReference(spec.acceptedAnswers, item.reading);
+        toneNoticeVi = tonedRef
+          ? `Ô #${idx + 1}: Đúng âm tiết Pinyin nhưng sai thanh điệu. Thanh điệu chuẩn: "${tonedRef}".`
+          : `Ô #${idx + 1}: Đúng âm tiết Pinyin nhưng sai thanh điệu.`;
+        toneNotices.push(toneNoticeVi);
+      }
+    }
 
     return {
       index: idx,
       userAnswer: rawUser,
       acceptedAnswers: spec.acceptedAnswers,
       isCorrect,
+      matchedViaTonelessPinyin: matchedViaTonelessPinyin || undefined,
+      toneNoticeVi,
       hintVi: spec.hintVi,
       explanationVi: spec.explanationVi,
     };
@@ -1007,6 +1592,7 @@ export function evaluateClozeAnswers(
     totalBlanks,
     isAllCorrect: correctCount === totalBlanks,
     blanks: results,
+    toneNoticeVi: toneNotices.length > 0 ? toneNotices.join(" ") : undefined,
   };
 }
 
@@ -1162,6 +1748,9 @@ export function evaluateTranslationAnswer(
     };
   }
 
+  const targetLangLabel =
+    item.lang === "ja-JP" ? "tiếng Nhật" : item.lang === "zh-CN" ? "tiếng Trung" : "tiếng Anh";
+
   if (!userAnswer || !userAnswer.trim()) {
     return {
       score: 0,
@@ -1171,7 +1760,103 @@ export function evaluateTranslationAnswer(
       extraTokens: [],
       matchedKeywords: [],
       missingKeywords: [...(item.hintKeywords ?? [])],
-      feedbackVi: "Bạn chưa nhập bản dịch. Hãy thử viết câu tiếng Anh trước khi kiểm tra nhé.",
+      feedbackVi: `Bạn chưa nhập bản dịch. Hãy thử viết câu ${targetLangLabel} trước khi kiểm tra nhé.`,
+    };
+  }
+
+  // First check CJK / Pinyin / Kana exact & tone-aware match rules across all accepted candidates
+  let tonelessExplicitCandidate: string | null = null;
+  let tonelessFallbackCandidate: string | null = null;
+  let wrongToneCandidate: string | null = null;
+
+  for (const cand of candidates) {
+    const matchKind = matchSingleAnswerCandidate(
+      userAnswer,
+      cand,
+      item.lang,
+      Boolean(item.allowKanaEquivalence)
+    );
+    if (matchKind === "exact" || matchKind === "kana_equiv" || matchKind === "pinyin_toned") {
+      const toneNote =
+        matchKind === "pinyin_toned"
+          ? `Khớp Pinyin đúng thanh điệu! Chữ Hán chuẩn: "${item.sampleAnswer}".`
+          : undefined;
+      return {
+        score: 100,
+        isExactMatch: true,
+        matchedAnswer: cand,
+        missingTokens: [],
+        extraTokens: [],
+        matchedKeywords: [...(item.hintKeywords ?? [])],
+        missingKeywords: [],
+        feedbackVi:
+          matchKind === "pinyin_toned"
+            ? "Chính xác hoàn toàn! Pinyin của bạn khớp chuẩn cả âm tiết lẫn thanh điệu."
+            : "Chính xác hoàn toàn! Bản dịch của bạn khớp tự nhiên với đáp án chuẩn.",
+        toneNoticeVi: toneNote,
+      };
+    }
+    if (matchKind === "pinyin_toneless_explicit" && !tonelessExplicitCandidate) {
+      tonelessExplicitCandidate = cand;
+    } else if (matchKind === "pinyin_toneless_fallback" && !tonelessFallbackCandidate) {
+      tonelessFallbackCandidate = cand;
+    } else if (matchKind === "pinyin_wrong_tone" && !wrongToneCandidate) {
+      wrongToneCandidate = cand;
+    }
+  }
+
+  const tonedRef = findTonedPinyinReference(candidates, item.reading);
+
+  if (tonelessExplicitCandidate) {
+    const toneNoticeVi = tonedRef
+      ? `Lưu ý thanh điệu: bài tập chấp nhận Pinyin không dấu, nhưng hãy ghi nhớ thanh điệu chuẩn "${tonedRef}" (chữ Hán: "${item.sampleAnswer}").`
+      : `Lưu ý thanh điệu: bạn đã gõ Pinyin không dấu — hãy ôn lại thanh điệu chuẩn của câu "${item.sampleAnswer}".`;
+    return {
+      score: 100,
+      isExactMatch: true,
+      matchedAnswer: tonelessExplicitCandidate,
+      missingTokens: [],
+      extraTokens: [],
+      matchedKeywords: [...(item.hintKeywords ?? [])],
+      missingKeywords: [],
+      feedbackVi: "Đạt yêu cầu (khớp Pinyin không dấu theo quy định bài học)! Xem ghi chú thanh điệu chuẩn bên dưới.",
+      matchedViaTonelessPinyin: true,
+      toneNoticeVi,
+    };
+  }
+
+  if (tonelessFallbackCandidate) {
+    const toneNoticeVi = tonedRef
+      ? `Bạn đã gõ đúng âm tiết Pinyin nhưng thiếu dấu thanh điệu. Thanh điệu chuẩn: "${tonedRef}" (có thể gõ dấu thanh hoặc số 1–4 như "zhong1 wen2").`
+      : `Bạn đã gõ đúng âm tiết Pinyin nhưng thiếu dấu thanh điệu (dùng dấu thanh hoặc số 1–4).`;
+    return {
+      score: 85,
+      isExactMatch: false,
+      matchedAnswer: tonelessFallbackCandidate,
+      missingTokens: [],
+      extraTokens: [],
+      matchedKeywords: [...(item.hintKeywords ?? [])],
+      missingKeywords: [],
+      feedbackVi: "Rất sát (85%)! Đúng toàn bộ âm tiết Pinyin nhưng còn thiếu dấu thanh điệu.",
+      matchedViaTonelessPinyin: true,
+      toneNoticeVi,
+    };
+  }
+
+  if (wrongToneCandidate) {
+    const toneNoticeVi = tonedRef
+      ? `Bạn đã gõ đúng âm tiết Pinyin nhưng sai thanh điệu! Thanh điệu chuẩn cần nhớ: "${tonedRef}".`
+      : "Bạn đã gõ đúng âm tiết Pinyin nhưng sai thanh điệu.";
+    return {
+      score: 75,
+      isExactMatch: false,
+      matchedAnswer: wrongToneCandidate,
+      missingTokens: [],
+      extraTokens: [],
+      matchedKeywords: [...(item.hintKeywords ?? [])],
+      missingKeywords: [],
+      feedbackVi: "Đúng âm tiết nhưng sai thanh điệu (75%). Hãy đối chiếu thanh điệu chuẩn bên dưới.",
+      toneNoticeVi,
     };
   }
 
@@ -1250,6 +1935,28 @@ export function evaluateGrammarFixAnswer(
   const normUser = normalizeTextForComparison(userAnswer, item.lang);
   const normIncorrect = normalizeTextForComparison(item.incorrectSentence, item.lang);
   const isUnchangedError = normUser === normIncorrect;
+
+  // Exact match check via CJK/Pinyin/Kana-aware matcher first
+  for (const cand of candidates) {
+    const matchKind = matchSingleAnswerCandidate(
+      userAnswer,
+      cand,
+      item.lang,
+      Boolean(item.allowKanaEquivalence)
+    );
+    if (matchKind === "exact" || matchKind === "kana_equiv" || matchKind === "pinyin_toned") {
+      return {
+        score: 100,
+        isExactMatch: true,
+        isUnchangedError: false,
+        bestReference: cand,
+        missingTokens: [],
+        wrongOrExtraTokens: [],
+        feedbackVi: "Xuất sắc! Bạn đã phát hiện và sửa đúng hoàn toàn lỗi ngữ pháp.",
+        explanationVi: item.explanationVi,
+      };
+    }
+  }
 
   let bestRef = primaryRef;
   let bestDiff = computeTokenDiffAndScore(primaryRef, userAnswer, item.lang);
@@ -1350,6 +2057,9 @@ export function evaluateRoleplayOffline(
   }
 
   const normResponse = normalizeTextForComparison(trimmed, item.lang);
+  const hiraResponse = item.lang === "ja-JP" ? katakanaToHiragana(normResponse) : normResponse;
+  const pinyinTonelessCompact =
+    item.lang === "zh-CN" ? normalizePinyin(trimmed, "toneless").replace(/\s+/g, "") : "";
   const responseTokens = tokenizeText(trimmed, item.lang);
   const unitCount = responseTokens.length;
 
@@ -1357,19 +2067,41 @@ export function evaluateRoleplayOffline(
   const missingKeywords: string[] = [];
 
   for (const kw of keywords) {
-    const normKw = normalizeTextForComparison(kw, item.lang);
-    if (!normKw) continue;
-    const kwTokens = tokenizeText(kw, item.lang);
-    const directHit = normResponse.includes(normKw);
-    const tokenAllHit =
-      kwTokens.length > 0 &&
-      kwTokens.every((kt) =>
-        responseTokens.some(
-          (rt) => rt === kt || (!isCjkLanguage(item.lang) && kt.length >= 4 && levenshteinDistance(rt, kt) <= 1)
+    const alternatives = kw
+      .split("|")
+      .map((part) => part.trim())
+      .filter(Boolean);
+    if (alternatives.length === 0) continue;
+
+    const hit = alternatives.some((alt) => {
+      const normKw = normalizeTextForComparison(alt, item.lang);
+      if (!normKw) return false;
+      if (normResponse.includes(normKw)) return true;
+
+      if (item.lang === "ja-JP") {
+        const hiraKw = katakanaToHiragana(normKw);
+        if (hiraKw && hiraResponse.includes(hiraKw)) return true;
+      }
+
+      if (item.lang === "zh-CN" && isPinyinText(alt)) {
+        const altToneless = normalizePinyin(alt, "toneless").replace(/\s+/g, "");
+        if (altToneless && pinyinTonelessCompact.includes(altToneless)) return true;
+      }
+
+      const kwTokens = tokenizeText(alt, item.lang);
+      return (
+        kwTokens.length > 0 &&
+        kwTokens.every((kt) =>
+          responseTokens.some(
+            (rt) =>
+              rt === kt ||
+              (!isCjkLanguage(item.lang) && kt.length >= 4 && levenshteinDistance(rt, kt) <= 1)
+          )
         )
       );
+    });
 
-    if (directHit || tokenAllHit) {
+    if (hit) {
       matchedKeywords.push(kw);
     } else {
       missingKeywords.push(kw);
@@ -1617,6 +2349,7 @@ export function normalizePracticeActivities(
               .filter((ex: any) => ex && typeof ex.sentence === "string")
               .map((ex: any) => ({
                 sentence: String(ex.sentence),
+                reading: typeof ex.reading === "string" ? ex.reading : undefined,
                 meaningVi: typeof ex.meaningVi === "string" ? ex.meaningVi : "",
               }))
           : [];
@@ -1664,6 +2397,7 @@ export function normalizePracticeActivities(
               return {
                 id: typeof b.id === "string" ? b.id : `b-${bIdx}`,
                 acceptedAnswers: accepted,
+                allowKanaEquivalence: Boolean(b.allowKanaEquivalence),
                 hintVi: typeof b.hintVi === "string" ? b.hintVi : undefined,
                 explanationVi: typeof b.explanationVi === "string" ? b.explanationVi : undefined,
               };
@@ -1697,6 +2431,7 @@ export function normalizePracticeActivities(
           template,
           blanks,
           fullSentence: typeof entry.fullSentence === "string" ? entry.fullSentence : undefined,
+          reading: typeof entry.reading === "string" ? entry.reading : undefined,
           meaningVi: typeof entry.meaningVi === "string" ? entry.meaningVi : "",
           explanationVi: typeof entry.explanationVi === "string" ? entry.explanationVi : undefined,
           sourceActivityId: act.id,
@@ -1734,6 +2469,8 @@ export function normalizePracticeActivities(
           hintKeywords: asStringArray(entry.hintKeywords),
           acceptedAnswers: acceptedAnswers.length > 0 ? acceptedAnswers : [sampleAnswer],
           sampleAnswer,
+          reading: typeof entry.reading === "string" ? entry.reading : undefined,
+          allowKanaEquivalence: Boolean(entry.allowKanaEquivalence),
           grammarNoteVi: typeof entry.grammarNoteVi === "string" ? entry.grammarNoteVi : undefined,
           sourceActivityId: act.id,
           passingScore: act.passingScore ?? 70,
@@ -1772,6 +2509,8 @@ export function normalizePracticeActivities(
               : "Kiểm tra thì động từ, giới từ hoặc chia số ít/số nhiều.",
           correctedSentence,
           acceptedAnswers: Array.from(new Set([correctedSentence, ...acceptedAnswers])),
+          reading: typeof entry.reading === "string" ? entry.reading : undefined,
+          allowKanaEquivalence: Boolean(entry.allowKanaEquivalence),
           meaningVi: typeof entry.meaningVi === "string" ? entry.meaningVi : undefined,
           explanationVi:
             typeof entry.explanationVi === "string" && entry.explanationVi.trim()
@@ -1817,6 +2556,7 @@ export function normalizePracticeActivities(
               ? entry.aiRole.trim()
               : "Đối tác giao tiếp",
           aiPrompt,
+          aiPromptReading: typeof entry.aiPromptReading === "string" ? entry.aiPromptReading : undefined,
           aiPromptVi: typeof entry.aiPromptVi === "string" ? entry.aiPromptVi : "",
           userGoalVi:
             typeof entry.userGoalVi === "string" && entry.userGoalVi.trim()
@@ -1824,6 +2564,7 @@ export function normalizePracticeActivities(
               : "Phản hồi lịch sự, đúng trọng tâm và dùng các cụm từ khóa gợi ý.",
           expectedKeywords: asStringArray(entry.expectedKeywords),
           sampleResponses,
+          sampleReading: typeof entry.sampleReading === "string" ? entry.sampleReading : undefined,
           minWords:
             typeof entry.minWords === "number" && entry.minWords > 0
               ? entry.minWords
@@ -1838,6 +2579,109 @@ export function normalizePracticeActivities(
   }
 
   return bank;
+}
+
+export interface DictationDiffItem {
+  targetWord?: string;
+  userWord?: string;
+  status: "correct" | "typo" | "missing" | "extra";
+}
+
+export interface DictationEvaluationResult {
+  accuracy: number;
+  diffItems: DictationDiffItem[];
+}
+
+/**
+ * Pure Dictation evaluator supporting both English (space-delimited words)
+ * and CJK (ja-JP / zh-CN wordChips segments or character-level tokens without stripping CJK).
+ */
+export function evaluateDictationAnswer(params: {
+  targetSentence: string;
+  subMode: "type" | "chips";
+  typedText: string;
+  placedChips: string[];
+  lang: LanguageCode;
+  wordChips?: string[];
+}): DictationEvaluationResult {
+  const { targetSentence, subMode, typedText, placedChips, lang, wordChips } = params;
+  const isCjk = isCjkLanguage(lang);
+
+  let targetUnits: string[];
+  let userUnits: string[];
+
+  if (subMode === "chips") {
+    targetUnits =
+      wordChips && wordChips.length > 0
+        ? wordChips.map((w) => w.trim()).filter(Boolean)
+        : isCjk
+        ? Array.from(normalizeTextForComparison(targetSentence, lang))
+        : targetSentence
+            .replace(/[.,/#!$%^&*;:{}=\-_`~()?!]/g, "")
+            .split(/\s+/)
+            .filter(Boolean);
+    userUnits = placedChips.map((c) => c.trim()).filter(Boolean);
+  } else if (isCjk) {
+    targetUnits = Array.from(normalizeTextForComparison(targetSentence, lang));
+    userUnits = Array.from(normalizeTextForComparison(typedText, lang));
+  } else {
+    targetUnits = targetSentence
+      .replace(/[.,/#!$%^&*;:{}=\-_`~()?!]/g, "")
+      .split(/\s+/)
+      .filter(Boolean);
+    userUnits = typedText
+      .replace(/[.,/#!$%^&*;:{}=\-_`~()?!]/g, "")
+      .split(/\s+/)
+      .filter(Boolean);
+  }
+
+  if (targetUnits.length === 0) {
+    return { accuracy: 0, diffItems: [] };
+  }
+
+  const normUnit = (u: string) =>
+    isCjk ? normalizeTextForComparison(u, lang) : cleanWordToken(u, lang);
+
+  // Exact full-sentence match in CJK chips or typing immediately scores 100%
+  if (
+    isCjk &&
+    userUnits.length > 0 &&
+    normalizeTextForComparison(userUnits.join(""), lang) ===
+      normalizeTextForComparison(targetSentence, lang)
+  ) {
+    return {
+      accuracy: 100,
+      diffItems: targetUnits.map((tw) => ({
+        targetWord: tw,
+        userWord: tw,
+        status: "correct",
+      })),
+    };
+  }
+
+  const maxLen = Math.max(targetUnits.length, userUnits.length);
+  const diffItems: DictationDiffItem[] = [];
+  let hits = 0;
+
+  for (let i = 0; i < maxLen; i++) {
+    const tw = targetUnits[i];
+    const uw = userUnits[i];
+    if (tw && uw) {
+      if (normUnit(tw) === normUnit(uw)) {
+        hits++;
+        diffItems.push({ targetWord: tw, userWord: uw, status: "correct" });
+      } else {
+        diffItems.push({ targetWord: tw, userWord: uw, status: "typo" });
+      }
+    } else if (tw && !uw) {
+      diffItems.push({ targetWord: tw, status: "missing" });
+    } else if (!tw && uw) {
+      diffItems.push({ userWord: uw, status: "extra" });
+    }
+  }
+
+  const accuracy = userUnits.length === 0 ? 0 : Math.round((hits / maxLen) * 100);
+  return { accuracy, diffItems };
 }
 
 export function filterItemsByDifficulty<T extends { difficulty: DifficultyLevel }>(

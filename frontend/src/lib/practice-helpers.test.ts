@@ -144,4 +144,50 @@ runTest("extractQuickCheckQuestions extracts up to 2 grounded multiple-choice qu
   assert.deepEqual(extractQuickCheckQuestions("", "Empty"), []);
 });
 
+runTest("resolvePracticeSelection & extractQuickCheckQuestions work accurately for Japanese N5 and Chinese HSK1", () => {
+  // Even when lesson title contains "Giao tiếp", Japanese N5 & Chinese HSK1 roleplay must route to language lab ("english")
+  assert.deepEqual(
+    resolvePracticeSelection(
+      "roleplay",
+      "ja-l32-rp-1",
+      "Tiếng Nhật Sơ Cấp (N5)",
+      "Bài 3.2: Di chuyển & Giao tiếp Đời sống N5"
+    ),
+    { labMode: "english", englishTab: "roleplay" }
+  );
+  assert.deepEqual(
+    resolvePracticeSelection(
+      "roleplay",
+      "zh-l11-rp-1",
+      "Tiếng Trung Sơ Cấp (HSK1)",
+      "Bài 1.1: Hệ thống Pinyin, 4 Thanh điệu & Chào hỏi"
+    ),
+    { labMode: "english", englishTab: "roleplay" }
+  );
+  assert.deepEqual(
+    resolvePracticeSelection("translate", "ja-l11-tr-1", "Tiếng Nhật Sơ Cấp (N5)"),
+    { labMode: "english", englishTab: "translate" }
+  );
+
+  const jaMd = `
+# Bài 1.1: Hiragana nền tảng
+- **Hiragana (ひらがな)**: Bảng chữ mềm cơ bản của tiếng Nhật dùng để viết từ thuần Nhật và trợ từ.
+- **Trợ từ は (đọc là wa)**: Đánh dấu chủ đề của câu, dù viết bằng chữ は nhưng luôn đọc là wa.
+- **Âm ngắt っ (Sokuon)**: Biểu thị nhịp dừng nén hơi đúng 1 phách trước phụ âm kế tiếp.
+`;
+  const jaQs = extractQuickCheckQuestions(jaMd, "Bài 1.1: Hiragana nền tảng");
+  assert.equal(jaQs.length, 2);
+  assert.ok(jaQs.every((q) => q.options.length === 4));
+
+  const zhMd = `
+# Bài 1.1: Pinyin & 4 Thanh điệu
+- **Pinyin (拼音)**: Hệ thống ký âm Latinh chuẩn của tiếng Trung phổ thông gồm Thanh mẫu, Vận mẫu và 4 thanh điệu.
+- **Trợ từ nghi vấn 吗 (ma)**: Đặt cuối câu trần thuật để chuyển ngay thành câu hỏi Có/Không.
+- **Phó từ mức độ 很 (hěn)**: Đứng trước tính từ làm vị ngữ để cân bằng nhịp câu trong tiếng Trung.
+`;
+  const zhQs = extractQuickCheckQuestions(zhMd, "Bài 1.1: Pinyin & 4 Thanh điệu");
+  assert.equal(zhQs.length, 2);
+  assert.ok(zhQs.every((q) => q.options.length === 4));
+});
+
 console.log(`\n✅ All ${passed} practice-helpers unit tests passed!`);
