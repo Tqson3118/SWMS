@@ -17,7 +17,8 @@ export type CodingTabMode =
   | "system-visualizer"
   | "lesson-tasks"
   | "js-sandbox"
-  | "parsons";
+  | "parsons"
+  | "predict-output";
 
 export type FinanceTabMode =
   | "budget"
@@ -26,14 +27,20 @@ export type FinanceTabMode =
   | "trading"
   | "cases"
   | "portfolio"
-  | "behavioral";
+  | "behavioral"
+  | "hand-calc"
+  | "decision-journal";
 
 export type PsychTabMode =
   | "roleplay"
   | "biases"
   | "cbt"
   | "lesson-cases"
-  | "cognitive-labs";
+  | "cognitive-labs"
+  | "bias-spotter"
+  | "feynman"
+  | "cbt-exercise"
+  | "apply-journal";
 
 export type PsychCogSubTab = "stroop" | "memory-span" | "cbt-journal";
 
@@ -104,11 +111,19 @@ export function resolvePracticeSelection(
   }
 
   // Coding modes
-  if (rawType === "js_sandbox" || rawType === "js-sandbox") {
+  if (rawType === "js_sandbox" || rawType === "js-sandbox" || rawType === "code_write") {
     return { labMode: "code", codingTab: "js-sandbox" };
   }
+  if (rawType === "predict_output" || rawType === "predict-output") {
+    return { labMode: "code", codingTab: "predict-output" };
+  }
   if (rawType === "parsons") return { labMode: "code", codingTab: "parsons" };
-  if (rawType === "bug_hunt" || rawType === "bug-hunter") {
+  if (
+    rawType === "bug_hunt" ||
+    rawType === "bug-hunter" ||
+    rawType === "bug_fix" ||
+    rawType === "bug-fix"
+  ) {
     return { labMode: "code", codingTab: "bug-hunter" };
   }
   if (rawType === "fill-code" || rawType === "fill_code") {
@@ -122,6 +137,12 @@ export function resolvePracticeSelection(
   }
 
   // Finance modes
+  if (rawType === "hand_calc" || rawType === "hand-calc" || rawType === "finance_calc") {
+    return { labMode: "finance", financeTab: "hand-calc" };
+  }
+  if (rawType === "decision_journal" || rawType === "decision-journal") {
+    return { labMode: "finance", financeTab: "decision-journal" };
+  }
   if (rawType === "compound_calculator" || rawType === "compound") {
     return { labMode: "finance", financeTab: "compound" };
   }
@@ -131,7 +152,7 @@ export function resolvePracticeSelection(
   if (rawType === "behavioral_quiz" || rawType === "behavioral") {
     return { labMode: "finance", financeTab: "behavioral" };
   }
-  if (rawType === "investment_case" || rawType === "cases") {
+  if (rawType === "investment_case" || rawType === "finance_case" || rawType === "cases") {
     return { labMode: "finance", financeTab: "cases" };
   }
   if (rawType === "budget") return { labMode: "finance", financeTab: "budget" };
@@ -139,6 +160,15 @@ export function resolvePracticeSelection(
   if (rawType === "trading") return { labMode: "finance", financeTab: "trading" };
 
   // Psychology / Recall modes
+  if (rawType === "bias_spotter" || rawType === "bias-spotter") {
+    return { labMode: "recall", recallSubMode: "psychology", psychTab: "bias-spotter" };
+  }
+  if (rawType === "cbt_exercise" || rawType === "cbt-exercise") {
+    return { labMode: "recall", recallSubMode: "psychology", psychTab: "cbt-exercise" };
+  }
+  if (rawType === "apply_journal" || rawType === "apply-journal") {
+    return { labMode: "recall", recallSubMode: "psychology", psychTab: "apply-journal" };
+  }
   if (rawType === "stroop_test" || rawType === "stroop") {
     return {
       labMode: "recall",
@@ -172,7 +202,17 @@ export function resolvePracticeSelection(
   if (rawType === "cbt") {
     return { labMode: "recall", recallSubMode: "psychology", psychTab: "cbt" };
   }
+  if (rawType === "psych_feynman") {
+    return { labMode: "recall", recallSubMode: "psychology", psychTab: "feynman" };
+  }
   if (rawType === "feynman") {
+    if (
+      rawKey.startsWith("psych-") ||
+      rawKey.startsWith("feynman-") ||
+      isPsychologyCourseOrLesson(courseTitle, lessonTitle, lessonMarkdown)
+    ) {
+      return { labMode: "recall", recallSubMode: "psychology", psychTab: "feynman" };
+    }
     return { labMode: "recall", recallSubMode: "feynman" };
   }
 
@@ -192,22 +232,42 @@ const ACTIVITY_TYPE_LABELS_VI: Record<string, string> = {
   quiz: "Trắc nghiệm",
   js_sandbox: "Web Worker Sandbox",
   "js-sandbox": "Web Worker Sandbox",
+  code_write: "Viết code JS",
+  predict_output: "Đoán Output JS",
+  "predict-output": "Đoán Output JS",
   parsons: "Ghép dòng code",
   bug_hunt: "Săn lỗi code",
   "bug-hunter": "Săn lỗi code",
+  bug_fix: "Sửa Bug Write-in",
+  "bug-fix": "Sửa Bug Write-in",
+  fill_code: "Điền code",
   "fill-code": "Điền code",
   "system-visualizer": "Mô phỏng hệ thống",
   "lesson-tasks": "Nhiệm vụ code",
+  hand_calc: "Tự tính tay tài chính",
+  "hand-calc": "Tự tính tay tài chính",
+  finance_calc: "Tự tính tay tài chính",
+  decision_journal: "Nhật ký quyết định",
+  "decision-journal": "Nhật ký quyết định",
   compound_calculator: "Tính lãi kép",
   compound: "Tính lãi kép",
   portfolio_sim: "Mô phỏng danh mục",
   portfolio: "Mô phỏng danh mục",
   behavioral_quiz: "Tâm lý đầu tư",
   behavioral: "Tâm lý đầu tư",
-  investment_case: "Tình huống tài chính",
+  investment_case: "Tình huống & Giải thích",
+  finance_case: "Tình huống & Giải thích",
   budget: "Ngân sách 50/30/20",
   debt: "Lộ trình trả nợ",
   trading: "Biểu đồ nến",
+  bias_spotter: "Nhận diện Thiên kiến",
+  "bias-spotter": "Nhận diện Thiên kiến",
+  feynman: "Feynman Tự định nghĩa",
+  psych_feynman: "Feynman Tự định nghĩa",
+  cbt_exercise: "Bài tập CBT tình huống",
+  "cbt-exercise": "Bài tập CBT tình huống",
+  apply_journal: "Nhật ký áp dụng",
+  "apply-journal": "Nhật ký áp dụng",
   stroop_test: "Thí nghiệm Stroop",
   memory_span: "Trí nhớ ngắn hạn",
   reflection_journal: "Nhật ký CBT",

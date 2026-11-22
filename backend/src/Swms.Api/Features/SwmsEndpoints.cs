@@ -5023,14 +5023,20 @@ public static class SwmsEndpoints
 
             var lang = string.IsNullOrWhiteSpace(req.Lang) ? "en-US" : req.Lang.Trim();
             var mode = string.IsNullOrWhiteSpace(req.Mode) ? "roleplay" : req.Mode.Trim();
+            var isVietnameseDomainMode =
+                lang.StartsWith("vi", StringComparison.OrdinalIgnoreCase) ||
+                mode is "finance_case" or "decision_journal" or "bias_spotter" or "feynman" or "cbt_exercise" or "apply_journal";
             var keywordsText = req.ExpectedKeywords is { Count: > 0 }
                 ? string.Join(", ", req.ExpectedKeywords.Where(k => !string.IsNullOrWhiteSpace(k)))
                 : "(không bắt buộc từ khóa cố định)";
 
-            var sysPrompt =
-                "Bạn là giảng viên ngoại ngữ chuyên chấm bài thực hành giao tiếp (Roleplay / Speaking / Translation / Grammar) cho học viên Việt Nam. " +
-                "Hãy chấm nghiêm túc, công bằng và trả về DUY NHẤT một JSON object hợp lệ (không thêm markdown fence hay giải thích bên ngoài) theo đúng schema: " +
-                "{\"score\": 0-100, \"feedbackVi\": \"Nhận xét chi tiết bằng tiếng Việt\", \"correctedVersion\": \"Câu viết/nói tự nhiên chuẩn hơn bằng ngôn ngữ mục tiêu\", \"strengths\": [\"...\"], \"improvements\": [\"...\"]}.";
+            var sysPrompt = isVietnameseDomainMode
+                ? "Bạn là giảng viên chuyên môn hướng dẫn thực hành chủ động (Tài chính cá nhân & Đầu tư / Tâm lý học ứng dụng / Phương pháp Feynman / Lập trình) cho học viên Việt Nam. " +
+                  "Hãy chấm lập luận của học viên nghiêm túc, công bằng và trả về DUY NHẤT một JSON object hợp lệ (không thêm markdown fence hay giải thích bên ngoài) theo đúng schema: " +
+                  "{\"score\": 0-100, \"feedbackVi\": \"Nhận xét chi tiết bằng tiếng Việt\", \"correctedVersion\": \"Gợi ý diễn đạt chuẩn mực bằng tiếng Việt\", \"strengths\": [\"...\"], \"improvements\": [\"...\"]}."
+                : "Bạn là giảng viên ngoại ngữ chuyên chấm bài thực hành giao tiếp (Roleplay / Speaking / Translation / Grammar) cho học viên Việt Nam. " +
+                  "Hãy chấm nghiêm túc, công bằng và trả về DUY NHẤT một JSON object hợp lệ (không thêm markdown fence hay giải thích bên ngoài) theo đúng schema: " +
+                  "{\"score\": 0-100, \"feedbackVi\": \"Nhận xét chi tiết bằng tiếng Việt\", \"correctedVersion\": \"Câu viết/nói tự nhiên chuẩn hơn bằng ngôn ngữ mục tiêu\", \"strengths\": [\"...\"], \"improvements\": [\"...\"]}.";
 
             var userPrompt =
                 $"Chế độ: {mode}\n" +
@@ -5223,6 +5229,18 @@ public static class SwmsEndpoints
         {
             return Regex.Replace(s, @"[\s。、，．！？；：「」『』（）()【】\[\],.!?;:'""~～\-—–]", string.Empty);
         }
+
+        // Preserve Vietnamese words cleanly by stripping diacritics before ASCII punctuation cleanup
+        var decomposed = s.Replace('đ', 'd').Normalize(System.Text.NormalizationForm.FormD);
+        var sb = new System.Text.StringBuilder(decomposed.Length);
+        foreach (var ch in decomposed)
+        {
+            if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(ch) != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                sb.Append(ch);
+            }
+        }
+        s = sb.ToString().Normalize(System.Text.NormalizationForm.FormC);
 
         s = Regex.Replace(s, @"\bi'm\b", "i am");
         s = Regex.Replace(s, @"\bdon't\b", "do not");

@@ -3,7 +3,20 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { invalidateDashboardCache } from "@/lib/api-client";
-import { resolvePracticeSelection } from "@/lib/practice-helpers";
+import { resolvePracticeSelection, type CodingTabMode } from "@/lib/practice-helpers";
+import {
+  evaluateFillCodeBlanks,
+  evaluateParsonsOrder,
+  normalizeCodingActivities,
+  type BugFixWriteInItem,
+  type JsSandboxExerciseItem,
+  type ParsonsWriteInItem,
+} from "@/lib/writein-practice";
+import {
+  runJsFunctionInWorker,
+  saveWriteInFlashcardDeduplicated,
+} from "./WriteInFsrsHelper";
+import { BugFixWriteInPanel, PredictOutputLab } from "./CodingWriteInViews";
 import { ArrowUp, ArrowDown } from "lucide-react";
 
 import {
@@ -60,7 +73,7 @@ export interface PracticeModuleProps {
   initialActivityKey?: string | null;
 }
 
-type MainPracticeMode = "fill-code" | "bug-hunter" | "system-visualizer" | "lesson-tasks" | "js-sandbox" | "parsons";
+type MainPracticeMode = CodingTabMode;
 type TopicCategory = "auto" | "dotnet" | "react" | "sql" | "os";
 
 // ==========================================
@@ -943,6 +956,10 @@ await tx.CommitAsync();`,
 export interface JsWorkerSandboxLabProps {
   lessonMarkdown?: string;
   lessonTitle?: string;
+  courseTitle?: string;
+  lessonId?: string | null;
+  dbChallenges?: JsSandboxExerciseItem[];
+  initialActivityKey?: string | null;
   onSaveToNotebook: (text: string) => Promise<void>;
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
   onRecordAttempt?: (params: any) => Promise<void>;
@@ -954,9 +971,12 @@ interface CodingChallenge {
   difficulty: "Dễ" | "Trung bình" | "Nâng cao";
   timeLimitMs: number;
   description: string;
+  functionName?: string;
   starterCode: string;
   solutionCode: string;
   hint: string;
+  sourceActivityId?: string;
+  passingScore?: number;
   testCases: Array<{
     name: string;
     input: any[];
@@ -1126,20 +1146,54 @@ const JS_CHALLENGES: CodingChallenge[] = [
 export function JsWorkerSandboxLab({
   lessonMarkdown,
   lessonTitle,
+  courseTitle = "Lập trình JavaScript",
+  lessonId,
+  dbChallenges = [],
+  initialActivityKey,
   onSaveToNotebook,
   onCreateFlashcardQuick,
   onRecordAttempt,
 }: JsWorkerSandboxLabProps) {
-  const [selectedChallengeId, setSelectedChallengeId] = useState<string>(JS_CHALLENGES[0].id);
+  const allChallenges = useMemo<CodingChallenge[]>(() => {
+    const seen = new Set<string>();
+    const merged: CodingChallenge[] = [];
+    for (const ch of [...dbChallenges, ...JS_CHALLENGES]) {
+      if (!seen.has(ch.id)) {
+        seen.add(ch.id);
+        merged.push(ch);
+      }
+    }
+    return merged;
+  }, [dbChallenges]);
+
+  const initialChallengeId = useMemo(() => {
+    if (initialActivityKey) {
+      const matched = allChallenges.find(
+        (c) =>
+          c.id === initialActivityKey ||
+          `coding-sandbox-${c.id}` === initialActivityKey ||
+          c.sourceActivityId === initialActivityKey
+      );
+      if (matched) return matched.id;
+    }
+    return allChallenges[0]?.id || JS_CHALLENGES[0].id;
+  }, [allChallenges, initialActivityKey]);
+
+  const [selectedChallengeId, setSelectedChallengeId] = useState<string>(initialChallengeId);
+  useEffect(() => {
+    setSelectedChallengeId(initialChallengeId);
+  }, [initialChallengeId]);
+
   const activeChallenge = useMemo(() => {
-    return JS_CHALLENGES.find(c => c.id === selectedChallengeId) || JS_CHALLENGES[0];
-  }, [selectedChallengeId]);
+    return allChallenges.find(c => c.id === selectedChallengeId) || allChallenges[0] || JS_CHALLENGES[0];
+  }, [allChallenges, selectedChallengeId]);
 
   const [userCode, setUserCode] = useState<string>(activeChallenge.starterCode);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [testResults, setTestResults] = useState<Array<{
     name: string;
     passed: boolean;
+    input?: any[];
     actual: any;
     expected: any;
     error?: string;
@@ -1177,165 +1231,104 @@ export function JsWorkerSandboxLab({
     return items;
   }, [lessonMarkdown]);
 
+  const saveSandboxFlashcard = async (isAuto = false) => {
+    const front = `Lập trình: Thuật toán giải quyết bài toán ${activeChallenge.title}`;
+    const back = `${activeChallenge.description}\n\n**Mã nguồn tối ưu mẫu:**\n\`\`\`javascript\n${activeChallenge.solutionCode}\n\`\`\`\n\n**Nguyên lý cốt lõi:**\n${activeChallenge.hint}`;
+    const res = await saveWriteInFlashcardDeduplicated({
+      front,
+      back,
+      lessonId,
+      sourceTitle: `${courseTitle} · ${lessonTitle || "JS Sandbox"}`,
+      tags: ["lap-trinh", "js-sandbox", "fsrs"],
+      onCreateFlashcardQuick,
+    });
+    if (res.ok) {
+      setFeedback(
+        isAuto
+          ? res.deduplicated
+            ? "Bài tập này đã có trong Flashcard FSRS để ôn lại."
+            : "Đã tự động lưu bài chưa đạt vào Flashcard FSRS để ôn lại!"
+          : res.deduplicated
+          ? "Thẻ đã tồn tại trong Flashcard FSRS (không tạo trùng)."
+          : "Đã lưu thuật toán vào Flashcard FSRS!"
+      );
+      setTimeout(() => setFeedback(null), 3500);
+    }
+  };
+
   // CHẠY KIỂM THỬ TRONG WEB WORKER VỚI BLOB URL VÀ TIMEOUT 2000MS
-  const runCodeInWorker = () => {
+  const runCodeInWorker = async () => {
     setIsRunning(true);
     setWorkerError(null);
     setTestResults(null);
     setConsoleLogs([]);
     setExecutionTimeMs(null);
 
-    const startTime = performance.now();
+    const inferredFn =
+      activeChallenge.functionName ||
+      activeChallenge.starterCode.match(/function\s+([A-Za-z_$][A-Za-z0-9_$]*)/)?.[1] ||
+      "solution";
 
-    // Mã nguồn worker đóng gói
-    const workerScript = `
-self.onmessage = function(e) {
-  const { code, testCases } = e.data;
-  const capturedLogs = [];
+    const runRes = await runJsFunctionInWorker({
+      code: userCode,
+      functionName: inferredFn,
+      testCases: activeChallenge.testCases,
+      timeLimitMs: activeChallenge.timeLimitMs || 2000,
+    });
 
-  const customConsole = {
-    log: function(...args) {
-      capturedLogs.push(args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' '));
-    },
-    warn: function(...args) {
-      capturedLogs.push('[CẢNH BÁO] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' '));
-    },
-    error: function(...args) {
-      capturedLogs.push('[LỖI] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' '));
-    }
-  };
+    setExecutionTimeMs(runRes.executionTimeMs);
+    setIsRunning(false);
+    setConsoleLogs(runRes.logs || []);
 
-  try {
-    const wrapped = new Function(
-      'console',
-      code + ';\\nreturn (typeof twoSum === "function" ? twoSum : (typeof deepClone === "function" ? deepClone : (typeof simulateLRU === "function" ? simulateLRU : (typeof solution === "function" ? solution : null))));'
-    );
-    const targetFn = wrapped(customConsole);
+    if (runRes.ok && runRes.results) {
+      setTestResults(runRes.results);
+      const passedCount = runRes.results.filter((r) => r.passed).length;
+      const totalCount = Math.max(1, runRes.results.length);
+      const score = Math.round((passedCount / totalCount) * 100);
+      const isPassed = score === 100;
 
-    if (!targetFn) {
-      self.postMessage({
-        type: 'ERROR',
-        error: 'Không tìm thấy hàm kiểm thử tương ứng (ví dụ: twoSum, deepClone, simulateLRU hoặc solution). Vui lòng kiểm tra tên hàm!',
-        logs: capturedLogs
-      });
-      return;
-    }
-
-    const results = [];
-    for (const tc of testCases) {
-      try {
-        const actual = targetFn(...tc.input);
-        const passed = JSON.stringify(actual) === JSON.stringify(tc.expected);
-        results.push({
-          name: tc.name,
-          passed: passed,
-          actual: actual,
-          expected: tc.expected
-        });
-      } catch (tcErr) {
-        results.push({
-          name: tc.name,
-          passed: false,
-          actual: null,
-          expected: tc.expected,
-          error: tcErr && tcErr.message ? tcErr.message : String(tcErr)
+      if (onRecordAttempt) {
+        await onRecordAttempt({
+          mode: "js_sandbox",
+          activityId: activeChallenge.sourceActivityId || null,
+          score,
+          maxScore: 100,
+          isPassed,
+          activityTitle: `${activeChallenge.title} · Web Worker Sandbox`,
+          activityKey: `coding-sandbox-${activeChallenge.id}`,
+          durationSeconds: Math.max(1, Math.round(runRes.executionTimeMs / 1000)),
+          details: {
+            challengeId: activeChallenge.id,
+            passedCount,
+            totalCount,
+            executionTimeMs: runRes.executionTimeMs,
+            tests: runRes.results,
+          },
         });
       }
-    }
 
-    self.postMessage({
-      type: 'SUCCESS',
-      results: results,
-      logs: capturedLogs
-    });
-  } catch (parseErr) {
-    self.postMessage({
-      type: 'ERROR',
-      error: parseErr && parseErr.message ? parseErr.message : String(parseErr),
-      logs: capturedLogs
-    });
-  }
-};
-`;
-
-    const blob = new Blob([workerScript], { type: "application/javascript" });
-    const blobUrl = URL.createObjectURL(blob);
-    let worker: Worker | null = null;
-    let timer: any = null;
-
-    try {
-      worker = new Worker(blobUrl);
-
-      // Thiết lập timeout 2000ms
-      timer = setTimeout(() => {
-        if (worker) {
-          worker.terminate();
-          URL.revokeObjectURL(blobUrl);
-        }
-        setIsRunning(false);
-        setWorkerError("⏱️ LỖI QUÁ THỜI GIAN: Mã thực thi vượt quá 2000ms! Vui lòng kiểm tra vòng lặp vô tận (infinite loop) hoặc thuật toán đệ quy.");
-      }, activeChallenge.timeLimitMs || 2000);
-
-      worker.onmessage = (event) => {
-        clearTimeout(timer);
-        const endTime = performance.now();
-        setExecutionTimeMs(Math.round(endTime - startTime));
-        setIsRunning(false);
-
-        if (worker) worker.terminate();
-        URL.revokeObjectURL(blobUrl);
-
-        const data = event.data;
-        if (data.type === "SUCCESS") {
-          setTestResults(data.results);
-          setConsoleLogs(data.logs || []);
-
-          const passedCount = data.results.filter((r: any) => r.passed).length;
-          const totalCount = data.results.length;
-          const score = Math.round((passedCount / totalCount) * 100);
-          const isPassed = score === 100;
-
-          if (onRecordAttempt) {
-            onRecordAttempt({
-              mode: "js_sandbox",
-              score,
-              maxScore: 100,
-              isPassed,
-              activityTitle: `${activeChallenge.title} · Web Worker Sandbox`,
-              activityKey: `coding-sandbox-${activeChallenge.id}`,
-              durationSeconds: Math.max(1, Math.round((endTime - startTime) / 1000)),
-              details: {
-                challengeId: activeChallenge.id,
-                passedCount,
-                totalCount,
-                executionTimeMs: Math.round(endTime - startTime),
-                tests: data.results,
-              }
-            });
-          }
-        } else {
-          setWorkerError(`Lỗi thực thi: ${data.error}`);
-          setConsoleLogs(data.logs || []);
-        }
-      };
-
-      worker.onerror = (wErr) => {
-        clearTimeout(timer);
-        setIsRunning(false);
-        if (worker) worker.terminate();
-        URL.revokeObjectURL(blobUrl);
-        setWorkerError(`Lỗi Worker Runtime: ${wErr.message}`);
-      };
-
-      worker.postMessage({
-        code: userCode,
-        testCases: activeChallenge.testCases,
-      });
-    } catch (createErr: any) {
-      clearTimeout(timer);
-      setIsRunning(false);
-      URL.revokeObjectURL(blobUrl);
-      setWorkerError(`Không thể khởi tạo Web Worker: ${createErr.message}`);
+      if (!isPassed) {
+        await saveSandboxFlashcard(true);
+      }
+    } else {
+      setWorkerError(runRes.error || "Lỗi thực thi trong Web Worker.");
+      if (onRecordAttempt) {
+        await onRecordAttempt({
+          mode: "js_sandbox",
+          activityId: activeChallenge.sourceActivityId || null,
+          score: 0,
+          maxScore: 100,
+          isPassed: false,
+          activityTitle: `${activeChallenge.title} · Web Worker Sandbox`,
+          activityKey: `coding-sandbox-${activeChallenge.id}`,
+          durationSeconds: Math.max(1, Math.round(runRes.executionTimeMs / 1000)),
+          details: {
+            challengeId: activeChallenge.id,
+            error: runRes.error,
+          },
+        });
+      }
+      await saveSandboxFlashcard(true);
     }
   };
 
@@ -1356,12 +1349,7 @@ ${testResults ? `**Chi tiết kết quả:**\n` + testResults.map(r => `- ${r.pa
   };
 
   const handleCreateFlashcard = async () => {
-    if (!onCreateFlashcardQuick) return;
-    const front = `Lập trình: Thuật toán giải quyết bài toán ${activeChallenge.title}`;
-    const back = `${activeChallenge.description}\n\n**Mã nguồn tối ưu mẫu:**\n\`\`\`javascript\n${activeChallenge.solutionCode}\n\`\`\`\n\n**Nguyên lý cốt lõi:**\n${activeChallenge.hint}`;
-    await onCreateFlashcardQuick(front, back);
-    setFeedback("Đã lưu thuật toán vào Flashcard FSRS!");
-    setTimeout(() => setFeedback(null), 3000);
+    await saveSandboxFlashcard(false);
   };
 
   return (
@@ -1386,7 +1374,7 @@ ${testResults ? `**Chi tiết kết quả:**\n` + testResults.map(r => `- ${r.pa
             onChange={(e) => setSelectedChallengeId(e.target.value)}
             className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
-            {JS_CHALLENGES.map((c) => (
+            {allChallenges.map((c) => (
               <option key={c.id} value={c.id}>
                 [{c.difficulty}] {c.title}
               </option>
@@ -1618,13 +1606,14 @@ ${testResults ? `**Chi tiết kết quả:**\n` + testResults.map(r => `- ${r.pa
                       </span>
                     </div>
 
-                    {!tr.passed && (
-                      <div className="font-mono text-[11px] text-zinc-600 dark:text-zinc-400 pl-5 space-y-0.5">
-                        <div>Thực tế: <span className="text-red-600 dark:text-red-400">{JSON.stringify(tr.actual)}</span></div>
-                        <div>Kỳ vọng: <span className="text-emerald-600 dark:text-emerald-400">{JSON.stringify(tr.expected)}</span></div>
-                        {tr.error && <div className="text-red-500">Lỗi: {tr.error}</div>}
-                      </div>
-                    )}
+                    <div className="font-mono text-[11px] text-zinc-600 dark:text-zinc-400 pl-5 space-y-0.5">
+                      {tr.input !== undefined && (
+                        <div>Đầu vào (Input): <span className="text-zinc-800 dark:text-zinc-200">{JSON.stringify(tr.input)}</span></div>
+                      )}
+                      <div>Kỳ vọng (Expected): <span className="text-emerald-600 dark:text-emerald-400">{JSON.stringify(tr.expected)}</span></div>
+                      <div>Thực tế (Actual): <span className={tr.passed ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}>{JSON.stringify(tr.actual)}</span></div>
+                      {tr.error && <div className="text-red-500">Lỗi: {tr.error}</div>}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1657,6 +1646,11 @@ ${testResults ? `**Chi tiết kết quả:**\n` + testResults.map(r => `- ${r.pa
 // =============================================================================
 
 export interface ParsonsProblemLabProps {
+  dbProblems?: ParsonsWriteInItem[];
+  lessonId?: string | null;
+  courseTitle?: string;
+  lessonTitle?: string;
+  initialActivityKey?: string | null;
   onSaveToNotebook: (text: string) => Promise<void>;
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
   onRecordAttempt?: (params: any) => Promise<void>;
@@ -1670,6 +1664,7 @@ interface ParsonsProblem {
   explanation: string;
   correctLines: string[];
   initialShuffled: string[];
+  sourceActivityId?: string;
 }
 
 const PARSONS_PROBLEMS: ParsonsProblem[] = [
@@ -1779,14 +1774,48 @@ const PARSONS_PROBLEMS: ParsonsProblem[] = [
 ];
 
 export function ParsonsProblemLab({
+  dbProblems = [],
+  lessonId,
+  courseTitle = "Lập trình JavaScript",
+  lessonTitle = "Parsons Problem",
+  initialActivityKey,
   onSaveToNotebook,
   onCreateFlashcardQuick,
   onRecordAttempt,
 }: ParsonsProblemLabProps) {
-  const [selectedProblemId, setSelectedProblemId] = useState<string>(PARSONS_PROBLEMS[0].id);
+  const allProblems = useMemo<ParsonsProblem[]>(() => {
+    const seen = new Set<string>();
+    const merged: ParsonsProblem[] = [];
+    for (const p of [...dbProblems, ...PARSONS_PROBLEMS]) {
+      if (!seen.has(p.id)) {
+        seen.add(p.id);
+        merged.push(p);
+      }
+    }
+    return merged;
+  }, [dbProblems]);
+
+  const initialProblemId = useMemo(() => {
+    if (initialActivityKey) {
+      const matched = allProblems.find(
+        (p) =>
+          p.id === initialActivityKey ||
+          `coding-parsons-${p.id}` === initialActivityKey ||
+          p.sourceActivityId === initialActivityKey
+      );
+      if (matched) return matched.id;
+    }
+    return allProblems[0]?.id || PARSONS_PROBLEMS[0].id;
+  }, [allProblems, initialActivityKey]);
+
+  const [selectedProblemId, setSelectedProblemId] = useState<string>(initialProblemId);
+  useEffect(() => {
+    setSelectedProblemId(initialProblemId);
+  }, [initialProblemId]);
+
   const activeProblem = useMemo(() => {
-    return PARSONS_PROBLEMS.find(p => p.id === selectedProblemId) || PARSONS_PROBLEMS[0];
-  }, [selectedProblemId]);
+    return allProblems.find(p => p.id === selectedProblemId) || allProblems[0] || PARSONS_PROBLEMS[0];
+  }, [allProblems, selectedProblemId]);
 
   // Danh sách dòng trong Bank (chưa chọn) và Workspace (đã xếp)
   const [bankLines, setBankLines] = useState<Array<{ id: string; text: string }>>([]);
@@ -1854,46 +1883,69 @@ export function ParsonsProblemLab({
     setCheckResult(null);
   };
 
-  // KIỂM TRA THỨ TỰ DÒNG
-  const handleCheckOrder = () => {
-    const expected = activeProblem.correctLines;
-    const current = workspaceLines;
-
-    let correctCount = 0;
-    const checked = current.map((item, idx) => {
-      const isCorrect = idx < expected.length && item.text === expected[idx];
-      if (isCorrect) correctCount++;
-      return {
-        id: item.id,
-        text: item.text,
-        isCorrectPosition: isCorrect,
-      };
+  const saveParsonsFlashcard = async (isAuto = false) => {
+    const front = `Parsons Problem: Trình tự logic của ${activeProblem.title}`;
+    const back = `**Mục tiêu:** ${activeProblem.goal}\n\n**Mã nguồn chuẩn:**\n\`\`\`javascript\n${activeProblem.correctLines.join("\n")}\n\`\`\`\n\n**Nguyên lý:**\n${activeProblem.explanation}`;
+    const res = await saveWriteInFlashcardDeduplicated({
+      front,
+      back,
+      lessonId,
+      sourceTitle: `${courseTitle} · ${lessonTitle}`,
+      tags: ["lap-trinh", "parsons", "fsrs"],
+      onCreateFlashcardQuick,
     });
+    if (res.ok) {
+      setFeedback(
+        isAuto
+          ? res.deduplicated
+            ? "Bài Parsons này đã nằm sẵn trong Flashcard FSRS."
+            : "Đã tự động lưu bài Parsons chưa đạt vào Flashcard FSRS!"
+          : res.deduplicated
+          ? "Thẻ đã tồn tại trong Flashcard FSRS (không tạo trùng)."
+          : "Đã lưu quy trình mã nguồn vào Flashcard FSRS!"
+      );
+      setTimeout(() => setFeedback(null), 3500);
+    }
+  };
 
-    const isAllCorrect = current.length === expected.length && correctCount === expected.length;
-    const score = Math.round((correctCount / expected.length) * 100);
+  // KIỂM TRA THỨ TỰ DÒNG
+  const handleCheckOrder = async () => {
+    const evalRes = evaluateParsonsOrder(
+      activeProblem.correctLines,
+      workspaceLines.map((w) => w.text)
+    );
+    const checked = workspaceLines.map((item, idx) => ({
+      id: item.id,
+      text: item.text,
+      isCorrectPosition: evalRes.checkedLines[idx]?.isCorrectPosition ?? false,
+    }));
 
     setCheckResult({
-      isAllCorrect,
-      score,
+      isAllCorrect: evalRes.isAllCorrect,
+      score: evalRes.score,
       checkedLines: checked,
     });
 
     if (onRecordAttempt) {
-      onRecordAttempt({
+      await onRecordAttempt({
         mode: "parsons",
-        score,
+        activityId: activeProblem.sourceActivityId || null,
+        score: evalRes.score,
         maxScore: 100,
-        isPassed: isAllCorrect,
+        isPassed: evalRes.isAllCorrect,
         activityTitle: `${activeProblem.title} · Parsons Problem`,
         activityKey: `coding-parsons-${activeProblem.id}`,
         details: {
           problemId: activeProblem.id,
-          totalLines: expected.length,
-          correctLinesPlaced: correctCount,
-          isAllCorrect,
-        }
+          totalLines: evalRes.totalLines,
+          correctLinesPlaced: evalRes.correctCount,
+          isAllCorrect: evalRes.isAllCorrect,
+        },
       });
+    }
+
+    if (!evalRes.isAllCorrect) {
+      await saveParsonsFlashcard(true);
     }
   };
 
@@ -1915,12 +1967,7 @@ ${activeProblem.explanation}`;
   };
 
   const handleCreateFlashcard = async () => {
-    if (!onCreateFlashcardQuick) return;
-    const front = `Parsons Problem: Trình tự logic của ${activeProblem.title}`;
-    const back = `**Mục tiêu:** ${activeProblem.goal}\n\n**Mã nguồn chuẩn:**\n\`\`\`javascript\n${activeProblem.correctLines.join("\n")}\n\`\`\`\n\n**Nguyên lý:**\n${activeProblem.explanation}`;
-    await onCreateFlashcardQuick(front, back);
-    setFeedback("Đã lưu quy trình mã nguồn vào Flashcard FSRS!");
-    setTimeout(() => setFeedback(null), 3000);
+    await saveParsonsFlashcard(false);
   };
 
   return (
@@ -1945,7 +1992,7 @@ ${activeProblem.explanation}`;
             onChange={(e) => setSelectedProblemId(e.target.value)}
             className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            {PARSONS_PROBLEMS.map((p) => (
+            {allProblems.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.title}
               </option>
@@ -2341,32 +2388,71 @@ export function CodingPracticeLab({
     };
   }, [courseId, lessonId]);
 
+  const normalizedCodingBank = useMemo(
+    () => normalizeCodingActivities(dbActivities),
+    [dbActivities]
+  );
+
+  const combinedBugFixItems = useMemo<BugFixWriteInItem[]>(() => {
+    const builtInMapped: BugFixWriteInItem[] = BUG_HUNTER_SCENARIOS.map((sc) => ({
+      id: sc.id,
+      title: sc.title,
+      language: sc.categoryTag.toLowerCase().includes("react")
+        ? "typescript"
+        : sc.categoryTag.toLowerCase().includes("sql")
+        ? "sql"
+        : "csharp",
+      categoryTag: sc.categoryTag,
+      context: sc.context,
+      buggyCode: sc.codeLines.join("\n"),
+      bugLineNumber: sc.bugLineNumber,
+      bugBriefDescription: sc.bugBriefDescription,
+      rootCauseAnalysis: sc.rootCauseAnalysis,
+      realWorldImpact: sc.realWorldImpact,
+      cleanFixedCode: sc.cleanFixedCode,
+      explanation: sc.rootCauseAnalysis,
+    }));
+    return [...normalizedCodingBank.bugFix, ...builtInMapped];
+  }, [normalizedCodingBank.bugFix]);
+
   const recordPracticeAttempt = useCallback(
     async (params: {
-      mode: string;
+      mode?: string;
+      activityType?: string;
+      activityId?: string | null;
       score: number;
       maxScore?: number;
       isPassed?: boolean;
       details?: any;
+      detailJson?: string;
       durationSeconds?: number;
       activityTitle?: string;
       activityKey?: string;
     }) => {
       try {
         const headers = getClientRequestHeaders();
-        const dbAct = dbActivities.find(a => a.type === params.mode || a.id === params.activityKey);
+        const effectiveType = params.mode || params.activityType || "practice";
+        const dbAct = dbActivities.find(
+          (a) =>
+            (params.activityId && a.id === params.activityId) ||
+            a.type === effectiveType ||
+            a.id === params.activityKey
+        );
         const passed = params.isPassed ?? (params.score >= (dbAct?.passingScore ?? 70));
         const payload = {
-          activityId: dbAct?.id || null,
+          activityId: params.activityId || dbAct?.id || null,
           courseId,
           lessonId: lessonId || null,
-          activityType: params.mode,
-          activityKey: params.activityKey || `${courseId}-${lessonId || "general"}-${params.mode}`,
-          activityTitle: params.activityTitle || `${lessonTitle || courseTitle} · ${params.mode}`,
+          activityType: effectiveType,
+          activityKey: params.activityKey || `${courseId}-${lessonId || "general"}-${effectiveType}`,
+          activityTitle: params.activityTitle || `${lessonTitle || courseTitle} · ${effectiveType}`,
           score: Math.max(0, Math.min(params.maxScore || 100, Math.round(params.score))),
           maxScore: params.maxScore || 100,
           isPassed: passed,
-          detailJson: JSON.stringify(params.details || {}),
+          detailJson:
+            typeof params.detailJson === "string"
+              ? params.detailJson
+              : JSON.stringify(params.details || {}),
           durationSeconds: params.durationSeconds || null,
         };
 
@@ -2383,6 +2469,9 @@ export function CodingPracticeLab({
           const saved = await res.json();
           setPracticeAttempts(prev => [saved, ...prev]);
           invalidateDashboardCache();
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new Event("swms:data-mutated"));
+          }
         }
       } catch {
         // ignore
@@ -2402,16 +2491,30 @@ export function CodingPracticeLab({
   // CHẾ ĐỘ 1: ĐIỀN CODE CÒN THIẾU
   // ----------------------------------------------------
   const allFillExercises = useMemo(() => {
-    return [...extractedExercises, ...DEFAULT_FILL_EXERCISES];
-  }, [extractedExercises]);
+    const dbMapped: FillCodeExercise[] = normalizedCodingBank.fillCode.map((item) => ({
+      id: item.id,
+      title: item.title,
+      category: item.category,
+      language: item.language,
+      description: item.description,
+      practicalScenario: item.practicalScenario,
+      codeTemplate: item.codeTemplate,
+      blanks: item.blanks,
+      lineExplanations: item.lineExplanations,
+    }));
+    return [...dbMapped, ...extractedExercises, ...DEFAULT_FILL_EXERCISES];
+  }, [normalizedCodingBank.fillCode, extractedExercises]);
 
   const filteredFillExercises = useMemo(() => {
+    if (normalizedCodingBank.fillCode.length > 0 && selectedTopic === "auto") {
+      return allFillExercises;
+    }
     if (selectedTopic === "auto") {
       const match = allFillExercises.filter((ex) => ex.category === detectedCategory);
       return match.length > 0 ? match : allFillExercises;
     }
     return allFillExercises.filter((ex) => ex.category === selectedTopic);
-  }, [selectedTopic, detectedCategory, allFillExercises]);
+  }, [normalizedCodingBank.fillCode.length, selectedTopic, detectedCategory, allFillExercises]);
 
   const [currentFillExerciseIndex, setCurrentFillExerciseIndex] = useState(0);
   const activeFillExercise = filteredFillExercises[currentFillExerciseIndex] || allFillExercises[0];
@@ -2419,6 +2522,7 @@ export function CodingPracticeLab({
   const [userBlankInputs, setUserBlankInputs] = useState<Record<string, string>>({});
   const [fillValidationResults, setFillValidationResults] = useState<Record<string, boolean> | null>(null);
   const [showLineExplanations, setShowLineExplanations] = useState(false);
+  const [showFillChips, setShowFillChips] = useState(true);
   const [activeHintBlankId, setActiveHintBlankId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -2432,17 +2536,57 @@ export function CodingPracticeLab({
     setUserBlankInputs((prev) => ({ ...prev, [blankId]: value }));
   };
 
-  const handleCheckFillResults = () => {
-    const results: Record<string, boolean> = {};
-    activeFillExercise.blanks.forEach((b) => {
-      const val = (userBlankInputs[b.id] || "").trim();
-      const isOk =
-        val.toLowerCase() === b.expected.toLowerCase() ||
-        b.acceptableAnswers.some((ans) => ans.toLowerCase() === val.toLowerCase());
-      results[b.id] = isOk;
+  const handleSaveFillCodeFlashcard = async (isAuto = false) => {
+    const front = `[Điền Code] ${activeFillExercise.title} — Các từ khóa/phương thức quan trọng cần điền?`;
+    const back = activeFillExercise.blanks
+      .map((b, idx) => `#${idx + 1}: \`${b.expected}\` — ${b.explanation}`)
+      .join("\n");
+    const res = await saveWriteInFlashcardDeduplicated({
+      front,
+      back,
+      lessonId,
+      sourceTitle: `${courseTitle} · ${lessonTitle}`,
+      tags: ["lap-trinh", "fill-code", "fsrs"],
+      onCreateFlashcardQuick,
     });
-    setFillValidationResults(results);
+    if (res.ok) {
+      triggerFeedback(
+        isAuto
+          ? res.deduplicated
+            ? "Bài điền code này đã nằm trong Flashcard FSRS."
+            : "Đã tự động lưu các chỗ trống sai vào Flashcard FSRS!"
+          : res.deduplicated
+          ? "Thẻ đã tồn tại trong Flashcard FSRS (không tạo trùng)."
+          : "Đã lưu bài điền code vào Flashcard FSRS!"
+      );
+    }
+  };
+
+  const handleCheckFillResults = async () => {
+    const evalRes = evaluateFillCodeBlanks(activeFillExercise.blanks, userBlankInputs);
+    setFillValidationResults(evalRes.results);
     setShowLineExplanations(true);
+
+    const dbMatch = normalizedCodingBank.fillCode.find((x) => x.id === activeFillExercise.id);
+    await recordPracticeAttempt({
+      mode: "fill_code",
+      activityId: dbMatch?.sourceActivityId || null,
+      score: evalRes.score,
+      maxScore: 100,
+      isPassed: evalRes.isAllCorrect || evalRes.score >= 70,
+      activityKey: `fill-code-${activeFillExercise.id}`,
+      activityTitle: `${activeFillExercise.title} · Điền Code`,
+      details: {
+        exerciseId: activeFillExercise.id,
+        correctCount: evalRes.correctCount,
+        totalBlanks: evalRes.totalBlanks,
+        inputs: userBlankInputs,
+      },
+    });
+
+    if (!evalRes.isAllCorrect && evalRes.score < 70) {
+      await handleSaveFillCodeFlashcard(true);
+    }
   };
 
   const isAllBlanksCorrect = useMemo(() => {
@@ -2471,6 +2615,20 @@ export function CodingPracticeLab({
   const handleConfirmBugLine = () => {
     if (selectedLineNumber !== null) {
       setIsLineConfirmed(true);
+      const isRight = selectedLineNumber === activeBugScenario.bugLineNumber;
+      void recordPracticeAttempt({
+        mode: "bug_hunt",
+        score: isRight ? 100 : 30,
+        maxScore: 100,
+        isPassed: isRight,
+        activityKey: `bug-hunt-${activeBugScenario.id}`,
+        activityTitle: `${activeBugScenario.title} · Săn Lỗi`,
+        details: {
+          scenarioId: activeBugScenario.id,
+          selectedLineNumber,
+          bugLineNumber: activeBugScenario.bugLineNumber,
+        },
+      });
     }
   };
 
@@ -2975,6 +3133,22 @@ export function CodingPracticeLab({
               <ListChecks className="w-4 h-4" />
               <span>6. Ghép Dòng Code (Parsons)</span>
             </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeMainMode === "predict-output"}
+              data-testid="mode-tab-predict-output"
+              onClick={() => setActiveMainMode("predict-output")}
+              className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-2 transition cursor-pointer shrink-0 ${
+                activeMainMode === "predict-output"
+                  ? "bg-white dark:bg-zinc-900 text-emerald-600 dark:text-emerald-400 shadow-sm"
+                  : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+              }`}
+            >
+              <PlayCircle className="w-4 h-4" />
+              <span>7. Đoán Output</span>
+            </button>
           </div>
 
           {/* Chọn chủ đề / Thích ứng bài học */}
@@ -3146,65 +3320,84 @@ export function CodingPracticeLab({
             </div>
           </div>
 
-          {/* Mảnh code gợi ý */}
+          {/* Mảnh code gợi ý (tùy chọn ẩn/hiện để tự gõ Write-in thuần túy) */}
           <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-                Mảnh code gợi ý (Bấm chọn nhanh cho điện thoại):
+                Mảnh code gợi ý (có thể ẩn để tự gõ hoàn toàn từ trí nhớ):
               </span>
-              <span className="text-[11px] text-zinc-600 dark:text-zinc-400">Chạm để điền vào chỗ trống</span>
+              <button
+                type="button"
+                data-testid="toggle-fill-chips-btn"
+                onClick={() => setShowFillChips((v) => !v)}
+                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+              >
+                {showFillChips ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                <span>{showFillChips ? "Ẩn gợi ý (chế độ tự gõ)" : "Hiện gợi ý"}</span>
+              </button>
             </div>
 
-            <div className="space-y-2">
-              {activeFillExercise.blanks.map((b) => (
-                <div key={b.id} className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-zinc-600 dark:text-zinc-400 min-w-[70px]">
-                    Vị trí #{b.blankIndex + 1}:
-                  </span>
-                  {b.chips.map((chip, chipIdx) => (
-                    <button
-                      key={`${b.id}-${chip}-${chipIdx}`}
-                      type="button"
-                      data-testid={`code-chip-${b.id}-${chip}`}
-                      onClick={() => handleFillInput(b.id, chip)}
-                      className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-mono font-semibold border transition cursor-pointer ${
-                        userBlankInputs[b.id] === chip
-                          ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300"
-                          : "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:border-zinc-400"
-                      }`}
-                    >
-                      {chip || '"" (rỗng)'}
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => setActiveHintBlankId(activeHintBlankId === b.id ? null : b.id)}
-                    className="text-[11px] text-indigo-600 dark:text-indigo-400 underline ml-1 cursor-pointer"
-                  >
-                    {activeHintBlankId === b.id ? "Đóng gợi ý" : "Xem gợi ý"}
-                  </button>
-                  {activeHintBlankId === b.id && (
-                    <span className="text-xs text-amber-700 dark:text-amber-300 italic bg-amber-100/50 dark:bg-amber-950/40 px-2 py-1 rounded">
-                      💡 {b.hint}
+            {showFillChips && (
+              <div className="space-y-2">
+                {activeFillExercise.blanks.map((b) => (
+                  <div key={b.id} className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-zinc-600 dark:text-zinc-400 min-w-[70px]">
+                      Vị trí #{b.blankIndex + 1}:
                     </span>
-                  )}
-                </div>
-              ))}
-            </div>
+                    {b.chips.map((chip, chipIdx) => (
+                      <button
+                        key={`${b.id}-${chip}-${chipIdx}`}
+                        type="button"
+                        data-testid={`code-chip-${b.id}-${chip}`}
+                        onClick={() => handleFillInput(b.id, chip)}
+                        className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-mono font-semibold border transition cursor-pointer ${
+                          userBlankInputs[b.id] === chip
+                            ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300"
+                            : "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:border-zinc-400"
+                        }`}
+                      >
+                        {chip || '"" (rỗng)'}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setActiveHintBlankId(activeHintBlankId === b.id ? null : b.id)}
+                      className="text-[11px] text-indigo-600 dark:text-indigo-400 underline ml-1 cursor-pointer"
+                    >
+                      {activeHintBlankId === b.id ? "Đóng gợi ý" : "Xem gợi ý"}
+                    </button>
+                    {activeHintBlankId === b.id && (
+                      <span className="text-xs text-amber-700 dark:text-amber-300 italic bg-amber-100/50 dark:bg-amber-950/40 px-2 py-1 rounded">
+                        💡 {b.hint}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 data-testid="check-fill-result-btn"
-                onClick={handleCheckFillResults}
+                onClick={() => void handleCheckFillResults()}
                 className="min-h-[44px] px-6 py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm inline-flex items-center justify-center gap-2 cursor-pointer transition"
               >
                 <Check className="w-4 h-4" />
                 <span>Kiểm Tra Kết Quả</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void handleSaveFillCodeFlashcard(false)}
+                className="min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold border border-indigo-300 dark:border-indigo-700 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 inline-flex items-center gap-1.5 cursor-pointer transition"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Lưu vào Flashcard FSRS</span>
               </button>
 
               <button
@@ -3532,6 +3725,20 @@ export function CodingPracticeLab({
               </div>
             </div>
           )}
+
+          {/* Nâng cấp Write-in: Trực tiếp sửa đoạn code lỗi + kiểm thử Web Worker / chuẩn hóa */}
+          <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
+            <BugFixWriteInPanel
+              items={combinedBugFixItems}
+              lessonId={lessonId}
+              courseTitle={courseTitle}
+              lessonTitle={lessonTitle}
+              initialActivityKey={initialActivityKey}
+              onSaveToNotebook={onSaveToNotebook}
+              onCreateFlashcardQuick={onCreateFlashcardQuick}
+              onRecordAttempt={recordPracticeAttempt}
+            />
+          </div>
         </div>
       )}
 
@@ -4132,6 +4339,10 @@ export function CodingPracticeLab({
         <JsWorkerSandboxLab
           lessonMarkdown={lessonMarkdown}
           lessonTitle={lessonTitle}
+          courseTitle={courseTitle}
+          lessonId={lessonId}
+          dbChallenges={normalizedCodingBank.jsSandbox}
+          initialActivityKey={initialActivityKey}
           onSaveToNotebook={onSaveToNotebook}
           onCreateFlashcardQuick={onCreateFlashcardQuick}
           onRecordAttempt={recordPracticeAttempt}
@@ -4140,6 +4351,24 @@ export function CodingPracticeLab({
 
       {activeMainMode === "parsons" && (
         <ParsonsProblemLab
+          dbProblems={normalizedCodingBank.parsons}
+          lessonId={lessonId}
+          courseTitle={courseTitle}
+          lessonTitle={lessonTitle}
+          initialActivityKey={initialActivityKey}
+          onSaveToNotebook={onSaveToNotebook}
+          onCreateFlashcardQuick={onCreateFlashcardQuick}
+          onRecordAttempt={recordPracticeAttempt}
+        />
+      )}
+
+      {activeMainMode === "predict-output" && (
+        <PredictOutputLab
+          dbItems={normalizedCodingBank.predictOutput}
+          lessonId={lessonId}
+          courseTitle={courseTitle}
+          lessonTitle={lessonTitle}
+          initialActivityKey={initialActivityKey}
           onSaveToNotebook={onSaveToNotebook}
           onCreateFlashcardQuick={onCreateFlashcardQuick}
           onRecordAttempt={recordPracticeAttempt}

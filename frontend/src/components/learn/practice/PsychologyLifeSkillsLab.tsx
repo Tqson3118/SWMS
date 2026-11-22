@@ -3,7 +3,14 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { invalidateDashboardCache } from "@/lib/api-client";
-import { resolvePracticeSelection } from "@/lib/practice-helpers";
+import { resolvePracticeSelection, type PsychTabMode } from "@/lib/practice-helpers";
+import { normalizePsychologyActivities } from "@/lib/writein-practice";
+import {
+  ApplyJournalWriteInLab,
+  BiasSpotterWriteInLab,
+  CbtExerciseWriteInLab,
+  FeynmanWriteInLab,
+} from "./PsychologyWriteInViews";
 import { Timer, Activity, ListChecks, CheckSquare, Target, Play, RotateCcw } from "lucide-react";
 
 import {
@@ -1742,7 +1749,7 @@ export function PsychologyLifeSkillsLab({
   }, [initialActivityType, initialActivityKey, courseTitle, lessonTitle, lessonMarkdown]);
 
   // Navigation tabs
-  const [activeTab, setActiveTab] = useState<"roleplay" | "biases" | "cbt" | "lesson-cases" | "cognitive-labs">(
+  const [activeTab, setActiveTab] = useState<PsychTabMode>(
     resolvedPsychTarget?.psychTab ?? "roleplay"
   );
   useEffect(() => {
@@ -1754,6 +1761,11 @@ export function PsychologyLifeSkillsLab({
   const [dbActivities, setDbActivities] = useState<any[]>([]);
   const [practiceAttempts, setPracticeAttempts] = useState<any[]>([]);
   const [isLoadingBackend, setIsLoadingBackend] = useState(false);
+
+  const normalizedPsychBank = useMemo(
+    () => normalizePsychologyActivities(dbActivities),
+    [dbActivities]
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -1795,30 +1807,42 @@ export function PsychologyLifeSkillsLab({
 
   const recordPracticeAttempt = useCallback(
     async (params: {
-      mode: string;
+      mode?: string;
+      activityType?: string;
+      activityId?: string | null;
       score: number;
       maxScore?: number;
       isPassed?: boolean;
       details?: any;
+      detailJson?: string;
       durationSeconds?: number;
       activityTitle?: string;
       activityKey?: string;
     }) => {
       try {
         const headers = getClientRequestHeaders();
-        const dbAct = dbActivities.find(a => a.type === params.mode || a.id === params.activityKey);
+        const effectiveType = params.mode || params.activityType || "practice";
+        const dbAct = dbActivities.find(
+          (a) =>
+            (params.activityId && a.id === params.activityId) ||
+            a.type === effectiveType ||
+            a.id === params.activityKey
+        );
         const passed = params.isPassed ?? (params.score >= (dbAct?.passingScore ?? 70));
         const payload = {
-          activityId: dbAct?.id || null,
+          activityId: params.activityId || dbAct?.id || null,
           courseId,
           lessonId: lessonId || null,
-          activityType: params.mode,
-          activityKey: params.activityKey || `${courseId}-${lessonId || "general"}-${params.mode}`,
-          activityTitle: params.activityTitle || `${lessonTitle || courseTitle} · ${params.mode}`,
+          activityType: effectiveType,
+          activityKey: params.activityKey || `${courseId}-${lessonId || "general"}-${effectiveType}`,
+          activityTitle: params.activityTitle || `${lessonTitle || courseTitle} · ${effectiveType}`,
           score: Math.max(0, Math.min(params.maxScore || 100, Math.round(params.score))),
           maxScore: params.maxScore || 100,
           isPassed: passed,
-          detailJson: JSON.stringify(params.details || {}),
+          detailJson:
+            typeof params.detailJson === "string"
+              ? params.detailJson
+              : JSON.stringify(params.details || {}),
           durationSeconds: params.durationSeconds || null,
         };
 
@@ -1835,6 +1859,9 @@ export function PsychologyLifeSkillsLab({
           const saved = await res.json();
           setPracticeAttempts(prev => [saved, ...prev]);
           invalidateDashboardCache();
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new Event("swms:data-mutated"));
+          }
         }
       } catch {
         // ignore
@@ -2313,6 +2340,62 @@ ${chatHistory
           >
             <Brain className="w-4 h-4" />
             <span>5. Phòng Thí Nghiệm Nhận Thức (Cognitive Labs)</span>
+          </button>
+
+          <button
+            type="button"
+            data-testid="tab-bias-spotter"
+            onClick={() => setActiveTab("bias-spotter")}
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+              activeTab === "bias-spotter"
+                ? "bg-amber-600 text-white shadow-md shadow-amber-500/20"
+                : "bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700"
+            }`}
+          >
+            <Zap className="w-4 h-4" />
+            <span>6. Nhận diện Thiên kiến (Tự gõ)</span>
+          </button>
+
+          <button
+            type="button"
+            data-testid="tab-feynman"
+            onClick={() => setActiveTab("feynman")}
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+              activeTab === "feynman"
+                ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
+                : "bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700"
+            }`}
+          >
+            <Award className="w-4 h-4" />
+            <span>7. Feynman Tự định nghĩa</span>
+          </button>
+
+          <button
+            type="button"
+            data-testid="tab-cbt-exercise"
+            onClick={() => setActiveTab("cbt-exercise")}
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+              activeTab === "cbt-exercise"
+                ? "bg-purple-600 text-white shadow-md shadow-purple-500/20"
+                : "bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700"
+            }`}
+          >
+            <Heart className="w-4 h-4" />
+            <span>8. Bài tập CBT Tình huống</span>
+          </button>
+
+          <button
+            type="button"
+            data-testid="tab-apply-journal"
+            onClick={() => setActiveTab("apply-journal")}
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+              activeTab === "apply-journal"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/20"
+                : "bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700"
+            }`}
+          >
+            <Compass className="w-4 h-4" />
+            <span>9. Nhật ký áp dụng</span>
           </button>
         </div>
       </div>
@@ -3052,6 +3135,60 @@ ${chatHistory
           onCreateFlashcardQuick={onCreateFlashcardQuick}
           onRecordAttempt={recordPracticeAttempt}
           initialSubLab={resolvedPsychTarget?.psychCogSubTab ?? null}
+        />
+      )}
+
+      {/* =====================================================================
+          TAB 6..9: ACTIVE RECALL WRITE-IN MODES (BIAS SPOTTER, FEYNMAN, CBT EXERCISE, APPLY JOURNAL)
+          ===================================================================== */}
+      {activeTab === "bias-spotter" && (
+        <BiasSpotterWriteInLab
+          dbItems={normalizedPsychBank.biasSpotters}
+          lessonId={lessonId}
+          courseTitle={courseTitle}
+          lessonTitle={lessonTitle}
+          initialActivityKey={initialActivityKey}
+          onSaveToNotebook={onSaveToNotebook}
+          onCreateFlashcardQuick={onCreateFlashcardQuick}
+          onRecordAttempt={recordPracticeAttempt}
+        />
+      )}
+
+      {activeTab === "feynman" && (
+        <FeynmanWriteInLab
+          dbItems={normalizedPsychBank.feynmanPrompts}
+          lessonId={lessonId}
+          courseTitle={courseTitle}
+          lessonTitle={lessonTitle}
+          initialActivityKey={initialActivityKey}
+          onSaveToNotebook={onSaveToNotebook}
+          onCreateFlashcardQuick={onCreateFlashcardQuick}
+          onRecordAttempt={recordPracticeAttempt}
+        />
+      )}
+
+      {activeTab === "cbt-exercise" && (
+        <CbtExerciseWriteInLab
+          dbItems={normalizedPsychBank.cbtExercises}
+          lessonId={lessonId}
+          courseTitle={courseTitle}
+          lessonTitle={lessonTitle}
+          initialActivityKey={initialActivityKey}
+          onSaveToNotebook={onSaveToNotebook}
+          onCreateFlashcardQuick={onCreateFlashcardQuick}
+          onRecordAttempt={recordPracticeAttempt}
+        />
+      )}
+
+      {activeTab === "apply-journal" && (
+        <ApplyJournalWriteInLab
+          dbPrompts={normalizedPsychBank.applyJournals}
+          lessonId={lessonId}
+          courseTitle={courseTitle}
+          lessonTitle={lessonTitle}
+          onSaveToNotebook={onSaveToNotebook}
+          onCreateFlashcardQuick={onCreateFlashcardQuick}
+          onRecordAttempt={recordPracticeAttempt}
         />
       )}
 

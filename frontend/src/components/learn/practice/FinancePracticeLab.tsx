@@ -40,6 +40,12 @@ import {
 import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { invalidateDashboardCache } from "@/lib/api-client";
 import { resolvePracticeSelection } from "@/lib/practice-helpers";
+import { normalizeFinanceActivities, type FinanceCaseWriteInItem } from "@/lib/writein-practice";
+import {
+  DecisionJournalLab,
+  FinanceCaseWriteInSection,
+  HandCalculationLab,
+} from "./FinanceWriteInViews";
 
 export interface PracticeModuleProps {
   courseId: string;
@@ -55,7 +61,16 @@ export interface PracticeModuleProps {
 
 export type FinancePracticeLabProps = PracticeModuleProps;
 
-type ActiveTab = "budget" | "compound" | "debt" | "trading" | "cases" | "portfolio" | "behavioral";
+type ActiveTab =
+  | "budget"
+  | "compound"
+  | "debt"
+  | "trading"
+  | "cases"
+  | "portfolio"
+  | "behavioral"
+  | "hand-calc"
+  | "decision-journal";
 
 // Định dạng tiền tệ VNĐ chuẩn
 function formatVND(value: number): string {
@@ -2614,15 +2629,25 @@ function CandlestickRiskLab({
 interface ExtractedFinanceCaseStudyLabProps {
   lessonMarkdown: string;
   lessonTitle: string;
+  courseTitle: string;
+  lessonId?: string | null;
+  dbCases?: FinanceCaseWriteInItem[];
+  initialActivityKey?: string | null;
   onSaveToNotebook: (text: string) => Promise<void>;
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
+  onRecordAttempt?: (params: any) => Promise<void>;
 }
 
 function ExtractedFinanceCaseStudyLab({
   lessonMarkdown,
   lessonTitle,
+  courseTitle,
+  lessonId,
+  dbCases = [],
+  initialActivityKey,
   onSaveToNotebook,
   onCreateFlashcardQuick,
+  onRecordAttempt,
 }: ExtractedFinanceCaseStudyLabProps) {
   const extractedCase = useMemo(() => {
     const lines = (lessonMarkdown || "").split(/\r?\n/);
@@ -2715,6 +2740,18 @@ function ExtractedFinanceCaseStudyLab({
           )}
         </div>
       </div>
+
+      {/* Tình huống thực tế & Tự viết lập luận chấm điểm (AI / offline) */}
+      <FinanceCaseWriteInSection
+        dbCases={dbCases}
+        lessonId={lessonId}
+        courseTitle={courseTitle}
+        lessonTitle={lessonTitle}
+        initialActivityKey={initialActivityKey}
+        onSaveToNotebook={onSaveToNotebook}
+        onCreateFlashcardQuick={onCreateFlashcardQuick}
+        onRecordAttempt={onRecordAttempt}
+      />
 
       {/* Case Overview & Tables from Lesson */}
       {extractedCase.tables.length > 0 && (
@@ -3596,32 +3633,49 @@ export function FinancePracticeLab({
     };
   }, [courseId, lessonId]);
 
+  const normalizedFinanceBank = useMemo(
+    () => normalizeFinanceActivities(dbActivities),
+    [dbActivities]
+  );
+
   const recordPracticeAttempt = useCallback(
     async (params: {
-      mode: string;
+      mode?: string;
+      activityType?: string;
+      activityId?: string | null;
       score: number;
       maxScore?: number;
       isPassed?: boolean;
       details?: any;
+      detailJson?: string;
       durationSeconds?: number;
       activityTitle?: string;
       activityKey?: string;
     }) => {
       try {
         const headers = getClientRequestHeaders();
-        const dbAct = dbActivities.find(a => a.type === params.mode || a.id === params.activityKey);
+        const effectiveType = params.mode || params.activityType || "practice";
+        const dbAct = dbActivities.find(
+          (a) =>
+            (params.activityId && a.id === params.activityId) ||
+            a.type === effectiveType ||
+            a.id === params.activityKey
+        );
         const passed = params.isPassed ?? (params.score >= (dbAct?.passingScore ?? 70));
         const payload = {
-          activityId: dbAct?.id || null,
+          activityId: params.activityId || dbAct?.id || null,
           courseId,
           lessonId: lessonId || null,
-          activityType: params.mode,
-          activityKey: params.activityKey || `${courseId}-${lessonId || "general"}-${params.mode}`,
-          activityTitle: params.activityTitle || `${lessonTitle || courseTitle} · ${params.mode}`,
+          activityType: effectiveType,
+          activityKey: params.activityKey || `${courseId}-${lessonId || "general"}-${effectiveType}`,
+          activityTitle: params.activityTitle || `${lessonTitle || courseTitle} · ${effectiveType}`,
           score: Math.max(0, Math.min(params.maxScore || 100, Math.round(params.score))),
           maxScore: params.maxScore || 100,
           isPassed: passed,
-          detailJson: JSON.stringify(params.details || {}),
+          detailJson:
+            typeof params.detailJson === "string"
+              ? params.detailJson
+              : JSON.stringify(params.details || {}),
           durationSeconds: params.durationSeconds || null,
         };
 
@@ -3638,6 +3692,9 @@ export function FinancePracticeLab({
           const saved = await res.json();
           setPracticeAttempts(prev => [saved, ...prev]);
           invalidateDashboardCache();
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new Event("swms:data-mutated"));
+          }
         }
       } catch {
         // ignore
@@ -3763,6 +3820,32 @@ export function FinancePracticeLab({
             <Sparkles className="w-4 h-4" />
             7. Quiz Thiên Kiến Đầu Tư
           </button>
+          <button
+            type="button"
+            data-testid="tab-hand-calc"
+            onClick={() => setActiveTab("hand-calc")}
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${
+              activeTab === "hand-calc"
+                ? "bg-white dark:bg-zinc-800 text-emerald-600 dark:text-emerald-300 shadow-sm"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+            }`}
+          >
+            <Calculator className="w-4 h-4" />
+            8. Tự Tính Tay
+          </button>
+          <button
+            type="button"
+            data-testid="tab-decision-journal"
+            onClick={() => setActiveTab("decision-journal")}
+            className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${
+              activeTab === "decision-journal"
+                ? "bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-300 shadow-sm"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            9. Nhật Ký Quyết Định
+          </button>
         </div>
       </div>
 
@@ -3787,8 +3870,13 @@ export function FinancePracticeLab({
           <ExtractedFinanceCaseStudyLab
             lessonMarkdown={lessonMarkdown}
             lessonTitle={lessonTitle}
+            courseTitle={courseTitle}
+            lessonId={lessonId}
+            dbCases={normalizedFinanceBank.cases}
+            initialActivityKey={initialActivityKey}
             onSaveToNotebook={onSaveToNotebook}
             onCreateFlashcardQuick={onCreateFlashcardQuick}
+            onRecordAttempt={recordPracticeAttempt}
           />
         )}
         {activeTab === "portfolio" && (
@@ -3799,6 +3887,28 @@ export function FinancePracticeLab({
         )}
         {activeTab === "behavioral" && (
           <BehavioralFinanceQuizLab
+            onSaveToNotebook={onSaveToNotebook}
+            onCreateFlashcardQuick={onCreateFlashcardQuick}
+            onRecordAttempt={recordPracticeAttempt}
+          />
+        )}
+        {activeTab === "hand-calc" && (
+          <HandCalculationLab
+            recommendedTypes={normalizedFinanceBank.recommendedCalcTypes}
+            lessonId={lessonId}
+            courseTitle={courseTitle}
+            lessonTitle={lessonTitle}
+            onSaveToNotebook={onSaveToNotebook}
+            onCreateFlashcardQuick={onCreateFlashcardQuick}
+            onRecordAttempt={recordPracticeAttempt}
+          />
+        )}
+        {activeTab === "decision-journal" && (
+          <DecisionJournalLab
+            dbPrompts={normalizedFinanceBank.decisionJournals}
+            lessonId={lessonId}
+            courseTitle={courseTitle}
+            lessonTitle={lessonTitle}
             onSaveToNotebook={onSaveToNotebook}
             onCreateFlashcardQuick={onCreateFlashcardQuick}
             onRecordAttempt={recordPracticeAttempt}

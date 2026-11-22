@@ -78,6 +78,53 @@ runTest("buildPracticeLessonHref encodes query params cleanly and falls back saf
 runTest("getPracticeActivityTypeLabel returns natural Vietnamese labels", () => {
   assert.equal(getPracticeActivityTypeLabel("js_sandbox"), "Web Worker Sandbox");
   assert.equal(getPracticeActivityTypeLabel("stroop_test"), "Thí nghiệm Stroop");
+  assert.equal(getPracticeActivityTypeLabel("predict_output"), "Đoán Output JS");
+  assert.equal(getPracticeActivityTypeLabel("bug_fix"), "Sửa Bug Write-in");
+  assert.equal(getPracticeActivityTypeLabel("hand_calc"), "Tự tính tay tài chính");
+  assert.equal(getPracticeActivityTypeLabel("decision_journal"), "Nhật ký quyết định");
+  assert.equal(getPracticeActivityTypeLabel("bias_spotter"), "Nhận diện Thiên kiến");
+  assert.equal(getPracticeActivityTypeLabel("feynman"), "Feynman Tự định nghĩa");
+  assert.equal(getPracticeActivityTypeLabel("cbt_exercise"), "Bài tập CBT tình huống");
+  assert.equal(getPracticeActivityTypeLabel("apply_journal"), "Nhật ký áp dụng");
+});
+
+runTest("resolvePracticeSelection maps all new s3a Write-in activity types accurately", () => {
+  assert.deepEqual(resolvePracticeSelection("predict_output", "pred-1", "Lập trình JS"), {
+    labMode: "code",
+    codingTab: "predict-output",
+  });
+  assert.deepEqual(resolvePracticeSelection("bug_fix", "bug-1", "Lập trình JS"), {
+    labMode: "code",
+    codingTab: "bug-hunter",
+  });
+  assert.deepEqual(resolvePracticeSelection("hand_calc", "calc-1", "Đầu tư"), {
+    labMode: "finance",
+    financeTab: "hand-calc",
+  });
+  assert.deepEqual(resolvePracticeSelection("decision_journal", "dj-1", "Đầu tư"), {
+    labMode: "finance",
+    financeTab: "decision-journal",
+  });
+  assert.deepEqual(resolvePracticeSelection("bias_spotter", "bs-1", "Tâm lý học"), {
+    labMode: "recall",
+    recallSubMode: "psychology",
+    psychTab: "bias-spotter",
+  });
+  assert.deepEqual(resolvePracticeSelection("feynman", "feyn-1", "Tâm lý học Ứng dụng"), {
+    labMode: "recall",
+    recallSubMode: "psychology",
+    psychTab: "feynman",
+  });
+  assert.deepEqual(resolvePracticeSelection("cbt_exercise", "cbt-1", "Tâm lý học"), {
+    labMode: "recall",
+    recallSubMode: "psychology",
+    psychTab: "cbt-exercise",
+  });
+  assert.deepEqual(resolvePracticeSelection("apply_journal", "app-1", "Tâm lý học"), {
+    labMode: "recall",
+    recallSubMode: "psychology",
+    psychTab: "apply-journal",
+  });
 });
 
 runTest("extractQuickCheckQuestions extracts up to 2 grounded multiple-choice questions", () => {

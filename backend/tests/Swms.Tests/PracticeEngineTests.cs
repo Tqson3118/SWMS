@@ -780,4 +780,172 @@ public class PracticeEngineTests
         Assert.True(l11.GetProperty("activityCount").GetInt32() >= 8);
         Assert.Equal(1, l11.GetProperty("passedCount").GetInt32());
     }
+
+    [Fact]
+    public async Task Test14_WriteInPracticeSeed_IsIdempotent_And_SeedsAllThreeExpansionCourses()
+    {
+        await using var factory = CreateIsolatedFactory();
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
+
+        // 1. Verify starter write-in activities exist alongside legacy activities for all 3 courses
+        var codingTypes = await db.PracticeActivities
+            .Where(pa => pa.CourseId == SeedDataInitializer.CodingCourseId && pa.LessonId == SeedDataInitializer.CodingLesson11Id)
+            .Select(pa => pa.Type)
+            .ToListAsync();
+        Assert.Contains("js_sandbox", codingTypes);
+        Assert.Contains("parsons", codingTypes);
+        Assert.Contains("predict_output", codingTypes);
+        Assert.Contains("bug_fix", codingTypes);
+        Assert.Contains("fill_code", codingTypes);
+
+        var investingTypes = await db.PracticeActivities
+            .Where(pa => pa.CourseId == SeedDataInitializer.InvestingCourseId && pa.LessonId == SeedDataInitializer.InvestingLesson11Id)
+            .Select(pa => pa.Type)
+            .ToListAsync();
+        Assert.Contains("compound_calculator", investingTypes);
+        Assert.Contains("behavioral_quiz", investingTypes);
+        Assert.Contains("hand_calc", investingTypes);
+        Assert.Contains("investment_case", investingTypes);
+        Assert.Contains("decision_journal", investingTypes);
+
+        var psychTypes = await db.PracticeActivities
+            .Where(pa => pa.CourseId == SeedDataInitializer.PsychologyCourseId && pa.LessonId == SeedDataInitializer.PsychologyLesson11Id)
+            .Select(pa => pa.Type)
+            .ToListAsync();
+        Assert.Contains("stroop_test", psychTypes);
+        Assert.Contains("psych_scenario", psychTypes);
+        Assert.Contains("bias_spotter", psychTypes);
+        Assert.Contains("feynman", psychTypes);
+        Assert.Contains("cbt_exercise", psychTypes);
+        Assert.Contains("apply_journal", psychTypes);
+
+        var targetCourseIds = new[]
+        {
+            SeedDataInitializer.CodingCourseId,
+            SeedDataInitializer.InvestingCourseId,
+            SeedDataInitializer.PsychologyCourseId
+        };
+        var countBefore = await db.PracticeActivities.CountAsync(pa => targetCourseIds.Contains(pa.CourseId));
+
+        // 2. Re-running seeder multiple times must NOT create duplicates
+        await SeedDataInitializer.EnsurePracticeExpansionCoursesSeededAsync(db);
+        await SeedDataInitializer.EnsurePracticeExpansionCoursesSeededAsync(db);
+
+        var countAfter = await db.PracticeActivities.CountAsync(pa => targetCourseIds.Contains(pa.CourseId));
+        Assert.Equal(countBefore, countAfter);
+    }
+
+    [Fact]
+    public async Task Test15_FailedWriteInAttempts_AppearInNeedsReview_And_VietnameseOfflineEvaluationMatchesKeywords()
+    {
+        await using var conn = new SqliteConnection("Data Source=:memory:");
+        await conn.OpenAsync();
+
+        await using var factory = new WebApplicationFactory<Program>()
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("AiProxy:BaseUrl", "http://127.0.0.1:59996");
+                builder.UseSetting("AiProxy:TimeoutSeconds", "2");
+                builder.ConfigureServices(services =>
+                {
+                    var descriptors = services
+                        .Where(d => d.ServiceType == typeof(DbContextOptions<SwmsDbContext>) ||
+                                    (d.ServiceType.IsGenericType &&
+                                     d.ServiceType.Name.StartsWith("IDbContextOptionsConfiguration", StringComparison.Ordinal)))
+                        .ToList();
+                    foreach (var d in descriptors) services.Remove(d);
+                    services.AddDbContext<SwmsDbContext>(options => options.UseSqlite(conn));
+                });
+            });
+
+        using var rootClient = factory.CreateClient();
+        var regResp = await rootClient.PostAsJsonAsync("/api/v1/auth/register",
+            new RegisterRequest($"writein.user.{Guid.NewGuid():N}@studxy.vn", "Studxy@2026", "WriteIn Tester"));
+        Assert.Equal(HttpStatusCode.OK, regResp.StatusCode);
+        var regJson = await regResp.Content.ReadFromJsonAsync<JsonElement>();
+        var token = regJson.GetProperty("accessToken").GetString()!;
+
+        using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // 1. Submit failed write-in attempts across all 3 subjects (Coding predict_output, Finance hand_calc, Psych bias_spotter)
+        var failedAttempts = new[]
+        {
+            new RecordPracticeAttemptRequest(
+                ActivityId: null,
+                CourseId: SeedDataInitializer.CodingCourseId,
+                LessonId: SeedDataInitializer.CodingLesson11Id,
+                ActivityType: "predict_output",
+                ActivityKey: "predict-output-code-l11-pred-1",
+                ActivityTitle: "Đoán Output JS · Map/Filter/Reduce",
+                Score: 40,
+                MaxScore: 100,
+                IsPassed: false
+            ),
+            new RecordPracticeAttemptRequest(
+                ActivityId: null,
+                CourseId: SeedDataInitializer.InvestingCourseId,
+                LessonId: SeedDataInitializer.InvestingLesson11Id,
+                ActivityType: "hand_calc",
+                ActivityKey: "finance-hand-calc-drawdown",
+                ActivityTitle: "Tự tính Max Drawdown",
+                Score: 35,
+                MaxScore: 100,
+                IsPassed: false
+            ),
+            new RecordPracticeAttemptRequest(
+                ActivityId: null,
+                CourseId: SeedDataInitializer.PsychologyCourseId,
+                LessonId: SeedDataInitializer.PsychologyLesson11Id,
+                ActivityType: "bias_spotter",
+                ActivityKey: "bias-spotter-psy-l11-bias-1",
+                ActivityTitle: "Nhận diện Thiên kiến · Mỏ neo",
+                Score: 45,
+                MaxScore: 100,
+                IsPassed: false
+            )
+        };
+
+        foreach (var req in failedAttempts)
+        {
+            var r = await client.PostAsJsonAsync("/api/v1/practice/attempts", req);
+            Assert.Equal(HttpStatusCode.OK, r.StatusCode);
+        }
+
+        // 2. Verify all 3 failed write-in items appear in Hub /api/v1/practice/stats needsReview
+        var statsRes = await client.GetAsync("/api/v1/practice/stats");
+        Assert.Equal(HttpStatusCode.OK, statsRes.StatusCode);
+        var stats = await statsRes.Content.ReadFromJsonAsync<JsonElement>();
+        var needsReview = stats.GetProperty("needsReview").EnumerateArray().ToList();
+
+        Assert.Contains(needsReview, nr => nr.GetProperty("activityKey").GetString() == "predict-output-code-l11-pred-1"
+                                           && nr.GetProperty("activityType").GetString() == "predict_output");
+        Assert.Contains(needsReview, nr => nr.GetProperty("activityKey").GetString() == "finance-hand-calc-drawdown"
+                                           && nr.GetProperty("activityType").GetString() == "hand_calc");
+        Assert.Contains(needsReview, nr => nr.GetProperty("activityKey").GetString() == "bias-spotter-psy-l11-bias-1"
+                                           && nr.GetProperty("activityType").GetString() == "bias_spotter");
+
+        // 3. Verify Vietnamese keyword matching in POST /api/v1/ai/evaluate-practice offline fallback
+        var viEvalReq = new AiEvaluatePracticeRequest(
+            Mode: "finance_case",
+            Lang: "vi-VN",
+            Prompt: "Giải thích kỷ luật DCA khi thị trường giảm 25%",
+            UserResponse: "Giữ kỷ luật DCA dài hạn giúp hạ giá vốn trung bình và tối ưu lãi kép khi thị trường hồi phục.",
+            ExpectedKeywords: new List<string> { "dca", "giá vốn", "kỷ luật", "lãi kép" },
+            SampleAnswer: "Kỷ luật DCA dài hạn giúp hạ giá vốn trung bình và tận dụng lãi kép.",
+            ContextTitle: "Đầu tư bài 1.1"
+        );
+        var viEvalRes = await client.PostAsJsonAsync("/api/v1/ai/evaluate-practice", viEvalReq);
+        Assert.Equal(HttpStatusCode.OK, viEvalRes.StatusCode);
+        var viEvalJson = await viEvalRes.Content.ReadFromJsonAsync<JsonElement>();
+
+        Assert.False(viEvalJson.GetProperty("usedLiveEndpoint").GetBoolean());
+        Assert.Equal("Chấm theo từ khóa (offline)", viEvalJson.GetProperty("gradingLabelVi").GetString());
+        Assert.True(viEvalJson.GetProperty("score").GetInt32() >= 80,
+            $"Expected Vietnamese keyword match score >= 80, got {viEvalJson.GetProperty("score").GetInt32()}");
+        var matchedKws = viEvalJson.GetProperty("matchedKeywords").EnumerateArray().Select(e => e.GetString()).ToList();
+        Assert.Contains("giá vốn", matchedKws);
+        Assert.Contains("lãi kép", matchedKws);
+    }
 }

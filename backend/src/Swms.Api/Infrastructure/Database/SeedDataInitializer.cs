@@ -4002,5 +4002,7 @@ const totalIncome = transactions
             db.PracticeActivities.AddRange(activitiesToAdd);
             await db.SaveChangesAsync();
         }
+
+        await WriteInPracticeContent.EnsureWriteInActivitiesSeededAsync(db, now);
     }
 }
