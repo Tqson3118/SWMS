@@ -1225,6 +1225,7 @@ export function ApplyJournalWriteInLab({
   lessonId,
   courseTitle,
   lessonTitle,
+  initialActivityKey,
   onSaveToNotebook,
   onCreateFlashcardQuick,
   onRecordAttempt,
@@ -1233,18 +1234,43 @@ export function ApplyJournalWriteInLab({
   lessonId?: string | null;
   courseTitle: string;
   lessonTitle: string;
+  initialActivityKey?: string | null;
   onSaveToNotebook: (text: string) => Promise<void>;
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
   onRecordAttempt?: (params: any) => Promise<void>;
 }) {
-  const promptItem: ApplyJournalPromptItem = dbPrompts[0] || {
-    id: "apply-nvc-default",
-    title: "Nhật Ký Áp Dụng Thực Tế & Soạn Lời Thoại NVC",
-    promptVi: `Chọn một tình huống thật bạn sắp gặp trong tuần này để áp dụng bài "${lessonTitle}". Viết rõ kế hoạch hành động hoặc câu giao tiếp theo 4 bước NVC (Quan sát - Cảm xúc - Nhu cầu - Đề nghị).`,
-    expectedKeywords: ["quan sát", "cảm xúc", "nhu cầu", "đề nghị", "hành động"],
-    samplePlanVi:
-      "Tình huống: Đồng nghiệp gửi file trễ hạn. Câu NVC: 'Khi mình nhận báo cáo lúc 22h tối (quan sát), mình thấy khá lo lắng (cảm xúc) vì cần thời gian rà kỹ trước buổi họp sáng (nhu cầu). Tuần tới bạn có thể gửi bản nháp trước 17h được không (đề nghị)?'",
-  };
+  const allPrompts = useMemo(() => {
+    return dbPrompts.length > 0
+      ? dbPrompts
+      : [
+          {
+            id: "apply-nvc-default",
+            title: "Nhật Ký Áp Dụng Thực Tế & Soạn Lời Thoại NVC",
+            promptVi: `Chọn một tình huống thật bạn sắp gặp trong tuần này để áp dụng bài "${lessonTitle}". Viết rõ kế hoạch hành động hoặc câu giao tiếp theo 4 bước NVC (Quan sát - Cảm xúc - Nhu cầu - Đề nghị).`,
+            expectedKeywords: ["quan sát", "cảm xúc", "nhu cầu", "đề nghị", "hành động"],
+            samplePlanVi:
+              "Tình huống: Đồng nghiệp gửi file trễ hạn. Câu NVC: 'Khi mình nhận báo cáo lúc 22h tối (quan sát), mình thấy khá lo lắng (cảm xúc) vì cần thời gian rà kỹ trước buổi họp sáng (nhu cầu). Tuần tới bạn có thể gửi bản nháp trước 17h được không (đề nghị)?'",
+          },
+        ];
+  }, [dbPrompts, lessonTitle]);
+
+  const initialIdx = useMemo(() => {
+    if (!initialActivityKey) return 0;
+    const idx = allPrompts.findIndex(
+      (p) =>
+        p.id === initialActivityKey ||
+        `apply-journal-${p.id}` === initialActivityKey ||
+        p.sourceActivityId === initialActivityKey
+    );
+    return idx >= 0 ? idx : 0;
+  }, [allPrompts, initialActivityKey]);
+
+  const [selectedIdx, setSelectedIdx] = useState(initialIdx);
+  useEffect(() => {
+    setSelectedIdx(initialIdx);
+  }, [initialIdx]);
+
+  const promptItem = allPrompts[selectedIdx] || allPrompts[0];
 
   const [realSituation, setRealSituation] = useState("");
   const [nvcScript, setNvcScript] = useState("");
@@ -1252,6 +1278,13 @@ export function ApplyJournalWriteInLab({
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [result, setResult] = useState<AiPracticeEvaluationResult | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRealSituation("");
+    setNvcScript("");
+    setConcreteAction("");
+    setResult(null);
+  }, [promptItem.id]);
 
   const handleSaveCard = async (isAuto = false) => {
     const front = `[Áp dụng Tâm lý / NVC] 4 bước giao tiếp phi bạo lực (NVC) là gì?`;
@@ -1372,17 +1405,34 @@ export function ApplyJournalWriteInLab({
   return (
     <div data-testid="psych-apply-journal-container" className="space-y-5 animate-in fade-in duration-200">
       <div className="rounded-2xl border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800 bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 p-5 space-y-4 shadow-sm">
-        <div className="pb-3 border-b border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800">
-          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 inline-flex items-center gap-1.5">
-            <Compass className="w-3.5 h-3.5" />
-            Nhật Ký Áp Dụng Đời Thực &amp; Luyện Câu NVC
-          </span>
-          <h3 className="text-base font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100 mt-0.5">
-            {promptItem.title}
-          </h3>
-          <p className="text-xs text-[var(--text-secondary,#52525b)] dark:text-zinc-400 mt-1">
-            {promptItem.promptVi}
-          </p>
+        <div className="pb-3 border-b border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 inline-flex items-center gap-1.5">
+              <Compass className="w-3.5 h-3.5" />
+              Nhật Ký Áp Dụng Đời Thực &amp; Luyện Câu NVC
+            </span>
+            <h3 className="text-base font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100 mt-0.5">
+              {promptItem.title}
+            </h3>
+            <p className="text-xs text-[var(--text-secondary,#52525b)] dark:text-zinc-400 mt-1">
+              {promptItem.promptVi}
+            </p>
+          </div>
+
+          {allPrompts.length > 1 && (
+            <select
+              data-testid="apply-journal-select"
+              value={selectedIdx}
+              onChange={(e) => setSelectedIdx(Number(e.target.value))}
+              className="min-h-[40px] px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-[var(--surface-card,#ffffff)] dark:bg-zinc-950 text-xs font-medium cursor-pointer shrink-0"
+            >
+              {allPrompts.map((it, idx) => (
+                <option key={it.id} value={idx}>
+                  Đề #{idx + 1}: {it.title.slice(0, 44)}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         {toast && (

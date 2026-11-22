@@ -3909,6 +3909,7 @@ export function FinancePracticeLab({
             lessonId={lessonId}
             courseTitle={courseTitle}
             lessonTitle={lessonTitle}
+            initialActivityKey={initialActivityKey}
             onSaveToNotebook={onSaveToNotebook}
             onCreateFlashcardQuick={onCreateFlashcardQuick}
             onRecordAttempt={recordPracticeAttempt}

@@ -431,11 +431,19 @@ public static class WriteInPracticeContent
             }
         };
 
+        // Append expanded write-in activities across all 18 lessons for Coding, Investing, and Psychology
+        list.AddRange(CodingWriteInContent.GetActivities(now));
+        list.AddRange(InvestingWriteInContent.GetActivities(now));
+        list.AddRange(PsychologyWriteInContent.GetActivities(now));
+
         return list;
     }
 
     public static async Task EnsureWriteInActivitiesSeededAsync(SwmsDbContext db, DateTimeOffset now)
     {
+        // First upgrade lesson theory content safely (idempotent, only if CurrentVersion == 1 and no v2 marker)
+        await WriteInTheoryExpansion.EnsureLessonsUpgradedAsync(db, now);
+
         var candidates = GetStarterWriteInActivities(now);
         var targetCourseIds = candidates.Select(c => c.CourseId).Distinct().ToList();
 

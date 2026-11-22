@@ -834,6 +834,7 @@ export function DecisionJournalLab({
   lessonId,
   courseTitle,
   lessonTitle,
+  initialActivityKey,
   onSaveToNotebook,
   onCreateFlashcardQuick,
   onRecordAttempt,
@@ -842,18 +843,43 @@ export function DecisionJournalLab({
   lessonId?: string | null;
   courseTitle: string;
   lessonTitle: string;
+  initialActivityKey?: string | null;
   onSaveToNotebook: (text: string) => Promise<void>;
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
   onRecordAttempt?: (params: any) => Promise<void>;
 }) {
-  const promptItem: DecisionJournalPromptItem = dbPrompts[0] || {
-    id: "dj-default",
-    title: "Nhật Ký Quyết Định Đầu Tư (4 Trụ Cột Kỷ Luật)",
-    scenario: `Áp dụng kiến thức bài "${lessonTitle}" để viết nhật ký thẩm định cho 1 quyết định đầu tư / phân bổ vốn thực tế hoặc giả định của bạn trước khi bấm lệnh.`,
-    expectedKeywords: ["biên an toàn", "dòng tiền", "rủi ro", "cắt lỗ", "kỷ luật", "dài hạn"],
-    sampleThesisVi:
-      "Luận điểm dựa trên tăng trưởng dòng tiền bền vững; định giá có biên an toàn tối thiểu 25%; xác định rõ kịch bản sai và mức phân bổ vốn tối đa 15%; cam kết không mua đuổi FOMO và tuân thủ kỷ luật DCA.",
-  };
+  const allPrompts = useMemo(() => {
+    return dbPrompts.length > 0
+      ? dbPrompts
+      : [
+          {
+            id: "dj-default",
+            title: "Nhật Ký Quyết Định Đầu Tư (4 Trụ Cột Kỷ Luật)",
+            scenario: `Áp dụng kiến thức bài "${lessonTitle}" để viết nhật ký thẩm định cho 1 quyết định đầu tư / phân bổ vốn thực tế hoặc giả định của bạn trước khi bấm lệnh.`,
+            expectedKeywords: ["biên an toàn", "dòng tiền", "rủi ro", "cắt lỗ", "kỷ luật", "dài hạn"],
+            sampleThesisVi:
+              "Luận điểm dựa trên tăng trưởng dòng tiền bền vững; định giá có biên an toàn tối thiểu 25%; xác định rõ kịch bản sai và mức phân bổ vốn tối đa 15%; cam kết không mua đuổi FOMO và tuân thủ kỷ luật DCA.",
+          },
+        ];
+  }, [dbPrompts, lessonTitle]);
+
+  const initialIdx = useMemo(() => {
+    if (!initialActivityKey) return 0;
+    const idx = allPrompts.findIndex(
+      (p) =>
+        p.id === initialActivityKey ||
+        `finance-decision-journal-${p.id}` === initialActivityKey ||
+        p.sourceActivityId === initialActivityKey
+    );
+    return idx >= 0 ? idx : 0;
+  }, [allPrompts, initialActivityKey]);
+
+  const [selectedIdx, setSelectedIdx] = useState(initialIdx);
+  useEffect(() => {
+    setSelectedIdx(initialIdx);
+  }, [initialIdx]);
+
+  const promptItem = allPrompts[selectedIdx] || allPrompts[0];
 
   const [assetName, setAssetName] = useState("");
   const [coreThesis, setCoreThesis] = useState("");
@@ -863,6 +889,15 @@ export function DecisionJournalLab({
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [result, setResult] = useState<AiPracticeEvaluationResult | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    setAssetName("");
+    setCoreThesis("");
+    setValuationMos("");
+    setBearCaseRisk("");
+    setEmotionalDiscipline("");
+    setResult(null);
+  }, [promptItem.id]);
 
   const handleSaveCard = async (isAuto = false) => {
     const front = `[Kỷ luật Đầu tư] 4 câu hỏi bắt buộc trong Nhật ký Quyết định trước khi mua tài sản?`;
@@ -982,14 +1017,31 @@ export function DecisionJournalLab({
 
   return (
     <div data-testid="finance-decision-journal-lab" className="space-y-5">
-      <div className="border-b border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800 pb-4">
-        <h2 className="text-lg font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100 flex items-center gap-2">
-          <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-          {promptItem.title}
-        </h2>
-        <p className="text-xs text-[var(--text-secondary,#52525b)] dark:text-zinc-400 mt-1">
-          {promptItem.scenario}
-        </p>
+      <div className="border-b border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            {promptItem.title}
+          </h2>
+          <p className="text-xs text-[var(--text-secondary,#52525b)] dark:text-zinc-400 mt-1">
+            {promptItem.scenario}
+          </p>
+        </div>
+
+        {allPrompts.length > 1 && (
+          <select
+            data-testid="decision-journal-select"
+            value={selectedIdx}
+            onChange={(e) => setSelectedIdx(Number(e.target.value))}
+            className="min-h-[40px] px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-[var(--surface-card,#ffffff)] dark:bg-zinc-950 text-xs font-medium cursor-pointer shrink-0"
+          >
+            {allPrompts.map((it, idx) => (
+              <option key={it.id} value={idx}>
+                Đề #{idx + 1}: {it.title.slice(0, 44)}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {toast && (

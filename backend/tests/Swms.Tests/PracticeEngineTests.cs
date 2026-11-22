@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Swms.Api.Domain.Entities;
 using Swms.Api.Features;
 using Swms.Api.Infrastructure.Database;
+using Swms.Api.Infrastructure.Database.Seed;
 using Xunit;
 
 namespace Swms.Tests;
@@ -947,5 +948,117 @@ public class PracticeEngineTests
         var matchedKws = viEvalJson.GetProperty("matchedKeywords").EnumerateArray().Select(e => e.GetString()).ToList();
         Assert.Contains("giá vốn", matchedKws);
         Assert.Contains("lãi kép", matchedKws);
+    }
+
+    [Fact]
+    public async Task Test14_WriteInActivities_All18Lessons_HaveAtLeast8Exercises_NoDuplicateOrder_Idempotent_And_PreserveVersion2()
+    {
+        await using var factory = CreateIsolatedFactory();
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
+
+        var all18Lessons = new (Guid CourseId, Guid LessonId, string Name)[]
+        {
+            // Coding (6 lessons)
+            (SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson11Id, "Coding 1.1"),
+            (SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson12Id, "Coding 1.2"),
+            (SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson21Id, "Coding 2.1"),
+            (SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson22Id, "Coding 2.2"),
+            (SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson31Id, "Coding 3.1"),
+            (SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson32Id, "Coding 3.2"),
+
+            // Investing (6 lessons)
+            (SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson11Id, "Investing 1.1"),
+            (SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson12Id, "Investing 1.2"),
+            (SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson21Id, "Investing 2.1"),
+            (SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson22Id, "Investing 2.2"),
+            (SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson31Id, "Investing 3.1"),
+            (SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson32Id, "Investing 3.2"),
+
+            // Psychology (6 lessons)
+            (SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson11Id, "Psychology 1.1"),
+            (SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson12Id, "Psychology 1.2"),
+            (SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson21Id, "Psychology 2.1"),
+            (SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson22Id, "Psychology 2.2"),
+            (SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson31Id, "Psychology 3.1"),
+            (SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson32Id, "Psychology 3.2"),
+        };
+
+        // 1. Verify every lesson has >= 8 write-in activities (OrderIndex >= 3), no duplicate OrderIndex, and theory marker
+        foreach (var (courseId, lessonId, name) in all18Lessons)
+        {
+            var activities = await db.PracticeActivities
+                .Where(pa => pa.CourseId == courseId && pa.LessonId == lessonId)
+                .OrderBy(pa => pa.OrderIndex)
+                .ToListAsync();
+
+            // OrderIndex uniqueness check
+            var orderIndices = activities.Select(a => a.OrderIndex).ToList();
+            var distinctOrderIndices = orderIndices.Distinct().ToList();
+            Assert.True(orderIndices.Count == distinctOrderIndices.Count,
+                $"{name} has duplicate OrderIndex values: {string.Join(", ", orderIndices)}");
+
+            // Write-in activities & exercises count (OrderIndex >= 3)
+            var writeInActivities = activities.Where(a => a.OrderIndex >= 3).ToList();
+            Assert.True(writeInActivities.Count >= 5,
+                $"{name} has {writeInActivities.Count} write-in activities, expected >= 5 categories/activities.");
+
+            int exerciseCount = 0;
+            foreach (var act in writeInActivities)
+            {
+                if (string.IsNullOrWhiteSpace(act.ConfigJson))
+                {
+                    exerciseCount++;
+                    continue;
+                }
+
+                try
+                {
+                    using var doc = JsonDocument.Parse(act.ConfigJson);
+                    if (doc.RootElement.TryGetProperty("items", out var itemsProp) && itemsProp.ValueKind == JsonValueKind.Array)
+                    {
+                        exerciseCount += itemsProp.GetArrayLength();
+                    }
+                    else
+                    {
+                        exerciseCount++;
+                    }
+                }
+                catch
+                {
+                    exerciseCount++;
+                }
+            }
+
+            Assert.True(exerciseCount >= 8,
+                $"{name} has {exerciseCount} write-in exercises (items), expected >= 8.");
+
+            // Legacy activities (OrderIndex 1 & 2) preserved
+            var legacyActivities = activities.Where(a => a.OrderIndex is 1 or 2).ToList();
+            Assert.True(legacyActivities.Count >= 2,
+                $"{name} missing legacy activities at OrderIndex 1 & 2.");
+
+            // Theory content upgraded with marker
+            var lesson = await db.Lessons.FirstOrDefaultAsync(l => l.Id == lessonId);
+            Assert.NotNull(lesson);
+            Assert.Contains(WriteInTheoryExpansion.UpgradeMarker, lesson.ContentMarkdown);
+        }
+
+        // 2. Test Idempotency: re-running EnsureWriteInActivitiesSeededAsync should not duplicate activities or throw
+        var totalBefore = await db.PracticeActivities.CountAsync();
+        await WriteInPracticeContent.EnsureWriteInActivitiesSeededAsync(db, DateTimeOffset.UtcNow);
+        var totalAfter = await db.PracticeActivities.CountAsync();
+        Assert.Equal(totalBefore, totalAfter);
+
+        // 3. Test Non-overwrite of CurrentVersion > 1 (e.g. CurrentVersion == 2)
+        var testLesson = await db.Lessons.FirstAsync(l => l.Id == SeedDataInitializer.CodingLesson11Id);
+        testLesson.CurrentVersion = 2;
+        testLesson.ContentMarkdown = "User custom content without marker";
+        await db.SaveChangesAsync();
+
+        await WriteInTheoryExpansion.EnsureLessonsUpgradedAsync(db, DateTimeOffset.UtcNow);
+        var reloaded = await db.Lessons.FirstAsync(l => l.Id == SeedDataInitializer.CodingLesson11Id);
+        Assert.Equal("User custom content without marker", reloaded.ContentMarkdown);
+        Assert.Equal(2, reloaded.CurrentVersion);
     }
 }
