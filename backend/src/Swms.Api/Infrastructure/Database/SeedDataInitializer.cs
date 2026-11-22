@@ -1,7 +1,10 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Swms.Api.Domain.Entities;
 using Swms.Api.Infrastructure.Security;
+using Swms.Api.Infrastructure.Database.Seed;
 
 namespace Swms.Api.Infrastructure.Database;
 
@@ -857,15 +860,18 @@ public static class SeedDataInitializer
         return JsonSerializer.Serialize(ast);
     }
 
+    public static Guid CreateDeterministicActivityId(Guid courseId, Guid? lessonId, string type, int orderIndex)
+    {
+        var key = $"swms:practice-activity:{courseId:N}:{(lessonId.HasValue ? lessonId.Value.ToString("N") : "course")}:{type.Trim().ToLowerInvariant()}:{orderIndex}";
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(key));
+        Span<byte> guidBytes = stackalloc byte[16];
+        hash.AsSpan(0, 16).CopyTo(guidBytes);
+        return new Guid(guidBytes);
+    }
+
     public static async Task EnsureEnglishCommunicationCourseSeededAsync(SwmsDbContext db)
     {
         var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == EnglishCourseId || c.Slug == "tieng-anh-giao-tiep-thuc-chien-a2-b1");
-        if (course != null)
-        {
-            var hasActivities = await db.PracticeActivities.AnyAsync(pa => pa.CourseId == course.Id);
-            if (hasActivities) return;
-        }
-
         var now = DateTimeOffset.UtcNow;
 
         if (course == null)
@@ -883,19 +889,22 @@ public static class SeedDataInitializer
                 UpdatedAt = now
             };
             db.Courses.Add(course);
+            await db.SaveChangesAsync();
+        }
 
-            var enrollmentExists = await db.CourseEnrollments.AnyAsync(e => e.UserId == DefaultUserId && e.CourseId == EnglishCourseId);
-            if (!enrollmentExists)
+        var targetCourseId = course.Id;
+        var enrollmentExists = await db.CourseEnrollments.AnyAsync(e => e.UserId == DefaultUserId && e.CourseId == targetCourseId);
+        if (!enrollmentExists)
+        {
+            db.CourseEnrollments.Add(new CourseEnrollment
             {
-                db.CourseEnrollments.Add(new CourseEnrollment
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = DefaultUserId,
-                    CourseId = EnglishCourseId,
-                    Role = "student",
-                    EnrolledAt = now
-                });
-            }
+                Id = Guid.NewGuid(),
+                UserId = DefaultUserId,
+                CourseId = targetCourseId,
+                Role = "student",
+                EnrolledAt = now
+            });
+            await db.SaveChangesAsync();
         }
 
         // Chapters
@@ -1150,6 +1159,8 @@ Mai Tran";
             db.Lessons.AddRange(lessonsToAdd);
             await db.SaveChangesAsync();
         }
+
+        await EnglishPracticeContent.EnsureLessonsUpgradedOrSeededAsync(db, targetCourseId, now);
 
         // Practice Activities for the lessons
         var activities = new List<PracticeActivity>
@@ -1783,11 +1794,421 @@ Mai Tran";
                 IsSeeded = true,
                 CreatedAt = now,
                 UpdatedAt = now
+            },
+
+            // =========================================================================
+            // Lesson 1.1 Extended Schema Activities (Idempotent OrderIndex 5..10)
+            // =========================================================================
+            new PracticeActivity
+            {
+                Id = CreateDeterministicActivityId(targetCourseId, EnglishLesson11Id, "shadowing", 5),
+                CourseId = targetCourseId,
+                LessonId = EnglishLesson11Id,
+                OrderIndex = 5,
+                Type = "shadowing",
+                Title = "Shadowing mở rộng: Phân tầng Dễ → Vừa → Khó (âm th & âm cuối)",
+                Description = "Bộ câu luyện phát âm đa cấp độ tập trung vào âm /θ/-/ð/, âm cuối và đuôi -s/-ed hay gặp của người Việt.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    lang = "en-US",
+                    difficulty = "medium",
+                    items = new object[]
+                    {
+                        new
+                        {
+                            id = "en-l11-shad-easy",
+                            lang = "en-US",
+                            difficulty = "easy",
+                            topic = "Mở đầu hội thoại (Dễ)",
+                            sentence = "Thank you for joining this workshop with us today.",
+                            ipa = "/θæŋk juː fɔː ˈdʒɔɪnɪŋ ðɪs ˈwɜːkʃɒp wɪð ʌs təˈdeɪ/",
+                            meaningVi = "Cảm ơn bạn đã tham gia buổi workshop cùng chúng tôi hôm nay.",
+                            keyPhrases = new[] { "thank you", "this workshop", "with us" }
+                        },
+                        new
+                        {
+                            id = "en-l11-shad-medium",
+                            lang = "en-US",
+                            difficulty = "medium",
+                            topic = "Giới thiệu công việc (Vừa)",
+                            sentence = "I work on software projects that help teams build strong trust.",
+                            ipa = "/aɪ wɜːk ɒn ˈsɒftweə ˈprɒdʒekts ðæt helps tiːmz bɪld strɒŋ trʌst/",
+                            meaningVi = "Tôi làm việc trong các dự án phần mềm giúp đội nhóm xây dựng niềm tin vững chắc.",
+                            keyPhrases = new[] { "software projects", "build strong trust", "work on" }
+                        },
+                        new
+                        {
+                            id = "en-l11-shad-hard",
+                            lang = "en-US",
+                            difficulty = "hard",
+                            topic = "Kết nối chuyên nghiệp (Khó)",
+                            sentence = "Although we walked into the conference as strangers, we established meaningful relationships.",
+                            ipa = "/ɔːlˈðəʊ wiː wɔːkt ˈɪntuː ðə ˈkɒnfrəns æz ˈstreɪndʒəz, wiː ɪˈstæblɪʃt ˈmiːnɪŋfl rɪˈleɪʃnʃɪps/",
+                            meaningVi = "Dù bước vào hội nghị như những người xa lạ, chúng tôi đã xây dựng được những mối quan hệ đầy ý nghĩa.",
+                            keyPhrases = new[] { "walked into", "established relationships", "meaningful relationships" }
+                        }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = CreateDeterministicActivityId(targetCourseId, EnglishLesson11Id, "word_map", 6),
+                CourseId = targetCourseId,
+                LessonId = EnglishLesson11Id,
+                OrderIndex = 6,
+                Type = "word_map",
+                Title = "Sơ đồ từ vựng 2: Impression & Networking Confidence",
+                Description = "Mở rộng vốn cụm từ quanh từ khóa impression để tự tin tạo thiện cảm khi làm quen.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    lang = "en-US",
+                    difficulty = "medium",
+                    centralWord = "impression",
+                    ipa = "/ɪmˈpreʃn/",
+                    meaningVi = "Ấn tượng, cảm nhận ban đầu",
+                    collocations = new object[]
+                    {
+                        new { text = "make a good impression", ipa = "/meɪk ə ɡʊd ɪmˈpreʃn/", meaningVi = "Tạo ấn tượng tốt", example = "Listening attentively helps you make a good impression." },
+                        new { text = "first impression", ipa = "/fɜːst ɪmˈpreʃn/", meaningVi = "Ấn tượng đầu tiên", example = "A warm smile creates a lasting first impression." },
+                        new { text = "lasting impression", ipa = "/ˈlɑːstɪŋ ɪmˈpreʃn/", meaningVi = "Ấn tượng sâu đậm lâu dài", example = "Her concise introduction left a lasting impression." }
+                    },
+                    phrasalVerbs = new object[]
+                    {
+                        new { text = "come across as", ipa = "/kʌm əˈkrɒs æz/", meaningVi = "Tạo cảm giác là người như thế nào", example = "He came across as approachable and genuinely curious." },
+                        new { text = "follow up with", ipa = "/ˈfɒləʊ ʌp wɪð/", meaningVi = "Liên hệ nối tiếp sau khi gặp", example = "Remember to follow up with new contacts after the event." }
+                    },
+                    synonyms = new object[]
+                    {
+                        new { text = "perception", ipa = "/pəˈsepʃn/", meaningVi = "Sự nhìn nhận, cảm nhận", example = "Clear body language shapes positive perception." },
+                        new { text = "impact", ipa = "/ˈɪmpækt/", meaningVi = "Tác động, dấu ấn", example = "Genuine curiosity leaves a strong impact." }
+                    },
+                    contextExamples = new object[]
+                    {
+                        new { sentence = "Making a genuine first impression opens doors to fruitful collaboration.", meaningVi = "Tạo ấn tượng ban đầu chân thành mở ra cánh cửa cho sự hợp tác hiệu quả." }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = CreateDeterministicActivityId(targetCourseId, EnglishLesson11Id, "cloze", 7),
+                CourseId = targetCourseId,
+                LessonId = EnglishLesson11Id,
+                OrderIndex = 7,
+                Type = "cloze",
+                Title = "Điền chỗ trống (Cloze): Small Talk & Tự giới thiệu",
+                Description = "Tự gõ từ còn thiếu từ trí nhớ cho các mẫu câu mở đầu hội thoại theo 3 mức độ Dễ / Vừa / Khó.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    lang = "en-US",
+                    items = new object[]
+                    {
+                        new
+                        {
+                            id = "en-l11-cloze-1",
+                            difficulty = "easy",
+                            title = "Chào hỏi lần đầu (Dễ)",
+                            promptVi = "Điền 2 từ còn thiếu để hoàn thành câu làm quen tự nhiên:",
+                            template = "Hi there! Is this {{0}} taken? It is a {{1}} to meet you.",
+                            blanks = new object[]
+                            {
+                                new { acceptedAnswers = new[] { "seat", "chair" }, hintVi = "chỗ ngồi (bắt đầu bằng s)", explanationVi = "\"Is this seat taken?\" = Ghế này có ai ngồi chưa?" },
+                                new { acceptedAnswers = new[] { "pleasure" }, hintVi = "niềm hân hạnh (bắt đầu bằng p)", explanationVi = "\"It is a pleasure to meet you.\" = Rất hân hạnh được gặp bạn." }
+                            },
+                            fullSentence = "Hi there! Is this seat taken? It is a pleasure to meet you.",
+                            meaningVi = "Chào bạn! Ghế này có ai ngồi chưa? Rất hân hạnh được gặp bạn.",
+                            explanationVi = "Hai mẫu câu mở lời cực kỳ tự nhiên tại hội thảo hoặc quán cà phê."
+                        },
+                        new
+                        {
+                            id = "en-l11-cloze-2",
+                            difficulty = "medium",
+                            title = "Phá băng & giới thiệu công việc (Vừa)",
+                            promptVi = "Điền cụm từ mở đầu và nơi làm việc:",
+                            template = "Telling a light joke helped {{0}} the ice. I am a software engineer {{1}} in Hanoi.",
+                            blanks = new object[]
+                            {
+                                new { acceptedAnswers = new[] { "break", "to break" }, hintVi = "phá vỡ (___ the ice)", explanationVi = "\"break the ice\" = phá vỡ sự ngại ngùng ban đầu." },
+                                new { acceptedAnswers = new[] { "based", "working", "living" }, hintVi = "đặt trụ sở / làm việc tại (bắt đầu bằng b)", explanationVi = "\"based in Hanoi\" là cách diễn đạt rất tự nhiên khi giới thiệu nơi làm việc." }
+                            },
+                            fullSentence = "Telling a light joke helped break the ice. I am a software engineer based in Hanoi.",
+                            meaningVi = "Kể một câu chuyện vui nhẹ giúp phá vỡ sự ngại ngùng. Tôi là kỹ sư phần mềm làm việc tại Hà Nội.",
+                            explanationVi = "Dùng \"based in + thành phố\" để giới thiệu địa điểm công tác chuyên nghiệp."
+                        },
+                        new
+                        {
+                            id = "en-l11-cloze-3",
+                            difficulty = "hard",
+                            title = "Mong đợi hợp tác lâu dài (Khó)",
+                            promptVi = "Điền 2 từ học thuật/công sở để hoàn chỉnh câu kết nối:",
+                            template = "I look {{0}} to our fruitful {{1}} on upcoming international projects.",
+                            blanks = new object[]
+                            {
+                                new { acceptedAnswers = new[] { "forward" }, hintVi = "mong đợi (look ___ to)", explanationVi = "\"look forward to + danh từ/V-ing\" = mong đợi điều gì." },
+                                new { acceptedAnswers = new[] { "collaboration", "cooperation", "partnership" }, hintVi = "sự hợp tác (bắt đầu bằng c)", explanationVi = "\"fruitful collaboration\" = sự hợp tác hiệu quả, sinh trái ngọt." }
+                            },
+                            fullSentence = "I look forward to our fruitful collaboration on upcoming international projects.",
+                            meaningVi = "Tôi rất mong đợi sự hợp tác hiệu quả của chúng ta trong các dự án quốc tế sắp tới.",
+                            explanationVi = "Cụm \"fruitful collaboration\" nâng tầm văn phong giao tiếp lên trình độ B1–B2."
+                        }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = CreateDeterministicActivityId(targetCourseId, EnglishLesson11Id, "translate", 8),
+                CourseId = targetCourseId,
+                LessonId = EnglishLesson11Id,
+                OrderIndex = 8,
+                Type = "translate",
+                Title = "Dịch Việt → Anh: Phản xạ câu Small Talk",
+                Description = "Chuyển câu tiếng Việt sang tiếng Anh tự nhiên với nhiều đáp án được chấp nhận.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    lang = "en-US",
+                    items = new object[]
+                    {
+                        new
+                        {
+                            id = "en-l11-trans-1",
+                            difficulty = "easy",
+                            title = "Giới thiệu bản thân (Dễ)",
+                            sourceVi = "Xin chào, tôi là Mai và tôi là kỹ sư phần mềm tại Hà Nội.",
+                            hintKeywords = new[] { "software engineer", "based in Hanoi", "I am" },
+                            acceptedAnswers = new[]
+                            {
+                                "Hello, I am Mai and I am a software engineer in Hanoi.",
+                                "Hi, I'm Mai and I'm a software engineer based in Hanoi.",
+                                "Hello, I'm Mai and I'm a software engineer based in Hanoi.",
+                                "Hi, I am Mai, a software engineer in Hanoi."
+                            },
+                            sampleAnswer = "Hi, I'm Mai and I'm a software engineer based in Hanoi.",
+                            grammarNoteVi = "Nhớ dùng mạo từ \"a\" trước nghề nghiệp số ít: \"a software engineer\"."
+                        },
+                        new
+                        {
+                            id = "en-l11-trans-2",
+                            difficulty = "medium",
+                            title = "Mở lời tại hội thảo (Vừa)",
+                            sourceVi = "Hôm nay bạn có tham dự buổi hội thảo công nghệ này không?",
+                            hintKeywords = new[] { "attending", "tech workshop", "today" },
+                            acceptedAnswers = new[]
+                            {
+                                "Are you attending this tech workshop today?",
+                                "Are you attending the tech workshop today?",
+                                "Are you joining this tech workshop today?",
+                                "Are you attending this technology workshop today?"
+                            },
+                            sampleAnswer = "Are you attending this tech workshop today?",
+                            grammarNoteVi = "Dùng thì hiện tại tiếp diễn \"Are you attending...\" cho sự kiện đang/sắp diễn ra trong ngày."
+                        },
+                        new
+                        {
+                            id = "en-l11-trans-3",
+                            difficulty = "hard",
+                            title = "Xây dựng niềm tin lâu dài (Khó)",
+                            sourceVi = "Tạo ấn tượng đầu tiên tích cực giúp xây dựng niềm tin lâu dài trong các mối quan hệ công việc.",
+                            hintKeywords = new[] { "positive first impression", "build long-term trust", "professional relationships" },
+                            acceptedAnswers = new[]
+                            {
+                                "Making a positive first impression helps build long-term trust in professional relationships.",
+                                "Making a positive first impression helps to build long-term trust in professional relationships.",
+                                "Creating a positive first impression helps build long-term trust in work relationships."
+                            },
+                            sampleAnswer = "Making a positive first impression helps build long-term trust in professional relationships.",
+                            grammarNoteVi = "Cụm V-ing \"Making a positive first impression\" đóng vai trò chủ ngữ số ít nên động từ chia \"helps\"."
+                        }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = CreateDeterministicActivityId(targetCourseId, EnglishLesson11Id, "grammar_fix", 9),
+                CourseId = targetCourseId,
+                LessonId = EnglishLesson11Id,
+                OrderIndex = 9,
+                Type = "grammar_fix",
+                Title = "Sửa lỗi ngữ pháp: Các lỗi giao tiếp hay gặp",
+                Description = "Phát hiện và viết lại câu tiếng Anh chuẩn ngữ pháp cho các tình huống làm quen.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    lang = "en-US",
+                    items = new object[]
+                    {
+                        new
+                        {
+                            id = "en-l11-gf-1",
+                            difficulty = "easy",
+                            title = "Thiếu mạo từ nghề nghiệp (Dễ)",
+                            incorrectSentence = "I am software engineer and I live in Hanoi.",
+                            errorTypeHintVi = "Thiếu mạo từ bất định (a/an) trước danh từ nghề nghiệp đếm được số ít.",
+                            correctedSentence = "I am a software engineer and I live in Hanoi.",
+                            acceptedAnswers = new[]
+                            {
+                                "I am a software engineer and I live in Hanoi.",
+                                "I'm a software engineer and I live in Hanoi."
+                            },
+                            meaningVi = "Tôi là một kỹ sư phần mềm và tôi sống ở Hà Nội.",
+                            explanationVi = "Trong tiếng Anh luôn phải có mạo từ \"a/an\" trước nghề nghiệp số ít (a teacher, an engineer, a software engineer)."
+                        },
+                        new
+                        {
+                            id = "en-l11-gf-2",
+                            difficulty = "medium",
+                            title = "Cấu trúc look forward to + V-ing (Vừa)",
+                            incorrectSentence = "I look forward to learn more about your recent projects.",
+                            errorTypeHintVi = "Động từ đứng sau cụm \"look forward to\" phải chia dạng V-ing.",
+                            correctedSentence = "I look forward to learning more about your recent projects.",
+                            acceptedAnswers = new[]
+                            {
+                                "I look forward to learning more about your recent projects.",
+                                "I am looking forward to learning more about your recent projects."
+                            },
+                            meaningVi = "Tôi rất mong được tìm hiểu thêm về các dự án gần đây của bạn.",
+                            explanationVi = "\"to\" trong \"look forward to\" là giới từ nên động từ theo sau bắt buộc thêm -ing (learning)."
+                        },
+                        new
+                        {
+                            id = "en-l11-gf-3",
+                            difficulty = "hard",
+                            title = "Hòa hợp chủ ngữ V-ing & danh từ số nhiều (Khó)",
+                            incorrectSentence = "Making a positive first impression help build long-term trust in professional relationship.",
+                            errorTypeHintVi = "Kiểm tra chia động từ theo chủ ngữ số ít (Making...) và số nhiều của danh từ đếm được (relationship).",
+                            correctedSentence = "Making a positive first impression helps build long-term trust in professional relationships.",
+                            acceptedAnswers = new[]
+                            {
+                                "Making a positive first impression helps build long-term trust in professional relationships.",
+                                "Making a positive first impression helps to build long-term trust in professional relationships."
+                            },
+                            meaningVi = "Tạo ấn tượng ban đầu tích cực giúp xây dựng niềm tin lâu dài trong các mối quan hệ chuyên nghiệp.",
+                            explanationVi = "Chủ ngữ là danh động từ (Making...) luôn chia động từ số ít (helps), và \"relationships\" cần ở số nhiều khi nói chung không có mạo từ."
+                        }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new PracticeActivity
+            {
+                Id = CreateDeterministicActivityId(targetCourseId, EnglishLesson11Id, "roleplay", 10),
+                CourseId = targetCourseId,
+                LessonId = EnglishLesson11Id,
+                OrderIndex = 10,
+                Type = "roleplay",
+                Title = "Nhập vai hội thoại: Small Talk tại Hội thảo Quốc tế",
+                Description = "Trò chuyện phản xạ bằng giọng nói hoặc gõ phím với đồng nghiệp quốc tế (AI chấm trực tiếp hoặc chấm từ khóa offline).",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    lang = "en-US",
+                    items = new object[]
+                    {
+                        new
+                        {
+                            id = "en-l11-rp-1",
+                            difficulty = "easy",
+                            title = "Bắt chuyện giờ giải lao (Dễ)",
+                            scenarioVi = "Bạn đang ngồi chờ khai mạc hội thảo công nghệ thì một đồng nghiệp người Úc bước tới hỏi mượn ghế bên cạnh.",
+                            aiRole = "Alex (Kỹ sư từ Melbourne)",
+                            aiPrompt = "Hi there! Is this seat taken? Beautiful morning for a conference, isn't it?",
+                            aiPromptVi = "Chào bạn! Ghế này có ai ngồi chưa? Buổi sáng nay đẹp trời cho một buổi hội thảo nhỉ?",
+                            userGoalVi = "Mời Alex ngồi tự nhiên, đồng tình về thời tiết/buổi sáng và giới thiệu tên của bạn.",
+                            expectedKeywords = new[] { "go ahead", "morning", "name", "meet" },
+                            sampleResponses = new[]
+                            {
+                                "No, please go ahead! Yes, it really is a lovely morning. My name is Mai, nice to meet you!"
+                            },
+                            minWords = 7
+                        },
+                        new
+                        {
+                            id = "en-l11-rp-2",
+                            difficulty = "medium",
+                            title = "Giới thiệu công việc 3 bước Hook-Background-Passion (Vừa)",
+                            scenarioVi = "Alex vừa giới thiệu anh ấy đến từ Melbourne và hỏi về công việc hiện tại của bạn.",
+                            aiRole = "Alex (Kỹ sư từ Melbourne)",
+                            aiPrompt = "I'm Alex from Melbourne. Are you attending the tech workshop today? What kind of work do you do?",
+                            aiPromptVi = "Tôi là Alex từ Melbourne. Hôm nay bạn cũng dự buổi workshop công nghệ à? Bạn đang làm công việc gì thế?",
+                            userGoalVi = "Xác nhận tham dự workshop, giới thiệu vai trò công việc + thành phố của bạn và hỏi ngược lại Alex.",
+                            expectedKeywords = new[] { "workshop", "based", "work", "pleasure", "about you" },
+                            sampleResponses = new[]
+                            {
+                                "Yes, I am attending the workshop today! I work as a software engineer based in Hanoi. It is a pleasure to meet you—what about you?"
+                            },
+                            minWords = 10
+                        },
+                        new
+                        {
+                            id = "en-l11-rp-3",
+                            difficulty = "hard",
+                            title = "Kết thúc cuộc trò chuyện & hẹn giữ liên lạc (Khó)",
+                            scenarioVi = "Giờ giải lao sắp kết thúc, bạn muốn khép lại cuộc trò chuyện khéo léo và trao đổi LinkedIn để hợp tác sau này.",
+                            aiRole = "Alex (Kỹ sư từ Melbourne)",
+                            aiPrompt = "It looks like the keynote session is about to start. It was great chatting with you!",
+                            aiPromptVi = "Có vẻ phiên thuyết trình chính sắp bắt đầu rồi. Nói chuyện với bạn thật thú vị!",
+                            userGoalVi = "Bày tỏ niềm vui khi trò chuyện, đề nghị kết nối (LinkedIn/email) và mong đợi hợp tác hiệu quả trong tương lai.",
+                            expectedKeywords = new[] { "pleasure", "connect", "look forward", "collaboration" },
+                            sampleResponses = new[]
+                            {
+                                "It was truly a pleasure talking with you too, Alex! Let's connect on LinkedIn so we can stay in touch. I look forward to our fruitful collaboration."
+                            },
+                            minWords = 12
+                        }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
             }
         };
 
-        db.PracticeActivities.AddRange(activities);
-        await db.SaveChangesAsync();
+        activities.AddRange(EnglishPracticeContent.GetExtendedPracticeActivities(targetCourseId, now));
+
+        var existingActivities = await db.PracticeActivities
+            .Where(pa => pa.CourseId == targetCourseId)
+            .ToListAsync();
+
+        var existingIds = existingActivities.Select(pa => pa.Id).ToHashSet();
+        var existingCompositeKeys = existingActivities
+            .Select(pa => (pa.LessonId, Type: (pa.Type ?? string.Empty).Trim().ToLowerInvariant(), pa.OrderIndex))
+            .ToHashSet();
+
+        var activitiesToAdd = new List<PracticeActivity>();
+        foreach (var act in activities)
+        {
+            act.CourseId = targetCourseId;
+            var compositeKey = (act.LessonId, Type: (act.Type ?? string.Empty).Trim().ToLowerInvariant(), act.OrderIndex);
+            if (existingIds.Contains(act.Id) || existingCompositeKeys.Contains(compositeKey))
+            {
+                continue;
+            }
+            existingIds.Add(act.Id);
+            existingCompositeKeys.Add(compositeKey);
+            activitiesToAdd.Add(act);
+        }
+
+        if (activitiesToAdd.Count > 0)
+        {
+            db.PracticeActivities.AddRange(activitiesToAdd);
+            await db.SaveChangesAsync();
+        }
     }
 
     public static async Task EnsurePracticeExpansionCoursesSeededAsync(SwmsDbContext db)

@@ -81,7 +81,8 @@ public record CreateFlashcardRequest(
     string? SourceQuoteSnapshot,
     string FrontText,
     string BackText,
-    List<string>? TagNames
+    List<string>? TagNames,
+    bool DeduplicateByFront = false
 );
 
 public record SyncReviewsBatchRequest(List<FsrsReviewEventInput> Reviews);
@@ -96,6 +97,16 @@ public record AiInSituRequest(
     string Excerpt,
     string? ContextTitle,
     string? ActionType // explain | generate_qa | counter_example | translate
+);
+
+public record AiEvaluatePracticeRequest(
+    string Mode,
+    string? Lang,
+    string Prompt,
+    string UserResponse,
+    List<string>? ExpectedKeywords = null,
+    string? SampleAnswer = null,
+    string? ContextTitle = null
 );
 
 public record UploadDocumentRequest(
@@ -3967,9 +3978,32 @@ public static class SwmsEndpoints
             try
             {
                 var now = DateTimeOffset.UtcNow;
-                var cleanFront = SanitizeDangerousHtml(req.FrontText) ?? string.Empty;
-                var cleanBack = SanitizeDangerousHtml(req.BackText) ?? string.Empty;
-                var cleanQuote = SanitizeDangerousHtml(req.SourceQuoteSnapshot ?? req.FrontText) ?? string.Empty;
+                var cleanFront = (SanitizeDangerousHtml(req.FrontText) ?? string.Empty).Trim();
+                var cleanBack = (SanitizeDangerousHtml(req.BackText) ?? string.Empty).Trim();
+                var cleanQuote = (SanitizeDangerousHtml(req.SourceQuoteSnapshot ?? req.FrontText) ?? string.Empty).Trim();
+
+                if (req.DeduplicateByFront && !string.IsNullOrWhiteSpace(cleanFront))
+                {
+                    var normalizedTargetFront = Regex.Replace(cleanFront, @"\s+", " ").Trim();
+                    var existingUserCards = await db.Flashcards
+                        .Where(f => f.UserId == userId && !f.IsArchived)
+                        .ToListAsync();
+
+                    var duplicate = existingUserCards.FirstOrDefault(f =>
+                    {
+                        var existingFront = Regex.Replace(
+                            ExtractTextFromAstOrJson(f.FrontAstJson).Trim(),
+                            @"\s+",
+                            " ");
+                        return string.Equals(existingFront, normalizedTargetFront, StringComparison.OrdinalIgnoreCase);
+                    });
+
+                    if (duplicate != null)
+                    {
+                        http.Response.Headers["X-Swms-Flashcard-Deduplicated"] = "true";
+                        return Results.Ok(duplicate);
+                    }
+                }
 
                 var card = new Flashcard
                 {
@@ -4919,6 +4953,405 @@ public static class SwmsEndpoints
                 creditsCharged
             });
         });
+
+        aiGroup.MapPost("/evaluate-practice", async (
+            AiEvaluatePracticeRequest req,
+            HttpContext http,
+            SwmsDbContext db,
+            GeminiProxyClient gemini) =>
+        {
+            var userId = ResolveUserId(http);
+            var trimmedResponse = (req.UserResponse ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(trimmedResponse))
+            {
+                return Results.BadRequest(new { error = "Vui lòng nhập hoặc nói câu trả lời trước khi chấm điểm." });
+            }
+
+            var quotaLock = AiQuotaLocks.GetOrAdd(userId.ToString("N"), _ => new SemaphoreSlim(1, 1));
+            AiUsageLedger? ledgerEntry = null;
+            var quotaAvailable = true;
+
+            await quotaLock.WaitAsync();
+            try
+            {
+                quotaAvailable = await CheckAiQuotaAvailableAsync(db, userId);
+                if (quotaAvailable)
+                {
+                    ledgerEntry = new AiUsageLedger
+                    {
+                        UserId = userId,
+                        Feature = "evaluate_practice",
+                        CreditsCharged = 1,
+                        Model = "gemini-3.8-flash-fallback",
+                        PromptTokens = 0,
+                        CompletionTokens = 0,
+                        TotalTokens = 0,
+                        CostUsd = 0,
+                        CreatedAt = DateTimeOffset.UtcNow
+                    };
+                    db.AiUsageLedgers.Add(ledgerEntry);
+                    await db.SaveChangesAsync();
+                }
+            }
+            finally
+            {
+                quotaLock.Release();
+            }
+
+            // If daily AI quota is exhausted, honestly fall back to deterministic offline keyword grading (Zero-Facade)
+            if (!quotaAvailable)
+            {
+                var quotaFallback = EvaluatePracticeDeterministic(req, "Đã hết hạn mức AI Credits hôm nay — hệ thống tự động chấm theo từ khóa (offline).");
+                return Results.Ok(new
+                {
+                    score = quotaFallback.Score,
+                    feedbackVi = quotaFallback.FeedbackVi,
+                    correctedVersion = quotaFallback.CorrectedVersion,
+                    strengths = quotaFallback.Strengths,
+                    improvements = quotaFallback.Improvements,
+                    matchedKeywords = quotaFallback.MatchedKeywords,
+                    missingKeywords = quotaFallback.MissingKeywords,
+                    usedLiveEndpoint = false,
+                    gradingMode = "keyword_offline",
+                    gradingLabelVi = "Chấm theo từ khóa (offline)",
+                    quotaExceeded = true,
+                    model = "keyword-offline-evaluator",
+                    tokensUsed = 0,
+                    creditsCharged = 0
+                });
+            }
+
+            var lang = string.IsNullOrWhiteSpace(req.Lang) ? "en-US" : req.Lang.Trim();
+            var mode = string.IsNullOrWhiteSpace(req.Mode) ? "roleplay" : req.Mode.Trim();
+            var keywordsText = req.ExpectedKeywords is { Count: > 0 }
+                ? string.Join(", ", req.ExpectedKeywords.Where(k => !string.IsNullOrWhiteSpace(k)))
+                : "(không bắt buộc từ khóa cố định)";
+
+            var sysPrompt =
+                "Bạn là giảng viên ngoại ngữ chuyên chấm bài thực hành giao tiếp (Roleplay / Speaking / Translation / Grammar) cho học viên Việt Nam. " +
+                "Hãy chấm nghiêm túc, công bằng và trả về DUY NHẤT một JSON object hợp lệ (không thêm markdown fence hay giải thích bên ngoài) theo đúng schema: " +
+                "{\"score\": 0-100, \"feedbackVi\": \"Nhận xét chi tiết bằng tiếng Việt\", \"correctedVersion\": \"Câu viết/nói tự nhiên chuẩn hơn bằng ngôn ngữ mục tiêu\", \"strengths\": [\"...\"], \"improvements\": [\"...\"]}.";
+
+            var userPrompt =
+                $"Chế độ: {mode}\n" +
+                $"Ngôn ngữ mục tiêu: {lang}\n" +
+                $"Ngữ cảnh bài học: {req.ContextTitle ?? "Luyện tập ngoại ngữ"}\n" +
+                $"Đề bài / Lời thoại AI: {req.Prompt}\n" +
+                $"Từ khóa gợi ý: {keywordsText}\n" +
+                $"Đáp án mẫu tham khảo: {req.SampleAnswer ?? "(không có)"}\n" +
+                $"Câu trả lời của học viên: \"{trimmedResponse}\"";
+
+            var aiOverrides = CourseGenerationService.ExtractAiOverrides(http);
+            var res = await gemini.CompleteChatAsync(sysPrompt, userPrompt, CancellationToken.None, aiOverrides);
+
+            bool isCustomOverride = aiOverrides != null && (!string.IsNullOrWhiteSpace(aiOverrides.BaseUrl) || !string.IsNullOrWhiteSpace(aiOverrides.ApiKey));
+            bool refundCredit = isCustomOverride && !res.UsedLiveEndpoint;
+
+            if (res.UsedLiveEndpoint && TryParseAiPracticeEvaluation(res.Content, out var aiParsed))
+            {
+                int creditsCharged = 1;
+                if (ledgerEntry != null)
+                {
+                    ledgerEntry.Model = res.Model;
+                    ledgerEntry.PromptTokens = res.PromptTokens;
+                    ledgerEntry.CompletionTokens = res.CompletionTokens;
+                    ledgerEntry.TotalTokens = res.TotalTokens;
+                    ledgerEntry.CreditsCharged = creditsCharged;
+                    ledgerEntry.CostUsd = Math.Round(res.TotalTokens * 0.0000005m, 6);
+                    await db.SaveChangesAsync();
+                }
+
+                var keywordStats = ComputeKeywordMatches(trimmedResponse, req.ExpectedKeywords, lang);
+                return Results.Ok(new
+                {
+                    score = aiParsed.Score,
+                    feedbackVi = aiParsed.FeedbackVi,
+                    correctedVersion = string.IsNullOrWhiteSpace(aiParsed.CorrectedVersion) ? (req.SampleAnswer ?? string.Empty) : aiParsed.CorrectedVersion,
+                    strengths = aiParsed.Strengths,
+                    improvements = aiParsed.Improvements,
+                    matchedKeywords = keywordStats.Matched,
+                    missingKeywords = keywordStats.Missing,
+                    usedLiveEndpoint = true,
+                    gradingMode = "ai_live",
+                    gradingLabelVi = "AI chấm trực tiếp",
+                    quotaExceeded = false,
+                    model = res.Model,
+                    tokensUsed = ledgerEntry?.TotalTokens ?? res.TotalTokens,
+                    creditsCharged
+                });
+            }
+
+            // Live AI unavailable or invalid JSON -> deterministic keyword evaluation (Zero-Facade, never pretend to be live AI)
+            int fallbackCredits = refundCredit ? 0 : (res.UsedLiveEndpoint ? 1 : 0);
+            if (ledgerEntry != null)
+            {
+                ledgerEntry.Model = res.Model;
+                ledgerEntry.PromptTokens = fallbackCredits == 0 ? 0 : res.PromptTokens;
+                ledgerEntry.CompletionTokens = fallbackCredits == 0 ? 0 : res.CompletionTokens;
+                ledgerEntry.TotalTokens = fallbackCredits == 0 ? 0 : res.TotalTokens;
+                ledgerEntry.CreditsCharged = fallbackCredits;
+                ledgerEntry.CostUsd = fallbackCredits == 0 ? 0 : Math.Round(res.TotalTokens * 0.0000005m, 6);
+                await db.SaveChangesAsync();
+            }
+
+            var deterministic = EvaluatePracticeDeterministic(req);
+            return Results.Ok(new
+            {
+                score = deterministic.Score,
+                feedbackVi = deterministic.FeedbackVi,
+                correctedVersion = deterministic.CorrectedVersion,
+                strengths = deterministic.Strengths,
+                improvements = deterministic.Improvements,
+                matchedKeywords = deterministic.MatchedKeywords,
+                missingKeywords = deterministic.MissingKeywords,
+                usedLiveEndpoint = false,
+                gradingMode = "keyword_offline",
+                gradingLabelVi = "Chấm theo từ khóa (offline)",
+                quotaExceeded = false,
+                model = res.Model,
+                tokensUsed = ledgerEntry?.TotalTokens ?? 0,
+                creditsCharged = fallbackCredits
+            });
+        });
+    }
+
+    private sealed record PracticeEvaluationOutput(
+        int Score,
+        string FeedbackVi,
+        string CorrectedVersion,
+        List<string> Strengths,
+        List<string> Improvements,
+        List<string> MatchedKeywords,
+        List<string> MissingKeywords
+    );
+
+    private static bool TryParseAiPracticeEvaluation(string? rawContent, out PracticeEvaluationOutput parsed)
+    {
+        parsed = new PracticeEvaluationOutput(0, string.Empty, string.Empty, new(), new(), new(), new());
+        if (string.IsNullOrWhiteSpace(rawContent)) return false;
+
+        var cleaned = rawContent.Trim();
+        if (cleaned.StartsWith("```"))
+        {
+            var idx = cleaned.IndexOf('\n');
+            if (idx > 0) cleaned = cleaned[(idx + 1)..];
+            if (cleaned.EndsWith("```")) cleaned = cleaned[..^3];
+            cleaned = cleaned.Trim();
+        }
+
+        // Also locate outer JSON object if wrapped by stray text
+        var firstBrace = cleaned.IndexOf('{');
+        var lastBrace = cleaned.LastIndexOf('}');
+        if (firstBrace >= 0 && lastBrace > firstBrace)
+        {
+            cleaned = cleaned[firstBrace..(lastBrace + 1)];
+        }
+
+        try
+        {
+            using var doc = JsonDocument.Parse(cleaned);
+            var root = doc.RootElement;
+            if (root.ValueKind != JsonValueKind.Object) return false;
+            if (!root.TryGetProperty("score", out var scoreProp)) return false;
+
+            int score;
+            if (scoreProp.ValueKind == JsonValueKind.Number && scoreProp.TryGetDouble(out var scoreDbl))
+            {
+                score = Math.Clamp((int)Math.Round(scoreDbl), 0, 100);
+            }
+            else
+            {
+                return false;
+            }
+
+            var feedbackVi = root.TryGetProperty("feedbackVi", out var fbProp) && fbProp.ValueKind == JsonValueKind.String
+                ? (fbProp.GetString() ?? string.Empty).Trim()
+                : string.Empty;
+            if (string.IsNullOrWhiteSpace(feedbackVi)) return false;
+
+            var correctedVersion = root.TryGetProperty("correctedVersion", out var cvProp) && cvProp.ValueKind == JsonValueKind.String
+                ? (cvProp.GetString() ?? string.Empty).Trim()
+                : string.Empty;
+
+            var strengths = ExtractJsonStringList(root, "strengths");
+            var improvements = ExtractJsonStringList(root, "improvements");
+
+            parsed = new PracticeEvaluationOutput(
+                score,
+                feedbackVi,
+                correctedVersion,
+                strengths,
+                improvements,
+                new(),
+                new());
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static List<string> ExtractJsonStringList(JsonElement root, string propName)
+    {
+        var list = new List<string>();
+        if (root.TryGetProperty(propName, out var prop) && prop.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in prop.EnumerateArray())
+            {
+                if (item.ValueKind == JsonValueKind.String)
+                {
+                    var val = item.GetString()?.Trim();
+                    if (!string.IsNullOrWhiteSpace(val)) list.Add(val);
+                }
+            }
+        }
+        return list;
+    }
+
+    private static string NormalizePracticeText(string? input, string lang)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+        var s = input.Trim().ToLowerInvariant()
+            .Replace('’', '\'')
+            .Replace('‘', '\'')
+            .Replace('-', ' ');
+
+        var isCjk = lang.StartsWith("ja", StringComparison.OrdinalIgnoreCase) ||
+                    lang.StartsWith("zh", StringComparison.OrdinalIgnoreCase);
+        if (isCjk)
+        {
+            return Regex.Replace(s, @"[\s。、，．！？；：「」『』（）()【】\[\],.!?;:'""~～\-—–]", string.Empty);
+        }
+
+        s = Regex.Replace(s, @"\bi'm\b", "i am");
+        s = Regex.Replace(s, @"\bdon't\b", "do not");
+        s = Regex.Replace(s, @"\bdoesn't\b", "does not");
+        s = Regex.Replace(s, @"\bdidn't\b", "did not");
+        s = Regex.Replace(s, @"\bcan't\b", "can not");
+        s = Regex.Replace(s, @"\bcannot\b", "can not");
+        s = Regex.Replace(s, @"\bwon't\b", "will not");
+        s = Regex.Replace(s, @"\bit's\b", "it is");
+        s = Regex.Replace(s, @"\bwe're\b", "we are");
+        s = Regex.Replace(s, @"\byou're\b", "you are");
+        s = Regex.Replace(s, @"\bi'd\b", "i would");
+        s = Regex.Replace(s, @"\blet's\b", "let us");
+        s = Regex.Replace(s, @"[^a-z0-9'\s]", " ");
+        s = Regex.Replace(s, @"\s+", " ").Trim();
+        return s;
+    }
+
+    private static (List<string> Matched, List<string> Missing) ComputeKeywordMatches(
+        string userResponse,
+        List<string>? expectedKeywords,
+        string lang)
+    {
+        var matched = new List<string>();
+        var missing = new List<string>();
+        if (expectedKeywords == null || expectedKeywords.Count == 0) return (matched, missing);
+
+        var normResp = NormalizePracticeText(userResponse, lang);
+        var respTokens = normResp.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var rawKw in expectedKeywords.Where(k => !string.IsNullOrWhiteSpace(k)))
+        {
+            var kw = rawKw.Trim();
+            var normKw = NormalizePracticeText(kw, lang);
+            if (string.IsNullOrWhiteSpace(normKw)) continue;
+
+            var kwTokens = normKw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var hit = normResp.Contains(normKw, StringComparison.Ordinal) ||
+                      (kwTokens.Length > 0 && kwTokens.All(kt => respTokens.Contains(kt, StringComparer.Ordinal)));
+            if (hit) matched.Add(kw);
+            else missing.Add(kw);
+        }
+
+        return (matched, missing);
+    }
+
+    private static PracticeEvaluationOutput EvaluatePracticeDeterministic(
+        AiEvaluatePracticeRequest req,
+        string? customPrefixNote = null)
+    {
+        var lang = string.IsNullOrWhiteSpace(req.Lang) ? "en-US" : req.Lang.Trim();
+        var isCjk = lang.StartsWith("ja", StringComparison.OrdinalIgnoreCase) ||
+                    lang.StartsWith("zh", StringComparison.OrdinalIgnoreCase);
+
+        var normResp = NormalizePracticeText(req.UserResponse, lang);
+        var tokens = isCjk
+            ? normResp.Select(c => c.ToString()).ToArray()
+            : normResp.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var unitCount = tokens.Length;
+        var minUnits = isCjk ? 6 : 6;
+
+        var (matched, missing) = ComputeKeywordMatches(req.UserResponse, req.ExpectedKeywords, lang);
+        var totalKeywords = matched.Count + missing.Count;
+
+        double keywordRatio = totalKeywords > 0 ? (double)matched.Count / totalKeywords : 0.65;
+        double lengthRatio = Math.Min(1.0, (double)unitCount / minUnits);
+
+        double sampleRatio = 0.0;
+        if (!string.IsNullOrWhiteSpace(req.SampleAnswer))
+        {
+            var normSample = NormalizePracticeText(req.SampleAnswer, lang);
+            var sampleTokens = isCjk
+                ? normSample.Select(c => c.ToString()).Distinct().ToArray()
+                : normSample.Split(' ', StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
+            if (sampleTokens.Length > 0)
+            {
+                var tokenSet = new HashSet<string>(tokens, StringComparer.Ordinal);
+                var overlap = sampleTokens.Count(st => tokenSet.Contains(st));
+                sampleRatio = (double)overlap / sampleTokens.Length;
+            }
+        }
+
+        int score = (int)Math.Round(keywordRatio * 65.0 + lengthRatio * 25.0 + sampleRatio * 10.0);
+        if (unitCount < 3) score = Math.Min(score, 40);
+        score = Math.Clamp(score, 0, 100);
+
+        var strengths = new List<string>();
+        var improvements = new List<string>();
+
+        if (matched.Count > 0)
+        {
+            strengths.Add($"Đã dùng {matched.Count}/{totalKeywords} từ khóa trọng tâm: {string.Join(", ", matched)}.");
+        }
+        if (unitCount >= minUnits)
+        {
+            strengths.Add($"Độ dài câu trả lời đủ ý ({unitCount} {(isCjk ? "ký tự" : "từ")}).");
+        }
+        else
+        {
+            improvements.Add($"Nên mở rộng câu trả lời dài hơn ({unitCount}/{minUnits} {(isCjk ? "ký tự" : "từ")}) để giao tiếp tự nhiên.");
+        }
+
+        if (missing.Count > 0)
+        {
+            improvements.Add($"Gợi ý bổ sung các từ khóa mục tiêu: {string.Join(", ", missing.Take(4))}.");
+        }
+        if (strengths.Count == 0)
+        {
+            strengths.Add("Đã chủ động hoàn thành phản hồi trong tình huống thực hành.");
+        }
+
+        var prefix = string.IsNullOrWhiteSpace(customPrefixNote)
+            ? "Chấm theo từ khóa (offline — kết nối AI trực tiếp hiện không khả dụng): "
+            : $"{customPrefixNote} ";
+
+        var summary = score >= 80
+            ? $"Điểm {score}/100. Câu trả lời bám sát yêu cầu và dùng đúng {matched.Count}/{totalKeywords} từ khóa."
+            : score >= 60
+                ? $"Điểm {score}/100. Ý chính khá tốt ({matched.Count}/{totalKeywords} từ khóa), hãy bổ sung thêm cụm từ gợi ý để diễn đạt tự nhiên hơn."
+                : $"Điểm {score}/100. Câu trả lời còn thiếu ý hoặc từ khóa chính; hãy xem mẫu tham khảo và luyện lại.";
+
+        return new PracticeEvaluationOutput(
+            Score: score,
+            FeedbackVi: prefix + summary,
+            CorrectedVersion: req.SampleAnswer ?? string.Empty,
+            Strengths: strengths,
+            Improvements: improvements,
+            MatchedKeywords: matched,
+            MissingKeywords: missing);
     }
 
     private static async Task<bool> CheckAiQuotaAvailableAsync(SwmsDbContext db, Guid userId, int requiredCredits = 1)

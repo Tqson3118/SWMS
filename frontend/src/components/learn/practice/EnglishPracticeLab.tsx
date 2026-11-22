@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import {
   Volume2,
   Mic,
@@ -33,11 +34,42 @@ import {
   Send,
   Sliders,
   Type,
-  Grid
+  Grid,
+  PenLine,
+  Languages,
+  Wrench,
+  MessagesSquare,
+  ArrowUpRight
 } from "lucide-react";
 import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { invalidateDashboardCache } from "@/lib/api-client";
 import EnglishWordMapView, { type WordMapData } from "./EnglishWordMapView";
+import {
+  DIFFICULTY_FILTER_OPTIONS,
+  DIFFICULTY_LABELS,
+  GRADING_LABELS,
+  buildDefaultEnglishWriteInPacks,
+  evaluatePronunciationWords,
+  filterItemsByDifficulty,
+  normalizePracticeActivities,
+  type ClozePracticeItem,
+  type DifficultyFilter,
+  type DifficultyLevel,
+  type GrammarFixPracticeItem,
+  type RoleplayPracticeItem,
+  type SentenceDrillItem,
+  type TranslatePracticeItem,
+  type WordMapPracticeItem,
+} from "@/lib/language-practice";
+import {
+  ClozePracticeView,
+  DifficultyBadge,
+  GrammarFixPracticeView,
+  RoleplayPracticeView,
+  TranslatePracticeView,
+  VietnamesePronunciationTipsCard,
+  type AutoSaveFsrsCandidate,
+} from "./LanguageWriteInViews";
 
 export interface PracticeModuleProps {
   courseId: string;
@@ -51,11 +83,22 @@ export interface PracticeModuleProps {
 
 export type EnglishPracticeLabProps = PracticeModuleProps;
 
-type PracticeMode = "shadowing" | "dictation" | "speaking" | "word_map" | "quiz";
+type PracticeMode =
+  | "shadowing"
+  | "dictation"
+  | "speaking"
+  | "word_map"
+  | "cloze"
+  | "translate"
+  | "grammar_fix"
+  | "roleplay"
+  | "quiz";
 type VoiceAccent = "en-US" | "en-GB";
 
 interface ExtractedDrill {
   id: string;
+  lang?: VoiceAccent;
+  difficulty: DifficultyLevel;
   topic: string;
   sentence: string;
   ipa: string;
@@ -65,19 +108,26 @@ interface ExtractedDrill {
   speakingOutline: string[];
   sampleAnswer: string;
   keyPhrases: string[];
+  wordChips?: string[];
+  distractors?: string[];
+  sourceActivityId?: string;
+  passingScore?: number;
   wordMapData?: WordMapData | null;
 }
 
 interface QuizQuestion {
   id: string;
+  difficulty: DifficultyLevel;
   question: string;
   options: string[];
   correctAnswer: string;
   explanation: string;
+  sourceSentence?: string;
+  meaningVi?: string;
 }
 
 // ----------------- DEFAULT TOPIC-AWARE DRILL PACKS -----------------
-const DEFAULT_IELTS_DRILLS: ExtractedDrill[] = [
+const DEFAULT_IELTS_DRILLS: Array<Omit<ExtractedDrill, "difficulty"> & { difficulty?: DifficultyLevel }> = [
   {
     id: "ielts-1",
     topic: "Nghe IELTS & Môi Trường Học Thuật",
@@ -160,7 +210,7 @@ const DEFAULT_IELTS_DRILLS: ExtractedDrill[] = [
   }
 ];
 
-const DEFAULT_TECH_FINANCE_DRILLS: ExtractedDrill[] = [
+const DEFAULT_TECH_FINANCE_DRILLS: Array<Omit<ExtractedDrill, "difficulty"> & { difficulty?: DifficultyLevel }> = [
   {
     id: "tech-1",
     topic: "Công Nghệ & Trí Tuệ Nhân Tạo",
@@ -243,7 +293,7 @@ const DEFAULT_TECH_FINANCE_DRILLS: ExtractedDrill[] = [
   }
 ];
 
-const DEFAULT_DAILY_DRILLS: ExtractedDrill[] = [
+const DEFAULT_DAILY_DRILLS: Array<Omit<ExtractedDrill, "difficulty"> & { difficulty?: DifficultyLevel }> = [
   {
     id: "daily-1",
     topic: "Giao Tiếp Công Sở Hằng Ngày",
@@ -539,10 +589,12 @@ function extractPracticeContent(
   const resultDrills: ExtractedDrill[] = [];
 
   const maxDrills = Math.min(20, Math.max(5, extractedSentences.length));
+  const difficultyCycle: DifficultyLevel[] = ["easy", "medium", "hard"];
   extractedSentences.slice(0, maxDrills).forEach((item, idx) => {
     const matchedAudio = audioUrls[idx] || null;
     resultDrills.push({
       id: `extracted-${idx + 1}`,
+      difficulty: difficultyCycle[idx % 3],
       topic: `${lessonTitle || topicDisplay} (Bài học)`,
       sentence: item.text,
       ipa: item.ipa || "",
@@ -571,6 +623,7 @@ function extractPracticeContent(
       const audioForDefault = audioUrls[resultDrills.length] || drill.audioUrl;
       resultDrills.push({
         ...drill,
+        difficulty: drill.difficulty ?? difficultyCycle[idx % 3],
         audioUrl: audioForDefault
       });
     }
@@ -604,19 +657,22 @@ function generateQuizFromDrills(drills: ExtractedDrill[]): QuizQuestion[] {
     ].filter(d => d !== targetWord);
 
     const rawOptions = Array.from(new Set([targetWord, ...distractors, "effective", "substantial"])).slice(0, 4);
-    // Shuffle options
-    const options = [...rawOptions].sort(() => 0.5 - Math.random());
+    // Deterministic stable ordering based on idx & word length to avoid hydration/re-render jitter
+    const options = [...rawOptions].sort((a, b) => ((a.length + idx) % 5) - ((b.length + idx) % 5));
 
     quizList.push({
       id: `quiz-${idx + 1}`,
+      difficulty: drill.difficulty || (idx % 3 === 0 ? "easy" : idx % 3 === 1 ? "medium" : "hard"),
       question: `Điền từ thích hợp nhất vào chỗ trống:\n"${blankSentence}"`,
       options,
       correctAnswer: targetWord,
-      explanation: `Từ chính xác là "${targetWord}". Dịch cả câu: "${drill.meaningVi}". Hãy chú ý ngữ pháp và sự hòa hợp thì/từ loại trong câu.`
+      explanation: `Từ chính xác là "${targetWord}". Dịch cả câu: "${drill.meaningVi}". Hãy chú ý ngữ pháp và sự hòa hợp thì/từ loại trong câu.`,
+      sourceSentence: drill.sentence,
+      meaningVi: drill.meaningVi,
     });
   });
 
-  return quizList.slice(0, 5);
+  return quizList.slice(0, 6);
 }
 
 export function EnglishPracticeLab({
@@ -642,6 +698,22 @@ export function EnglishPracticeLab({
   const [isLoadingBackend, setIsLoadingBackend] = useState(false);
   const [isMicPermissionDenied, setIsMicPermissionDenied] = useState(false);
 
+  // Deduplication cache for FSRS Flashcards (loaded from backend + updated in session)
+  const savedFsrsFrontSetRef = useRef<Set<string>>(new Set());
+  const [fsrsAutoSaveBanner, setFsrsAutoSaveBanner] = useState<{ count: number; items: string[] } | null>(null);
+
+  // Global Audio / TTS settings
+  const [voiceAccent, setVoiceAccent] = useState<VoiceAccent>("en-US");
+  const [ttsSpeed, setTtsSpeed] = useState<number>(1.0);
+  const [isPlayingSample, setIsPlayingSample] = useState(false);
+  const [audioErrorNotice, setAudioErrorNotice] = useState<string | null>(null);
+
+  // Main UI State
+  const [activeMode, setActiveMode] = useState<PracticeMode>("shadowing");
+  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>("all");
+  const [activeDrillIndex, setActiveDrillIndex] = useState(0);
+  const [sessionItemStatus, setSessionItemStatus] = useState<Record<string, "passed" | "attempted">>({});
+
   // Check SpeechRecognition support on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -651,7 +723,7 @@ export function EnglishPracticeLab({
     }
   }, []);
 
-  // Load Practice Activities & Attempts from backend
+  // Load Practice Activities, Attempts, and existing Flashcards (for deduplication) from backend
   useEffect(() => {
     let isMounted = true;
     async function loadBackendPractice() {
@@ -659,11 +731,13 @@ export function EnglishPracticeLab({
       try {
         const headers = getClientRequestHeaders();
         const actUrl = `/api/v1/practice/activities?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}`;
-        const attUrl = `/api/v1/practice/attempts?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}&limit=25`;
+        const attUrl = `/api/v1/practice/attempts?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}&limit=50`;
+        const fcUrl = `/api/v1/flashcards/due?courseId=${encodeURIComponent(courseId)}&includeAll=true`;
 
-        const [actRes, attRes] = await Promise.all([
+        const [actRes, attRes, fcRes] = await Promise.all([
           fetch(actUrl, { headers }).catch(() => null),
           fetch(attUrl, { headers }).catch(() => null),
+          fetch(fcUrl, { headers }).catch(() => null),
         ]);
 
         if (actRes && actRes.ok) {
@@ -678,6 +752,15 @@ export function EnglishPracticeLab({
             setPracticeAttempts(attData);
           }
         }
+        if (fcRes && fcRes.ok) {
+          const fcData = await fcRes.json();
+          const list = Array.isArray(fcData) ? fcData : Array.isArray(fcData?.cards) ? fcData.cards : [];
+          for (const c of list) {
+            if (typeof c?.frontText === "string" && c.frontText.trim()) {
+              savedFsrsFrontSetRef.current.add(c.frontText.trim().toLowerCase().replace(/\s+/g, " "));
+            }
+          }
+        }
       } catch {
         // ignore
       } finally {
@@ -690,77 +773,240 @@ export function EnglishPracticeLab({
     };
   }, [courseId, lessonId]);
 
-  // Merge backend activities if present
-  const effectiveDrills: ExtractedDrill[] = useMemo(() => {
-    if (dbActivities.length > 0) {
-      const shadowingAct = dbActivities.find(a => a.type === "shadowing");
-      const dictationAct = dbActivities.find(a => a.type === "dictation");
-      const pronunciationAct = dbActivities.find(a => a.type === "pronunciation");
-      const wordMapAct = dbActivities.find(a => a.type === "word_map");
+  // Normalize all backend practice activities (legacy single ConfigJson + extended multi-item schema)
+  const normalizedBank = useMemo(
+    () => normalizePracticeActivities(dbActivities, voiceAccent),
+    [dbActivities, voiceAccent]
+  );
 
-      let parsedWordMap: WordMapData | null = null;
-      if (wordMapAct?.configJson) {
-        try {
-          parsedWordMap = JSON.parse(wordMapAct.configJson);
-        } catch {}
-      }
+  const toExtractedDrill = useCallback(
+    (item: SentenceDrillItem): ExtractedDrill => ({
+      id: item.id,
+      lang: item.lang === "en-GB" ? "en-GB" : "en-US",
+      difficulty: item.difficulty,
+      topic: item.topic || `${lessonTitle || courseTitle} (Bài học chuẩn hóa)`,
+      sentence: item.sentence,
+      ipa: item.ipa,
+      meaningVi: item.meaningVi,
+      audioUrl: item.audioUrl,
+      speakingPrompt: item.speakingPrompt,
+      speakingOutline: item.speakingOutline,
+      sampleAnswer: item.sampleAnswer,
+      keyPhrases: item.keyPhrases,
+      wordChips: item.wordChips,
+      distractors: item.distractors,
+      sourceActivityId: item.sourceActivityId,
+      passingScore: item.passingScore,
+    }),
+    [lessonTitle, courseTitle]
+  );
 
-      const parseCfg = (jsonStr?: string) => {
-        try { return jsonStr ? JSON.parse(jsonStr) : {}; } catch { return {}; }
+  // Per-mode normalized lists (merging backend seeded activities + lesson/default drills)
+  const allShadowingDrills = useMemo(() => {
+    const fromDb = normalizedBank.shadowing.map(toExtractedDrill);
+    const seen = new Set(fromDb.map((d) => d.sentence.trim().toLowerCase()));
+    return [...fromDb, ...drills.filter((d) => !seen.has(d.sentence.trim().toLowerCase()))];
+  }, [normalizedBank.shadowing, drills, toExtractedDrill]);
+
+  const allDictationDrills = useMemo(() => {
+    const fromDb = normalizedBank.dictation.map(toExtractedDrill);
+    const seen = new Set(fromDb.map((d) => d.sentence.trim().toLowerCase()));
+    return [...fromDb, ...drills.filter((d) => !seen.has(d.sentence.trim().toLowerCase()))];
+  }, [normalizedBank.dictation, drills, toExtractedDrill]);
+
+  const allSpeakingDrills = useMemo(() => {
+    const fromDb = normalizedBank.pronunciation.map(toExtractedDrill);
+    const seen = new Set(fromDb.map((d) => d.sentence.trim().toLowerCase()));
+    return [...fromDb, ...drills.filter((d) => !seen.has(d.sentence.trim().toLowerCase()))];
+  }, [normalizedBank.pronunciation, drills, toExtractedDrill]);
+
+  const allWordMaps: WordMapPracticeItem[] = useMemo(() => {
+    if (normalizedBank.wordMaps.length > 0) {
+      return normalizedBank.wordMaps;
+    }
+    return drills.slice(0, 3).map((d, idx) => {
+      const wm = buildDefaultWordMap(d);
+      return {
+        id: `default-wm-${d.id}`,
+        lang: voiceAccent,
+        difficulty: d.difficulty || (idx % 3 === 0 ? "easy" : idx % 3 === 1 ? "medium" : "hard"),
+        title: `Sơ đồ từ vựng: ${wm.centralWord}`,
+        ...wm,
       };
+    });
+  }, [normalizedBank.wordMaps, drills, voiceAccent]);
 
-      const shadCfg = parseCfg(shadowingAct?.configJson);
-      const dictCfg = parseCfg(dictationAct?.configJson);
-      const pronCfg = parseCfg(pronunciationAct?.configJson);
+  const defaultWriteInPacks = useMemo(
+    () =>
+      buildDefaultEnglishWriteInPacks(
+        allShadowingDrills.map((d) => ({
+          id: d.id,
+          lang: d.lang || voiceAccent,
+          difficulty: d.difficulty,
+          topic: d.topic,
+          sentence: d.sentence,
+          ipa: d.ipa,
+          meaningVi: d.meaningVi,
+          audioUrl: d.audioUrl,
+          speakingPrompt: d.speakingPrompt,
+          speakingOutline: d.speakingOutline,
+          sampleAnswer: d.sampleAnswer,
+          keyPhrases: d.keyPhrases,
+        })),
+        lessonTitle
+      ),
+    [allShadowingDrills, lessonTitle, voiceAccent]
+  );
 
-      const dbSentence = shadCfg.sentence || dictCfg.sentence || pronCfg.sentence;
-      if (dbSentence) {
-        const dbDrill: ExtractedDrill = {
-          id: shadowingAct?.id || "db-drill-1",
-          topic: `${lessonTitle || courseTitle} (Bài học chuẩn hóa)`,
-          sentence: dbSentence,
-          ipa: shadCfg.ipa || dictCfg.ipa || pronCfg.ipa || "",
-          meaningVi: shadCfg.meaningVi || dictCfg.meaningVi || pronCfg.meaningVi || "Nội dung bài tập giao tiếp chuẩn hóa từ hệ thống.",
-          audioUrl: shadCfg.audioUrl || null,
-          speakingPrompt: `Luyện tập phát âm và đối thoại phản xạ theo chủ đề: ${lessonTitle || courseTitle}`,
-          speakingOutline: [
-            "Lắng nghe câu mẫu và nhại theo ngữ điệu chuẩn",
-            "Chú ý các từ nối âm và phát âm rõ âm đuôi",
-            "Thực hành phản xạ tự nhiên trong đối thoại thực tế"
-          ],
-          sampleAnswer: dbSentence,
-          keyPhrases: shadCfg.keyPhrases || dictCfg.keyPhrases || ["effective communication", "active listening", "mutual respect"],
-          wordMapData: parsedWordMap
-        };
-        return [dbDrill, ...drills.filter(d => d.sentence !== dbDrill.sentence)];
+  const allClozeItems: ClozePracticeItem[] = useMemo(
+    () => (normalizedBank.cloze.length > 0 ? normalizedBank.cloze : defaultWriteInPacks.cloze),
+    [normalizedBank.cloze, defaultWriteInPacks.cloze]
+  );
+  const allTranslateItems: TranslatePracticeItem[] = useMemo(
+    () => (normalizedBank.translate.length > 0 ? normalizedBank.translate : defaultWriteInPacks.translate),
+    [normalizedBank.translate, defaultWriteInPacks.translate]
+  );
+  const allGrammarFixItems: GrammarFixPracticeItem[] = useMemo(
+    () => (normalizedBank.grammarFix.length > 0 ? normalizedBank.grammarFix : defaultWriteInPacks.grammarFix),
+    [normalizedBank.grammarFix, defaultWriteInPacks.grammarFix]
+  );
+  const allRoleplayItems: RoleplayPracticeItem[] = useMemo(
+    () => (normalizedBank.roleplay.length > 0 ? normalizedBank.roleplay : defaultWriteInPacks.roleplay),
+    [normalizedBank.roleplay, defaultWriteInPacks.roleplay]
+  );
+
+  // Apply Difficulty Filter uniformly across ALL 9 modes
+  const filteredShadowingDrills = useMemo(
+    () => filterItemsByDifficulty(allShadowingDrills, difficultyFilter),
+    [allShadowingDrills, difficultyFilter]
+  );
+  const filteredDictationDrills = useMemo(
+    () => filterItemsByDifficulty(allDictationDrills, difficultyFilter),
+    [allDictationDrills, difficultyFilter]
+  );
+  const filteredSpeakingDrills = useMemo(
+    () => filterItemsByDifficulty(allSpeakingDrills, difficultyFilter),
+    [allSpeakingDrills, difficultyFilter]
+  );
+  const filteredWordMaps = useMemo(
+    () => filterItemsByDifficulty(allWordMaps, difficultyFilter),
+    [allWordMaps, difficultyFilter]
+  );
+  const filteredClozeItems = useMemo(
+    () => filterItemsByDifficulty(allClozeItems, difficultyFilter),
+    [allClozeItems, difficultyFilter]
+  );
+  const filteredTranslateItems = useMemo(
+    () => filterItemsByDifficulty(allTranslateItems, difficultyFilter),
+    [allTranslateItems, difficultyFilter]
+  );
+  const filteredGrammarFixItems = useMemo(
+    () => filterItemsByDifficulty(allGrammarFixItems, difficultyFilter),
+    [allGrammarFixItems, difficultyFilter]
+  );
+  const filteredRoleplayItems = useMemo(
+    () => filterItemsByDifficulty(allRoleplayItems, difficultyFilter),
+    [allRoleplayItems, difficultyFilter]
+  );
+  const filteredQuizQuestions = useMemo(
+    () => filterItemsByDifficulty(quizQuestions, difficultyFilter),
+    [quizQuestions, difficultyFilter]
+  );
+
+  // Active item list metadata for unified navigator across ALL modes
+  const currentTabMeta = useMemo(() => {
+    const buildItems = (mode: PracticeMode, arr: Array<{ id: string; difficulty: DifficultyLevel }>) =>
+      arr.map((it) => ({
+        id: it.id,
+        difficulty: it.difficulty,
+        statusKey:
+          mode === "cloze" || mode === "translate" || mode === "grammar_fix" || mode === "roleplay"
+            ? `${mode}-${it.id}`
+            : `${courseId}-${lessonId || "general"}-${mode}-${it.id}`,
+      }));
+
+    switch (activeMode) {
+      case "shadowing":
+        return buildItems("shadowing", filteredShadowingDrills);
+      case "dictation":
+        return buildItems("dictation", filteredDictationDrills);
+      case "speaking":
+        return buildItems("speaking", filteredSpeakingDrills);
+      case "word_map":
+        return buildItems("word_map", filteredWordMaps);
+      case "cloze":
+        return buildItems("cloze", filteredClozeItems);
+      case "translate":
+        return buildItems("translate", filteredTranslateItems);
+      case "grammar_fix":
+        return buildItems("grammar_fix", filteredGrammarFixItems);
+      case "roleplay":
+        return buildItems("roleplay", filteredRoleplayItems);
+      case "quiz":
+        return buildItems("quiz", filteredQuizQuestions);
+    }
+  }, [
+    activeMode,
+    courseId,
+    lessonId,
+    filteredShadowingDrills,
+    filteredDictationDrills,
+    filteredSpeakingDrills,
+    filteredWordMaps,
+    filteredClozeItems,
+    filteredTranslateItems,
+    filteredGrammarFixItems,
+    filteredRoleplayItems,
+    filteredQuizQuestions,
+  ]);
+
+  // Reset index when switching mode or difficulty filter
+  useEffect(() => {
+    setActiveDrillIndex(0);
+    setCurrentQuizIdx(0);
+  }, [activeMode, difficultyFilter]);
+
+  const safeActiveIndex =
+    currentTabMeta.length > 0 ? Math.min(activeDrillIndex, currentTabMeta.length - 1) : 0;
+
+  const activeSentenceList =
+    activeMode === "dictation"
+      ? filteredDictationDrills
+      : activeMode === "speaking"
+      ? filteredSpeakingDrills
+      : filteredShadowingDrills;
+
+  const activeDrill: ExtractedDrill | undefined =
+    activeSentenceList[safeActiveIndex] || activeSentenceList[0] || drills[0];
+
+  const activeWordMapItem: WordMapPracticeItem | undefined =
+    filteredWordMaps[safeActiveIndex] || filteredWordMaps[0];
+  const activeWordMap: WordMapData = activeWordMapItem || buildDefaultWordMap(drills[0]);
+
+  const activeClozeItem = filteredClozeItems[safeActiveIndex];
+  const activeTranslateItem = filteredTranslateItems[safeActiveIndex];
+  const activeGrammarFixItem = filteredGrammarFixItems[safeActiveIndex];
+  const activeRoleplayItem = filteredRoleplayItems[safeActiveIndex];
+
+  // Lookup map of pass/attempt status per activityKey from backend attempts + current session
+  const itemCompletionStatusMap = useMemo(() => {
+    const map: Record<string, "passed" | "attempted"> = {};
+    for (const att of practiceAttempts) {
+      const k = att.activityKey as string | undefined;
+      if (!k) continue;
+      if (att.isPassed) {
+        map[k] = "passed";
+      } else if (map[k] !== "passed") {
+        map[k] = "attempted";
       }
     }
-    return drills;
-  }, [dbActivities, drills, lessonTitle, courseTitle]);
-
-  // Main UI State
-  const [activeMode, setActiveMode] = useState<PracticeMode>("shadowing");
-  const [activeDrillIndex, setActiveDrillIndex] = useState(0);
-  const activeDrill = effectiveDrills[activeDrillIndex] || effectiveDrills[0];
-
-  const activeWordMap: WordMapData = useMemo(() => {
-    if (activeDrill.wordMapData) {
-      return activeDrill.wordMapData;
+    for (const [k, st] of Object.entries(sessionItemStatus)) {
+      if (st === "passed" || map[k] !== "passed") {
+        map[k] = st;
+      }
     }
-    const dbWordMapAct = dbActivities.find(a => a.type === "word_map");
-    if (dbWordMapAct?.configJson) {
-      try {
-        return JSON.parse(dbWordMapAct.configJson);
-      } catch {}
-    }
-    return buildDefaultWordMap(activeDrill);
-  }, [activeDrill, dbActivities]);
-
-  // Global Audio / TTS settings
-  const [voiceAccent, setVoiceAccent] = useState<VoiceAccent>("en-US");
-  const [ttsSpeed, setTtsSpeed] = useState<number>(1.0);
-  const [isPlayingSample, setIsPlayingSample] = useState(false);
-  const [audioErrorNotice, setAudioErrorNotice] = useState<string | null>(null);
+    return map;
+  }, [practiceAttempts, sessionItemStatus]);
 
   // Audio elements
   const sampleAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -769,7 +1015,7 @@ export function EnglishPracticeLab({
   const [toast, setToast] = useState<{ message: string; type: "success" | "info" | "warning" } | null>(null);
   const showToast = useCallback((message: string, type: "success" | "info" | "warning" = "info") => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3800);
+    setTimeout(() => setToast(null), 4200);
   }, []);
 
   const getModeLabel = (mode: PracticeMode): string => {
@@ -778,6 +1024,10 @@ export function EnglishPracticeLab({
       case "dictation": return "Chép chính tả (Dictation)";
       case "speaking": return "Luyện nói & Phát âm";
       case "word_map": return "Sơ đồ từ vựng (Word Map)";
+      case "cloze": return "Điền chỗ trống (Cloze)";
+      case "translate": return "Dịch Việt → Anh";
+      case "grammar_fix": return "Sửa lỗi ngữ pháp";
+      case "roleplay": return "Nhập vai hội thoại (Roleplay)";
       case "quiz": return "Trắc nghiệm nhanh";
       default: return "Luyện tập";
     }
@@ -794,18 +1044,34 @@ export function EnglishPracticeLab({
       durationSeconds?: number;
       activityTitle?: string;
       activityKey?: string;
+      activityId?: string;
     }) => {
       try {
         const headers = getClientRequestHeaders();
-        const dbAct = dbActivities.find(a => a.type === params.mode || a.id === params.activityKey);
-        const passed = params.isPassed ?? (params.score >= (dbAct?.passingScore ?? 70));
+        const dbAct = dbActivities.find(
+          (a) =>
+            (params.activityId && a.id === params.activityId) ||
+            a.id === params.activityKey ||
+            a.type === (params.mode === "speaking" ? "pronunciation" : params.mode)
+        );
+        const passingThreshold = dbAct?.passingScore ?? 70;
+        const passed = params.isPassed ?? (params.score >= passingThreshold);
+        const resolvedKey =
+          params.activityKey ||
+          `${courseId}-${lessonId || "general"}-${params.mode}-${activeDrill?.id || "item"}`;
+
+        setSessionItemStatus((prev) => ({
+          ...prev,
+          [resolvedKey]: passed ? "passed" : prev[resolvedKey] === "passed" ? "passed" : "attempted",
+        }));
+
         const payload = {
-          activityId: dbAct?.id || null,
+          activityId: params.activityId || dbAct?.id || null,
           courseId,
           lessonId: lessonId || null,
           activityType: params.mode,
-          activityKey: params.activityKey || `${courseId}-${lessonId || "general"}-${params.mode}-${activeDrill.id}`,
-          activityTitle: params.activityTitle || `${activeDrill.topic} · ${getModeLabel(params.mode)}`,
+          activityKey: resolvedKey,
+          activityTitle: params.activityTitle || `${activeDrill?.topic || lessonTitle} · ${getModeLabel(params.mode)}`,
           score: Math.max(0, Math.min(params.maxScore || 100, Math.round(params.score))),
           maxScore: params.maxScore || 100,
           isPassed: passed,
@@ -835,43 +1101,111 @@ export function EnglishPracticeLab({
         // Non-blocking
       }
     },
-    [courseId, lessonId, dbActivities, activeDrill, showToast]
+    [courseId, lessonId, lessonTitle, dbActivities, activeDrill, showToast]
   );
 
-  // Save word or phrase directly to FSRS Flashcards
+  // Auto-save wrong words/sentences to Flashcard FSRS with session + server deduplication
+  const autoSaveMistakesToFsrs = useCallback(
+    async (candidates: AutoSaveFsrsCandidate[]) => {
+      if (!candidates || candidates.length === 0) return;
+      const savedLabels: string[] = [];
+      const headers = getClientRequestHeaders({ "Content-Type": "application/json" });
+
+      for (const item of candidates.slice(0, 3)) {
+        const cleanFront = `${item.front}${item.ipa ? ` [${item.ipa}]` : ""}`.trim();
+        if (!cleanFront) continue;
+        const normKey = cleanFront.toLowerCase().replace(/\s+/g, " ");
+        if (savedFsrsFrontSetRef.current.has(normKey)) {
+          continue;
+        }
+        savedFsrsFrontSetRef.current.add(normKey);
+
+        const cleanBack = `${item.back}${item.example && !item.back.includes(item.example) ? `\n\nVí dụ: ${item.example}` : ""}`.trim();
+        try {
+          const res = await fetch("/api/v1/flashcards", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              lessonId: lessonId || null,
+              documentId: null,
+              annotationId: null,
+              cardType: "standard",
+              sourceTitleSnapshot: `${courseTitle} · ${lessonTitle}`,
+              sourceQuoteSnapshot: cleanFront,
+              frontText: cleanFront,
+              backText: cleanBack,
+              tagNames: ["tieng-anh", "loi-sai-luyen-tap", "fsrs"],
+              deduplicateByFront: true,
+            }),
+          });
+          if (res.ok) {
+            const wasDup = res.headers.get("X-Swms-Flashcard-Deduplicated") === "true";
+            if (!wasDup) {
+              savedLabels.push(item.front);
+            }
+          }
+        } catch {
+          // Non-blocking
+        }
+      }
+
+      if (savedLabels.length > 0) {
+        invalidateDashboardCache();
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("swms:data-mutated"));
+        }
+        setFsrsAutoSaveBanner({ count: savedLabels.length, items: savedLabels });
+      }
+    },
+    [lessonId, courseTitle, lessonTitle]
+  );
+
+  // Save word or phrase directly to FSRS Flashcards (manual click with deduplication)
   const handleSaveToFlashcardDirect = useCallback(
     async (params: { front: string; back: string; ipa?: string; example?: string }) => {
       try {
         const cleanFront = `${params.front}${params.ipa ? ` [${params.ipa}]` : ""}`.trim();
-        const cleanBack = `${params.back}${params.example ? `\n\nVí dụ: ${params.example}` : ""}`.trim();
-
-        if (onCreateFlashcardQuick) {
-          await onCreateFlashcardQuick(cleanFront, cleanBack);
-          showToast(`Đã lưu "${params.front}" vào Flashcard FSRS!`, "success");
+        const normKey = cleanFront.toLowerCase().replace(/\s+/g, " ");
+        if (savedFsrsFrontSetRef.current.has(normKey)) {
+          showToast(`Thẻ "${params.front}" đã có sẵn trong bộ Flashcard FSRS của bạn.`, "info");
           return;
         }
+        const cleanBack = `${params.back}${params.example ? `\n\nVí dụ: ${params.example}` : ""}`.trim();
 
-        const headers = getClientRequestHeaders();
+        const headers = getClientRequestHeaders({ "Content-Type": "application/json" });
         const res = await fetch("/api/v1/flashcards", {
           method: "POST",
-          headers: {
-            ...headers,
-            "Content-Type": "application/json",
-          },
+          headers,
           body: JSON.stringify({
             lessonId: lessonId || null,
-            courseId: courseId || null,
+            documentId: null,
+            annotationId: null,
             cardType: "standard",
             sourceTitleSnapshot: `${courseTitle} · ${lessonTitle}`,
             sourceQuoteSnapshot: cleanFront,
             frontText: cleanFront,
             backText: cleanBack,
             tagNames: ["tieng-anh", "tu-vung", "fsrs"],
+            deduplicateByFront: true,
           }),
         });
 
         if (res.ok) {
+          savedFsrsFrontSetRef.current.add(normKey);
           invalidateDashboardCache();
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new Event("swms:data-mutated"));
+          }
+          const wasDup = res.headers.get("X-Swms-Flashcard-Deduplicated") === "true";
+          showToast(
+            wasDup
+              ? `Thẻ "${params.front}" đã tồn tại trong Flashcard FSRS (không tạo trùng).`
+              : `Đã lưu "${params.front}" vào Flashcard FSRS!`,
+            wasDup ? "info" : "success"
+          );
+        } else if (onCreateFlashcardQuick) {
+          await onCreateFlashcardQuick(cleanFront, cleanBack);
+          savedFsrsFrontSetRef.current.add(normKey);
           showToast(`Đã lưu "${params.front}" vào Flashcard FSRS!`, "success");
         } else {
           showToast("Không thể tạo thẻ Flashcard lúc này.", "warning");
@@ -880,7 +1214,7 @@ export function EnglishPracticeLab({
         showToast("Lỗi kết nối khi lưu thẻ Flashcard.", "warning");
       }
     },
-    [onCreateFlashcardQuick, lessonId, courseId, courseTitle, lessonTitle, showToast]
+    [onCreateFlashcardQuick, lessonId, courseTitle, lessonTitle, showToast]
   );
 
   // ----------------- MODE 1: SHADOWING STATE -----------------
@@ -913,6 +1247,8 @@ export function EnglishPracticeLab({
   const [speakingNotes, setSpeakingNotes] = useState("");
   const [speakingAiLoading, setSpeakingAiLoading] = useState(false);
   const [speakingAiFeedback, setSpeakingAiFeedback] = useState<string | null>(null);
+  const [speakingAiGradingLabel, setSpeakingAiGradingLabel] = useState<string | null>(null);
+  const [speakingAiUsedLive, setSpeakingAiUsedLive] = useState<boolean>(false);
   const [showSampleAnswer, setShowSampleAnswer] = useState(false);
 
   // ----------------- MODE 4: MINI-QUIZ STATE -----------------
@@ -941,15 +1277,25 @@ export function EnglishPracticeLab({
     setShowFirstLetterHint(false);
     setShowFullAnswer(false);
     setSpeakingAiFeedback(null);
+    setSpeakingAiGradingLabel(null);
+    setSpeakingAiUsedLive(false);
     setShowSampleAnswer(false);
 
-    // Setup word bank chips for dictation
-    const sentenceWords = activeDrill.sentence
-      .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")
-      .split(/\s+/)
-      .filter(Boolean);
+    if (!activeDrill) return;
 
-    const distractors = ["however", "therefore", "always", "crucial", "often", "their", "moreover"];
+    // Setup word bank chips for dictation
+    const sentenceWords =
+      activeDrill.wordChips && activeDrill.wordChips.length > 0
+        ? activeDrill.wordChips
+        : activeDrill.sentence
+            .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")
+            .split(/\s+/)
+            .filter(Boolean);
+
+    const distractors =
+      activeDrill.distractors && activeDrill.distractors.length > 0
+        ? activeDrill.distractors
+        : ["however", "therefore", "always", "crucial", "often", "their", "moreover"];
     const chosenDistractors = distractors.slice(0, 3);
     const allWords = [...sentenceWords, ...chosenDistractors];
 
@@ -959,7 +1305,7 @@ export function EnglishPracticeLab({
 
     setAvailableChips(chips);
     setPlacedChips([]);
-  }, [activeDrillIndex, activeDrill]);
+  }, [safeActiveIndex, activeDrill]);
 
   // Clean up timers & audio URLs on unmount
   useEffect(() => {
@@ -1026,6 +1372,8 @@ export function EnglishPracticeLab({
         setIsPlayingSample(false);
         return;
       }
+
+      if (!activeDrill) return;
 
       // Try file audio first if available
       if (activeDrill.audioUrl) {
@@ -1112,17 +1460,34 @@ export function EnglishPracticeLab({
       showToast("Đã dừng ghi âm.", "info");
 
       // Record practice attempt if speech was recognized
-      if (effectiveSpokenText && (activeMode === "shadowing" || activeMode === "speaking")) {
+      if (effectiveSpokenText && activeDrill && (activeMode === "shadowing" || activeMode === "speaking")) {
+        const passing = activeDrill.passingScore ?? 70;
+        const isPassed = shadowingAccuracy >= passing;
         recordPracticeAttempt({
           mode: activeMode,
           score: shadowingAccuracy,
-          isPassed: shadowingAccuracy >= 70,
+          isPassed,
+          activityId: activeDrill.sourceActivityId,
           details: {
             sentence: activeDrill.sentence,
             spokenText: effectiveSpokenText,
             accuracy: shadowingAccuracy,
+            tipsCount: pronunciationEval.tips.length,
           }
         });
+        const wrongOnly = shadowingWordResults.filter((w) => w.status === "wrong");
+        if (!isPassed || wrongOnly.length > 0) {
+          void autoSaveMistakesToFsrs(
+            (wrongOnly.length > 0 ? wrongOnly : shadowingWordResults.filter((w) => w.status === "near"))
+              .slice(0, 3)
+              .map((w) => ({
+                front: w.word.replace(/^[^A-Za-z0-9']+|[^A-Za-z0-9']+$/g, "") || w.word,
+                back: `Từ cần luyện phát âm trong câu: "${activeDrill.sentence}"\nNghĩa: ${activeDrill.meaningVi}`,
+                ipa: activeDrill.ipa || undefined,
+                example: activeDrill.sentence,
+              }))
+          );
+        }
       }
       return;
     }
@@ -1154,8 +1519,10 @@ export function EnglishPracticeLab({
           setSpokenTranscript(currentLine.trim());
         };
 
-        recognition.onerror = () => {
-          // Speech recognition may fail quietly; keep MediaRecorder going
+        recognition.onerror = (ev: any) => {
+          if (ev?.error === "not-allowed" || ev?.error === "service-not-allowed") {
+            setIsMicPermissionDenied(true);
+          }
         };
 
         recognition.onend = () => {
@@ -1202,90 +1569,98 @@ export function EnglishPracticeLab({
     setIsRecording(true);
   };
 
-  // ----------------- WORD-BY-WORD SCORING (SHADOWING) -----------------
-  const effectiveSpokenText = (spokenTranscript.trim() || manualTranscriptInput.trim()).toLowerCase();
+  // ----------------- WORD-BY-WORD SCORING (SHADOWING & PRONUNCIATION ENGINE) -----------------
+  const effectiveSpokenText = (spokenTranscript.trim() || manualTranscriptInput.trim()).trim();
 
-  const shadowingWordResults = useMemo(() => {
-    const targetWords = activeDrill.sentence.split(/\s+/).filter(Boolean);
-    if (!effectiveSpokenText) {
-      return targetWords.map(w => ({ word: w, status: "pending" as const, clean: cleanWord(w) }));
+  const pronunciationEval = useMemo(() => {
+    if (!activeDrill) {
+      return evaluatePronunciationWords("", "", voiceAccent);
     }
+    return evaluatePronunciationWords(activeDrill.sentence, effectiveSpokenText, voiceAccent);
+  }, [activeDrill, effectiveSpokenText, voiceAccent]);
 
-    const spokenTokens = effectiveSpokenText
-      .split(/\s+/)
-      .map(cleanWord)
-      .filter(Boolean);
-    const spokenSet = new Set(spokenTokens);
-
-    return targetWords.map((rawWord, idx) => {
-      const cleanTarget = cleanWord(rawWord);
-      const exactAtPos = spokenTokens[idx] === cleanTarget;
-      const inSpokenList = exactAtPos || spokenSet.has(cleanTarget);
-
-      if (inSpokenList) {
-        return { word: rawWord, status: "correct" as const, clean: cleanTarget };
-      }
-
-      // Check close match with Levenshtein
-      const isClose = spokenTokens.some(
-        st =>
-          levenshteinDistance(st, cleanTarget) <= 2 ||
-          (cleanTarget.length > 4 && (st.startsWith(cleanTarget.slice(0, 4)) || cleanTarget.startsWith(st)))
-      );
-
-      if (isClose) {
-        return { word: rawWord, status: "close" as const, clean: cleanTarget };
-      }
-
-      return { word: rawWord, status: "incorrect" as const, clean: cleanTarget };
-    });
-  }, [activeDrill.sentence, effectiveSpokenText]);
-
-  const shadowingAccuracy = useMemo(() => {
-    if (!effectiveSpokenText) return 0;
-    const total = shadowingWordResults.length;
-    if (total === 0) return 0;
-    const correctCount = shadowingWordResults.filter(w => w.status === "correct").length;
-    const closeCount = shadowingWordResults.filter(w => w.status === "close").length;
-    return Math.round(((correctCount + closeCount * 0.6) / total) * 100);
-  }, [shadowingWordResults, effectiveSpokenText]);
+  const shadowingWordResults = pronunciationEval.words;
+  const shadowingAccuracy = effectiveSpokenText ? pronunciationEval.score : 0;
 
   // Complete and record Shadowing attempt
   const handleCompleteShadowing = () => {
-    const score = effectiveSpokenText ? shadowingAccuracy : 100;
+    if (!activeDrill) return;
+    if (!effectiveSpokenText && !recordedAudioUrl) {
+      showToast("Vui lòng ghi âm giọng nói hoặc nhập câu vừa đọc để chấm điểm trước khi lưu.", "warning");
+      return;
+    }
+    const score = effectiveSpokenText ? shadowingAccuracy : 70;
+    const passing = activeDrill.passingScore ?? 70;
+    const isPassed = score >= passing;
     recordPracticeAttempt({
       mode: "shadowing",
       score,
-      isPassed: score >= 70,
+      isPassed,
+      activityId: activeDrill.sourceActivityId,
       details: {
         sentence: activeDrill.sentence,
         spokenText: effectiveSpokenText,
         hasAudioRecording: !!recordedAudioUrl,
+        tipsCount: pronunciationEval.tips.length,
       }
     });
+    if (effectiveSpokenText) {
+      const wrongOnly = shadowingWordResults.filter((w) => w.status === "wrong");
+      if (!isPassed || wrongOnly.length > 0) {
+        void autoSaveMistakesToFsrs(
+          (wrongOnly.length > 0 ? wrongOnly : shadowingWordResults.filter((w) => w.status === "near"))
+            .slice(0, 3)
+            .map((w) => ({
+              front: w.word.replace(/^[^A-Za-z0-9']+|[^A-Za-z0-9']+$/g, "") || w.word,
+              back: `Từ cần luyện phát âm trong câu: "${activeDrill.sentence}"\nNghĩa: ${activeDrill.meaningVi}`,
+              ipa: activeDrill.ipa || undefined,
+              example: activeDrill.sentence,
+            }))
+        );
+      }
+    }
   };
 
   // Record Speaking / Pronunciation attempt
   const handleRecordSpeakingScore = () => {
+    if (!activeDrill) return;
     if (!effectiveSpokenText) {
       showToast("Vui lòng đọc to câu mẫu để nhận dạng giọng nói trước khi ghi nhận điểm.", "warning");
       return;
     }
+    const passing = activeDrill.passingScore ?? 70;
+    const isPassed = shadowingAccuracy >= passing;
     recordPracticeAttempt({
       mode: "speaking",
       score: shadowingAccuracy,
-      isPassed: shadowingAccuracy >= 70,
+      isPassed,
+      activityId: activeDrill.sourceActivityId,
       details: {
         sentence: activeDrill.sentence,
         spokenText: effectiveSpokenText,
         recognizedAccuracy: shadowingAccuracy,
+        tipsCount: pronunciationEval.tips.length,
       }
     });
+    const wrongOnly = shadowingWordResults.filter((w) => w.status === "wrong");
+    if (!isPassed || wrongOnly.length > 0) {
+      void autoSaveMistakesToFsrs(
+        (wrongOnly.length > 0 ? wrongOnly : shadowingWordResults.filter((w) => w.status === "near"))
+          .slice(0, 3)
+          .map((w) => ({
+            front: w.word.replace(/^[^A-Za-z0-9']+|[^A-Za-z0-9']+$/g, "") || w.word,
+            back: `Từ phát âm cần ôn lại: "${activeDrill.sentence}"\nNghĩa: ${activeDrill.meaningVi}`,
+            ipa: activeDrill.ipa || undefined,
+            example: activeDrill.sentence,
+          }))
+      );
+    }
   };
 
   // Save incorrect words to Flashcards
   const handleSaveMissedWordsToFlashcards = async () => {
-    const wrongWords = shadowingWordResults.filter(w => w.status === "incorrect");
+    if (!activeDrill) return;
+    const wrongWords = shadowingWordResults.filter(w => w.status === "wrong" || w.status === "near");
     if (wrongWords.length === 0) {
       showToast("Không có từ phát âm sai nào cần tạo thẻ!", "info");
       return;
@@ -1294,8 +1669,9 @@ export function EnglishPracticeLab({
     try {
       for (const item of wrongWords) {
         await handleSaveToFlashcardDirect({
-          front: item.word,
+          front: item.word.replace(/^[^A-Za-z0-9']+|[^A-Za-z0-9']+$/g, "") || item.word,
           back: `Phát âm mẫu câu: "${activeDrill.sentence}"\nNghĩa tiếng Việt: ${activeDrill.meaningVi}`,
+          ipa: activeDrill.ipa || undefined,
           example: activeDrill.sentence
         });
       }
@@ -1307,7 +1683,8 @@ export function EnglishPracticeLab({
 
   // Save Shadowing results to Notebook
   const handleSaveShadowingToNotebook = async () => {
-    const wrongWords = shadowingWordResults.filter(w => w.status === "incorrect").map(w => w.word);
+    if (!activeDrill) return;
+    const wrongWords = shadowingWordResults.filter(w => w.status === "wrong" || w.status === "near").map(w => w.word);
     const markdownLog = [
       `### 🎙️ Kết Quả Luyện Phát Âm (Shadowing): ${activeDrill.topic}`,
       `- **Câu luyện tập:** ${activeDrill.sentence}`,
@@ -1330,6 +1707,7 @@ export function EnglishPracticeLab({
 
   // ----------------- MODE 2: DICTATION EVALUATION -----------------
   const dictationAccuracy = useMemo(() => {
+    if (!activeDrill) return 0;
     const targetWords = activeDrill.sentence
       .toLowerCase()
       .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")
@@ -1354,10 +1732,11 @@ export function EnglishPracticeLab({
     });
     const maxLen = Math.max(targetWords.length, userWords.length);
     return Math.round((hits / maxLen) * 100);
-  }, [activeDrill.sentence, dictationSubMode, dictationTyped, placedChips]);
+  }, [activeDrill, dictationSubMode, dictationTyped, placedChips]);
 
   // Diff comparison items for dictation
   const dictationDiffItems = useMemo(() => {
+    if (!activeDrill) return [];
     const targetWords = activeDrill.sentence
       .replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")
       .split(/\s+/)
@@ -1396,7 +1775,7 @@ export function EnglishPracticeLab({
       }
     }
     return items;
-  }, [activeDrill.sentence, dictationSubMode, dictationTyped, placedChips]);
+  }, [activeDrill, dictationSubMode, dictationTyped, placedChips]);
 
   const missedDictationWords = useMemo(() => {
     return Array.from(
@@ -1425,11 +1804,15 @@ export function EnglishPracticeLab({
   };
 
   const handleCheckDictation = () => {
+    if (!activeDrill) return;
     setDictationChecked(true);
+    const passing = activeDrill.passingScore ?? 70;
+    const isPassed = dictationAccuracy >= passing;
     recordPracticeAttempt({
       mode: "dictation",
       score: dictationAccuracy,
-      isPassed: dictationAccuracy >= 70,
+      isPassed,
+      activityId: activeDrill.sourceActivityId,
       details: {
         targetSentence: activeDrill.sentence,
         typed: dictationTyped,
@@ -1438,6 +1821,17 @@ export function EnglishPracticeLab({
         accuracy: dictationAccuracy,
       }
     });
+
+    if (!isPassed || missedDictationWords.length > 0) {
+      void autoSaveMistakesToFsrs(
+        missedDictationWords.slice(0, 3).map((w) => ({
+          front: w,
+          back: `Từ cần nhớ trong câu chép chính tả: "${activeDrill.sentence}"\nNghĩa câu: ${activeDrill.meaningVi}`,
+          ipa: activeDrill.ipa || undefined,
+          example: activeDrill.sentence,
+        }))
+      );
+    }
   };
 
   const handleChipClick = (chip: { id: string; word: string }, from: "available" | "placed") => {
@@ -1459,6 +1853,7 @@ export function EnglishPracticeLab({
   // ----------------- MODE 3: SPEAKING AI FEEDBACK -----------------
   // Live target vocabulary detection in Speaking
   const detectedPhrasesStatus = useMemo(() => {
+    if (!activeDrill) return [];
     const fullText = `${spokenTranscript} ${speakingNotes} ${manualTranscriptInput}`.toLowerCase();
     return activeDrill.keyPhrases.map(phrase => {
       const phraseNorm = phrase.toLowerCase().replace(/[^a-z0-9 ]/g, "");
@@ -1468,11 +1863,12 @@ export function EnglishPracticeLab({
         (words.length >= 2 && words.every(w => fullText.includes(w)));
       return { phrase, isMatched };
     });
-  }, [spokenTranscript, speakingNotes, manualTranscriptInput, activeDrill.keyPhrases]);
+  }, [spokenTranscript, speakingNotes, manualTranscriptInput, activeDrill]);
 
   const detectedCount = detectedPhrasesStatus.filter(p => p.isMatched).length;
 
   const handleRequestAiSpeakingReview = async () => {
+    if (!activeDrill) return;
     const userSpokenContent = spokenTranscript.trim() || speakingNotes.trim() || manualTranscriptInput.trim();
     if (!userSpokenContent) {
       showToast("Vui lòng bật mic nói hoặc gõ dàn ý của bạn trước khi nhận xét AI.", "warning");
@@ -1485,41 +1881,44 @@ export function EnglishPracticeLab({
         "Content-Type": "application/json"
       });
 
-      const promptText = `
-Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câu trả lời của người học một cách chi tiết, nhẹ nhàng và mang tính động viên:
-- Chủ đề: ${activeDrill.speakingPrompt}
-- Dàn ý gợi ý: ${activeDrill.speakingOutline.join(" | ")}
-- Từ vựng mục tiêu cần dùng: ${activeDrill.keyPhrases.join(", ")}
-- Bài nói của người học: "${userSpokenContent}"
-
-Định dạng nhận xét ngắn gọn bằng Tiếng Việt gồm:
-1. Điểm mạnh về ý tưởng và độ trôi chảy (Fluency & Coherence)
-2. Nhận xét về độ rộng từ vựng (Lexical Resource) - đã dùng được cụm từ nào tốt?
-3. Gợi ý 2 cách sửa ngữ pháp hoặc cách diễn đạt tự nhiên hơn (Pronunciation / Grammar polish).
-      `.trim();
-
-      const res = await fetch("/api/v1/ai/explain", {
+      const res = await fetch("/api/v1/ai/evaluate-practice", {
         method: "POST",
         headers,
         body: JSON.stringify({
-          excerpt: promptText,
-          contextTitle: `IELTS Speaking Review: ${activeDrill.topic}`,
-          actionType: "explain"
+          mode: "speaking",
+          lang: voiceAccent,
+          prompt: `${activeDrill.speakingPrompt}\nDàn ý gợi ý: ${activeDrill.speakingOutline.join(" | ")}`,
+          userResponse: userSpokenContent,
+          expectedKeywords: activeDrill.keyPhrases,
+          sampleAnswer: activeDrill.sampleAnswer,
+          contextTitle: `Speaking Review: ${activeDrill.topic}`,
         })
       });
 
       if (res.ok) {
         const data = await res.json();
-        setSpeakingAiFeedback(data.explanation || "Đã phân tích xong bài nói của bạn.");
+        const usedLive = Boolean(data.usedLiveEndpoint);
+        setSpeakingAiUsedLive(usedLive);
+        setSpeakingAiGradingLabel(usedLive ? GRADING_LABELS.ai_live : GRADING_LABELS.keyword_offline);
+        const lines = [
+          data.feedbackVi || "Đã phân tích xong bài nói của bạn.",
+          Array.isArray(data.strengths) && data.strengths.length > 0 ? `• Điểm tốt: ${data.strengths.join(" | ")}` : "",
+          Array.isArray(data.improvements) && data.improvements.length > 0 ? `• Gợi ý cải thiện: ${data.improvements.join(" | ")}` : "",
+          data.correctedVersion ? `• Gợi ý diễn đạt tự nhiên hơn: "${data.correctedVersion}"` : "",
+        ].filter(Boolean);
+        setSpeakingAiFeedback(lines.join("\n"));
       } else {
-        // Fallback rubric review
+        setSpeakingAiUsedLive(false);
+        setSpeakingAiGradingLabel(GRADING_LABELS.keyword_offline);
         setSpeakingAiFeedback(
-          `Nhận xét tự động: Bạn đã diễn đạt được nội dung cơ bản. Đã sử dụng thành công ${detectedCount}/${activeDrill.keyPhrases.length} cụm từ mục tiêu. Để nâng band điểm, hãy bổ sung các liên từ (Furthermore, Consequently) và kéo dài câu trả lời bằng ví dụ thực tế.`
+          `Chấm theo từ khóa (offline): Bạn đã dùng ${detectedCount}/${activeDrill.keyPhrases.length} cụm từ mục tiêu. Hãy bổ sung thêm các cụm từ khóa và ví dụ cụ thể để kéo dài câu trả lời.`
         );
       }
     } catch {
+      setSpeakingAiUsedLive(false);
+      setSpeakingAiGradingLabel(GRADING_LABELS.keyword_offline);
       setSpeakingAiFeedback(
-        `Nhận xét tự động: Bạn đã diễn đạt được nội dung cơ bản. Đã sử dụng thành công ${detectedCount}/${activeDrill.keyPhrases.length} cụm từ mục tiêu. Tiếp tục duy trì luyện tập mỗi ngày!`
+        `Chấm theo từ khóa (offline): Bạn đã dùng ${detectedCount}/${activeDrill.keyPhrases.length} cụm từ mục tiêu. Không kết nối được máy chủ AI lúc này.`
       );
     } finally {
       setSpeakingAiLoading(false);
@@ -1527,12 +1926,13 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
   };
 
   const handleSaveSpeakingToNotebook = async () => {
+    if (!activeDrill) return;
     const textLog = [
       `### 🗣️ Nhật Ký Luyện Nói (Speaking Cue Card): ${activeDrill.topic}`,
       `- **Câu hỏi thảo luận:** ${activeDrill.speakingPrompt}`,
       `- **Cụm từ vựng mục tiêu đã áp dụng:** ${detectedCount}/${activeDrill.keyPhrases.length} cụm (${detectedPhrasesStatus.filter(p => p.isMatched).map(p => p.phrase).join(", ") || "Chưa ghi nhận"})`,
       `- **Bản ghi âm / Ghi chú của bạn:** ${spokenTranscript || speakingNotes || "Không có văn bản"}`,
-      speakingAiFeedback ? `- **Nhận xét từ AI / Giảng viên:**\n${speakingAiFeedback}` : ""
+      speakingAiFeedback ? `- **Nhận xét (${speakingAiGradingLabel || "Luyện nói"}):**\n${speakingAiFeedback}` : ""
     ]
       .filter(Boolean)
       .join("\n");
@@ -1545,8 +1945,8 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
     }
   };
 
-  // ----------------- MODE 4: QUIZ ACTIONS -----------------
-  const activeQuiz = quizQuestions[currentQuizIdx] || quizQuestions[0];
+  // ----------------- MODE 9: QUIZ ACTIONS -----------------
+  const activeQuiz = filteredQuizQuestions[currentQuizIdx] || filteredQuizQuestions[0];
 
   const handleSelectQuizOption = (opt: string) => {
     if (quizAnswerChecked) return;
@@ -1554,30 +1954,50 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
   };
 
   const handleCheckQuizAnswer = () => {
-    if (!selectedQuizChoice || quizAnswerChecked) return;
+    if (!selectedQuizChoice || quizAnswerChecked || !activeQuiz) return;
     setQuizAnswerChecked(true);
-    if (selectedQuizChoice === activeQuiz.correctAnswer) {
+    const isCorrect = selectedQuizChoice === activeQuiz.correctAnswer;
+    const quizItemKey = `${courseId}-${lessonId || "general"}-quiz-${activeQuiz.id}`;
+    setSessionItemStatus((prev) => ({
+      ...prev,
+      [quizItemKey]: isCorrect ? "passed" : prev[quizItemKey] === "passed" ? "passed" : "attempted",
+    }));
+    if (isCorrect) {
       setQuizScore(s => s + 1);
+    } else {
+      void autoSaveMistakesToFsrs([
+        {
+          front: activeQuiz.correctAnswer,
+          back: `${activeQuiz.explanation}`,
+          example: activeQuiz.sourceSentence,
+        },
+      ]);
     }
   };
 
   const handleNextQuizQuestion = () => {
-    if (currentQuizIdx + 1 < quizQuestions.length) {
-      setCurrentQuizIdx(i => i + 1);
+    if (currentQuizIdx + 1 < filteredQuizQuestions.length) {
+      const nextIdx = currentQuizIdx + 1;
+      setCurrentQuizIdx(nextIdx);
+      setActiveDrillIndex(nextIdx);
       setSelectedQuizChoice(null);
       setQuizAnswerChecked(false);
     } else {
       setQuizCompleted(true);
-      const isCorrectNow = selectedQuizChoice === activeQuiz.correctAnswer;
-      const totalCorrect = quizScore + (isCorrectNow ? 1 : 0);
-      const finalScore = Math.round((totalCorrect / quizQuestions.length) * 100);
+      const totalCorrect = quizScore;
+      const finalScore =
+        filteredQuizQuestions.length > 0
+          ? Math.round((totalCorrect / filteredQuizQuestions.length) * 100)
+          : 0;
       recordPracticeAttempt({
         mode: "quiz",
         score: finalScore,
         isPassed: finalScore >= 70,
+        activityKey: `${courseId}-${lessonId || "general"}-quiz-${difficultyFilter}`,
         details: {
-          totalQuestions: quizQuestions.length,
+          totalQuestions: filteredQuizQuestions.length,
           correctAnswers: totalCorrect,
+          difficultyFilter,
         }
       });
     }
@@ -1585,6 +2005,7 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
 
   const handleRestartQuiz = () => {
     setCurrentQuizIdx(0);
+    setActiveDrillIndex(0);
     setSelectedQuizChoice(null);
     setQuizAnswerChecked(false);
     setQuizScore(0);
@@ -1709,13 +2130,13 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
           </div>
         </div>
 
-        {/* 5 Practice Mode Tabs (Optimized for mobile & desktop) */}
+        {/* 9 Practice Mode Tabs (4 core + 4 write-in + quiz, responsive on 390px / 768px / 1440px) */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 pt-4">
           <button
             type="button"
             data-testid="practice-tab-shadowing"
             onClick={() => setActiveMode("shadowing")}
-            className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-semibold min-h-[48px] transition-all ${
+            className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-semibold min-h-[46px] transition-all cursor-pointer ${
               activeMode === "shadowing"
                 ? "bg-[#5E51E8]/10 border-[#5E51E8] text-[#5E51E8] dark:text-[#818CF8] dark:border-[#818CF8]"
                 : "border-transparent bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800/80 text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
@@ -1729,7 +2150,7 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
             type="button"
             data-testid="practice-tab-dictation"
             onClick={() => setActiveMode("dictation")}
-            className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-semibold min-h-[48px] transition-all ${
+            className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-semibold min-h-[46px] transition-all cursor-pointer ${
               activeMode === "dictation"
                 ? "bg-[#5E51E8]/10 border-[#5E51E8] text-[#5E51E8] dark:text-[#818CF8] dark:border-[#818CF8]"
                 : "border-transparent bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800/80 text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
@@ -1743,7 +2164,7 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
             type="button"
             data-testid="practice-tab-speaking"
             onClick={() => setActiveMode("speaking")}
-            className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-semibold min-h-[48px] transition-all ${
+            className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-semibold min-h-[46px] transition-all cursor-pointer ${
               activeMode === "speaking"
                 ? "bg-[#5E51E8]/10 border-[#5E51E8] text-[#5E51E8] dark:text-[#818CF8] dark:border-[#818CF8]"
                 : "border-transparent bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800/80 text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
@@ -1757,7 +2178,7 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
             type="button"
             data-testid="practice-tab-word_map"
             onClick={() => setActiveMode("word_map")}
-            className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-semibold min-h-[48px] transition-all ${
+            className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-semibold min-h-[46px] transition-all cursor-pointer ${
               activeMode === "word_map"
                 ? "bg-[#5E51E8]/10 border-[#5E51E8] text-[#5E51E8] dark:text-[#818CF8] dark:border-[#818CF8]"
                 : "border-transparent bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800/80 text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
@@ -1769,62 +2190,245 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
 
           <button
             type="button"
+            data-testid="practice-tab-cloze"
+            onClick={() => setActiveMode("cloze")}
+            className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-semibold min-h-[46px] transition-all cursor-pointer ${
+              activeMode === "cloze"
+                ? "bg-[#5E51E8]/10 border-[#5E51E8] text-[#5E51E8] dark:text-[#818CF8] dark:border-[#818CF8]"
+                : "border-transparent bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800/80 text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
+            }`}
+          >
+            <PenLine className="w-4 h-4 shrink-0" />
+            <span>5. Điền Chỗ Trống</span>
+          </button>
+
+          <button
+            type="button"
+            data-testid="practice-tab-translate"
+            onClick={() => setActiveMode("translate")}
+            className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-semibold min-h-[46px] transition-all cursor-pointer ${
+              activeMode === "translate"
+                ? "bg-[#5E51E8]/10 border-[#5E51E8] text-[#5E51E8] dark:text-[#818CF8] dark:border-[#818CF8]"
+                : "border-transparent bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800/80 text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
+            }`}
+          >
+            <Languages className="w-4 h-4 shrink-0" />
+            <span>6. Dịch Việt → Anh</span>
+          </button>
+
+          <button
+            type="button"
+            data-testid="practice-tab-grammar_fix"
+            onClick={() => setActiveMode("grammar_fix")}
+            className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-semibold min-h-[46px] transition-all cursor-pointer ${
+              activeMode === "grammar_fix"
+                ? "bg-[#5E51E8]/10 border-[#5E51E8] text-[#5E51E8] dark:text-[#818CF8] dark:border-[#818CF8]"
+                : "border-transparent bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800/80 text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
+            }`}
+          >
+            <Wrench className="w-4 h-4 shrink-0" />
+            <span>7. Sửa Ngữ Pháp</span>
+          </button>
+
+          <button
+            type="button"
+            data-testid="practice-tab-roleplay"
+            onClick={() => setActiveMode("roleplay")}
+            className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-semibold min-h-[46px] transition-all cursor-pointer ${
+              activeMode === "roleplay"
+                ? "bg-[#5E51E8]/10 border-[#5E51E8] text-[#5E51E8] dark:text-[#818CF8] dark:border-[#818CF8]"
+                : "border-transparent bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800/80 text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
+            }`}
+          >
+            <MessagesSquare className="w-4 h-4 shrink-0" />
+            <span>8. Nhập Vai AI</span>
+          </button>
+
+          <button
+            type="button"
             data-testid="practice-tab-quiz"
             onClick={() => setActiveMode("quiz")}
-            className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-sm font-semibold min-h-[48px] transition-all ${
+            className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-xl border text-xs sm:text-sm font-semibold min-h-[46px] transition-all cursor-pointer ${
               activeMode === "quiz"
                 ? "bg-[#5E51E8]/10 border-[#5E51E8] text-[#5E51E8] dark:text-[#818CF8] dark:border-[#818CF8]"
                 : "border-transparent bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800/80 text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
             }`}
           >
             <Layers className="w-4 h-4 shrink-0" />
-            <span>5. Trắc Nghiệm</span>
+            <span>9. Trắc Nghiệm</span>
           </button>
         </div>
 
-        {/* Drill Selector Bar (Modes 1, 2, 3) */}
-        {activeMode !== "quiz" && (
-          <div className="flex items-center justify-between gap-2 mt-4 pt-4 border-t border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800">
-            <button
-              type="button"
-              disabled={activeDrillIndex === 0}
-              onClick={() => setActiveDrillIndex(i => Math.max(0, i - 1))}
-              className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium min-h-[44px] bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 text-[var(--text-secondary,#52525b)] dark:text-zinc-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-zinc-200 dark:hover:bg-zinc-700"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span>Câu trước</span>
-            </button>
-
-            <div className="flex items-center gap-1.5 flex-wrap justify-center py-1 max-w-full">
-              {drills.map((drill, idx) => (
-                <button
-                  key={drill.id}
-                  type="button"
-                  onClick={() => setActiveDrillIndex(idx)}
-                  className={`w-8 h-8 rounded-full text-xs font-bold min-h-[36px] min-w-[36px] flex items-center justify-center transition-all ${
-                    activeDrillIndex === idx
-                      ? "bg-[#5E51E8] text-white shadow-sm ring-2 ring-[#5E51E8]/30"
-                      : "bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
-                  }`}
-                  aria-label={`Chọn câu ${idx + 1}`}
-                >
-                  {idx + 1}
-                </button>
-              ))}
+        {/* Difficulty Filter Bar + Unified Question/Item Navigator for ALL modes */}
+        <div className="mt-4 pt-4 border-t border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2.5">
+            {/* Difficulty Filter: Tất cả | Dễ | Vừa | Khó */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-bold text-[var(--text-secondary,#71717a)] dark:text-zinc-400 mr-1">
+                Độ khó:
+              </span>
+              <div
+                data-testid="difficulty-filter-bar"
+                className="inline-flex items-center rounded-xl bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 p-1 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700"
+              >
+                {DIFFICULTY_FILTER_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    data-testid={`difficulty-filter-${opt.id}`}
+                    onClick={() => setDifficultyFilter(opt.id)}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold min-h-[34px] transition-all cursor-pointer ${
+                      difficultyFilter === opt.id
+                        ? "bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 text-[#5E51E8] dark:text-[#818CF8] shadow-xs"
+                        : "text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
+            {/* Counter badge: Câu X / N */}
+            <div className="flex items-center gap-2 text-xs">
+              <span
+                data-testid="practice-item-counter"
+                className="px-3 py-1 rounded-full font-bold bg-[#5E51E8]/10 text-[#5E51E8] dark:text-[#818CF8]"
+              >
+                {currentTabMeta.length > 0
+                  ? `Câu ${safeActiveIndex + 1} / ${currentTabMeta.length}`
+                  : "0 câu phù hợp"}
+              </span>
+            </div>
+          </div>
+
+          {currentTabMeta.length > 0 ? (
+            <div className="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                data-testid="practice-nav-prev"
+                disabled={safeActiveIndex === 0}
+                onClick={() => {
+                  const next = Math.max(0, safeActiveIndex - 1);
+                  setActiveDrillIndex(next);
+                  if (activeMode === "quiz") {
+                    setCurrentQuizIdx(next);
+                    setSelectedQuizChoice(null);
+                    setQuizAnswerChecked(false);
+                    setQuizCompleted(false);
+                  }
+                }}
+                className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium min-h-[42px] bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 text-[var(--text-secondary,#52525b)] dark:text-zinc-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-zinc-200 dark:hover:bg-zinc-700 cursor-pointer shrink-0"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Câu trước</span>
+              </button>
+
+              <div className="flex items-center gap-1.5 flex-wrap justify-center py-1 max-w-full">
+                {currentTabMeta.map((meta, idx) => {
+                  const status = itemCompletionStatusMap[meta.statusKey];
+                  const isCurrent = safeActiveIndex === idx;
+                  const dotStyle = isCurrent
+                    ? "bg-[#5E51E8] text-white shadow-sm ring-2 ring-[#5E51E8]/35"
+                    : status === "passed"
+                    ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40"
+                    : status === "attempted"
+                    ? "bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40"
+                    : "bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700";
+
+                  return (
+                    <button
+                      key={meta.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveDrillIndex(idx);
+                        if (activeMode === "quiz") {
+                          setCurrentQuizIdx(idx);
+                          setSelectedQuizChoice(null);
+                          setQuizAnswerChecked(false);
+                          setQuizCompleted(false);
+                        }
+                      }}
+                      title={`Câu ${idx + 1} (${DIFFICULTY_LABELS[meta.difficulty]}) · ${
+                        status === "passed" ? "Đã đạt" : status === "attempted" ? "Chưa đạt" : "Chưa làm"
+                      }`}
+                      className={`w-8 h-8 rounded-full text-xs font-bold min-h-[34px] min-w-[34px] flex items-center justify-center transition-all cursor-pointer ${dotStyle}`}
+                      aria-label={`Chọn câu ${idx + 1}`}
+                    >
+                      {status === "passed" && !isCurrent ? <Check className="w-3.5 h-3.5" /> : idx + 1}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                data-testid="practice-nav-next"
+                disabled={safeActiveIndex >= currentTabMeta.length - 1}
+                onClick={() => {
+                  const next = Math.min(currentTabMeta.length - 1, safeActiveIndex + 1);
+                  setActiveDrillIndex(next);
+                  if (activeMode === "quiz") {
+                    setCurrentQuizIdx(next);
+                    setSelectedQuizChoice(null);
+                    setQuizAnswerChecked(false);
+                    setQuizCompleted(false);
+                  }
+                }}
+                className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium min-h-[42px] bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 text-[var(--text-secondary,#52525b)] dark:text-zinc-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-zinc-200 dark:hover:bg-zinc-700 cursor-pointer shrink-0"
+              >
+                <span className="hidden sm:inline">Câu sau</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-200">
+              <span>
+                Chưa có câu mức <strong>{DIFFICULTY_LABELS[difficultyFilter as DifficultyLevel]}</strong> cho dạng bài này.
+              </span>
+              <button
+                type="button"
+                onClick={() => setDifficultyFilter("all")}
+                className="px-3 py-1.5 rounded-lg font-bold bg-amber-600 text-white hover:bg-amber-700 cursor-pointer"
+              >
+                Xem tất cả độ khó
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Auto-save Mistakes to Flashcard FSRS Banner */}
+      {fsrsAutoSaveBanner && (
+        <div
+          data-testid="fsrs-autosave-banner"
+          className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-950 dark:text-emerald-100 animate-fadeIn"
+        >
+          <div className="flex items-center gap-2">
+            <BookmarkPlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>
+              Đã tự động thêm <strong>{fsrsAutoSaveBanner.count} thẻ ôn tập FSRS</strong> từ các lỗi vừa làm ({fsrsAutoSaveBanner.items.slice(0, 3).join(", ")}).
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/app/review"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition"
+            >
+              <span>Ôn tập ngay (/app/review)</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </Link>
             <button
               type="button"
-              disabled={activeDrillIndex === drills.length - 1}
-              onClick={() => setActiveDrillIndex(i => Math.min(drills.length - 1, i + 1))}
-              className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium min-h-[44px] bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 text-[var(--text-secondary,#52525b)] dark:text-zinc-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-zinc-200 dark:hover:bg-zinc-700"
+              onClick={() => setFsrsAutoSaveBanner(null)}
+              className="p-1 text-emerald-700 dark:text-emerald-300 hover:opacity-70"
+              aria-label="Đóng thông báo FSRS"
             >
-              <span>Câu sau</span>
-              <ChevronRight className="w-4 h-4" />
+              ✕
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Notice when audio file fails to load */}
       {audioErrorNotice && (
@@ -1835,16 +2439,19 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
       )}
 
       {/* ----------------- CHẾ ĐỘ 1: SHADOWING & CHẤM TỪNG TỪ ----------------- */}
-      {activeMode === "shadowing" && (
+      {activeMode === "shadowing" && activeDrill && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800 bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 shadow-sm p-5 sm:p-7 space-y-6">
             {/* Header info */}
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-              <span className="font-semibold text-[var(--text-secondary,#71717a)] dark:text-zinc-400 uppercase tracking-wider">
-                Mẫu Câu Luyện Phát Âm #{activeDrillIndex + 1}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-[var(--text-secondary,#71717a)] dark:text-zinc-400 uppercase tracking-wider">
+                  Mẫu Câu Luyện Phát Âm #{safeActiveIndex + 1}
+                </span>
+                <DifficultyBadge difficulty={activeDrill.difficulty} />
+              </div>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-medium">
-                {activeDrill.audioUrl ? "Audio bản xứ kèm bài học" : "Giọng đọc Web Speech"}
+                {activeDrill.audioUrl ? "Audio bản xứ kèm bài học" : `Giọng đọc Web Speech (${voiceAccent})`}
               </span>
             </div>
 
@@ -1969,25 +2576,43 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
               )}
             </div>
 
-            {/* Fallback Notice for SpeechRecognition in Firefox/Safari */}
+            {/* Fallback / Manual Input Box (always helpful when user lacks mic or browser blocks SpeechRecognition) */}
             {!speechRecSupported && (
               <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-200 space-y-2">
                 <div className="flex items-center gap-2 font-semibold">
                   <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                  <span>Trình duyệt của bạn hiện chưa mở tự động Web Speech Recognition.</span>
+                  <span>Trình duyệt của bạn hiện chưa hỗ trợ Web Speech Recognition tự động.</span>
                 </div>
                 <p>
-                  Bạn vẫn có thể ghi âm thật và bấm <strong>Nghe lại giọng bạn</strong> ở trên để tự đối chiếu với giọng mẫu, hoặc gõ nhanh câu bạn vừa đọc vào ô bên dưới để chấm độ khớp từng từ:
+                  Khuyến nghị dùng Chrome/Edge để chấm phát âm trực tiếp qua micro. Hệ thống không tạo điểm giả — bạn có thể ghi âm tự đối chiếu hoặc gõ lại bản đọc thử bên dưới để phân tích lỗi phát âm:
                 </p>
-                <input
-                  type="text"
-                  value={manualTranscriptInput}
-                  onChange={e => setManualTranscriptInput(e.target.value)}
-                  placeholder="Gõ hoặc dán câu tiếng Anh bạn vừa nói vào đây để chấm..."
-                  className="w-full px-3 py-2 rounded-lg text-xs bg-[var(--surface-card,#ffffff)] dark:bg-zinc-800 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 min-h-[44px]"
-                />
               </div>
             )}
+
+            <div className="p-3 rounded-xl bg-[var(--surface-elevated,#f4f4f5)]/70 dark:bg-zinc-800/50 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700/70 space-y-2">
+              <label className="block text-[11px] font-semibold text-[var(--text-secondary,#52525b)] dark:text-zinc-400">
+                Kiểm tra nhanh khi không có micro (gõ lại câu bạn vừa đọc để đối chiếu từng từ &amp; xem gợi ý lỗi người Việt):
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  data-testid="shadowing-manual-transcript"
+                  value={manualTranscriptInput}
+                  onChange={e => setManualTranscriptInput(e.target.value)}
+                  placeholder="Gõ hoặc dán câu tiếng Anh bạn vừa nói vào đây để chấm từng từ..."
+                  className="flex-1 px-3 py-2 rounded-lg text-xs bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 min-h-[42px]"
+                />
+                {effectiveSpokenText && (
+                  <button
+                    type="button"
+                    onClick={handleCompleteShadowing}
+                    className="px-3.5 py-2 rounded-lg text-xs font-bold bg-[#5E51E8] text-white hover:bg-[#4F46E5] min-h-[42px] cursor-pointer shrink-0"
+                  >
+                    Lưu kết quả ({shadowingAccuracy}%)
+                  </button>
+                )}
+              </div>
+            </div>
 
             {/* Word-by-Word Colored Grading Display */}
             {effectiveSpokenText && (
@@ -2015,20 +2640,20 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                     <button
                       key={idx}
                       type="button"
-                      onClick={() => item.status === "incorrect" && handleSpeakSlowWord(item.word)}
-                      title={item.status === "incorrect" ? "Bấm vào đây để nghe máy đọc chậm từ này" : undefined}
+                      onClick={() => (item.status === "wrong" || item.status === "near") && handleSpeakSlowWord(item.word)}
+                      title={item.status !== "correct" ? "Bấm vào đây để nghe máy đọc chậm từ này" : undefined}
                       className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all min-h-[40px] flex items-center gap-1.5 ${
                         item.status === "correct"
                           ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30"
-                          : item.status === "close"
-                          ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30"
+                          : item.status === "near"
+                          ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 cursor-pointer"
                           : "bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/40 hover:bg-rose-500/25 cursor-pointer shadow-2xs"
                       }`}
                     >
                       <span>{item.word}</span>
                       {item.status === "correct" && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
-                      {item.status === "close" && <span className="text-xs text-amber-600 dark:text-amber-400">~</span>}
-                      {item.status === "incorrect" && (
+                      {item.status === "near" && <span className="text-xs text-amber-600 dark:text-amber-400">~</span>}
+                      {item.status === "wrong" && (
                         <Volume2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 animate-pulse" />
                       )}
                     </button>
@@ -2042,31 +2667,35 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                    Vàng: Gần đúng (sai âm đuôi)
+                    Vàng: Gần đúng (sai nhẹ / thiếu âm đuôi)
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-                    Đỏ: Đọc sai (bấm vào từ để nghe đọc chậm)
+                    Đỏ: Đọc sai / thiếu (bấm vào từ để nghe đọc chậm)
                   </span>
                 </div>
 
+                {/* Vietnamese learner pronunciation tips */}
+                <VietnamesePronunciationTipsCard
+                  tips={pronunciationEval.tips}
+                  onSpeakSlowWord={handleSpeakSlowWord}
+                />
+
                 {/* Quick 1-touch actions */}
                 <div className="flex flex-wrap items-center gap-2 pt-3">
-                  {onCreateFlashcardQuick && (
-                    <button
-                      type="button"
-                      onClick={handleSaveMissedWordsToFlashcards}
-                      className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] bg-amber-500/10 text-amber-800 dark:text-amber-200 border border-amber-500/30 hover:bg-amber-500/20 transition-all"
-                    >
-                      <BookmarkPlus className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                      <span>Lưu từ đọc sai thành thẻ Flashcard</span>
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={handleSaveMissedWordsToFlashcards}
+                    className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] bg-amber-500/10 text-amber-800 dark:text-amber-200 border border-amber-500/30 hover:bg-amber-500/20 transition-all cursor-pointer"
+                  >
+                    <BookmarkPlus className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    <span>Lưu từ đọc sai thành thẻ Flashcard</span>
+                  </button>
 
                   <button
                     type="button"
                     onClick={handleSaveShadowingToNotebook}
-                    className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 text-[var(--text-primary,#18181b)] dark:text-zinc-200 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
+                    className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 text-[var(--text-primary,#18181b)] dark:text-zinc-200 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all cursor-pointer"
                   >
                     <NotebookPen className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
                     <span>Lưu kết quả vào Sổ tay</span>
@@ -2079,14 +2708,17 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
       )}
 
       {/* ----------------- CHẾ ĐỘ 2: NGHE & CHÉP CHÍNH TẢ (DICTATION) ----------------- */}
-      {activeMode === "dictation" && (
+      {activeMode === "dictation" && activeDrill && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800 bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 shadow-sm p-5 sm:p-7 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800">
               <div>
-                <span className="text-xs font-semibold text-[var(--text-secondary,#71717a)] dark:text-zinc-400 uppercase tracking-wider">
-                  Chép Chính Tả (Dictation) #{activeDrillIndex + 1}
-                </span>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-semibold text-[var(--text-secondary,#71717a)] dark:text-zinc-400 uppercase tracking-wider">
+                    Chép Chính Tả (Dictation) #{safeActiveIndex + 1}
+                  </span>
+                  <DifficultyBadge difficulty={activeDrill.difficulty} />
+                </div>
                 <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100">
                   Lắng nghe câu mẫu và hoàn thành lại nội dung
                 </h3>
@@ -2460,16 +3092,19 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
         </div>
       )}
 
-      {/* ----------------- CHẾ ĐỘ 3: LUYỆN NÓI THEO CHỦ ĐỀ (SPEAKING CUE CARD) ----------------- */}
-      {activeMode === "speaking" && (
+      {/* ----------------- CHẾ ĐỘ 3: LUYỆN NÓI & CHẤM PHÁT ÂM (SPEAKING & PRONUNCIATION) ----------------- */}
+      {activeMode === "speaking" && activeDrill && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800 bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 shadow-sm p-5 sm:p-7 space-y-6">
             {/* Header info */}
             <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800">
-              <div>
-                <span className="text-xs font-semibold text-[var(--text-secondary,#71717a)] dark:text-zinc-400 uppercase tracking-wider">
-                  IELTS Speaking Part 2 & 3 Cue Card
-                </span>
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-semibold text-[var(--text-secondary,#71717a)] dark:text-zinc-400 uppercase tracking-wider">
+                    Chấm Phát Âm &amp; Speaking Cue Card #{safeActiveIndex + 1}
+                  </span>
+                  <DifficultyBadge difficulty={activeDrill.difficulty} />
+                </div>
                 <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100">
                   {activeDrill.speakingPrompt}
                 </h3>
@@ -2505,6 +3140,32 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
               </div>
             </div>
 
+            {/* Target pronunciation sentence card */}
+            <div className="p-4 rounded-xl bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800/70 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#5E51E8] dark:text-[#818CF8]">
+                  Câu mục tiêu chấm phát âm ({voiceAccent}):
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handlePlaySampleAudio(ttsSpeed)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#5E51E8] text-white hover:bg-[#4F46E5] cursor-pointer"
+                >
+                  <Volume2 className="w-3.5 h-3.5" />
+                  <span>Nghe phát âm chuẩn</span>
+                </button>
+              </div>
+              <p className="text-base sm:text-lg font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100 leading-relaxed">
+                {activeDrill.sentence}
+              </p>
+              {activeDrill.ipa && (
+                <p className="font-mono text-xs text-[#5E51E8] dark:text-[#818CF8]">{activeDrill.ipa}</p>
+              )}
+              <p className="text-xs text-[var(--text-secondary,#52525b)] dark:text-zinc-400 italic">
+                {activeDrill.meaningVi}
+              </p>
+            </div>
+
             {/* Zero-Facade Warning when SpeechRecognition is not supported */}
             {!speechRecSupported && (
               <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-200 space-y-2">
@@ -2513,7 +3174,7 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                   <span>Trình duyệt hiện tại chưa hỗ trợ nhận dạng giọng nói tự động (SpeechRecognition)</span>
                 </div>
                 <p className="leading-relaxed">
-                  Khuyến nghị dùng Google Chrome hoặc Microsoft Edge trên máy tính / Android để trải nghiệm tính năng chấm phát âm trực tiếp. Hệ thống tuân thủ nguyên tắc <strong>Zero-Facade</strong>: KHÔNG tự tạo điểm số giả khi thiếu API nhận diện. Bạn vẫn có thể ghi âm câu nói và tự đối chiếu qua phần ghi chú hoặc chuyển sang các chế độ Shadowing, Dictation, Sơ đồ từ vựng.
+                  Khuyến nghị dùng Google Chrome hoặc Microsoft Edge trên máy tính / Android để trải nghiệm tính năng chấm phát âm trực tiếp. Hệ thống tuân thủ nguyên tắc <strong>Zero-Facade</strong>: KHÔNG tự tạo điểm số giả khi thiếu API nhận diện. Bạn có thể gõ nhanh bản đọc thử vào ô bên dưới để đối chiếu từng từ và xem gợi ý lỗi phát âm của người Việt.
                 </p>
               </div>
             )}
@@ -2531,14 +3192,14 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
               </div>
             )}
 
-            {/* Pronunciation Recognition Score (Zero-Facade Honest Label) */}
-            {speechRecSupported && effectiveSpokenText && (
+            {/* Pronunciation Recognition Score (Word-by-word coloring + Vietnamese learner tips) */}
+            {effectiveSpokenText && (
               <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/30 space-y-3 animate-fadeIn">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Award className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
                     <span className="font-bold text-sm text-[var(--text-primary,#18181b)] dark:text-zinc-100">
-                      Điểm ước lượng theo nhận dạng giọng nói:{" "}
+                      Điểm phát âm từng từ:{" "}
                       <span className={shadowingAccuracy >= 70 ? "text-emerald-600 dark:text-emerald-400 font-extrabold" : "text-amber-600 dark:text-amber-400 font-extrabold"}>
                         {shadowingAccuracy}%
                       </span>
@@ -2547,7 +3208,7 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                   <button
                     type="button"
                     onClick={handleRecordSpeakingScore}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#5E51E8] text-white hover:bg-[#4F46E5] min-h-[38px] shadow-xs"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#5E51E8] text-white hover:bg-[#4F46E5] min-h-[38px] shadow-xs cursor-pointer"
                   >
                     <Check className="w-3.5 h-3.5" />
                     <span>Lưu kết quả phát âm</span>
@@ -2561,17 +3222,26 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                       className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${
                         item.status === "correct"
                           ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30"
-                          : item.status === "close"
+                          : item.status === "near"
                           ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30"
                           : "bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30"
                       }`}
                     >
-                      <span>{item.word}</span>
-                      {item.status === "incorrect" && (
+                      <button
+                        type="button"
+                        onClick={() => item.status !== "correct" && handleSpeakSlowWord(item.word)}
+                        className="inline-flex items-center gap-1"
+                        title={item.status !== "correct" ? "Nghe đọc chậm từ này" : undefined}
+                      >
+                        <span>{item.word}</span>
+                        {item.status === "near" && <span className="text-[10px]">~</span>}
+                        {item.status === "wrong" && <Volume2 className="w-3 h-3" />}
+                      </button>
+                      {(item.status === "wrong" || item.status === "near") && (
                         <button
                           type="button"
-                          onClick={() => handleSaveToFlashcardDirect({ front: item.word, back: `Từ phát âm chưa chuẩn: "${activeDrill.sentence}"\nNghĩa câu: ${activeDrill.meaningVi}`, example: activeDrill.sentence })}
-                          className="ml-1 p-0.5 text-[10px] bg-amber-500/20 text-amber-800 dark:text-amber-200 rounded hover:bg-amber-500/40"
+                          onClick={() => handleSaveToFlashcardDirect({ front: item.word, back: `Từ phát âm cần ôn: "${activeDrill.sentence}"\nNghĩa câu: ${activeDrill.meaningVi}`, ipa: activeDrill.ipa || undefined, example: activeDrill.sentence })}
+                          className="ml-1 p-0.5 text-[10px] bg-amber-500/20 text-amber-800 dark:text-amber-200 rounded hover:bg-amber-500/40 cursor-pointer"
                           title="Lưu từ này vào Flashcard FSRS"
                         >
                           + Thẻ FSRS
@@ -2580,6 +3250,12 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                     </div>
                   ))}
                 </div>
+
+                {/* Vietnamese learner pronunciation tips */}
+                <VietnamesePronunciationTipsCard
+                  tips={pronunciationEval.tips}
+                  onSpeakSlowWord={handleSpeakSlowWord}
+                />
               </div>
             )}
 
@@ -2700,12 +3376,25 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                 </div>
               )}
 
-              {/* AI Feedback Display */}
+              {/* AI Feedback Display (Honest Live AI vs Offline Keyword Label) */}
               {speakingAiFeedback && (
                 <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-950 dark:text-emerald-200 space-y-2 animate-fadeIn">
-                  <div className="flex items-center gap-2 font-bold text-sm text-emerald-700 dark:text-emerald-300">
-                    <Sparkles className="w-4 h-4" />
-                    <span>Đánh Giá Chi Tiết Từ AI:</span>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 font-bold text-sm text-emerald-700 dark:text-emerald-300">
+                      <Sparkles className="w-4 h-4" />
+                      <span>Nhận Xét Bài Nói:</span>
+                    </div>
+                    {speakingAiGradingLabel && (
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+                          speakingAiUsedLive
+                            ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                            : "bg-amber-500/15 text-amber-800 dark:text-amber-200 border-amber-500/35"
+                        }`}
+                      >
+                        {speakingAiGradingLabel}
+                      </span>
+                    )}
                   </div>
                   <p className="whitespace-pre-line leading-relaxed text-xs">{speakingAiFeedback}</p>
                 </div>
@@ -2716,8 +3405,31 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
       )}
 
       {/* ----------------- CHẾ ĐỘ 4: SƠ ĐỒ TỪ VỰNG (WORD MAP / MIND MAP) ----------------- */}
-      {activeMode === "word_map" && (
+      {activeMode === "word_map" && activeWordMapItem && (
         <div className="space-y-4">
+          {filteredWordMaps.length > 1 && (
+            <div className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800">
+              <span className="text-xs font-bold text-[var(--text-secondary,#71717a)] dark:text-zinc-400">
+                Chọn sơ đồ từ vựng ({filteredWordMaps.length}):
+              </span>
+              {filteredWordMaps.map((wm, idx) => (
+                <button
+                  key={wm.id}
+                  type="button"
+                  onClick={() => setActiveDrillIndex(idx)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    safeActiveIndex === idx
+                      ? "bg-[#5E51E8] text-white shadow-xs"
+                      : "bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 text-[var(--text-primary,#18181b)] dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                  }`}
+                >
+                  <span>{wm.centralWord}</span>
+                  <span className="text-[10px] opacity-80">({DIFFICULTY_LABELS[wm.difficulty]})</span>
+                </button>
+              ))}
+            </div>
+          )}
+
           <EnglishWordMapView
             wordMap={activeWordMap}
             onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, voiceAccent)}
@@ -2727,7 +3439,9 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                 mode: "word_map",
                 score: 100,
                 isPassed: true,
-                activityTitle: `${activeDrill.topic} · Sơ đồ từ vựng (${activeWordMap.centralWord})`,
+                activityId: activeWordMapItem.sourceActivityId,
+                activityKey: `${courseId}-${lessonId || "general"}-word_map-${activeWordMapItem.id}`,
+                activityTitle: `${activeWordMapItem.title} (${activeWordMap.centralWord})`,
                 details: {
                   centralWord: activeWordMap.centralWord,
                   collocationsCount: activeWordMap.collocations.length,
@@ -2736,25 +3450,79 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                 }
               });
             }}
-            isCompleted={currentModeAttempts.some(a => a.isPassed)}
+            isCompleted={
+              itemCompletionStatusMap[
+                `${courseId}-${lessonId || "general"}-word_map-${activeWordMapItem.id}`
+              ] === "passed" || currentModeAttempts.some(a => a.isPassed)
+            }
             bestScore={currentModeAttempts.length > 0 ? Math.max(...currentModeAttempts.map(a => a.score)) : null}
           />
         </div>
       )}
 
-      {/* ----------------- CHẾ ĐỘ 5: KIỂM TRA NHANH TỪ VỰNG (MINI-QUIZ) ----------------- */}
-      {activeMode === "quiz" && (
+      {/* ----------------- CHẾ ĐỘ 5: ĐIỀN CHỖ TRỐNG (CLOZE) ----------------- */}
+      {activeMode === "cloze" && activeClozeItem && (
+        <ClozePracticeView
+          item={activeClozeItem}
+          indexLabel={`Câu ${safeActiveIndex + 1} / ${filteredClozeItems.length}`}
+          onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, voiceAccent)}
+          onRecordAttempt={recordPracticeAttempt}
+          onAutoSaveMistakes={autoSaveMistakesToFsrs}
+        />
+      )}
+
+      {/* ----------------- CHẾ ĐỘ 6: DỊCH VIỆT -> ANH (TRANSLATE) ----------------- */}
+      {activeMode === "translate" && activeTranslateItem && (
+        <TranslatePracticeView
+          item={activeTranslateItem}
+          indexLabel={`Câu ${safeActiveIndex + 1} / ${filteredTranslateItems.length}`}
+          onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, voiceAccent)}
+          onRecordAttempt={recordPracticeAttempt}
+          onAutoSaveMistakes={autoSaveMistakesToFsrs}
+        />
+      )}
+
+      {/* ----------------- CHẾ ĐỘ 7: SỬA LỖI NGỮ PHÁP (GRAMMAR FIX) ----------------- */}
+      {activeMode === "grammar_fix" && activeGrammarFixItem && (
+        <GrammarFixPracticeView
+          item={activeGrammarFixItem}
+          indexLabel={`Câu ${safeActiveIndex + 1} / ${filteredGrammarFixItems.length}`}
+          onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, voiceAccent)}
+          onRecordAttempt={recordPracticeAttempt}
+          onAutoSaveMistakes={autoSaveMistakesToFsrs}
+        />
+      )}
+
+      {/* ----------------- CHẾ ĐỘ 8: NHẬP VAI HỘI THOẠI (ROLEPLAY) ----------------- */}
+      {activeMode === "roleplay" && activeRoleplayItem && (
+        <RoleplayPracticeView
+          item={activeRoleplayItem}
+          indexLabel={`Tình huống ${safeActiveIndex + 1} / ${filteredRoleplayItems.length}`}
+          voiceLang={voiceAccent}
+          ttsSpeed={ttsSpeed}
+          contextTitle={`${courseTitle} · ${lessonTitle}`}
+          onSpeak={(text, rate) => playWebSpeechTts(text, rate || ttsSpeed, voiceAccent)}
+          onRecordAttempt={recordPracticeAttempt}
+          onAutoSaveMistakes={autoSaveMistakesToFsrs}
+        />
+      )}
+
+      {/* ----------------- CHẾ ĐỘ 9: KIỂM TRA NHANH TỪ VỰNG (MINI-QUIZ) ----------------- */}
+      {activeMode === "quiz" && activeQuiz && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800 bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 shadow-sm p-5 sm:p-7 space-y-6">
             {!quizCompleted ? (
               <>
                 <div className="flex items-center justify-between pb-4 border-b border-[var(--border-calm,#e4e4e7)] dark:border-zinc-800">
                   <div>
-                    <span className="text-xs font-semibold text-[var(--text-secondary,#71717a)] dark:text-zinc-400 uppercase tracking-wider">
-                      Mini-Quiz Kiểm Tra Nhanh
-                    </span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-semibold text-[var(--text-secondary,#71717a)] dark:text-zinc-400 uppercase tracking-wider">
+                        Mini-Quiz Kiểm Tra Nhanh
+                      </span>
+                      <DifficultyBadge difficulty={activeQuiz.difficulty} />
+                    </div>
                     <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100">
-                      Câu hỏi {currentQuizIdx + 1} / {quizQuestions.length}
+                      Câu hỏi {currentQuizIdx + 1} / {filteredQuizQuestions.length}
                     </h3>
                   </div>
 
@@ -2793,7 +3561,7 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                         key={idx}
                         type="button"
                         onClick={() => handleSelectQuizOption(opt)}
-                        className={`p-3.5 rounded-xl border text-left text-sm min-h-[48px] flex items-center justify-between transition-all ${btnStyle}`}
+                        className={`p-3.5 rounded-xl border text-left text-sm min-h-[48px] flex items-center justify-between transition-all cursor-pointer ${btnStyle}`}
                       >
                         <span>{opt}</span>
                         {quizAnswerChecked && isCorrect && (
@@ -2824,7 +3592,7 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                       type="button"
                       disabled={!selectedQuizChoice}
                       onClick={handleCheckQuizAnswer}
-                      className="px-5 py-2.5 rounded-xl font-semibold text-sm min-h-[44px] bg-[#5E51E8] text-white hover:bg-[#4F46E5] shadow-xs disabled:opacity-50"
+                      className="px-5 py-2.5 rounded-xl font-semibold text-sm min-h-[44px] bg-[#5E51E8] text-white hover:bg-[#4F46E5] shadow-xs disabled:opacity-50 cursor-pointer"
                     >
                       Kiểm tra
                     </button>
@@ -2832,9 +3600,9 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                     <button
                       type="button"
                       onClick={handleNextQuizQuestion}
-                      className="px-5 py-2.5 rounded-xl font-semibold text-sm min-h-[44px] bg-[#5E51E8] text-white hover:bg-[#4F46E5] shadow-xs flex items-center gap-1.5"
+                      className="px-5 py-2.5 rounded-xl font-semibold text-sm min-h-[44px] bg-[#5E51E8] text-white hover:bg-[#4F46E5] shadow-xs flex items-center gap-1.5 cursor-pointer"
                     >
-                      <span>{currentQuizIdx + 1 < quizQuestions.length ? "Câu tiếp theo" : "Xem tổng kết"}</span>
+                      <span>{currentQuizIdx + 1 < filteredQuizQuestions.length ? "Câu tiếp theo" : "Xem tổng kết"}</span>
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   )}
@@ -2850,14 +3618,14 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                   Hoàn Thành Bài Kiểm Tra Nhanh!
                 </h3>
                 <p className="text-sm text-[var(--text-secondary,#52525b)] dark:text-zinc-400">
-                  Bạn đã trả lời đúng <strong className="text-emerald-600 dark:text-emerald-400 font-bold">{quizScore}</strong> trên tổng số {quizQuestions.length} câu hỏi.
+                  Bạn đã trả lời đúng <strong className="text-emerald-600 dark:text-emerald-400 font-bold">{quizScore}</strong> trên tổng số {filteredQuizQuestions.length} câu hỏi.
                 </p>
 
                 <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
                   <button
                     type="button"
                     onClick={handleRestartQuiz}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs min-h-[44px] bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 text-[var(--text-primary,#18181b)] dark:text-zinc-200 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs min-h-[44px] bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 text-[var(--text-primary,#18181b)] dark:text-zinc-200 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 cursor-pointer"
                   >
                     <RotateCcw className="w-4 h-4" />
                     <span>Làm lại bài kiểm tra</span>
@@ -2867,11 +3635,11 @@ Bạn là chuyên gia khảo thí IELTS Speaking Band 8.5+. Hãy đánh giá câ
                     type="button"
                     onClick={async () => {
                       await onSaveToNotebook(
-                        `### 🧩 Kết Quả Mini-Quiz: ${activeDrill.topic}\n- Điểm số: **${quizScore}/${quizQuestions.length}** câu đúng.\n- Hoàn thành lúc: ${new Date().toLocaleTimeString("vi-VN")}`
+                        `### 🧩 Kết Quả Mini-Quiz: ${activeDrill?.topic || lessonTitle}\n- Điểm số: **${quizScore}/${filteredQuizQuestions.length}** câu đúng.\n- Hoàn thành lúc: ${new Date().toLocaleTimeString("vi-VN")}`
                       );
                       showToast("Đã lưu kết quả Mini-Quiz vào Sổ tay!", "success");
                     }}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs min-h-[44px] bg-[#5E51E8] text-white hover:bg-[#4F46E5] shadow-xs"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs min-h-[44px] bg-[#5E51E8] text-white hover:bg-[#4F46E5] shadow-xs cursor-pointer"
                   >
                     <NotebookPen className="w-4 h-4" />
                     <span>Lưu kết quả vào Sổ tay</span>

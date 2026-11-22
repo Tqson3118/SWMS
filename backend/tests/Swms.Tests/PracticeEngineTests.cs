@@ -401,4 +401,226 @@ public class PracticeEngineTests
         var stats = await statsRes.Content.ReadFromJsonAsync<JsonElement>();
         Assert.True(stats.GetProperty("totalAttempts").GetInt32() >= 1);
     }
+
+    [Fact]
+    public async Task Test9_AiEvaluatePractice_ReturnsOfflineKeywordGradingWhenProxyUnavailable()
+    {
+        var dbName = $"SwmsAiEvalOfflineTestDb_{Guid.NewGuid():N}";
+        await using var factory = new WebApplicationFactory<Program>()
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("Database:InMemoryName", dbName);
+                // Force unreachable loopback port so test deterministically verifies offline keyword fallback
+                builder.UseSetting("AiProxy:BaseUrl", "http://127.0.0.1:59997");
+                builder.UseSetting("AiProxy:TimeoutSeconds", "2");
+            });
+        using var client = factory.CreateClient();
+
+        // 1. Empty userResponse -> 400 BadRequest
+        var emptyReq = new AiEvaluatePracticeRequest(
+            Mode: "roleplay",
+            Lang: "en-US",
+            Prompt: "Hi! Is this seat taken?",
+            UserResponse: "   ",
+            ExpectedKeywords: new List<string> { "go ahead", "pleasure" },
+            SampleAnswer: "No, please go ahead! It is a pleasure to meet you."
+        );
+        var emptyRes = await client.PostAsJsonAsync("/api/v1/ai/evaluate-practice", emptyReq);
+        Assert.Equal(HttpStatusCode.BadRequest, emptyRes.StatusCode);
+
+        // 2. Strong keyword answer with offline proxy -> deterministic offline grading + honest label
+        var goodReq = new AiEvaluatePracticeRequest(
+            Mode: "roleplay",
+            Lang: "en-US",
+            Prompt: "Hi! Is this seat taken?",
+            UserResponse: "No, please go ahead! It is a pleasure to meet you, my name is Mai.",
+            ExpectedKeywords: new List<string> { "go ahead", "pleasure", "meet", "name" },
+            SampleAnswer: "No, please go ahead! It is a pleasure to meet you.",
+            ContextTitle: "Lesson 1.1 Small Talk"
+        );
+        var goodRes = await client.PostAsJsonAsync("/api/v1/ai/evaluate-practice", goodReq);
+        Assert.Equal(HttpStatusCode.OK, goodRes.StatusCode);
+        var goodJson = await goodRes.Content.ReadFromJsonAsync<JsonElement>();
+
+        Assert.False(goodJson.GetProperty("usedLiveEndpoint").GetBoolean());
+        Assert.Equal("keyword_offline", goodJson.GetProperty("gradingMode").GetString());
+        Assert.Equal("Chấm theo từ khóa (offline)", goodJson.GetProperty("gradingLabelVi").GetString());
+        Assert.True(goodJson.GetProperty("score").GetInt32() >= 80, $"Expected deterministic score >= 80, got {goodJson.GetProperty("score").GetInt32()}");
+        Assert.Contains("Chấm theo từ khóa", goodJson.GetProperty("feedbackVi").GetString());
+
+        // 3. Weak answer missing keywords -> significantly lower deterministic score
+        var weakReq = new AiEvaluatePracticeRequest(
+            Mode: "roleplay",
+            Lang: "en-US",
+            Prompt: "Hi! Is this seat taken?",
+            UserResponse: "Okay",
+            ExpectedKeywords: new List<string> { "go ahead", "pleasure", "meet", "name" },
+            SampleAnswer: "No, please go ahead! It is a pleasure to meet you."
+        );
+        var weakRes = await client.PostAsJsonAsync("/api/v1/ai/evaluate-practice", weakReq);
+        Assert.Equal(HttpStatusCode.OK, weakRes.StatusCode);
+        var weakJson = await weakRes.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.False(weakJson.GetProperty("usedLiveEndpoint").GetBoolean());
+        Assert.Equal("keyword_offline", weakJson.GetProperty("gradingMode").GetString());
+        Assert.True(weakJson.GetProperty("score").GetInt32() < goodJson.GetProperty("score").GetInt32());
+    }
+
+    [Fact]
+    public async Task Test10_EnsureEnglishCourseSeeded_IsIdempotent_And_UpgradesLegacyDbWithoutDuplicatingOldActivities()
+    {
+        await using var factory = CreateIsolatedFactory();
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
+
+        // 1. Verify initial seed includes both legacy 4 types and new schema types for Lesson 1.1
+        var initialL11 = await db.PracticeActivities
+            .Where(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId && pa.LessonId == SeedDataInitializer.EnglishLesson11Id)
+            .ToListAsync();
+        var initialTypes = initialL11.Select(a => a.Type).ToHashSet();
+        Assert.Contains("shadowing", initialTypes);
+        Assert.Contains("dictation", initialTypes);
+        Assert.Contains("pronunciation", initialTypes);
+        Assert.Contains("word_map", initialTypes);
+        Assert.Contains("cloze", initialTypes);
+        Assert.Contains("translate", initialTypes);
+        Assert.Contains("grammar_fix", initialTypes);
+        Assert.Contains("roleplay", initialTypes);
+
+        var totalBefore = await db.PracticeActivities.CountAsync(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId);
+
+        // 2. Re-running seeder twice must NOT create any duplicate activities
+        await SeedDataInitializer.EnsureEnglishCommunicationCourseSeededAsync(db);
+        await SeedDataInitializer.EnsureEnglishCommunicationCourseSeededAsync(db);
+
+        var totalAfter = await db.PracticeActivities.CountAsync(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId);
+        Assert.Equal(totalBefore, totalAfter);
+
+        // 3. Simulate legacy DB (only OrderIndex 1..4 with old random GUIDs) and verify upgrade preserves old IDs & adds 5..10
+        var extendedRows = await db.PracticeActivities
+            .Where(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId && pa.LessonId == SeedDataInitializer.EnglishLesson11Id && pa.OrderIndex >= 5)
+            .ToListAsync();
+        db.PracticeActivities.RemoveRange(extendedRows);
+        await db.SaveChangesAsync();
+
+        var legacyCoreIds = await db.PracticeActivities
+            .Where(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId && pa.LessonId == SeedDataInitializer.EnglishLesson11Id && pa.OrderIndex <= 4)
+            .Select(pa => pa.Id)
+            .ToListAsync();
+        Assert.Equal(4, legacyCoreIds.Count);
+
+        await SeedDataInitializer.EnsureEnglishCommunicationCourseSeededAsync(db);
+
+        var upgradedL11 = await db.PracticeActivities
+            .Where(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId && pa.LessonId == SeedDataInitializer.EnglishLesson11Id)
+            .ToListAsync();
+        Assert.Equal(initialL11.Count, upgradedL11.Count);
+        foreach (var oldId in legacyCoreIds)
+        {
+            Assert.Contains(upgradedL11, a => a.Id == oldId);
+        }
+    }
+
+    [Fact]
+    public async Task Test11_CreateFlashcard_WithDeduplicateByFront_PreventsDuplicateCardsCaseInsensitive()
+    {
+        await using var factory = CreateIsolatedFactory();
+        using var client = factory.CreateClient();
+
+        var firstReq = new CreateFlashcardRequest(
+            LessonId: SeedDataInitializer.EnglishLesson11Id,
+            DocumentId: null,
+            AnnotationId: null,
+            CardType: "standard",
+            SourceTitleSnapshot: "Lesson 1.1",
+            SourceQuoteSnapshot: "relationships",
+            FrontText: "  Relationships  ",
+            BackText: "Các mối quan hệ",
+            TagNames: new List<string> { "tieng-anh", "loi-sai-luyen-tap" },
+            DeduplicateByFront: true
+        );
+        var res1 = await client.PostAsJsonAsync("/api/v1/flashcards", firstReq);
+        Assert.Equal(HttpStatusCode.OK, res1.StatusCode);
+        var card1 = await res1.Content.ReadFromJsonAsync<JsonElement>();
+        var id1 = card1.GetProperty("id").GetGuid();
+
+        var dupReq = firstReq with { FrontText = "relationships" };
+        var res2 = await client.PostAsJsonAsync("/api/v1/flashcards", dupReq);
+        Assert.Equal(HttpStatusCode.OK, res2.StatusCode);
+        var card2 = await res2.Content.ReadFromJsonAsync<JsonElement>();
+        var id2 = card2.GetProperty("id").GetGuid();
+
+        Assert.Equal(id1, id2);
+        Assert.True(res2.Headers.TryGetValues("X-Swms-Flashcard-Deduplicated", out var dedupHeader));
+        Assert.Contains("true", dedupHeader);
+    }
+
+    [Fact]
+    public async Task Test12_AllSixEnglishLessons_HaveAllEightActivityTypes_AndAreIdempotent()
+    {
+        await using var factory = CreateIsolatedFactory();
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
+
+        var lessonIds = new[]
+        {
+            SeedDataInitializer.EnglishLesson11Id,
+            SeedDataInitializer.EnglishLesson12Id,
+            SeedDataInitializer.EnglishLesson21Id,
+            SeedDataInitializer.EnglishLesson22Id,
+            SeedDataInitializer.EnglishLesson31Id,
+            SeedDataInitializer.EnglishLesson32Id
+        };
+
+        var expectedTypes = new[]
+        {
+            "shadowing", "dictation", "pronunciation", "word_map",
+            "cloze", "translate", "grammar_fix", "roleplay"
+        };
+
+        // 1. Verify all 6 lessons exist and contain the upgrade marker
+        var lessons = await db.Lessons.Where(l => lessonIds.Contains(l.Id)).ToListAsync();
+        Assert.Equal(6, lessons.Count);
+        foreach (var lesson in lessons)
+        {
+            Assert.Contains("<!-- studxy-en-v2 -->", lesson.ContentMarkdown);
+        }
+
+        // 2. Verify each of the 6 lessons has all 8 activity types
+        var allActivities = await db.PracticeActivities
+            .Where(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId)
+            .ToListAsync();
+
+        foreach (var lId in lessonIds)
+        {
+            var actsForLesson = allActivities.Where(pa => pa.LessonId == lId).ToList();
+            var typesForLesson = actsForLesson.Select(pa => pa.Type).ToHashSet();
+            foreach (var expectedType in expectedTypes)
+            {
+                Assert.Contains(expectedType, typesForLesson);
+            }
+        }
+
+        var totalActivitiesCount = allActivities.Count;
+
+        // 3. User edits a lesson: simulate Studio editor update (CurrentVersion = 2 and custom Markdown)
+        var userEditedLesson = lessons.First(l => l.Id == SeedDataInitializer.EnglishLesson12Id);
+        userEditedLesson.CurrentVersion = 2;
+        userEditedLesson.ContentMarkdown = "# Nội dung do người dùng tự biên soạn tại Studio\nTuần này chỉ tập trung vào mua sắm siêu thị.";
+        await db.SaveChangesAsync();
+
+        // 4. Re-run seeding multiple times
+        await SeedDataInitializer.EnsureEnglishCommunicationCourseSeededAsync(db);
+        await SeedDataInitializer.EnsureEnglishCommunicationCourseSeededAsync(db);
+
+        // Verify activities are NOT duplicated
+        var totalAfter = await db.PracticeActivities.CountAsync(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId);
+        Assert.Equal(totalActivitiesCount, totalAfter);
+
+        // Verify user edited lesson was NOT overwritten!
+        var reloadedLesson = await db.Lessons.AsNoTracking().FirstOrDefaultAsync(l => l.Id == SeedDataInitializer.EnglishLesson12Id);
+        Assert.NotNull(reloadedLesson);
+        Assert.Equal(2, reloadedLesson.CurrentVersion);
+        Assert.Contains("Nội dung do người dùng tự biên soạn tại Studio", reloadedLesson.ContentMarkdown);
+        Assert.DoesNotContain("<!-- studxy-en-v2 -->", reloadedLesson.ContentMarkdown);
+    }
 }
