@@ -38,7 +38,6 @@ import {
 import { buildPracticeLessonHref } from "@/lib/practice-helpers";
 import { LearningRoadmapsShowcase } from "@/components/dashboard/LearningRoadmapsShowcase";
 import {
-  getVietnameseGreetingName,
   getReviewCapSettings,
   type ReviewCapSettings,
 } from "@/lib/review-settings";
@@ -273,8 +272,6 @@ export default function DashboardPage() {
     return () => window.removeEventListener("studxy:review-caps-updated", handleCapsUpdate);
   }, []);
 
-  const firstName = getVietnameseGreetingName(user.fullName);
-
   const totalDue = reviewStation.totalDue;
   const cappedDue = Math.min(totalDue, reviewCaps.maxReviewsPerDay);
   const backlogCount = Math.max(0, totalDue - cappedDue);
@@ -349,7 +346,7 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
-            Chào {firstName}, hôm nay học gì?
+            Chào bạn, hôm nay học gì?
           </h1>
           <div className="flex items-center gap-3 mt-1.5 text-sm text-text-secondary">
             {user.streakDays > 0 ? (

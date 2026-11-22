@@ -246,7 +246,7 @@ function PreviewSection() {
               <div className="flex items-center justify-between gap-3 mb-4">
                 <div>
                   <div className="text-sm font-bold text-neutral-900 dark:text-white">
-                    Chào Sơn, hôm nay học gì?
+                    Chào bạn, hôm nay học gì?
                   </div>
                   <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
                     Mục tiêu tuần này: 4/5 ngày · Chuỗi 7 ngày liên tiếp

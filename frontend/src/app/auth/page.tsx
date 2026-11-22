@@ -6,15 +6,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   LogIn,
   UserPlus,
-  Sparkles,
   ShieldCheck,
-  Users,
   ArrowRight,
   AlertCircle,
   CheckCircle2,
   BookOpen,
-  ChevronDown,
-  ChevronUp,
   Eye,
   EyeOff,
   HelpCircle,
@@ -115,7 +111,6 @@ function AuthPageContent() {
   const [googleProvidersLoaded, setGoogleProvidersLoaded] = useState(false);
   const [googleSdkError, setGoogleSdkError] = useState<string | null>(null);
   const [showGoogleSetupGuide, setShowGoogleSetupGuide] = useState(false);
-  const [showDemoSwitcher, setShowDemoSwitcher] = useState(false);
 
   const googleBtnRef = useRef<HTMLDivElement | null>(null);
 
@@ -354,74 +349,6 @@ function AuthPageContent() {
       applyAuthResponse(data, fullName.trim() || "Học viên SWMS", trimmedEmail);
     } catch {
       setErrorMessage("Lỗi kết nối máy chủ xác thực. Vui lòng thử lại.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSwitchDefaultUser = async () => {
-    setErrorMessage(null);
-    setStatusMessage("Đang chuyển về tài khoản Sơn Trần (Mặc định)...");
-    setLoading(true);
-    try {
-      const resp = await fetch("/api/v1/auth/login", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: "son.tran@studxy.vn",
-          password: "__DEMO_SESSION__",
-          demoProfile: "default",
-        }),
-      });
-
-      if (!resp.ok) {
-        setStatusMessage(null);
-        setErrorMessage("Không thể đăng nhập tài khoản mặc định Sơn Trần.");
-        return;
-      }
-
-      const data = (await resp.json()) as Record<string, unknown>;
-      applyAuthResponse(data, "Sơn Trần", "son.tran@studxy.vn");
-    } catch {
-      setStatusMessage(null);
-      setErrorMessage("Không thể kết nối tới máy chủ để chuyển tài khoản.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSwitchSecondaryUser = async () => {
-    setErrorMessage(null);
-    setStatusMessage("Đang khởi tạo không gian độc lập cho Minh Anh...");
-    setLoading(true);
-
-    const demoEmail = "minh.anh@studxy.vn";
-    const demoName = "Minh Anh";
-
-    try {
-      const resp = await fetch("/api/v1/auth/login", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: demoEmail,
-          password: "__DEMO_SESSION__",
-          demoProfile: "secondary",
-        }),
-      });
-
-      if (!resp.ok) {
-        setStatusMessage(null);
-        setErrorMessage("Không thể chuyển sang tài khoản Minh Anh.");
-        return;
-      }
-
-      const data = (await resp.json()) as Record<string, unknown>;
-      applyAuthResponse(data, demoName, demoEmail);
-    } catch {
-      setStatusMessage(null);
-      setErrorMessage("Không thể kết nối tới máy chủ để chuyển tài khoản.");
     } finally {
       setLoading(false);
     }
@@ -695,7 +622,7 @@ function AuthPageContent() {
                         Mở <strong>Google Cloud Console</strong> → <em>APIs &amp; Services → Credentials → Create OAuth client ID (Web application)</em>.
                       </li>
                       <li>
-                        Thêm <strong>Authorized JavaScript origins</strong>: <code className="px-1 py-0.5 rounded bg-[var(--surface-card)] font-mono">http://localhost:3000</code> và <code className="px-1 py-0.5 rounded bg-[var(--surface-card)] font-mono">http://127.0.0.1:3000</code>.
+                        Thêm <strong>Authorized JavaScript origins</strong>: <code className="px-1 py-0.5 rounded bg-[var(--surface-card)] font-mono">https://swms-gamma.vercel.app</code>, <code className="px-1 py-0.5 rounded bg-[var(--surface-card)] font-mono">http://localhost:3000</code> và <code className="px-1 py-0.5 rounded bg-[var(--surface-card)] font-mono">http://127.0.0.1:3000</code>.
                       </li>
                       <li>
                         Cấu hình biến môi trường <code className="px-1 py-0.5 rounded bg-[var(--surface-card)] font-mono">GOOGLE_CLIENT_ID=...</code> hoặc <code className="px-1 py-0.5 rounded bg-[var(--surface-card)] font-mono">Authentication:Google:ClientId</code> trong <code className="font-mono">appsettings.json</code> rồi khởi động lại Backend.
@@ -707,90 +634,6 @@ function AuthPageContent() {
             )}
           </div>
         </section>
-
-        {/* Collapsible Secondary Demo Switcher Panel */}
-        <aside className="rounded-[16px] bg-[var(--surface-card)] border border-[var(--border-calm)] shadow-xs overflow-hidden">
-          <button
-            type="button"
-            data-testid="demo-switcher-toggle"
-            onClick={() => setShowDemoSwitcher((v) => !v)}
-            aria-expanded={showDemoSwitcher}
-            className="w-full px-5 py-3.5 flex items-center justify-between gap-3 text-left hover:bg-[var(--surface-elevated)] transition cursor-pointer"
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-[8px] bg-[#FEF3C7] dark:bg-[#451A03] text-[#B45309] dark:text-[#FBBF24] flex items-center justify-center shrink-0 border border-[#F59E0B]/20">
-                <Users className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="text-xs font-bold text-[var(--text-primary)]">
-                  Dùng thử nhanh (Tài khoản Demo 1-Click)
-                </div>
-                <div className="text-[11px] text-[var(--text-secondary)]">
-                  Sơn Trần (dữ liệu mẫu đầy đủ) hoặc Minh Anh (không gian mới)
-                </div>
-              </div>
-            </div>
-            {showDemoSwitcher ? (
-              <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" />
-            )}
-          </button>
-
-          {showDemoSwitcher && (
-            <div
-              data-testid="demo-user-switcher"
-              className="px-5 pb-5 pt-2 border-t border-[var(--border-calm)] space-y-2.5"
-            >
-              <button
-                type="button"
-                data-testid="switch-user-default"
-                onClick={handleSwitchDefaultUser}
-                disabled={loading}
-                className="w-full text-left p-3 rounded-[10px] border border-[var(--border-calm)] hover:border-[#5E51E8] bg-[var(--surface-elevated)] hover:bg-[#EEF0FD]/30 dark:hover:bg-[#1E1B4B]/30 transition group cursor-pointer"
-              >
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-xs font-bold text-[var(--text-primary)] group-hover:text-[#5E51E8] dark:group-hover:text-[#818CF8]">
-                    Sơn Trần (Tài khoản Mặc định - Đầy đủ dữ liệu)
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EEF0FD] dark:bg-[#1E1B4B] text-[#4F46E5] dark:text-[#A5B4FC]">
-                    Mặc định
-                  </span>
-                </div>
-                <p className="text-[11px] text-[var(--text-secondary)]">
-                  son.tran@studxy.vn · Sẵn sàng khóa học OSTEP, bài học Bộ nhớ ảo, thẻ FSRS và ghi chú mẫu.
-                </p>
-              </button>
-
-              <button
-                type="button"
-                data-testid="switch-user-secondary"
-                onClick={handleSwitchSecondaryUser}
-                disabled={loading}
-                className="w-full text-left p-3 rounded-[10px] border border-[var(--border-calm)] hover:border-[#10B981] bg-[var(--surface-elevated)] hover:bg-emerald-50/30 dark:hover:bg-emerald-950/30 transition group cursor-pointer"
-              >
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-xs font-bold text-[var(--text-primary)] group-hover:text-[#047857] dark:group-hover:text-[#34D399]">
-                    Minh Anh (Tài khoản Độc lập - Không gian mới)
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#D1FAE5] dark:bg-[#064E3B] text-[#047857] dark:text-[#34D399]">
-                    Độc lập
-                  </span>
-                </div>
-                <p className="text-[11px] text-[var(--text-secondary)]">
-                  minh.anh@studxy.vn · Tự động tạo không gian riêng biệt, độc lập thư viện PDF và thẻ ôn tập.
-                </p>
-              </button>
-
-              <div className="p-2.5 rounded-[10px] bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[11px] text-[var(--text-secondary)] flex items-start gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-[#5E51E8] dark:text-[#818CF8] shrink-0 mt-0.5" />
-                <span>
-                  Dữ liệu tài khoản thử nghiệm hoàn toàn tách biệt với tài khoản chính thức của bạn.
-                </span>
-              </div>
-            </div>
-          )}
-        </aside>
       </main>
 
       {/* Footer */}

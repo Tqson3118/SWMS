@@ -276,11 +276,8 @@ test.describe("V2 App Completeness & End-to-End Coherence", () => {
       await expect(page.getByTestId("google-signin-button-container")).toBeVisible();
     }
 
-    // Demo switcher starts collapsed until toggled open
-    await expect(page.getByTestId("demo-user-switcher")).toBeHidden();
-    await page.getByTestId("demo-switcher-toggle").click();
-    await expect(page.getByTestId("demo-user-switcher")).toBeVisible();
-    await expect(page.getByTestId("switch-user-default")).toBeVisible();
+    // Demo switcher panel is removed for production auth
+    await expect(page.getByTestId("demo-switcher-toggle")).toHaveCount(0);
 
     // Register a new user -> change password in /app/settings -> re-login with new password
     const uniqueEmail = `v2.pwchange.${Date.now()}@studxy.vn`;
