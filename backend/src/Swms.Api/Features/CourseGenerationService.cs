@@ -345,6 +345,8 @@ public static class CourseGenerationService
     private static readonly ConcurrentDictionary<string, (List<object> Summaries, DateTimeOffset ExpiresAt)> CourseSummaryCache = new();
     private static readonly TimeSpan CourseSummaryCacheTtl = TimeSpan.FromSeconds(30);
 
+    public static long CurrentCacheVersion => Interlocked.Read(ref _cacheVersion);
+
     public static void InvalidateCourseSummaryCache()
     {
         Interlocked.Increment(ref _cacheVersion);

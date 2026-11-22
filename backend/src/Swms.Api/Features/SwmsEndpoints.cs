@@ -687,6 +687,46 @@ public static class SwmsEndpoints
     private static readonly bool _isRunningUnderTests = AppDomain.CurrentDomain.GetAssemblies()
         .Any(a => a.GetName().Name?.Contains("testhost", StringComparison.OrdinalIgnoreCase) == true);
 
+    private static readonly ConcurrentDictionary<string, (object Payload, DateTimeOffset ExpiresAt)> EndpointResponseCache = new();
+    private static readonly TimeSpan EndpointResponseCacheTtl = TimeSpan.FromSeconds(30);
+
+    private static bool TryGetCachedEndpointPayload(string endpointName, Guid userId, out object? payload)
+    {
+        payload = null;
+        if (_isRunningUnderTests) return false;
+        var key = $"{endpointName}:{userId:N}:{CourseGenerationService.CurrentCacheVersion}";
+        if (EndpointResponseCache.TryGetValue(key, out var entry) && entry.ExpiresAt > DateTimeOffset.UtcNow)
+        {
+            payload = entry.Payload;
+            return true;
+        }
+        EndpointResponseCache.TryRemove(key, out _);
+        return false;
+    }
+
+    private static void SetCachedEndpointPayload(string endpointName, Guid userId, object payload)
+    {
+        if (_isRunningUnderTests) return;
+        var now = DateTimeOffset.UtcNow;
+        if (EndpointResponseCache.Count > 512)
+        {
+            var currentVerSuffix = $":{CourseGenerationService.CurrentCacheVersion}";
+            foreach (var kvp in EndpointResponseCache)
+            {
+                if (kvp.Value.ExpiresAt <= now || !kvp.Key.EndsWith(currentVerSuffix, StringComparison.Ordinal))
+                {
+                    EndpointResponseCache.TryRemove(kvp.Key, out _);
+                }
+            }
+            if (EndpointResponseCache.Count > 512)
+            {
+                EndpointResponseCache.Clear();
+            }
+        }
+        var key = $"{endpointName}:{userId:N}:{CourseGenerationService.CurrentCacheVersion}";
+        EndpointResponseCache[key] = (payload, now.Add(EndpointResponseCacheTtl));
+    }
+
     public static void MapSwmsEndpoints(this WebApplication app)
     {
         var api = app.MapGroup("/api/v1")
@@ -1415,6 +1455,11 @@ public static class SwmsEndpoints
         ws.MapGet("/dashboard", async (HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
+            if (TryGetCachedEndpointPayload("dashboard", userId, out var cachedDashboard))
+            {
+                return Results.Ok(cachedDashboard);
+            }
+
             var user = (http.Items["AuthenticatedUser"] as User is { } cachedAuthUser && cachedAuthUser.Id == userId)
                 ? cachedAuthUser
                 : await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId)
@@ -1643,7 +1688,7 @@ public static class SwmsEndpoints
 
             var quota = await GetQuotaSummaryAsync(db, user.Id);
 
-            return Results.Ok(new
+            var dashboardPayload = new
             {
                 user = new
                 {
@@ -1676,7 +1721,9 @@ public static class SwmsEndpoints
                     cardCount = tagCounts.GetValueOrDefault(t.Id, 0)
                 }),
                 quota
-            });
+            };
+            SetCachedEndpointPayload("dashboard", userId, dashboardPayload);
+            return Results.Ok(dashboardPayload);
         });
 
         ws.MapPost("/onboarding", async (OnboardingStepRequest req, HttpContext http, SwmsDbContext db) =>
@@ -1694,6 +1741,7 @@ public static class SwmsEndpoints
             }
             user.UpdatedAt = DateTimeOffset.UtcNow;
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new
             {
@@ -1903,6 +1951,11 @@ public static class SwmsEndpoints
         api.MapGet("/courses", async (HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
+            if (TryGetCachedEndpointPayload("courses", userId, out var cachedCourses))
+            {
+                return Results.Ok(cachedCourses);
+            }
+
             var enrolledIds = await db.CourseEnrollments
                 .AsNoTracking()
                 .Where(e => e.UserId == userId)
@@ -1923,6 +1976,7 @@ public static class SwmsEndpoints
                 userCourses,
                 includeLessonMarkdown: false,
                 userId: userId);
+            SetCachedEndpointPayload("courses", userId, result);
             return Results.Ok(result);
         });
 
@@ -2947,6 +3001,7 @@ public static class SwmsEndpoints
             }
 
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new
             {
@@ -4257,6 +4312,7 @@ public static class SwmsEndpoints
 
                 var generatedCourse = await CourseGenerationService.GenerateCourseFromDocumentAsync(
                     db, gemini, doc, createdPages, userId, aiOverrides);
+                CourseGenerationService.InvalidateCourseSummaryCache();
 
                 return Results.Ok(new
                 {
@@ -4359,6 +4415,7 @@ public static class SwmsEndpoints
 
                 var generatedCourse = await CourseGenerationService.GenerateCourseFromDocumentAsync(
                     db, gemini, doc, new List<DocumentPage> { page1 }, userId, aiOverrides);
+                CourseGenerationService.InvalidateCourseSummaryCache();
 
                 return Results.Ok(new
                 {
@@ -4684,6 +4741,7 @@ public static class SwmsEndpoints
             db.Notebooks.Add(created);
             await ExtractAndSyncNotebookLinksAsync(db, created.Id, contentAstJson);
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
             return await BuildNotebookDetailResponseAsync(db, created);
         });
 
@@ -4744,6 +4802,7 @@ public static class SwmsEndpoints
 
                 db.Notebooks.Add(created);
                 await db.SaveChangesAsync();
+                CourseGenerationService.InvalidateCourseSummaryCache();
                 return await BuildNotebookDetailResponseAsync(db, created);
             }
         });
@@ -4843,6 +4902,7 @@ public static class SwmsEndpoints
 
                     await ExtractAndSyncNotebookLinksAsync(db, forkNotebook.Id, cleanContentAstJson);
                     await db.SaveChangesAsync();
+                    CourseGenerationService.InvalidateCourseSummaryCache();
 
                     return Results.Json(new
                     {
@@ -4879,6 +4939,7 @@ public static class SwmsEndpoints
 
                 await ExtractAndSyncNotebookLinksAsync(db, nb.Id, cleanContentAstJson);
                 await db.SaveChangesAsync();
+                CourseGenerationService.InvalidateCourseSummaryCache();
 
                 return Results.Ok(new
                 {
@@ -4922,6 +4983,7 @@ public static class SwmsEndpoints
 
             db.Notebooks.Remove(nb);
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new { deleted = true, id });
         });
@@ -6230,6 +6292,7 @@ public static class SwmsEndpoints
             ledgerEntry.CreditsCharged = creditsCharged;
             ledgerEntry.CostUsd = refundCredit ? 0 : Math.Round(res.TotalTokens * 0.0000005m, 6);
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new
             {
@@ -6316,6 +6379,7 @@ public static class SwmsEndpoints
             ledgerEntry.CreditsCharged = creditsCharged;
             ledgerEntry.CostUsd = refundCredit ? 0 : Math.Round(res.TotalTokens * 0.0000005m, 6);
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new
             {
@@ -6465,6 +6529,7 @@ public static class SwmsEndpoints
             ledgerEntry.CreditsCharged = creditsCharged;
             ledgerEntry.CostUsd = refundCredit ? 0 : Math.Round(res.TotalTokens * 0.0000005m, 6);
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             var suggestedFront = $"[{lessonTitle}] {req.Message.Trim()}";
             if (suggestedFront.Length > 200) suggestedFront = suggestedFront[..200];
@@ -6586,6 +6651,7 @@ public static class SwmsEndpoints
                     ledgerEntry.CreditsCharged = creditsCharged;
                     ledgerEntry.CostUsd = Math.Round(res.TotalTokens * 0.0000005m, 6);
                     await db.SaveChangesAsync();
+                    CourseGenerationService.InvalidateCourseSummaryCache();
                 }
 
                 var keywordStats = ComputeKeywordMatches(trimmedResponse, req.ExpectedKeywords, lang);
@@ -6619,6 +6685,7 @@ public static class SwmsEndpoints
                 ledgerEntry.CreditsCharged = fallbackCredits;
                 ledgerEntry.CostUsd = fallbackCredits == 0 ? 0 : Math.Round(res.TotalTokens * 0.0000005m, 6);
                 await db.SaveChangesAsync();
+                CourseGenerationService.InvalidateCourseSummaryCache();
             }
 
             var deterministic = EvaluatePracticeDeterministic(req);
@@ -7897,11 +7964,28 @@ public static class SwmsEndpoints
             SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
+            if (TryGetCachedEndpointPayload("practice_stats", userId, out var cachedStats))
+            {
+                return Results.Ok(cachedStats);
+            }
+
             var now = DateTimeOffset.UtcNow;
 
             var userAttempts = (await db.PracticeAttempts
                 .AsNoTracking()
                 .Where(pa => pa.UserId == userId)
+                .Select(pa => new PracticeAttemptStatsRow(
+                    pa.Id,
+                    pa.CourseId,
+                    pa.LessonId,
+                    pa.ActivityId,
+                    pa.ActivityKey,
+                    pa.ActivityTitle,
+                    pa.ActivityType,
+                    pa.Score,
+                    pa.MaxScore,
+                    pa.IsPassed,
+                    pa.CreatedAt))
                 .ToListAsync())
                 .OrderByDescending(pa => pa.CreatedAt)
                 .ToList();
@@ -7934,7 +8018,9 @@ public static class SwmsEndpoints
             }
             if (streakDays == 0)
             {
-                var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+                var user = (http.Items["AuthenticatedUser"] as User is { } cachedAuthUser && cachedAuthUser.Id == userId)
+                    ? cachedAuthUser
+                    : await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
                 streakDays = user?.StreakDays ?? 0;
             }
 
@@ -7959,10 +8045,14 @@ public static class SwmsEndpoints
             var attemptCourseIds = userAttempts.Select(a => a.CourseId).Distinct().ToHashSet();
             var missingAttemptCourseIds = attemptCourseIds.Where(id => !readableCourseIds.Contains(id)).ToList();
             var extraAttemptCourses = missingAttemptCourseIds.Count > 0
-                ? await db.Courses.AsNoTracking().Where(c => missingAttemptCourseIds.Contains(c.Id)).ToListAsync()
-                : new List<Course>();
+                ? await db.Courses.AsNoTracking()
+                    .Where(c => missingAttemptCourseIds.Contains(c.Id))
+                    .Select(c => new { c.Id, c.Title })
+                    .ToListAsync()
+                : [];
 
             var courseTitleMap = readableCourses
+                .Select(c => new { c.Id, c.Title })
                 .Concat(extraAttemptCourses)
                 .GroupBy(c => c.Id)
                 .ToDictionary(g => g.Key, g => g.First().Title);
@@ -7972,8 +8062,9 @@ public static class SwmsEndpoints
                     .AsNoTracking()
                     .Where(ch => readableCourseIds.Contains(ch.CourseId))
                     .OrderBy(ch => ch.SortOrder)
+                    .Select(ch => new { ch.Id, ch.CourseId, ch.Title, ch.SortOrder })
                     .ToListAsync()
-                : new List<Chapter>();
+                : [];
 
             var chapterById = allChapters.ToDictionary(ch => ch.Id);
             var chaptersByCourse = allChapters.ToLookup(ch => ch.CourseId);
@@ -7984,8 +8075,9 @@ public static class SwmsEndpoints
                     .AsNoTracking()
                     .Where(l => readableChapterIds.Contains(l.ChapterId))
                     .OrderBy(l => l.SortOrder)
+                    .Select(l => new { l.Id, l.ChapterId, l.Title, l.SortOrder, l.CreatedAt })
                     .ToListAsync()
-                : new List<Lesson>();
+                : [];
 
             var readableLessonIds = readableLessons.Select(l => l.Id).ToHashSet();
             var attemptLessonIds = userAttempts
@@ -7996,10 +8088,14 @@ public static class SwmsEndpoints
                 .ToList();
 
             var extraAttemptLessons = attemptLessonIds.Count > 0
-                ? await db.Lessons.AsNoTracking().Where(l => attemptLessonIds.Contains(l.Id)).ToListAsync()
-                : new List<Lesson>();
+                ? await db.Lessons.AsNoTracking()
+                    .Where(l => attemptLessonIds.Contains(l.Id))
+                    .Select(l => new { l.Id, l.Title })
+                    .ToListAsync()
+                : [];
 
             var lessonTitleMap = readableLessons
+                .Select(l => new { l.Id, l.Title })
                 .Concat(extraAttemptLessons)
                 .GroupBy(l => l.Id)
                 .ToDictionary(g => g.Key, g => g.First().Title);
@@ -8015,8 +8111,9 @@ public static class SwmsEndpoints
                     .AsNoTracking()
                     .Where(pa => readableCourseIds.Contains(pa.CourseId) || attemptActivityIds.Contains(pa.Id))
                     .OrderBy(pa => pa.OrderIndex)
+                    .Select(pa => new PracticeActivityStatsRow(pa.Id, pa.CourseId, pa.LessonId, pa.OrderIndex, pa.PassingScore))
                     .ToListAsync()
-                : new List<PracticeActivity>();
+                : [];
 
             var activityPassingMap = allPracticeActivities.ToDictionary(a => a.Id, a => a.PassingScore);
             var activitiesByCourse = allPracticeActivities
@@ -8102,7 +8199,7 @@ public static class SwmsEndpoints
             var lessonsByChapter = readableLessons.ToLookup(l => l.ChapterId);
             var attemptsByCourse = userAttempts.ToLookup(a => a.CourseId);
 
-            static bool IsActivityPassedByUser(PracticeActivity act, IReadOnlyList<PracticeAttempt> courseAttempts)
+            static bool IsActivityPassedByUser(PracticeActivityStatsRow act, IReadOnlyList<PracticeAttemptStatsRow> courseAttempts)
             {
                 var actIdStr = act.Id.ToString();
                 return courseAttempts.Any(att =>
@@ -8191,7 +8288,7 @@ public static class SwmsEndpoints
                 };
             }).ToList();
 
-            return Results.Ok(new
+            var statsPayload = new
             {
                 totalAttempts,
                 averageScore,
@@ -8203,7 +8300,29 @@ public static class SwmsEndpoints
                 recentHistory,
                 chartData = last7Days,
                 courseSummaries
-            });
+            };
+            SetCachedEndpointPayload("practice_stats", userId, statsPayload);
+            return Results.Ok(statsPayload);
         });
     }
+
+    private sealed record PracticeAttemptStatsRow(
+        Guid Id,
+        Guid CourseId,
+        Guid? LessonId,
+        Guid? ActivityId,
+        string ActivityKey,
+        string ActivityTitle,
+        string ActivityType,
+        double Score,
+        int MaxScore,
+        bool IsPassed,
+        DateTimeOffset CreatedAt);
+
+    private sealed record PracticeActivityStatsRow(
+        Guid Id,
+        Guid CourseId,
+        Guid? LessonId,
+        int OrderIndex,
+        int PassingScore);
 }
