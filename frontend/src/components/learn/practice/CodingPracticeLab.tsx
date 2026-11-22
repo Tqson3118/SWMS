@@ -1203,6 +1203,13 @@ export function JsWorkerSandboxLab({
   const [workerError, setWorkerError] = useState<string | null>(null);
   const [showHint, setShowHint] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const workerAbortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      workerAbortRef.current?.abort();
+    };
+  }, []);
 
   // Khi đổi challenge, reset code và kết quả
   useEffect(() => {
@@ -1258,6 +1265,9 @@ export function JsWorkerSandboxLab({
 
   // CHẠY KIỂM THỬ TRONG WEB WORKER VỚI BLOB URL VÀ TIMEOUT 2000MS
   const runCodeInWorker = async () => {
+    workerAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    workerAbortRef.current = ctrl;
     setIsRunning(true);
     setWorkerError(null);
     setTestResults(null);
@@ -1274,7 +1284,9 @@ export function JsWorkerSandboxLab({
       functionName: inferredFn,
       testCases: activeChallenge.testCases,
       timeLimitMs: activeChallenge.timeLimitMs || 2000,
+      signal: ctrl.signal,
     });
+    if (ctrl.signal.aborted) return;
 
     setExecutionTimeMs(runRes.executionTimeMs);
     setIsRunning(false);

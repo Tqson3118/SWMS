@@ -80,6 +80,7 @@ export function runJsFunctionInWorker(params: {
   functionName: string;
   testCases: Array<{ name: string; input: any[]; expected: any }>;
   timeLimitMs?: number;
+  signal?: AbortSignal;
 }): Promise<{
   ok: boolean;
   results?: Array<{
@@ -221,6 +222,9 @@ self.onmessage = function(e) {
     const finish = (payload: any) => {
       if (settled) return;
       settled = true;
+      if (params.signal) {
+        params.signal.removeEventListener("abort", onAbort);
+      }
       if (worker) {
         try {
           worker.terminate();
@@ -241,6 +245,23 @@ self.onmessage = function(e) {
         error: `⏱️ QUÁ THỜI GIAN (${timeoutMs}ms): Mã thực thi vượt giới hạn! Hãy kiểm tra vòng lặp vô tận hoặc đệ quy không có điều kiện dừng.`,
       });
     }, timeoutMs);
+
+    const onAbort = () => {
+      clearTimeout(timer);
+      finish({
+        ok: false,
+        logs: [],
+        error: "Đã hủy thực thi Web Worker khi chuyển trang.",
+      });
+    };
+
+    if (params.signal?.aborted) {
+      onAbort();
+      return;
+    }
+    if (params.signal) {
+      params.signal.addEventListener("abort", onAbort, { once: true });
+    }
 
     try {
       worker = new Worker(blobUrl);
@@ -288,6 +309,7 @@ self.onmessage = function(e) {
 export function runJsPredictOutputInWorker(params: {
   code: string;
   timeLimitMs?: number;
+  signal?: AbortSignal;
 }): Promise<{
   ok: boolean;
   output: string;
@@ -355,6 +377,9 @@ self.onmessage = async function(e) {
     const finish = (payload: any) => {
       if (settled) return;
       settled = true;
+      if (params.signal) {
+        params.signal.removeEventListener("abort", onAbort);
+      }
       if (worker) {
         try {
           worker.terminate();
@@ -376,6 +401,24 @@ self.onmessage = async function(e) {
         error: `⏱️ Quá thời gian thực thi (${timeoutMs}ms) trong Web Worker.`,
       });
     }, timeoutMs);
+
+    const onAbort = () => {
+      clearTimeout(timer);
+      finish({
+        ok: false,
+        output: "",
+        logs: [],
+        error: "Đã hủy thực thi Web Worker khi chuyển trang.",
+      });
+    };
+
+    if (params.signal?.aborted) {
+      onAbort();
+      return;
+    }
+    if (params.signal) {
+      params.signal.addEventListener("abort", onAbort, { once: true });
+    }
 
     try {
       worker = new Worker(blobUrl);

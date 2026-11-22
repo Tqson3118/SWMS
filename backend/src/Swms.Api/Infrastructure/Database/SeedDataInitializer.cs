@@ -2260,18 +2260,18 @@ Mai Tran";
                 UpdatedAt = now
             };
             db.Courses.Add(investCourse);
+        }
 
-            if (!await db.CourseEnrollments.AnyAsync(e => e.UserId == DefaultUserId && e.CourseId == InvestingCourseId))
+        if (!await db.CourseEnrollments.AnyAsync(e => e.UserId == DefaultUserId && e.CourseId == InvestingCourseId))
+        {
+            db.CourseEnrollments.Add(new CourseEnrollment
             {
-                db.CourseEnrollments.Add(new CourseEnrollment
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = DefaultUserId,
-                    CourseId = InvestingCourseId,
-                    Role = "student",
-                    EnrolledAt = now
-                });
-            }
+                Id = Guid.NewGuid(),
+                UserId = DefaultUserId,
+                CourseId = InvestingCourseId,
+                Role = "student",
+                EnrolledAt = now
+            });
         }
 
         // Chapters Investing
@@ -2525,18 +2525,18 @@ Lợi suất danh nghĩa trừ đi tỷ lệ lạm phát mới là **lợi suấ
                 UpdatedAt = now
             };
             db.Courses.Add(codingCourse);
+        }
 
-            if (!await db.CourseEnrollments.AnyAsync(e => e.UserId == DefaultUserId && e.CourseId == CodingCourseId))
+        if (!await db.CourseEnrollments.AnyAsync(e => e.UserId == DefaultUserId && e.CourseId == CodingCourseId))
+        {
+            db.CourseEnrollments.Add(new CourseEnrollment
             {
-                db.CourseEnrollments.Add(new CourseEnrollment
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = DefaultUserId,
-                    CourseId = CodingCourseId,
-                    Role = "student",
-                    EnrolledAt = now
-                });
-            }
+                Id = Guid.NewGuid(),
+                UserId = DefaultUserId,
+                CourseId = CodingCourseId,
+                Role = "student",
+                EnrolledAt = now
+            });
         }
 
         var codingChapters = new List<Chapter>();
@@ -2770,18 +2770,18 @@ const totalIncome = transactions
                 UpdatedAt = now
             };
             db.Courses.Add(psychCourse);
+        }
 
-            if (!await db.CourseEnrollments.AnyAsync(e => e.UserId == DefaultUserId && e.CourseId == PsychologyCourseId))
+        if (!await db.CourseEnrollments.AnyAsync(e => e.UserId == DefaultUserId && e.CourseId == PsychologyCourseId))
+        {
+            db.CourseEnrollments.Add(new CourseEnrollment
             {
-                db.CourseEnrollments.Add(new CourseEnrollment
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = DefaultUserId,
-                    CourseId = PsychologyCourseId,
-                    Role = "student",
-                    EnrolledAt = now
-                });
-            }
+                Id = Guid.NewGuid(),
+                UserId = DefaultUserId,
+                CourseId = PsychologyCourseId,
+                Role = "student",
+                EnrolledAt = now
+            });
         }
 
         var psychChapters = new List<Chapter>();
@@ -2982,8 +2982,7 @@ const totalIncome = transactions
         // =========================================================================
         var activitiesToAdd = new List<PracticeActivity>();
 
-        // Check if activities already exist for Investing
-        if (!await db.PracticeActivities.AnyAsync(pa => pa.CourseId == InvestingCourseId))
+        // Always collect legacy OrderIndex 1..2 activities for Investing and filter per (LessonId, OrderIndex)
         {
             // Investing 1.1
             activitiesToAdd.Add(new PracticeActivity
@@ -3325,8 +3324,7 @@ const totalIncome = transactions
             });
         }
 
-        // Check if activities already exist for Coding
-        if (!await db.PracticeActivities.AnyAsync(pa => pa.CourseId == CodingCourseId))
+        // Always collect legacy OrderIndex 1..2 activities for Coding and filter per (LessonId, OrderIndex)
         {
             // Coding 1.1
             activitiesToAdd.Add(new PracticeActivity
@@ -3711,8 +3709,7 @@ const totalIncome = transactions
             });
         }
 
-        // Check if activities already exist for Psychology
-        if (!await db.PracticeActivities.AnyAsync(pa => pa.CourseId == PsychologyCourseId))
+        // Always collect legacy OrderIndex 1..2 activities for Psychology and filter per (LessonId, OrderIndex)
         {
             // Psychology 1.1
             activitiesToAdd.Add(new PracticeActivity
@@ -4025,8 +4022,23 @@ const totalIncome = transactions
 
         if (activitiesToAdd.Count > 0)
         {
-            db.PracticeActivities.AddRange(activitiesToAdd);
-            await db.SaveChangesAsync();
+            var expansionCourseIds = new[] { InvestingCourseId, CodingCourseId, PsychologyCourseId };
+            var existingLegacyKeys = (await db.PracticeActivities
+                .Where(pa => expansionCourseIds.Contains(pa.CourseId) && pa.OrderIndex <= 2)
+                .Select(pa => new { pa.LessonId, pa.OrderIndex })
+                .ToListAsync())
+                .Select(x => (x.LessonId, x.OrderIndex))
+                .ToHashSet();
+
+            var missingLegacyActivities = activitiesToAdd
+                .Where(pa => !existingLegacyKeys.Contains((pa.LessonId, pa.OrderIndex)))
+                .ToList();
+
+            if (missingLegacyActivities.Count > 0)
+            {
+                db.PracticeActivities.AddRange(missingLegacyActivities);
+                await db.SaveChangesAsync();
+            }
         }
 
         await WriteInPracticeContent.EnsureWriteInActivitiesSeededAsync(db, now);

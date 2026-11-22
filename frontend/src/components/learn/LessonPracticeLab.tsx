@@ -654,6 +654,8 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
   const [recallChecked, setRecallChecked] = useState(false);
   const [recallAiFeedback, setRecallAiFeedback] = useState("");
   const [recallAiLoading, setRecallAiLoading] = useState(false);
+  const [recallAiUsedLive, setRecallAiUsedLive] = useState(false);
+  const [recallAiGradingLabel, setRecallAiGradingLabel] = useState<string | null>(null);
 
   const conceptCards = useMemo(
     () => extractConceptCards(cleanMarkdown, lessonTitle, keyTerms),
@@ -714,14 +716,21 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
       });
       if (resp.ok) {
         const data = await resp.json();
+        const usedLive = Boolean(data.usedLiveEndpoint);
+        setRecallAiUsedLive(usedLive);
+        setRecallAiGradingLabel(usedLive ? "AI chấm trực tiếp" : "Chấm theo từ khóa (offline)");
         setRecallAiFeedback(data.explanation || "");
       } else {
+        setRecallAiUsedLive(false);
+        setRecallAiGradingLabel("Chấm theo từ khóa (offline)");
         setRecallAiFeedback(
-          "Không gọi được AI lúc này. Hãy xem danh sách ý cốt lõi bên trên để bổ sung."
+          "Chấm theo từ khóa (offline): Không gọi được AI lúc này. Hãy xem danh sách ý cốt lõi bên trên để bổ sung."
         );
       }
     } catch {
-      setRecallAiFeedback("Lỗi kết nối khi gọi AI nhận xét.");
+      setRecallAiUsedLive(false);
+      setRecallAiGradingLabel("Chấm theo từ khóa (offline)");
+      setRecallAiFeedback("Chấm theo từ khóa (offline): Lỗi kết nối khi gọi AI nhận xét.");
     } finally {
       setRecallAiLoading(false);
     }
@@ -1235,8 +1244,21 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
                   )}
 
                   {recallAiFeedback && (
-                    <div className="rounded-lg border border-border bg-bg-secondary/40 p-3 text-xs text-text-primary whitespace-pre-wrap leading-relaxed">
-                      {recallAiFeedback}
+                    <div className="rounded-lg border border-border bg-bg-secondary/40 p-3 text-xs text-text-primary space-y-2 leading-relaxed">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="font-semibold text-text-primary">Đối chiếu diễn đạt:</span>
+                        <span
+                          data-testid="feynman-grading-badge"
+                          className={`px-2 py-0.5 rounded-full text-[11px] font-semibold border ${
+                            recallAiUsedLive
+                              ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300"
+                              : "bg-amber-500/15 border-amber-500/40 text-amber-800 dark:text-amber-200"
+                          }`}
+                        >
+                          {recallAiGradingLabel || "Chấm theo từ khóa (offline)"}
+                        </span>
+                      </div>
+                      <div className="whitespace-pre-wrap">{recallAiFeedback}</div>
                     </div>
                   )}
                 </div>

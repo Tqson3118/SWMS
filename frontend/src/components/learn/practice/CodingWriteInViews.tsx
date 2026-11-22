@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   BookmarkPlus,
@@ -225,6 +225,13 @@ export function PredictOutputLab({
   const [execMs, setExecMs] = useState<number | null>(null);
   const [evalResult, setEvalResult] = useState<PredictOutputEvaluationResult | null>(null);
   const [fsrsToast, setFsrsToast] = useState<string | null>(null);
+  const workerAbortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      workerAbortRef.current?.abort();
+    };
+  }, []);
 
   useEffect(() => {
     setPrediction("");
@@ -262,13 +269,18 @@ export function PredictOutputLab({
 
   const handleCheckPrediction = async () => {
     if (!prediction.trim() || isRunning) return;
+    workerAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    workerAbortRef.current = ctrl;
     setIsRunning(true);
     setWorkerError(null);
 
     const runRes = await runJsPredictOutputInWorker({
       code: activeItem.code,
       timeLimitMs: activeItem.timeLimitMs ?? 2000,
+      signal: ctrl.signal,
     });
+    if (ctrl.signal.aborted) return;
 
     setIsRunning(false);
     setExecMs(runRes.executionTimeMs);
@@ -625,6 +637,13 @@ export function BugFixWriteInPanel({
   const [staticResult, setStaticResult] = useState<BugFixStaticEvaluationResult | null>(null);
   const [showSolution, setShowSolution] = useState(false);
   const [fsrsToast, setFsrsToast] = useState<string | null>(null);
+  const workerAbortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      workerAbortRef.current?.abort();
+    };
+  }, []);
 
   useEffect(() => {
     setEditedCode(activeItem.buggyCode);
@@ -669,13 +688,18 @@ export function BugFixWriteInPanel({
     let details: Record<string, unknown> = { itemId: activeItem.id, language: activeItem.language };
 
     if (canRunWorker) {
+      workerAbortRef.current?.abort();
+      const ctrl = new AbortController();
+      workerAbortRef.current = ctrl;
       setIsRunning(true);
       const runRes = await runJsFunctionInWorker({
         code: editedCode,
         functionName: activeItem.functionName!,
         testCases: activeItem.testCases!,
         timeLimitMs: 2000,
+        signal: ctrl.signal,
       });
+      if (ctrl.signal.aborted) return;
       setIsRunning(false);
 
       if (!runRes.ok) {
@@ -892,12 +916,12 @@ export function BugFixWriteInPanel({
                   )}
                   <span>{tr.name}</span>
                 </span>
-                <span className="font-mono">{tr.passed ? "PASS" : "FAIL"}</span>
+                <span className="font-mono">{tr.passed ? "ĐẠT" : "CHƯA ĐẠT"}</span>
               </div>
               <div className="font-mono text-[11px] opacity-90 pl-5 space-y-0.5">
-                <div>Input: {JSON.stringify(tr.input)}</div>
-                <div>Expected: {JSON.stringify(tr.expected)}</div>
-                <div>Actual: {JSON.stringify(tr.actual)}</div>
+                <div>Đầu vào: {JSON.stringify(tr.input)}</div>
+                <div>Kỳ vọng: {JSON.stringify(tr.expected)}</div>
+                <div>Thực tế: {JSON.stringify(tr.actual)}</div>
                 {tr.error && <div className="text-rose-600 dark:text-rose-400">Lỗi: {tr.error}</div>}
               </div>
             </div>

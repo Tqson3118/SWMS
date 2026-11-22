@@ -1260,7 +1260,7 @@ export function EnglishPracticeLab({
         setFsrsAutoSaveBanner({ count: savedLabels.length, items: savedLabels });
       }
     },
-    [lessonId, courseTitle, lessonTitle]
+    [lessonId, courseTitle, lessonTitle, fsrsLangTag]
   );
 
   // Save word or phrase directly to FSRS Flashcards (manual click with deduplication)
@@ -1317,7 +1317,7 @@ export function EnglishPracticeLab({
         showToast("Lỗi kết nối khi lưu thẻ Flashcard.", "warning");
       }
     },
-    [onCreateFlashcardQuick, lessonId, courseTitle, lessonTitle, showToast]
+    [onCreateFlashcardQuick, lessonId, courseTitle, lessonTitle, showToast, fsrsLangTag]
   );
 
   // ----------------- MODE 1: SHADOWING STATE -----------------
@@ -1972,7 +1972,7 @@ export function EnglishPracticeLab({
           userResponse: userSpokenContent,
           expectedKeywords: activeDrill.keyPhrases,
           sampleAnswer: activeDrill.sampleAnswer,
-          contextTitle: `Speaking Review: ${activeDrill.topic}`,
+          contextTitle: `Luyện nói: ${activeDrill.topic}`,
         })
       });
 
@@ -3500,7 +3500,13 @@ export function EnglishPracticeLab({
                   className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-medium min-h-[44px] bg-[var(--surface-elevated,#f4f4f5)] dark:bg-zinc-800 text-[var(--text-secondary,#52525b)] dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
                 >
                   <BookOpen className="w-4 h-4" />
-                  <span>{showSampleAnswer ? "Ẩn bài nói mẫu" : "Xem bài nói mẫu Band 7.5+"}</span>
+                  <span>
+                    {showSampleAnswer
+                      ? "Ẩn bài nói mẫu"
+                      : isCjkCourse
+                      ? "Xem câu trả lời mẫu chuẩn"
+                      : "Xem bài nói mẫu Band 7.5+"}
+                  </span>
                 </button>
 
                 <button
@@ -3517,7 +3523,7 @@ export function EnglishPracticeLab({
               {showSampleAnswer && (
                 <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-xs text-indigo-950 dark:text-indigo-200 space-y-2 animate-fadeIn">
                   <span className="font-bold text-sm text-[#5E51E8] dark:text-[#818CF8]">
-                    Bài Nói Mẫu (Band 7.5 - 8.0 Model Answer):
+                    {isCjkCourse ? "Bài Nói Mẫu Chuẩn:" : "Bài Nói Mẫu (Band 7.5 - 8.0):"}
                   </span>
                   <p className="leading-relaxed text-sm">{activeDrill.sampleAnswer}</p>
                 </div>

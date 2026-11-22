@@ -1234,4 +1234,174 @@ public class PracticeEngineTests
         Assert.True(zhEvalJson.GetProperty("score").GetInt32() >= 80,
             $"Expected zh-CN offline score >= 80, got {zhEvalJson.GetProperty("score").GetInt32()}");
     }
+
+    [Fact]
+    public async Task Test17_LegacyDbAt3763b88_UpgradesCleanlyViaSeedAsync_WhenUsersAlreadyExist()
+    {
+        await using var connection = new SqliteConnection("DataSource=:memory:");
+        await connection.OpenAsync();
+        await using var factory = CreateRealSqliteFactory(connection);
+
+        // Warm up factory so Program.cs runs initial SeedAsync on the real SQLite database
+        using var client = factory.CreateClient();
+        var healthRes = await client.GetAsync("/api/v1/practice/stats");
+        Assert.Equal(HttpStatusCode.OK, healthRes.StatusCode);
+
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
+
+        // 1. Downgrade the real SQLite database to simulate a pre-existing DB at commit 3763b88:
+        //    - Users already exist (db.Users.AnyAsync() == true)
+        //    - EnglishCourseId + InvestingCourseId + CodingCourseId + PsychologyCourseId exist
+        //    - Lessons have CurrentVersion = 1 and legacy short markdown WITHOUT <!-- studxy-en-v2 --> or <!-- studxy-writein-v2 -->
+        //    - English lessons only have legacy activities OrderIndex 1..4 (no OrderIndex 5..8)
+        //    - Investing/Coding/Psychology lessons only have legacy activities OrderIndex 1..2 (no write-in OrderIndex >= 3)
+        //    - JapaneseCourseId and ChineseCourseId do not exist yet
+        Assert.True(await db.Users.AnyAsync(), "Precondition: legacy DB must already have Users");
+
+        var englishChapterIds = await db.Chapters
+            .Where(ch => ch.CourseId == SeedDataInitializer.EnglishCourseId)
+            .Select(ch => ch.Id)
+            .ToListAsync();
+        var englishLessons = await db.Lessons.Where(l => englishChapterIds.Contains(l.ChapterId)).ToListAsync();
+        Assert.Equal(6, englishLessons.Count);
+        foreach (var lesson in englishLessons)
+        {
+            lesson.CurrentVersion = 1;
+            lesson.ContentMarkdown = $"# Legacy 3763b88 English Lesson {lesson.Title}\nNội dung ngắn cũ chưa có marker v2.";
+        }
+
+        var expansionCourseIds = new[]
+        {
+            SeedDataInitializer.InvestingCourseId,
+            SeedDataInitializer.CodingCourseId,
+            SeedDataInitializer.PsychologyCourseId
+        };
+        var expansionChapterIds = await db.Chapters
+            .Where(ch => expansionCourseIds.Contains(ch.CourseId))
+            .Select(ch => ch.Id)
+            .ToListAsync();
+        var expansionLessons = await db.Lessons.Where(l => expansionChapterIds.Contains(l.ChapterId)).ToListAsync();
+        Assert.Equal(18, expansionLessons.Count);
+        foreach (var lesson in expansionLessons)
+        {
+            lesson.CurrentVersion = 1;
+            lesson.ContentMarkdown = $"# Legacy 3763b88 Expansion Lesson {lesson.Title}\nNội dung ngắn cũ chưa có marker writein-v2.";
+        }
+
+        // Remove extended English activities (OrderIndex >= 5) and write-in expansion activities (OrderIndex >= 3)
+        var extendedEngActs = await db.PracticeActivities
+            .Where(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId && pa.OrderIndex >= 5)
+            .ToListAsync();
+        db.PracticeActivities.RemoveRange(extendedEngActs);
+
+        var writeInActs = await db.PracticeActivities
+            .Where(pa => expansionCourseIds.Contains(pa.CourseId) && pa.OrderIndex >= 3)
+            .ToListAsync();
+        db.PracticeActivities.RemoveRange(writeInActs);
+
+        // Also remove one legacy activity from CodingLesson11Id (OrderIndex 2) to verify partial-legacy recovery
+        var codingLegacyOrder2 = await db.PracticeActivities
+            .Where(pa => pa.LessonId == SeedDataInitializer.CodingLesson11Id && pa.OrderIndex == 2)
+            .ToListAsync();
+        db.PracticeActivities.RemoveRange(codingLegacyOrder2);
+
+        // Remove Japanese N5 & Chinese HSK1 completely
+        var cjkCourseIds = new[] { SeedDataInitializer.JapaneseCourseId, SeedDataInitializer.ChineseCourseId };
+        var cjkChapterIds = await db.Chapters
+            .Where(ch => cjkCourseIds.Contains(ch.CourseId))
+            .Select(ch => ch.Id)
+            .ToListAsync();
+        var cjkActs = await db.PracticeActivities.Where(pa => cjkCourseIds.Contains(pa.CourseId)).ToListAsync();
+        var cjkLessons = await db.Lessons.Where(l => cjkChapterIds.Contains(l.ChapterId)).ToListAsync();
+        var cjkChapters = await db.Chapters.Where(ch => cjkCourseIds.Contains(ch.CourseId)).ToListAsync();
+        var cjkEnrollments = await db.CourseEnrollments.Where(e => cjkCourseIds.Contains(e.CourseId)).ToListAsync();
+        var cjkCourses = await db.Courses.Where(c => cjkCourseIds.Contains(c.Id)).ToListAsync();
+        db.PracticeActivities.RemoveRange(cjkActs);
+        db.Lessons.RemoveRange(cjkLessons);
+        db.Chapters.RemoveRange(cjkChapters);
+        db.CourseEnrollments.RemoveRange(cjkEnrollments);
+        db.Courses.RemoveRange(cjkCourses);
+
+        await db.SaveChangesAsync();
+
+        // Snapshot legacy activity IDs that existed at 3763b88 to verify they are preserved (not duplicated or overwritten)
+        var legacyEngIdsBefore = await db.PracticeActivities
+            .Where(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId && pa.OrderIndex <= 4)
+            .Select(pa => pa.Id)
+            .ToListAsync();
+        Assert.Equal(24, legacyEngIdsBefore.Count);
+
+        // 2. Execute top-level SeedDataInitializer.SeedAsync(db) (enters `if (await db.Users.AnyAsync())` branch)
+        await SeedDataInitializer.SeedAsync(db);
+
+        // 3. Assert English theory & extended activities (OrderIndex 5..8) upgraded while preserving legacy 1..4 IDs
+        var upgradedEngLessons = await db.Lessons
+            .AsNoTracking()
+            .Where(l => englishChapterIds.Contains(l.ChapterId))
+            .ToListAsync();
+        foreach (var l in upgradedEngLessons)
+        {
+            Assert.Contains("<!-- studxy-en-v2 -->", l.ContentMarkdown);
+            Assert.Equal(1, l.CurrentVersion);
+        }
+
+        var legacyEngIdsAfter = await db.PracticeActivities
+            .Where(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId && pa.OrderIndex <= 4)
+            .Select(pa => pa.Id)
+            .ToListAsync();
+        Assert.Equal(legacyEngIdsBefore.OrderBy(x => x), legacyEngIdsAfter.OrderBy(x => x));
+
+        var totalEngActsAfter = await db.PracticeActivities
+            .CountAsync(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId);
+        Assert.Equal(78, totalEngActsAfter); // 24 legacy (OrderIndex 1..4) + 54 extended across 6 lessons
+
+        foreach (var l in upgradedEngLessons)
+        {
+            var distinctEngTypes = await db.PracticeActivities
+                .Where(pa => pa.LessonId == l.Id)
+                .Select(pa => pa.Type)
+                .Distinct()
+                .ToListAsync();
+            Assert.Equal(8, distinctEngTypes.Count);
+        }
+
+        // 4. Assert Coding / Investing / Psychology theory & write-in activities upgraded AND partial legacy OrderIndex 2 restored
+        var upgradedExpLessons = await db.Lessons
+            .AsNoTracking()
+            .Where(l => expansionChapterIds.Contains(l.ChapterId))
+            .ToListAsync();
+        foreach (var l in upgradedExpLessons)
+        {
+            Assert.Contains("<!-- studxy-writein-v2 -->", l.ContentMarkdown);
+            Assert.Equal(1, l.CurrentVersion);
+            var lessonActs = await db.PracticeActivities.Where(pa => pa.LessonId == l.Id).ToListAsync();
+            Assert.Equal(2, lessonActs.Count(pa => pa.OrderIndex <= 2));
+            Assert.True(lessonActs.Count(pa => pa.OrderIndex >= 3) >= 5,
+                $"Expected >= 5 write-in activity groups for {l.Title}, got {lessonActs.Count(pa => pa.OrderIndex >= 3)}");
+        }
+
+        // 5. Assert Japanese N5 and Chinese HSK1 courses, chapters, lessons, and 8 activity types per lesson were created
+        foreach (var cjkCourseId in cjkCourseIds)
+        {
+            Assert.True(await db.Courses.AnyAsync(c => c.Id == cjkCourseId));
+            Assert.True(await db.CourseEnrollments.AnyAsync(e => e.CourseId == cjkCourseId && e.UserId == SeedDataInitializer.DefaultUserId));
+            var courseChIds = await db.Chapters
+                .Where(ch => ch.CourseId == cjkCourseId)
+                .Select(ch => ch.Id)
+                .ToListAsync();
+            var lessons = await db.Lessons.AsNoTracking().Where(l => courseChIds.Contains(l.ChapterId)).ToListAsync();
+            Assert.Equal(6, lessons.Count);
+            foreach (var l in lessons)
+            {
+                Assert.Contains("<!-- studxy-cjk-v1 -->", l.ContentMarkdown);
+                var types = await db.PracticeActivities
+                    .Where(pa => pa.LessonId == l.Id)
+                    .Select(pa => pa.Type)
+                    .Distinct()
+                    .ToListAsync();
+                Assert.Equal(8, types.Count);
+            }
+        }
+    }
 }
