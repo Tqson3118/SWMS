@@ -33,6 +33,7 @@ import {
   getCourseId,
   getCourseLessonCount,
   getCourseProgress,
+  getCourseTotalMinutes,
   getCourseVisualTheme,
   normalizeVi,
   sortCoursesSmartly,
@@ -41,10 +42,11 @@ import {
 } from "@/lib/course-helpers";
 import { LearningRoadmapsShowcase } from "@/components/dashboard/LearningRoadmapsShowcase";
 import { CourseCardGraphicBanner } from "@/components/dashboard/CourseCardGraphicBanner";
-import { Sparkles, Clock, Target, Filter } from "lucide-react";
+import { Sparkles, Clock, ArrowUpDown } from "lucide-react";
 
 type StatusFilter = "all" | "in_progress" | "not_started" | "completed";
 type LevelFilter = "all" | "foundation" | "advanced";
+type SortOption = "recommended" | "recent" | "title_asc" | "progress_desc" | "duration_asc";
 
 export default function CoursesCatalogPage() {
   const { activeUserHeaderId } = useWorkspaceStore();
@@ -56,6 +58,7 @@ export default function CoursesCatalogPage() {
   const [selectedDomain, setSelectedDomain] = useState<CourseDomainId>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [levelFilter, setLevelFilter] = useState<LevelFilter>("all");
+  const [sortBy, setSortBy] = useState<SortOption>("recommended");
   const [hideDuplicates, setHideDuplicates] = useState(true);
 
   const fetchCourses = useCallback(async () => {
@@ -139,11 +142,38 @@ export default function CoursesCatalogPage() {
   }, [searchAndStatusFiltered]);
 
   const visibleCourses = useMemo(() => {
-    if (selectedDomain === "all") return searchAndStatusFiltered;
-    return searchAndStatusFiltered.filter(
-      (course) => classifyCourseDomain(course).id === selectedDomain
-    );
-  }, [searchAndStatusFiltered, selectedDomain]);
+    const domainFiltered =
+      selectedDomain === "all"
+        ? searchAndStatusFiltered
+        : searchAndStatusFiltered.filter(
+            (course) => classifyCourseDomain(course).id === selectedDomain
+          );
+
+    if (sortBy === "recommended") {
+      return sortCoursesSmartly(domainFiltered);
+    }
+
+    return [...domainFiltered].sort((a, b) => {
+      if (sortBy === "recent") {
+        const tsA = Date.parse(a.updatedAt || a.createdAt || "") || 0;
+        const tsB = Date.parse(b.updatedAt || b.createdAt || "") || 0;
+        if (tsB !== tsA) return tsB - tsA;
+        return getCourseProgress(b) - getCourseProgress(a);
+      }
+      if (sortBy === "title_asc") {
+        return (a.title || "").localeCompare(b.title || "", "vi");
+      }
+      if (sortBy === "progress_desc") {
+        const diff = getCourseProgress(b) - getCourseProgress(a);
+        if (diff !== 0) return diff;
+        return Number(b.completedLessons ?? 0) - Number(a.completedLessons ?? 0);
+      }
+      if (sortBy === "duration_asc") {
+        return getCourseTotalMinutes(a) - getCourseTotalMinutes(b);
+      }
+      return 0;
+    });
+  }, [searchAndStatusFiltered, selectedDomain, sortBy]);
 
   if (isLoading) {
     return (
@@ -256,8 +286,47 @@ export default function CoursesCatalogPage() {
           )}
         </div>
 
-        {/* Status & Level Filter Pills */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Mobile Compact 1-Row Selects (Status, Level, Sort) */}
+        <div className="grid grid-cols-3 gap-2 md:hidden">
+          <select
+            aria-label="Lọc theo trạng thái"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+            className="h-9 px-2.5 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8]"
+          >
+            <option value="all">Trạng thái: Tất cả</option>
+            <option value="in_progress">Đang học</option>
+            <option value="not_started">Chưa học</option>
+            <option value="completed">Hoàn thành</option>
+          </select>
+
+          <select
+            aria-label="Lọc theo trình độ"
+            value={levelFilter}
+            onChange={(e) => setLevelFilter(e.target.value as LevelFilter)}
+            className="h-9 px-2.5 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8]"
+          >
+            <option value="all">Trình độ: Tất cả</option>
+            <option value="foundation">Nền tảng</option>
+            <option value="advanced">Chuyên sâu</option>
+          </select>
+
+          <select
+            aria-label="Sắp xếp khóa học"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortOption)}
+            className="h-9 px-2.5 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8]"
+          >
+            <option value="recommended">Sắp xếp: Gợi ý</option>
+            <option value="recent">Mới học gần nhất</option>
+            <option value="title_asc">Tên A-Z</option>
+            <option value="progress_desc">Tiến độ cao nhất</option>
+            <option value="duration_asc">Thời lượng tăng dần</option>
+          </select>
+        </div>
+
+        {/* Desktop Status, Level & Sort Controls */}
+        <div className="hidden md:flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-xs font-semibold text-[var(--text-tertiary)] mr-1">Trạng thái:</span>
             {(
@@ -283,37 +352,55 @@ export default function CoursesCatalogPage() {
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-semibold text-[var(--text-tertiary)] mr-1">Trình độ:</span>
-            {(
-              [
-                { id: "all", label: "Tất cả" },
-                { id: "foundation", label: "Nền tảng" },
-                { id: "advanced", label: "Chuyên sâu" },
-              ] as { id: LevelFilter; label: string }[]
-            ).map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setLevelFilter(item.id)}
-                className={`h-8 min-h-[32px] px-3 rounded-[8px] text-xs font-medium transition cursor-pointer ${
-                  levelFilter === item.id
-                    ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12]"
-                    : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-calm)]"
-                }`}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-semibold text-[var(--text-tertiary)] mr-1">Trình độ:</span>
+              {(
+                [
+                  { id: "all", label: "Tất cả" },
+                  { id: "foundation", label: "Nền tảng" },
+                  { id: "advanced", label: "Chuyên sâu" },
+                ] as { id: LevelFilter; label: string }[]
+              ).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setLevelFilter(item.id)}
+                  className={`h-8 min-h-[32px] px-3 rounded-[8px] text-xs font-medium transition cursor-pointer ${
+                    levelFilter === item.id
+                      ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12]"
+                      : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-calm)]"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <ArrowUpDown className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+              <select
+                aria-label="Sắp xếp khóa học"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="h-8 px-2.5 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8] cursor-pointer"
               >
-                {item.label}
-              </button>
-            ))}
+                <option value="recommended">Mặc định gợi ý</option>
+                <option value="recent">Mới học / cập nhật gần nhất</option>
+                <option value="title_asc">Tên A-Z</option>
+                <option value="progress_desc">Tiến độ cao nhất</option>
+                <option value="duration_asc">Thời lượng</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        {/* Domain Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-2 pb-1">
+        {/* Domain Filter Tabs (single horizontal scrollable row on mobile) */}
+        <div className="flex flex-nowrap overflow-x-auto no-scrollbar items-center gap-2 pb-1">
           <button
             type="button"
             onClick={() => setSelectedDomain("all")}
-            className={`inline-flex items-center gap-1.5 h-9 min-h-[36px] px-3 rounded-[8px] text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 h-9 min-h-[36px] px-3 rounded-[8px] text-xs font-medium whitespace-nowrap shrink-0 transition cursor-pointer ${
               selectedDomain === "all"
                 ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] border border-[#5E51E8]/30 font-semibold"
                 : "bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-calm)] hover:bg-[var(--surface-elevated)]"
@@ -332,7 +419,7 @@ export default function CoursesCatalogPage() {
                 key={domain.id}
                 type="button"
                 onClick={() => setSelectedDomain(domain.id)}
-                className={`inline-flex items-center gap-1.5 h-9 min-h-[36px] px-3 rounded-[8px] text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 h-9 min-h-[36px] px-3 rounded-[8px] text-xs font-medium whitespace-nowrap shrink-0 transition cursor-pointer ${
                   selectedDomain === domain.id
                     ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] border border-[#5E51E8]/30 font-semibold"
                     : "bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-calm)] hover:bg-[var(--surface-elevated)]"
@@ -353,12 +440,13 @@ export default function CoursesCatalogPage() {
             const id = getCourseId(course);
             const progress = getCourseProgress(course);
             const lessonCount = getCourseLessonCount(course);
+            const completedLessons = Number(course.completedLessons ?? 0);
             const chapterCount = getCourseChapterCount(course);
             const theme = getCourseVisualTheme(course);
             const skillTags = extractCourseSkillTags(course);
 
             const primaryCtaLabel =
-              progress === 100 ? "Ôn lại bài" : progress > 0 ? "Tiếp tục học" : "Bắt đầu học";
+              progress === 100 ? "Ôn lại bài" : progress > 0 || completedLessons > 0 ? "Tiếp tục học" : "Bắt đầu học";
 
             return (
               <Card
@@ -372,6 +460,8 @@ export default function CoursesCatalogPage() {
                   domainLabel={theme.domainLabel}
                   progressPercent={progress}
                   levelLabel={theme.levelLabel}
+                  courseTitle={course.title}
+                  courseSlug={(course as { slug?: string }).slug ?? undefined}
                 />
 
                 <div className="p-5 flex-1 flex flex-col justify-between gap-4">
@@ -396,7 +486,7 @@ export default function CoursesCatalogPage() {
                       {skillTags.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className="inline-flex items-center px-2 py-0.5 rounded-md bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px] font-medium text-[var(--text-secondary)] truncate max-w-[180px]"
+                          className="inline-flex items-center px-2 py-0.5 rounded-md bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-xs font-medium text-[var(--text-secondary)] truncate max-w-[180px]"
                           title={tag}
                         >
                           {tag}
@@ -406,44 +496,55 @@ export default function CoursesCatalogPage() {
                   </div>
 
                   <div className="pt-3 border-t border-[var(--border-calm)] space-y-3">
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-tertiary)]">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-secondary)]">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {chapterCount > 0 && (
                           <>
                             <span className="inline-flex items-center gap-1 font-medium">
-                              <Layers className="w-3.5 h-3.5" />
+                              <Layers className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                               {chapterCount} chương
                             </span>
                             <span>·</span>
                           </>
                         )}
                         <span className="inline-flex items-center gap-1 font-medium">
-                          <BookOpen className="w-3.5 h-3.5" />
+                          <BookOpen className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                           {lessonCount} bài
                         </span>
                         <span>·</span>
                         <span className="inline-flex items-center gap-1 font-medium">
-                          <Clock className="w-3.5 h-3.5" />
+                          <Clock className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
                           {theme.estimatedHoursLabel}
                         </span>
                       </div>
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#5E51E8] dark:text-[#A5B4FC]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold text-[#4F46E5] dark:text-[#A5B4FC] bg-[#EEF0FD] dark:bg-[#1E1B4B]/80 border border-[#5E51E8]/25">
                         <Sparkles className="w-3 h-3" />
                         Lab &amp; Quiz
                       </span>
                     </div>
 
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-xs font-semibold text-[var(--text-secondary)]">
-                        <span>Tiến độ</span>
-                        <span className="text-[var(--text-primary)] font-bold">{progress}%</span>
+                    {progress === 0 && completedLessons === 0 ? (
+                      <div className="flex items-center justify-between rounded-lg bg-[var(--surface-elevated)]/80 border border-[var(--border-calm)] px-2.5 py-1.5 text-xs text-[var(--text-secondary)]">
+                        <span className="font-medium">Chưa bắt đầu • {lessonCount} bài học</span>
+                        <span className="text-[11px] font-semibold text-[#4F46E5] dark:text-[#A5B4FC]">
+                          {theme.levelLabel}
+                        </span>
                       </div>
-                      <ProgressBar
-                        value={progress}
-                        color={progress === 100 ? "success" : "brand"}
-                        size="sm"
-                      />
-                    </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs font-semibold text-[var(--text-secondary)]">
+                          <span>
+                            Tiến độ: {completedLessons}/{lessonCount} bài ({progress}%)
+                          </span>
+                          <span className="text-[var(--text-primary)] font-bold">{progress}%</span>
+                        </div>
+                        <ProgressBar
+                          value={progress}
+                          color={progress === 100 ? "success" : "brand"}
+                          size="sm"
+                        />
+                      </div>
+                    )}
 
                     <div className="flex items-center gap-2 pt-1">
                       <Link href={`/app/courses/${id}`} className="flex-1">

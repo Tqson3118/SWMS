@@ -7,12 +7,17 @@ frontend/.next/
 # Build artifacts
 **/bin/
 **/obj/
+publish/
 *.user
 *.suo
 
 # Environment & local files
+.env
+.env.production
 .env.local
 .env.*.local
+appsettings.*.local.json
+appsettings.Local.json
 
 # Agent teamwork metadata
 .agents/

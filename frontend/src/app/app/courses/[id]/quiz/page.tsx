@@ -11,10 +11,14 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Loader2,
+  Plus,
+  RotateCcw,
   Search,
   Send,
   Sparkles,
+  Timer,
   Trophy,
+  X,
   XCircle,
 } from "lucide-react";
 import {
@@ -86,6 +90,24 @@ const QUIZ_ITEM_TYPE_LABELS: Record<string, string> = {
   essay: "Tự luận",
 };
 
+type QuizCategoryFilter = "all" | "lesson" | "chapter" | "final" | "custom";
+type QuizPracticeMode = "practice" | "exam";
+
+function classifyQuizCategory(title: string): Exclude<QuizCategoryFilter, "all"> {
+  const t = (title || "").trim();
+  if (t.includes("[Đề Tự Tạo]")) return "custom";
+  if (t.includes("[Đề Tổng Hợp")) return "final";
+  if (t.includes("[Đề Chương")) return "chapter";
+  return "lesson";
+}
+
+function formatTimerClock(seconds: number): string {
+  const safe = Math.max(0, Math.floor(seconds));
+  const m = Math.floor(safe / 60);
+  const s = safe % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
 export default function CourseQuizPage() {
   const params = useParams();
   const courseId = params.id as string;
@@ -94,6 +116,19 @@ export default function CourseQuizPage() {
   const [courseTitle, setCourseTitle] = useState("Khóa học");
   const [quizzes, setQuizzes] = useState<QuizListItem[]>([]);
   const [quizQuery, setQuizQuery] = useState("");
+  const [quizCategoryFilter, setQuizCategoryFilter] = useState<QuizCategoryFilter>("all");
+  const [quizMode, setQuizMode] = useState<QuizPracticeMode>("practice");
+  const [examTimeLeftSec, setExamTimeLeftSec] = useState(600);
+  const [examElapsedSec, setExamElapsedSec] = useState(0);
+  const [submittingAll, setSubmittingAll] = useState(false);
+  const [resettingQuiz, setResettingQuiz] = useState(false);
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [genCount, setGenCount] = useState(10);
+  const [genItemType, setGenItemType] = useState("all");
+  const [genTitle, setGenTitle] = useState("");
+  const [generatingQuiz, setGeneratingQuiz] = useState(false);
+  const [savingWrongIds, setSavingWrongIds] = useState<Record<string, boolean>>({});
+  const [savedWrongIds, setSavedWrongIds] = useState<Record<string, boolean>>({});
   const [selectedQuizId, setSelectedQuizId] = useState<string | null>(null);
   const [quizDetail, setQuizDetail] = useState<QuizDetail | null>(null);
   const [draftAnswers, setDraftAnswers] = useState<Record<string, string>>({});
@@ -179,10 +214,209 @@ export default function CourseQuizPage() {
     loadPageData();
   }, [loadPageData]);
 
+  useEffect(() => {
+    if (quizMode !== "exam" || !quizDetail || quizDetail.status === "completed") {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setExamElapsedSec((prev) => prev + 1);
+      setExamTimeLeftSec((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [quizMode, quizDetail]);
+
   const handleSelectQuiz = async (qId: string) => {
     setSelectedQuizId(qId);
     setErrorMsg(null);
     await loadQuizDetail(qId);
+  };
+
+  const startExamModeForQuiz = (itemCount: number) => {
+    setQuizMode("exam");
+    setExamElapsedSec(0);
+    setExamTimeLeftSec(Math.max(300, itemCount * 90));
+  };
+
+  const handleResetQuiz = async () => {
+    if (!quizDetail || resettingQuiz) return;
+    setResettingQuiz(true);
+    setErrorMsg(null);
+    try {
+      const resp = await fetch(`/api/v1/practice-quizzes/${quizDetail.id}/reset`, {
+        method: "POST",
+        headers: buildHeaders({ "Content-Type": "application/json" }),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => null);
+        setErrorMsg(err?.error ?? `Không làm lại được bài kiểm tra (HTTP ${resp.status}).`);
+        return;
+      }
+      setDraftAnswers({});
+      setSavedWrongIds({});
+      setExamElapsedSec(0);
+      setExamTimeLeftSec(Math.max(300, (quizDetail.items?.length ?? 5) * 90));
+      setQuizzes((prev) =>
+        prev.map((q) =>
+          q.id === quizDetail.id ? { ...q, correctItems: 0, status: "in_progress" } : q
+        )
+      );
+      await loadQuizDetail(quizDetail.id);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("swms:data-mutated"));
+      }
+    } catch {
+      setErrorMsg("Lỗi kết nối khi làm lại bài kiểm tra.");
+    } finally {
+      setResettingQuiz(false);
+    }
+  };
+
+  const handleSubmitAllExam = async () => {
+    if (!quizDetail || submittingAll) return;
+    const answersPayload = (quizDetail.items ?? [])
+      .map((item) => ({
+        itemId: item.id,
+        answer: (draftAnswers[item.id] ?? "").trim(),
+      }))
+      .filter((entry) => Boolean(entry.answer));
+
+    if (answersPayload.length === 0) {
+      setErrorMsg("Hãy chọn hoặc nhập ít nhất 1 câu trả lời trước khi nộp đề.");
+      return;
+    }
+
+    setSubmittingAll(true);
+    setErrorMsg(null);
+    try {
+      const resp = await fetch(`/api/v1/practice-quizzes/${quizDetail.id}/submit-all`, {
+        method: "POST",
+        headers: buildHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({
+          answers: answersPayload,
+          durationSeconds: examElapsedSec,
+        }),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => null);
+        setErrorMsg(err?.error ?? `Không nộp được bài thi (HTTP ${resp.status}).`);
+        return;
+      }
+      const resData = await resp.json();
+      setQuizzes((prev) =>
+        prev.map((q) =>
+          q.id === quizDetail.id
+            ? {
+                ...q,
+                correctItems: Number(resData.correctItems ?? q.correctItems),
+                status: String(resData.status ?? "completed"),
+              }
+            : q
+        )
+      );
+      await loadQuizDetail(quizDetail.id);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("swms:data-mutated"));
+      }
+    } catch {
+      setErrorMsg("Lỗi kết nối khi nộp toàn bộ đề.");
+    } finally {
+      setSubmittingAll(false);
+    }
+  };
+
+  const handleGenerateCustomQuiz = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!courseId || generatingQuiz) return;
+    setGeneratingQuiz(true);
+    setErrorMsg(null);
+    try {
+      const resp = await fetch(`/api/v1/courses/${courseId}/quizzes/generate`, {
+        method: "POST",
+        headers: buildHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({
+          count: genCount,
+          itemType: genItemType === "all" ? null : genItemType,
+          title: genTitle.trim() || null,
+        }),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => null);
+        setErrorMsg(err?.error ?? `Không tạo được đề luyện mới (HTTP ${resp.status}).`);
+        return;
+      }
+      const created = await resp.json();
+      const newQuizItem: QuizListItem = {
+        id: String(created.id),
+        title: String(created.title || "[Đề Tự Tạo]"),
+        lessonId: created.lessonId ?? null,
+        courseId,
+        totalItems: Number(created.totalItems ?? created.itemCount ?? genCount),
+        correctItems: 0,
+        status: String(created.status ?? "in_progress"),
+      };
+      setQuizzes((prev) => [newQuizItem, ...prev]);
+      setQuizCategoryFilter("all");
+      setSelectedQuizId(newQuizItem.id);
+      setGenerateOpen(false);
+      setGenTitle("");
+      await loadQuizDetail(newQuizItem.id);
+    } catch {
+      setErrorMsg("Lỗi kết nối khi tạo đề luyện mới.");
+    } finally {
+      setGeneratingQuiz(false);
+    }
+  };
+
+  const handleSaveWrongToFsrs = async (item: QuizItem, questionText: string) => {
+    if (!quizDetail || savingWrongIds[item.id] || savedWrongIds[item.id]) return;
+    setSavingWrongIds((prev) => ({ ...prev, [item.id]: true }));
+    try {
+      let backAnswer = (item.clozeSolution || "").trim();
+      if (
+        item.itemType === "multiple_choice" &&
+        backAnswer &&
+        Array.isArray(item.choices)
+      ) {
+        const matchedChoice = item.choices.find(
+          (c) => c.key.toUpperCase() === backAnswer.toUpperCase()
+        );
+        if (matchedChoice) {
+          backAnswer = `Đáp án ${matchedChoice.key}: ${matchedChoice.text}`;
+        }
+      }
+      if (!backAnswer && item.aiRubricFeedback?.summary) {
+        backAnswer = item.aiRubricFeedback.summary;
+      }
+      if (!backAnswer) {
+        backAnswer = "Xem lại phần giải thích chi tiết trong bài giảng nguồn.";
+      }
+
+      const resp = await fetch("/api/v1/flashcards", {
+        method: "POST",
+        headers: buildHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({
+          lessonId: quizDetail.lessonId ?? null,
+          cardType: "basic",
+          sourceTitleSnapshot: quizDetail.title,
+          sourceQuoteSnapshot: questionText,
+          frontText: questionText,
+          backText: backAnswer,
+          tagNames: ["Quiz-Error"],
+        }),
+      });
+      if (resp.ok) {
+        setSavedWrongIds((prev) => ({ ...prev, [item.id]: true }));
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("swms:data-mutated"));
+        }
+      } else {
+        setErrorMsg(`Không lưu được thẻ FSRS (HTTP ${resp.status}).`);
+      }
+    } catch {
+      setErrorMsg("Lỗi kết nối khi lưu thẻ FSRS.");
+    } finally {
+      setSavingWrongIds((prev) => ({ ...prev, [item.id]: false }));
+    }
   };
 
   const handleSubmitItem = async (item: QuizItem) => {
@@ -285,6 +519,14 @@ export default function CourseQuizPage() {
     quizDetail && answeredCount > 0
       ? Math.round((quizDetail.correctItems * 100) / answeredCount)
       : 0;
+  const filteredQuizzes = quizzes.filter((q) => {
+    const matchesQuery = q.title
+      .toLowerCase()
+      .includes(quizQuery.trim().toLowerCase());
+    if (!matchesQuery) return false;
+    if (quizCategoryFilter === "all") return true;
+    return classifyQuizCategory(q.title) === quizCategoryFilter;
+  });
 
   return (
     <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-10 min-h-[80vh]">
@@ -299,7 +541,16 @@ export default function CourseQuizPage() {
             <span>Quay lại khóa học</span>
           </Link>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            data-testid="open-generate-quiz-btn"
+            onClick={() => setGenerateOpen(true)}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover transition cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Tạo đề luyện mới</span>
+          </button>
           <Link
             href={`/app/courses/${courseId}/learn`}
             className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-border text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition"
@@ -308,7 +559,7 @@ export default function CourseQuizPage() {
             <span>Mở bài giảng</span>
           </Link>
           <Link
-            href="/app/review"
+            href={`/app/review?courseId=${courseId}`}
             className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-border text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition"
           >
             <Brain className="w-3.5 h-3.5" />
@@ -475,12 +726,38 @@ export default function CourseQuizPage() {
                   />
                 </div>
 
+                <div className="flex flex-wrap gap-1 mb-2.5">
+                  {(
+                    [
+                      { id: "all", label: "Tất cả" },
+                      { id: "lesson", label: "Đề Bài học" },
+                      { id: "chapter", label: "Đề Chương" },
+                      { id: "final", label: "Cuối khóa" },
+                      { id: "custom", label: "Tự tạo" },
+                    ] as const
+                  ).map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setQuizCategoryFilter(cat.id)}
+                      className={`px-2 py-1 rounded text-[11px] font-medium transition cursor-pointer ${
+                        quizCategoryFilter === cat.id
+                          ? "bg-accent text-white"
+                          : "bg-bg-primary text-text-secondary border border-border/60 hover:text-text-primary"
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="max-h-[400px] overflow-y-auto swms-thin-scrollbar space-y-1 pr-0.5">
-                  {quizzes
-                    .filter((q) =>
-                      q.title.toLowerCase().includes(quizQuery.trim().toLowerCase())
-                    )
-                    .map((q) => {
+                  {filteredQuizzes.length === 0 ? (
+                    <p className="text-xs text-text-tertiary py-4 text-center">
+                      Không có đề phù hợp bộ lọc.
+                    </p>
+                  ) : (
+                    filteredQuizzes.map((q) => {
                       const active = selectedQuizId === q.id;
                       return (
                         <button
@@ -505,34 +782,107 @@ export default function CourseQuizPage() {
                           </span>
                         </button>
                       );
-                    })}
+                    })
+                  )}
                 </div>
               </div>
             )}
           </aside>
 
           <div className="lg:col-span-8 space-y-6">
-            {/* Quiz Summary Banner */}
-            <div className="rounded-lg border border-border bg-bg-secondary p-5 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h2 className="text-base font-semibold text-text-primary">
-                  {quizDetail.title}
-                </h2>
-                <p className="text-xs text-text-tertiary mt-1">
-                  {quizDetail.items.length} câu hỏi · Trạng thái:{" "}
-                  <span className="font-medium text-text-secondary">
-                    {quizDetail.status === "completed" ? "Đã hoàn thành" : "Đang làm"}
-                  </span>
-                </p>
+            {/* Quiz Summary Banner & Mode Controls */}
+            <div className="rounded-lg border border-border bg-bg-secondary p-5 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-base font-semibold text-text-primary">
+                    {quizDetail.title}
+                  </h2>
+                  <p className="text-xs text-text-tertiary mt-1">
+                    {quizDetail.items.length} câu hỏi · Trạng thái:{" "}
+                    <span className="font-medium text-text-secondary">
+                      {quizDetail.status === "completed" ? "Đã hoàn thành" : "Đang làm"}
+                    </span>
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="px-3 py-1.5 rounded-md bg-bg-primary border border-border text-sm font-semibold text-text-primary flex items-center gap-1.5">
+                    <Trophy className="w-4 h-4 text-amber-500" />
+                    <span>
+                      {quizDetail.correctItems}/{quizDetail.totalItems} đúng
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    data-testid="reset-quiz-btn"
+                    disabled={resettingQuiz}
+                    onClick={() => void handleResetQuiz()}
+                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-border bg-bg-primary text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-bg-tertiary disabled:opacity-50 transition cursor-pointer"
+                  >
+                    {resettingQuiz ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    )}
+                    <span>Làm lại đề</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="px-3 py-1.5 rounded-md bg-bg-primary border border-border text-sm font-semibold text-text-primary flex items-center gap-1.5">
-                  <Trophy className="w-4 h-4 text-amber-500" />
-                  <span>
-                    {quizDetail.correctItems}/{quizDetail.totalItems} đúng
-                  </span>
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border/60">
+                <div className="inline-flex items-center rounded-lg border border-border bg-bg-primary p-0.5">
+                  <button
+                    type="button"
+                    data-testid="mode-practice-btn"
+                    onClick={() => setQuizMode("practice")}
+                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition cursor-pointer ${
+                      quizMode === "practice"
+                        ? "bg-accent text-white shadow-xs"
+                        : "text-text-secondary hover:text-text-primary"
+                    }`}
+                  >
+                    Luyện từng câu
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="mode-exam-btn"
+                    onClick={() => startExamModeForQuiz(quizDetail.items.length)}
+                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition cursor-pointer ${
+                      quizMode === "exam"
+                        ? "bg-accent text-white shadow-xs"
+                        : "text-text-secondary hover:text-text-primary"
+                    }`}
+                  >
+                    Thi thử cả đề
+                  </button>
                 </div>
+
+                {quizMode === "exam" && (
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-xs font-mono font-semibold text-amber-700 dark:text-amber-300">
+                      <Timer className="w-3.5 h-3.5" />
+                      <span>{formatTimerClock(examTimeLeftSec)}</span>
+                    </div>
+                    <button
+                      type="button"
+                      data-testid="submit-all-exam-btn"
+                      disabled={submittingAll || quizDetail.status === "completed"}
+                      onClick={() => void handleSubmitAllExam()}
+                      className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-md bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 disabled:opacity-50 transition cursor-pointer"
+                    >
+                      {submittingAll ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Send className="w-3.5 h-3.5" />
+                      )}
+                      <span>
+                        {quizDetail.status === "completed"
+                          ? "Đã nộp cả đề"
+                          : "Nộp toàn bộ đề"}
+                      </span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -676,46 +1026,74 @@ export default function CourseQuizPage() {
                     />
                   )}
 
-                  {/* Submit Button */}
-                  <div className="flex items-center justify-between gap-3 pt-1">
-                    {isEvaluated && item.clozeSolution && item.isCorrect === false ? (
-                      <p className="text-xs text-text-secondary">
-                        Đáp án chuẩn:{" "}
-                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                          {item.clozeSolution}
-                        </span>
-                      </p>
-                    ) : (
-                      <span />
-                    )}
+                  {/* Submit Button & Save Wrong Question to FSRS */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      {isEvaluated && item.clozeSolution && item.isCorrect === false ? (
+                        <p className="text-xs text-text-secondary">
+                          Đáp án chuẩn:{" "}
+                          <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                            {item.clozeSolution}
+                          </span>
+                        </p>
+                      ) : null}
 
-                    <button
-                      type="button"
-                      disabled={
-                        isSubmitting ||
-                        (item.itemType !== "essay" && isEvaluated) ||
-                        !draft.trim()
-                      }
-                      onClick={() => handleSubmitItem(item)}
-                      className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
-                    >
-                      {isSubmitting ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : item.itemType !== "essay" && isEvaluated ? (
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                      ) : (
-                        <Send className="w-3.5 h-3.5" />
+                      {isEvaluated && item.isCorrect === false && (
+                        <button
+                          type="button"
+                          data-testid={`save-wrong-fsrs-btn-${idx + 1}`}
+                          disabled={
+                            Boolean(savingWrongIds[item.id]) ||
+                            Boolean(savedWrongIds[item.id])
+                          }
+                          onClick={() => void handleSaveWrongToFsrs(item, questionText)}
+                          className="inline-flex items-center gap-1 h-7 px-2.5 rounded-md border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-[11px] font-semibold text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 disabled:opacity-60 transition cursor-pointer"
+                        >
+                          <Brain className="w-3 h-3" />
+                          <span>
+                            {savingWrongIds[item.id]
+                              ? "Đang lưu..."
+                              : savedWrongIds[item.id]
+                              ? "Đã lưu vào FSRS"
+                              : "Lưu câu sai vào thẻ nhớ FSRS"}
+                          </span>
+                        </button>
                       )}
-                      <span>
-                        {isSubmitting
-                          ? "Đang chấm..."
-                          : item.itemType !== "essay" && isEvaluated
-                          ? "Đã chấm"
-                          : item.itemType === "essay" && isEvaluated
-                          ? "Chấm lại"
-                          : "Kiểm tra"}
+                    </div>
+
+                    {quizMode === "practice" || isEvaluated ? (
+                      <button
+                        type="button"
+                        disabled={
+                          isSubmitting ||
+                          (item.itemType !== "essay" && isEvaluated) ||
+                          !draft.trim()
+                        }
+                        onClick={() => handleSubmitItem(item)}
+                        className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+                      >
+                        {isSubmitting ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : item.itemType !== "essay" && isEvaluated ? (
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        ) : (
+                          <Send className="w-3.5 h-3.5" />
+                        )}
+                        <span>
+                          {isSubmitting
+                            ? "Đang chấm..."
+                            : item.itemType !== "essay" && isEvaluated
+                            ? "Đã chấm"
+                            : item.itemType === "essay" && isEvaluated
+                            ? "Chấm lại"
+                            : "Kiểm tra"}
+                        </span>
+                      </button>
+                    ) : (
+                      <span className="text-[11px] text-text-tertiary">
+                        {draft.trim() ? "Đã ghi nhận đáp án nháp" : "Chưa chọn đáp án"}
                       </span>
-                    </button>
+                    )}
                   </div>
 
                   {/* AI Rubric Feedback */}
@@ -771,6 +1149,99 @@ export default function CourseQuizPage() {
               );
             })}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Tạo đề luyện mới */}
+      {generateOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-xl border border-border bg-bg-primary shadow-xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-semibold text-text-primary flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-accent" />
+                <span>Tạo đề luyện tập mới</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setGenerateOpen(false)}
+                className="text-text-tertiary hover:text-text-primary cursor-pointer"
+                aria-label="Đóng hộp thoại tạo đề"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleGenerateCustomQuiz} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                  Tên đề luyện tập (tùy chọn)
+                </label>
+                <input
+                  type="text"
+                  value={genTitle}
+                  onChange={(e) => setGenTitle(e.target.value)}
+                  placeholder={`Ví dụ: Ôn nhanh ${courseTitle}`}
+                  className="w-full h-9 px-3 rounded-md border border-border bg-bg-secondary text-xs text-text-primary focus:outline-none focus:border-accent"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                    Số câu hỏi
+                  </label>
+                  <select
+                    value={genCount}
+                    onChange={(e) => setGenCount(Number(e.target.value))}
+                    className="w-full h-9 px-2.5 rounded-md border border-border bg-bg-secondary text-xs text-text-primary focus:outline-none focus:border-accent"
+                  >
+                    <option value={5}>5 câu (Ôn nhanh)</option>
+                    <option value={10}>10 câu (Tiêu chuẩn)</option>
+                    <option value={15}>15 câu (Chuyên sâu)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                    Dạng câu hỏi ưu tiên
+                  </label>
+                  <select
+                    value={genItemType}
+                    onChange={(e) => setGenItemType(e.target.value)}
+                    className="w-full h-9 px-2.5 rounded-md border border-border bg-bg-secondary text-xs text-text-primary focus:outline-none focus:border-accent"
+                  >
+                    <option value="all">Tổng hợp mọi dạng</option>
+                    <option value="multiple_choice">Trắc nghiệm</option>
+                    <option value="short_answer">Trả lời ngắn / Cloze</option>
+                    <option value="essay">Tự luận</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setGenerateOpen(false)}
+                  className="h-9 px-3.5 rounded-md border border-border text-xs font-medium text-text-secondary hover:text-text-primary cursor-pointer"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  data-testid="confirm-generate-quiz-btn"
+                  disabled={generatingQuiz}
+                  className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover disabled:opacity-50 cursor-pointer"
+                >
+                  {generatingQuiz ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Plus className="w-3.5 h-3.5" />
+                  )}
+                  <span>{generatingQuiz ? "Đang sinh đề..." : "Tạo đề ngay"}</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

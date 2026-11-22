@@ -343,12 +343,15 @@ public class RefreshTokenRotationService
                     ExpiresAt = now.AddDays(14)
                 };
 
+                // Insert replacement row BEFORE updating existing.ReplacedByTokenId so self-FK
+                // refresh_tokens_replaced_by_token_id_fkey never fails batch ordering in PostgreSQL.
+                _db.RefreshTokens.Add(replacementEntity);
+                await _db.SaveChangesAsync();
+
                 existing.IsRevoked = true;
                 existing.RevokedAt = now;
                 existing.ReplacedByTokenId = replacementEntity.Id;
                 existing.EncryptedReplacementToken = _protector.Encrypt(newRawRefresh);
-
-                _db.RefreshTokens.Add(replacementEntity);
                 await _db.SaveChangesAsync();
                 if (transaction != null)
                 {

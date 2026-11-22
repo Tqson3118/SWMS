@@ -485,5 +485,87 @@ public static class WriteInPracticeContent
             db.PracticeActivities.AddRange(toAdd);
             await db.SaveChangesAsync();
         }
+
+        // Seed deterministic course quizzes for Coding, Investing, and Psychology
+        await EnsureWriteInCourseQuizzesSeededAsync(db, now);
+    }
+
+    /// <summary>
+    /// Seeds deterministic multiple-choice quizzes across all 3 write-in courses (Coding, Investing, Psychology).
+    /// Fully idempotent: checks by UserId, LessonId and Title (as well as Id) so repeated runs produce 0 duplicate records.
+    /// </summary>
+    public static async Task EnsureWriteInCourseQuizzesSeededAsync(SwmsDbContext db, DateTimeOffset now)
+    {
+        var courseQuizPacks = new List<(PracticeQuiz Quiz, List<PracticeQuizItem> Items)>();
+        courseQuizPacks.AddRange(CodingWriteInContent.GetCourseQuizzes(now));
+        courseQuizPacks.AddRange(InvestingWriteInContent.GetCourseQuizzes(now));
+        courseQuizPacks.AddRange(PsychologyWriteInContent.GetCourseQuizzes(now));
+
+        var quizCandidateIds = courseQuizPacks.Select(p => p.Quiz.Id).ToList();
+        var targetLessonIds = courseQuizPacks.Where(p => p.Quiz.LessonId.HasValue).Select(p => p.Quiz.LessonId!.Value).Distinct().ToList();
+
+        var existingQuizzes = await db.PracticeQuizzes
+            .Where(q => q.UserId == SeedDataInitializer.DefaultUserId &&
+                        (quizCandidateIds.Contains(q.Id) || (q.LessonId.HasValue && targetLessonIds.Contains(q.LessonId.Value))))
+            .ToListAsync();
+
+        var existingQuizIds = existingQuizzes.Select(q => q.Id).ToHashSet();
+        var existingQuizKeys = existingQuizzes
+            .Select(q => (q.UserId, q.LessonId, Title: q.Title.Trim()))
+            .ToHashSet();
+
+        var candidateQuizIds = courseQuizPacks.Select(p => p.Quiz.Id).ToList();
+        var existingItemIds = (await db.PracticeQuizItems
+            .Where(qi => candidateQuizIds.Contains(qi.QuizId))
+            .Select(qi => qi.Id)
+            .ToListAsync())
+            .ToHashSet();
+
+        var quizzesToAdd = new List<PracticeQuiz>();
+        var itemsToAdd = new List<PracticeQuizItem>();
+
+        foreach (var (quiz, items) in courseQuizPacks)
+        {
+            var key = (quiz.UserId, quiz.LessonId, Title: quiz.Title.Trim());
+            bool quizExists = existingQuizIds.Contains(quiz.Id) || existingQuizKeys.Contains(key);
+
+            Guid targetQuizId;
+            if (!quizExists)
+            {
+                quizzesToAdd.Add(quiz);
+                existingQuizIds.Add(quiz.Id);
+                existingQuizKeys.Add(key);
+                targetQuizId = quiz.Id;
+            }
+            else
+            {
+                var matched = existingQuizzes.FirstOrDefault(q => q.Id == quiz.Id)
+                    ?? existingQuizzes.FirstOrDefault(q => q.UserId == quiz.UserId && q.LessonId == quiz.LessonId && q.Title.Trim() == quiz.Title.Trim());
+                targetQuizId = matched?.Id ?? quiz.Id;
+            }
+
+            foreach (var item in items)
+            {
+                if (!existingItemIds.Contains(item.Id))
+                {
+                    item.QuizId = targetQuizId;
+                    itemsToAdd.Add(item);
+                    existingItemIds.Add(item.Id);
+                }
+            }
+        }
+
+        if (quizzesToAdd.Count > 0)
+        {
+            db.PracticeQuizzes.AddRange(quizzesToAdd);
+        }
+        if (itemsToAdd.Count > 0)
+        {
+            db.PracticeQuizItems.AddRange(itemsToAdd);
+        }
+        if (quizzesToAdd.Count > 0 || itemsToAdd.Count > 0)
+        {
+            await db.SaveChangesAsync();
+        }
     }
 }

@@ -9,12 +9,14 @@ using Swms.Api.Domain.Entities;
 
 /// <summary>
 /// Safe theory content upgrade for 18 core expansion lessons (Coding, Investing, Psychology).
-/// Uses marker &lt;!-- studxy-writein-v2 --&gt; and strictly upgrades ONLY when CurrentVersion == 1.
+/// Uses marker &lt;!-- studxy-writein-v2 --&gt; (and &lt;!-- studxy-writein-v3 --&gt; for Coding JS)
+/// and strictly upgrades ONLY when CurrentVersion == 1.
 /// NEVER overwrites user-edited lessons (CurrentVersion &gt; 1).
 /// </summary>
 public static class WriteInTheoryExpansion
 {
     public const string UpgradeMarker = "<!-- studxy-writein-v2 -->";
+    public const string CodingUpgradeMarkerV3 = "<!-- studxy-writein-v3 -->";
 
     public record LessonTheoryMeta(
         Guid LessonId,
@@ -31,216 +33,645 @@ public static class WriteInTheoryExpansion
         return new List<LessonTheoryMeta>
         {
             // =========================================================================
-            // 1. CODING LESSONS (1.1 .. 3.2)
+            // 1. CODING LESSONS (1.1 .. 3.2) — v3 Beginner-Friendly Deep Expansion
             // =========================================================================
             new LessonTheoryMeta(
                 SeedDataInitializer.CodingLesson11Id,
                 "Bài 1.1: Biến Đổi & Lọc Dữ Liệu Nâng Cao (Map, Filter, Reduce)",
                 "bien-doi-va-loc-du-lieu-mang",
-                25,
+                40,
                 @"# Bài 1.1: Biến Đổi & Lọc Dữ Liệu Nâng Cao (Map, Filter, Reduce)
 
-## 1. Mục tiêu bài học (Learning Objectives)
-- Nắm vững bản chất của Lập trình hàm (Functional Programming) trong JavaScript: tính thuần khiết (pure function) và tính bất biến (immutability).
-- Làm chủ bộ ba phương thức mảng nền tảng: `map()`, `filter()`, `reduce()`, hiểu rõ cơ chế cấp phát bộ nhớ và giá trị trả về.
-- Xây dựng các pipeline xử lý dữ liệu phức tạp (nhóm đối tượng, tính tổng ròng, chuyển đổi schema DTO) mà không làm đột biến (mutate) mảng gốc.
-- Nhận diện các lỗi runtime phổ biến như thiếu giá trị khởi tạo (initialValue) trong `reduce`, dẫn đến crash khi mảng rỗng.
+> [!TIP]
+> Nếu bạn là người mới bắt đầu học JavaScript, đừng lo lắng khi thấy các từ khóa như `map`, `filter`, `reduce` hay `Immutability`. Hãy đọc chậm **Phần 0** để nắm chắc cách biến và vòng lặp hoạt động trước khi bước sang cách viết hiện đại.
 
 ---
 
-## 2. Khái niệm & Mô hình Cốt lõi
+## 🌱 Phần 0 — Nhập môn từ con số 0 (Dành cho người mới hoàn toàn)
 
-### 2.1. Tính Bất Biến (Immutability)
-Trong kiến trúc ứng dụng hiện đại (React state, Redux, Clean Architecture), đột biến trực tiếp mảng đầu vào (`arr.sort()`, `arr.push()`) là nguồn gốc hàng đầu gây bug re-render và side-effect khó truy vết. Các hàm `map`, `filter`, `reduce` luôn trả về một giá trị/mảng mới, giữ nguyên vẹn dữ liệu gốc.
+### 0.1. Biến, Mảng `[]` và Chỉ số `0, 1, 2` là gì?
+- **Biến (`let`, `const`)** giống như một chiếc hộp có dán nhãn để cất giữ dữ liệu. Dùng `const` khi bạn không muốn gán lại chiếc hộp sang giá trị khác, dùng `let` khi giá trị trong hộp sẽ thay đổi (ví dụ biến đếm `i` hoặc biến tổng `sum`).
+- **Mảng (Array)** được viết bằng cặp dấu ngoặc vuông `[...]`, giống như một **dãy tủ đánh số từ 0**:
+  ```javascript
+  const scores = [7, 9, 5];
+  // Chỉ số (index): 0 -> 7 | 1 -> 9 | 2 -> 5
+  // Độ dài mảng: scores.length === 3
+  ```
+  > [!IMPORTANT]
+  > Máy tính đếm vị trí từ **0**, không phải từ 1! Phần tử đầu tiên là `scores[0]`, phần tử cuối cùng là `scores[scores.length - 1]`.
 
-### 2.2. Cơ chế Hoạt động của Bộ Ba Phương thức
-1. **`filter(predicate)`**:
-   - Duyệt qua từng phần tử, chỉ giữ lại phần tử có `predicate(item, index, array) === true`.
-   - Độ dài mảng kết quả luôn $\le$ mảng ban đầu; kiểu phần tử không đổi.
-2. **`map(transform)`**:
-   - Ánh xạ 1-1 từng phần tử thành một giá trị mới qua `transform(item, index, array)`.
-   - Độ dài mảng giữ nguyên 100%; kiểu phần tử có thể thay đổi hoàn toàn.
-3. **`reduce(accumulator, initialValue)`**:
-   - Thu gọn toàn bộ mảng thành một giá trị duy nhất (số, chuỗi, object gom nhóm, hoặc map phẳng).
-   - **Quy tắc vàng:** Luôn truyền tham số thứ hai `initialValue` (ví dụ `0`, `[]`, `{}`) để đảm bảo an toàn kiểu dữ liệu khi mảng rỗng.
-
----
-
-## 3. Ví dụ Thực tế Minh họa Chuyên sâu
-
+### 0.2. Hàm mũi tên (`x => ...`) cho người mới
+Thay vì viết dài dòng:
 ```javascript
-// Danh sách giao dịch ví điện tử
-const transactions = [
-  { id: 'tx-1', type: 'income', amount: 5000000, status: 'completed' },
-  { id: 'tx-2', type: 'expense', amount: 1200000, status: 'completed' },
-  { id: 'tx-3', type: 'income', amount: 3000000, status: 'pending' },
-  { id: 'tx-4', type: 'expense', amount: 800000, status: 'completed' }
-];
+function double(x) {
+  return x * 2;
+}
+```
+JavaScript hiện đại cho phép viết gọn thành **hàm mũi tên (Arrow Function)**:
+```javascript
+const double = (x) => x * 2;
+// Đọc là: ""Nhận đầu vào x, trả về x * 2""
+```
+Khi truyền vào hàm khác (làm callback), ta viết trực tiếp `x => x * 2` cho ngắn gọn và dễ đọc.
 
-// Pipeline: Lọc đơn hoàn tất -> Gom nhóm theo loại thu/chi
-const summary = transactions
-  .filter(tx => tx.status === 'completed')
-  .reduce((acc, tx) => {
-    acc[tx.type] = (acc[tx.type] || 0) + tx.amount;
-    acc.netBalance += (tx.type === 'income' ? tx.amount : -tx.amount);
-    return acc;
-  }, { income: 0, expense: 0, netBalance: 0 });
+### 0.3. Từ vòng lặp `for` truyền thống đến `map` / `filter` / `reduce`
+Giả sử ta có mảng `[10, 20, 30]` và muốn tính tổng tất cả các số. Bằng vòng lặp `for` truyền thống:
+```javascript
+const nums = [10, 20, 30];
+let sum = 0; // Khởi tạo hộp chứa tổng ban đầu = 0
 
-console.log(summary);
-// Kết quả: { income: 5000000, expense: 2000000, netBalance: 3000000 }
+for (let i = 0; i < nums.length; i++) {
+  sum = sum + nums[i]; // Lấy phần tử thứ i cộng vào sum
+}
+console.log(sum); // 60
 ```
 
+#### Bảng theo dõi từng bước (Step-by-step Trace Table) & Sơ đồ ASCII
+```
+Mảng nums: [ 10,  20,  30 ]
+Chỉ số i :    0    1    2
+              │    │    └─ Lượt 3: sum = 30 + 30 = 60
+              │    └────── Lượt 2: sum = 10 + 20 = 30
+              └─────────── Lượt 1: sum =  0 + 10 = 10
+```
+
+| Bước lặp | Chỉ số `i` | Điều kiện `i < 3` | Giá trị `nums[i]` | `sum` trước cộng | `sum` sau cộng |
+|---|---|---|---|---|---|
+| Khởi tạo | `0` | Chưa chạy | - | `0` | `0` |
+| Lượt 1 | `0` | `0 < 3` (Đúng) | `10` | `0` | `0 + 10 = 10` |
+| Lượt 2 | `1` | `1 < 3` (Đúng) | `20` | `10` | `10 + 20 = 30` |
+| Lượt 3 | `2` | `2 < 3` (Đúng) | `30` | `30` | `30 + 30 = 60` |
+| Kết thúc | `3` | `3 < 3` (Sai -> Dừng) | - | `60` | Trả về `60` |
+
+Tương tự, nếu muốn **nhân đôi từng phần tử** hay **lọc số lớn hơn 15**, bằng vòng `for` bạn luôn phải: (1) tạo mảng rỗng `const result = []`, (2) tự viết `for (let i = 0; ...)`, (3) tự `result.push(...)`. Bộ ba `map`, `filter`, `reduce` sinh ra để làm thay 3 bước lặp nhàm chán này một cách an toàn và rõ ý định hơn!
+
 ---
 
-## 4. Sai lầm Hay gặp & Cách Khắc phục
+## 📘 Phần 1 & 2 — Lý thuyết cốt lõi đi từ Dễ đến Khó
 
-| Sai lầm phổ biến | Hậu quả thực tế | Cách khắc phục chuẩn mực |
-|---|---|---|
-| Bỏ qua `initialValue` khi tính tổng object: `arr.reduce((s, o) => s + o.val)` | Khi mảng có 1 phần tử hoặc rỗng, trả về object hoặc ném `TypeError` | Luôn chỉ định giá trị khởi tạo: `.reduce((s, o) => s + o.val, 0)` |
-| Nhầm lẫn giữa `filter()` và `find()` | `find()` chỉ lấy 1 phần tử đầu tiên thỏa điều kiện, `filter()` trả về mảng | Dùng `filter()` khi cần xử lý danh sách, `find()` khi tìm bản ghi độc nhất |
-| Đột biến mảng bên trong callback: `arr.map(x => { x.checked = true; return x; })` | Thay đổi thuộc tính của object trong mảng gốc trong bộ nhớ heap | Trả về shallow copy của object: `arr.map(x => ({ ...x, checked: true }))` |
+### 1.1. Vì sao cần Tính Bất Biến (Immutability) trong dự án thực tế?
+Khi bạn làm ứng dụng React, Vue hay Backend API:
+- Nếu một hàm nhận vào mảng `cartItems` và sửa trực tiếp nó (`cartItems.push(...)` hoặc `cartItems.sort()`), mọi màn hình khác đang dùng chung biến đó sẽ bị thay đổi dữ liệu ngầm mà không hề hay biết!
+- Đặc biệt trong React, giao diện **chỉ vẽ lại (re-render)** khi nhận được một **mảng/đối tượng mới** ở địa chỉ ô nhớ mới. Nếu bạn sửa mảng cũ tại chỗ, giao diện sẽ đứng yên không cập nhật.
+- **Giải pháp:** Các hàm `filter`, `map`, `reduce` luôn giữ nguyên mảng ban đầu và trả về kết quả mới.
+
+### 1.2. Cơ chế Bộ Ba Phương thức Mảng (Đi từ Dễ đến Khó)
+1. **Bước 1 — `filter(predicate)` (Cái rây lọc dữ liệu):**
+   - Duyệt từng phần tử; nếu hàm kiểm tra trả về `true`, phần tử được giữ lại trong mảng mới.
+   - Độ dài mảng kết quả **nhỏ hơn hoặc bằng** mảng gốc; hình dạng phần tử không đổi.
+   - Ví dụ tư duy: `[1, 2, 3, 4].filter(n => n % 2 === 0)` $\rightarrow$ `[2, 4]`.
+2. **Bước 2 — `map(transform)` (Dây chuyền biến đổi 1-1):**
+   - Biến đổi từng phần tử thành một giá trị mới theo công thức bạn cung cấp.
+   - Độ dài mảng kết quả **luôn bằng đúng 100%** mảng gốc.
+   - Ví dụ tư duy: `[1, 2, 3].map(n => n * 10)` $\rightarrow$ `[10, 20, 30]`.
+3. **Bước 3 — `reduce((acc, item) => ..., initialValue)` (Máy nén dữ liệu đa năng):**
+   - Nén cả mảng thành **1 kết quả duy nhất**: có thể là tổng tiền (số), chuỗi HTML, hay một object thống kê.
+   - `acc` (accumulator) là chiếc hộp tích lũy kết quả qua từng lượt.
+   - **Quy tắc vàng sống còn:** Luôn truyền `initialValue` (ví dụ `0`, `[]`, `{}`) ở tham số thứ 2 để chương trình không bị sập khi gặp mảng rỗng `[]`.
+
+### 2.1. Nối chuỗi Pipeline trong thực tế (Chaining)
+Trong dự án thật, dữ liệu từ API thường cần: **Lọc bỏ rác $\rightarrow$ Biến đổi định dạng $\rightarrow$ Tổng hợp số liệu**.
+```
+[Mảng gốc] ──(.filter)──> [Mảng sạch] ──(.map)──> [Mảng đã đổi dạng] ──(.reduce)──> [1 Kết quả]
+```
+Mỗi bước không làm hỏng dữ liệu của bước trước, giúp code dễ đọc như tiếng Anh tự nhiên.
 
 ---
 
-## 5. Checklist Áp dụng Thực chiến
-- [ ] Mảng gốc có được bảo toàn nguyên vẹn sau hàm xử lý không?
-- [ ] Tất cả các lệnh `reduce` đã có tham số `initialValue` hợp lệ chưa?
-- [ ] Hàm callback truyền vào `map`/`filter` có phải là hàm thuần khiết (không gọi API hay mutate state ngoài)?
-- [ ] Trường hợp mảng rỗng `[]` đã được test case kiểm tra mà không crash chưa?
+## 🔍 Phần 3 — 3 Ví dụ Mẫu Giải Chậm Từng Dòng (Worked Examples)
 
-<!-- studxy-writein-v2 -->",
-                "Biến đổi và lọc mảng với map, filter, reduce chuẩn Functional Programming.",
-                "Bảo toàn tính bất biến và triệt tiêu lỗi runtime khi mảng rỗng."
+### Ví dụ 1 (Mức Dễ - Làm quen): Nhân đôi điểm thưởng học viên
+**Bài toán:** Cho mảng điểm `[5, 8, 10]`, tạo mảng mới với mỗi điểm được nhân đôi.
+```javascript
+const points = [5, 8, 10];              // Dòng 1: Mảng gốc gồm 3 phần tử
+const doubled = points.map((p) => {     // Dòng 2: map đi qua từng phần tử, đặt tên tạm là p
+  return p * 2;                         // Dòng 3: Trả về giá trị mới p * 2 cho vị trí tương ứng
+});                                     // Dòng 4: Kết thúc map, gom các giá trị mới thành mảng
+console.log(doubled);                   // Dòng 5: In ra [10, 16, 20]; mảng points vẫn là [5, 8, 10]
+```
+
+### Ví dụ 2 (Mức Trung bình - Bài toán thực tế): Tính tổng tiền giỏ hàng còn hàng
+**Bài toán:** Trong giỏ hàng có sản phẩm hết hàng (`inStock: false`). Chỉ tính tổng tiền các món còn hàng sau khi nhân số lượng.
+```javascript
+const cart = [
+  { name: 'Bàn phím cơ', price: 1200000, qty: 1, inStock: true },
+  { name: 'Chuột gaming', price: 650000, qty: 2, inStock: false },
+  { name: 'Lót chuột', price: 150000, qty: 2, inStock: true }
+];
+
+// Bước 1: Lọc lấy món còn hàng -> còn Bàn phím cơ và Lót chuột
+const availableItems = cart.filter((item) => item.inStock === true);
+
+// Bước 2: Biến đổi mỗi món thành thành tiền (price * qty) -> [1200000, 300000]
+const subtotals = availableItems.map((item) => item.price * item.qty);
+
+// Bước 3: Cộng dồn từ mốc khởi tạo 0 -> 1500000
+const totalPayment = subtotals.reduce((sum, money) => sum + money, 0);
+
+console.log(totalPayment); // 1500000
+```
+**Trace ngắn:** `availableItems` có 2 món $\rightarrow$ `subtotals` là `[1200000, 300000]` $\rightarrow$ `reduce` lượt 1: `0 + 1200000 = 1200000`; lượt 2: `1200000 + 300000 = 1500000`.
+
+### Ví dụ 3 (Mức Nâng cao + Bẫy hay sai): Mảng rỗng, `undefined` & Đột biến ngầm
+Xem xét đoạn code chứa **3 lỗi kinh điển** mà người mới hay mắc:
+```javascript
+// CODE LỖI CẦN TRÁNH:
+function buggySummary(orders) {
+  // BẪY 1: .sort() sửa thẳng mảng orders gốc!
+  const sorted = orders.sort((a, b) => b.amount - a.amount);
+
+  // BẪY 2: Khi orders = [], thiếu initialValue 0 -> văng TypeError: Reduce of empty array!
+  // Hoặc khi orders = [{ amount: 500 }], reduce trả về nguyên OBJECT { amount: 500 } chứ không phải số 500!
+  const total = sorted.reduce((acc, o) => acc + o.amount);
+  return total;
+}
+
+// CODE CHUẨN AN TOÀN:
+function safeSummary(orders) {
+  if (!Array.isArray(orders) || orders.length === 0) return { topAmount: 0, total: 0 };
+
+  // Copy mảng bằng [...orders] trước khi sort để bảo toàn mảng gốc
+  const sorted = [...orders].sort((a, b) => b.amount - a.amount);
+  // Luôn truyền initialValue = 0
+  const total = sorted.reduce((acc, o) => acc + (o.amount || 0), 0);
+
+  return { topAmount: sorted[0].amount, total };
+}
+```
+> [!WARNING]
+> **Bẫy `find()` vs `filter()`:** Nếu bạn dùng `orders.find(o => o.id === 99)` mà không thấy, kết quả là `undefined`. Đọc `result.amount` ngay sau đó sẽ crash (`Cannot read properties of undefined`). Luôn kiểm tra `if (!found)` trước khi dùng!
+
+---
+
+## 📝 Phần 4 — Bộ Bài Tập Tự Luyện & Đề Tự Giải
+
+### A. 4 Bài tập tự viết code (Từ Rất Dễ đến Vận dụng)
+
+1. **Bài 1 (Rất Dễ):** Viết hàm `getEvenNumbers(nums)` nhận vào mảng số nguyên và trả về mảng chỉ chứa các số chẵn (chia hết cho 2).
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Số chẵn có phép chia lấy dư `n % 2 === 0`. Hãy dùng phương thức `.filter(...)`.
+
+```javascript
+function getEvenNumbers(nums) {
+  return nums.filter((n) => n % 2 === 0);
+}
+// Kiểm tra: getEvenNumbers([1, 2, 3, 4, 6]) -> [2, 4, 6]
+// Mảng rỗng: getEvenNumbers([]) -> []
+```
+</details>
+
+2. **Bài 2 (Dễ):** Viết hàm `formatUserTags(names)` biến mảng tên `['An', 'Bình']` thành mảng chuỗi có tiền tố `['@An', '@Bình']`.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Mỗi phần tử giữ nguyên vị trí nhưng thay đổi hình dạng $\rightarrow$ dùng `.map(...)`.
+
+```javascript
+function formatUserTags(names) {
+  return names.map((name) => '@' + name);
+}
+// Kiểm tra: formatUserTags(['An', 'Bình']) -> ['@An', '@Bình']
+```
+</details>
+
+3. **Bài 3 (Trung bình):** Cho danh sách sinh viên `[{ name: 'Lan', score: 8 }, { name: 'Huy', score: 4 }, { name: 'Mai', score: 9 }]`. Viết hàm `getPassedNames(students)` trả về mảng **tên** của các bạn có `score >= 5`.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Kết hợp 2 bước: bước 1 dùng `filter` giữ người đạt `score >= 5`, bước 2 dùng `map` chỉ lấy `.name`.
+
+```javascript
+function getPassedNames(students) {
+  return students
+    .filter((s) => s.score >= 5)
+    .map((s) => s.name);
+}
+// Kiểm tra: trả về ['Lan', 'Mai']
+```
+</details>
+
+4. **Bài 4 (Vận dụng):** Cho mảng giao dịch `[{ category: 'food', amount: 40 }, { category: 'book', amount: 100 }, { category: 'food', amount: 60 }]`. Viết hàm `sumByCategory(txs)` gom nhóm tổng tiền theo từng `category` thành `{ food: 100, book: 100 }`.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Dùng `reduce` với `initialValue` là `{}`. Với mỗi phần tử, lấy giá trị cũ `(acc[tx.category] || 0)` cộng thêm `tx.amount`.
+
+```javascript
+function sumByCategory(txs) {
+  return txs.reduce((acc, tx) => {
+    acc[tx.category] = (acc[tx.category] || 0) + tx.amount;
+    return acc;
+  }, {});
+}
+```
+</details>
+
+### B. 3 Câu hỏi tự kiểm tra tư duy
+
+1. **Câu hỏi 1:** Điều gì xảy ra khi chạy `[].reduce((acc, x) => acc + x)` (không có tham số thứ 2)?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** JavaScript ném lỗi `TypeError: Reduce of empty array with no initial value` khiến ứng dụng dừng đột ngột. **Cách sửa:** Luôn truyền `0` làm tham số thứ 2: `[].reduce((acc, x) => acc + x, 0)` để trả về `0` an toàn.
+</details>
+
+2. **Câu hỏi 2:** Tại sao `const res = arr.map(item => { item.done = true; return item; })` vẫn bị coi là vi phạm tính bất biến?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** Tuy `.map()` tạo mảng mới, nhưng bên trong callback bạn sửa trực tiếp thuộc tính `.done` trên chính object gốc trong bộ nhớ Heap. Do đó mảng `arr` ban đầu cũng bị biến đổi theo! **Cách sửa:** Trả về object mới bằng spread `{ ...item, done: true }`.
+</details>
+
+3. **Câu hỏi 3:** Khi nào nên dùng `forEach` thay vì `map`, và khi nào tuyệt đối dùng `map`?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** `forEach` luôn trả về `undefined`, chỉ dùng khi bạn muốn thực hiện hành động phụ (như in log ra màn hình). Khi bạn cần tạo ra một mảng dữ liệu mới từ mảng cũ, luôn dùng `map`.
+</details>
+
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
+                "Nhập môn biến, mảng, vòng lặp for đến map/filter/reduce chuẩn Immutability.",
+                "Trace từng bước, 3 ví dụ chậm và bộ đề tự giải phòng bẫy mảng rỗng."
             ),
 
             new LessonTheoryMeta(
                 SeedDataInitializer.CodingLesson12Id,
                 "Bài 1.2: Thuật Toán Tìm Kiếm & Kỹ Thuật Hai Con Trỏ (Two Pointers)",
                 "thuat-toan-tim-kiem-va-two-pointers",
-                25,
+                40,
                 @"# Bài 1.2: Thuật Toán Tìm Kiếm & Kỹ Thuật Hai Con Trỏ (Two Pointers)
 
-## 1. Mục tiêu bài học (Learning Objectives)
-- Phân biệt độ phức tạp thời gian giữa Tìm kiếm tuyến tính $O(n)$ và Tìm kiếm nhị phân $O(\log n)$.
-- Cài đặt thành thạo thuật toán Binary Search trên mảng đã sắp xếp và xử lý an toàn điều kiện dừng vòng lặp.
-- Vận dụng kỹ thuật Hai con trỏ (Two Pointers): con trỏ đối xứng hai đầu (left - right) và con trỏ chạy nhanh - chậm (fast - slow).
-- Tối ưu hóa bộ nhớ phụ về $O(1)$ khi giải các bài toán đảo mảng, loại bỏ trùng lặp và tìm cặp số mục tiêu (Two Sum II).
+> [!TIP]
+> Nghe tên ""Tìm kiếm nhị phân"" hay ""Hai con trỏ"" có vẻ hàn lâm, nhưng thực chất chúng chỉ là 2 biến đếm vị trí (`left`, `right`) di chuyển thông minh trên mảng. Hãy đi từng bước từ **Phần 0** để hình dung rõ ràng nhất!
 
 ---
 
-## 2. Khái niệm & Mô hình Cốt lõi
+## 🌱 Phần 0 — Nhập môn từ con số 0 (Dành cho người mới hoàn toàn)
 
-### 2.1. Tìm kiếm Nhị phân (Binary Search)
-- **Điều kiện tiên quyết:** Mảng phải được sắp xếp theo thứ tự (tăng dần hoặc giảm dần).
-- **Nguyên lý chia để trị:** Tại mỗi bước, so sánh phần tử ở giữa `mid` với `target`. Nếu `target < arr[mid]`, thu hẹp không gian tìm kiếm sang nửa trái (`right = mid - 1`); ngược lại sang nửa phải (`left = mid + 1`).
-- **Phòng chống tràn số (Integer Overflow):** Thay vì viết `Math.floor((left + right) / 2)`, trong các ngôn ngữ có kiểu int cố định nên dùng `left + Math.floor((right - left) / 2)`.
-
-### 2.2. Kỹ thuật Hai Con Trỏ (Two Pointers Pattern)
-Thay vì dùng 2 vòng lặp lồng nhau với độ phức tạp $O(n^2)$, kỹ thuật 2 con trỏ duyệt mảng theo hướng hội tụ hoặc song hành giúp giảm độ phức tạp về $O(n)$:
-1. **Con trỏ hai đầu (Opposite Direction):** Một con trỏ ở đầu mảng (`left = 0`), một con trỏ ở cuối mảng (`right = n - 1`), tiến dần vào giữa (ví dụ: Two Sum trên mảng đã sort, Palindrome check).
-2. **Con trỏ nhanh - chậm (Fast & Slow):** Hai con trỏ cùng xuất phát từ đầu mảng với tốc độ khác nhau (ví dụ: phát hiện chu trình Floyd, xóa phần tử trùng lặp in-place).
-
----
-
-## 3. Ví dụ Thực tế Minh họa Chuyên sâu
-
+### 0.1. Con trỏ trong JavaScript chỉ là ""Ngón tay chỉ vào số thứ tự""
+Đừng nhầm với con trỏ bộ nhớ phức tạp trong ngôn ngữ C/C++. Trong JavaScript, khi nói **hai con trỏ (Two Pointers)**, nghĩa là bạn chỉ tạo **2 biến số nguyên** để nhớ vị trí trong mảng:
 ```javascript
-// Bài toán: Tìm hai số trong mảng đã sắp xếp có tổng bằng target (Two Sum II)
-function twoSumSorted(numbers, target) {
+const arr = [10, 20, 30, 40, 50];
+let left = 0;               // Ngón tay trái đặt ở đầu mảng (giá trị 10)
+let right = arr.length - 1; // Ngón tay phải đặt ở cuối mảng (giá trị 50)
+```
+
+### 0.2. Tìm tuần tự (lật từng trang) vs Tìm nhị phân (chia đôi cuốn sách)
+Hãy tưởng tượng bạn cần tìm từ **""Mèo""** trong cuốn từ điển 1.000 trang đã xếp theo thứ tự A $\rightarrow$ Z:
+1. **Tìm kiếm tuyến tính (Linear Search):** Mở từ trang 1, lật từng trang 2, 3, 4... Nếu từ ở trang 999, bạn mất 999 bước ($O(n)$).
+2. **Tìm kiếm nhị phân (Binary Search):** Mở ngay **giữa sách (trang 500)**. Nếu thấy chữ ""K"", biết chắc chữ ""Mèo"" nằm ở nửa sau (trang 501–1000) nên **vứt bỏ hoàn toàn nửa đầu**! Lần 2 mở giữa nửa sau (trang 750)... Chỉ mất tối đa $\approx 10$ lần mở sách cho 1.000 trang, và chỉ **20 lần** cho **1.000.000 bản ghi** ($O(\log n)$)!
+
+### 0.3. Phép lấy vị trí giữa `Math.floor`
+Nếu `left = 0` và `right = 3`, phép chia `(0 + 3) / 2` ra `1.5`, nhưng chỉ số mảng phải là số nguyên! Vì vậy ta dùng `Math.floor((left + right) / 2)` để làm tròn xuống thành `1`.
+
+#### Bảng theo dõi từng bước (Trace Table) — Tìm số `12` trong `[2, 5, 8, 12, 19]`
+```
+Chỉ số :    0    1    2    3    4
+Mảng   : [  2,   5,   8,  12,  19 ]
+Lượt 1 :  left=0      mid=2      right=4   --> arr[2] = 8 < 12  ==> bỏ nửa trái, left = mid + 1 = 3
+Lượt 2 :                  left=3, mid=3, right=4 --> arr[3] = 12 === 12 ==> TÌM THẤY tại vị trí 3!
+```
+
+| Lượt lặp | `left` | `right` | `mid = Math.floor((l+r)/2)` | `arr[mid]` | So sánh với `target = 12` | Hành động tiếp theo |
+|---|---|---|---|---|---|---|
+| Lượt 1 | `0` | `4` | `2` | `8` | `8 < 12` (Nhỏ hơn) | Bỏ `0..2`, gán `left = 2 + 1 = 3` |
+| Lượt 2 | `3` | `4` | `3` | `12` | `12 === 12` (Khớp!) | Trả về `3` và thoát hàm |
+
+---
+
+## 📘 Phần 1 & 2 — Lý thuyết cốt lõi đi từ Dễ đến Khó
+
+### 1.1. Tìm kiếm Nhị phân (Binary Search) — Quy tắc bắt buộc
+- **Điều kiện tiên quyết 1:** Mảng đầu vào **bắt buộc phải được sắp xếp** (tăng dần hoặc giảm dần). Nếu mảng lộn xộn `[9, 2, 7]`, Binary Search sẽ cho kết quả sai hoàn toàn.
+- **Điều kiện dừng vòng lặp:** Dùng `while (left <= right)` (có dấu `=`). Lý do: khi không gian thu hẹp còn đúng 1 phần tử (`left === right`), ta vẫn phải kiểm tra nốt phần tử cuối cùng đó.
+- **Bước nhảy an toàn:** Luôn cập nhật `left = mid + 1` hoặc `right = mid - 1` (không bao giờ gán `left = mid`), vì `arr[mid]` đã được kiểm tra rồi, giữ lại `mid` sẽ khiến vòng lặp quay vô tận.
+- **Ứng dụng thực tế:** Tìm log lỗi theo mốc thời gian `timestamp` trong hàng triệu dòng log, tìm phiên bản gây lỗi phần mềm (`git bisect`), tìm khoảng giá sản phẩm trên sàn thương mại điện tử.
+
+### 2.1. Kỹ thuật Hai Con Trỏ (Two Pointers Pattern)
+Nếu bạn dùng 2 vòng `for` lồng nhau (`for i` bên trong có `for j`) để tìm cặp số, 10.000 phần tử sẽ tốn $10.000 \times 10.000 = 100.000.000$ phép tính ($O(n^2)$) khiến trình duyệt bị treo! Kỹ thuật Hai Con Trỏ giảm xuống chỉ **1 lần duyệt ($O(n)$)** và **không tốn thêm mảng phụ ($O(1)$ bộ nhớ)**:
+
+1. **Mẫu A — Hai con trỏ đối xứng hai đầu (Opposite Direction):**
+   - `left = 0` đi sang phải, `right = n - 1` đi sang trái, dừng khi `left >= right` (`while (left < right)`).
+   - Dùng cho: Đảo ngược mảng tại chỗ, kiểm tra chuỗi đối xứng (Palindrome), tìm cặp số có tổng bằng `target` trên mảng đã sắp xếp (Two Sum II).
+2. **Mẫu B — Hai con trỏ cùng chiều Nhanh - Chậm (Fast & Slow / Read & Write):**
+   - `read` chạy nhanh phía trước để dò tìm phần tử hợp lệ; `write` chạy chậm phía sau để ghi đè phần tử sạch.
+   - Dùng cho: Xóa phần tử trùng lặp trên mảng đã sắp xếp mà không cần tạo mảng mới hay `Set`.
+
+---
+
+## 🔍 Phần 3 — 3 Ví dụ Mẫu Giải Chậm Từng Dòng (Worked Examples)
+
+### Ví dụ 1 (Mức Dễ - Làm quen): Đảo ngược mảng bằng hai con trỏ
+**Bài toán:** Đảo ngược mảng `[1, 2, 3, 4]` trực tiếp mà không dùng `.reverse()`.
+```javascript
+function reverseArray(arr) {
+  let left = 0;                   // Dòng 1: Đặt con trỏ trái ở phần tử đầu
+  let right = arr.length - 1;     // Dòng 2: Đặt con trỏ phải ở phần tử cuối
+  while (left < right) {          // Dòng 3: Chạy khi hai ngón tay chưa chạm nhau
+    const temp = arr[left];       // Dòng 4: Cất tạm giá trị bên trái
+    arr[left] = arr[right];       // Dòng 5: Chép giá trị bên phải sang trái
+    arr[right] = temp;            // Dòng 6: Đưa giá trị tạm sang phải
+    left++;                       // Dòng 7: Tiến ngón trái vào giữa
+    right--;                      // Dòng 8: Lùi ngón phải vào giữa
+  }
+  return arr;                     // Dòng 9: Trả về [4, 3, 2, 1]
+}
+```
+
+### Ví dụ 2 (Mức Trung bình - Bài toán thực tế): Tìm 2 món hàng đúng ngân sách
+**Bài toán:** Bạn có voucher đúng `target = 100` nghìn và danh sách giá đã sắp xếp tăng dần `[20, 35, 65, 80, 95]`. Tìm vị trí 2 món có tổng đúng bằng `100`.
+```javascript
+function findTwoProducts(prices, target) {
   let left = 0;
-  let right = numbers.length - 1;
+  let right = prices.length - 1;
 
   while (left < right) {
-    const currentSum = numbers[left] + numbers[right];
-    if (currentSum === target) {
-      return [left, right]; // Tìm thấy cặp chỉ số
-    } else if (currentSum < target) {
-      left++; // Tổng còn nhỏ -> Tăng con trỏ bên trái
+    const sum = prices[left] + prices[right];
+    if (sum === target) {
+      return [left, right]; // Khớp ngân sách!
+    }
+    if (sum < target) {
+      // Tổng đang nhỏ hơn 100 -> Cần giá lớn hơn -> Nhích con trỏ trái sang phải
+      left++;
     } else {
-      right--; // Tổng quá lớn -> Giảm con trỏ bên phải
+      // Tổng đang lớn hơn 100 -> Cần giá nhỏ hơn -> Lùi con trỏ phải sang trái
+      right--;
     }
   }
-
-  return []; // Không tìm thấy
+  return [-1, -1]; // Không có cặp nào phù hợp
 }
+// Trace: [20 + 95 = 115 > 100 -> right--] -> [20 + 80 = 100 === 100 -> trả về [0, 3]]!
+```
 
-console.log(twoSumSorted([2, 7, 11, 15], 9)); // Output: [0, 1]
+### Ví dụ 3 (Mức Nâng cao + Bẫy hay sai): Bẫy Vòng Lặp Vô Hạn & Off-by-One
+```javascript
+// BẪY 1: Vòng lặp vô tận trong Binary Search!
+// Khi arr = [10, 20], target = 20: left = 0, right = 1
+// mid = Math.floor((0 + 1) / 2) = 0. arr[0] = 10 < 20.
+// Nếu viết nhầm: left = mid (left vẫn là 0!) -> Lượt sau mid lại là 0 -> TREO VĨNH VIỄN!
+// Sửa đúng: left = mid + 1;
+
+// BẪY 2: Thiếu dấu '=' trong Binary Search (lỗi Off-by-One)
+// Với mảng 1 phần tử [7], target = 7: left = 0, right = 0.
+// Nếu viết while (left < right) -> 0 < 0 là SAI -> bỏ qua không kiểm tra arr[0] -> trả về -1!
+// Sửa đúng: while (left <= right)
+
+// BẪY 3: Mảng rỗng [] hoặc null
+function safeBinarySearch(arr, target) {
+  if (!Array.isArray(arr) || arr.length === 0) return -1;
+  let left = 0;
+  let right = arr.length - 1;
+  while (left <= right) {
+    const mid = left + Math.floor((right - left) / 2); // Tránh tràn số ở ngôn ngữ khác
+    if (arr[mid] === target) return mid;
+    if (arr[mid] < target) left = mid + 1;
+    else right = mid - 1;
+  }
+  return -1;
+}
 ```
 
 ---
 
-## 4. Sai lầm Hay gặp & Cách Khắc phục
+## 📝 Phần 4 — Bộ Bài Tập Tự Luyện & Đề Tự Giải
 
-| Sai lầm phổ biến | Hậu quả thực tế | Cách khắc phục chuẩn mực |
-|---|---|---|
-| Quên kiểm tra mảng đã sắp xếp trước khi chạy Binary Search | Kết quả tìm kiếm ngẫu nhiên, bỏ sót phần tử tồn tại | Luôn đảm bảo mảng đã được sort hoặc sort trước khi áp dụng |
-| Điều kiện dừng `left < right` thay vì `left <= right` trong Binary Search | Bỏ sót phần tử cuối cùng khi `left === right` | Dùng `while (left <= right)` cho tìm kiếm chính xác vị trí |
-| Cập nhật con trỏ `left = mid` hoặc `right = mid` | Gây vòng lặp vô tận (infinite loop) khi `left` và `right` kề nhau | Luôn bước nhảy: `left = mid + 1` hoặc `right = mid - 1` |
+### A. 4 Bài tập tự viết code (Từ Rất Dễ đến Vận dụng)
 
----
+1. **Bài 1 (Rất Dễ):** Viết hàm tìm kiếm tuyến tính `findFirstIndex(arr, target)` bằng vòng lặp `for` thông thường, trả về chỉ số đầu tiên tìm thấy hoặc `-1`.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
 
-## 5. Checklist Áp dụng Thực chiến
-- [ ] Dữ liệu đầu vào đã được sắp xếp trước khi gọi Binary Search chưa?
-- [ ] Điều kiện biên mảng rỗng `[]` hoặc mảng 1 phần tử đã được kiểm tra chưa?
-- [ ] Thuật toán đạt độ phức tạp không gian $O(1)$ không cần cấp phát thêm mảng phụ?
+**Gợi ý:** Duyệt `i` từ `0` đến `arr.length - 1`. Nếu `arr[i] === target` thì `return i;` ngay lập tức. Hết vòng lặp không thấy thì `return -1;`.
 
-<!-- studxy-writein-v2 -->",
-                "Thuật toán tìm kiếm nhị phân O(log n) và kỹ thuật hai con trỏ tối ưu O(1) bộ nhớ.",
-                "Giải quyết bài toán Two Sum và đảo mảng in-place."
+```javascript
+function findFirstIndex(arr, target) {
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === target) return i;
+  }
+  return -1;
+}
+```
+</details>
+
+2. **Bài 2 (Dễ):** Viết hàm `isSymmetricNumbers(nums)` kiểm tra xem mảng số có đối xứng từ hai đầu hay không (ví dụ `[1, 2, 3, 2, 1]` $\rightarrow$ `true`, `[1, 2, 3]` $\rightarrow$ `false`).
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Đặt `left = 0`, `right = nums.length - 1`. Dùng `while (left < right)`, nếu `nums[left] !== nums[right]` thì trả về `false`.
+
+```javascript
+function isSymmetricNumbers(nums) {
+  let left = 0;
+  let right = nums.length - 1;
+  while (left < right) {
+    if (nums[left] !== nums[right]) return false;
+    left++;
+    right--;
+  }
+  return true;
+}
+```
+</details>
+
+3. **Bài 3 (Trung bình):** Viết hàm `countPairsLessThan(sortedNums, limit)` đếm xem có bao nhiêu cặp phần tử `(i, j)` trong mảng đã sắp xếp có tổng nhỏ hơn `limit` với độ phức tạp $O(n)$.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Nếu `sortedNums[left] + sortedNums[right] < limit`, vì mảng tăng dần nên mọi phần tử nằm giữa `left` và `right` ghép với `left` cũng đều nhỏ hơn `limit`! Có ngay `(right - left)` cặp hợp lệ, rồi tăng `left++`.
+
+```javascript
+function countPairsLessThan(sortedNums, limit) {
+  let left = 0;
+  let right = sortedNums.length - 1;
+  let count = 0;
+  while (left < right) {
+    if (sortedNums[left] + sortedNums[right] < limit) {
+      count += right - left;
+      left++;
+    } else {
+      right--;
+    }
+  }
+  return count;
+}
+```
+</details>
+
+4. **Bài 4 (Vận dụng):** Cho mảng tăng dần có phần tử trùng `[1, 1, 2, 2, 2, 3]`. Viết hàm `removeDuplicatesInPlace(nums)` loại bỏ trùng lặp tại chỗ bằng con trỏ `read` và `write`, trả về số lượng phần tử độc nhất.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Nếu mảng rỗng trả về `0`. Khởi tạo `write = 1`. Cho `read` chạy từ `1` tới cuối, nếu `nums[read] !== nums[read - 1]` thì chép `nums[write] = nums[read]` và tăng `write++`.
+
+```javascript
+function removeDuplicatesInPlace(nums) {
+  if (nums.length === 0) return 0;
+  let write = 1;
+  for (let read = 1; read < nums.length; read++) {
+    if (nums[read] !== nums[read - 1]) {
+      nums[write] = nums[read];
+      write++;
+    }
+  }
+  return write;
+}
+```
+</details>
+
+### B. 3 Câu hỏi tự kiểm tra tư duy
+
+1. **Câu hỏi 1:** Nếu chạy Binary Search trên mảng `[10, 3, 25, 8]` (chưa sắp xếp) để tìm `3`, điều gì sẽ xảy ra?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** `mid = 1` (tùy độ dài; ở đây `left=0, right=3, mid=1 -> arr[1]=3` tình cờ trúng), nhưng nếu tìm `25`: `arr[1] = 3 < 25` đi sang phải `left=2, mid=2 -> arr[2]=25`. Tuy nhiên nếu tìm `10`: `arr[1] = 3 < 10`, thuật toán sẽ bỏ nửa trái (nơi chứa số `10`!) và báo không tìm thấy. Binary Search **bắt buộc** mảng phải có thứ tự đơn điệu.
+</details>
+
+2. **Câu hỏi 2:** Vì sao thuật toán đảo mảng dùng `while (left < right)` còn Binary Search dùng `while (left <= right)`?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** Khi đảo mảng và gặp nhau tại tâm (`left === right`), phần tử ở chính giữa không cần đổi chỗ với chính nó nên dùng `<`. Còn Binary Search phải kiểm tra xem phần tử cuối cùng tại `left === right` có bằng `target` không nên phải dùng `<=`.
+</details>
+
+3. **Câu hỏi 3:** Một mảng có 1 tỷ phần tử đã sắp xếp. Binary Search mất tối đa khoảng bao nhiêu bước so sánh?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** Vì $2^{30} \approx 1.07 \times 10^9$, thuật toán chỉ cần tối đa khoảng **30 lần chia đôi** để tìm ra kết quả trong 1 tỷ phần tử, thay vì 1 tỷ bước như vòng lặp thường!
+</details>
+
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
+                "Nhập môn chỉ số mảng, tìm kiếm nhị phân O(log n) và kỹ thuật Hai Con Trỏ O(1).",
+                "Bảng trace từng bước, ví dụ thực tế và phòng tránh vòng lặp vô hạn."
             ),
 
             new LessonTheoryMeta(
                 SeedDataInitializer.CodingLesson21Id,
                 "Bài 2.1: Kỹ Thuật Debounce & Throttle Xử Lý Sự Kiện Tần Suất Cao",
                 "debounce-va-throttle-su-kien",
-                25,
+                40,
                 @"# Bài 2.1: Kỹ Thuật Debounce & Throttle Xử Lý Sự Kiện Tần Suất Cao
 
-## 1. Mục tiêu bài học (Learning Objectives)
-- Phân biệt triệt để cơ chế vận hành và ca sử dụng thực tế giữa **Debounce** và **Throttle**.
-- Làm chủ kỹ thuật Closure và quản lý định thời qua `setTimeout` / `clearTimeout` trong JavaScript.
-- Bảo vệ ứng dụng web khỏi hiện tượng nghẽn UI thread (Jank) và quá tải API backend khi người dùng tương tác liên tục.
-- Xử lý dọn dẹp (cleanup) timer khi component unmount để ngăn ngừa rò rỉ bộ nhớ (Memory Leak).
+> [!TIP]
+> Để hiểu được `Debounce` và `Throttle`, bạn chỉ cần nắm 3 viên gạch nền tảng: **Hàm nhận hàm làm tham số (Callback)**, **Đồng hồ hẹn giờ `setTimeout`**, và **Chiếc ba lô trí nhớ (Closure)**. Phần 0 sẽ giải thích thật chậm cả 3 khái niệm này!
 
 ---
 
-## 2. Khái niệm & Mô hình Cốt lõi
+## 🌱 Phần 0 — Nhập môn từ con số 0 (Dành cho người mới hoàn toàn)
 
+### 0.1. Bài toán thực tế: Tại sao gõ phím nhanh lại làm lag web?
+Khi bạn gõ chữ `""laptop""` vào thanh tìm kiếm Google/Shopee (6 ký tự trong 1 giây):
+- Nếu cứ mỗi lần gõ 1 chữ lại gọi API ngay lập tức, trình duyệt sẽ bắn **6 request** liên tiếp (`""l""`, `""la""`, `""lap""`, `""lapt""`, `""lapto""`, `""laptop""`).
+- 5 request đầu hoàn toàn lãng phí, thậm chí kết quả của `""la""` về chậm hơn `""laptop""` còn làm nhảy sai danh sách gợi ý!
+
+### 0.2. Đồng hồ hẹn giờ `setTimeout` & Nút hủy `clearTimeout`
+Trong JavaScript:
+- `const id = setTimeout(hamChaySau, 300)` giống như bạn **đặt báo thức sau 300ms** (0.3 giây) sẽ chạy `hamChaySau`. Nó trả về một mã vé `id`.
+- `clearTimeout(id)` giống như bạn **tắt báo thức trước khi nó kịp reo**. Nếu bạn gọi `clearTimeout(id)` ở phút chót, `hamChaySau` sẽ **không bao giờ chạy**!
+
+### 0.3. Closure (Bao đóng) — ""Chiếc ba lô bí mật của hàm""
+Thông thường, biến tạo bên trong hàm sẽ biến mất khi hàm chạy xong. Nhưng nếu hàm cha trả về một hàm con, và hàm con có dùng biến của hàm cha, thì JavaScript giữ biến đó lại trong một ""chiếc ba lô"" gắn theo hàm con:
+```javascript
+function makeCounter() {
+  let count = 0; // Biến nằm trong ba lô Closure
+  return function() {
+    count = count + 1;
+    return count;
+  };
+}
+const clickBtn = makeCounter();
+console.log(clickBtn()); // 1
+console.log(clickBtn()); // 2 -> Biến count vẫn nhớ giá trị cũ!
 ```
-Sự kiện phát ra:  |||||||||||||||||---------------
-Debounce (300ms): -----------------------------[Thực thi 1 lần cuối]
+Chính nhờ Closure này mà `debounce` và `throttle` nhớ được biến `timerId` qua nhiều lần người dùng gõ phím!
+
+#### Sơ đồ dòng thời gian ASCII & Bảng Trace `debounce(search, 300)`
+```
+Thời gian (ms): 0ms        100ms       200ms                     500ms
+Người dùng    : Gõ ""j""     Gõ ""ja""    Gõ ""jav""                  (ngừng gõ)
+Hành động     : Đặt T1     Hủy T1      Hủy T2                    T3 reo chuông!
+                           Đặt T2      Đặt T3                    ==> GỌI search(""jav"") 1 LẦN!
+```
+
+| Thời điểm | Sự kiện gõ | `timerId` cũ trước xử lý | Hành động với Timer | Kết quả gọi `search()` |
+|---|---|---|---|---|
+| `0ms` | Gõ `""j""` | `null` | Đặt báo thức `T1` (sẽ chạy ở `300ms`) | Chưa gọi |
+| `100ms` | Gõ `""ja""` | `T1` | `clearTimeout(T1)` $\rightarrow$ Đặt `T2` (`400ms`) | Chưa gọi |
+| `200ms` | Gõ `""jav""` | `T2` | `clearTimeout(T2)` $\rightarrow$ Đặt `T3` (`500ms`) | Chưa gọi |
+| `500ms` | Im lặng đủ `300ms` | `T3` | Báo thức `T3` kích hoạt | Gọi `search(""jav"")` 1 lần! |
+
+---
+
+## 📘 Phần 1 & 2 — Lý thuyết cốt lõi đi từ Dễ đến Khó
+
+### 1.1. Debounce (Gom nhóm — ""Chờ nói hết câu mới trả lời"")
+- **Nguyên lý:** Mỗi khi sự kiện mới tới, ta hủy timer cũ đang đếm dở và bắt đầu đếm lại từ đầu `delay` ms. Hàm gốc chỉ chạy **1 lần duy nhất** sau khi người dùng **ngừng thao tác** đủ khoảng thời gian `delay`.
+- **Dùng trong dự án thực tế khi nào?**
+  - Thanh tìm kiếm Live Search / Autocomplete (chờ người dùng gõ xong từ khóa mới gọi API).
+  - Tự động lưu nháp bài viết (Auto-save draft sau khi ngừng gõ 1 giây).
+  - Kiểm tra email/username trùng lặp khi điền form đăng ký.
+
+### 1.2. Throttle (Tiết chế — ""Mỗi chu kỳ chỉ mở cửa 1 lần"")
+```
+Sự kiện liên tục: |||||||||||||||||||||||
+Debounce (300ms): -----------------------[Chạy 1 lần cuối]
 Throttle (300ms): [Lần 1]-----[Lần 2]-----[Lần 3]--------
 ```
+- **Nguyên lý:** Dù sự kiện xảy ra 100 lần mỗi giây, hàm gốc chỉ được chạy **tối đa 1 lần trong mỗi khoảng `limit` ms** theo nhịp đều đặn.
+- **Dùng trong dự án thực tế khi nào?**
+  - Sự kiện cuộn trang `window.onscroll` để hiện nút ""Lên đầu trang"" hoặc tải thêm bài (Infinite Scroll).
+  - Kéo thả chuột (`mousemove`), thay đổi kích thước cửa sổ (`resize`).
+  - Nút ""Thanh toán"" hoặc ""Gửi đơn"" để chống người dùng bấm đúp liên hoàn tạo nhiều đơn trùng.
 
-### 2.1. Debounce (Gom nhóm sự kiện)
-- **Cơ chế:** Trì hoãn việc gọi hàm cho đến khi người dùng **ngừng hoàn toàn** phát sinh sự kiện trong một khoảng thời gian `delay` nhất định. Mỗi khi sự kiện mới xuất hiện, bộ đếm timer cũ bị hủy bỏ và đếm lại từ đầu.
-- **Kịch bản điển hình:** Ô tìm kiếm tức thì (Search Autocomplete), lưu bản nháp tự động (Auto-save draft), kiểm tra tính khả dụng của username khi gõ.
-
-### 2.2. Throttle (Tiết chế tần suất)
-- **Cơ chế:** Đảm bảo hàm chỉ được thực thi **tối đa 1 lần** trong mỗi chu kỳ thời gian `limit`, bất kể người dùng kích hoạt sự kiện bao nhiêu lần.
-- **Kịch bản điển hình:** Sự kiện cuộn trang (`window.onscroll`), kéo giãn kích thước cửa sổ (`resize`), cập nhật tọa độ chuột (`mousemove`), nút bấm chống spam click liên hoàn.
+### 2.1. Bảo toàn tham số `...args`, ngữ cảnh `this` và `.cancel()`
+1. **`...args` (Rest Parameters):** Gom toàn bộ tham số được truyền vào (như `event`, `keyword`, `page`) thành một mảng.
+2. **`fn.apply(this, args)`:** Gọi hàm `fn` với đúng đối tượng `this` ban đầu (ví dụ thẻ `<input>`) và trải toàn bộ mảng `args` thành các tham số rời.
+3. **Phương thức `.cancel()`:** Khi người dùng chuyển sang trang khác (component unmount trong React), timer đang chờ có thể chạy nhầm trên màn hình đã đóng, gây lỗi hoặc rò rỉ bộ nhớ (Memory Leak). Luôn gắn thêm `.cancel()` để gọi `clearTimeout` khi dọn dẹp!
 
 ---
 
-## 3. Ví dụ Thực tế Minh họa Chuyên sâu
+## 🔍 Phần 3 — 3 Ví dụ Mẫu Giải Chậm Từng Dòng (Worked Examples)
 
+### Ví dụ 1 (Mức Dễ - Làm quen): Hàm kiểm soát chỉ chạy 1 lần trong chu kỳ bằng cờ khóa
+**Bài toán:** Viết phiên bản `throttle` tối giản bằng một biến cờ `isLocked` (boolean).
 ```javascript
-// Cài đặt Debounce chuẩn chỉnh hỗ trợ arguments và ngữ cảnh this
+function simpleThrottle(fn, limit) {
+  let isLocked = false;                   // Dòng 1: Ban đầu cửa đang mở (chưa bị khóa)
+  return function(...args) {              // Dòng 2: Trả về hàm bọc nhận mọi tham số
+    if (isLocked) return;                 // Dòng 3: Nếu đang khóa thì bỏ qua luôn, thoát hàm
+    fn.apply(this, args);                 // Dòng 4: Thực thi hàm gốc ngay lập tức
+    isLocked = true;                      // Dòng 5: Khóa cửa lại trong thời gian chờ
+    setTimeout(() => {                    // Dòng 6: Hẹn giờ sau limit ms sẽ mở lại cửa
+      isLocked = false;
+    }, limit);
+  };
+}
+```
+
+### Ví dụ 2 (Mức Trung bình - Bài toán thực tế): Hàm `debounce` chuẩn chỉnh có `.cancel()`
+```javascript
 function debounce(fn, delay) {
   let timerId = null;
 
   const debounced = function(...args) {
+    // Nếu còn hẹn giờ cũ chưa chạy thì hủy bỏ ngay
     if (timerId !== null) {
-      clearTimeout(timerId); // Hủy timer cũ nếu có tương tác mới
+      clearTimeout(timerId);
     }
+    // Đặt lại hẹn giờ mới từ đầu
     timerId = setTimeout(() => {
       fn.apply(this, args);
-      timerId = null;
+      timerId = null; // Đặt lại trạng thái sạch sau khi đã chạy
     }, delay);
   };
 
-  // Hỗ trợ hàm hủy thủ công (cleanup)
-  debounced.cancel = () => {
+  // Hàm dọn dẹp thủ công để dùng trong cleanup (VD: useEffect return)
+  debounced.cancel = function() {
     if (timerId !== null) {
       clearTimeout(timerId);
       timerId = null;
@@ -251,254 +682,903 @@ function debounce(fn, delay) {
 }
 ```
 
+### Ví dụ 3 (Mức Nâng cao + Bẫy hay sai): 3 Lỗi làm Debounce/Throttle vô tác dụng
+```javascript
+// BẪY 1: Quên clearTimeout(timer)
+function brokenDebounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    // LỖI: Không hủy timer cũ -> Gõ 5 chữ sẽ gọi API đủ 5 lần sau 300ms (chỉ bị trễ chứ không gom!)
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+// BẪY 2: Gọi fn() quên truyền ...args và this
+function lostArgsDebounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    // LỖI: Gọi fn() rỗng -> từ khóa tìm kiếm biến thành undefined!
+    timer = setTimeout(() => fn(), delay);
+  };
+}
+
+// BẪY 3 (Trong React): Khởi tạo debounce trực tiếp mỗi lần render
+// function SearchBox() {
+//   // SAI: Mỗi lần state đổi, component vẽ lại tạo ra một biến timerId mới hoàn toàn -> mất tác dụng!
+//   const handleSearch = debounce((q) => fetchApi(q), 300);
+//   // ĐÚNG: Bọc bằng useMemo / useRef và gọi handleSearch.cancel() trong cleanup useEffect!
+// }
+```
+
 ---
 
-## 4. Sai lầm Hay gặp & Cách Khắc phục
+## 📝 Phần 4 — Bộ Bài Tập Tự Luyện & Đề Tự Giải
 
-| Sai lầm phổ biến | Hậu quả thực tế | Cách khắc phục chuẩn mực |
-|---|---|---|
-| Khởi tạo lại hàm debounce bên trong body component React | Mỗi lần re-render tạo một timer độc lập, mất tác dụng debounce | Bọc trong `useCallback` hoặc `useRef` để giữ nguyên instance qua các lần render |
-| Quên gọi `clearTimeout` khi component unmount | Callback thực thi trên component đã unmount, gây rò rỉ bộ nhớ | Thêm return cleanup function trong `useEffect`: `return () => debounced.cancel()` |
-| Nhầm lẫn giữa Debounce và Throttle khi làm tính năng Infinite Scroll | Debounce khiến trang phải dừng cuộn hẳn mới tải tiếp, gây cảm giác giật cục | Dùng Throttle để nạp nội dung mượt mà đều đặn theo chu kỳ cuộn |
+### A. 4 Bài tập tự viết code (Từ Rất Dễ đến Vận dụng)
 
----
+1. **Bài 1 (Rất Dễ):** Viết hàm `createPrefixLogger(prefix)` sử dụng Closure để trả về một hàm nhận `message` và trả về chuỗi `""[prefix] message""`.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
 
-## 5. Checklist Áp dụng Thực chiến
-- [ ] Đã chọn đúng giải pháp: Debounce (chờ người dùng dừng) hay Throttle (đều đặn theo nhịp)?
-- [ ] Biến `timerId` đã được lưu trữ an toàn trong Closure hoặc Ref?
-- [ ] Có hàm `.cancel()` để dọn dẹp khi đổi màn hình hoặc hủy thao tác không?
+**Gợi ý:** Biến `prefix` là tham số của hàm ngoài, hàm bên trong chỉ cần ghép chuỗi `prefix` và `message`.
 
-<!-- studxy-writein-v2 -->",
-                "Phân biệt và cài đặt Debounce vs Throttle với Closure và timer cleanup.",
-                "Tối ưu hiệu năng UI và chống nghẽn server dưới tải sự kiện dày đặc."
+```javascript
+function createPrefixLogger(prefix) {
+  return function(message) {
+    return `[${prefix}] ${message}`;
+  };
+}
+// const infoLog = createPrefixLogger('API');
+// infoLog('Đã tải xong') -> '[API] Đã tải xong'
+```
+</details>
+
+2. **Bài 2 (Dễ):** Viết hàm `once(fn)` dùng Closure đảm bảo hàm `fn` chỉ được phép chạy **đúng 1 lần duy nhất** trong suốt vòng đời (các lần gọi sau trả về kết quả lần đầu hoặc không chạy lại).
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Tạo 2 biến trong closure: `let called = false;` và `let savedResult;`.
+
+```javascript
+function once(fn) {
+  let called = false;
+  let savedResult;
+  return function(...args) {
+    if (!called) {
+      called = true;
+      savedResult = fn.apply(this, args);
+    }
+    return savedResult;
+  };
+}
+```
+</details>
+
+3. **Bài 3 (Trung bình):** Viết hàm `throttleTimestamp(fn, limit)` dùng `Date.now()` (không dùng `setTimeout`) để đảm bảo khoảng cách giữa 2 lần chạy `fn` ít nhất là `limit` ms.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Lưu `let lastTime = 0;`. Mỗi lần gọi, lấy `const now = Date.now();`. Nếu `now - lastTime >= limit` thì cập nhật `lastTime = now` rồi chạy `fn.apply(this, args)`.
+
+```javascript
+function throttleTimestamp(fn, limit) {
+  let lastTime = 0;
+  return function(...args) {
+    const now = Date.now();
+    if (now - lastTime >= limit) {
+      lastTime = now;
+      return fn.apply(this, args);
+    }
+  };
+}
+```
+</details>
+
+4. **Bài 4 (Vận dụng):** Viết hàm `debounceImmediate(fn, delay)` có thêm tính năng: nếu đang không có timer nào chờ, thực thi ngay lập tức ở lần bấm đầu tiên (Leading Edge), nhưng nếu người dùng bấm tiếp liên tục trong lúc chưa hết `delay` thì chặn lại và chỉ đặt lại thời gian khóa.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Kiểm tra `const shouldCallNow = timerId === null;` trước khi `clearTimeout` và đặt timer mới để reset `timerId = null`.
+
+```javascript
+function debounceImmediate(fn, delay) {
+  let timerId = null;
+  return function(...args) {
+    const shouldCallNow = timerId === null;
+    if (timerId !== null) clearTimeout(timerId);
+    timerId = setTimeout(() => {
+      timerId = null;
+    }, delay);
+    if (shouldCallNow) {
+      fn.apply(this, args);
+    }
+  };
+}
+```
+</details>
+
+### B. 3 Câu hỏi tự kiểm tra tư duy
+
+1. **Câu hỏi 1:** Nếu người dùng cuộn chuột liên tục không ngừng trong 10 giây, chức năng ""tải thêm bài khi cuộn"" nên dùng Debounce hay Throttle? Vì sao?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** Phải dùng **Throttle**! Nếu dùng Debounce, trang web sẽ đứng im hoàn toàn suốt 10 giây vì người dùng chưa ngừng cuộn, tạo cảm giác giật lag. Throttle giúp kiểm tra vị trí cuộn đều đặn mỗi 200–300ms để tải nội dung mượt mà.
+</details>
+
+2. **Câu hỏi 2:** Tại sao dòng `const t = setTimeout(() => { val = 10; }, 50); clearTimeout(t); console.log(val);` in ra `0` (giá trị cũ) thay vì `10`?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** Vì `clearTimeout(t)` đã hủy lệnh hẹn giờ trước khi hết 50ms nên hàm callback `{ val = 10; }` bị loại bỏ hoàn toàn, không bao giờ được thực thi.
+</details>
+
+3. **Câu hỏi 3:** Tại sao phải viết `debounced.cancel()` và gọi nó khi người dùng đóng modal hoặc chuyển trang?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** Để hủy bỏ bộ đếm thời gian đang chạy ngầm. Nếu không hủy, callback vẫn kích hoạt sau khi màn hình đã bị hủy, gây lỗi cập nhật state trên component không còn tồn tại và rò rỉ bộ nhớ (Memory Leak).
+</details>
+
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
+                "Nhập môn Closure, setTimeout/clearTimeout và phân biệt Debounce vs Throttle.",
+                "Bảo toàn ngữ cảnh this/args, dọn dẹp timer chống Memory Leak."
             ),
 
             new LessonTheoryMeta(
                 SeedDataInitializer.CodingLesson22Id,
                 "Bài 2.2: Memoization & Cache Kết Quả Hàm Tính Toán Phức Tạp",
                 "memoization-va-cache-ket-qua-ham",
-                25,
+                40,
                 @"# Bài 2.2: Memoization & Cache Kết Quả Hàm Tính Toán Phức Tạp
 
-## 1. Mục tiêu bài học (Learning Objectives)
-- Nắm vững khái niệm Hàm thuần khiết (Pure Functions) và điều kiện để áp dụng kỹ thuật Memoization.
-- Tự tay xây dựng hàm bậc cao `memoize()` hỗ trợ đa tham số, lưu trữ cache trong `Map` hoặc `WeakMap`.
-- Nhận diện và xử lý triệt để bài toán Trùng lặp khóa cache (Key Collision) khi tham số là Object.
-- Cân bằng chi phí bộ nhớ RAM (Memory Footprint) với chi phí thời gian xử lý CPU (Time Complexity).
+> [!TIP]
+> Nghe chữ **Memoization** tưởng khó, nhưng thực ra đây chính là thói quen **""ghi nháp kết quả để lần sau khỏi tính lại""**. Phần 0 sẽ giúp bạn làm quen với sổ tay `Map` và cơ chế tra cứu chỉ trong vài phút!
 
 ---
 
-## 2. Khái niệm & Mô hình Cốt lõi
+## 🌱 Phần 0 — Nhập môn từ con số 0 (Dành cho người mới hoàn toàn)
 
-### 2.1. Bản chất của Memoization
-Memoization là kỹ thuật tối ưu hóa trong đó hàm ghi nhớ kết quả của các lần tính toán trước đó dựa trên tham số đầu vào. Khi hàm được gọi lại với cùng một bộ tham số, kết quả lưu sẵn trong bộ nhớ đệm (Cache) được trả về ngay lập tức với độ phức tạp $O(1)$, bỏ qua toàn bộ khối tính toán đắt đỏ.
+### 0.1. Bài toán đời thường: Cô thủ thư ghi nháp
+Giả sử có người hỏi bạn: *""$12345 \times 6789$ bằng bao nhiêu?""*. Bạn mất 30 giây nhẩm ra kết quả rồi ghi vào cuốn sổ nháp. Một phút sau, có người khác hỏi lại đúng phép tính đó — bạn chỉ cần **lật sổ đọc ra đáp án trong 1 giây** mà không phải nhân lại!
+- Cuốn sổ nháp đó trong lập trình gọi là **Cache (Bộ nhớ đệm)**.
+- Kỹ thuật gắn cuốn sổ nháp tự động vào một hàm gọi là **Memoization** (xuất phát từ *memo* = ghi chú).
 
-### 2.2. Điều kiện Tiên quyết
-- **Hàm phải thuần khiết (Pure Function):** Với cùng đầu vào $x$, hàm luôn trả về cùng đầu ra $y$ và không tạo ra side-effect (không phụ thuộc biến toàn cục, thời gian hiện tại `Date.now()`, hay số ngẫu nhiên `Math.random()`).
-- Chi phí tính toán của hàm gốc phải lớn hơn chi phí serialize và tra cứu key trong cache.
-
----
-
-## 3. Ví dụ Thực tế Minh họa Chuyên sâu
-
+### 0.2. Làm quen cấu trúc dữ liệu `Map` trong JavaScript
+Để làm sổ nháp, JavaScript có sẵn đối tượng `Map` với 3 thao tác cơ bản dễ nhớ như đếm 1-2-3:
 ```javascript
-// Hàm memoize mạnh mẽ với bộ tạo key an toàn
-function memoize(fn, customKeyGenerator) {
+const cache = new Map();       // Tạo cuốn sổ nháp rỗng
+
+cache.has('key1');             // 1. Hỏi: ""Trong sổ có lưu 'key1' chưa?"" -> true / false
+cache.set('key1', 999);        // 2. Ghi: Lưu cặp (khóa 'key1', giá trị 999) vào sổ
+cache.get('key1');             // 3. Đọc: Lấy giá trị của 'key1' -> trả về 999
+// Kiểm tra số lượng mục đang lưu: cache.size
+```
+**Tại sao dùng `Map` thay vì Object `{}`?** `Map` phân biệt rõ khóa số `1` với chuỗi `'1'`, không bị xung đột với các tên thuộc tính có sẵn của Object như `'toString'` hay `'constructor'`, và giữ nguyên thứ tự thêm vào để dễ xóa mục cũ nhất!
+
+#### Bảng theo dõi từng bước (Trace Table) — Hàm bình phương có Cache
+```
+Gọi 1: memoSquare(4) -> cache.has(4) = false (Cache Miss!) -> Tính 4*4 = 16 -> Ghi {4 => 16} -> callCount = 1
+Gọi 2: memoSquare(4) -> cache.has(4) = true  (Cache Hit!)  -> Đọc ngay 16  -> Không tính lại -> callCount = 1
+Gọi 3: memoSquare(5) -> cache.has(5) = false (Cache Miss!) -> Tính 5*5 = 25 -> Ghi {4=>16, 5=>25} -> callCount = 2
+```
+
+| Lần gọi | Đầu vào `n` | Đã có trong `cache`? | Trạng thái | Hàm tính gốc có chạy? | `callCount` | Nội dung `cache` sau lệnh |
+|---|---|---|---|---|---|---|
+| Lượt 1 | `memoSquare(4)` | Không (`false`) | **Cache Miss** | Có (`4 * 4 = 16`) | `1` | `{ 4 => 16 }` |
+| Lượt 2 | `memoSquare(4)` | Có (`true`) | **Cache Hit** | Không (trả ngay) | `1` | `{ 4 => 16 }` |
+| Lượt 3 | `memoSquare(5)` | Không (`false`) | **Cache Miss** | Có (`5 * 5 = 25`) | `2` | `{ 4 => 16, 5 => 25 }` |
+
+---
+
+## 📘 Phần 1 & 2 — Lý thuyết cốt lõi đi từ Dễ đến Khó
+
+### 1.1. Điều kiện bắt buộc: Hàm Thuần Khiết (Pure Function)
+Bạn **CHỈ ĐƯỢC PHÉP** memoize khi hàm là **Hàm Thuần Khiết**:
+1. **Cùng đầu vào luôn cho đúng 1 đầu ra:** Ví dụ `add(2, 3)` hôm nay hay ngày mai đều luôn là `5`.
+2. **Không phụ thuộc yếu tố bên ngoài biến đổi:** Không dùng `Date.now()`, `Math.random()`, không đọc biến toàn cục hay gọi API mạng đổi liên tục bên trong hàm được memoize.
+
+### 1.2. Cách tạo khóa cache an toàn cho nhiều tham số (`Key Generation`)
+Một hàm thường nhận nhiều tham số (như `calcShipping(weight, distance, isVip)`), hoặc nhận tham số là Object (`{ city: 'HCM' }`).
+- Nếu ghép bằng `args.toString()` hoặc `String(obj)`: hai object khác nhau `{ a: 1 }` và `{ b: 2 }` đều biến thành chuỗi `""[object Object]""`! Kết quả là gọi dữ liệu của B lại trả nhầm đáp án của A (**Key Collision**).
+- **Giải pháp chuẩn:** Dùng `JSON.stringify(args)` để biến toàn bộ danh sách tham số thành một chuỗi duy nhất (ví dụ `'[2,15,true]'` hoặc `'[{""a"":1}]'`).
+
+### 2.1. Sức mạnh tối ưu thuật toán & Quản lý RAM
+- **Biến thuật toán hàm mũ $O(2^n)$ thành tuyến tính $O(n)$:** Tính số Fibonacci `fib(40)` bằng đệ quy thuần mất hàng trăm triệu phép gọi hàm (treo máy); thêm `Map` cache vào chỉ mất đúng 40 bước trong chưa tới 1 mili-giây!
+- **Giới hạn bộ nhớ (Cache Eviction):** Nếu ứng dụng chạy liên tục cả tuần, `Map` không giới hạn sẽ phình to mãi gây tràn RAM (**OutOfMemory**). Trong thực tế, ta kiểm tra `if (cache.size >= maxSize)` để xóa khóa cũ nhất (`cache.keys().next().value`) theo chiến lược FIFO hoặc LRU.
+
+---
+
+## 🔍 Phần 3 — 3 Ví dụ Mẫu Giải Chậm Từng Dòng (Worked Examples)
+
+### Ví dụ 1 (Mức Dễ - Làm quen): Cache hàm tính giai thừa đơn giản
+```javascript
+function createMemoSquare() {
+  const cache = new Map();              // Dòng 1: Tạo sổ tay lưu kết quả trong Closure
+  return function(n) {                  // Dòng 2: Hàm nhận tham số n
+    if (cache.has(n)) {                 // Dòng 3: Kiểm tra n đã từng tính chưa
+      return cache.get(n);              // Dòng 4: Có rồi -> Trả luôn không cần nhân
+    }
+    const result = n * n;               // Dòng 5: Chưa có -> Thực hiện phép tính
+    cache.set(n, result);               // Dòng 6: Ghi kết quả vào sổ cho lần sau
+    return result;                      // Dòng 7: Trả kết quả về cho người gọi
+  };
+}
+```
+
+### Ví dụ 2 (Mức Trung bình - Bài toán thực tế): Hàm `memoize` đa tham số cho tính phí vận chuyển
+```javascript
+function memoize(fn, maxSize = 100) {
   const cache = new Map();
 
   return function(...args) {
-    // Tạo cache key an toàn: dùng hàm tự chọn hoặc serialize JSON
-    const key = customKeyGenerator ? customKeyGenerator(...args) : JSON.stringify(args);
+    // Biến mọi tham số (số, chuỗi, object) thành chuỗi khóa JSON duy nhất
+    const key = JSON.stringify(args);
 
     if (cache.has(key)) {
-      return cache.get(key); // Cache Hit: Trả về kết quả tức thì O(1)
+      return cache.get(key); // Cache Hit: lấy ngay với O(1)
     }
 
-    const result = fn.apply(this, args); // Cache Miss: Tính toán
+    const result = fn.apply(this, args); // Cache Miss: chạy hàm tính toán thật
+
+    // Bảo vệ RAM: Nếu đầy bộ nhớ đệm thì xóa phần tử cũ nhất
+    if (cache.size >= maxSize) {
+      const oldestKey = cache.keys().next().value;
+      cache.delete(oldestKey);
+    }
+
     cache.set(key, result);
     return result;
   };
 }
 
-// Ứng dụng: Tính số Fibonacci đệ quy
-const fib = memoize((n) => {
-  if (n <= 1) return n;
-  return fib(n - 1) + fib(n - 2);
+// Ứng dụng tính cước phức tạp
+const calcShippingFee = memoize((weightKg, distanceKm, express) => {
+  const base = weightKg * 5000 + distanceKm * 1200;
+  return express ? Math.round(base * 1.5) : base;
 });
 
-console.log(fib(40)); // Tính toán trong vài mili-giây thay vì vài chục giây!
+console.log(calcShippingFee(2, 10, true)); // Tính toán lần 1 -> 33000
+console.log(calcShippingFee(2, 10, true)); // Trả tức thì từ Cache -> 33000
+```
+
+### Ví dụ 3 (Mức Nâng cao + Bẫy hay sai): 3 Bẫy Kinh Điển Khi Dùng Cache
+```javascript
+// BẪY 1: Kiểm tra tồn tại bằng `if (cache[key])` khi kết quả hợp lệ là số 0 hoặc false!
+function buggyFalsyCache(fn) {
+  const cache = {};
+  return function(x) {
+    // LỖI: Nếu fn(0) trả về 0 (là falsy), if (cache[0]) ra false -> Lần nào cũng bị Cache Miss!
+    if (cache[x]) return cache[x];
+    return (cache[x] = fn(x));
+  };
+}
+// SỬA ĐÚNG: Luôn dùng `cache.has(x)` với Map (hoặc `x in cache` với Object).
+
+// BẪY 2: Trả về tham chiếu trực tiếp của mảng/object đang nằm trong Cache
+const listCache = new Map();
+function getTagsSafe(category) {
+  if (listCache.has(category)) {
+    // SỬA ĐÚNG: Trả về bản sao [...arr] để bên ngoài gọi .push() không làm hỏng Cache!
+    return [...listCache.get(category)];
+  }
+  const tags = ['js', 'web'];
+  listCache.set(category, tags);
+  return [...tags];
+}
+
+// BẪY 3: Quên gọi cache.set() hoặc dùng obj.toString() làm key
+// Dùng obj.toString() khiến { id: 1 } và { id: 2 } đều thành ""[object Object]"" -> trả về nhầm dữ liệu!
 ```
 
 ---
 
-## 4. Sai lầm Hay gặp & Cách Khắc phục
+## 📝 Phần 4 — Bộ Bài Tập Tự Luyện & Đề Tự Giải
 
-| Sai lầm phổ biến | Hậu quả thực tế | Cách khắc phục chuẩn mực |
-|---|---|---|
-| Dùng `arg.toString()` làm key cache | Các object khác nhau như `{ a: 1 }` và `{ b: 2 }` đều biến thành `""[object Object]""`, gây trả về sai kết quả | Dùng `JSON.stringify()` hoặc `WeakMap` phân biệt theo tham chiếu object |
-| Cache phình to vô hạn theo thời gian (Unbounded Cache) | Gây tràn bộ nhớ RAM (OutOfMemory) khi ứng dụng chạy lâu dài | Áp dụng chiến lược dọn dẹp bộ nhớ: LRU Cache (Least Recently Used) hoặc giới hạn maxSize |
-| Memoize hàm có side-effect hoặc hàm bất thuần khiết | Hàm không cập nhật dữ liệu mới khi môi trường bên ngoài thay đổi | Tuyệt đối không memoize hàm gọi API hoặc hàm phụ thuộc biến mutable ngoài |
+### A. 4 Bài tập tự viết code (Từ Rất Dễ đến Vận dụng)
 
----
+1. **Bài 1 (Rất Dễ):** Viết hàm `lookupScore(scoreMap, studentName)` nhận vào một `Map` điểm và tên học viên; nếu có trong `Map` trả về điểm, nếu không có trả về `-1`.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
 
-## 5. Checklist Áp dụng Thực chiến
-- [ ] Hàm được memoize có phải là hàm thuần khiết 100%?
-- [ ] Chiến lược tạo key cache có an toàn với tham số object/array không?
-- [ ] Bộ nhớ cache có cơ chế dọn dẹp hoặc giới hạn số lượng phần tử không?
+**Gợi ý:** Lưu ý điểm `0` cũng là điểm hợp lệ! Phải dùng `scoreMap.has(studentName)` thay vì `scoreMap.get(studentName) || -1`.
 
-<!-- studxy-writein-v2 -->",
-                "Kỹ thuật Memoization tối ưu hóa thời gian tính toán O(1) qua cache Map.",
-                "Quản lý bộ nhớ đệm và phòng chống xung đột khóa cache."
+```javascript
+function lookupScore(scoreMap, studentName) {
+  if (scoreMap.has(studentName)) {
+    return scoreMap.get(studentName);
+  }
+  return -1;
+}
+```
+</details>
+
+2. **Bài 2 (Dễ):** Viết hàm `memoizeSingleArg(fn)` lưu cache cho hàm nhận đúng 1 tham số nguyên thủy (`number` hoặc `string`) bằng `new Map()`.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Khởi tạo `const cache = new Map();` bên ngoài hàm con trả về, kiểm tra `cache.has(x)`, tính `const val = fn(x); cache.set(x, val);`.
+
+```javascript
+function memoizeSingleArg(fn) {
+  const cache = new Map();
+  return function(x) {
+    if (cache.has(x)) return cache.get(x);
+    const val = fn(x);
+    cache.set(x, val);
+    return val;
+  };
+}
+```
+</details>
+
+3. **Bài 3 (Trung bình):** Cài đặt hàm tính số Fibonacci `fibMemo(n)` với `Map` cache bên trong để `fibMemo(45)` chạy tức thì mà không bị treo trình duyệt.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Với `n <= 1` trả về `n`. Trước khi đệ quy `fib(n - 1) + fib(n - 2)`, kiểm tra `cache.has(n)` và lưu lại sau khi tính xong.
+
+```javascript
+function createFibMemo() {
+  const cache = new Map();
+  function fib(n) {
+    if (n <= 1) return n;
+    if (cache.has(n)) return cache.get(n);
+    const res = fib(n - 1) + fib(n - 2);
+    cache.set(n, res);
+    return res;
+  }
+  return fib;
+}
+```
+</details>
+
+4. **Bài 4 (Vận dụng):** Viết hàm `createLruMemoize(fn, capacity)` kết hợp Memoization với LRU Cache (Least Recently Used): khi `cache.has(key)` trúng, xóa key đó rồi `set` lại vào cuối `Map` để đánh dấu là vừa dùng gần nhất; khi vượt `capacity`, xóa phần tử đầu tiên.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** `Map` trong JS duy trì thứ tự chèn. Khi cache hit: `const v = cache.get(key); cache.delete(key); cache.set(key, v); return v;`.
+
+```javascript
+function createLruMemoize(fn, capacity = 50) {
+  const cache = new Map();
+  return function(...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      const val = cache.get(key);
+      cache.delete(key);
+      cache.set(key, val);
+      return val;
+    }
+    const result = fn.apply(this, args);
+    if (cache.size >= capacity) {
+      const oldestKey = cache.keys().next().value;
+      cache.delete(oldestKey);
+    }
+    cache.set(key, result);
+    return result;
+  };
+}
+```
+</details>
+
+### B. 3 Câu hỏi tự kiểm tra tư duy
+
+1. **Câu hỏi 1:** Có nên áp dụng `memoize()` cho hàm `getCurrentExchangeRate(currency)` (gọi API lấy tỷ giá USD mỗi giây) không?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** **Không nên** dùng `memoize` vĩnh viễn! Vì tỷ giá thay đổi theo thời gian (đây không phải Pure Function). Nếu cache vĩnh viễn theo mã `'USD'`, người dùng sẽ luôn nhận tỷ giá cũ của ngày hôm qua. Với dữ liệu thay đổi theo thời gian, phải dùng Cache có thời hạn hết hạn (TTL).
+</details>
+
+2. **Câu hỏi 2:** Vì sao câu lệnh `({ a: 1 }).toString() === ({ b: 2 }).toString()` trong JavaScript lại trả về `true`?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** Vì mặc định mọi plain object khi gọi `.toString()` đều trả về cùng một chuỗi `""[object Object]""`. Do đó tuyệt đối không dùng `.toString()` làm cache key cho object!
+</details>
+
+3. **Câu hỏi 3:** Nếu hàm gốc trả về giá trị hợp lệ là `0` (ví dụ `indexOf`), lỗi gì xảy ra nếu ta kiểm tra `if (cache[key])` thay vì `if (cache.has(key))`?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** Số `0` trong JavaScript bị ép kiểu thành `false` (falsy). Vì vậy `if (cache[key])` sẽ tưởng rằng chưa có trong cache và bắt hàm tính toán lại mỗi lần gọi. Dùng `cache.has(key)` luôn kiểm tra sự tồn tại của khóa, bất kể giá trị là `0`, `false`, `""` hay `null`.
+</details>
+
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
+                "Nhập môn Map (has/get/set), hàm thuần khiết và kỹ thuật Memoization tối ưu O(1).",
+                "Phòng tránh Key Collision, đột biến dữ liệu cache và tràn bộ nhớ RAM."
             ),
 
             new LessonTheoryMeta(
                 SeedDataInitializer.CodingLesson31Id,
                 "Bài 3.1: Async/Await, Promise Pipeline & Retry Cơ Chế Tự Phục Hồi",
                 "async-await-promise-pipeline-retry",
-                30,
+                45,
                 @"# Bài 3.1: Async/Await, Promise Pipeline & Retry Cơ Chế Tự Phục Hồi
 
-## 1. Mục tiêu bài học (Learning Objectives)
-- Thấu hiểu kiến trúc Vòng lặp sự kiện (Event Loop), phân biệt Call Stack, Microtask Queue (`Promise.then`) và Macrotask Queue (`setTimeout`).
-- Xây dựng Pipeline thực thi danh sách Promise: chạy tuần tự (Sequential) vs chạy song song có kiểm soát giới hạn tải (`Promise.all` / Pool limit).
-- Cài đặt cơ chế Tự phục hồi lỗi (Self-Healing) với thuật toán Exponential Backoff và Jitter cho các kết nối mạng không ổn định.
-- Sử dụng chuẩn `Promise.allSettled()` để tổng hợp trạng thái thành công/thất bại mà không bị ngắt quãng nửa chừng.
+> [!TIP]
+> Lập trình bất đồng bộ (`Promise`, `async/await`, `Event Loop`) là rào cản lớn nhất với người mới học JS. Đừng vội nhớ thuộc lòng lý thuyết — hãy bắt đầu từ hình ảnh **quán trà sữa và thẻ rung** ở **Phần 0**!
 
 ---
 
-## 2. Khái niệm & Mô hình Cốt lõi
+## 🌱 Phần 0 — Nhập môn từ con số 0 (Dành cho người mới hoàn toàn)
 
-### 2.1. Thứ tự Ưu tiên trong Event Loop
-1. **Call Stack:** Thực thi toàn bộ mã đồng bộ hiện tại.
-2. **Microtask Queue:** Ngay khi Call Stack trống, toàn bộ microtasks (`Promise.then`, `queueMicrotask`, `process.nextTick`) được xả sạch trước.
-3. **Macrotask Queue:** Event Loop lấy 1 tác vụ macrotask (`setTimeout`, `setInterval`, I/O sự kiện UI) đưa vào Call Stack, sau đó lặp lại chu kỳ.
+### 0.1. Đồng bộ (Sync) vs Bất đồng bộ (Async)
+- **Đồng bộ (Synchronous):** Bạn đứng xếp hàng mua trà sữa. Phải đợi pha chế xong ly của bạn (mất 5 phút) thì nhân viên mới nhận đơn người tiếp theo. Trong phần mềm, nếu việc tải API mất 2 giây mà chạy đồng bộ, toàn bộ nút bấm và cuộn trang sẽ **đóng băng hoàn toàn**.
+- **Bất đồng bộ (Asynchronous):** Nhân viên đưa bạn một **chiếc thẻ rung (Promise)** rồi tiếp tục phục vụ khách khác. Trong lúc chờ, màn hình web vẫn cuộn mượt mà. Khi nước xong, thẻ rung lên — bạn quay lại lấy kết quả!
 
-### 2.2. Cơ chế Retry với Exponential Backoff & Jitter
-Khi API gặp sự cố tạm thời (mã lỗi 429 Too Many Requests, 503 Service Unavailable), việc retry liên tục ngay lập tức sẽ làm sập máy chủ.
-- **Exponential Backoff:** Thời gian chờ giữa các lần thử tăng theo cấp số nhân: $T = \text{baseDelay} \times 2^{\text{attempt}}$.
-- **Jitter (Độ trễ ngẫu nhiên):** Thêm một khoảng ngẫu nhiên nhỏ $\pm \Delta$ để phân tán các request, tránh hiện tượng hàng nghìn client cùng retry đúng 1 thời điểm (Thundering Herd Problem).
+### 0.2. `Promise` (Giấy hẹn tương lai) có đúng 3 trạng thái
+1. **`Pending` (Đang chờ):** Thẻ chưa rung, yêu cầu mạng đang bay trên đường truyền.
+2. **`Fulfilled` (Thành công):** Quầy pha xong, trả về dữ liệu (ví dụ danh sách sản phẩm).
+3. **`Rejected` (Thất bại):** Hết nguyên liệu hoặc mất mạng, trả về đối tượng lỗi (`Error`).
 
----
-
-## 3. Ví dụ Thực tế Minh họa Chuyên sâu
-
+### 0.3. `async` / `await` — Viết code bất đồng bộ dễ như đọc truyện
+Thay vì lồng nhiều `.then().then()` rối mắt, ES2017 giới thiệu từ khóa `async` và `await`:
 ```javascript
-// Hàm tự phục hồi: Retry với Exponential Backoff
-async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 300) {
-  let attempt = 0;
-  while (true) {
-    try {
-      return await fn(); // Thực thi tác vụ bất đồng bộ
-    } catch (error) {
-      attempt++;
-      if (attempt > maxRetries) {
-        throw new Error(`Đã thử ${maxRetries} lần nhưng thất bại: ${error.message}`);
-      }
-      // Tính độ trễ cấp số nhân kèm Jitter ngẫu nhiên
-      const delay = baseDelay * Math.pow(2, attempt - 1) + Math.random() * 100;
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
+async function loadUserProfile() {        // Gắn async để báo hàm này có thao tác chờ
+  try {
+    const user = await fetchUserApi();    // Tạm dừng Ở ĐÂY chờ Promise xong (không treo web!)
+    console.log('Xin chào:', user.name);  // Chạy tiếp sau khi đã có biến user
+  } catch (err) {
+    console.error('Lỗi mạng:', err);      // Nhảy vào đây nếu Promise bị Rejected
   }
 }
 ```
 
+### 0.4. Hình dung Event Loop (Vòng lặp sự kiện) cho người mới
+JavaScript chỉ có 1 luồng thực thi chính, điều phối bởi 3 hàng đợi ưu tiên từ cao xuống thấp:
+```
+1. Call Stack (Bàn làm việc chính)      -> Chạy hết 100% code đồng bộ trước!
+2. Microtask Queue (Hàng ưu tiên VIP)   -> Xả sạch mọi Promise.then / phần sau lệnh await!
+3. Macrotask Queue (Hàng đợi thường)    -> Lấy từng tác vụ setTimeout / sự kiện UI chạy sau cùng!
+```
+
+#### Bảng theo dõi từng bước (Trace Table)
+```javascript
+console.log('1');
+setTimeout(() => console.log('2'), 0);
+Promise.resolve().then(() => console.log('3'));
+console.log('4');
+```
+| Bước | Call Stack đang chạy | Microtask Queue (`Promise`) | Macrotask Queue (`setTimeout`) | In ra màn hình |
+|---|---|---|---|---|
+| Lượt 1 | `console.log('1')` | Trống | Trống | `1` |
+| Lượt 2 | `setTimeout(..., 0)` | Trống | `[callback in '2']` | `1` |
+| Lượt 3 | `Promise.resolve().then(...)` | `[callback in '3']` | `[callback in '2']` | `1` |
+| Lượt 4 | `console.log('4')` | `[callback in '3']` | `[callback in '2']` | `1`, `4` |
+| Lượt 5 | Trống $\rightarrow$ Lấy Microtask VIP! | Đang chạy in `'3'` | `[callback in '2']` | `1`, `4`, `3` |
+| Lượt 6 | Trống $\rightarrow$ Lấy Macrotask! | Trống | Đang chạy in `'2'` | `1`, `4`, `3`, `2` |
+
 ---
 
-## 4. Sai lầm Hay gặp & Cách Khắc phục
+## 📘 Phần 1 & 2 — Lý thuyết cốt lõi đi từ Dễ đến Khó
 
-| Sai lầm phổ biến | Hậu quả thực tế | Cách khắc phục chuẩn mực |
-|---|---|---|
-| Dùng `forEach` với async/await: `arr.forEach(async x => await api(x))` | `forEach` không chờ Promise giải quyết, code chạy không đồng bộ ngoài tầm kiểm soát | Dùng vòng lặp `for...of` cho tuần tự, hoặc `Promise.all(arr.map(...))` cho song song |
-| Dùng `Promise.all` khi có 1 task lỗi nhỏ không nghiêm trọng | Toàn bộ các task thành công khác bị từ chối và mất trắng kết quả (Fail-Fast) | Dùng `Promise.allSettled()` để nhận diện chi tiết kết quả từng task độc lập |
-| Bỏ quên `try/catch` xung quanh câu lệnh `await` | Unhandled Promise Rejection làm crash tiến trình Node.js hoặc treo UI | Luôn bọc trong khối `try...catch...finally` hoặc xử lý lỗi tập trung |
+### 1.1. Chạy tuần tự (`for...of`) vs Chạy song song (`Promise.all` / `Promise.allSettled`)
+Giả sử bạn cần tải 3 API, mỗi API mất 1 giây:
+1. **Chạy tuần tự (`for (const id of ids) { await fetch(id); }`):** Xong cái 1 mới gọi cái 2 $\rightarrow$ Tổng mất **3 giây**. Chỉ dùng khi bước sau phụ thuộc kết quả bước trước.
+2. **Chạy song song với `Promise.all([p1, p2, p3])`:** Bắn cả 3 cùng lúc $\rightarrow$ Chỉ mất **1 giây**! Nhưng lưu ý: nếu **chỉ 1 task bị lỗi**, toàn bộ `Promise.all` ném lỗi ngay lập tức và vứt bỏ kết quả của 2 task thành công kia (**Fail-Fast**).
+3. **Chạy song song an toàn với `Promise.allSettled([p1, p2, p3])`:** Chờ tất cả hoàn thành bất kể thành công hay lỗi! Mỗi phần tử trả về `{ status: 'fulfilled', value }` hoặc `{ status: 'rejected', reason }`. Đây là lựa chọn chuẩn trong dashboard tải nhiều widget độc lập.
+
+### 2.1. Cơ chế Tự Phục Hồi: Retry với Exponential Backoff & Jitter
+Khi máy chủ quá tải tạm thời (lỗi HTTP 429 hoặc 503), nếu code thử gọi lại liên tục ngay lập tức 10 lần trong 10ms, bạn sẽ vô tình làm sập hẳn máy chủ!
+- **Exponential Backoff (Lùi cấp số nhân):** Tăng thời gian chờ gấp đôi sau mỗi lần thất bại: `delay = baseDelay * Math.pow(2, attempt - 1)` (ví dụ: 300ms $\rightarrow$ 600ms $\rightarrow$ 1200ms).
+- **Jitter (Độ trễ ngẫu nhiên):** Cộng thêm một số ngẫu nhiên nhỏ `+ Math.random() * 100` để 1.000 người dùng bị rớt mạng không cùng thử lại vào đúng một tích tắc (tránh bão **Thundering Herd**).
 
 ---
 
-## 5. Checklist Áp dụng Thực chiến
-- [ ] Thứ tự thực thi microtasks và macrotasks đã được tính toán chính xác chưa?
-- [ ] Các tác vụ gọi API không ổn định đã có cơ chế Retry Backoff và Timeout bảo vệ chưa?
-- [ ] Các lỗi mạng có được thông báo rõ ràng cho người dùng thay vì nuốt lỗi âm thầm?
+## 🔍 Phần 3 — 3 Ví dụ Mẫu Giải Chậm Từng Dòng (Worked Examples)
 
-<!-- studxy-writein-v2 -->",
-                "Làm chủ Event Loop, Promise Pipeline và thuật toán Retry Exponential Backoff.",
-                "Cơ chế tự phục hồi kết nối mạng và xử lý lỗi bất đồng bộ toàn diện."
+### Ví dụ 1 (Mức Dễ - Làm quen): Hàm `sleep(ms)` tạo khoảng nghỉ bất đồng bộ
+```javascript
+function sleep(ms) {                      // Dòng 1: Nhận số mili-giây cần chờ
+  return new Promise((resolve) => {       // Dòng 2: Trả về một Promise mới
+    setTimeout(() => resolve(), ms);      // Dòng 3: Sau ms mili-giây, gọi resolve() báo hoàn tất
+  });
+}
+
+async function countdown() {
+  console.log('Chuẩn bị...');
+  await sleep(1000);                      // Chờ 1 giây không làm đơ giao diện
+  console.log('Bắt đầu!');
+}
+```
+
+### Ví dụ 2 (Mức Trung bình - Bài toán thực tế): Tải nhiều hồ sơ không chết chùm bằng `Promise.allSettled`
+```javascript
+async function loadProfilesSafely(promises) {
+  // Chờ tất cả các Promise hoàn tất dù có cái thành công, có cái lỗi
+  const settled = await Promise.allSettled(promises);
+
+  const succeeded = settled
+    .filter((item) => item.status === 'fulfilled')
+    .map((item) => item.value);
+
+  const failedCount = settled.filter((item) => item.status === 'rejected').length;
+
+  return { succeeded, failedCount };
+}
+```
+
+### Ví dụ 3 (Mức Nâng cao + Bẫy hay sai): `retryWithBackoff` & Bẫy `forEach(async ...)`
+```javascript
+// BẪY KINH ĐIỂN: Dùng array.forEach với async/await!
+async function buggyLoadAll(urls, fetchFn) {
+  const results = [];
+  // LỖI: forEach KHÔNG CHỜ các hàm callback async bên trong!
+  urls.forEach(async (url) => {
+    const data = await fetchFn(url);
+    results.push(data);
+  });
+  return results; // LUÔN TRẢ VỀ MẢNG RỖNG [] trước khi dữ liệu kịp tải về!
+}
+
+// GIẢI PHÁP CHUẨN: Dùng vòng lặp `for...of` cho tuần tự, và bọc Retry có giới hạn
+async function retryWithBackoff(taskFn, maxRetries = 3, baseDelay = 300) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await taskFn();
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw new Error(`Thất bại sau ${maxRetries + 1} lần thử: ${error.message}`);
+      }
+      const jitter = Math.random() * 100;
+      const delay = baseDelay * Math.pow(2, attempt) + jitter;
+      await sleep(delay);
+    }
+  }
+}
+```
+> [!CAUTION]
+> **Bẫy quên `try/catch` quanh `await`:** Nếu một lệnh `await` bị lỗi mà không có `try/catch`, Promise trả về sẽ bị Rejected không có người hứng (**Unhandled Promise Rejection**), có thể làm sập tiến trình Node.js hoặc treo thanh loading trên giao diện mãi mãi!
+
+---
+
+## 📝 Phần 4 — Bộ Bài Tập Tự Luyện & Đề Tự Giải
+
+### A. 4 Bài tập tự viết code (Từ Rất Dễ đến Vận dụng)
+
+1. **Bài 1 (Rất Dễ):** Viết hàm `safeRunAsync(asyncFn, fallbackValue)` gọi `await asyncFn()`, nếu thành công trả về kết quả, nếu lỗi thì trả về `fallbackValue` (không làm crash chương trình).
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Bọc `return await asyncFn();` trong khối `try { ... } catch { return fallbackValue; }`.
+
+```javascript
+async function safeRunAsync(asyncFn, fallbackValue) {
+  try {
+    return await asyncFn();
+  } catch (err) {
+    return fallbackValue;
+  }
+}
+```
+</details>
+
+2. **Bài 2 (Dễ):** Viết hàm `runSequentially(tasks)` nhận mảng các hàm trả về Promise `tasks` (ví dụ `[() => fetchA(), () => fetchB()]`) và thực thi lần lượt từng cái bằng `for...of`, trả về mảng kết quả đúng thứ tự.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Tuyệt đối không dùng `.forEach(async ...)`! Tạo mảng `results = []` rồi lặp `for (const task of tasks)`.
+
+```javascript
+async function runSequentially(tasks) {
+  const results = [];
+  for (const task of tasks) {
+    const res = await task();
+    results.push(res);
+  }
+  return results;
+}
+```
+</details>
+
+3. **Bài 3 (Trung bình):** Viết hàm `withTimeout(promise, ms)` trả về kết quả của `promise` nếu nó xong trước `ms` mili-giây; nếu quá giờ thì reject với thông báo `new Error('Timeout')`.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Tạo một `timeoutPromise` chỉ gọi `reject` sau `ms` ms, rồi dùng `Promise.race([promise, timeoutPromise])`.
+
+```javascript
+function withTimeout(promise, ms) {
+  const timeout = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('Timeout')), ms);
+  });
+  return Promise.race([promise, timeout]);
+}
+```
+</details>
+
+4. **Bài 4 (Vận dụng):** Viết hàm `retrySimple(taskFn, maxAttempts)` thử gọi tối đa `maxAttempts` lần; nếu thành công trả kết quả ngay, nếu thử hết vẫn lỗi thì ném lỗi cuối cùng ra ngoài.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Dùng vòng `for (let i = 0; i < maxAttempts; i++)`, trong `catch (err)` kiểm tra `if (i === maxAttempts - 1) throw err;`.
+
+```javascript
+async function retrySimple(taskFn, maxAttempts) {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      return await taskFn();
+    } catch (err) {
+      if (i === maxAttempts - 1) throw err;
+    }
+  }
+}
+```
+</details>
+
+### B. 3 Câu hỏi tự kiểm tra tư duy
+
+1. **Câu hỏi 1:** Đoạn code sau in ra theo thứ tự nào: `async function f() { console.log(1); await Promise.resolve(); console.log(2); } f(); console.log(3);`?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** Thứ tự là **`1` $\rightarrow$ `3` $\rightarrow$ `2`**. Code trong `f()` chạy đồng bộ cho tới trước chữ `await` nên in `1` ngay. Gặp `await`, phần phía sau (`console.log(2)`) bị đẩy vào **Microtask Queue**, nhường Call Stack in tiếp `3`, rồi mới quay lại chạy `2`.
+</details>
+
+2. **Câu hỏi 2:** Vì sao có `Promise.all` rồi vẫn cần `Promise.allSettled`?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** `Promise.all` dừng ngay khi 1 promise thất bại, làm mất dữ liệu các promise đã thành công. `Promise.allSettled` chờ toàn bộ hoàn tất để ta hiển thị những phần tải được và chỉ báo lỗi đúng phần bị hỏng.
+</details>
+
+3. **Câu hỏi 3:** Nếu thiếu từ khóa `reject` bên trong `new Promise((resolve, reject) => ...)` khi có lỗi xảy ra, điều gì xảy ra với lệnh `await`?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** Promise mãi mãi kẹt ở trạng thái `Pending`, khiến câu lệnh `await` chờ vô tận (treo logic) và khối `catch` không bao giờ chạy tới.
+</details>
+
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
+                "Nhập môn Sync vs Async, Promise 3 trạng thái, Async/Await và Event Loop.",
+                "Pipeline song song Promise.allSettled và thuật toán Retry Exponential Backoff."
             ),
 
             new LessonTheoryMeta(
                 SeedDataInitializer.CodingLesson32Id,
                 "Bài 3.2: Deep Clone, Tính Bất Biến & Xử Lý Lỗi Toàn Diện",
                 "deep-clone-immutability-va-xu-ly-loi",
-                25,
+                40,
                 @"# Bài 3.2: Deep Clone, Tính Bất Biến & Xử Lý Lỗi Toàn Diện
 
-## 1. Mục tiêu bài học (Learning Objectives)
-- Phân biệt bản chất bộ nhớ Heap giữa Sao chép nông (Shallow Copy) và Sao chép sâu (Deep Clone).
-- Tự cài đặt hàm đệ quy Deep Clone an toàn xử lý được Array, Object, Date, RegExp và Vòng lặp tham chiếu (Circular Reference).
-- Sử dụng thành thạo API chuẩn hiện đại `structuredClone()` và nắm vững các giới hạn của nó (hàm, DOM node, symbol).
-- Xây dựng kiến trúc xử lý ngoại lệ theo tầng (Layered Error Handling) với các Custom Error Class có định danh rõ ràng.
+> [!TIP]
+> Bạn từng gặp cảnh ""sửa biến `copy` mà biến `original` tự dưng đổi theo"" chưa? Đó là do cách JavaScript lưu trữ Object trong bộ nhớ! **Phần 0** sẽ giải mã bí ẩn này bằng hình ảnh **photo giấy vs đánh thêm chìa khóa phòng**.
 
 ---
 
-## 2. Khái niệm & Mô hình Cốt lõi
+## 🌱 Phần 0 — Nhập môn từ con số 0 (Dành cho người mới hoàn toàn)
 
-### 2.1. Phân biệt Shallow Copy vs Deep Clone
-- **Shallow Copy (`{ ...obj }`, `[...arr]`, `Object.assign()`):** Chỉ tạo bản sao mới cho thuộc tính ở tầng thứ nhất (level 1). Nếu object chứa object/array lồng nhau, chúng vẫn trỏ cùng địa chỉ ô nhớ trong Heap. Mọi thay đổi ở tầng con sẽ làm biến đổi đối tượng gốc!
-- **Deep Clone:** Sao chép đệ quy mọi tầng cấu trúc dữ liệu, tạo ra thực thể hoàn toàn độc lập trong bộ nhớ.
+### 0.1. Kiểu Nguyên Thủy vs Kiểu Tham Chiếu trong bộ nhớ
+JavaScript chia dữ liệu thành 2 nhóm hoàn toàn khác nhau khi gán bằng dấu `=`:
+1. **Kiểu nguyên thủy (`number`, `string`, `boolean`, `null`, `undefined`):** Giống như **photo một tờ giấy**.
+   ```javascript
+   let a = 10;
+   let b = a;  // Photo ra tờ giấy mới mang số 10
+   b = 99;     // Sửa tờ b thành 99 -> tờ a vẫn là 10!
+   ```
+2. **Kiểu tham chiếu (`Object {}`, `Array []`):** Giống như **đánh thêm một chiếc chìa khóa mở chung 1 căn phòng trong Heap**.
+   ```javascript
+   const userA = { name: 'An', age: 20 };
+   const userB = userA; // KHÔNG tạo object mới! userB chỉ là chìa khóa thứ 2 mở chung phòng!
+   userB.age = 99;
+   console.log(userA.age); // 99!! userA bị sửa lây!
+   ```
 
-### 2.2. Vấn đề Vòng lặp Tham chiếu (Circular Reference)
-Khi `obj.self = obj`, hàm đệ quy thông thường sẽ gọi vô tận dẫn tới lỗi `RangeError: Maximum call stack size exceeded`. Giải pháp là dùng một `WeakMap` ghi nhớ các object đã từng duyệt qua; nếu gặp lại object cũ thì lập tức trả về tham chiếu đã clone.
+### 0.2. Sao chép nông (`{ ...obj }`, `[...arr]`) vs Sao chép sâu (Deep Clone)
+Toán tử ba chấm `...` (Spread) chỉ tách riêng **tầng 1 (tầng ngoài cùng)**. Nếu bên trong object lại lồng thêm một object hoặc mảng con (tầng 2), các tầng con vẫn dùng chung chìa khóa!
+```
+userA: { name: 'An', profile: ──┐
+                                ▼
+                         [ Ô nhớ Heap: { score: 10 } ]  <-- CHUNG NHAU!
+                                ▲
+copy : { name: 'An', profile: ──┘   (khi dùng { ...userA })
+```
+
+#### Bảng Trace từng bước: Spread Nông vs Deep Clone
+Giả sử `const orig = { name: 'An', profile: { score: 10 } };`
+
+| Bước thực hiện | Nếu dùng Spread Nông `copy = { ...orig }` | Nếu dùng `deepClone(orig)` | `orig.profile.score` cuối cùng |
+|---|---|---|---|
+| Bước 1: Tạo bản sao | `copy` là vỏ mới, nhưng `copy.profile === orig.profile` | `copy` và `copy.profile` đều là ô nhớ mới độc lập | `10` |
+| Bước 2: `copy.name = 'Bình'` | Chỉ đổi `copy.name`, `orig.name` vẫn là `'An'` | Chỉ đổi `copy.name`, `orig.name` vẫn là `'An'` | `10` |
+| Bước 3: `copy.profile.score = 99` | Sửa thẳng vào ô nhớ chung! `orig.profile.score` thành `99`! | Chỉ sửa bản sao! `orig.profile.score` vẫn là `10`! | Nông: `99` / Sâu: `10` |
+
+### 0.3. Đệ quy (Recursion) là gì?
+**Đệ quy** là kỹ thuật hàm **tự gọi lại chính nó** để xử lý các tầng lồng nhau không biết trước độ sâu (tầng 1 $\rightarrow$ tầng 2 $\rightarrow$ tầng 3...). Để không chạy vô tận làm tràn ngăn xếp gọi hàm (`Maximum call stack size exceeded`), mọi hàm đệ quy **bắt buộc có điều kiện dừng** ngay dòng đầu tiên (ví dụ: nếu là số/chuỗi/`null` thì trả về ngay!).
 
 ---
 
-## 3. Ví dụ Thực tế Minh họa Chuyên sâu
+## 📘 Phần 1 & 2 — Lý thuyết cốt lõi đi từ Dễ đến Khó
 
+### 1.1. Hai cách Deep Clone chuẩn trong thực tế
+1. **Cách 1 — Hàm dựng sẵn hiện đại `structuredClone(obj)`:**
+   - Có sẵn trên Chrome/Firefox/Edge/Node.js hiện đại.
+   - Sao chép sâu chuẩn chỉnh `Object`, `Array`, `Date`, `RegExp`, `Map`, `Set` và xử lý luôn tham chiếu vòng.
+   - **Giới hạn:** Sẽ ném lỗi `DataCloneError` nếu trong object có chứa hàm (`function`) hoặc phần tử DOM HTML.
+2. **Cách 2 — Tự viết hàm đệ quy `safeDeepClone(value, seen = new WeakMap())`:**
+   - Dùng `WeakMap` làm sổ ghi nhớ những object đã từng đi qua. Nếu gặp vòng lặp tham chiếu (ví dụ `node.self = node`), trả về ngay bản sao đã lưu trong `WeakMap` để tránh đệ quy vô tận.
+
+### 2.1. Xử lý lỗi theo tầng (Layered Error Handling)
+Khi xây dựng hệ thống thật, đừng bao giờ viết `catch (e) {}` rỗng (nuốt lỗi âm thầm) hoặc chỉ `throw 'Lỗi rồi'` (ném chuỗi thuần mất dấu vết Stack Trace):
+- **Tạo Custom Error Class:** Kế thừa từ `Error` (`class ValidationError extends Error`), gọi `super(message)` ở dòng đầu tiên trong `constructor`, đặt `this.name = 'ValidationError'`.
+- **Phân loại bằng `instanceof`:** Dùng `if (err instanceof ValidationError)` để trả về HTTP 400 (lỗi người dùng nhập sai), còn các lỗi hệ thống không lường trước thì `throw err` ra tầng trên ghi log!
+- **Khối `finally`:** Luôn chạy dù thành công hay thất bại — dùng để đóng kết nối DB hoặc tắt trạng thái loading.
+
+---
+
+## 🔍 Phần 3 — 3 Ví dụ Mẫu Giải Chậm Từng Dòng (Worked Examples)
+
+### Ví dụ 1 (Mức Dễ - Làm quen): Cập nhật Object 1 tầng bất biến
 ```javascript
-// Hàm Deep Clone toàn diện hỗ trợ Circular References & Types
-function safeDeepClone(value, hash = new WeakMap()) {
+const user = { id: 1, name: 'Minh', role: 'student' }; // Dòng 1: Object 1 tầng không lồng nhau
+const promoted = { ...user, role: 'mentor' };           // Dòng 2: Chép hết thuộc tính, ghi đè role mới
+console.log(user.role);                                 // Dòng 3: 'student' (dữ liệu gốc nguyên vẹn)
+console.log(promoted.role);                             // Dòng 4: 'mentor'
+```
+
+### Ví dụ 2 (Mức Trung bình - Bài toán thực tế): Sao chép sâu cấu hình ứng dụng nhiều tầng
+```javascript
+function cloneConfig(value) {
+  // Điều kiện dừng đệ quy: nhớ kiểm tra value === null TRƯỚC typeof!
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+  // Nếu là mảng -> tạo mảng mới và gọi đệ quy cho từng phần tử
+  if (Array.isArray(value)) {
+    return value.map((item) => cloneConfig(item));
+  }
+  // Nếu là object thuần -> duyệt từng key và gọi đệ quy
+  const copy = {};
+  for (const key of Object.keys(value)) {
+    copy[key] = cloneConfig(value[key]);
+  }
+  return copy;
+}
+```
+
+### Ví dụ 3 (Mức Nâng cao + Bẫy hay sai): Tham chiếu vòng, `typeof null` & Bẫy `JSON.stringify`
+```javascript
+// BẪY 1: Quên kiểm tra `value === null`!
+// Trong JS, `typeof null` trả về `'object'` (lỗi lịch sử của ngôn ngữ)!
+// Nếu quên check `value === null`, lệnh `Object.keys(null)` sẽ văng TypeError ngay!
+
+// BẪY 2: Lạm dụng `JSON.parse(JSON.stringify(obj))`
+// -> Làm biến mất thuộc tính có giá trị `undefined` hoặc hàm
+// -> Biến kiểu `Date` thành chuỗi string (không gọi được .getFullYear() nữa!)
+// -> Văng lỗi crash ngay nếu object có vòng lặp tham chiếu (obj.self = obj)!
+
+// GIẢI PHÁP CHUẨN: Hàm Deep Clone an toàn với WeakMap & giữ Date/RegExp
+function safeDeepClone(value, seen = new WeakMap()) {
   if (value === null || typeof value !== 'object') return value;
   if (value instanceof Date) return new Date(value.getTime());
   if (value instanceof RegExp) return new RegExp(value.source, value.flags);
 
-  // Xử lý vòng lặp tham chiếu
-  if (hash.has(value)) return hash.get(value);
+  // Chặn vòng lặp tham chiếu (Circular Reference)
+  if (seen.has(value)) return seen.get(value);
 
   const clone = Array.isArray(value) ? [] : {};
-  hash.set(value, clone);
+  seen.set(value, clone); // Ghi nhớ trước khi đệ quy sâu hơn!
 
   for (const key of Object.keys(value)) {
-    clone[key] = safeDeepClone(value[key], hash);
+    clone[key] = safeDeepClone(value[key], seen);
   }
-
   return clone;
 }
-
-// Thử nghiệm
-const original = { name: 'Studxy', config: { theme: 'dark' } };
-const duplicated = safeDeepClone(original);
-duplicated.config.theme = 'light';
-console.log(original.config.theme); // Vẫn là 'dark' - Tính bất biến được bảo toàn!
 ```
 
 ---
 
-## 4. Sai lầm Hay gặp & Cách Khắc phục
+## 📝 Phần 4 — Bộ Bài Tập Tự Luyện & Đề Tự Giải
 
-| Sai lầm phổ biến | Hậu quả thực tế | Cách khắc phục chuẩn mực |
-|---|---|---|
-| Dùng `JSON.parse(JSON.stringify(obj))` để deep clone | Làm mất kiểu `Date` (biến thành string), mất `undefined`, `NaN`, `RegExp`, ném lỗi nếu có vòng lặp tham chiếu | Dùng `structuredClone()` có sẵn trong trình duyệt hiện đại hoặc hàm clone đệ quy chuyên dụng |
-| Dùng toán tử spread `[...matrix]` để clone ma trận 2 chiều | Các hàng bên trong vẫn là tham chiếu chung, sửa ô `matrix[0][0]` sẽ ảnh hưởng cả bản sao | Clone từng hàng: `matrix.map(row => [...row])` |
-| Bắt lỗi chung chung bằng `catch (e) {}` mà không rethrow hoặc ghi log | Che giấu lỗi hệ thống, dẫn đến bug ngầm cực kỳ khó xác định nguyên nhân | Luôn phân loại lỗi theo `instanceof` và chỉ xử lý ngoại lệ có thể phục hồi |
+### A. 4 Bài tập tự viết code (Từ Rất Dễ đến Vận dụng)
 
----
+1. **Bài 1 (Rất Dễ):** Viết hàm `cloneAndAddTag(tags, newTag)` nhận mảng chuỗi `tags` và trả về một mảng mới có thêm `newTag` ở cuối mà không làm thay đổi mảng `tags` ban đầu.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
 
-## 5. Checklist Áp dụng Thực chiến
-- [ ] Các đối tượng lồng nhau có bị đột biến ngoài ý muốn sau khi sửa đổi không?
-- [ ] Đã kiểm tra trường hợp dữ liệu có `Date`, `null`, `undefined` hoặc tham chiếu vòng chưa?
-- [ ] Lỗi được phân loại bằng Custom Error Class chuẩn mực thay vì ném chuỗi thuần túy?
+**Gợi ý:** Không dùng `tags.push(newTag)`! Hãy dùng toán tử Spread `[...tags, newTag]`.
 
-<!-- studxy-writein-v2 -->",
-                "Sao chép sâu Deep Clone an toàn với Circular References và WeakMap.",
-                "Bảo toàn tính bất biến cấu trúc dữ liệu và xử lý ngoại lệ theo tầng."
+```javascript
+function cloneAndAddTag(tags, newTag) {
+  return [...tags, newTag];
+}
+```
+</details>
+
+2. **Bài 2 (Dễ):** Viết hàm `cloneMatrix(matrix)` sao chép sâu một mảng 2 chiều các số (ví dụ `[[1, 2], [3, 4]]`) để khi sửa `copy[0][0] = 99` thì `matrix[0][0]` vẫn giữ nguyên.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** `[...matrix]` chỉ copy tầng ngoài. Cần dùng `.map(row => [...row])` để copy cả từng hàng bên trong!
+
+```javascript
+function cloneMatrix(matrix) {
+  return matrix.map((row) => [...row]);
+}
+```
+</details>
+
+3. **Bài 3 (Trung bình):** Viết hàm `deepEqual(a, b)` kiểm tra xem 2 giá trị hoặc 2 object lồng nhau có giống nhau hoàn toàn về cấu trúc và dữ liệu hay không.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Nếu `a === b` trả `true`. Kiểm tra `null` hoặc khác `'object'` trả `false`. So sánh độ dài `Object.keys(a)` và `Object.keys(b)`, rồi gọi đệ quy cho từng key.
+
+```javascript
+function deepEqual(a, b) {
+  if (a === b) return true;
+  if (a === null || typeof a !== 'object' || b === null || typeof b !== 'object') return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+  for (const key of keysA) {
+    if (!Object.prototype.hasOwnProperty.call(b, key) || !deepEqual(a[key], b[key])) {
+      return false;
+    }
+  }
+  return true;
+}
+```
+</details>
+
+4. **Bài 4 (Vận dụng):** Tạo Custom Error `class QuotaExceededError extends Error` nhận `(message, limit)` và viết hàm `processRequest(used, limit)` ném lỗi này khi `used >= limit`; ở ngoài dùng `try/catch` kiểm tra bằng `instanceof`.
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Gợi ý:** Trong `constructor` của class con kế thừa `Error`, bắt buộc gọi `super(message)` trước khi gán `this.name` và `this.limit`.
+
+```javascript
+class QuotaExceededError extends Error {
+  constructor(message, limit) {
+    super(message);
+    this.name = 'QuotaExceededError';
+    this.limit = limit;
+  }
+}
+
+function processRequest(used, limit) {
+  if (used >= limit) {
+    throw new QuotaExceededError('Đã vượt hạn mức sử dụng', limit);
+  }
+  return 'OK';
+}
+```
+</details>
+
+### B. 3 Câu hỏi tự kiểm tra tư duy
+
+1. **Câu hỏi 1:** Vì sao `typeof null === 'object'` lại nguy hiểm khi viết hàm `deepClone`?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** Nếu chỉ kiểm tra `if (typeof val !== 'object') return val;`, thì giá trị `null` sẽ lọt qua và đi vào lệnh `Object.keys(null)`, làm chương trình crash ngay lập tức với `TypeError: Cannot convert undefined or null to object`. Luôn kiểm tra `if (val === null || typeof val !== 'object')`.
+</details>
+
+2. **Câu hỏi 2:** Tại sao lệnh `seen.set(value, clone)` phải đặt **trước** vòng lặp gọi đệ quy `safeDeepClone(value[key], seen)`?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** Nếu đặt sau vòng lặp đệ quy, khi gặp `value.self = value`, lúc gọi đệ quy xuống thuộc tính `self`, `value` vẫn chưa có mặt trong `seen`! Do đó phải đăng ký vào `seen` ngay trước khi duyệt các thuộc tính con.
+</details>
+
+3. **Câu hỏi 3:** Nếu muốn phân biệt `ValidationError` với lỗi mạng bất ngờ trong khối `catch (err)`, dùng `typeof err === 'ValidationError'` có chạy đúng không?
+<details>
+<summary>Xem gợi ý & Lời giải chi tiết</summary>
+
+**Trả lời:** **Không!** `typeof err` luôn trả về `'object'` cho mọi đối tượng lỗi. Để kiểm tra chính xác lớp lỗi kế thừa, phải dùng toán tử `err instanceof ValidationError`.
+</details>
+
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
+                "Nhập môn kiểu tham chiếu Heap, Shallow vs Deep Clone và đệ quy có điểm dừng.",
+                "Xử lý Circular Reference bằng WeakMap, structuredClone và Custom Error Class."
             ),
 
             // =========================================================================
@@ -510,6 +1590,9 @@ console.log(original.config.theme); // Vẫn là 'dark' - Tính bất biến đ�
                 "suc-manh-lai-kep-va-chien-luoc-dca",
                 25,
                 @"# Bài 1.1: Sức Mạnh Lãi Kép & Chiến Lược DCA Định Kỳ
+
+> [!TIP]
+> **🌱 Phần 0 — Khởi động trực giác cho người mới:** Bạn không cần vốn lớn để bắt đầu. Chỉ cần gửi đều **2 triệu/tháng** trong 20 năm với lãi suất 10%/năm: tổng vốn bỏ ra chỉ là **480 triệu**, nhưng nhờ lãi mẹ đẻ lãi con (Lãi kép), tài sản cuối kỳ vượt ngưỡng **1,5 tỷ đồng**!
 
 ## 1. Mục tiêu bài học (Learning Objectives)
 - Nắm vững công thức toán học và nguyên lý tăng trưởng theo hàm mũ của Lãi kép trong tích lũy tài sản dài hạn.
@@ -558,7 +1641,8 @@ Hai người bạn An và Bình cùng đặt mục tiêu tích lũy hưu trí:
 - [ ] Quỹ dự phòng khẩn cấp (3-6 tháng chi phí thiết yếu) đã được tách riêng chưa?
 - [ ] Mục tiêu tích lũy có tầm nhìn tối thiểu 5–15 năm không bị ảnh hưởng bởi biến động ngắn hạn?
 
-<!-- studxy-writein-v2 -->",
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
                 "Lãi kép và chiến lược DCA trung bình giá loại bỏ rủi ro tâm lý chọn thời điểm.",
                 "Công thức toán học hàm mũ và bảo vệ sức mua trước lạm phát."
             ),
@@ -569,6 +1653,9 @@ Hai người bạn An và Bình cùng đặt mục tiêu tích lũy hưu trí:
                 "ke-hoach-tu-do-tai-chinh-fire-va-dong-tien",
                 25,
                 @"# Bài 1.2: Kế Hoạch Tự Do Tài Chính (FIRE) & Quản Lý Dòng Tiền
+
+> [!TIP]
+> **🌱 Phần 0 — Khởi động trực giác cho người mới:** Tự do tài chính không có nghĩa là trở thành tỷ phú, mà là khoảnh khắc **thu nhập thụ động từ danh mục đầu tư >= chi phí sống cơ bản**, cho phép bạn làm việc vì đam mê thay vì áp lực cơm áo!
 
 ## 1. Mục tiêu bài học (Learning Objectives)
 - Thấu hiểu mô hình FIRE (Financial Independence, Retire Early) và Nghiên cứu Trinity (Trinity Study).
@@ -617,7 +1704,8 @@ Gia đình chị Hà có chi tiêu thiết yếu và sinh hoạt là 20 triệu 
 - [ ] Đã trả sạch toàn bộ các khoản nợ lãi suất cao trên 12%/năm chưa?
 - [ ] Tỷ lệ tiết kiệm và đầu tư hàng tháng có đạt tối thiểu 20% thu nhập ròng không?
 
-<!-- studxy-writein-v2 -->",
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
                 "Kế hoạch tự do tài chính FIRE, nghiên cứu Trinity và quy tắc 4%.",
                 "Tối ưu hóa tỷ lệ tiết kiệm ròng và dứt điểm các khoản nợ lãi cao."
             ),
@@ -628,6 +1716,9 @@ Gia đình chị Hà có chi tiêu thiết yếu và sinh hoạt là 20 triệu 
                 "phan-bo-tai-san-va-tuong-quan",
                 25,
                 @"# Bài 2.1: Phân Bổ Tài Sản & Tương Quan Giữa Các Lớp Tài Sản
+
+> [!TIP]
+> **🌱 Phần 0 — Khởi động trực giác cho người mới:** Đừng bao giờ bỏ tất cả trứng vào một giỏ — và cũng đừng bỏ vào 10 giỏ cùng nằm trên một chiếc xe tải! Phân bổ tài sản đúng là kết hợp các lớp tài sản chuyển động **ngược chiều nhau** khi bão kinh tế ập đến.
 
 ## 1. Mục tiêu bài học (Learning Objectives)
 - Nắm vững Lý thuyết Danh mục Hiện đại (Modern Portfolio Theory - MPT) của Harry Markowitz (giải Nobel Kinh tế).
@@ -676,7 +1767,8 @@ Mô hình Danh mục Mọi Thời tiết (All-Weather Portfolio) của Ray Dalio
 - [ ] Tỷ trọng phân bổ có phù hợp với độ tuổi và khẩu vị chịu đựng rủi ro cá nhân không?
 - [ ] Có kế hoạch tái cân bằng định kỳ hàng năm khi tỷ trọng tài sản bị lệch quá 5% không?
 
-<!-- studxy-writein-v2 -->",
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
                 "Lý thuyết danh mục hiện đại Harry Markowitz và hệ số tương quan đa tài sản.",
                 "Thiết kế danh mục All-Weather phòng thủ khủng hoảng và kiểm soát biến động."
             ),
@@ -687,6 +1779,9 @@ Mô hình Danh mục Mọi Thời tiết (All-Weather Portfolio) của Ray Dalio
                 "quan-tri-rui-ro-va-max-drawdown",
                 25,
                 @"# Bài 2.2: Quản Trị Rủi Ro & Mức Sụt Giảm Tối Đa (Max Drawdown)
+
+> [!TIP]
+> **🌱 Phần 0 — Khởi động trực giác cho người mới:** Nếu tài khoản 100 triệu bị lỗ **50%** còn 50 triệu, bạn phải lời tới **100%** (tăng gấp đôi từ 50 triệu) mới về lại điểm hòa vốn! Bảo vệ vốn luôn quan trọng hơn việc tìm kiếm siêu lợi nhuận nhất thời.
 
 ## 1. Mục tiêu bài học (Learning Objectives)
 - Đo lường chính xác các chỉ số rủi ro danh mục: Mức sụt giảm tối đa (Max Drawdown - MDD), Độ lệch chuẩn (Volatility) và Tỷ số Sharpe.
@@ -735,7 +1830,8 @@ Kỷ luật Tái cân bằng (Rebalancing) theo tỷ trọng mục tiêu 60% C�
 - [ ] Đã có kế hoạch tái cân bằng danh mục theo chu kỳ cố định chưa?
 - [ ] Có khoản vay ký quỹ (margin) nguy hiểm nào đang đe dọa bị giải chấp (force sell) không?
 
-<!-- studxy-writein-v2 -->",
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
                 "Đo lường mức sụt giảm tối đa Max Drawdown và toán học hòa vốn bất đối xứng.",
                 "Quy trình tái cân bằng danh mục và kiểm thử áp lực Stress Testing."
             ),
@@ -746,6 +1842,9 @@ Kỷ luật Tái cân bằng (Rebalancing) theo tỷ trọng mục tiêu 60% C�
                 "bien-an-toan-va-dinh-gia-doanh-nghiep",
                 30,
                 @"# Bài 3.1: Biên An Toàn & Định Giá Doanh Nghiệp Cơ Bản
+
+> [!TIP]
+> **🌱 Phần 0 — Khởi động trực giác cho người mới:** Khi xây một cây cầu chịu được xe tải 30 tấn, kỹ sư luôn treo biển giới hạn **10 tấn**. Khoảng đệm 20 tấn dư ra đó chính là **Biên an toàn (Margin of Safety)** — nguyên tắc vàng giúp nhà đầu tư giá trị sống sót qua mọi biến cố!
 
 ## 1. Mục tiêu bài học (Learning Objectives)
 - Nắm vững triết lý Biên an toàn (Margin of Safety - MoS) của Benjamin Graham và Warren Buffett.
@@ -795,7 +1894,8 @@ Phân tích cổ phiếu Công ty Bán lẻ Đầu ngành XYZ:
 - [ ] Tỷ lệ Nợ vay / Vốn chủ sở hữu có nằm trong ngưỡng an toàn lành mạnh ($< 1.0$) không?
 - [ ] Mức giá mua hiện tại có biên an toàn tối thiểu 20–30% so với giá trị nội tại không?
 
-<!-- studxy-writein-v2 -->",
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
                 "Nguyên lý Biên an toàn Benjamin Graham và các chỉ số định giá P/E, ROE, FCF.",
                 "Tránh bẫy giá trị và thẩm định con hào kinh tế của doanh nghiệp."
             ),
@@ -806,6 +1906,9 @@ Phân tích cổ phiếu Công ty Bán lẻ Đầu ngành XYZ:
                 "tam-ly-hoc-hanh-vi-va-quan-tri-cam-xuc",
                 25,
                 @"# Bài 3.2: Tâm Lý Học Hành Vi & Quản Trị Cảm Xúc Trong Đầu Tư
+
+> [!TIP]
+> **🌱 Phần 0 — Khởi động trực giác cho người mới:** Kẻ thù lớn nhất của nhà đầu tư không nằm trên bảng điện tử mà nằm trong chính gương soi! Kiểm soát được nỗi sợ FOMO khi thị trường tăng nóng và hoảng loạn khi thị trường sập đã giúp bạn chiến thắng 80% đám đông.
 
 ## 1. Mục tiêu bài học (Learning Objectives)
 - Thấu hiểu các phát hiện then chốt của Tài chính Hành vi (Behavioral Finance).
@@ -858,7 +1961,8 @@ Năm 2022, khi thị trường chứng khoán toàn cầu giảm sâu hơn 30%:
 - [ ] Nếu giá giảm thêm 20% vào ngày mai, bạn có vui vẻ mua thêm không? (Nếu không, bạn chưa hiểu giá trị tài sản).
 - [ ] Đã ghi chép đầy đủ 4 trụ cột (Luận điểm, Định giá, Kịch bản sai, Kỷ luật cảm xúc) vào Nhật ký Quyết định chưa?
 
-<!-- studxy-writein-v2 -->",
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
                 "Tài chính hành vi, khắc phục 5 thiên kiến tâm lý kinh điển của nhà đầu tư.",
                 "Tư duy ngược dòng Contrarian và Nhật ký quyết định đầu tư 4 trụ cột."
             ),
@@ -872,6 +1976,9 @@ Năm 2022, khi thị trường chứng khoán toàn cầu giảm sâu hơn 30%:
                 "he-thong-1-va-2-nhan-thuc",
                 25,
                 @"# Bài 1.1: Xử Lý Thông Tin Tự Động vs Có Chủ Đích (Hệ Thống 1 & 2)
+
+> [!TIP]
+> **🌱 Phần 0 — Khởi động trực giác cho người mới:** Não bộ bạn có 2 ""nhân viên"": **Hệ thống 1** phản xạ chớp nhoáng (tránh xe lao tới, tức giận ngay khi bị góp ý) và **Hệ thống 2** điềm tĩnh phân tích (tính toán, đối chiếu dữ kiện). Làm chủ cảm xúc chính là tập thói quen **dừng 5 giây** để Hệ thống 2 kịp lên tiếng!
 
 ## 1. Mục tiêu bài học (Learning Objectives)
 - Thấu hiểu mô hình Hai hệ thống nhận thức của Daniel Kahneman (Hệ thống 1: Nhanh, trực giác; Hệ thống 2: Chậm, logic).
@@ -923,7 +2030,8 @@ Tình huống đồng đội nộp phần việc trễ hạn:
 - [ ] Lời nói của bạn có đang tách bạch rõ ràng giữa Sự kiện thực tế và Phán xét cá nhân không?
 - [ ] Câu giao tiếp có đầy đủ 4 thành tố NVC (Quan sát - Cảm xúc - Nhu cầu - Đề nghị) không?
 
-<!-- studxy-writein-v2 -->",
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
                 "Mô hình hai hệ thống tư duy Kahneman và hiệu ứng can thiệp Stroop.",
                 "Giao tiếp phi bạo lực NVC 4 bước và kỹ thuật kích hoạt Hệ thống 2."
             ),
@@ -934,6 +2042,9 @@ Tình huống đồng đội nộp phần việc trễ hạn:
                 "ao-tuong-tri-nho-va-thien-kien-xac-nhan",
                 25,
                 @"# Bài 1.2: Ảo Tưởng Trí Nhớ & Thiên Kiến Xác Nhận (Confirmation Bias)
+
+> [!TIP]
+> **🌱 Phần 0 — Khởi động trực giác cho người mới:** Trí nhớ con người không hoạt động như camera quay phim lưu nguyên bản, mà giống như một ""biên tập viên"" tự lắp ghép chi tiết mới mỗi lần nhớ lại. Vì vậy tự hỏi *""Dữ liệu nào chứng minh mình có thể đang sai?""* là liều vắc-xin tốt nhất chống mù quáng!
 
 ## 1. Mục tiêu bài học (Learning Objectives)
 - Thấu hiểu cơ chế Tái tạo ký ức (Memory Reconstruction): Não bộ không phải máy ghi hình mà tự điền khuyết bằng định kiến.
@@ -977,7 +2088,8 @@ Trong tranh luận về giải pháp kiến trúc phần mềm giữa Microservi
 - [ ] Bạn có thể tóm tắt lại quan điểm của người bất đồng với bạn khiến chính họ cũng gật đầu đồng ý không?
 - [ ] Quyết định quan trọng có được dựa trên bằng chứng dữ liệu khách quan thay vì cảm tính không?
 
-<!-- studxy-writein-v2 -->",
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
                 "Ảo tưởng trí nhớ và thiên kiến xác nhận cản trở tư duy phản biện.",
                 "Phương pháp bác bỏ giả thuyết Karl Popper và kỹ thuật Steelman."
             ),
@@ -988,6 +2100,9 @@ Trong tranh luận về giải pháp kiến trúc phần mềm giữa Microservi
                 "dung-luong-tri-nho-va-ky-thuat-chunking",
                 25,
                 @"# Bài 2.1: Dung Lượng Trí Nhớ Ngắn Hạn & Sức Mạnh Kỹ Thuật Chunking
+
+> [!TIP]
+> **🌱 Phần 0 — Khởi động trực giác cho người mới:** Hãy thử nhớ dãy `0 9 1 2 3 4 5 6 7 8` (rất khó vì có 10 số lẻ), nhưng khi gom thành `0912 - 345 - 678` thì nhớ ngay trong 2 giây! Đó chính là **Chunking** — bí quyết giúp bộ não ghi nhớ gấp 3 lần giới hạn tự nhiên.
 
 ## 1. Mục tiêu bài học (Learning Objectives)
 - Nắm vững Quy luật kỳ diệu của George Miller: Giới hạn dung lượng Bộ nhớ làm việc (Working Memory) trong $7 \pm 2$ đơn vị (chunks).
@@ -1032,7 +2147,8 @@ So sánh giữa Kiện tướng Cờ vua và Người mới chơi:
 - [ ] Mỗi thẻ Flashcard tạo ra có tuân thủ tính nguyên tử (1 thẻ = 1 khái niệm) không?
 - [ ] Các khối kiến thức mới đã được liên kết với nền tảng kinh nghiệm có sẵn chưa?
 
-<!-- studxy-writein-v2 -->",
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
                 "Quy luật George Miller 7 ± 2 và kỹ thuật gom cụm Chunking mở rộng bộ nhớ.",
                 "Tối ưu dung lượng Working Memory và nguyên tắc thẻ nhớ nguyên tử FSRS."
             ),
@@ -1043,6 +2159,9 @@ So sánh giữa Kiện tướng Cờ vua và Người mới chơi:
                 "duong-cong-ebbinghaus-va-tai-hien-chu-dong",
                 25,
                 @"# Bài 2.2: Đường Cong Quên Lãng Ebbinghaus & Tái Hiện Chủ Động
+
+> [!TIP]
+> **🌱 Phần 0 — Khởi động trực giác cho người mới:** Đọc lại sách giáo khoa 5 lần không bằng **gấp sách lại và tự nhớ ra 3 ý chính một lần**! Cảm giác hơi căng não khi cố nhớ lại chính là tín hiệu hóa sinh báo cho não bộ khóa chặt ký ức đó vào trí nhớ dài hạn.
 
 ## 1. Mục tiêu bài học (Learning Objectives)
 - Nắm vững quy luật Đường cong Quên lãng (Forgetting Curve) của Hermann Ebbinghaus: hơn 50% kiến thức bị lãng quên trong vòng 24 giờ.
@@ -1089,7 +2208,8 @@ Nghiên cứu kinh điển của Roediger & Karpicke (2006) trên hai nhóm sinh
 - [ ] Lịch ôn tập có được ngắt quãng theo các mốc thời gian tăng dần (1 ngày, 3 ngày, 7 ngày, 30 ngày) không?
 - [ ] Đã chuyển các khái niệm cốt lõi thành câu hỏi Active Recall trong Studxy chưa?
 
-<!-- studxy-writein-v2 -->",
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
                 "Đường cong quên lãng Ebbinghaus và phương pháp Retrieval Practice.",
                 "Tái hiện chủ động thay thế đọc lại thụ động, củng cố synap thần kinh dài hạn."
             ),
@@ -1100,6 +2220,9 @@ Nghiên cứu kinh điển của Roediger & Karpicke (2006) trên hai nhóm sinh
                 "mo-hinh-cbt-abc-va-tai-cau-truc-nhan-thuc",
                 30,
                 @"# Bài 3.1: Mô Hình ABC Nhận Thức & Thách Thức Suy Nghĩ Tự Động
+
+> [!TIP]
+> **🌱 Phần 0 — Khởi động trực giác cho người mới:** Hai người cùng gặp 1 cơn mưa (Sự kiện A): người thứ nhất nghĩ *""Hôm nay xui tận mạng""* (B) nên bực bội; người thứ hai nghĩ *""Không khí mát mẻ hẳn để đọc sách""* nên thư thái. Sự kiện giống nhau, **câu chuyện bạn kể trong đầu mới quyết định cảm xúc**!
 
 ## 1. Mục tiêu bài học (Learning Objectives)
 - Nắm vững Mô hình ABC trong Liệu pháp Nhận thức Hành vi (Cognitive Behavioral Therapy - CBT) của Albert Ellis và Aaron Beck.
@@ -1156,7 +2279,8 @@ Nghiên cứu kinh điển của Roediger & Karpicke (2006) trên hai nhóm sinh
 - [ ] Bằng chứng khách quan nào ủng hộ và bằng chứng nào phản bác suy nghĩ tự động đó?
 - [ ] Lời thoại cân bằng mới có giúp bạn bình tâm và hành động hiệu quả hơn không?
 
-<!-- studxy-writein-v2 -->",
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
                 "Liệu pháp nhận thức hành vi CBT, mô hình ABCDE của Ellis và Beck.",
                 "Nhận diện 4 lỗi nhận thức kinh điển và tái cấu trúc suy nghĩ cân bằng."
             ),
@@ -1167,6 +2291,9 @@ Nghiên cứu kinh điển của Roediger & Karpicke (2006) trên hai nhóm sinh
                 "thiet-lap-ranh-gioi-va-tu-trac-an",
                 25,
                 @"# Bài 3.2: Thiết Lập Ranh Giới Cá Nhân & Tự Trắc Ẩn (Self-Compassion)
+
+> [!TIP]
+> **🌱 Phần 0 — Khởi động trực giác cho người mới:** Khi một người bạn thân vừa làm hỏng bài kiểm tra, bạn sẽ an ủi họ ra sao? Hãy dùng chính sự tử tế đó nói với bản thân mình thay vì chỉ trích cay nghiệt — đó là nền tảng của sức bền tinh thần dài hạn.
 
 ## 1. Mục tiêu bài học (Learning Objectives)
 - Xây dựng Ranh giới Cá nhân lành mạnh (Healthy Boundaries) trong các mối quan hệ công việc và đời sống.
@@ -1211,7 +2338,8 @@ Khi một đồng nghiệp nhờ bạn làm giúp phần việc ngoài phạm vi
 - [ ] Lời từ chối của bạn có rõ ràng, ngắn gọn và tôn trọng ranh giới của cả hai bên không?
 - [ ] Khi gặp thất bại, bạn có nhắc nhở mình rằng đây là trải nghiệm làm người chung của nhân loại không?
 
-<!-- studxy-writein-v2 -->",
+<!-- studxy-writein-v2 -->
+<!-- studxy-writein-v3 -->",
                 "Thiết lập ranh giới cá nhân lành mạnh và kỹ năng nói không quyết đoán.",
                 "Mô hình tự trắc ẩn 3 yếu tố Kristin Neff thay thế tiếng nói tự chỉ trích."
             )
@@ -1224,11 +2352,17 @@ Khi một đồng nghiệp nhờ bạn làm giúp phần việc ngoài phạm vi
         foreach (var meta in metas)
         {
             var existing = await db.Lessons.FirstOrDefaultAsync(l => l.Id == meta.LessonId);
-            if (existing != null)
+            if (existing != null && existing.CurrentVersion == 1)
             {
-                // Safe idempotency: ONLY upgrade if CurrentVersion == 1 and marker is not yet present.
-                // If user modified lesson (CurrentVersion > 1) or it is already upgraded, DO NOT overwrite!
-                if (existing.CurrentVersion == 1 && !(existing.ContentMarkdown ?? string.Empty).Contains(UpgradeMarker))
+                var currentMd = existing.ContentMarkdown ?? string.Empty;
+                var isV3Meta = meta.Markdown.Contains(CodingUpgradeMarkerV3, StringComparison.Ordinal);
+                var needsUpgrade = isV3Meta
+                    ? !currentMd.Contains(CodingUpgradeMarkerV3, StringComparison.Ordinal)
+                    : !currentMd.Contains(UpgradeMarker, StringComparison.Ordinal);
+
+                // Safe idempotency: ONLY upgrade if CurrentVersion == 1 and target marker is not yet present.
+                // Upgrades both v1 -> v3 and v2 -> v3 for Coding JS without overwriting user edits (CurrentVersion > 1).
+                if (needsUpgrade)
                 {
                     existing.ContentMarkdown = meta.Markdown;
                     existing.PlainText = meta.Markdown;

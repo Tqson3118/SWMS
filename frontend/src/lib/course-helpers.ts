@@ -24,6 +24,7 @@ export const COURSE_DOMAINS: CourseDomainMeta[] = [
 export interface CourseLike {
   id?: string;
   courseId?: string;
+  slug?: string | null;
   title?: string;
   description?: string | null;
   category?: string | null;
@@ -32,6 +33,7 @@ export interface CourseLike {
   totalLessons?: number;
   completedLessons?: number;
   chapterCount?: number;
+  totalEstimatedMinutes?: number;
   chapters?: { lessons?: unknown[] }[];
   createdAt?: string | null;
   updatedAt?: string | null;
@@ -214,10 +216,47 @@ export interface CourseVisualTheme {
   estimatedHoursLabel: string;
 }
 
+export function getCourseTotalMinutes(course: CourseLike): number {
+  if (
+    typeof course.totalEstimatedMinutes === "number" &&
+    Number.isFinite(course.totalEstimatedMinutes) &&
+    course.totalEstimatedMinutes > 0
+  ) {
+    return Math.round(course.totalEstimatedMinutes);
+  }
+
+  if (Array.isArray(course.chapters) && course.chapters.length > 0) {
+    let chapterMinutes = 0;
+    for (const ch of course.chapters) {
+      if (Array.isArray(ch.lessons)) {
+        for (const rawLesson of ch.lessons) {
+          if (rawLesson && typeof rawLesson === "object") {
+            const lessonObj = rawLesson as {
+              estimatedMinutes?: unknown;
+              durationMinutes?: unknown;
+            };
+            const mins = Number(lessonObj.estimatedMinutes ?? lessonObj.durationMinutes ?? 0);
+            if (Number.isFinite(mins) && mins > 0) {
+              chapterMinutes += mins;
+            }
+          }
+        }
+      }
+    }
+    if (chapterMinutes > 0) {
+      return Math.round(chapterMinutes);
+    }
+  }
+
+  const lessons = Math.max(1, getCourseLessonCount(course));
+  return lessons * 25;
+}
+
 export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
   const domain = classifyCourseDomain(course);
-  const lessons = Math.max(1, getCourseLessonCount(course));
-  const estHours = Math.max(1, Math.round((lessons * 25) / 60));
+  const mins = getCourseTotalMinutes(course);
+  const estimatedHoursLabel =
+    mins < 60 ? `${mins} phút học` : `~${Math.max(1, Math.round(mins / 60))} giờ học`;
   const norm = normalizeVi(`${course.title || ""} ${course.description || ""}`);
 
   let levelLabel = "Lộ trình thực chiến";
@@ -238,7 +277,7 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
         iconTextClass: "text-indigo-600 dark:text-indigo-400",
         ringColor: "#6366F1",
         levelLabel,
-        estimatedHoursLabel: `~${estHours} giờ học`,
+        estimatedHoursLabel,
       };
     case "language":
       return {
@@ -250,7 +289,7 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
         iconTextClass: "text-sky-600 dark:text-sky-400",
         ringColor: "#0EA5E9",
         levelLabel,
-        estimatedHoursLabel: `~${estHours} giờ học`,
+        estimatedHoursLabel,
       };
     case "business":
       return {
@@ -262,7 +301,7 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
         iconTextClass: "text-emerald-600 dark:text-emerald-400",
         ringColor: "#10B981",
         levelLabel,
-        estimatedHoursLabel: `~${estHours} giờ học`,
+        estimatedHoursLabel,
       };
     case "law":
       return {
@@ -274,7 +313,7 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
         iconTextClass: "text-amber-600 dark:text-amber-400",
         ringColor: "#F59E0B",
         levelLabel,
-        estimatedHoursLabel: `~${estHours} giờ học`,
+        estimatedHoursLabel,
       };
     case "science":
       return {
@@ -286,7 +325,7 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
         iconTextClass: "text-purple-600 dark:text-purple-400",
         ringColor: "#A855F7",
         levelLabel,
-        estimatedHoursLabel: `~${estHours} giờ học`,
+        estimatedHoursLabel,
       };
     default:
       if (/(tam ly|ky nang song|giao tiep)/.test(norm)) {
@@ -299,7 +338,7 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
           iconTextClass: "text-rose-600 dark:text-rose-400",
           ringColor: "#F43F5E",
           levelLabel,
-          estimatedHoursLabel: `~${estHours} giờ học`,
+          estimatedHoursLabel,
         };
       }
       return {
@@ -311,7 +350,7 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
         iconTextClass: "text-rose-600 dark:text-rose-400",
         ringColor: "#F43F5E",
         levelLabel,
-        estimatedHoursLabel: `~${estHours} giờ học`,
+        estimatedHoursLabel,
       };
   }
 }

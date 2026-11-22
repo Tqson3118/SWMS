@@ -1404,4 +1404,208 @@ public class PracticeEngineTests
             }
         }
     }
+
+    [Fact]
+    public async Task AcademicOsExpansion_And_DocumentCourseLabs_AreSeededAndIdempotent()
+    {
+        await using var factory = CreateIsolatedFactory();
+        using var client = factory.CreateClient();
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
+
+            var osChapters = await db.Chapters.AsNoTracking()
+                .Where(ch => ch.CourseId == SeedDataInitializer.AcademicCourseId)
+                .ToListAsync();
+            Assert.Equal(3, osChapters.Count);
+
+            var osChapterIds = osChapters.Select(c => c.Id).ToList();
+            var osLessons = await db.Lessons.AsNoTracking()
+                .Where(l => osChapterIds.Contains(l.ChapterId))
+                .ToListAsync();
+            Assert.Equal(6, osLessons.Count);
+
+            // LessonPagingId AST/Version=2 invariant must remain untouched
+            var pagingLesson = osLessons.First(l => l.Id == SeedDataInitializer.LessonPagingId);
+            Assert.Equal(2, pagingLesson.CurrentVersion);
+
+            var osActivities = await db.PracticeActivities.AsNoTracking()
+                .Where(a => a.CourseId == SeedDataInitializer.AcademicCourseId)
+                .ToListAsync();
+            Assert.True(osActivities.Count >= 24, $"Expected >= 24 OS activities, got {osActivities.Count}");
+
+            var osLessonIds = osLessons.Select(l => l.Id).ToList();
+            var osQuizzes = await db.PracticeQuizzes.AsNoTracking()
+                .Where(q => q.LessonId.HasValue && osLessonIds.Contains(q.LessonId.Value))
+                .ToListAsync();
+            Assert.True(osQuizzes.Count >= 9, $"Expected >= 9 OS quizzes, got {osQuizzes.Count}");
+            Assert.Contains(osQuizzes, q => q.Title.Contains("[Đề Chương"));
+            Assert.Contains(osQuizzes, q => q.Title.Contains("[Đề Tổng Hợp Cuối Khóa]"));
+
+            var report1 = await DocumentCourseSyncService.SyncAllFromDocumentsAsync(
+                db,
+                DocumentCourseSyncService.DefaultDocumentRootPath,
+                useSnapshotCache: false);
+            Assert.True(report1.SyncedCourses >= 7);
+
+            var expectedDocSlugs = new[]
+            {
+                "document-course-dotnet-react-roadmap",
+                "document-course-fullstack-csharp-react-refresh",
+                "document-course-ielts",
+                "document-course-investing",
+                "document-course-personalfinance",
+                "document-course-lifeskills",
+                "document-course-psychology"
+            };
+
+            foreach (var slug in expectedDocSlugs)
+            {
+                var docCourse = await db.Courses.AsNoTracking().FirstAsync(c => c.Slug == slug);
+                var docChIds = await db.Chapters.AsNoTracking()
+                    .Where(ch => ch.CourseId == docCourse.Id)
+                    .Select(ch => ch.Id)
+                    .ToListAsync();
+                var docLessons = await db.Lessons.AsNoTracking()
+                    .Where(l => docChIds.Contains(l.ChapterId))
+                    .ToListAsync();
+                Assert.NotEmpty(docLessons);
+
+                var docActs = await db.PracticeActivities.AsNoTracking()
+                    .Where(pa => pa.CourseId == docCourse.Id)
+                    .ToListAsync();
+                Assert.True(docActs.Count >= docLessons.Count * 3,
+                    $"Expected >= 3 PracticeActivities per lesson for {slug}, got {docActs.Count}/{docLessons.Count}");
+            }
+
+            // DotNet roadmap should gain >= 28 flashcards + Chapter/Final quizzes
+            var dotnetCourse = await db.Courses.AsNoTracking()
+                .FirstAsync(c => c.Slug == "document-course-dotnet-react-roadmap");
+            var dotnetChIds = await db.Chapters.AsNoTracking()
+                .Where(ch => ch.CourseId == dotnetCourse.Id)
+                .Select(ch => ch.Id)
+                .ToListAsync();
+            var dotnetLessonIds = await db.Lessons.AsNoTracking()
+                .Where(l => dotnetChIds.Contains(l.ChapterId))
+                .Select(l => l.Id)
+                .ToListAsync();
+            var dotnetCardsCount = await db.Flashcards.AsNoTracking()
+                .CountAsync(f => f.LessonId.HasValue && dotnetLessonIds.Contains(f.LessonId.Value));
+            Assert.True(dotnetCardsCount >= 28, $"Expected >= 28 DotNet flashcards, got {dotnetCardsCount}");
+
+            // Investing invariant: exact 18 quizzes
+            var invCourse = await db.Courses.AsNoTracking()
+                .FirstAsync(c => c.Slug == "document-course-investing");
+            var invChIds = await db.Chapters.AsNoTracking()
+                .Where(ch => ch.CourseId == invCourse.Id)
+                .Select(ch => ch.Id)
+                .ToListAsync();
+            var invLessonIds = await db.Lessons.AsNoTracking()
+                .Where(l => invChIds.Contains(l.ChapterId))
+                .Select(l => l.Id)
+                .ToListAsync();
+            var invQuizCount = await db.PracticeQuizzes.AsNoTracking()
+                .CountAsync(q => q.LessonId.HasValue && invLessonIds.Contains(q.LessonId.Value) && q.UserId == SeedDataInitializer.DefaultUserId);
+            Assert.Equal(18, invQuizCount);
+
+            // Second sync must be strictly idempotent
+            var report2 = await DocumentCourseSyncService.SyncAllFromDocumentsAsync(
+                db,
+                DocumentCourseSyncService.DefaultDocumentRootPath,
+                useSnapshotCache: false);
+            Assert.Equal(0, report2.CreatedCourses);
+            Assert.Equal(0, report2.CreatedLessons);
+            Assert.Equal(0, report2.CreatedQuizzes);
+            Assert.Equal(0, report2.CreatedFlashcards);
+        }
+
+        // Verify course detail exposes new Practice Lab & FSRS summary metrics
+        var osDetailResp = await client.GetAsync($"/api/v1/courses/{SeedDataInitializer.AcademicCourseId}");
+        Assert.Equal(HttpStatusCode.OK, osDetailResp.StatusCode);
+        var osDetailJson = await osDetailResp.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(osDetailJson.GetProperty("practiceTotalActivities").GetInt32() >= 24);
+        Assert.True(osDetailJson.TryGetProperty("dueFlashcardCount", out _));
+        Assert.True(osDetailJson.TryGetProperty("masteredFlashcardCount", out _));
+        Assert.True(osDetailJson.TryGetProperty("practiceAverageScore", out _));
+    }
+
+    [Fact]
+    public async Task UpgradedCourseEndpoints_Reset_SubmitAll_GenerateQuiz_StudyGuide_And_AiTutor_WorkAndEnforceOwnership()
+    {
+        await using var connection = new SqliteConnection("DataSource=:memory:");
+        await connection.OpenAsync();
+        await using var factory = CreateRealSqliteFactory(connection);
+        using var defaultClient = factory.CreateClient();
+
+        // 1. Study Guide Export
+        var guideResp = await defaultClient.GetAsync($"/api/v1/courses/{SeedDataInitializer.AcademicCourseId}/study-guide");
+        Assert.Equal(HttpStatusCode.OK, guideResp.StatusCode);
+        var guideJson = await guideResp.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Contains("Hệ điều hành", guideJson.GetProperty("markdown").GetString());
+        Assert.EndsWith("-de-cuong.md", guideJson.GetProperty("fileName").GetString());
+
+        // 2. Generate Custom Quiz -> Submit All -> Reset
+        var genResp = await defaultClient.PostAsJsonAsync(
+            $"/api/v1/courses/{SeedDataInitializer.AcademicCourseId}/quizzes/generate",
+            new GenerateCourseQuizRequest(Count: 5, Title: "[Đề Tự Tạo] Test Ôn Tập OS"));
+        Assert.Equal(HttpStatusCode.Created, genResp.StatusCode);
+        var genJson = await genResp.Content.ReadFromJsonAsync<JsonElement>();
+        var genQuizId = genJson.GetProperty("id").GetGuid();
+        Assert.Equal(5, genJson.GetProperty("itemCount").GetInt32());
+
+        var quizDetail = await defaultClient.GetFromJsonAsync<JsonElement>($"/api/v1/practice-quizzes/{genQuizId}");
+        var answers = new List<SubmitAllQuizItemEntry>();
+        foreach (var item in quizDetail.GetProperty("items").EnumerateArray())
+        {
+            var id = item.GetProperty("id").GetGuid();
+            var itemType = item.GetProperty("itemType").GetString();
+            answers.Add(new SubmitAllQuizItemEntry(id, itemType == "multiple_choice" ? "A" : "Tiến trình và bộ nhớ ảo trong hệ điều hành"));
+        }
+
+        var submitAllResp = await defaultClient.PostAsJsonAsync(
+            $"/api/v1/practice-quizzes/{genQuizId}/submit-all",
+            new SubmitAllQuizItemsRequest(answers, DurationSeconds: 45));
+        Assert.Equal(HttpStatusCode.OK, submitAllResp.StatusCode);
+        var submitAllJson = await submitAllResp.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("completed", submitAllJson.GetProperty("status").GetString());
+        Assert.Equal(5, submitAllJson.GetProperty("answeredCount").GetInt32());
+
+        var resetResp = await defaultClient.PostAsync($"/api/v1/practice-quizzes/{genQuizId}/reset", null);
+        Assert.Equal(HttpStatusCode.OK, resetResp.StatusCode);
+        var resetJson = await resetResp.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("in_progress", resetJson.GetProperty("status").GetString());
+        Assert.Equal(0, resetJson.GetProperty("correctItems").GetInt32());
+
+        // 3. AI Tutor Chat (deterministic lesson-grounded reply even offline)
+        var tutorResp = await defaultClient.PostAsJsonAsync(
+            "/api/v1/ai/tutor-chat",
+            new AiTutorChatRequest(
+                SeedDataInitializer.AcademicCourseId,
+                AcademicOsPracticeContent.OsLesson11Id,
+                "Giải thích sự khác nhau giữa Process và Thread"));
+        Assert.Equal(HttpStatusCode.OK, tutorResp.StatusCode);
+        var tutorJson = await tutorResp.Content.ReadFromJsonAsync<JsonElement>();
+        var tutorReply = tutorJson.GetProperty("reply").GetString() ?? "";
+        Assert.False(string.IsNullOrWhiteSpace(tutorReply));
+        Assert.DoesNotContain("duyệt bảng trang đa cấp (Page Walk)", tutorReply);
+        Assert.True(tutorJson.TryGetProperty("suggestedFlashcard", out _));
+
+        // 4. Security check: newly registered user gets 403 on DefaultQuizId /reset & /submit-all
+        var regResp = await defaultClient.PostAsJsonAsync("/api/v1/auth/register",
+            new RegisterRequest($"iso.quiz.{Guid.NewGuid():N}@studxy.vn", "Studxy@2026", "Tester"));
+        Assert.Equal(HttpStatusCode.OK, regResp.StatusCode);
+        var token = (await regResp.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("accessToken").GetString()!;
+
+        using var regClient = factory.CreateClient();
+        regClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var reset403 = await regClient.PostAsync($"/api/v1/practice-quizzes/{SeedDataInitializer.DefaultQuizId}/reset", null);
+        Assert.Equal(HttpStatusCode.Forbidden, reset403.StatusCode);
+
+        var submitAll403 = await regClient.PostAsJsonAsync(
+            $"/api/v1/practice-quizzes/{SeedDataInitializer.DefaultQuizId}/submit-all",
+            new SubmitAllQuizItemsRequest([], 10));
+        Assert.Equal(HttpStatusCode.Forbidden, submitAll403.StatusCode);
+    }
 }

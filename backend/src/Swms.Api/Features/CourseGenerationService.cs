@@ -338,6 +338,8 @@ public static class CourseGenerationService
         }
     }
 
+    private static readonly ConcurrentDictionary<(Guid LessonId, DateTimeOffset UpdatedAt), (Guid? DocId, int? StartPage, int? EndPage, string? SrcFolder, string? SrcRelPath)> LessonMetaCache = new();
+
     private sealed record DocMetaRow(Guid Id, Guid CourseId, int TotalPages);
     private sealed record ChapterRow(Guid Id, Guid CourseId, string Title, int SortOrder);
     private sealed record LessonSummaryRow(
@@ -352,7 +354,8 @@ public static class CourseGenerationService
         string? VideoUrl,
         int EstimatedMinutes,
         string? ContentMarkdown,
-        DateTimeOffset UpdatedAt);
+        DateTimeOffset UpdatedAt,
+        bool IsPublished);
     private sealed record QuizSummaryRow(Guid Id, Guid? DocumentId, Guid? LessonId, DateTimeOffset StartedAt);
     private sealed record FlashcardRefRow(Guid Id, Guid UserId, Guid? DocumentId, Guid? LessonId);
     private sealed record NotebookRefRow(Guid Id, Guid? PrimarySourceDocumentId, Guid? PrimarySourceLessonId, DateTimeOffset UpdatedAt);
@@ -455,8 +458,10 @@ public static class CourseGenerationService
             .ToListAsync();
         var chaptersByCourse = allChapters.ToLookup(ch => ch.CourseId);
 
-        var allLessons = includeLessonMarkdown
-            ? await (
+        List<LessonSummaryRow> allLessons;
+        if (includeLessonMarkdown)
+        {
+            allLessons = await (
                 from l in db.Lessons.AsNoTracking()
                 join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
                 where courseIds.Contains(ch.CourseId)
@@ -473,14 +478,30 @@ public static class CourseGenerationService
                     l.VideoUrl,
                     l.EstimatedMinutes,
                     l.ContentMarkdown,
-                    l.UpdatedAt))
-                .ToListAsync()
-            : await (
+                    l.UpdatedAt,
+                    l.IsPublished))
+                .ToListAsync();
+
+            foreach (var l in allLessons)
+            {
+                if (!string.IsNullOrWhiteSpace(l.ContentAstJson) && !LessonMetaCache.ContainsKey((l.Id, l.UpdatedAt)))
+                {
+                    if (LessonMetaCache.Count > 10000) LessonMetaCache.Clear();
+                    var (lesDocId, startPage, endPage) = ExtractLessonMetadata(l.ContentAstJson, null);
+                    var (srcFolder, srcRelPath) = ExtractLessonSourceMetadata(l.ContentAstJson);
+                    LessonMetaCache[(l.Id, l.UpdatedAt)] = (lesDocId, startPage, endPage, srcFolder, srcRelPath);
+                }
+            }
+        }
+        else
+        {
+            var lightweightLessons = await (
                 from l in db.Lessons.AsNoTracking()
                 join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
                 where courseIds.Contains(ch.CourseId)
                 orderby l.SortOrder
-                select new LessonSummaryRow(
+                select new
+                {
                     l.Id,
                     l.ChapterId,
                     ch.CourseId,
@@ -488,12 +509,58 @@ public static class CourseGenerationService
                     l.Slug,
                     l.SortOrder,
                     l.CurrentVersion,
-                    l.ContentAstJson,
                     l.VideoUrl,
                     l.EstimatedMinutes,
-                    null,
-                    l.UpdatedAt))
-                .ToListAsync();
+                    l.UpdatedAt,
+                    l.IsPublished
+                }
+            ).ToListAsync();
+
+            var uncachedKeys = lightweightLessons
+                .Where(l => !LessonMetaCache.ContainsKey((l.Id, l.UpdatedAt)))
+                .Select(l => l.Id)
+                .Distinct()
+                .ToList();
+
+            if (uncachedKeys.Count > 0)
+            {
+                foreach (var chunk in uncachedKeys.Chunk(500))
+                {
+                    var astRows = await db.Lessons.AsNoTracking()
+                        .Where(l => chunk.Contains(l.Id))
+                        .Select(l => new { l.Id, l.UpdatedAt, l.ContentAstJson })
+                        .ToListAsync();
+
+                    if (LessonMetaCache.Count > 10000)
+                    {
+                        LessonMetaCache.Clear();
+                    }
+
+                    foreach (var row in astRows)
+                    {
+                        var (lesDocId, startPage, endPage) = ExtractLessonMetadata(row.ContentAstJson, null);
+                        var (srcFolder, srcRelPath) = ExtractLessonSourceMetadata(row.ContentAstJson);
+                        LessonMetaCache[(row.Id, row.UpdatedAt)] = (lesDocId, startPage, endPage, srcFolder, srcRelPath);
+                    }
+                }
+            }
+
+            allLessons = lightweightLessons.Select(l => new LessonSummaryRow(
+                l.Id,
+                l.ChapterId,
+                l.CourseId,
+                l.Title,
+                l.Slug,
+                l.SortOrder,
+                l.CurrentVersion,
+                null,
+                l.VideoUrl,
+                l.EstimatedMinutes,
+                null,
+                l.UpdatedAt,
+                l.IsPublished
+            )).ToList();
+        }
         var lessonsByCourse = allLessons.ToLookup(l => l.CourseId);
 
         var progressUserIds = userId.HasValue
@@ -554,8 +621,26 @@ public static class CourseGenerationService
 
             foreach (var l in lessonsByCourse[c.Id])
             {
-                var (lesDocId, startPage, endPage) = ExtractLessonMetadata(l.ContentAstJson, doc?.Id);
-                var (srcFolder, srcRelPath) = ExtractLessonSourceMetadata(l.ContentAstJson);
+                Guid? lesDocId;
+                int? startPage;
+                int? endPage;
+                string? srcFolder;
+                string? srcRelPath;
+
+                if (LessonMetaCache.TryGetValue((l.Id, l.UpdatedAt), out var cachedMeta))
+                {
+                    lesDocId = cachedMeta.DocId ?? doc?.Id;
+                    startPage = cachedMeta.StartPage;
+                    endPage = cachedMeta.EndPage;
+                    srcFolder = cachedMeta.SrcFolder;
+                    srcRelPath = cachedMeta.SrcRelPath;
+                }
+                else
+                {
+                    (lesDocId, startPage, endPage) = ExtractLessonMetadata(l.ContentAstJson, doc?.Id);
+                    (srcFolder, srcRelPath) = ExtractLessonSourceMetadata(l.ContentAstJson);
+                }
+
                 sourceDocId ??= lesDocId;
                 detectedSourceFolder ??= srcFolder;
                 courseLessonMeta[l.Id] = (lesDocId, startPage, endPage, srcFolder, srcRelPath);
@@ -642,6 +727,74 @@ public static class CourseGenerationService
             .Where(n => n.PrimarySourceLessonId.HasValue)
             .ToLookup(n => n.PrimarySourceLessonId!.Value);
 
+        var allCourseLessonIds = allLessons.Select(l => l.Id).ToHashSet();
+        ILookup<Guid, int> lapsesByLesson = Array.Empty<(Guid, int)>().ToLookup(x => x.Item1, x => x.Item2);
+        ILookup<Guid, Guid> quizErrorsByLesson = Array.Empty<(Guid, Guid)>().ToLookup(x => x.Item1, x => x.Item2);
+
+        if (userId.HasValue && allCourseLessonIds.Count > 0)
+        {
+            var lapsedFlashcards = await db.Flashcards.AsNoTracking()
+                .Where(f => f.UserId == userId.Value && !f.IsArchived && f.Lapses > 0 && f.LessonId.HasValue && allCourseLessonIds.Contains(f.LessonId.Value))
+                .Select(f => new { LessonId = f.LessonId!.Value, f.Lapses })
+                .ToListAsync();
+            lapsesByLesson = lapsedFlashcards.ToLookup(f => f.LessonId, f => f.Lapses);
+
+            var incorrectQuizItems = await (
+                from q in db.PracticeQuizzes.AsNoTracking()
+                join qi in db.PracticeQuizItems.AsNoTracking() on q.Id equals qi.QuizId
+                where q.UserId == userId.Value && q.LessonId.HasValue && allCourseLessonIds.Contains(q.LessonId.Value) && qi.IsCorrect == false
+                select new { LessonId = q.LessonId!.Value }
+            ).ToListAsync();
+            quizErrorsByLesson = incorrectQuizItems.ToLookup(qi => qi.LessonId, qi => qi.LessonId);
+        }
+
+        var nowUtc = DateTimeOffset.UtcNow;
+        var summaryCourseIds = courses.Select(c => c.Id).Distinct().ToList();
+        var courseActivities = summaryCourseIds.Count > 0
+            ? await db.PracticeActivities.AsNoTracking()
+                .Where(a => summaryCourseIds.Contains(a.CourseId))
+                .Select(a => new { a.Id, a.CourseId, a.LessonId })
+                .ToListAsync()
+            : [];
+        var activitiesByCourseLookup = courseActivities.ToLookup(a => a.CourseId);
+        var activitiesByLessonLookup = courseActivities
+            .Where(a => a.LessonId.HasValue)
+            .ToLookup(a => a.LessonId!.Value);
+
+        var passedActivityIdSet = new HashSet<Guid>();
+        var bestScoreByActivityId = new Dictionary<Guid, double>();
+        if (userId.HasValue && courseActivities.Count > 0)
+        {
+            var activityIds = courseActivities.Select(a => a.Id).Distinct().ToList();
+            var userAttempts = await db.PracticeAttempts.AsNoTracking()
+                .Where(pa => pa.UserId == userId.Value && pa.ActivityId.HasValue && activityIds.Contains(pa.ActivityId.Value))
+                .Select(pa => new { ActivityId = pa.ActivityId!.Value, pa.IsPassed, pa.Score })
+                .ToListAsync();
+            foreach (var grp in userAttempts.GroupBy(pa => pa.ActivityId))
+            {
+                if (grp.Any(x => x.IsPassed))
+                {
+                    passedActivityIdSet.Add(grp.Key);
+                }
+                bestScoreByActivityId[grp.Key] = grp.Max(x => x.Score);
+            }
+        }
+
+        var userFsrsCards = userId.HasValue && (allCourseLessonIds.Count > 0 || allSourceDocIds.Count > 0)
+            ? await db.Flashcards.AsNoTracking()
+                .Where(f => f.UserId == userId.Value && !f.IsArchived &&
+                            ((f.LessonId.HasValue && allCourseLessonIds.Contains(f.LessonId.Value)) ||
+                             (f.DocumentId.HasValue && allSourceDocIds.Contains(f.DocumentId.Value))))
+                .Select(f => new { f.Id, f.DocumentId, f.LessonId, f.DueAt, f.Reps, f.State })
+                .ToListAsync()
+            : [];
+        var userCardsByDoc = userFsrsCards
+            .Where(f => f.DocumentId.HasValue)
+            .ToLookup(f => f.DocumentId!.Value);
+        var userCardsByLesson = userFsrsCards
+            .Where(f => f.LessonId.HasValue)
+            .ToLookup(f => f.LessonId!.Value);
+
         var results = new List<object>(courses.Count);
 
         for (int i = 0; i < courses.Count; i++)
@@ -649,7 +802,12 @@ public static class CourseGenerationService
             var course = courses[i];
             var doc = resolvedDocs[i];
             var chapters = chaptersByCourse[course.Id].ToList();
-            var lessons = lessonsByCourse[course.Id].ToList();
+            var allCourseLessons = lessonsByCourse[course.Id].ToList();
+
+            var isOwner = userId.HasValue && (course.InstructorId == userId.Value || (userId.Value == SeedDataInitializer.DefaultUserId && course.InstructorId == SeedDataInitializer.DefaultUserId));
+            var lessons = (userId.HasValue && !isOwner)
+                ? allCourseLessons.Where(l => l.IsPublished).ToList()
+                : allCourseLessons;
 
             var effectiveProgressUserId = userId ?? course.InstructorId;
             var completedLessonIds = lessons
@@ -662,6 +820,40 @@ public static class CourseGenerationService
             var progressPercent = totalLessonsCount > 0
                 ? (int)Math.Round((double)completedLessonsCount * 100.0 / totalLessonsCount)
                 : 0;
+            var totalEstimatedMinutes = lessons.Sum(l => l.EstimatedMinutes > 0 ? l.EstimatedMinutes : 10);
+
+            var chapterWeakStats = new List<(Guid Id, string Title, string Reason, int TotalErrors)>();
+            if (userId.HasValue)
+            {
+                foreach (var ch in chapters)
+                {
+                    var chLessons = lessons.Where(l => l.ChapterId == ch.Id).ToList();
+                    int chLapses = chLessons.Sum(l => lapsesByLesson[l.Id].Sum());
+                    int chQuizErrors = chLessons.Sum(l => quizErrorsByLesson[l.Id].Count());
+                    int totalErrors = chLapses + chQuizErrors;
+                    if (totalErrors > 0)
+                    {
+                        string reason = chLapses > 0 && chQuizErrors > 0
+                            ? $"{chQuizErrors} câu trắc nghiệm trả lời sai và {chLapses} lần quên thẻ ghi nhớ"
+                            : chQuizErrors > 0
+                                ? $"{chQuizErrors} câu trắc nghiệm trả lời sai cần ôn lại"
+                                : $"{chLapses} lần quên thẻ ghi nhớ cần củng cố";
+                        chapterWeakStats.Add((ch.Id, ch.Title, reason, totalErrors));
+                    }
+                }
+            }
+
+            var weakChapters = chapterWeakStats
+                .OrderByDescending(w => w.TotalErrors)
+                .Take(3)
+                .Select(w => (object)new
+                {
+                    chapterId = w.Id,
+                    title = w.Title,
+                    reason = w.Reason,
+                    pendingReviewsOrErrors = w.TotalErrors
+                })
+                .ToList();
 
             var matchedQuizMap = new Dictionary<Guid, QuizSummaryRow>();
             if (doc != null)
@@ -698,6 +890,8 @@ public static class CourseGenerationService
                 if (parsedLessonsByChapter.TryGetValue(l.ChapterId, out var list))
                 {
                     lessonQuizMap.TryGetValue(l.Id, out var linkedQuizId);
+                    var lessonActs = activitiesByLessonLookup[l.Id].ToList();
+                    var lessonPassedActs = lessonActs.Count(a => passedActivityIdSet.Contains(a.Id));
                     list.Add(new
                     {
                         id = l.Id,
@@ -717,6 +911,8 @@ public static class CourseGenerationService
                         videoUrl = l.VideoUrl,
                         estimatedMinutes = l.EstimatedMinutes,
                         isCompleted = completedLessonSet.Contains(l.Id),
+                        practiceActivityCount = lessonActs.Count,
+                        practicePassedCount = lessonPassedActs,
                         contentMarkdown = includeLessonMarkdown ? l.ContentMarkdown : null,
                         updatedAt = l.UpdatedAt
                     });
@@ -771,6 +967,46 @@ public static class CourseGenerationService
                 course.Title,
                 detectedSourceFolder);
 
+            var courseActivityList = activitiesByCourseLookup[course.Id].ToList();
+            var practiceTotalActivities = courseActivityList.Count;
+            var practicePassedActivities = courseActivityList.Count(a => passedActivityIdSet.Contains(a.Id));
+            var courseAttemptedScores = courseActivityList
+                .Where(a => bestScoreByActivityId.ContainsKey(a.Id))
+                .Select(a => bestScoreByActivityId[a.Id])
+                .ToList();
+            var practiceAverageScore = courseAttemptedScores.Count > 0
+                ? Math.Round(courseAttemptedScores.Average(), 1)
+                : 0.0;
+
+            var userCourseCardMap = new Dictionary<Guid, (DateTimeOffset DueAt, int Reps, int State)>();
+            if (userId.HasValue)
+            {
+                if (sourceDocId.HasValue)
+                {
+                    foreach (var uc in userCardsByDoc[sourceDocId.Value])
+                    {
+                        userCourseCardMap[uc.Id] = (uc.DueAt, uc.Reps, uc.State);
+                    }
+                }
+                foreach (var l in lessons)
+                {
+                    foreach (var uc in userCardsByLesson[l.Id])
+                    {
+                        userCourseCardMap[uc.Id] = (uc.DueAt, uc.Reps, uc.State);
+                    }
+                }
+            }
+            var hasUnclonedPublicDeck = userId.HasValue
+                && userCourseCardMap.Count == 0
+                && matchedFlashcardIds.Count > 0
+                && userId.Value != course.InstructorId;
+            var dueFlashcardCount = hasUnclonedPublicDeck
+                ? matchedFlashcardIds.Count
+                : userCourseCardMap.Values.Count(c => c.DueAt <= nowUtc);
+            var masteredFlashcardCount = hasUnclonedPublicDeck
+                ? 0
+                : userCourseCardMap.Values.Count(c => c.Reps > 0 && c.State >= 2);
+
             results.Add(new
             {
                 id = course.Id,
@@ -789,8 +1025,15 @@ public static class CourseGenerationService
                 totalLessons = totalLessonsCount,
                 completedLessons = completedLessonsCount,
                 progressPercent,
+                totalEstimatedMinutes,
+                weakChapters,
                 completedLessonIds,
                 flashcardCount = matchedFlashcardIds.Count,
+                dueFlashcardCount,
+                masteredFlashcardCount,
+                practiceTotalActivities,
+                practicePassedActivities,
+                practiceAverageScore,
                 quizCount = matchingQuizzes.Count,
                 tagId = courseTag?.Id,
                 tagName = courseTag?.Name,

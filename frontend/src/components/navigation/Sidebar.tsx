@@ -13,7 +13,6 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  Plus,
   LogOut,
   Moon,
   Sun,
@@ -340,19 +339,6 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 </Link>
               ))
             ) : null}
-          </div>
-        )}
-
-        {/* Create course shortcut */}
-        {!collapsed && (
-          <div className="pt-2">
-            <Link
-              href="/app/courses/new"
-              className="flex items-center gap-2.5 h-8 px-2.5 rounded-[8px] text-sm text-[var(--text-tertiary)] hover:text-[#5E51E8] hover:bg-[#EEF0FD] dark:hover:bg-[#1E1B4B] transition font-medium"
-            >
-              <Plus className="w-4 h-4 shrink-0" />
-              <span>Tạo khóa học</span>
-            </Link>
           </div>
         )}
       </nav>

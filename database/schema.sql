@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS user_quotas (
 CREATE TABLE IF NOT EXISTS ai_usage_ledger (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    feature VARCHAR(50) NOT NULL CHECK (feature IN ('cloze_generation', 'qa_generation', 'explain_concept', 'essay_feedback', 'practice_quiz_gen', 'semantic_search', 'ocr_parsing')),
+    feature VARCHAR(50) NOT NULL CHECK (feature IN ('cloze_generation', 'qa_generation', 'explain_concept', 'essay_feedback', 'practice_quiz_gen', 'semantic_search', 'ocr_parsing', 'generate_course', 'tutor_chat', 'evaluate_practice')),
     credits_charged INT NOT NULL DEFAULT 1 CHECK (credits_charged >= 0),
     model VARCHAR(100) NOT NULL,
     prompt_tokens INT NOT NULL DEFAULT 0 CHECK (prompt_tokens >= 0),
@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS course_enrollments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-    role VARCHAR(50) NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'teaching_assistant', 'auditor')),
+    role VARCHAR(50) NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'instructor', 'teaching_assistant', 'auditor', 'admin')),
     enrolled_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE(user_id, course_id)
 );
@@ -326,7 +326,7 @@ CREATE TABLE IF NOT EXISTS tags (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(50) NOT NULL,
-    color_key VARCHAR(20) NOT NULL DEFAULT 'blue' CHECK (color_key IN ('yellow', 'green', 'blue', 'purple', 'rose', 'red', 'gray')),
+    color_key VARCHAR(20) NOT NULL DEFAULT 'blue',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE(user_id, name)
 );
@@ -340,7 +340,7 @@ CREATE TABLE IF NOT EXISTS flashcards (
     lesson_id UUID REFERENCES lessons(id) ON DELETE SET NULL,
     document_id UUID REFERENCES documents(id) ON DELETE SET NULL,
     annotation_id UUID REFERENCES annotations(id) ON DELETE SET NULL,
-    card_type VARCHAR(30) NOT NULL DEFAULT 'standard' CHECK (card_type IN ('standard', 'cloze', 'ai_generated')),
+    card_type VARCHAR(30) NOT NULL DEFAULT 'standard' CHECK (card_type IN ('standard', 'basic', 'cloze', 'ai_generated')),
     source_title_snapshot TEXT,
     source_quote_snapshot TEXT,
     front_ast JSONB NOT NULL,
@@ -406,7 +406,7 @@ CREATE TABLE IF NOT EXISTS practice_quizzes (
     document_id UUID REFERENCES documents(id) ON DELETE SET NULL,
     total_items INT NOT NULL DEFAULT 0 CHECK (total_items >= 0),
     correct_items INT NOT NULL DEFAULT 0 CHECK (correct_items >= 0),
-    status VARCHAR(30) NOT NULL DEFAULT 'in_progress' CHECK (status IN ('in_progress', 'completed', 'abandoned')),
+    status VARCHAR(30) NOT NULL DEFAULT 'in_progress' CHECK (status IN ('not_started', 'in_progress', 'completed', 'abandoned')),
     started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     completed_at TIMESTAMPTZ,
     ai_summary_feedback TEXT

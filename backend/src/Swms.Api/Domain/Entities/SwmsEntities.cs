@@ -182,6 +182,25 @@ public class UserLessonProgress
     public Guid LessonId { get; set; }
     public bool IsCompleted { get; set; } = true;
     public DateTimeOffset? CompletedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset? LastViewedAt { get; set; }
+    public int TimeSpentSeconds { get; set; } = 0;
+    public int ScrollPercent { get; set; } = 0;
+    public int LastScrollOffset { get; set; } = 0;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public class CourseReview
+{
+    [Key]
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid CourseId { get; set; }
+    public Guid UserId { get; set; }
+    [Required, MaxLength(150)]
+    public string UserFullName { get; set; } = string.Empty;
+    public int Rating { get; set; } // 1..5
+    [MaxLength(2000)]
+    public string? Comment { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

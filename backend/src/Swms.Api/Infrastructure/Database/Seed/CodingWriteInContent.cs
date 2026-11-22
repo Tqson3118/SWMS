@@ -2,6 +2,8 @@ namespace Swms.Api.Infrastructure.Database.Seed;
 
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Swms.Api.Domain.Entities;
 
@@ -1794,6 +1796,1216 @@ public static class CodingWriteInContent
             UpdatedAt = now
         });
 
+        // =========================================================================
+        // BEGINNER WARM-UP ACTIVITIES (OrderIndex 10+ / 13+ for every lesson 1.1..3.2)
+        // Helps complete beginners write their first lines of JS with step-by-step hints.
+        // =========================================================================
+
+        // 1.1 Beginner Warm-up: js_sandbox (OrderIndex 13) & fill_code (OrderIndex 14)
+        list.Add(CreateBeginnerJsSandbox(
+            courseId, l11, 13,
+            "Khởi Động JS: Nhân Đôi Các Số Trong Mảng Với Map",
+            "Làm quen hàm mũi tên và phương thức .map() bằng bài toán nhân đôi mọi phần tử trong mảng số.",
+            "code-l11-warmup-js-double",
+            "Khởi động: Nhân đôi từng số trong mảng",
+            "Viết hàm doubleNumbers(nums) nhận vào mảng số nguyên và trả về mảng mới trong đó mỗi số được nhân với 2 (không làm thay đổi mảng gốc).",
+            "doubleNumbers",
+            "function doubleNumbers(nums) {\n  // TODO Bước 1: Gọi nums.map(...)\n  // TODO Bước 2: Với mỗi số n, trả về n * 2\n  \n}",
+            "function doubleNumbers(nums) {\n  return nums.map(n => n * 2);\n}",
+            "Bước 1: Dùng `return nums.map((n) => ...);`. Bước 2: Bên trong hàm mũi tên trả về `n * 2`. Phương thức `map` tự xử lý cả mảng rỗng `[]`.",
+            new object[]
+            {
+                new { name = "Mảng dương cơ bản [1, 2, 3]", input = new object[] { new[] { 1, 2, 3 } }, expected = new[] { 2, 4, 6 } },
+                new { name = "Có số 0 và số âm [0, -5, 10]", input = new object[] { new[] { 0, -5, 10 } }, expected = new[] { 0, -10, 20 } },
+                new { name = "Mảng rỗng []", input = new object[] { Array.Empty<int>() }, expected = Array.Empty<int>() }
+            },
+            now));
+
+        list.Add(CreateBeginnerFillCode(
+            courseId, l11, 14,
+            "Khởi Động Điền Code: Lọc Các Số Lớn Hơn 10 Bằng Filter",
+            "Điền phương thức .filter() và điều kiện so sánh để giữ lại các số lớn hơn 10.",
+            "code-l11-warmup-fill-filter10",
+            "Khởi động: Lọc số lớn hơn 10",
+            "Hoàn thiện hàm filterGreaterThanTen(nums) trả về mảng các số > 10.",
+            "Lọc danh sách điểm thưởng hoặc nhiệt độ vượt ngưỡng an toàn > 10.",
+            new[]
+            {
+                "function filterGreaterThanTen(nums) {",
+                "  return nums.{{BLANK_0}}(n => {{BLANK_1}});",
+                "}"
+            },
+            new object[]
+            {
+                new { id = "b0", blankIndex = 0, expected = "filter", acceptableAnswers = new[] { "filter" }, hint = "Phương thức giữ lại các phần tử thỏa điều kiện đúng/sai", chips = new[] { "filter", "map", "reduce", "forEach" }, explanation = "filter() tạo mảng mới chỉ gồm các phần tử làm callback trả về true." },
+                new { id = "b1", blankIndex = 1, expected = "n > 10", acceptableAnswers = new[] { "n > 10", "n>10" }, hint = "Biểu thức kiểm tra n lớn hơn 10", chips = new[] { "n > 10", "n >= 10", "n < 10", "n * 2" }, explanation = "Chỉ giữ những số lớn hơn hẳn 10 (không lấy bằng 10)." }
+            },
+            new object[]
+            {
+                new { lineNumber = 2, codeSnippet = "return nums.filter(n => n > 10);", purpose = "Lọc và trả về mảng mới các số > 10.", riskIfWrong = "Dùng map() sẽ trả về mảng toàn true/false thay vì giữ lại giá trị số." }
+            },
+            now));
+
+        // 1.2 Beginner Warm-up: js_sandbox (OrderIndex 10) & fill_code (OrderIndex 11)
+        list.Add(CreateBeginnerJsSandbox(
+            courseId, l12, 10,
+            "Khởi Động JS: Tìm Vị Trí Phần Tử Đầu Tiên Trong Mảng",
+            "Làm quen chỉ số mảng 0, 1, 2 và vòng lặp for để tìm vị trí phần tử trước khi sang Binary Search.",
+            "code-l12-warmup-js-linear",
+            "Khởi động: Tìm kiếm tuyến tính theo chỉ số",
+            "Viết hàm linearFindIndex(arr, target) duyệt từ đầu mảng và trả về chỉ số (index) đầu tiên mà arr[i] === target. Nếu không tìm thấy, trả về -1.",
+            "linearFindIndex",
+            "function linearFindIndex(arr, target) {\n  // TODO Bước 1: Chạy vòng lặp for (let i = 0; i < arr.length; i++)\n  // TODO Bước 2: Nếu arr[i] === target thì return i\n  // TODO Bước 3: Hết vòng lặp không thấy thì return -1\n  \n}",
+            "function linearFindIndex(arr, target) {\n  for (let i = 0; i < arr.length; i++) {\n    if (arr[i] === target) return i;\n  }\n  return -1;\n}",
+            "Bước 1: Dùng vòng lặp `for (let i = 0; i < arr.length; i++)`. Bước 2: Kiểm tra `if (arr[i] === target) return i;`. Bước 3: Sau vòng lặp ghi `return -1;`.",
+            new object[]
+            {
+                new { name = "Tìm thấy ở giữa [10, 20, 30], target = 20", input = new object[] { new[] { 10, 20, 30 }, 20 }, expected = 1 },
+                new { name = "Không tồn tại [5, 6], target = 9", input = new object[] { new[] { 5, 6 }, 9 }, expected = -1 },
+                new { name = "Mảng rỗng [], target = 1", input = new object[] { Array.Empty<int>(), 1 }, expected = -1 }
+            },
+            now));
+
+        list.Add(CreateBeginnerFillCode(
+            courseId, l12, 11,
+            "Khởi Động Điền Code: Khởi Tạo Hai Con Trỏ & Tính Chỉ Số Giữa",
+            "Điền giá trị ban đầu cho hai con trỏ left, right và công thức làm tròn xuống để tính vị trí giữa mid.",
+            "code-l12-warmup-fill-pointers",
+            "Khởi động: Đặt hai con trỏ đầu - cuối và tính mid",
+            "Hoàn thành hàm getMiddleValue(arr) đặt 2 đầu mút mảng và trả về phần tử ở giữa.",
+            "Làm quen khái niệm left = 0, right = arr.length - 1 và Math.floor trước khi viết Binary Search.",
+            new[]
+            {
+                "function getMiddleValue(arr) {",
+                "  if (arr.length === 0) return null;",
+                "  const left = {{BLANK_0}};",
+                "  const right = arr.length - {{BLANK_1}};",
+                "  const mid = Math.{{BLANK_2}}((left + right) / 2);",
+                "  return arr[mid];",
+                "}"
+            },
+            new object[]
+            {
+                new { id = "b0", blankIndex = 0, expected = "0", acceptableAnswers = new[] { "0" }, hint = "Chỉ số đầu tiên của mọi mảng trong JS", chips = new[] { "0", "1", "-1" }, explanation = "Mảng trong JS luôn đánh số từ 0." },
+                new { id = "b1", blankIndex = 1, expected = "1", acceptableAnswers = new[] { "1" }, hint = "Chỉ số cuối bằng độ dài mảng trừ mấy?", chips = new[] { "1", "0", "2" }, explanation = "Vì bắt đầu từ 0 nên phần tử cuối nằm ở vị trí arr.length - 1." },
+                new { id = "b2", blankIndex = 2, expected = "floor", acceptableAnswers = new[] { "floor" }, hint = "Hàm làm tròn xuống số nguyên trong đối tượng Math", chips = new[] { "floor", "round", "ceil" }, explanation = "Math.floor() làm tròn xuống số nguyên để làm chỉ số mảng hợp lệ." }
+            },
+            new object[]
+            {
+                new { lineNumber = 4, codeSnippet = "const right = arr.length - 1;", purpose = "Tránh lỗi truy cập vượt biên (undefined).", riskIfWrong = "Nếu lấy arr.length sẽ trỏ ra ngoài mảng." }
+            },
+            now));
+
+        // 2.1 Beginner Warm-up: js_sandbox (OrderIndex 10) & fill_code (OrderIndex 11)
+        list.Add(CreateBeginnerJsSandbox(
+            courseId, l21, 10,
+            "Khởi Động JS: Tạo Bộ Đếm Bước Bằng Closure",
+            "Làm quen cách hàm con bên trong ghi nhớ biến của hàm ngoài (Closure) trước khi xây dựng Debounce/Throttle.",
+            "code-l21-warmup-js-closure",
+            "Khởi động: Đếm số lần gọi bằng Closure",
+            "Viết hàm simulateClosureCounter(steps) tạo biến let count = 0 và một hàm con next() mỗi lần gọi tăng count lên 1 rồi trả về count; gọi next() đúng steps lần và trả về mảng kết quả.",
+            "simulateClosureCounter",
+            "function simulateClosureCounter(steps) {\n  let count = 0;\n  function next() {\n    // TODO Bước 1: Tăng count lên 1 và return count\n  }\n  const log = [];\n  // TODO Bước 2: Dùng vòng lặp for (let i = 0; i < steps; i++) đẩy next() vào log\n  return log;\n}",
+            "function simulateClosureCounter(steps) {\n  let count = 0;\n  function next() {\n    count += 1;\n    return count;\n  }\n  const log = [];\n  for (let i = 0; i < steps; i++) {\n    log.push(next());\n  }\n  return log;\n}",
+            "Bước 1: Trong `next()`, viết `count += 1; return count;`. Bước 2: Trong vòng `for (let i = 0; i < steps; i++)`, gọi `log.push(next());`.",
+            new object[]
+            {
+                new { name = "Gọi 3 lần -> [1, 2, 3]", input = new object[] { 3 }, expected = new[] { 1, 2, 3 } },
+                new { name = "Gọi 1 lần -> [1]", input = new object[] { 1 }, expected = new[] { 1 } },
+                new { name = "0 lần -> []", input = new object[] { 0 }, expected = Array.Empty<int>() }
+            },
+            now));
+
+        list.Add(CreateBeginnerFillCode(
+            courseId, l21, 11,
+            "Khởi Động Điền Code: Đặt & Hủy Đồng Hồ Hẹn Giờ setTimeout",
+            "Làm quen hai hàm setTimeout và clearTimeout quản lý hẹn giờ trong JavaScript.",
+            "code-l21-warmup-fill-timer",
+            "Khởi động: Hủy hẹn giờ cũ trước khi đặt hẹn giờ mới",
+            "Hoàn thiện hàm scheduleSave(oldTimerId, callback) để hủy timer cũ nếu có rồi hẹn giờ chạy sau 300ms.",
+            "Tránh gửi nhiều lệnh lưu nháp chồng chéo khi người dùng gõ liên tiếp.",
+            new[]
+            {
+                "function scheduleSave(oldTimerId, callback) {",
+                "  if (oldTimerId !== null) {",
+                "    {{BLANK_0}}(oldTimerId);",
+                "  }",
+                "  return {{BLANK_1}}(callback, 300);",
+                "}"
+            },
+            new object[]
+            {
+                new { id = "b0", blankIndex = 0, expected = "clearTimeout", acceptableAnswers = new[] { "clearTimeout" }, hint = "Lệnh tắt đồng hồ hẹn giờ cũ", chips = new[] { "clearTimeout", "setTimeout", "stopTimer" }, explanation = "clearTimeout(id) hủy hẹn giờ chưa kịp chạy." },
+                new { id = "b1", blankIndex = 1, expected = "setTimeout", acceptableAnswers = new[] { "setTimeout" }, hint = "Lệnh tạo đồng hồ hẹn giờ mới", chips = new[] { "setTimeout", "clearTimeout", "setInterval" }, explanation = "setTimeout(callback, 300) lên lịch chạy callback 1 lần sau 300ms." }
+            },
+            new object[]
+            {
+                new { lineNumber = 3, codeSnippet = "clearTimeout(oldTimerId);", purpose = "Hủy bỏ lần hẹn giờ trước đó.", riskIfWrong = "Không hủy thì hàm callback cũ vẫn chạy gây dư thừa request." }
+            },
+            now));
+
+        // 2.2 Beginner Warm-up: js_sandbox (OrderIndex 10) & fill_code (OrderIndex 11)
+        list.Add(CreateBeginnerJsSandbox(
+            courseId, l22, 10,
+            "Khởi Động JS: Tra Cứu & Lưu Kết Quả Bình Phương Trong Cache",
+            "Thực hành cơ chế Cache Hit / Cache Miss đơn giản trên object trước khi viết hàm memoize tổng quát.",
+            "code-l22-warmup-js-cache",
+            "Khởi động: Kiểm tra Cache Hit hay Cache Miss",
+            "Viết hàm getOrComputeSquare(cacheObj, n): nếu khóa String(n) đã tồn tại trong cacheObj (dùng Object.prototype.hasOwnProperty.call), trả về { hit: true, value: cacheObj[String(n)] }; nếu chưa có, tính n * n, lưu vào cacheObj[String(n)] và trả về { hit: false, value: n * n }.",
+            "getOrComputeSquare",
+            "function getOrComputeSquare(cacheObj, n) {\n  const key = String(n);\n  // TODO Bước 1: Kiểm tra Object.prototype.hasOwnProperty.call(cacheObj, key)\n  // TODO Bước 2: Nếu có -> return { hit: true, value: cacheObj[key] }\n  // TODO Bước 3: Nếu chưa -> tính val = n * n, gán cacheObj[key] = val, return { hit: false, value: val }\n  \n}",
+            "function getOrComputeSquare(cacheObj, n) {\n  const key = String(n);\n  if (Object.prototype.hasOwnProperty.call(cacheObj, key)) {\n    return { hit: true, value: cacheObj[key] };\n  }\n  const val = n * n;\n  cacheObj[key] = val;\n  return { hit: false, value: val };\n}",
+            "Bước 1: Dùng `Object.prototype.hasOwnProperty.call(cacheObj, key)` (an toàn kể cả khi value là `0`). Bước 2: Trả `{ hit: true, value: cacheObj[key] }`. Bước 3: Tính `n * n`, lưu vào `cacheObj[key]` và trả `{ hit: false, value: val }`.",
+            new object[]
+            {
+                new { name = "Cache Hit với n = 4", input = new object[] { new Dictionary<string, int> { { "4", 16 } }, 4 }, expected = new { hit = true, value = 16 } },
+                new { name = "Cache Miss với n = 5", input = new object[] { new Dictionary<string, int>(), 5 }, expected = new { hit = false, value = 25 } },
+                new { name = "Cache Hit với giá trị falsy 0", input = new object[] { new Dictionary<string, int> { { "0", 0 } }, 0 }, expected = new { hit = true, value = 0 } }
+            },
+            now));
+
+        list.Add(CreateBeginnerFillCode(
+            courseId, l22, 11,
+            "Khởi Động Điền Code: Ba Thao Tác Cơ Bản Với Map (has, get, set)",
+            "Điền 3 phương thức cơ bản nhất của đối tượng Map để tra cứu và lưu điểm học viên.",
+            "code-l22-warmup-fill-map",
+            "Khởi động: Thao tác has / get / set trên Map",
+            "Hoàn thiện hàm getOrInsertDouble(cache, n) dùng Map.",
+            "Làm quen cú pháp Map trước khi viết hàm memoize đa tham số.",
+            new[]
+            {
+                "function getOrInsertDouble(cache, n) {",
+                "  if (cache.{{BLANK_0}}(n)) {",
+                "    return cache.{{BLANK_1}}(n);",
+                "  }",
+                "  const val = n * 2;",
+                "  cache.{{BLANK_2}}(n, val);",
+                "  return val;",
+                "}"
+            },
+            new object[]
+            {
+                new { id = "b0", blankIndex = 0, expected = "has", acceptableAnswers = new[] { "has" }, hint = "Kiểm tra khóa đã có trong Map chưa", chips = new[] { "has", "includes", "exists" }, explanation = "Map.prototype.has(key) trả về boolean ngay cả khi value là 0." },
+                new { id = "b1", blankIndex = 1, expected = "get", acceptableAnswers = new[] { "get" }, hint = "Lấy giá trị ứng với khóa n trong Map", chips = new[] { "get", "read", "find" }, explanation = "Map.prototype.get(key) đọc giá trị đã lưu." },
+                new { id = "b2", blankIndex = 2, expected = "set", acceptableAnswers = new[] { "set" }, hint = "Ghi cặp khóa-giá trị mới vào Map", chips = new[] { "set", "put", "add" }, explanation = "Map.prototype.set(key, val) lưu cặp khóa-giá trị vào Map." }
+            },
+            new object[]
+            {
+                new { lineNumber = 2, codeSnippet = "if (cache.has(n))", purpose = "Phát hiện Cache Hit chính xác kể cả giá trị 0.", riskIfWrong = "Dùng includes sẽ lỗi vì Map không có hàm includes." }
+            },
+            now));
+
+        // 3.1 Beginner Warm-up: js_sandbox (OrderIndex 10) & fill_code (OrderIndex 11)
+        list.Add(CreateBeginnerJsSandbox(
+            courseId, l31, 10,
+            "Khởi Động JS: Tổng Hợp Trạng Thái Promise.allSettled",
+            "Làm quen cấu trúc kết quả của Promise.allSettled bằng cách đếm số tác vụ thành công (fulfilled) và thất bại (rejected).",
+            "code-l31-warmup-js-settled",
+            "Khởi động: Đếm kết quả fulfilled và rejected",
+            "Viết hàm summarizeSettledResults(results) nhận mảng đối tượng [{ status: 'fulfilled' | 'rejected' }] và trả về object { fulfilled: number, rejected: number }.",
+            "summarizeSettledResults",
+            "function summarizeSettledResults(results) {\n  let fulfilled = 0;\n  let rejected = 0;\n  // TODO: Duyệt từng item trong results, kiểm tra item.status === 'fulfilled' hoặc 'rejected'\n  return { fulfilled, rejected };\n}",
+            "function summarizeSettledResults(results) {\n  let fulfilled = 0;\n  let rejected = 0;\n  for (const item of results) {\n    if (item.status === 'fulfilled') fulfilled++;\n    else if (item.status === 'rejected') rejected++;\n  }\n  return { fulfilled, rejected };\n}",
+            "Dùng vòng lặp `for (const item of results)`: nếu `item.status === 'fulfilled'` tăng `fulfilled++`; nếu `'rejected'` tăng `rejected++`.",
+            new object[]
+            {
+                new { name = "Có 2 thành công và 1 thất bại", input = new object[] { new object[] { new { status = "fulfilled" }, new { status = "rejected" }, new { status = "fulfilled" } } }, expected = new { fulfilled = 2, rejected = 1 } },
+                new { name = "Tất cả thất bại", input = new object[] { new object[] { new { status = "rejected" } } }, expected = new { fulfilled = 0, rejected = 1 } },
+                new { name = "Mảng rỗng []", input = new object[] { Array.Empty<object>() }, expected = new { fulfilled = 0, rejected = 0 } }
+            },
+            now));
+
+        list.Add(CreateBeginnerFillCode(
+            courseId, l31, 11,
+            "Khởi Động Điền Code: Bọc Lệnh Await An Toàn Với Try / Catch",
+            "Điền từ khóa async, await và catch để gọi tác vụ bất đồng bộ mà không làm crash ứng dụng khi có lỗi.",
+            "code-l31-warmup-fill-trycatch",
+            "Khởi động: Dùng async/await kèm try...catch",
+            "Hoàn thiện hàm loadProfileSafe(fetchFn) trả về null nếu lỗi.",
+            "Ngăn ngừa lỗi Unhandled Promise Rejection khi mạng bị ngắt đột ngột.",
+            new[]
+            {
+                "{{BLANK_0}} function loadProfileSafe(fetchFn) {",
+                "  try {",
+                "    const data = {{BLANK_1}} fetchFn();",
+                "    return data;",
+                "  } {{BLANK_2}} (err) {",
+                "    return null;",
+                "  }",
+                "}"
+            },
+            new object[]
+            {
+                new { id = "b0", blankIndex = 0, expected = "async", acceptableAnswers = new[] { "async" }, hint = "Từ khóa đặt trước function để cho phép dùng await bên trong", chips = new[] { "async", "await", "promise" }, explanation = "Chỉ bên trong hàm khai báo `async` mới sử dụng được từ khóa `await`." },
+                new { id = "b1", blankIndex = 1, expected = "await", acceptableAnswers = new[] { "await" }, hint = "Từ khóa tạm dừng chờ Promise hoàn tất", chips = new[] { "await", "async", "yield" }, explanation = "`await` chờ Promise giải quyết rồi trả về giá trị thực tế." },
+                new { id = "b2", blankIndex = 2, expected = "catch", acceptableAnswers = new[] { "catch" }, hint = "Khối hứng lỗi khi Promise bị rejected", chips = new[] { "catch", "finally", "throw" }, explanation = "`catch (err)` bắt lỗi ném ra từ lệnh `await` bên trong `try`." }
+            },
+            new object[]
+            {
+                new { lineNumber = 3, codeSnippet = "const data = await fetchFn();", purpose = "Chờ kết quả bất đồng bộ trước khi return.", riskIfWrong = "Thiếu await thì data sẽ là đối tượng Promise thay vì dữ liệu thật." }
+            },
+            now));
+
+        // 3.2 Beginner Warm-up: js_sandbox (OrderIndex 10) & fill_code (OrderIndex 11)
+        list.Add(CreateBeginnerJsSandbox(
+            courseId, l32, 10,
+            "Khởi Động JS: Cập Nhật Object Bất Biến Bằng Spread Operator",
+            "Làm quen sao chép bất biến 1 tầng bằng toán tử spread { ...obj } để không sửa nhầm dữ liệu gốc.",
+            "code-l32-warmup-js-spread",
+            "Khởi động: Tạo bản sao object với tuổi mới",
+            "Viết hàm updateUserAge(user, newAge) trả về một object MỚI có toàn bộ thuộc tính của user nhưng cập nhật age thành newAge, giữ nguyên hoàn toàn object user gốc.",
+            "updateUserAge",
+            "function updateUserAge(user, newAge) {\n  // TODO: Trả về object mới dùng toán tử spread { ...user, age: newAge }\n  \n}",
+            "function updateUserAge(user, newAge) {\n  return { ...user, age: newAge };\n}",
+            "Không viết `user.age = newAge`! Hãy viết `return { ...user, age: newAge };` để tạo bản sao mới trong bộ nhớ.",
+            new object[]
+            {
+                new { name = "Cập nhật tuổi của Minh từ 20 lên 21", input = new object[] { new { name = "Minh", age = 20 }, 21 }, expected = new { name = "Minh", age = 21 } },
+                new { name = "Giữ nguyên thuộc tính khác như role", input = new object[] { new { name = "Lan", age = 18, role = "student" }, 19 }, expected = new { name = "Lan", age = 19, role = "student" } }
+            },
+            now));
+
+        list.Add(CreateBeginnerFillCode(
+            courseId, l32, 11,
+            "Khởi Động Điền Code: Điều Kiện Dừng Đệ Quy An Toàn Với Null",
+            "Điền kiểm tra null và typeof trong hàm clone đệ quy để tránh lỗi TypeError: Object.keys(null).",
+            "code-l32-warmup-fill-nullguard",
+            "Khởi động: Chặn null trước khi kiểm tra typeof === 'object'",
+            "Hoàn thiện điều kiện dừng đệ quy của hàm simpleClone(val).",
+            "Trong JavaScript, `typeof null` trả về `'object'`, nên bắt buộc phải kiểm tra `val === null` trước!",
+            new[]
+            {
+                "function simpleClone(val) {",
+                "  if (val === {{BLANK_0}} || {{BLANK_1}} val !== 'object') {",
+                "    return val;",
+                "  }",
+                "  if (Array.isArray(val)) return val.map(simpleClone);",
+                "  const copy = {};",
+                "  for (const k of Object.keys(val)) copy[k] = simpleClone(val[k]);",
+                "  return copy;",
+                "}"
+            },
+            new object[]
+            {
+                new { id = "b0", blankIndex = 0, expected = "null", acceptableAnswers = new[] { "null" }, hint = "Giá trị đặc biệt có typeof bằng 'object' trong JS", chips = new[] { "null", "undefined", "false" }, explanation = "Phải chặn val === null ngay từ đầu vì typeof null === 'object'." },
+                new { id = "b1", blankIndex = 1, expected = "typeof", acceptableAnswers = new[] { "typeof" }, hint = "Toán tử kiểm tra kiểu dữ liệu nguyên thủy", chips = new[] { "typeof", "instanceof", "type" }, explanation = "typeof val !== 'object' nhận diện số, chuỗi, boolean, undefined." }
+            },
+            new object[]
+            {
+                new { lineNumber = 2, codeSnippet = "if (val === null || typeof val !== 'object')", purpose = "Điều kiện dừng đệ quy an toàn cho mọi kiểu nguyên thủy và null.", riskIfWrong = "Nếu thiếu val === null, Object.keys(null) sẽ ném TypeError làm sập hàm." }
+            },
+            now));
+
         return list;
+    }
+
+    private static PracticeActivity CreateBeginnerJsSandbox(
+        Guid courseId,
+        Guid lessonId,
+        int orderIndex,
+        string title,
+        string description,
+        string itemId,
+        string itemTitle,
+        string itemDescription,
+        string functionName,
+        string starterCode,
+        string solutionCode,
+        string hint,
+        object[] testCases,
+        DateTimeOffset now)
+    {
+        return new PracticeActivity
+        {
+            Id = SeedDataInitializer.CreateDeterministicActivityId(courseId, lessonId, "js_sandbox", orderIndex),
+            CourseId = courseId,
+            LessonId = lessonId,
+            OrderIndex = orderIndex,
+            Type = "js_sandbox",
+            Title = title,
+            Description = description,
+            ConfigJson = JsonSerializer.Serialize(new
+            {
+                items = new object[]
+                {
+                    new
+                    {
+                        id = itemId,
+                        title = itemTitle,
+                        difficulty = "Dễ",
+                        description = itemDescription,
+                        functionName,
+                        starterCode,
+                        solutionCode,
+                        hint,
+                        testCases
+                    }
+                }
+            }),
+            PassingScore = 70,
+            IsSeeded = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+    }
+
+    private static PracticeActivity CreateBeginnerFillCode(
+        Guid courseId,
+        Guid lessonId,
+        int orderIndex,
+        string title,
+        string description,
+        string itemId,
+        string itemTitle,
+        string itemDescription,
+        string practicalScenario,
+        string[] codeTemplate,
+        object[] blanks,
+        object[] lineExplanations,
+        DateTimeOffset now)
+    {
+        return new PracticeActivity
+        {
+            Id = SeedDataInitializer.CreateDeterministicActivityId(courseId, lessonId, "fill_code", orderIndex),
+            CourseId = courseId,
+            LessonId = lessonId,
+            OrderIndex = orderIndex,
+            Type = "fill_code",
+            Title = title,
+            Description = description,
+            ConfigJson = JsonSerializer.Serialize(new
+            {
+                items = new object[]
+                {
+                    new
+                    {
+                        id = itemId,
+                        title = itemTitle,
+                        category = "react",
+                        language = "javascript",
+                        description = itemDescription,
+                        practicalScenario,
+                        codeTemplate,
+                        blanks,
+                        lineExplanations
+                    }
+                }
+            }),
+            PassingScore = 70,
+            IsSeeded = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+    }
+
+    private sealed record QuizQuestionSpec(
+        string Question,
+        string OptionA,
+        string OptionB,
+        string OptionC,
+        string OptionD,
+        string CorrectKey,
+        string Explanation
+    );
+
+    private static Guid CreateDeterministicQuizGuid(string key)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"swms:coding-quiz:{key}"));
+        Span<byte> guidBytes = stackalloc byte[16];
+        hash.AsSpan(0, 16).CopyTo(guidBytes);
+        return new Guid(guidBytes);
+    }
+
+    private static (PracticeQuiz Quiz, List<PracticeQuizItem> Items) BuildQuiz(
+        string quizKey,
+        Guid lessonId,
+        string title,
+        DateTimeOffset startedAt,
+        DateTimeOffset itemBaseCreatedAt,
+        QuizQuestionSpec[] questions)
+    {
+        var quizId = CreateDeterministicQuizGuid(quizKey);
+        var quiz = new PracticeQuiz
+        {
+            Id = quizId,
+            UserId = SeedDataInitializer.DefaultUserId,
+            Title = title,
+            LessonId = lessonId,
+            TotalItems = questions.Length,
+            CorrectItems = 0,
+            Status = "in_progress",
+            StartedAt = startedAt
+        };
+
+        var items = new List<PracticeQuizItem>(questions.Length);
+        for (int i = 0; i < questions.Length; i++)
+        {
+            var q = questions[i];
+            items.Add(new PracticeQuizItem
+            {
+                Id = CreateDeterministicQuizGuid($"{quizKey}:item:{i + 1}"),
+                QuizId = quizId,
+                ItemType = "multiple_choice",
+                PromptAstJson = JsonSerializer.Serialize(new { question = q.Question }),
+                ChoicesJson = JsonSerializer.Serialize(new[]
+                {
+                    new { key = "A", text = q.OptionA },
+                    new { key = "B", text = q.OptionB },
+                    new { key = "C", text = q.OptionC },
+                    new { key = "D", text = q.OptionD }
+                }),
+                ClozeSolution = q.CorrectKey,
+                AiRubricFeedbackJson = JsonSerializer.Serialize(new { summary = q.Explanation }),
+                CreatedAt = itemBaseCreatedAt.AddSeconds(i)
+            });
+        }
+
+        return (quiz, items);
+    }
+
+    /// <summary>
+    /// Returns 6 lesson quizzes (CodingLesson11Id .. CodingLesson32Id) plus 1 comprehensive final course quiz
+    /// attached to CodingLesson32Id. Each quiz contains 10 deterministic multiple_choice items
+    /// (4 Basic + 4 Code Output/Bug + 2 Edge-Case/Complexity) with detailed AiRubricFeedbackJson explanations.
+    /// </summary>
+    public static List<(PracticeQuiz Quiz, List<PracticeQuizItem> Items)> GetCourseQuizzes(DateTimeOffset now)
+    {
+        return new List<(PracticeQuiz Quiz, List<PracticeQuizItem> Items)>
+        {
+            // 1. Quiz Bài 1.1: Map, Filter, Reduce & Tính Bất Biến
+            BuildQuiz(
+                "l11",
+                SeedDataInitializer.CodingLesson11Id,
+                "Kiểm tra Bài 1.1: Biến Đổi & Lọc Dữ Liệu (Map, Filter, Reduce)",
+                now.AddSeconds(1),
+                now,
+                new[]
+                {
+                    // 4 Cơ bản
+                    new QuizQuestionSpec(
+                        "Câu 1 (Cơ bản): Chỉ số (index) của phần tử đầu tiên và phần tử cuối cùng trong mảng `const arr = [10, 20, 30, 40]` lần lượt là bao nhiêu?",
+                        "1 và 4",
+                        "0 và 3",
+                        "0 và 4",
+                        "1 và 3",
+                        "B",
+                        "Đáp án B đúng vì mảng JavaScript đánh chỉ số từ 0 đến arr.length - 1 (4 - 1 = 3). Đáp án A và D sai vì đếm từ 1; đáp án C sai vì arr[4] vượt biên và trả về undefined."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 2 (Cơ bản): Giá trị trả về của phương thức `Array.prototype.forEach()` là gì?",
+                        "Một mảng mới có cùng độ dài với mảng gốc",
+                        "Phần tử cuối cùng được duyệt qua",
+                        "undefined",
+                        "Số lượng phần tử đã duyệt",
+                        "C",
+                        "Đáp án C đúng vì forEach() chỉ dùng để thực thi hành động lặp và luôn trả về undefined. Đáp án A mô tả map(), còn B và D không đúng đặc tả ECMAScript."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 3 (Cơ bản): Khi biến đổi một mảng 5 phần tử bằng `.map()`, độ dài của mảng mới trả về sẽ là bao nhiêu?",
+                        "Luôn bằng đúng 5 phần tử",
+                        "Có thể nhỏ hơn 5 nếu gặp giá trị null",
+                        "Bằng 1 giá trị tổng duy nhất",
+                        "Thay đổi ngẫu nhiên tùy callback",
+                        "A",
+                        "Đáp án A đúng vì map() thực hiện ánh xạ 1-1 nên mảng kết quả luôn có độ dài bằng đúng mảng gốc. Đáp án B nhầm với filter(), đáp án C nhầm với reduce(), đáp án D là sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 4 (Cơ bản): Trong hai phương thức `.filter()` và `.find()`, phát biểu nào sau đây chính xác?",
+                        "filter() trả về phần tử đầu tiên, find() trả về mảng",
+                        "Cả hai đều sửa trực tiếp mảng gốc",
+                        "filter() trả về boolean, find() trả về chỉ số index",
+                        "filter() trả về mảng các phần tử khớp, find() chỉ trả về 1 phần tử đầu tiên khớp (hoặc undefined)",
+                        "D",
+                        "Đáp án D đúng: filter() luôn trả về mảng (kể cả rỗng []), còn find() trả về phần tử đầu tiên thỏa điều kiện hoặc undefined nếu không thấy. Đáp án A đảo ngược hai hàm; B sai vì cả hai đều bất biến; C nhầm với some() và findIndex()."
+                    ),
+                    // 4 Đọc code đoán output / Tìm lỗi sai
+                    new QuizQuestionSpec(
+                        "Câu 5 (Đọc code): Đoạn code JS sau in ra gì? `const a = [1, 2, 3, 4]; const b = a.filter(x => x % 2 === 0).map(x => x * 10); console.log(JSON.stringify(b), a.length);`",
+                        "[20,40] 4",
+                        "[10,20,30,40] 4",
+                        "[20,40] 2",
+                        "[2,4] 2",
+                        "A",
+                        "Đáp án A đúng: filter giữ lại số chẵn [2, 4], map nhân 10 thành [20, 40], và mảng gốc a vẫn giữ nguyên 4 phần tử. Đáp án B bỏ sót bước filter; C và D sai vì cho rằng a bị rút ngắn xuống còn 2 phần tử."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 6 (Tìm lỗi sai): Đoạn code tính tổng điểm `const total = [{ s: 10 }, { s: 20 }].reduce((acc, item) => acc + item.s);` cho kết quả sai là gì?",
+                        "30",
+                        "\"[object Object]20\"",
+                        "NaN",
+                        "0",
+                        "B",
+                        "Đáp án B đúng: do thiếu initialValue = 0 ở tham số thứ 2, reduce lấy phần tử đầu tiên là object `{ s: 10 }` làm `acc`, rồi cộng với `20` nên JS ép object thành chuỗi `\"[object Object]20\"`. A chỉ đúng nếu truyền `, 0`; C và D không khớp ép kiểu cộng chuỗi với object."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 7 (Đọc code): Kết quả in ra của đoạn mã sau là gì? `const nums = [10, 2, 30]; const sorted = nums.sort(); console.log(sorted[0], nums[0]);`",
+                        "2 10",
+                        "2 2",
+                        "10 10",
+                        "10 2",
+                        "C",
+                        "Đáp án C đúng vì 2 lý do: (1) `.sort()` không có hàm so sánh sẽ sắp xếp theo thứ tự từ điển chuỗi nên `'10'` đứng trước `'2'`; (2) `.sort()` đột biến trực tiếp mảng `nums` nên cả `sorted[0]` và `nums[0]` đều là 10. A, B, D sai do nhầm về sắp xếp chuỗi hoặc tính bất biến."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 8 (Tìm lỗi sai): Hàm `const res = arr.map(u => { u.active = true; return u; });` vi phạm nguyên tắc nào?",
+                        "Lỗi cú pháp arrow function không có ngoặc nhọn",
+                        "Gây vòng lặp vô hạn khi arr có hơn 1 phần tử",
+                        "Làm hàm map trả về undefined thay vì mảng",
+                        "Đột biến trực tiếp (mutate) các object nằm trong mảng arr gốc",
+                        "D",
+                        "Đáp án D đúng: tuy map() tạo mảng mới nhưng gán `u.active = true` sửa thẳng vào object gốc trong Heap. Cần viết `u => ({ ...u, active: true })`. Đáp án A, B, C đều sai vì cú pháp hoàn toàn hợp lệ và không lặp vô tận."
+                    ),
+                    // 2 Tình huống & Tối ưu thuật toán
+                    new QuizQuestionSpec(
+                        "Câu 9 (Edge-case): Khi chạy `[].reduce((sum, x) => sum + x)` mà KHÔNG truyền giá trị khởi tạo, chuyện gì xảy ra?",
+                        "Trả về 0",
+                        "Trả về undefined",
+                        "Ném lỗi TypeError: Reduce of empty array with no initial value",
+                        "Trả về mảng rỗng []",
+                        "C",
+                        "Đáp án C đúng: theo chuẩn JS, gọi reduce trên mảng rỗng mà thiếu initialValue sẽ ném TypeError ngay lúc chạy. A chỉ đúng khi truyền `, 0`; B và D không đúng hành vi reduce."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 10 (Tối ưu): Trong React, bạn cần lọc danh sách 1.000 đơn hàng và tính tổng tiền bằng 1 lần duyệt duy nhất thay vì gọi `.filter().map().reduce()` tạo 2 mảng trung gian. Cách nào tối ưu nhất?",
+                        "Dùng một lệnh .reduce((sum, o) => o.paid ? sum + o.amount : sum, 0)",
+                        "Dùng .forEach() kết hợp .sort() trước rồi cộng",
+                        "Chuyển mảng sang chuỗi JSON rồi tách ra cộng",
+                        "Dùng .find() nhiều lần trong vòng lặp while",
+                        "A",
+                        "Đáp án A đúng: gom điều kiện lọc và phép cộng vào một lần `.reduce(..., 0)` đạt độ phức tạp O(n) thời gian và O(1) bộ nhớ phụ. Đáp án B làm tốn O(n log n) để sort và mutate mảng; C và D chậm và sai mục đích."
+                    )
+                }
+            ),
+
+            // 2. Quiz Bài 1.2: Tìm kiếm nhị phân & Two Pointers
+            BuildQuiz(
+                "l12",
+                SeedDataInitializer.CodingLesson12Id,
+                "Kiểm tra Bài 1.2: Tìm Kiếm Nhị Phân & Kỹ Thuật Hai Con Trỏ",
+                now.AddSeconds(2),
+                now,
+                new[]
+                {
+                    // 4 Cơ bản
+                    new QuizQuestionSpec(
+                        "Câu 1 (Cơ bản): Điều kiện tiên quyết bắt buộc để thuật toán Tìm kiếm Nhị phân (Binary Search) hoạt động chính xác là gì?",
+                        "Mảng phải có số lượng phần tử chẵn",
+                        "Mảng phải chứa toàn số nguyên dương",
+                        "Mảng phải không có số trùng lặp",
+                        "Mảng phải được sắp xếp theo thứ tự (tăng dần hoặc giảm dần)",
+                        "D",
+                        "Đáp án D đúng vì Binary Search dựa vào tính đơn điệu để loại bỏ một nửa mảng ở mỗi bước. Đáp án A, B, C đều không phải điều kiện bắt buộc của Binary Search."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 2 (Cơ bản): Độ phức tạp thời gian trong trường hợp xấu nhất của Tìm kiếm Tuyến tính và Tìm kiếm Nhị phân lần lượt là gì?",
+                        "O(n) và O(log n)",
+                        "O(1) và O(n)",
+                        "O(n²) và O(n)",
+                        "O(log n) và O(n)",
+                        "A",
+                        "Đáp án A đúng: tìm kiếm tuyến tính duyệt tuần tự tối đa n phần tử O(n), còn tìm kiếm nhị phân chia đôi không gian sau mỗi bước nên chỉ mất O(log n). Đáp án B, C, D sai về độ phức tạp."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 3 (Cơ bản): Trong JavaScript, khi tính chỉ số giữa `mid` từ `left` và `right`, tại sao phải dùng `Math.floor((left + right) / 2)`?",
+                        "Để ép kết quả thành số thập phân chính xác",
+                        "Để làm tròn xuống thành số nguyên hợp lệ làm chỉ số mảng",
+                        "Để đảo dấu số âm thành số dương",
+                        "Để sắp xếp lại mảng tự động",
+                        "B",
+                        "Đáp án B đúng: phép chia `(left + right) / 2` có thể ra số lẻ `.5`, và `arr[1.5]` sẽ trả về `undefined`, nên cần `Math.floor` làm tròn xuống. Đáp án A, C, D sai tác dụng của Math.floor."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 4 (Cơ bản): Khi sử dụng kỹ thuật Hai con trỏ đối xứng hai đầu (`left = 0`, `right = arr.length - 1`) để kiểm tra chuỗi đối xứng, độ phức tạp bộ nhớ phụ là bao nhiêu?",
+                        "O(n)",
+                        "O(n log n)",
+                        "O(n²)",
+                        "O(1)",
+                        "D",
+                        "Đáp án D đúng: ta chỉ tạo 2 biến số nguyên `left` và `right` mà không cấp phát mảng phụ mới nên bộ nhớ phụ là hằng số O(1). Đáp án A, B, C đánh giá sai bộ nhớ sử dụng."
+                    ),
+                    // 4 Đọc code đoán output / Tìm lỗi sai
+                    new QuizQuestionSpec(
+                        "Câu 5 (Đọc code): Đoạn code hai con trỏ sau in ra gì? `const a = [1, 2, 3, 4, 5]; let l = 0, r = a.length - 1; while (l < r) { [a[l], a[r]] = [a[r], a[l]]; l++; r--; } console.log(JSON.stringify(a));`",
+                        "[5,4,3,2,1]",
+                        "[1,2,3,4,5]",
+                        "[5,2,3,4,1]",
+                        "[4,5,3,1,2]",
+                        "A",
+                        "Đáp án A đúng: lượt 1 đổi 1 và 5 -> [5,2,3,4,1]; lượt 2 đổi 2 và 4 -> [5,4,3,2,1]; sau đó l = 2, r = 2 nên dừng và trả về [5,4,3,2,1]. B, C, D chỉ là trạng thái trung gian hoặc sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 6 (Tìm lỗi sai): Trong hàm Binary Search `while (left <= right) { const mid = Math.floor((left + right) / 2); if (arr[mid] === target) return mid; if (arr[mid] < target) left = mid; else right = mid - 1; }`, lỗi nghiêm trọng là gì?",
+                        "Thiếu dấu ngoặc ở Math.floor",
+                        "Điều kiện `left <= right` gây lỗi truy cập ngoài mảng",
+                        "Gán `left = mid` gây vòng lặp vô hạn khi left và right kề nhau",
+                        "Phải gán `right = mid + 1` thay vì `mid - 1`",
+                        "C",
+                        "Đáp án C đúng: khi left = 0, right = 1 và target > arr[0], mid = 0 và gán lại `left = 0` khiến vòng lặp quay vô tận! Phải sửa thành `left = mid + 1`. A, B, D đều sai nhận định."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 7 (Đọc code): Cho `twoSumSorted([2, 5, 8, 11, 15], 13)` dùng 2 con trỏ 2 đầu (trả về `[left, right]`). Lần lặp đầu tiên tổng là 2 + 15 = 17 > 13 nên giảm `right`. Hàm trả về cặp chỉ số nào?",
+                        "[0, 4]",
+                        "[1, 2]",
+                        "[0, 3]",
+                        "[2, 3]",
+                        "C",
+                        "Đáp án C đúng: Lượt 1 có arr[0] + arr[4] = 2 + 15 = 17 > 13 nên giảm right xuống 3. Lượt 2 có arr[0] + arr[3] = 2 + 11 = 13 khớp target, trả về ngay [0, 3]. Đáp án B ([1, 2] là 5 + 8 = 13) không được chọn trước vì thuật toán dừng ngay khi tìm thấy [0, 3]; A và D có tổng khác 13."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 8 (Tìm lỗi sai): Hàm Binary Search dùng `while (left < right)` (thiếu dấu `=`) sẽ gặp lỗi ở trường hợp nào sau đây?",
+                        "Khi tìm số ở chính giữa mảng có 5 phần tử",
+                        "Khi mảng có 1 phần tử `[7]` và `target = 7`",
+                        "Khi mảng đã sắp xếp giảm dần",
+                        "Khi mảng chứa toàn số âm",
+                        "B",
+                        "Đáp án B đúng: với `[7]`, `left = 0` và `right = 0`. Điều kiện `0 < 0` là false nên vòng lặp không chạy lần nào và trả về `-1` dù số `7` có trong mảng! Dùng `while (left <= right)` khắc phục triệt để lỗi off-by-one này."
+                    ),
+                    // 2 Tình huống & Tối ưu thuật toán
+                    new QuizQuestionSpec(
+                        "Câu 9 (Edge-case): Khi mảng đầu vào là mảng rỗng `[]` và bạn khởi tạo `let left = 0, right = arr.length - 1;`, giá trị của `right` là bao nhiêu và `while (left <= right)` chạy mấy lần?",
+                        "right = -1, vòng lặp chạy 0 lần và an toàn",
+                        "right = 0, vòng lặp chạy 1 lần rồi crash",
+                        "right = undefined, gây lỗi NaN",
+                        "right = 1, trả về chỉ số 0",
+                        "A",
+                        "Đáp án A đúng: vì `[].length === 0` nên `right = -1`. Điều kiện `0 <= -1` là sai ngay lập tức nên vòng lặp chạy 0 lần và thoát an toàn trả về `-1`. B, C, D không đúng thực tế thực thi."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 10 (Tối ưu): Hệ thống có 100.000 mã đơn hàng đã sắp xếp tăng dần. Cần xóa bỏ mã trùng lặp tại chỗ mà KHÔNG tạo thêm mảng phụ hay Set. Nên dùng mẫu nào?",
+                        "Dùng 2 vòng lặp for + arr.splice() trong mỗi lần trùng (O(n²))",
+                        "Dùng Binary Search tìm từng phần tử",
+                        "Dùng Two Pointers cùng chiều `read` và `write` ghi đè trong O(n) và O(1) bộ nhớ",
+                        "Dùng .filter() kết hợp .indexOf() (O(n²))",
+                        "C",
+                        "Đáp án C đúng: mẫu Fast & Slow (read/write) duyệt qua mảng đúng 1 lần trong O(n) và không cấp phát bộ nhớ phụ O(1). Đáp án A và D tốn O(n²); đáp án B không dùng để lọc trùng in-place."
+                    )
+                }
+            ),
+
+            // 3. Quiz Bài 2.1: Debounce & Throttle
+            BuildQuiz(
+                "l21",
+                SeedDataInitializer.CodingLesson21Id,
+                "Kiểm tra Bài 2.1: Closure, Debounce & Throttle",
+                now.AddSeconds(3),
+                now,
+                new[]
+                {
+                    // 4 Cơ bản
+                    new QuizQuestionSpec(
+                        "Câu 1 (Cơ bản): Closure (bao đóng) trong JavaScript là gì?",
+                        "Khả năng hàm con ghi nhớ và truy cập biến thuộc phạm vi hàm cha ngay cả khi hàm cha đã chạy xong",
+                        "Cú pháp đóng toàn bộ tab trình duyệt bằng window.close()",
+                        "Một lỗi tràn bộ nhớ khiến hàm không thể return",
+                        "Cách viết rút gọn của câu lệnh if...else",
+                        "A",
+                        "Đáp án A đúng: Closure cho phép hàm con giữ tham chiếu tới biến trong lexical scope của hàm cha (như `timerId` hay `inThrottle`). B, C, D là khái niệm sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 2 (Cơ bản): Sự khác biệt cốt lõi giữa `Debounce` và `Throttle` là gì?",
+                        "Debounce chỉ chạy trên trình duyệt Chrome, Throttle chỉ chạy trên Node.js",
+                        "Debounce đợi người dùng ngừng phát sự kiện đủ `delay` ms mới chạy 1 lần; Throttle cho chạy đều đặn tối đa 1 lần mỗi chu kỳ `limit` ms",
+                        "Debounce dùng cho sự kiện scroll, Throttle dùng cho ô tìm kiếm gõ phím",
+                        "Hai kỹ thuật hoàn toàn giống nhau, chỉ khác tên gọi",
+                        "B",
+                        "Đáp án B đúng: Debounce gom sự kiện liên tiếp đến khi ngừng hẳn, Throttle tiết chế tần suất chạy theo nhịp. C đảo ngược ca sử dụng chuẩn; A và D sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 3 (Cơ bản): Hàm `clearTimeout(timerId)` dùng để làm gì?",
+                        "Xóa toàn bộ biến trong bộ nhớ RAM",
+                        "Tăng tốc độ đếm của setTimeout lên gấp đôi",
+                        "Hủy bỏ một bộ hẹn giờ setTimeout đang chờ trước khi hàm callback của nó kịp thực thi",
+                        "Khởi động lại vòng lặp for từ đầu",
+                        "C",
+                        "Đáp án C đúng: `clearTimeout(timerId)` hủy timer đã đăng ký qua `setTimeout` trước khi hết hạn. A, B, D đều không phải chức năng của `clearTimeout`."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 4 (Cơ bản): Kịch bản nào sau đây phù hợp nhất với **Debounce** thay vì Throttle?",
+                        "Cập nhật thanh tiến trình khi người dùng cuộn trang dài",
+                        "Gửi API gợi ý từ khóa khi người dùng đang gõ vào ô tìm kiếm (Search Autocomplete)",
+                        "Theo dõi tọa độ chuột khi kéo thả thanh trượt (slider)",
+                        "Giới hạn tốc độ bắn đạn trong game HTML5",
+                        "B",
+                        "Đáp án B đúng: với ô tìm kiếm, ta chỉ muốn gọi API sau khi người dùng dừng gõ 300ms để đỡ tốn request. A, C, D đều cần phản hồi đều đặn trong lúc đang thao tác nên hợp với Throttle."
+                    ),
+                    // 4 Đọc code đoán output / Tìm lỗi sai
+                    new QuizQuestionSpec(
+                        "Câu 5 (Đọc code): Đoạn code JS sau in ra gì? `function makeCounter() { let n = 0; return () => ++n; } const c1 = makeCounter(); const c2 = makeCounter(); console.log(c1(), c1(), c2());`",
+                        "1 2 3",
+                        "1 1 1",
+                        "1 2 1",
+                        "0 1 0",
+                        "C",
+                        "Đáp án C đúng: mỗi lần gọi `makeCounter()` tạo ra một closure độc lập! `c1` có biến `n` riêng (1 rồi 2), còn `c2` có biến `n` riêng mới khởi tạo từ 0 nên `c2()` trả về `1`. A sai vì tưởng chung biến; B và D sai phép tiền tăng `++n`."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 6 (Đọc code): Đoạn code sau in ra giá trị nào? `let x = 5; const id = setTimeout(() => { x = 20; }, 100); clearTimeout(id); console.log(x);`",
+                        "20",
+                        "undefined",
+                        "100",
+                        "5",
+                        "D",
+                        "Đáp án D đúng: `clearTimeout(id)` đã hủy callback `x = 20` ngay lập tức trước khi nó có cơ hội chạy, nên `console.log(x)` in ra `5`. A, B, C đều sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 7 (Tìm lỗi sai): Trong hàm `function badDebounce(fn, delay) { let timer; return function(...args) { timer = setTimeout(() => fn(...args), delay); }; }`, tại sao gõ 5 ký tự vẫn gọi `fn` đủ 5 lần?",
+                        "Vì thiếu `clearTimeout(timer)` trước khi đặt `setTimeout` mới",
+                        "Vì thiếu từ khóa `async` trước `function`",
+                        "Vì `...args` không hoạt động trong `setTimeout`",
+                        "Vì biến `timer` phải khai báo là `const`",
+                        "A",
+                        "Đáp án A đúng: do không gọi `clearTimeout(timer)` để hủy hẹn giờ cũ, cả 5 lần hẹn giờ vẫn giữ nguyên và cùng nổ sau `delay` ms. B, C sai; D càng sai vì `timer` cần gán lại nên phải dùng `let`."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 8 (Tìm lỗi sai): Trong hàm `function debounce(fn, delay) { let t; return function(...args) { clearTimeout(t); t = setTimeout(() => fn(), delay); }; }`, lỗi nào xảy ra khi gọi `debouncedFn('react')`?",
+                        "Hàm `fn` bị gọi lặp vô tận",
+                        "Hàm `fn` không nhận được tham số `'react'` (nhận `undefined`) và mất ngữ cảnh `this`",
+                        "Ném lỗi SyntaxError khi biên dịch",
+                        "Biến `t` bị reset về 0 sau 1 lần gọi",
+                        "B",
+                        "Đáp án B đúng: dòng `fn()` bỏ quên `...args` và `this`. Phải viết `fn.apply(this, args)` để truyền đúng ngữ cảnh và tham số. A, C, D không đúng với đoạn mã."
+                    ),
+                    // 2 Tình huống & Tối ưu thuật toán
+                    new QuizQuestionSpec(
+                        "Câu 9 (Edge-case): Trong React, một developer viết `const onSearch = debounce(callApi, 300);` trực tiếp ngay bên trong thân component mà không dùng `useMemo`/`useRef`. Hậu quả là gì?",
+                        "Ứng dụng không biên dịch được",
+                        "Mỗi lần component re-render lại tạo ra một instance `debounce` và `timerId` mới tinh, làm chức năng debounce mất tác dụng",
+                        "React tự động biến nó thành Throttle",
+                        "Tất cả API đều trả về mã lỗi 404",
+                        "B",
+                        "Đáp án B đúng: mỗi lần state đổi và component render lại, `debounce(...)` bị gọi lại, tạo closure mới với `timerId` mới nên không hủy được timer của lần render trước. A, C, D sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 10 (Tối ưu): Tại sao hàm `debounce` chuẩn production luôn gắn thêm phương thức `.cancel()` để gọi khi người dùng rời màn hình (unmount)?",
+                        "Để tăng tốc độ CPU khi cuộn trang",
+                        "Để dọn dẹp timer đang treo trong Event Loop, tránh callback chạy trên component đã unmount gây lỗi và rò rỉ bộ nhớ (Memory Leak)",
+                        "Để ép trình duyệt xóa LocalStorage tự động",
+                        "Để chuyển Debounce thành Promise",
+                        "B",
+                        "Đáp án B đúng: nếu user gõ xong và chuyển trang ngay trong lúc timer 300ms chưa nổ, việc không gọi `.cancel()` khiến callback vẫn kích hoạt ngầm trên dữ liệu cũ, gây Memory Leak. A, C, D sai mục đích của `.cancel()`."
+                    )
+                }
+            ),
+
+            // 4. Quiz Bài 2.2: Memoization & Cache
+            BuildQuiz(
+                "l22",
+                SeedDataInitializer.CodingLesson22Id,
+                "Kiểm tra Bài 2.2: Hàm Thuần Khiết, Map & Memoization",
+                now.AddSeconds(4),
+                now,
+                new[]
+                {
+                    // 4 Cơ bản
+                    new QuizQuestionSpec(
+                        "Câu 1 (Cơ bản): Điều kiện tiên quyết để một hàm có thể áp dụng kỹ thuật Memoization an toàn là gì?",
+                        "Hàm phải gọi ít nhất 1 API mạng",
+                        "Hàm phải có ít nhất 3 tham số trở lên",
+                        "Hàm phải là Hàm thuần khiết (Pure Function): cùng input luôn trả về cùng output và không có side-effect",
+                        "Hàm phải luôn trả về kiểu số nguyên",
+                        "C",
+                        "Đáp án C đúng: nếu hàm phụ thuộc biến ngoài hay thời gian/ngẫu nhiên (bất thuần khiết), việc trả về kết quả cũ từ cache sẽ làm dữ liệu bị sai lệch. A, B, D đều sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 2 (Cơ bản): Trong đối tượng `Map` của JavaScript, 3 phương thức tương ứng với (1) kiểm tra khóa tồn tại, (2) đọc giá trị, (3) lưu khóa-giá trị là gì?",
+                        "contains, read, put",
+                        "has, get, set",
+                        "includes, find, add",
+                        "exists, fetch, push",
+                        "B",
+                        "Đáp án B đúng: `Map` dùng `cache.has(key)`, `cache.get(key)`, và `cache.set(key, val)`. Các tên hàm ở A, C, D không tồn tại trên `Map.prototype`."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 3 (Cơ bản): Khi gọi hàm đã được memoize với bộ tham số đã từng tính toán trước đó và kết quả có sẵn trong cache, trạng thái đó gọi là gì?",
+                        "Cache Hit",
+                        "Cache Miss",
+                        "Cache Overflow",
+                        "Key Collision",
+                        "A",
+                        "Đáp án A đúng: Cache Hit nghĩa là tìm thấy ngay dữ liệu trong bộ nhớ đệm với O(1). Cache Miss (B) là chưa có nên phải tính lại; C là tràn cache; D là đụng độ khóa."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 4 (Cơ bản): Hàm nào sau đây KHÔNG phải là hàm thuần khiết và KHÔNG nên memoize vĩnh viễn?",
+                        "function sum(a, b) { return a + b; }",
+                        "function formatVnd(amount) { return amount + ' đ'; }",
+                        "function isEven(n) { return n % 2 === 0; }",
+                        "function getGreetingWithTime(name) { return name + ' lúc ' + Date.now(); }",
+                        "D",
+                        "Đáp án D đúng: `getGreetingWithTime` phụ thuộc vào `Date.now()` (thời gian thay đổi liên tục), không cho cùng kết quả với cùng đầu vào `name`. A, B, C đều thuần khiết 100%."
+                    ),
+                    // 4 Đọc code đoán output / Tìm lỗi sai
+                    new QuizQuestionSpec(
+                        "Câu 5 (Đọc code): Đoạn code sau in ra `calls` bằng bao nhiêu? `let calls = 0; const m = new Map(); function calc(n) { if (m.has(n)) return m.get(n); calls++; const r = n * 2; m.set(n, r); return r; } calc(3); calc(3); calc(5); calc(3); console.log(calls);`",
+                        "4",
+                        "3",
+                        "2",
+                        "1",
+                        "C",
+                        "Đáp án C đúng: Lần 1 `calc(3)` miss (`calls = 1`), lưu 3=>6. Lần 2 `calc(3)` hit. Lần 3 `calc(5)` miss (`calls = 2`), lưu 5=>10. Lần 4 `calc(3)` hit. Tổng `calls` chỉ bằng 2! A, B, D đếm sai Cache Hit."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 6 (Đọc code): Kết quả của `const cache = {}; function keyOf(o) { return o.toString(); } console.log(keyOf({ x: 1 }) === keyOf({ y: 99 }));` là gì?",
+                        "true",
+                        "false",
+                        "\"[object Object]\"",
+                        "Ném lỗi TypeError",
+                        "A",
+                        "Đáp án A đúng: mọi plain object trong JS khi gọi `.toString()` đều mặc định biến thành `\"[object Object]\"`, nên cả hai ra chuỗi giống hệt nhau dẫn đến `true` (bẫy Key Collision). B, C, D sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 7 (Tìm lỗi sai): Trong `function memo(fn) { const c = new Map(); return (x) => { if (c.has(x)) return c.get(x); const r = fn(x); return r; }; }`, hàm bị lỗi gì?",
+                        "Thiếu lệnh `c.set(x, r)` nên lần nào gọi cũng bị Cache Miss",
+                        "Dùng `c.has(x)` không kiểm tra được số âm",
+                        "Map không lưu được giá trị trả về của hàm `fn`",
+                        "Không thể dùng arrow function bên trong `memo`",
+                        "A",
+                        "Đáp án A đúng: hàm tính ra `r = fn(x)` nhưng quên gọi `c.set(x, r)` để lưu vào Map! Vì thế `c.has(x)` luôn trả về `false`. B, C, D đều sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 8 (Tìm lỗi sai): Hàm `function getCached(key) { if (cache.has(key)) return cache.get(key); const arr = [1, 2]; cache.set(key, arr); return arr; }` gặp nguy cơ nào khi bên ngoài làm `const list = getCached('k'); list.push(3);`?",
+                        "Map tự xóa key `'k'` ngay khi gọi `.push()`",
+                        "Trả về tham chiếu trực tiếp của mảng trong cache khiến `list.push(3)` làm đột biến dữ liệu đang lưu trong cache cho mọi lần gọi sau",
+                        "Lỗi SyntaxError vì không thể push vào mảng lấy từ Map",
+                        "Lệnh `list.push(3)` chỉ thay đổi biến `list` chứ không ảnh hưởng cache",
+                        "B",
+                        "Đáp án B đúng: `arr` là kiểu tham chiếu; trả về trực tiếp khiến caller có thể sửa hỏng mảng trong cache. Cách sửa chuẩn là trả bản sao `[...arr]`. A, C, D sai."
+                    ),
+                    // 2 Tình huống & Tối ưu thuật toán
+                    new QuizQuestionSpec(
+                        "Câu 9 (Edge-case): Nếu dùng object thường `{}` làm cache và viết `if (cache[key]) return cache[key];`, trường hợp nào gây lỗi ngầm nghiêm trọng?",
+                        "Khi `key` là số nguyên dương lớn hơn 100",
+                        "Khi kết quả hợp lệ trả về là `0`, `false`, hoặc `\"\"` (falsy) khiến cache luôn tưởng là chưa có dữ liệu",
+                        "Khi `cache` có hơn 5 phần tử",
+                        "Khi `fn` có 1 tham số",
+                        "B",
+                        "Đáp án B đúng: các giá trị falsy (`0`, `false`, `\"\"`, `null`) làm `if (cache[key])` ra `false`, dẫn tới tính lại mỗi lần gọi. Luôn dùng `Map` và `cache.has(key)` để kiểm tra tồn tại khóa."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 10 (Tối ưu): Áp dụng Memoization cho hàm tính số Fibonacci đệ quy giúp cải thiện độ phức tạp thời gian từ mức nào xuống mức nào, và cần lưu ý gì để tránh tràn RAM khi cache chạy lâu?",
+                        "Từ O(n) xuống O(1); không cần giới hạn RAM",
+                        "Từ O(n²) xuống O(n log n); dùng thêm setTimeout",
+                        "Từ O(2ⁿ) hàm mũ xuống O(n) tuyến tính; cần giới hạn kích thước cache (FIFO/LRU eviction) để tránh OutOfMemory",
+                        "Từ O(log n) xuống O(1); phải chuyển Map sang Array",
+                        "C",
+                        "Đáp án C đúng: Fibonacci đệ quy thuần mất O(2ⁿ) do tính lặp lại nhánh con; Memoization giảm xuống O(n). Tuy nhiên cache vô hạn sẽ phình RAM mãi nên cần LRU/FIFO eviction. A, B, D sai độ phức tạp hoặc giải pháp."
+                    )
+                }
+            ),
+
+            // 5. Quiz Bài 3.1: Async/Await, Promise Pipeline & Retry
+            BuildQuiz(
+                "l31",
+                SeedDataInitializer.CodingLesson31Id,
+                "Kiểm tra Bài 3.1: Event Loop, Async/Await & Promise Pipeline",
+                now.AddSeconds(5),
+                now,
+                new[]
+                {
+                    // 4 Cơ bản
+                    new QuizQuestionSpec(
+                        "Câu 1 (Cơ bản): Một đối tượng `Promise` trong JavaScript có đúng 3 trạng thái nào?",
+                        "Start, Running, Stop",
+                        "Pending (Đang chờ), Fulfilled (Thành công), Rejected (Thất bại)",
+                        "Open, Closed, Error",
+                        "Sync, Async, Timeout",
+                        "B",
+                        "Đáp án B đúng: mọi Promise khởi đầu ở `Pending` và chuyển sang duy nhất một trạng thái kết thúc là `Fulfilled` hoặc `Rejected`. A, C, D không phải trạng thái chuẩn của Promise."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 2 (Cơ bản): Thứ tự ưu tiên xả hàng đợi của Event Loop khi Call Stack vừa trống là gì?",
+                        "Macrotask Queue (setTimeout) chạy trước Microtask Queue (Promise.then)",
+                        "Chạy ngẫu nhiên tùy trình duyệt",
+                        "Microtask Queue (Promise.then / phần sau await) được xả sạch trước rồi mới đến Macrotask Queue (setTimeout)",
+                        "Hai hàng đợi chạy song song trên 2 luồng CPU khác nhau",
+                        "C",
+                        "Đáp án C đúng: sau khi Call Stack chạy hết code đồng bộ, Event Loop ưu tiên xả toàn bộ Microtask Queue trước khi lấy 1 tác vụ từ Macrotask Queue. A, B, D sai cơ chế Event Loop."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 3 (Cơ bản): Nếu bạn gọi một hàm `async function getUser() { return 'An'; }` mà KHÔNG dùng `await` phía trước, giá trị nhận được là gì?",
+                        "Chuỗi 'An'",
+                        "undefined",
+                        "Một đối tượng Promise đang chứa giá trị 'An'",
+                        "Ném lỗi SyntaxError",
+                        "C",
+                        "Đáp án C đúng: mọi hàm khai báo với `async` luôn luôn bọc giá trị trả về vào trong một `Promise`. Muốn lấy chuỗi `'An'` trực tiếp phải dùng `await getUser()` hoặc `.then()`. A, B, D sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 4 (Cơ bản): Sự khác biệt quan trọng giữa `Promise.all()` và `Promise.allSettled()` là gì?",
+                        "Promise.all() chạy tuần tự, Promise.allSettled() chạy song song",
+                        "Promise.all() dừng và reject ngay nếu 1 task lỗi (Fail-Fast); Promise.allSettled() chờ tất cả hoàn tất và trả về trạng thái từng task",
+                        "Promise.allSettled() tự động retry 3 lần khi có task lỗi",
+                        "Promise.all() chỉ nhận tối đa 2 Promise",
+                        "B",
+                        "Đáp án B đúng: `Promise.all` fail-fast khi có 1 promise bị rejected, còn `Promise.allSettled` luôn chờ đủ tất cả kết quả (`fulfilled` hoặc `rejected`). A, C, D sai đặc tả."
+                    ),
+                    // 4 Đọc code đoán output / Tìm lỗi sai
+                    new QuizQuestionSpec(
+                        "Câu 5 (Đọc code): Đoạn code JS sau in ra theo thứ tự nào? `console.log('A'); setTimeout(() => console.log('B'), 0); Promise.resolve().then(() => console.log('C')); console.log('D');`",
+                        "A -> B -> C -> D",
+                        "A -> D -> B -> C",
+                        "C -> A -> D -> B",
+                        "A -> D -> C -> B",
+                        "D",
+                        "Đáp án D đúng: đồng bộ `'A'` và `'D'` chạy trong Call Stack trước -> Microtask `'C'` chạy ngay sau đó -> Macrotask `setTimeout` `'B'` chạy sau cùng. A, B, C sai thứ tự ưu tiên Event Loop."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 6 (Đọc code): Đoạn code sau in ra theo thứ tự nào? `async function run() { console.log('1'); await Promise.resolve(); console.log('2'); } run(); console.log('3');`",
+                        "1 -> 3 -> 2",
+                        "1 -> 2 -> 3",
+                        "3 -> 1 -> 2",
+                        "2 -> 1 -> 3",
+                        "A",
+                        "Đáp án A đúng: lệnh bên trong `run()` trước `await` chạy đồng bộ nên in `'1'`; gặp `await`, phần sau đó (`console.log('2')`) đưa vào Microtask Queue nên hàm trả quyền lại cho luồng chính in `'3'`, sau đó mới in `'2'`. B, C, D sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 7 (Tìm lỗi sai): Trong `async function loadAll(urls) { const res = []; urls.forEach(async (u) => { res.push(await fetch(u)); }); return res; }`, kết quả trả về là gì?",
+                        "Mảng chứa đầy đủ dữ liệu đã tải theo đúng thứ tự",
+                        "Mảng rỗng `[]` vì `forEach` không chờ `await` bên trong callback hoàn tất",
+                        "Ném lỗi SyntaxError vì không thể dùng async trong forEach",
+                        "Hàm bị treo vô tận ở dòng đầu tiên",
+                        "B",
+                        "Đáp án B đúng: `Array.prototype.forEach` gọi các callback async rồi kết thúc ngay lập tức mà không chờ Promise! Để chạy tuần tự phải dùng `for (const u of urls)`, hoặc song song dùng `Promise.all(urls.map(...))`."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 8 (Tìm lỗi sai): Trong `function delayFail(ms) { return new Promise((resolve, reject) => { setTimeout(() => { /* Quên gọi reject */ }, ms); }); }`, hậu quả khi gọi `await delayFail(100)` là gì?",
+                        "Trả về undefined sau 100ms",
+                        "Tự động nhảy vào khối catch sau 100ms",
+                        "Promise bị kẹt mãi ở trạng thái Pending nên lệnh `await` treo vĩnh viễn không bao giờ chạy tiếp",
+                        "Trình duyệt tự động biến Promise thành Fulfilled",
+                        "C",
+                        "Đáp án C đúng: một Promise chỉ kết thúc khi gọi `resolve(...)` hoặc `reject(...)`. Nếu không gọi cả hai, nó mãi mãi ở `Pending` làm lệnh `await` đứng chờ vô hạn. A, B, D sai."
+                    ),
+                    // 2 Tình huống & Tối ưu thuật toán
+                    new QuizQuestionSpec(
+                        "Câu 9 (Edge-case): Điều gì xảy ra nếu trong một hàm `async` bạn gọi `await fetchApi()` mà KHÔNG bọc `try/catch` khi `fetchApi()` bị lỗi mạng?",
+                        "Hàm tự động thử lại thêm 1 lần nữa",
+                        "Lệnh `await` tự trả về `null` an toàn",
+                        "Lỗi văng ra làm Promise của hàm bị Rejected (Unhandled Promise Rejection) nếu bên ngoài cũng không bắt lỗi, có thể gây crash hoặc treo UI",
+                        "JavaScript tự bỏ qua dòng lỗi và chạy dòng tiếp theo",
+                        "C",
+                        "Đáp án C đúng: `await` trên một Promise bị reject sẽ ném lỗi như một exception đồng bộ; thiếu `try/catch` sẽ khiến hàm thoát đột ngột và để lại Unhandled Promise Rejection. A, B, D sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 10 (Tối ưu): Khi thiết kế cơ chế tự động gọi lại API bị lỗi (Retry), vì sao phải dùng **Exponential Backoff kết hợp Jitter** thay vì retry ngay lập tức trong vòng lặp `while`?",
+                        "Để nén kích thước gói tin JSON nhỏ hơn",
+                        "Để giãn thời gian chờ theo cấp số nhân và phân tán thời điểm gọi ngẫu nhiên, tránh hàng nghìn client cùng dội lại đánh sập server (Thundering Herd)",
+                        "Để vượt qua lỗi cú pháp JavaScript",
+                        "Để bắt buộc các request phải chạy đồng bộ",
+                        "B",
+                        "Đáp án B đúng: tăng thời gian chờ cấp số nhân (Exponential Backoff) giúp server có thời gian hồi phục, và Jitter ngẫu nhiên ngăn bão request đồng loạt. A, C, D sai bản chất kỹ thuật."
+                    )
+                }
+            ),
+
+            // 6. Quiz Bài 3.2: Deep Clone, Immutability & Error Handling
+            BuildQuiz(
+                "l32",
+                SeedDataInitializer.CodingLesson32Id,
+                "Kiểm tra Bài 3.2: Deep Clone, Tính Bất Biến & Xử Lý Lỗi",
+                now.AddSeconds(6),
+                now,
+                new[]
+                {
+                    // 4 Cơ bản
+                    new QuizQuestionSpec(
+                        "Câu 1 (Cơ bản): Trong JavaScript, kiểu dữ liệu nào truyền/gán theo **tham chiếu ô nhớ** khiến việc sửa biến mới có thể làm biến gốc đổi theo?",
+                        "Number và String",
+                        "Boolean và Undefined",
+                        "Object và Array",
+                        "Symbol và BigInt",
+                        "C",
+                        "Đáp án C đúng: Object và Array là kiểu tham chiếu (Reference Type), biến chỉ giữ địa chỉ trỏ tới vùng nhớ Heap. A, B, D là kiểu nguyên thủy (Primitive Type) sao chép giá trị độc lập."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 2 (Cơ bản): Toán tử spread `{ ...obj }` hoặc `[...arr]` thực hiện loại sao chép nào?",
+                        "Sao chép sâu (Deep Clone) mọi tầng vô hạn",
+                        "Sao chép nông (Shallow Copy) ở tầng đầu tiên; các object/array lồng bên trong vẫn chung tham chiếu",
+                        "Không tạo object/array mới mà chỉ tạo bí danh",
+                        "Chuyển object thành chuỗi JSON",
+                        "B",
+                        "Đáp án B đúng: Spread chỉ tạo bản sao độc lập cho tầng thứ nhất; mọi thuộc tính là object/array lồng sâu hơn vẫn trỏ chung vùng nhớ. A, C, D sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 3 (Cơ bản): Hàm dựng sẵn hiện đại `structuredClone(obj)` KHÔNG hỗ trợ sao chép loại dữ liệu nào sau đây?",
+                        "Object lồng nhau nhiều tầng",
+                        "Array và đối tượng Date",
+                        "Map, Set và RegExp",
+                        "Hàm (Function) và phần tử DOM HTML",
+                        "D",
+                        "Đáp án D đúng: `structuredClone()` clone tốt Object, Array, Date, RegExp, Map, Set và cả Circular Reference, nhưng sẽ ném `DataCloneError` nếu gặp Function hoặc DOM node. A, B, C đều được hỗ trợ."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 4 (Cơ bản): Khi viết một Custom Error Class `class ValidationError extends Error`, dòng nào BẮT BUỘC phải gọi trong `constructor` trước khi dùng `this`?",
+                        "super(message);",
+                        "return this;",
+                        "Error.init(this);",
+                        "new Error();",
+                        "A",
+                        "Đáp án A đúng: trong lớp con kế thừa JS (`extends Error`), phải gọi `super(message)` trước khi truy cập `this`, nếu không sẽ văng `ReferenceError`. B, C, D sai cú pháp/ngữ nghĩa."
+                    ),
+                    // 4 Đọc code đoán output / Tìm lỗi sai
+                    new QuizQuestionSpec(
+                        "Câu 5 (Đọc code): Đoạn code JS sau in ra gì? `const m = [[1, 2], [3, 4]]; const copy = [...m]; copy[0].push(99); console.log(m[0].length, copy[0].length);`",
+                        "2 3",
+                        "3 3",
+                        "2 2",
+                        "3 2",
+                        "B",
+                        "Đáp án B đúng: `[...m]` chỉ sao chép nông mảng ngoài; `copy[0]` và `m[0]` trỏ chung cùng một mảng con `[1, 2]` trong Heap, nên `copy[0].push(99)` làm cả hai đều có độ dài 3! A, C, D sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 6 (Đọc code): Kết quả in ra của đoạn code sau là gì? `const orig = { meta: { tag: 'v1' } }; const cloned = structuredClone(orig); cloned.meta.tag = 'v2'; console.log(orig.meta.tag);`",
+                        "'v2'",
+                        "undefined",
+                        "'v1'",
+                        "Ném lỗi DataCloneError",
+                        "C",
+                        "Đáp án C đúng: `structuredClone` tạo bản sao sâu hoàn toàn độc lập ở mọi tầng, nên sửa `cloned.meta.tag = 'v2'` không ảnh hưởng gì tới `orig.meta.tag` (vẫn là `'v1'`). A, B, D sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 7 (Tìm lỗi sai): Trong hàm `function clone(v) { if (typeof v !== 'object') return v; const res = {}; for (const k of Object.keys(v)) res[k] = clone(v[k]); return res; }`, gọi `clone({ user: null })` sẽ bị lỗi gì?",
+                        "Trả về `{ user: {} }` hoặc ném TypeError vì `typeof null === 'object'` khiến `Object.keys(null)` bị crash",
+                        "Chạy bình thường và trả về `{ user: null }`",
+                        "Gây vòng lặp vô hạn",
+                        "Biến `null` thành chuỗi `'null'`",
+                        "A",
+                        "Đáp án A đúng: do lỗi lịch sử của JS, `typeof null` bằng `'object'`, nên `null` lọt qua điều kiện dừng và gây crash ngay tại `Object.keys(null)`. Cần thêm `if (v === null || typeof v !== 'object') return v;`. B, C, D sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 8 (Tìm lỗi sai): Đoạn code `try { validate(data); } catch (err) { if (typeof err === 'ValidationError') handle400(); }` có lỗi logic gì?",
+                        "Từ khóa `catch` không nhận biến `err`",
+                        "`typeof err` luôn trả về `'object'` chứ không bao giờ trả về `'ValidationError'`; phải dùng `err instanceof ValidationError`",
+                        "Không thể viết `if` bên trong khối `catch`",
+                        "`validate` bắt buộc phải là hàm `async`",
+                        "B",
+                        "Đáp án B đúng: `typeof` chỉ phân biệt kiểu nguyên thủy và `'object'`/`'function'`; để kiểm tra thực thể thuộc class nào phải dùng `err instanceof ValidationError`. A, C, D sai."
+                    ),
+                    // 2 Tình huống & Tối ưu thuật toán
+                    new QuizQuestionSpec(
+                        "Câu 9 (Edge-case): Dùng `JSON.parse(JSON.stringify(obj))` để deep clone sẽ mất dữ liệu hoặc gây lỗi trong trường hợp nào sau đây?",
+                        "Object chỉ chứa các số nguyên và chuỗi thuần",
+                        "Object chứa đối tượng `Date` (bị biến thành string), giá trị `undefined` (bị xóa mất), `NaN` (biến thành null), hoặc có tham chiếu vòng (ném TypeError)",
+                        "Object là mảng 1 chiều các chuỗi",
+                        "Object có 2 thuộc tính boolean",
+                        "B",
+                        "Đáp án B đúng: kỹ thuật JSON serialize đánh mất kiểu `Date`, `RegExp`, `Map`, `Set`, thuộc tính `undefined`, `NaN`, và crash ngay khi gặp circular reference. A, C, D đều clone được qua JSON."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 10 (Tối ưu): Khi tự viết hàm `safeDeepClone(value, seen = new WeakMap())` hỗ trợ tham chiếu vòng (`a.self = a`), tại sao phải dùng `WeakMap` và phải gọi `seen.set(value, clone)` TRƯỚC khi đệ quy thuộc tính con?",
+                        "Để vòng lặp tự động sắp xếp các key theo bảng chữ cái",
+                        "WeakMap cho phép bộ dọn rác (GC) tự thu hồi bộ nhớ khi không dùng nữa, và việc lưu `seen.set` trước khi đệ quy giúp nhánh con gặp lại `value` trả về ngay bản sao thay vì đệ quy vô tận gây tràn Stack",
+                        "Vì WeakMap tự động chuyển hàm thành chuỗi",
+                        "Để giảm thời gian chạy xuống O(1) bất kể kích thước object",
+                        "B",
+                        "Đáp án B đúng: đăng ký `seen.set(value, clone)` trước khi đệ quy sâu giúp ngắt ngay chu trình lặp vòng khi gặp lại cùng tham chiếu; `WeakMap` còn tránh rò rỉ bộ nhớ cho object. A, C, D sai."
+                    )
+                }
+            ),
+
+            // 7. Đề Tổng Kết Khóa Học (gắn CodingLesson32Id)
+            BuildQuiz(
+                "final",
+                SeedDataInitializer.CodingLesson32Id,
+                "Đề Tổng Kết Khóa Học: Lập trình JavaScript & Giải quyết Vấn đề",
+                now,
+                now,
+                new[]
+                {
+                    // 4 Cơ bản
+                    new QuizQuestionSpec(
+                        "Câu 1 (Cơ bản): Phương thức mảng nào trả về ĐÚNG 1 giá trị tổng hợp (số, object hoặc mảng) bằng cách tích lũy qua từng phần tử từ một giá trị khởi tạo?",
+                        "map()",
+                        "filter()",
+                        "reduce()",
+                        "forEach()",
+                        "C",
+                        "Đáp án C đúng: `reduce((acc, item) => ..., initialValue)` nén mảng thành bất kỳ kiểu dữ liệu nào. A biến đổi 1-1; B lọc phần tử; D trả về undefined."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 2 (Cơ bản): Độ phức tạp thời gian của thuật toán Tìm kiếm Nhị phân (Binary Search) trên mảng đã sắp xếp gồm N phần tử là bao nhiêu?",
+                        "O(1)",
+                        "O(log N)",
+                        "O(N)",
+                        "O(N²)",
+                        "B",
+                        "Đáp án B đúng: mỗi bước Binary Search loại bỏ một nửa không gian tìm kiếm nên mất O(log N). A là tra cứu Map; C là duyệt tuyến tính; D là hai vòng lặp lồng nhau."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 3 (Cơ bản): Khi muốn đảm bảo hàm chỉ chạy 1 lần cuối cùng sau khi người dùng NGỪNG gõ phím được 400ms, ta dùng kỹ thuật nào?",
+                        "Debounce",
+                        "Throttle",
+                        "Memoization",
+                        "Deep Clone",
+                        "A",
+                        "Đáp án A đúng: Debounce hủy hẹn giờ cũ mỗi khi có sự kiện mới và chỉ chạy sau khi ngừng thao tác đủ thời gian delay. B chạy theo nhịp; C lưu cache; D sao chép dữ liệu."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 4 (Cơ bản): Trong JavaScript, giá trị của biểu thức `typeof null` là gì?",
+                        "'null'",
+                        "'undefined'",
+                        "'boolean'",
+                        "'object'",
+                        "D",
+                        "Đáp án D đúng: đây là một đặc điểm lịch sử nổi tiếng của JavaScript (`typeof null === 'object'`), vì vậy luôn phải kiểm tra `val === null` trước khi xử lý object. A, B, C đều sai kết quả thực tế."
+                    ),
+                    // 4 Đọc code đoán output / Tìm lỗi sai
+                    new QuizQuestionSpec(
+                        "Câu 5 (Đọc code): Kết quả in ra của đoạn mã sau là gì? `const prices = [100, 200, 300]; const res = prices.filter(p => p >= 200).reduce((s, p) => s + p, 0); console.log(res, prices.length);`",
+                        "500 3",
+                        "500 2",
+                        "600 3",
+                        "300 2",
+                        "A",
+                        "Đáp án A đúng: filter giữ [200, 300], reduce cộng từ 0 ra 500; vì filter và reduce đều bất biến nên `prices.length` vẫn bằng 3. B sai độ dài mảng gốc; C không lọc; D tính sai tổng."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 6 (Đọc code): Đoạn mã sau in ra gì? `console.log('S'); setTimeout(() => console.log('T'), 0); Promise.resolve().then(() => console.log('P')); console.log('E');`",
+                        "S -> T -> P -> E",
+                        "S -> E -> P -> T",
+                        "S -> E -> T -> P",
+                        "P -> S -> E -> T",
+                        "B",
+                        "Đáp án B đúng: đồng bộ `'S'` và `'E'` chạy trong Call Stack -> Microtask `'P'` chạy trước -> Macrotask `'T'` chạy sau cùng. A, C, D sai thứ tự Event Loop."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 7 (Đọc code): Đoạn code sau in ra gì? `const state = { user: { name: 'An' } }; const next = { ...state }; next.user.name = 'Bình'; console.log(state.user.name);`",
+                        "'An'",
+                        "undefined",
+                        "'Bình'",
+                        "Ném TypeError",
+                        "C",
+                        "Đáp án C đúng: `{ ...state }` chỉ sao chép nông tầng 1, nên `next.user` và `state.user` dùng chung cùng 1 object trong Heap. Sửa `next.user.name` làm `state.user.name` cũng đổi thành `'Bình'`. A, B, D sai."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 8 (Tìm lỗi sai): Trong hàm `function bs(a, t) { let l = 0, r = a.length - 1; while (l <= r) { const m = Math.floor((l + r) / 2); if (a[m] === t) return m; if (a[m] < t) l = m; else r = m - 1; } return -1; }`, lỗi nằm ở đâu?",
+                        "Cần đổi `l = m` thành `l = m + 1` để tránh vòng lặp vô hạn",
+                        "Cần đổi `r = m - 1` thành `r = m + 1`",
+                        "Cần đổi `Math.floor` thành `Math.ceil`",
+                        "Không thể dùng `return -1` ở cuối hàm",
+                        "A",
+                        "Đáp án A đúng: giữ nguyên `l = m` làm `m` kẹt mãi ở `l` khi `r === l + 1` và `a[m] < t`. Phải tiến lên `l = m + 1` vì phần tử `m` đã kiểm tra rồi. B, C, D đều sai."
+                    ),
+                    // 2 Tình huống & Tối ưu thuật toán
+                    new QuizQuestionSpec(
+                        "Câu 9 (Edge-case): Một hàm `memoize(fn)` dùng `JSON.stringify(args)` làm khóa trong `Map` để cache kết quả, nhưng gặp hàm `getItems(cat)` trả về một mảng mới. Cần làm gì để vừa an toàn mảng rỗng vừa không bị người gọi làm hỏng cache?",
+                        "Dùng `arg.toString()` thay cho `JSON.stringify`",
+                        "Trả về bản sao của mảng (hoặc `structuredClone`) khi trả kết quả từ cache và giới hạn kích thước tối đa của `Map`",
+                        "Đặt `initialValue` bằng `null` và không bao giờ xóa cache",
+                        "Thay `Map` bằng `forEach`",
+                        "B",
+                        "Đáp án B đúng: trả về bản sao ngăn caller mutate mảng đang nằm trong cache, và giới hạn `maxSize` (LRU/FIFO) giúp RAM không phình vô hạn. A gây Key Collision; C gây tràn RAM; D vô nghĩa."
+                    ),
+                    new QuizQuestionSpec(
+                        "Câu 10 (Tối ưu): Bạn cần tải song song dữ liệu từ 5 API độc lập (mỗi API có thể thất bại riêng lẻ), đồng thời tự thử lại tối đa 3 lần với độ trễ giãn dần khi bị lỗi mạng tạm thời, nhưng vẫn hiển thị được các API thành công. Tổ hợp kỹ thuật nào đúng chuẩn?",
+                        "Dùng `forEach(async ...)` + `Promise.all`",
+                        "Bọc mỗi lời gọi API trong hàm `retryWithBackoff` (Exponential Backoff + Jitter + try/catch), rồi tổng hợp bằng `Promise.allSettled()`",
+                        "Dùng `setTimeout` lồng nhau 5 cấp không có `clearTimeout`",
+                        "Dùng `JSON.parse(JSON.stringify(promises))`",
+                        "B",
+                        "Đáp án B đúng: `retryWithBackoff` tự phục hồi lỗi tạm thời mà không đánh sập server (nhờ Backoff + Jitter), còn `Promise.allSettled()` thu thập tất cả kết quả `fulfilled`/`rejected` mà không bị fail-fast mất trắng dữ liệu như `Promise.all`. A, C, D đều sai nghiêm trọng."
+                    )
+                }
+            )
+        };
     }
 }

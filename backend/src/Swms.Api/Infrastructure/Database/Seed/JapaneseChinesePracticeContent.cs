@@ -11,7 +11,8 @@ using Swms.Api.Domain.Entities;
 
 public static partial class JapaneseChinesePracticeContent
 {
-    public const string UpgradeMarker = "<!-- studxy-cjk-v1 -->";
+    public const string UpgradeMarker = "<!-- studxy-cjk-v2 -->";
+    public const string UpgradeMarkerV3 = "<!-- studxy-cjk-v3 -->";
 
     private static readonly JsonSerializerOptions CjkJsonOptions = new()
     {
@@ -77,6 +78,8 @@ public static partial class JapaneseChinesePracticeContent
             lessons: GetChineseLessons(),
             activities: GetChineseActivities(SeedDataInitializer.ChineseCourseId, now),
             now: now);
+
+        await EnsureCjkQuizzesSeededAsync(db, now);
     }
 
     private static async Task EnsureCourseShellAsync(
@@ -151,7 +154,7 @@ public static partial class JapaneseChinesePracticeContent
             var existing = await db.Lessons.FirstOrDefaultAsync(l => l.Id == meta.LessonId);
             if (existing != null)
             {
-                if (existing.CurrentVersion == 1 && !(existing.ContentMarkdown ?? string.Empty).Contains(UpgradeMarker))
+                if (existing.CurrentVersion == 1 && !(existing.ContentMarkdown ?? string.Empty).Contains(UpgradeMarkerV3, StringComparison.Ordinal))
                 {
                     existing.ContentMarkdown = meta.Markdown;
                     existing.PlainText = meta.Markdown;
@@ -474,7 +477,17 @@ public static partial class JapaneseChinesePracticeContent
     }
 
     // =========================================================================
-    // KHÓA 1: TIẾNG NHẬT SƠ CẤP (N5) — 6 BÀI LÝ THUYẾT CHI TIẾT
+    // KHÓA 1: TIẾNG NHẬT SƠ CẤP (N5) — 6 BÀI LÝ THUYẾT CHI TIẾT (~9.000-12.000 KÝ TỰ)
+    // =========================================================================
+    // KHÓA 1: TIẾNG NHẬT SƠ CẤP (N5) — 6 BÀI LÝ THUYẾT CHI TIẾT (~9.000-12.000 KÝ TỰ)
+    // =========================================================================
+    // KHÓA 1: TIẾNG NHẬT SƠ CẤP (N5) — 6 BÀI LÝ THUYẾT CHI TIẾT (~9.000-12.000 KÝ TỰ)
+    // =========================================================================
+    // KHÓA 1: TIẾNG NHẬT SƠ CẤP (N5) — 6 BÀI LÝ THUYẾT CHI TIẾT (~9.000-12.000 KÝ TỰ)
+    // =========================================================================
+    // KHÓA 1: TIẾNG NHẬT SƠ CẤP (N5) — 6 BÀI LÝ THUYẾT CHI TIẾT (~9.000-12.000 KÝ TỰ)
+    // =========================================================================
+    // KHÓA 1: TIẾNG NHẬT SƠ CẤP (N5) — 6 BÀI LÝ THUYẾT CHI TIẾT (~9.000-12.000 KÝ TỰ)
     // =========================================================================
 
     private static List<CjkLessonMeta> GetJapaneseLessons() => new()
@@ -482,266 +495,1460 @@ public static partial class JapaneseChinesePracticeContent
         new CjkLessonMeta(
             SeedDataInitializer.JapaneseCourseId, SeedDataInitializer.JapaneseChapter1Id, SeedDataInitializer.JapaneseLesson11Id,
             "Bài 1.1: Hiragana nền tảng & Câu chào hỏi hằng ngày",
-            "ja-n5-hiragana-chao-hoi-hang-ngay", 1, 25,
+            "ja-n5-hiragana-chao-hoi-hang-ngay", 1, 35,
             @"# Bài 1.1: Hiragana nền tảng & Câu chào hỏi hằng ngày
 
-## 1. Mục tiêu bài học
-- Đọc và nhận diện trọn vẹn 46 chữ cái **Hiragana** cơ bản cùng âm đục (だくおん), âm ngắt **っ** và trường âm.
-- Sử dụng đúng các câu chào hỏi tiếng Nhật theo thời điểm trong ngày và sắc thái lịch sự.
-- Nhận diện và khắc phục sớm lỗi phát âm hay gặp của người Việt: trường âm `おう/えい`, âm ngắt `っ`, cặp `つ/す` và `し/ち`.
+## 1. Mục tiêu bài học (がくしゅうもくひょう)
+Chào mừng bạn bước chân vào hành trình chinh phục tiếng Nhật! Bài học đầu tiên này được thiết kế chậm rãi, tỉ mỉ nhằm giúp bạn:
+- Nắm vững triết lý và lý do Nhật Bản kết hợp 3 bảng chữ cái (**Hiragana**, **Katakana**, **Kanji**) thay vì chỉ dùng một bảng chữ duy nhất.
+- Đọc, viết và ghi nhớ sâu sắc toàn bộ 46 chữ cái **Hiragana** cơ bản (Gojūon — 五十音) thông qua phương pháp liên tưởng hình ảnh trực quan (Mnemonics).
+- Làm chủ hệ thống âm biến đổi: **Âm đục (Dakuon)**, **Âm bán đục (Handakuon)**, **Âm ghép (Yōon)**, **Âm ngắt (Sokuon - っ)** và **Trường âm (Chōon)**.
+- Hiểu rõ bản chất trật tự câu tiếng Nhật (SOV: Chủ ngữ - Tân ngữ - Động từ) và sự khác biệt căn bản so với tiếng Việt (SVO).
+- Sử dụng thành thạo các câu chào hỏi thường nhật theo đúng văn hóa cúi chào (Ojigi) của người bản xứ.
+- Nhận diện và sửa triệt để các lỗi phát âm kinh điển mà người Việt Nam mới học rất hay mắc phải.
 
-## 2. Bảng chữ cái Hiragana cốt lõi (Gojūon — 五十音)
+---
 
-| Hàng | a | i | u | e | o |
-|---|---|---|---|---|---|
-| **Nguyên âm** | あ (a) | い (i) | う (u) | え (e) | お (o) |
-| **K** | か (ka) | き (ki) | く (ku) | け (ke) | こ (ko) |
-| **S** | さ (sa) | し (shi) | す (su) | せ (se) | そ (so) |
-| **T** | た (ta) | ち (chi) | つ (tsu) | て (te) | と (to) |
-| **N** | な (na) | に (ni) | ぬ (nu) | ね (ne) | の (no) |
-| **H** | は (ha) | ひ (hi) | ふ (fu) | へ (he) | ほ (ho) |
-| **M / Y** | ま (ma) / や (ya) | み (mi) | む (mu) / ゆ (yu) | め (me) | も (mo) / よ (yo) |
-| **R / W / N** | ら (ra) / わ (wa) | り (ri) | る (ru) | れ (re) | ろ (ro) / を (wo) / ん (n) |
+## 2. 🌱 Nhập môn chậm rãi từng bước: Vì sao tiếng Nhật dùng đến 3 bộ chữ?
 
-## 3. Hội thoại mẫu chào hỏi buổi sáng
-- **Tanaka:** おはようございます！ *(Ohayou gozaimasu!)* — Chào buổi sáng ạ!
-- **Minh:** おはようございます、たなかさん。おげんきですか。 *(Ohayou gozaimasu, Tanaka-san. Ogenki desu ka?)* — Chào buổi sáng anh Tanaka. Anh có khỏe không ạ?
-- **Tanaka:** はい、げんきです。ありがとうございます。 *(Hai, genki desu. Arigatou gozaimasu.)* — Vâng, tôi khỏe. Cảm ơn bạn.
-- **Minh:** すみません、ちょっとまってください。 *(Sumimasen, chotto matte kudasai.)* — Xin lỗi, vui lòng đợi một chút ạ.
-- **Tanaka:** いいえ、だいじょうぶですよ。またあした！ *(Iie, daijoubu desu yo. Mata ashita!)* — Không sao đâu. Hẹn gặp lại ngày mai!
+### 2.1. Bản chất của 3 bộ chữ trong tiếng Nhật
+Khi mới bắt đầu học, người mới thường băn khoăn: *""Tại sao người Nhật không dùng mẫu tự Latinh hay chỉ dùng một bảng chữ cái?""*
+Câu trả lời nằm ở cấu trúc ngữ âm và từ vựng đặc thù của tiếng Nhật:
+1. **Hiragana (ひらがな - Chữ mềm)**: Phát triển từ lối viết thảo các chữ Hán cổ, nét tròn, uốn lượn mềm mại. Dùng để viết từ thuần Nhật (Yamato kotoba), các trợ từ ngữ pháp (`は, が, を, に, で...`) và phần đuôi biến đổi của động từ, tính từ (`たべます`, `おおきい`).
+2. **Katakana (カタカナ - Chữ cứng)**: Trích từ một phần nét của chữ Hán, nét thẳng, sắc sảo. Dùng để phiên âm từ mượn tiếng nước ngoài (`コーヒー` - cà phê, `ベトナム` - Việt Nam), tên người/địa danh ngoại quốc, hoặc nhấn mạnh từ ngữ.
+3. **Kanji (漢字 - Chữ Hán)**: Hệ thống chữ biểu ý mượn từ chữ Hán cổ. Mỗi chữ Kanji chứa đựng một ý niệm trọn vẹn.
+4. **Vì sao phải phối hợp cả 3 bộ chữ?**
+   - Trong tiếng Nhật, người ta **hoàn toàn không dùng dấu cách** (khoảng trắng giữa các từ).
+   - Số lượng âm tiết tiếng Nhật rất ít (chỉ khoảng 100 âm tiết), dẫn đến hiện tượng **đồng âm khác nghĩa cực kỳ phổ biến**. Ví dụ: `はな` (hana) vừa là bông hoa (花) vừa là cái mũi (鼻); `かみ` (kami) có thể là giấy (紙), tóc (髪) hay thần linh (神).
+   - Nếu viết toàn bộ bằng Hiragana: `わたしははなをかいました` sẽ khiến mắt người đọc khó phân tách từ. Khi kết hợp Kanji: `私は花を買いました` (Tôi đã mua hoa), mắt nhận diện ngay danh từ và động từ cốt lõi, còn Hiragana đóng vai trò liên kết ngữ pháp.
 
-## 4. Điểm ngữ pháp & Khái niệm cốt lõi
-- **Hiragana (ひらがな)**: Bảng chữ mềm cơ bản của tiếng Nhật dùng để viết từ thuần Nhật, trợ từ và đuôi chia động từ.
-- **Trợ từ は (đọc là wa)**: Đánh dấu chủ đề của câu, dù viết bằng chữ `は` nhưng luôn đọc là `wa` (ví dụ: `こんにちは`, `わたしは`).
-- **Đuôi lịch sự です (desu)**: Đặt cuối câu danh từ/tính từ để tạo sắc thái lịch sự chuẩn N5, âm `u` cuối thường đọc rất nhẹ gần như câm (`des`).
-- **Âm ngắt っ (Sokuon)**: Chữ `つ` viết nhỏ biểu thị nhịp dừng nén hơi đúng 1 phách trước phụ âm kế tiếp (ví dụ: `ちょっと` chotto, `まって` matte).
+### 2.2. Mẹo liên tưởng nhớ bảng chữ cái Hiragana (Hàng Nguyên âm & Phụ âm cốt lõi)
+Hệ thống 46 chữ cái cơ bản sắp xếp theo 5 nguyên âm: `a - i - u - e - o`:
+- **Hàng Nguyên âm (あ - い - う - え - お)**:
+  - `あ (a)`: Hình quả táo (apple) có cuống uốn cong. Đọc mở khẩu hình tự nhiên ""a"".
+  - `い (i)`: Hai con lươn bơi song song, nét trái dài hơn. Đọc là ""i"".
+  - `う (u)`: Người cúi khom lưng vác nặng. Môi khép hờ, nằm giữa ""u"" và ""ư"".
+  - `え (e)`: Chú chim bồ câu vươn cổ. Đọc tự nhiên giữa ""e"" và ""ê"".
+  - `お (o)`: Cú đánh bóng golf có chấm tròn quả bóng. Đọc dứt khoát ""ô/o"".
+- **Hàng K (か - き - く - け - こ)**:
+  - `か (ka)`: Giống chữ Lực (力) có giọt mồ hôi.
+  - `き (ki)`: Giống chiếc chìa khóa (key).
+  - `く (ku)`: Mỏ chim đang kêu cúc cu.
+  - `け (ke)`: Cây cung và thân kiếm.
+  - `こ (ko)`: Hai khúc gỗ song song.
+- **Hàng S (さ - し - す - せ - そ)**: `さ` giống chìa khóa một nét ngang; `し` như chiếc lưỡi câu; `す` như xích đu có vòng xoắn; `せ` như người ngồi ngắm cảnh; `そ` zíc-zắc như mũi kim khâu.
+- **Hàng T (た - ち - つ - て - と)**: `た` chữ Ta ghép; `ち` số 5 lộn ngược; `つ` con sóng đại dương (nén khí bật đầu lưỡi `tsu`); `て` cánh tay vươn dài; `と` ngón chân cái bị gai đâm.
+- **Hàng N, H, M, Y, R, W, N**: `ふ (fu)` khép hờ hai môi thổi nhẹ; `ん (n)` âm mũi đứng một mình, không đứng đầu từ.
 
-## 5. Lỗi phát âm người Việt hay mắc
-- **Nuốt trường âm `おう` / `えい`**: Trong `おはよう` (ohayou) và `ありがとう` (arigatou), đuôi `おう` đọc kéo dài thành `ō` (2 nhịp), không đọc ngắt thành `o` ngắn.
-- **Nhầm `つ (tsu)` với `す (su)` và `し (shi)` với `ち (chi)`**: `つ` phải bật hơi đầu lưỡi `ts`; `し` đẩy hơi mềm không bật như `ち`.
-- **Đọc cứng chữ `ら/り/る/れ/ろ` thành `d` hoặc rung mạnh `r`**: Chạm nhẹ đầu lưỡi lên lợi trên một lần dứt khoát (giữa `l` và `r`).
+### 2.3. Quy tắc các biến âm bắt buộc phải thuộc lòng
+1. **Âm đục (Dakuon)**: Thêm dấu phẩy kép `゛` (Tenten): K → G (`が, ぎ, ぐ, げ, ご`), S → Z (`ざ, じ, ず, ぜ, ぞ`), T → D (`だ, ぢ, づ, で, ど`), H → B (`ば, び, ぶ, べ, ぼ`).
+2. **Âm bán đục (Handakuon)**: Thêm dấu tròn nhỏ `゜` (Maru) vào hàng H → P: `ぱ, ぴ, ぷ, ぺ, ぽ`.
+3. **Âm ngắt (Sokuon - っ)**: Chữ `つ` viết nhỏ biểu thị nhịp ngưng hơi đúng **1 phách** trước các phụ âm k, s, t, p (ví dụ: `ちょっと` chotto, `まって` matte).
+4. **Trường âm (Chōon)**: Kéo dài nguyên âm 2 phách: hàng A + あ, hàng I + い, hàng U + う, hàng E + え/い (`せんせい`), hàng O + お/う (`おはよう`, `ありがとう`).
 
-<!-- studxy-cjk-v1 -->",
-            "Làm chủ 46 chữ cái Hiragana nền tảng và các mẫu câu chào hỏi lịch sự hằng ngày.",
+### 2.4. Trật tự câu tiếng Nhật: Tư duy SOV
+- Tiếng Việt (SVO): Chủ ngữ + Động từ + Tân ngữ (`Tôi uống nước`).
+- Tiếng Nhật (SOV): Chủ ngữ + `は` + Tân ngữ + `を` + Động từ (`わたしは みずを のみます`).
+- Động từ luôn nằm ở cuối câu để quyết định thái độ: khẳng định (`〜ます`), phủ định (`〜ません`), quá khứ (`〜ました`) hay lịch sự mời mọc (`〜ませんか`).
+
+---
+
+## 3. Bảng Từ vựng đầy đủ (単語リスト — Tango Risuto)
+
+| Chữ Kana / Kanji | Romaji | Âm Hán Việt | Nghĩa tiếng Việt | Câu ví dụ hoàn chỉnh |
+|---|---|---|---|---|
+| **わたし (私)** | watashi | Tư | Tôi, bản thân tôi | わたしは ベトナムじんです。 *(Tôi là người VN.)* |
+| **おはようございます** | ohayou gozaimasu | Tảo | Chào buổi sáng (lịch sự) | せんせい、おはようございます！ *(Chào buổi sáng thầy ạ!)* |
+| **こんにちは** | konnichiwa | Kim Nhật | Xin chào (buổi trưa / ban ngày) | みなさん、こんにちは。 *(Xin chào mọi người.)* |
+| **こんばんは** | konbanwa | Kim Vãn | Chào buổi tối | たなかさん、こんばんは。 *(Chào buổi tối anh Tanaka.)* |
+| **おやすみなさい** | oyasuminasai | Hưu | Chúc ngủ ngon | おかあさん、おやすみなさい。 *(Chúc mẹ ngủ ngon ạ.)* |
+| **ありがとう ございます** | arigatou gozaimasu | Hữu Nan | Xin cảm ơn rất nhiều | どうも ありがとうございます。 *(Cảm ơn bạn rất nhiều.)* |
+| **すみません** | sumimasen | Tạ | Xin lỗi / Xin phép làm phiền | すみません、ちょっと まってください。 *(Xin lỗi hãy đợi một chút.)* |
+| **ごめんなさい** | gomennasai | Miễn | Xin lỗi (thân mật) | おくれて、ごめんなさい。 *(Tớ đến muộn, xin lỗi nhé.)* |
+| **はじめまして** | hajimemashite | Sơ | Rất hân hạnh lần đầu gặp | はじめまして、ミンです。 *(Hân hạnh lần đầu gặp, tôi là Minh.)* |
+| **おげんきですか** | ogenki desu ka | Nguyên Khí | Bạn có khỏe không? | たなかさん、おげんきですか。 *(Anh Tanaka có khỏe không?)* |
+| **はい、げんきです** | hai, genki desu | Nguyên Khí | Vâng, tôi khỏe | はい、げんきです。ありがとう。 *(Vâng tôi khỏe, cảm ơn anh.)* |
+| **さようなら** | sayounara | Tác Dương | Tạm biệt (thời gian dài) | せんせい、さようなら。 *(Em chào tạm biệt thầy ạ.)* |
+| **また あした** | mata ashita | Minh Nhật | Hẹn gặp lại ngày mai | じゃ、また あした！ *(Thế nhé, hẹn mai gặp lại!)* |
+| **どうぞ** | douzo | — | Xin mời | おちゃを どうぞ。 *(Xin mời bạn dùng trà.)* |
+| **だいじょうぶです** | daijoubu desu | Đại Trượng Phu | Không sao đâu / Tôi ổn | しんぱいしないで、だいじょうぶです。 *(Đừng lo, tôi ổn mà.)* |
+
+---
+
+## 4. Ngữ pháp mổ xẻ từng trợ từ & Cấu trúc câu
+
+### 4.1. Mẫu câu khẳng định: `N1 は N2 です`
+- **Ý nghĩa**: ""N1 là N2"".
+- **Trợ từ `は` (đọc là wa)**: Viết là `は`, nhưng khi làm trợ từ đánh dấu chủ đề thì đọc là **wa**.
+- **Đuôi `です` (desu)**: Đặt cuối câu để tạo sắc thái lịch sự, âm `u` phát âm rất nhẹ khép môi.
+- Ví dụ: `わたしは がくせいです。` *(Tôi là sinh viên.)*
+
+### 4.2. Mẫu câu phủ định: `N1 は N2 ではありません`
+- Thân mật hơn có thể dùng `じゃありません`.
+- Ví dụ: `わたしは せんせいでは ありません。` *(Tôi không phải là giáo viên.)*
+
+### 4.3. Mẫu câu nghi vấn Có/Không: `N1 は N2 ですか`
+- Thêm `か` vào cuối câu khẳng định. Trả lời: `はい、そうです` hoặc `いいえ、ちがいます`.
+- Ví dụ: `ミンさんは がくせいですか。` — `はい、がくせいです。`
+
+### 4.4. 4 ví dụ đối chiếu Đúng / Sai kinh điển người Việt hay mắc
+
+```markdown
+1. ❌ SAI: わたしは はな です (Đọc trợ từ は giống như ha)
+   ⭕ ĐÚNG: わたしは (watashi wa) はな (hana) です。
+   💡 GIẢI THÍCH: Trợ từ は đánh dấu chủ đề luôn đọc là ""wa"", còn chữ は trong từ vựng đọc là ""ha"".
+
+2. ❌ SAI: わたし です がくせい (Dịch word-by-word theo trật tự tiếng Việt SVO)
+   ⭕ ĐÚNG: わたしは がくせいです。 (Trật tự SOV chuẩn Nhật)
+   💡 GIẢI THÍCH: Đuôi câu です luôn luôn nằm ở vị trí tận cùng của câu!
+
+3. ❌ SAI: おはよう！ (Chào cụt lủn với giáo viên hoặc sếp)
+   ⭕ ĐÚNG: おはようございます！ (Thêm gozaimasu trang trọng)
+   💡 GIẢI THÍCH: おはよう chỉ dùng cho bạn bè ngang hàng hoặc người nhỏ tuổi hơn.
+
+4. ❌ SAI: Nuốt trường âm đọc thành ""ô-ha-dô"" hoặc ""a-ri-ga-tô""
+   ⭕ ĐÚNG: おはよう (o-ha-yō), ありがとう (a-ri-ga-tō) — ngân vang đủ 2 phách âm.
+   💡 GIẢI THÍCH: Đuôi おう là trường âm hàng O, nếu ngắt cụt sẽ biến âm hoặc cộc lốc.
+```
+
+---
+
+## 5. Hội thoại thực tế bóc tách từng từ (かいわ — Kaiwa)
+
+### Bối cảnh:
+Buổi sáng ngày đầu tiên tại hành lang trường học. Anh Tanaka (giáo viên) gặp bạn Minh (du học sinh mới sang).
+
+- **Tanaka**: おはようございます！
+  - *Romaji*: Ohayou gozaimasu!
+  - *Phân tích*: `おはよう` (chào buổi sáng) + `ございます` (hậu tố kính ngữ trang trọng).
+  - *Dịch*: Chào buổi sáng em!
+
+- **Minh**: おはようございます、たなかせんせい。おげんきですか。
+  - *Romaji*: Ohayou gozaimasu, Tanaka-sensei. Ogenki desu ka?
+  - *Phân tích*: `たなか` (họ) + `せんせい` (thầy giáo) + `おげんき` (khỏe khoắn) + `ですか` (hỏi lịch sự).
+  - *Dịch*: Em chào buổi sáng thầy Tanaka ạ. Thầy có khỏe không ạ?
+
+- **Tanaka**: はい、げんきです。ありがとうございます。ミンさんは？
+  - *Romaji*: Hai, genki desu. Arigatou gozaimasu. Min-san wa?
+  - *Phân tích*: `はい` (vâng) + `げんきです` (tôi khỏe) + `ありがとうございます` (cảm ơn) + `ミンさんは` (còn Minh thì sao?).
+  - *Dịch*: Thầy khỏe, cảm ơn em. Còn Minh thì sao nào?
+
+- **Minh**: はい、わたしも げんきです。きょうも よろしくおねがいします！
+  - *Romaji*: Hai, watashi mo genki desu. Kyou mo yoroshiku onegaishimasu!
+  - *Phân tích*: `わたしも` (em cũng) + `げんきです` (khỏe) + `きょうも` (hôm nay cũng) + `よろしくおねがいします` (nhờ thầy giúp đỡ).
+  - *Dịch*: Vâng, em cũng khỏe ạ. Hôm nay em cũng nhờ thầy chỉ bảo thêm ạ!
+
+- **Tanaka**: ええ、がんばりましょう！
+  - *Romaji*: Ee, ganbarimashou!
+  - *Phân tích*: `ええ` (ừ) + `がんばりましょう` (cùng nhau cố gắng nhé).
+  - *Dịch*: Ừ, thầy trò mình cùng cố gắng nhé!
+
+---
+
+## 6. Bài tập tự luyện & Tự kiểm tra cuối bài
+
+### Phần A: Luyện tập phản xạ điền từ & trợ từ
+1. Hãy điền trợ từ thích hợp vào chỗ trống: `わたし___ ベトナムじんです。`
+2. Hãy viết lại câu sau theo trật tự tiếng Nhật đúng: *(Tôi là sinh viên đại học)*
+3. Chữ Hiragana sau đây đọc là gì: `ち`, `つ`, `し`, `さ`?
+4. Khi nhận được sự giúp đỡ của ai đó, câu nói cảm ơn lịch sự là gì?
+
+### Phần B: Đề tự kiểm tra năng lực cuối bài (5 câu mô phỏng N5)
+
+<details>
+<summary>👉 Xem đáp án & Giải thích chi tiết từng câu</summary>
+
+1. **Câu 1**: Trợ từ cần điền là **は** (phát âm là `wa`).
+   - *Giải thích*: Trợ từ `は` dùng để gắn sau chủ đề của câu `わたし`.
+2. **Câu 2**: `わたしは だいがくせいです。`
+   - *Giải thích*: Trật tự câu tiếng Nhật là `Chủ ngữ + は + Vị ngữ danh từ + です`.
+3. **Câu 3**:
+   - `ち`: chi; `つ`: tsu (âm bật hơi đầu lưỡi nén khí); `し`: shi (âm xì hơi êm); `さ`: sa.
+4. **Câu 4**: `ありがとうございます。` (Arigatou gozaimasu).
+   - *Giải thích*: Dùng thể đầy đủ có `gozaimasu` để đảm bảo lễ nghi trang trọng.
+5. **Câu 5 trắc nghiệm**: Khi bạn bè nói *""おやすみなさい""*, ngữ cảnh là lúc nào?
+   - *Đáp án*: Vào buổi tối trước khi đi ngủ (Chúc ngủ ngon).
+
+</details>
+
+> [!TIP]
+> **Mẹo ôn tập nhanh:** Sau khi đọc xong lý thuyết, hãy mở **Phòng Thực Hành (Shadowing / Dictation / Word Map)** ngay bên dưới để rèn phản xạ nghe-nói ja-JP và lưu từ mới vào FSRS.
+
+<!-- studxy-cjk-v1 -->
+<!-- studxy-cjk-v2 -->
+<!-- studxy-cjk-v3 -->",
+            "Làm chủ 46 chữ cái Hiragana nền tảng, biến âm Dakuon, Sokuon và câu chào hỏi N5.",
             "Luyện trường âm, âm ngắt っ và phân biệt cặp âm つ/す, し/ち chuẩn giọng Nhật (ja-JP)."),
 
         new CjkLessonMeta(
             SeedDataInitializer.JapaneseCourseId, SeedDataInitializer.JapaneseChapter1Id, SeedDataInitializer.JapaneseLesson12Id,
             "Bài 1.2: Katakana, Từ mượn & Tự giới thiệu bản thân",
-            "ja-n5-katakana-tu-muon-gioi-thieu", 2, 25,
+            "ja-n5-katakana-tu-muon-gioi-thieu", 2, 35,
             @"# Bài 1.2: Katakana, Từ mượn & Tự giới thiệu bản thân
 
-## 1. Mục tiêu bài học
-- Thành thạo bảng chữ cứng **Katakana** dùng cho từ mượn ngoại lai, tên quốc gia và tên người nước ngoài.
-- Tự giới thiệu bản thân đầy đủ theo chuẩn N5: `はじめまして` — tên — quốc tịch — nghề nghiệp — `どうぞよろしくおねがいします`.
-- Vận dụng cấu trúc khẳng định/phủ định/nghi vấn với **A は B です / ではありません / ですか**.
+## 1. Mục tiêu bài học (がくしゅうもくひょう)
+Bài học này sẽ dẫn dắt bạn làm chủ bảng chữ cái thứ hai cùng kỹ năng giới thiệu bản thân chuẩn phong thái N5:
+- Nhận diện, đọc và viết chuẩn xác bảng chữ cứng **Katakana (カタカナ)**, hiểu rõ chức năng và phạm vi sử dụng.
+- Nắm chắc mẹo phân biệt các cặp chữ Katakana ""song sinh"" dễ gây nhầm lẫn nhất: `シ` vs `ツ`, `ン` vs `ソ`.
+- Làm chủ quy tắc sử dụng **Dấu trường âm Katakana (ー)** và cách phiên âm các từ mượn ngoại lai (Gairaigo).
+- Thực hành mẫu tự giới thiệu bản thân (Jikoshoukai — 自己紹介) 4 bước hoàn chỉnh theo đúng tác phong giao tiếp chuẩn Nhật.
+- Vận dụng linh hoạt các trợ từ sở hữu `の (no)`, trợ từ tương đồng `も (mo)`, hậu tố xưng hô lịch sự `〜さん` và hậu tố chỉ quốc tịch `〜じん`.
+- Khắc phục các lỗi sai ngớ ngẩn thường gặp khi người Việt tự giới thiệu tên mình bằng tiếng Nhật.
 
-## 2. Bảng chữ cái Katakana trọng tâm & Từ mượn thông dụng
+---
 
-| Hàng | a | i | u | e | o | Từ mượn hay gặp |
-|---|---|---|---|---|---|---|
-| **Nguyên âm** | ア (a) | イ (i) | ウ (u) | エ (e) | オ (o) | エアコン (máy lạnh) |
-| **K / S** | カ / サ | キ / シ | ク / ス | ケ / セ | コ / ソ | コーヒー (cà phê), クラス (lớp học) |
-| **T / N** | タ / ナ | チ / ニ | ツ / ヌ | テ / ネ | ト / ノ | ノート (vở), テスト (bài kiểm tra) |
-| **H / M** | ハ / マ | ヒ / ミ | フ / ム | ヘ / メ | ホ / モ | ホテル (khách sạn), メール (email) |
-| **R / W / ー** | ラ / ワ | リ | ル | レ | ロ / ン | ベトナム (Việt Nam), レストラン (nhà hàng) |
+## 2. 🌱 Nhập môn chậm rãi từng bước: Bảng chữ cái Katakana & Văn hóa tự giới thiệu
 
-## 3. Hội thoại tự giới thiệu bản thân (じこしょうかい)
-- **Minh:** はじめまして。わたしはミンです。ベトナムからきました。 *(Hajimemashite. Watashi wa Min desu. Betonamu kara kimashita.)* — Xin chào lần đầu gặp mặt. Tôi là Minh. Tôi đến từ Việt Nam.
-- **Sato:** はじめまして、さとうです。ミンさんはがくせいですか。 *(Hajimemashite, Satou desu. Min-san wa gakusei desu ka?)* — Rất hân hạnh, tôi là Sato. Bạn Minh là sinh viên phải không?
-- **Minh:** はい、だいがくのがくせいです。エンジニアをめざしています。 *(Hai, daigaku no gakusei desu. Enjinia o mezashite imasu.)* — Vâng, tôi là sinh viên đại học. Tôi đang hướng tới trở thành kỹ sư.
-- **Sato:** そうですか！どうぞよろしくおねがいします。 *(Sou desu ka! Douzo yoroshiku onegaishimasu.)* — Vậy à! Rất mong được giúp đỡ ạ.
+### 2.1. Nguồn gốc & Chức năng đặc thù của Katakana
+Nếu như Hiragana mang vẻ đẹp mềm mại của nét bút lông thư pháp thì Katakana lại sở hữu những nét thẳng, sắc sảo, dứt khoát.
+1. **Nguồn gốc**: Katakana ra đời vào thời Heian (thế kỷ thứ 9), do các tăng ni Phật giáo tạo ra bằng cách trích lấy một phần nét từ các chữ Hán để ghi chú nhanh cách đọc bên cạnh kinh văn chữ Hán.
+2. **Khi nào bắt buộc dùng Katakana?**
+   - **Từ mượn ngoại lai (Gairaigo)**: Các từ có gốc từ tiếng Anh, tiếng Pháp, tiếng Đức du nhập vào Nhật Bản hiện đại (`コーヒー` - coffee, `パン` - pan/bánh mì, `パソコン` - máy tính cá nhân, `タクシー` - taxi).
+   - **Tên người và tên quốc gia nước ngoài**: Ví dụ `ベトナム` (Việt Nam), `アメリカ` (Nước Mỹ), tên người Việt như `ミン` (Minh), `リン` (Linh).
+   - **Từ tượng thanh, tượng hình**: Biểu thị âm thanh tiếng động (`ドキドキ` - tim đập thình thịch, `ワンワン` - tiếng chó sủa).
+   - **Tên khoa học, động thực vật**: Trong sách giáo khoa hoặc tài liệu nghiên cứu.
+   - **Nhấn mạnh từ ngữ**: Tương tự như việc in hoa hoặc in nghiêng trong văn bản tiếng Anh để thu hút sự chú ý.
 
-## 4. Điểm ngữ pháp & Khái niệm cốt lõi
-- **Katakana (カタカナ)**: Bảng chữ nét thẳng dùng ghi từ vay mượn nước ngoài (`コーヒー`, `パソコン`), tên nước (`ベトナム`) và tên người nước ngoài.
-- **Cấu trúc A は B です**: Câu danh từ cơ bản nghĩa là ""A là B""; phủ định lịch sự là `A は B ではありません` (hoặc `じゃありません`).
-- **Trợ từ の (no)**: Nối hai danh từ biểu thị sở hữu hoặc thuộc về (ví dụ: `だいがく の がくせい` = sinh viên của trường đại học).
-- **Trợ từ も (mo)**: Thay thế cho `は` mang nghĩa ""cũng"" (ví dụ: `わたしもベトナムじんです` = Tôi cũng là người Việt Nam).
+### 2.2. Mẹo phân biệt 2 cặp chữ Katakana ""dễ gây lú lẫn nhất""
+Rất nhiều người học tiếng Nhật lâu năm vẫn viết sai 4 chữ cái này. Hãy ghi nhớ mẹo sau:
+- **Cặp 1: `シ (shi)` vs `ツ (tsu)`**:
+  - `シ (shi)`: Nhìn giống mặt cười đang liếc ngang. Hai nét phẩy ngắn nằm gần như theo hàng dọc bên trái, nét vuốt dài bắt đầu từ **dưới vuốt chếch lên trên sang phải**. (Liên tưởng: cô gái mắt liếc ngang duyên dáng Shhh!).
+  - `ツ (tsu)`: Nhìn giống hai giọt nước từ trên cao rơi thẳng xuống. Hai nét phẩy ngắn nằm ngang trên đỉnh đầu, nét vuốt dài bắt đầu từ **trên vuốt chém xuống dưới sang trái**. (Liên tưởng: sóng thần Tsu-nami ập từ trên cao xuống).
+- **Cặp 2: `ン (n)` vs `ソ (so)`**:
+  - `ン (n)`: Chỉ có 1 nét phẩy ngắn nằm ngang bên trái, nét dài vuốt từ **dưới lên trên**.
+  - `ソ (so)`: Nét phẩy ngắn dựng đứng bên trái, nét dài chém từ **trên xuống dưới**.
 
-## 5. Lỗi phát âm & chữ viết người Việt hay mắc
-- **Nhầm 4 chữ Katakana dễ lẫn**: `シ (shi)` viết nét từ trên xuống hướng ngang khác `ツ (tsu)` viết từ trái sang hướng dọc; tương tự `ン (n)` khác `ソ (so)`.
-- **Bỏ quên dấu trường âm `ー`**: Trong Katakana, gạch ngang `ー` kéo dài nguyên âm trước đó đúng 1 nhịp (`コーヒー` koohii, `カード` kaado).
+### 2.3. Dấu trường âm trong Katakana: Dấu gạch ngang `ー`
+- Trong Hiragana, trường âm được biểu thị bằng cách viết thêm nguyên âm tương ứng (`おおきい`, `せんせい`).
+- Nhưng trong Katakana, **toàn bộ trường âm của mọi nguyên âm đều được biểu thị duy nhất bằng một dấu gạch ngang: `ー`** (Chōonpu).
+- Quy tắc: Kéo dài nguyên âm liền trước đúng 1 phách âm.
+  - Ví dụ: `コーヒー` (koo-hii: cà phê, kéo dài cả 2 âm); `カード` (kaa-do: thẻ card); `ノート` (noo-to: cuốn vở ghi chép); `スーパー` (suu-paa: siêu thị).
+  - Tuyệt đối không được bỏ quên dấu gạch ngang này, vì bỏ đi sẽ làm biến đổi hoàn toàn nghĩa của từ!
 
-<!-- studxy-cjk-v1 -->",
-            "Nhận diện bảng Katakana, phân biệt シ/ツ và ソ/ン, thực hành mẫu câu giới thiệu bản thân N5.",
+### 2.4. Văn hóa Tự giới thiệu bản thân (Jikoshoukai - 自己紹介)
+Người Nhật cực kỳ coi trọng ấn tượng đầu tiên (Dai-ichi inshou). Một bài tự giới thiệu bản thân chuẩn mực gồm 4 bước:
+1. **Lời mở đầu**: `はじめまして` (Hajimemashite — Rất hân hạnh lần đầu tiên được diện kiến). Cúi đầu chào góc 30 độ.
+2. **Tên & Quốc tịch**: `わたしは [Tên] です。ベトナムから きました。` (Tôi là... Tôi đến từ Việt Nam).
+3. **Nghề nghiệp / Trực thuộc**: `[Tên trường/Công ty] の [Nghề nghiệp] です。`
+4. **Lời kết thúc kinh điển**: `どうぞ よろしく おねがいします。` (Douzo yoroshiku onegaishimasu — Rất mong nhận được sự giúp đỡ và chỉ bảo của bạn). Cúi đầu chào sâu hơn.
+
+---
+
+## 3. Bảng Từ vựng đầy đủ (単語リスト — Tango Risuto)
+
+| Chữ Kana / Kanji | Romaji | Âm Hán Việt | Nghĩa tiếng Việt | Câu ví dụ hoàn chỉnh |
+|---|---|---|---|---|
+| **ベトナム** | Betonamu | — | Việt Nam | わたしは ベトナムから きました。 *(Tôi đến từ VN.)* |
+| **にほん (日本)** | Nihon | Nhật Bản | Nhật Bản | にほんは きれいな くにです。 *(Nhật Bản là đất nước đẹp.)* |
+| **アメリカ** | Amerika | — | Nước Mỹ / Hoa Kỳ | スミスさんは アメリカじんです。 *(Anh Smith là người Mỹ.)* |
+| **がくせい (学生)** | gakusei | Học Sinh | Học sinh, sinh viên | わたしは だいがくの がくせいです。 *(Tôi là sinh viên ĐH.)* |
+| **せんせい (先生)** | sensei | Tiên Sinh | Thầy/Cô giáo | やまだせんせいは にほんごの せんせいです。 *(Thầy Yamada dạy tiếng Nhật.)* |
+| **かいしゃいん (会社員)** | kaishain | Hội Xã Viên | Nhân viên công ty | たなかさんは かいしゃいんです。 *(Anh Tanaka là nhân viên công ty.)* |
+| **エンジニア** | enjinia | — | Kỹ sư (Engineer) | ミンさんは ITの エンジニアです。 *(Minh là kỹ sư IT.)* |
+| **だいがく (大学)** | daigaku | Đại Học | Trường đại học | とうきょうだいがくの がくせいです。 *(Sinh viên ĐH Tokyo.)* |
+| **コーヒー** | koohii | — | Cà phê (Coffee) | まいあさ コーヒーを のみます。 *(Mỗi sáng tôi uống cà phê.)* |
+| **パソコン** | pasokon | — | Máy tính cá nhân (PC) | これは あたらしい パソコンです。 *(Đây là chiếc máy tính mới.)* |
+| **ノート** | nooto | — | Vở ghi chép (Notebook) | ノートに ひらがなを かきます。 *(Viết Hiragana vào vở.)* |
+| **ホテル** | hoteru | — | Khách sạn (Hotel) | えきの まえに ホテルが あります。 *(Trước ga có khách sạn.)* |
+| **レストラン** | resutoran | — | Nhà hàng (Restaurant) | レストランで ごはんを たべます。 *(Ăn cơm ở nhà hàng.)* |
+| **どうぞ よろしく** | douzo yoroshiku | — | Rất mong được giúp đỡ | はじめまして、どうぞ よろしく。 *(Hân hạnh gặp bạn, nhờ bạn giúp đỡ.)* |
+| **〜さん** | ~san | — | Anh/Chị/Ông/Bà (kính cẩn) | さとうさんは やさしい ひとです。 *(Chị Sato là người tốt bụng.)* |
+
+---
+
+## 4. Ngữ pháp mổ xẻ từng trợ từ & Cấu trúc câu
+
+### 4.1. Trợ từ sở hữu & quan hệ `の (no)`
+- **Công thức**: `[Danh từ 1] の [Danh từ 2]`
+- **Ý nghĩa**: N2 của N1 (thuộc quyền sở hữu, hoặc N1 bổ nghĩa làm rõ phạm trù cho N2).
+- Khác biệt so với tiếng Việt: Tiếng Việt nói ""Sinh viên của trường đại học"" (Cái chính nói trước, cái thuộc về nói sau). Tiếng Nhật nói ngược lại hoàn toàn: `だいがく (N1) の がくせい (N2)`.
+- Ví dụ:
+  - `わたしの ほん` *(Sách của tôi)*.
+  - `FPTの エンジニア` *(Kỹ sư của công ty FPT)*.
+  - `にほんごの せんせい` *(Giáo viên dạy tiếng Nhật)*.
+
+### 4.2. Trợ từ tương đồng `も (mo)`
+- **Ý nghĩa**: ""Cũng..."".
+- **Cách dùng**: Khi chủ ngữ hoặc chủ đề câu thứ hai có đặc điểm giống hệt câu thứ nhất, ta **thay thế trực tiếp trợ từ `は` bằng trợ từ `も`**.
+- Ví dụ:
+  - `ミンさんは がくせいです。` *(Minh là sinh viên.)*
+  - `アンさんも がくせいです。` *(An cũng là sinh viên — Thay は bằng も).*
+
+### 4.3. Hậu tố xưng hô `〜さん` và hậu tố chỉ quốc tịch `〜じん`
+- **Hậu tố `〜さん` (san)**: Gắn sau tên người khác để biểu lộ sự kính trọng lịch sự (tương đương anh/chị/ông/bà trong tiếng Việt).
+  - **Quy tắc vàng bất di bất dịch**: **TUYỆT ĐỐI KHÔNG BAO GIỜ GẮN `〜さん` SAU TÊN CỦA CHÍNH BẢN THÂN MÌNH!** Tự xưng mình là `Minh-san` là hành vi khiếm nhã, tự kiêu trong văn hóa Nhật.
+- **Hậu tố `〜じん` (jin — 人)**: Gắn sau tên quốc gia để tạo thành từ chỉ người mang quốc tịch nước đó.
+  - `ベトナム` (Việt Nam) → `ベトナムじん` (Người Việt Nam).
+  - `にほん` (Nhật Bản) → `にほんじん` (Người Nhật Bản).
+
+### 4.4. 4 ví dụ đối chiếu Đúng / Sai kinh điển người Việt hay mắc
+
+```markdown
+1. ❌ SAI: わたしは ミンさん です。 (Tự xưng tên mình có thêm hậu tố さん)
+   ⭕ ĐÚNG: わたしは ミンです。 (Hoặc trang trọng hơn: ミンと もうします)
+   💡 GIẢI THÍCH: Hậu tố さん dùng để tôn kính người đối diện. Tự xưng mình là さん là lỗi văn hóa rất nặng!
+
+2. ❌ SAI: わたしは ベトナム人 の がくせい です。 (Lạm dụng trợ từ の sai vị trí)
+   ⭕ ĐÚNG: わたしは ベトナムのがくせいです。 hoặc わたしは ベトナムじんです。
+   💡 GIẢI THÍCH: Không ghép quốc tịch và nghề nghiệp lủng củng bằng trợ từ の thừa thãi.
+
+3. ❌ SAI: Quên dấu trường âm Katakana: コヒ, パソコ
+   ⭕ ĐÚNG: コーヒー (koohii), パソコン (pasokon)
+   💡 GIẢI THÍCH: Trong Katakana, thiếu dấu trường âm ー sẽ làm sai lệch hẳn từ vựng chuẩn quốc tế.
+
+4. ❌ SAI: Nhầm nét chữ シ (shi) thành ツ (tsu) trong タクシー (taxi)
+   ⭕ ĐÚNG: タクシー (Viết nét vuốt từ dưới lên cho chữ シ)
+   💡 GIẢI THÍCH: Nếu vuốt từ trên xuống sẽ thành タクツー, người Nhật nhìn vào sẽ thấy kỳ lạ.
+```
+
+---
+
+## 5. Hội thoại thực tế bóc tách từng từ (かいわ — Kaiwa)
+
+### Bối cảnh:
+Buổi lễ chào đón sinh viên quốc tế tại Trường Đại học Công nghệ Tokyo. Bạn Minh gặp chị Sato (cố vấn học tập khoa CNTT).
+
+- **Minh**: はじめまして。わたしは ミンです。ベトナムから きました。
+  - *Romaji*: Hajimemashite. Watashi wa Min desu. Betonamu kara kimashita.
+  - *Phân tích*: `はじめまして` (lần đầu gặp gỡ) + `わたしは` (tôi là) + `ミンです` (Minh) + `ベトナムから` (từ Việt Nam) + `きました` (đã đến).
+  - *Dịch*: Xin chào lần đầu gặp mặt. Tôi tên là Minh. Tôi đến từ Việt Nam.
+
+- **Sato**: はじめまして、さとうです。ミンさんは がくせいですか。
+  - *Romaji*: Hajimemashite, Satou desu. Min-san wa gakusei desu ka?
+  - *Phân tích*: `さとうです` (tôi là Sato) + `ミンさんは` (bạn Minh) + `がくせいですか` (là sinh viên phải không?).
+  - *Dịch*: Rất vui được gặp bạn, tôi là Sato. Bạn Minh là sinh viên đúng không?
+
+- **Minh**: はい、ITの がくせいです。エンジニアを めざしています。
+  - *Romaji*: Hai, IT no gakusei desu. Enjinia o mezashite imasu.
+  - *Phân tích*: `はい` (vâng) + `ITの がくせい` (sinh viên ngành CNTT) + `エンジニアを` (kỹ sư) + `めざしています` (đang hướng tới mục tiêu trở thành).
+  - *Dịch*: Vâng, tôi là sinh viên ngành IT. Tôi đang phấn đấu trở thành kỹ sư phần mềm.
+
+- **Sato**: そうですか！すばらしいですね。どうぞ よろしくおねがいします。
+  - *Romaji*: Sou desu ka! Subarashii desu ne. Douzo yoroshiku onegaishimasu.
+  - *Phân tích*: `そうですか` (vậy sao!) + `すばらしいですね` (tuyệt vời quá nhỉ) + `どうぞよろしくおねがいします` (rất vui được hợp tác và giúp đỡ em).
+  - *Dịch*: Vậy à! Tuyệt vời quá. Rất mong được giúp đỡ bạn nhé!
+
+- **Minh**: こちらこそ、よろしく おねがいします！
+  - *Romaji*: Kochira koso, yoroshiku onegaishimasu!
+  - *Phân tích*: `こちらこそ` (chính tôi mới là người cần nói câu đó / về phía tôi cũng vậy).
+  - *Dịch*: Chính tôi mới là người cần sự giúp đỡ của chị ạ!
+
+---
+
+## 6. Bài tập tự luyện & Tự kiểm tra cuối bài
+
+### Phần A: Luyện tập viết chữ & ngữ pháp
+1. Hãy chuyển các từ mượn sau đây sang chữ Katakana: *Coffee*, *Notebook*, *Hotel*.
+2. Điền trợ từ `の` hoặc `も` vào chỗ trống:
+   - `たなかさんは せんせいです。すずきさん___ せんせいです。`
+   - `これは わたし___ パソコンです。`
+3. Hãy viết một đoạn giới thiệu bản thân 4 câu bằng tiếng Nhật dựa trên thông tin của chính bạn.
+
+### Phần B: Đề tự kiểm tra năng lực cuối bài (5 câu mô phỏng N5)
+
+<details>
+<summary>👉 Xem đáp án & Giải thích chi tiết từng câu</summary>
+
+1. **Câu 1**:
+   - Coffee → `コーヒー` (có 2 dấu gạch ngang trường âm)
+   - Notebook → `ノート`
+   - Hotel → `ホテル`
+2. **Câu 2**:
+   - Câu đầu điền **も** (`すずきさんも せんせいです` — Suzuki cũng là giáo viên).
+   - Câu sau điền **の** (`わたしの パソコン` — Máy tính của tôi).
+3. **Câu 3 mẫu**:
+   - `はじめまして。わたしは アンです。ベトナムじんです。だいがくせいです。どうぞよろしくおねがいします。`
+4. **Câu 4**: Phân biệt chữ `シ` và `ツ` trong từ Katakana `タクシー`:
+   - Chữ thứ 3 là `シ (shi)` với nét vuốt từ dưới lên trên.
+5. **Câu 5 trắc nghiệm**: Tại sao không được nói `わたしは ミンさん です`?
+   - *Đáp án*: Vì hậu tố `さん` thể hiện sự tôn kính đối phương, không được dùng để xưng hô bản thân mình.
+
+</details>
+
+> [!TIP]
+> **Mẹo ôn tập nhanh:** Sau khi đọc xong lý thuyết, hãy mở **Phòng Thực Hành (Shadowing / Dictation / Word Map)** ngay bên dưới để rèn phản xạ nghe-nói ja-JP và lưu từ mới vào FSRS.
+
+<!-- studxy-cjk-v1 -->
+<!-- studxy-cjk-v2 -->
+<!-- studxy-cjk-v3 -->",
+            "Nhận diện bảng Katakana, phân biệt シ/ツ và ソ/ン, thực hành tự giới thiệu bản thân 4 bước N5.",
             "Vận dụng chuẩn trợ từ は, の, も và hậu tố chỉ quốc tịch 〜じん (〜人)."),
 
         new CjkLessonMeta(
             SeedDataInitializer.JapaneseCourseId, SeedDataInitializer.JapaneseChapter2Id, SeedDataInitializer.JapaneseLesson21Id,
             "Bài 2.1: Số đếm, Giờ giấc & Lịch hẹn cơ bản",
-            "ja-n5-so-dem-gio-giac-lich-hen", 1, 25,
+            "ja-n5-so-dem-gio-giac-lich-hen", 1, 35,
             @"# Bài 2.1: Số đếm, Giờ giấc & Lịch hẹn cơ bản
 
-## 1. Mục tiêu bài học
-- Đếm số từ 1 đến 10.000 (`いち` → `いちまん`), nắm các biến âm đặc biệt khi ghép với **〜じ (giờ)** và **〜ふん/ぷん (phút)**.
-- Hỏi và trả lời thời gian hiện tại, ngày trong tuần và đặt lịch hẹn với **〜から〜まで** (từ... đến...).
-- Phân biệt rõ trợ từ **に** đứng sau mốc thời gian cụ thể.
+## 1. Mục tiêu bài học (がくしゅうもくひょう)
+Làm chủ hệ thống con số và thời gian là bước ngoặt quan trọng giúp bạn bắt đầu sinh hoạt thực tế tại Nhật Bản:
+- Đếm thành thạo các con số từ 0 đến 10.000 trong tiếng Nhật, nắm bắt cơ chế tư duy theo vạn (`万 - まん`) thay vì theo nghìn của người Á Đông.
+- Thuộc làu các trường hợp biến âm bất quy tắc kinh điển khi ghép số với đơn vị đo giờ (**〜じ**) và phút (**〜ふん / 〜ぷん**).
+- Làm chủ cách gọi 7 ngày trong tuần dựa trên thuyết ngũ hành và thiên thể (Nguyệt, Hỏa, Thủy, Mộc, Kim, Thổ, Nhật).
+- Sử dụng chuẩn xác trợ từ thời điểm **に (ni)**, phân biệt rõ các trường hợp bắt buộc dùng `に` và trường hợp cấm kỵ dùng `に`.
+- Thiết lập lịch hẹn, hỏi giờ hiện tại và diễn đạt khoảng thời gian làm việc bằng cấu trúc **〜から 〜まで** (Từ... đến...).
+- Vượt qua các lỗi nhầm lẫn tai hại của người Việt về mốc 4 giờ, 7 giờ, 9 giờ và các âm ngắt phút.
 
-## 2. Bảng số đếm & Giờ giấc trọng tâm
+---
 
-| Số | Đọc cơ bản | Giờ (〜じ) | Phút (〜ふん / ぷん) | Lưu ý biến âm |
+## 2. 🌱 Nhập môn chậm rãi từng bước: Hệ thống số đếm & Thời gian
+
+### 2.1. Bản chất hệ đếm từ 1 đến 10.000 trong tiếng Nhật
+Hệ số đếm cơ bản từ 1 đến 10:
+- `1: いち (ichi)` | `2: に (ni)` | `3: さん (san)` | `4: よん / し (yon / shi)` | `5: ご (go)`
+- `6: ろく (roku)` | `7: なな / しち (nana / shichi)` | `8: はち (hachi)` | `9: きゅう / く (kyuu / ku)` | `10: じゅう (juu)`
+
+**Điểm đặc biệt cần lưu ý về hàng số lớn**:
+- `100: ひゃく (hyaku)` | `1.000: せん (sen)` | `10.000: いちまん (ichiman)`
+- Trong tiếng Việt và phương Tây, các con số được ngắt nhóm 3 chữ số (hàng nghìn - thousand): `10.000` đọc là ""mười nghìn"" (ten thousand).
+- Nhưng trong tiếng Nhật và văn hóa Á Đông, các con số được ngắt nhóm **4 chữ số** (hàng vạn - 万): `10.000` là một đơn vị độc lập gọi là **いちまん (1 vạn)**. Do đó `50.000` sẽ là `ごまん (5 vạn)`, không có từ ghép ""năm mươi nghìn"".
+
+### 2.2. Biến âm giờ (〜じ - ji): 3 mốc thời gian ""bẫy"" học viên
+Khi đếm giờ, ta gắn hậu tố `〜じ (時)` sau số đếm. Có 3 mốc giờ đặc biệt bắt buộc bạn phải nhớ như in:
+1. **4 giờ: よじ (yoji)** — **Tuyệt đối KHÔNG đọc là しじ hay よんじ!** (Vì chữ `し` đồng âm với chữ ""Tử - chết"" nên người Nhật kiêng kỵ khi nói giờ).
+2. **7 giờ: しちじ (shichiji)** — Thường ưu tiên đọc là `しちじ` thay vì `ななじ`.
+3. **9 giờ: くじ (kuji)** — **Tuyệt đối KHÔNG đọc là きゅうじ!** (Chữ `く` ở đây là biến âm ngắn gọn của số 9).
+
+### 2.3. Bảng biến âm phút (〜ふん / 〜ぷん): Quy tắc âm ngắt
+Đếm phút là thử thách lớn nhất cho người mới bắt đầu vì hiện tượng biến âm giữa `ふん (fun)` và `ぷん (pun - có âm ngắt)`:
+- **Các số đi với `ぷん (pun)` và có âm ngắt `っ`**:
+  - `1 phút`: **いっぷん** (ippun) — biến từ `いち + ふん`.
+  - `3 phút`: **さんぷん** (sanpun) — đọc nhẹ âm p.
+  - `4 phút`: **よんぷん** (yonpun).
+  - `6 phút`: **ろっぷん** (roppun) — biến từ `ろく + ふん`.
+  - `8 phút`: **はっぷん** (happun) — biến từ `はち + ふん`.
+  - `10 phút`: **じゅっぷん** (juppun / hoặc jippun).
+- **Các số đi với `ふん (fun)` bình thường**:
+  - `2 phút: にふん` | `5 phút: ごふん` | `7 phút: ななふん` | `9 phút: きゅうふん`.
+- **Nửa giờ (30 phút)**: dùng từ **はん (半 - han)**. Ví dụ: `くじはん` = 9 giờ rưỡi.
+
+### 2.4. Thứ trong tuần theo quy luật Thiên thể & Ngũ hành
+Người Nhật đặt tên 7 ngày trong tuần theo mặt trời, mặt trăng và 5 hành tố vũ trụ:
+- **Thứ Hai**: `げつようび (月曜日 - Nguyệt)` — Ngày của mặt trăng.
+- **Thứ Ba**: `かようび (火曜日 - Hỏa)` — Ngày của lửa.
+- **Thứ Tư**: `すいようび (水曜日 - Thủy)` — Ngày của nước.
+- **Thứ Năm**: `もくようび (木曜日 - Mộc)` — Ngày của cây cối rừng xanh.
+- **Thứ Sáu**: `きんようび (金曜日 - Kim)` — Ngày của vàng bạc kim loại.
+- **Thứ Bảy**: `どようび (土曜日 - Thổ)` — Ngày của đất mẹ.
+- **Chủ Nhật**: `にちようび (日曜日 - Nhật)` — Ngày của vầng thái dương.
+
+---
+
+## 3. Bảng Từ vựng đầy đủ (単語リスト — Tango Risuto)
+
+| Chữ Kana / Kanji | Romaji | Âm Hán Việt | Nghĩa tiếng Việt | Câu ví dụ hoàn chỉnh |
 |---|---|---|---|---|
-| 1 | いち (ichi) | いちじ (1 giờ) | いっぷん (1 phút) | Biến âm ngắt っ + ぷ |
-| 3 | さん (san) | さんじ (3 giờ) | さんぷん (3 phút) | Đọc `ぷん` |
-| 4 | よん / し | **よじ** (4 giờ) | よんぷん (4 phút) | Không đọc しじ! |
-| 6 | ろく (roku) | ろくじ (6 giờ) | **ろっぷん** (6 phút) | Biến âm っ + ぷ |
-| 7 | なな / しち | **しちじ** (7 giờ) | ななふん (7 phút) | Ưu tiên しちじ |
-| 9 | きゅう / く | **くじ** (9 giờ) | きゅうふん (9 phút) | Không đọc きゅうじ! |
-| 10 | じゅう (juu) | じゅうじ (10 giờ) | **じゅっぷん** (10 phút) | Biến âm ngắt っ |
+| **いま (今)** | ima | Kim | Bây giờ | いま なんじですか。 *(Bây giờ là mấy giờ?)* |
+| **〜じ (〜時)** | ~ji | Thời | ... giờ | いまは くじです。 *(Bây giờ là 9 giờ.)* |
+| **〜ふん / 〜ぷん (〜分)** | ~fun / ~pun | Phân | ... phút | じゅうごふん かかります。 *(Mất khoảng 15 phút.)* |
+| **はん (半)** | han | Bán | Rưỡi, một nửa (30 phút) | しちじはんに おきます。 *(Thức dậy lúc 7 giờ rưỡi.)* |
+| **なんじ (何時)** | nanji | Hà Thời | Mấy giờ? | かいぎは なんじからですか。 *(Cuộc họp từ mấy giờ?)* |
+| **なんぷん (何分)** | nanpun | Hà Phân | Mấy phút? | なんぷん まちましたか。 *(Bạn đã đợi mấy phút rồi?)* |
+| **ごぜん (午前)** | gozen | Ngọ Tiền | Buổi sáng (AM) | ごぜん はちじに いきます。 *(Đi lúc 8 giờ sáng.)* |
+| **ごご (午後)** | gogo | Ngọ Hậu | Buổi chiều / tối (PM) | ごご にじに あいましょう。 *(Gặp nhau lúc 2 giờ chiều nhé.)* |
+| **きょう (今日)** | kyou | Kim Nhật | Hôm nay | きょうは すいようびです。 *(Hôm nay là thứ Tư.)* |
+| **あした (明日)** | ashita | Minh Nhật | Ngày mai | あした テストが あります。 *(Ngày mai có bài kiểm tra.)* |
+| **きのう (昨日)** | kinou | Tạc Nhật | Hôm qua | きのう たくさん べんきょうしました。 *(Hôm qua học nhiều.)* |
+| **まいにち (毎日)** | mainichi | Mỗi Nhật | Mỗi ngày, hằng ngày | まいにち にほんごを はなします。 *(Hằng ngày tôi nói tiếng Nhật.)* |
+| **まいあさ (毎朝)** | maiasa | Mỗi Triêu | Mỗi buổi sáng | まいあさ ろくじに おきます。 *(Mỗi sáng tôi dậy lúc 6 giờ.)* |
+| **まいばん (毎晩)** | maiban | Mỗi Vãn | Mỗi buổi tối | まいばん ほんを よみます。 *(Mỗi tối tôi đọc sách.)* |
+| **おきます (起きます)** | okimasu | Khởi | Thức dậy | あした しちじに おきます。 *(Ngày mai tôi sẽ dậy lúc 7 giờ.)* |
+| **ねます (寝ます)** | nemasu | Tẩm | Đi ngủ | まいばん じゅういちじに ねます。 *(Tôi ngủ lúc 11 giờ đêm.)* |
+| **はたらきます (働きます)** | hatarakimasu | Động | Làm việc | ぎんこうで はたらきます。 *(Làm việc ở ngân hàng.)* |
 
-## 3. Hội thoại hỏi giờ & hẹn lịch
-- **Lan:** すみません、いまなんじですか。 *(Sumimasen, ima nanji desu ka?)* — Xin lỗi, bây giờ là mấy giờ rồi ạ?
-- **Ken:** ごぜんくじはん（9:30）です。 *(Gozen kuji han desu.)* — Là 9 giờ rưỡi sáng ạ.
-- **Lan:** かいぎはなんじからなんじまでですか。 *(Kaigi wa nanji kara nanji made desu ka?)* — Cuộc họp diễn ra từ mấy giờ đến mấy giờ vậy?
-- **Ken:** じゅうじからじゅういちじさんじゅっぷんまでです。 *(Juuji kara juuichiji sanjuppun made desu.)* — Từ 10 giờ đến 11 giờ 30 phút.
-- **Lan:** わかりました。あしたのしちじにおきます。 *(Wakarimashita. Ashita no shichiji ni okimasu.)* — Tôi hiểu rồi. Ngày mai tôi sẽ thức dậy lúc 7 giờ.
+---
 
-## 4. Điểm ngữ pháp & Khái niệm cốt lõi
-- **Trợ từ に (ni) chỉ thời điểm**: Gắn ngay sau mốc thời gian có con số cụ thể như giờ, ngày, thứ (`しちじにおきます` = dậy lúc 7 giờ), KHÔNG dùng sau `きょう/あした/まいにち`.
-- **Cấu trúc 〜から〜まで**: Diễn đạt khoảng thời gian hoặc không gian ""từ A đến B"" (`くじからごじまで` = từ 9 giờ đến 5 giờ).
-- **Biến âm giờ đặc biệt**: Ba mốc giờ luôn phải thuộc lòng là **4 giờ (よじ)**, **7 giờ (しちじ)** và **9 giờ (くじ)**.
-- **Từ chỉ buổi sáng/chiều**: `ごぜん (午前)` = sáng (AM), `ごご (午後)` = chiều/tối (PM), đặt TRƯỚC số giờ.
+## 4. Ngữ pháp mổ xẻ từng trợ từ & Cấu trúc câu
 
-## 5. Lỗi phát âm người Việt hay mắc
-- **Quên âm ngắt `っ` trong phút**: `いっぷん` (1 phút), `ろっぷん` (6 phút), `はっぷん` (8 phút), `じゅっぷん` (10 phút) đều bắt buộc dừng nhẹ 1 phách rồi bật hơi âm `p`.
-- **Đọc sai trường âm `じゅう (10)` thành `じゅ`**: `じゅうじ` (10 giờ) kéo dài âm `uu`.
+### 4.1. Trợ từ thời điểm `に (ni)`: Khi nào DÙNG và khi nào CẤM DÙNG?
+- **Quy tắc bắt buộc DÙNG `に`**:
+  - Gắn sau các mốc thời gian **có con số cụ thể** (giờ, phút, ngày, tháng, năm, thứ trong tuần).
+  - Ví dụ: `しちじに おきます` *(Thức dậy lúc 7 giờ)*; `にちようびに あいます` *(Gặp nhau vào Chủ nhật)*.
+- **Quy tắc CẤM DÙNG `に`**:
+  - Tuyệt đối **KHÔNG dùng `に`** sau các từ chỉ thời gian mang tính ước lệ, tương đối so với thời điểm nói như: `きょう (hôm nay)`, `あした (ngày mai)`, `きのう (hôm qua)`, `いま (bây giờ)`, `まいにち (mỗi ngày)`, `こんしゅう (tuần này)`.
+  - Nói `あしたに いきます` là hoàn toàn sai ngữ pháp! Phải nói: `あした いきます`.
 
-<!-- studxy-cjk-v1 -->",
+### 4.2. Cấu trúc khoảng thời gian: `〜から 〜まで` (Từ... đến...)
+- **Công thức**: `[Thời điểm 1] から [Thời điểm 2] まで [Động từ]`
+- `から (kara)`: Từ (mốc bắt đầu).
+- `まで (made)`: Đến (mốc kết thúc).
+- Có thể dùng kết hợp cả hai hoặc dùng độc lập từng từ.
+- Ví dụ:
+  - `くじから ごじまで はたらきます。` *(Tôi làm việc từ 9 giờ đến 5 giờ).*
+  - `かいぎは じゅうじからです。` *(Cuộc họp bắt đầu từ 10 giờ).*
+
+### 4.3. 4 ví dụ đối chiếu Đúng / Sai kinh điển người Việt hay mắc
+
+```markdown
+1. ❌ SAI: きょうに とうきょうへ いきます (Thêm trợ từ に sau từ thời gian tương đối)
+   ⭕ ĐÚNG: きょう とうきょうへ いきます。 (Bỏ hoàn toàn trợ từ に)
+   💡 GIẢI THÍCH: きょう, あした, まいにち không có con số cụ thể nên không bao giờ đi với に.
+
+2. ❌ SAI: 4 giờ nói là しじ hay よんじ
+   ⭕ ĐÚNG: よじ (yoji) — phát âm ngắn gọn 2 âm tiết.
+   💡 GIẢI THÍCH: 4 giờ có quy tắc biến âm bất di bất dịch trong tiếng Nhật là よじ.
+
+3. ❌ SAI: 9 giờ nói là きゅうじ
+   ⭕ ĐÚNG: くじ (kuji)
+   💡 GIẢI THÍCH: Tương tự như 4 giờ, 9 giờ chỉ được phát âm là くじ khi đi với hậu tố 時.
+
+4. ❌ SAI: 10.000 yên đọc là じゅうせんえん (Mười nghìn theo tiếng Việt)
+   ⭕ ĐÚNG: いちまんえん (1 vạn yên)
+   💡 GIẢI THÍCH: Tiếng Nhật gom nhóm 4 số 0 thành đơn vị まん (万), 10.000 bắt buộc đọc là いちまん.
+```
+
+---
+
+## 5. Hội thoại thực tế bóc tách từng từ (かいわ — Kaiwa)
+
+### Bối cảnh:
+Tại văn phòng làm việc ở Tokyo. Chị Lan hỏi anh Ken về lịch trình cuộc họp dự án sắp tới.
+
+- **Lan**: すみません、いま なんじですか。
+  - *Romaji*: Sumimasen, ima nanji desu ka?
+  - *Phân tích*: `すみません` (xin lỗi xin phép) + `いま` (bây giờ) + `なんじですか` (mấy giờ rồi?).
+  - *Dịch*: Xin lỗi anh, bây giờ là mấy giờ rồi ạ?
+
+- **Ken**: いま ごぜん くじはんです。
+  - *Romaji*: Ima gozen kuji han desu.
+  - *Phân tích*: `いま` (hiện tại) + `ごぜん` (buổi sáng AM) + `くじはん` (9 giờ 30 phút / 9 rưỡi) + `です` (lịch sự).
+  - *Dịch*: Bây giờ là 9 giờ rưỡi sáng.
+
+- **Lan**: かいぎは なんじから なんじまでですか。
+  - *Romaji*: Kaigi wa nanji kara nanji made desu ka?
+  - *Phân tích*: `かいぎは` (cuộc họp) + `なんじから` (từ mấy giờ) + `なんじまで` (đến mấy giờ) + `ですか` (hỏi).
+  - *Dịch*: Cuộc họp diễn ra từ mấy giờ đến mấy giờ vậy anh?
+
+- **Ken**: じゅうじから じゅういちじさんじゅっぷんまでです。
+  - *Romaji*: Juuji kara juuichiji sanjuppun made desu.
+  - *Phân tích*: `じゅうじから` (từ 10:00) + `じゅういちじさんじゅっぷんまで` (đến 11:30) + `です`.
+  - *Dịch*: Từ 10 giờ đến 11 giờ 30 phút em nhé.
+
+- **Lan**: わかりました。あしたは なんじに おきますか。
+  - *Romaji*: Wakarimashita. Ashita wa nanji ni okimasu ka?
+  - *Phân tích*: `わかりました` (tôi đã hiểu rồi) + `あしたは` (ngày mai) + `なんじに` (lúc mấy giờ) + `おきますか` (anh thức dậy?).
+  - *Dịch*: Em hiểu rồi ạ. Sáng mai anh thức dậy lúc mấy giờ thế?
+
+- **Ken**: ろくじはんに おきます。じゃ、じゅんびを しましょう！
+  - *Romaji*: Rokuji han ni okimasu. Ja, junbi o shimashou!
+  - *Phân tích*: `ろくじはんに` (lúc 6:30) + `おきます` (dậy) + `じゃ` (vậy thì) + `じゅんびをしましょう` (chúng ta cùng chuẩn bị nào).
+  - *Dịch*: Anh dậy lúc 6 rưỡi. Nào, chúng mình cùng chuẩn bị tài liệu thôi!
+
+---
+
+## 6. Bài tập tự luyện & Tự kiểm tra cuối bài
+
+### Phần A: Luyện tập phản xạ đọc số & thời gian
+1. Đọc các mốc giờ sau bằng Hiragana: `4:00`, `7:00`, `9:00`, `11:30`.
+2. Đọc các số phút sau: `1 phút`, `3 phút`, `6 phút`, `10 phút`.
+3. Điền trợ từ `に`, `から`, `まで` thích hợp vào câu:
+   - `わたしは まいばん じゅうにじ___ ねます。`
+   - `ぎんこうは くじ___ さんじ___ です。`
+
+### Phần B: Đề tự kiểm tra năng lực cuối bài (5 câu mô phỏng N5)
+
+<details>
+<summary>👉 Xem đáp án & Giải thích chi tiết từng câu</summary>
+
+1. **Câu 1**:
+   - 4:00: `よじ` (yoji)
+   - 7:00: `しちじ` (shichiji)
+   - 9:00: `くじ` (kuji)
+   - 11:30: `じゅういちじはん` (juuichiji han)
+2. **Câu 2**:
+   - 1 phút: `いっぷん` (ippun)
+   - 3 phút: `さんぷん` (sanpun)
+   - 6 phút: `ろっぷん` (roppun)
+   - 10 phút: `じゅっぷん` (juppun)
+3. **Câu 3**:
+   - Câu đầu điền **に** (`じゅうにじに ねます` — Đi ngủ lúc 12 giờ đêm).
+   - Câu sau điền **から / まで** (`くじから さんじまで` — Từ 9 giờ đến 3 giờ).
+4. **Câu 4 trắc nghiệm**: Tại sao câu `あしたに がっこうへ いきます` lại sai?
+   - *Đáp án*: Vì `あした` là từ chỉ thời gian tương đối, không được đi với trợ từ `に`.
+5. **Câu 5 trắc nghiệm**: Thứ Tư trong tiếng Nhật đọc là gì?
+   - *Đáp án*: `すいようび (水曜日)` — Ngày Thủy.
+
+</details>
+
+> [!TIP]
+> **Mẹo ôn tập nhanh:** Sau khi đọc xong lý thuyết, hãy mở **Phòng Thực Hành (Shadowing / Dictation / Word Map)** ngay bên dưới để rèn phản xạ nghe-nói ja-JP và lưu từ mới vào FSRS.
+
+<!-- studxy-cjk-v1 -->
+<!-- studxy-cjk-v2 -->
+<!-- studxy-cjk-v3 -->",
             "Thuộc số đếm 1–10.000, các biến âm giờ phút đặc biệt (よじ, しちじ, くじ, ろっぷん) và cấu trúc 〜から〜まで.",
-            "Đặt lịch hẹn cơ bản và sử dụng chính xác trợ từ に sau mốc thời gian."),
+            "Đặt lịch hẹn cơ bản và sử dụng chính xác trợ từ に sau mốc thời gian cụ thể."),
 
         new CjkLessonMeta(
             SeedDataInitializer.JapaneseCourseId, SeedDataInitializer.JapaneseChapter2Id, SeedDataInitializer.JapaneseLesson22Id,
             "Bài 2.2: Hỏi giá, Mua sắm & Đặt món ăn",
-            "ja-n5-hoi-gia-mua-sam-dat-mon", 2, 25,
+            "ja-n5-hoi-gia-mua-sam-dat-mon", 2, 35,
             @"# Bài 2.2: Hỏi giá, Mua sắm & Đặt món ăn
 
-## 1. Mục tiêu bài học
-- Phân biệt chuẩn hệ thống đại từ chỉ định **これ / それ / あれ** và **この / その / あの + Danh từ**.
-- Tự tin hỏi giá tiền (`いくらですか`), đọc số tiền Yên (`ひゃく / せん / まん`) và gọi món bằng **〜をください**.
-- Luyện các cụm lịch sự quen thuộc trong cửa hàng và quán ăn tại Nhật Bản.
+## 1. Mục tiêu bài học (がくしゅうもくひょう)
+Đi mua sắm tại cửa hàng tiện lợi (Konbini) và tự tin gọi món ăn tại tiệm mì Nhật Bản là trải nghiệm tuyệt vời:
+- Phân biệt rạch ròi hệ thống đại từ chỉ định **これ / それ / あれ / どれ** (đứng độc lập) và bộ từ hạn định **この / その / あの / どの + Danh từ**.
+- Nắm vững bộ số đếm thuần Nhật từ 1 đến 10 (**ひとつ〜とお**) chuyên dùng đếm đồ vật khi gọi món ăn và mua sắm.
+- Đọc chính xác mệnh giá tiền Yên Nhật (円 - えん), thuộc lòng các biến âm hàng trăm (**さんびゃく, ろっぴゃく, はっぴゃく**) và hàng nghìn (**さんぜん, はっせん**).
+- Vận dụng nhuần nhuyễn mẫu câu hỏi giá tiền **〜は いくらですか** và mẫu câu đề nghị lịch sự **〜を ください**.
+- Sử dụng đúng trợ từ liên kết **と (to)** khi gọi nhiều món ăn cùng lúc.
+- Luyện phong thái giao tiếp tự nhiên với nhân viên phục vụ qua các cụm từ cửa sổ: `いらっしゃいませ`, `かしこまりました`.
 
-## 2. Bảng chỉ định từ Ko-So-A-Do & Số tiền Yên
+---
 
-| Khoảng cách | Đại từ đứng độc lập | Đi trước Danh từ (+ N) | Nghĩa tiếng Việt |
-|---|---|---|---|
-| Gần người nói | **これ** (kore) | **この** + N (kono) | Cái này / N này |
-| Gần người nghe | **それ** (sore) | **その** + N (sono) | Cái đó / N đó |
-| Xa cả hai | **あれ** (are) | **あの** + N (ano) | Cái kia / N kia |
-| Nghi vấn | **どれ** (dore) | **どの** + N (dono) | Cái nào / N nào |
+## 2. 🌱 Nhập môn chậm rãi từng bước: Hệ từ chỉ định & Bộ số đếm thuần Nhật
 
-> **Biến âm trăm & nghìn cần nhớ:** `300 = さんびゃく`, `600 = ろっぴゃく`, `800 = はっぴゃく`, `3000 = さんぜん`, `8000 = はっせん`.
+### 2.1. Hệ thống chỉ định từ Ko - So - A - Do (こ・そ・あ・ど)
+Trong tiếng Nhật, vị trí của đồ vật được xác định dựa trên mối tương quan khoảng cách giữa Người nói và Người nghe:
+- **Nhóm こ (Ko - Gần người nói)**:
+  - `これ (kore)`: Cái này (vật ở sát ngay cạnh người nói).
+  - `この + N (kono)`: ... này (bắt buộc đi kèm danh từ ngay phía sau).
+  - `ここ (koko)`: Chỗ này, ở đây.
+- **Nhóm そ (So - Gần người nghe)**:
+  - `それ (sore)`: Cái đó (vật ở gần người nghe, xa người nói).
+  - `その + N (sono)`: ... đó.
+  - `そこ (soko)`: Chỗ đó, ở đó.
+- **Nhóm あ (A - Xa cả hai người)**:
+  - `あれ (are)`: Cái kia (vật ở xa cả người nói lẫn người nghe).
+  - `あの + N (ano)`: ... kia.
+  - `あそこ (asoko)`: Chỗ kia.
+- **Nhóm ど (Do - Nghi vấn từ)**:
+  - `どれ (dore)`: Cái nào?
+  - `どの + N (dono)`: ... nào?
+  - `どこ (doko)`: Ở đâu?
 
-## 3. Hội thoại tại quán cà phê & cửa hàng
-- **Nhân viên:** いらっしゃいませ！ごちゅうもんはおきまりですか。 *(Irasshaimase! Gochuumon wa okimari desu ka?)* — Xin kính chào quý khách! Quý khách đã chọn được món chưa ạ?
-- **Minh:** すみません、このコーヒーはいくらですか。 *(Sumimasen, kono koohii wa ikura desu ka?)* — Xin lỗi, ly cà phê này bao nhiêu tiền ạ?
-- **Nhân viên:** さんびゃくごじゅうえんです。 *(Sanbyaku gojuu en desu.)* — 350 yên ạ.
-- **Minh:** じゃ、ホットコーヒーをひとつと、サンドイッチをください。 *(Ja, hotto koohii o hitotsu to, sandoicchi o kudasai.)* — Vậy cho tôi 1 cà phê nóng và bánh sandwich ạ.
-- **Nhân viên:** かしこまりました。ぜんぶでななひゃくえんです。 *(Kashikomarimashita. Zenbu de nanahyaku en desu.)* — Vâng tôi đã rõ. Tổng cộng là 700 yên ạ.
+**SỰ KHÁC BIỆT SỐNG CÒN GIỮA `これ` VÀ `この`**:
+- `これ` là **Đại từ độc lập**, có thể đứng một mình làm chủ ngữ trước trợ từ `は`:
+  - `これは いくらですか。` *(Cái này bao nhiêu tiền? — ĐÚNG).*
+- `この` là **Từ hạn định (Liên thể từ)**, **BẮT BUỘC phải có Danh từ đi kèm ngay sau nó**, không bao giờ đứng đơn độc một mình:
+  - `このほんは いくらですか。` *(Cuốn sách này bao nhiêu tiền? — ĐÚNG).*
+  - `このは いくらですか。` *(SAI HOÀN TOÀN!).*
 
-## 4. Điểm ngữ pháp & Khái niệm cốt lõi
-- **Mẫu câu gọi món 〜をください**: Nghĩa là ""Làm ơn cho tôi [danh từ]"", dùng trợ từ **を (đọc là o)** ngay trước `ください`.
-- **Phân biệt これ và この**: `これ` đứng một mình làm chủ ngữ (`これはいくらですか`), còn `この` bắt buộc có danh từ theo sau (`このかばんはいくらですか`).
-- **Số đếm đồ vật thuần Nhật (ひとつ〜とお)**: `ひとつ (1)`, `ふたつ (2)`, `みっつ (3)` cực kỳ hữu dụng khi gọi món ăn hoặc mua hàng ở Nhật.
-- **Trợ từ と (to) liệt kê**: Nối hai danh từ đầy đủ nghĩa là ""A và B"" (`コーヒーとケーキ` = cà phê và bánh ngọt).
+### 2.2. Bộ số đếm thuần Nhật cho đồ vật (ひとつ 〜 とお)
+Khi gọi món ăn (cà phê, bánh mì, bát mì ramen, quả táo), người Nhật không đếm bằng `いち, に, さん` mà dùng bộ số đếm thuần Nhật cổ:
+- `1 cái`: **ひとつ (hitotsu)**
+- `2 cái`: **ふたつ (futatsu)**
+- `3 cái`: **みっつ (mittsu)** — có âm ngắt.
+- `4 cái`: **よっつ (yottsu)** — có âm ngắt.
+- `5 cái`: **いつつ (itsutsu)**
+- `6 cái`: **むっつ (muttsu)** — có âm ngắt.
+- `7 cái`: **ななつ (nanatsu)**
+- `8 cái`: **やっつ (yattsu)** — có âm ngắt.
+- `9 cái`: **ここのつ (kokonotsu)**
+- `10 cái`: **とお (too)** — kéo dài trường âm, không có đuôi `つ`.
+- Từ 11 trở lên: Quay trở lại dùng số đếm thường ghép với danh từ.
 
-## 5. Lỗi phát âm người Việt hay mắc
-- **Quên biến âm ngắt trong giá tiền**: `ろっぴゃくえん` (600 yên), `はっぴゃくえん` (800 yên), `いらっしゃいませ` đều có âm ngắt `っ`.
-- **Đọc `を` thành `wo` nặng**: Trong giao tiếp hiện đại, trợ từ `を` đọc nhẹ là `o`.
+### 2.3. Tiền Yên Nhật & Biến âm hàng Trăm, Nghìn
+Đơn vị tiền tệ của Nhật là Yên (円), đọc là **えん (en)**.
+- **Biến âm hàng trăm (〜ひゃく - hyaku)**:
+  - 100: `ひゃく`
+  - 300: **さんびゃく** (sanbyaku) — biến âm đục `びゃ`.
+  - 600: **ろっぴゃく** (roppyaku) — biến âm ngắt + bán đục `っぴゃ`.
+  - 800: **はっぴゃく** (happyaku) — biến âm ngắt + bán đục `っぴゃ`.
+- **Biến âm hàng nghìn (〜せん - sen)**:
+  - 1.000: `せん`
+  - 3.000: **さんぜん** (sanzen) — biến âm đục `ぜ`.
+  - 8.000: **はっせん** (hassen) — biến âm ngắt `っせ`.
 
-<!-- studxy-cjk-v1 -->",
+---
+
+## 3. Bảng Từ vựng đầy đủ (単語リスト — Tango Risuto)
+
+| Chữ Kana / Kanji | Romaji | Âm Hán Việt | Nghĩa tiếng Việt | Câu ví dụ hoàn chỉnh |
+|---|---|---|---|---|
+| **これ / それ / あれ** | kore / sore / are | — | Cái này / Cái đó / Cái kia | これは いくらですか。 *(Cái này bao nhiêu tiền?)* |
+| **この / その / あの** | kono / sono / ano | — | ... này / ... đó / ... kia | このシャツは たかいです。 *(Chiếc áo sơ mi này đắt.)* |
+| **いくら** | ikura | — | Bao nhiêu tiền? | このラーメンは いくらですか。 *(Mì ramen này bao nhiêu tiền?)* |
+| **〜えん (〜円)** | ~en | Yên | Đồng Yên Nhật | ぜんぶで はっぴゃくえんです。 *(Tổng cộng là 800 yên.)* |
+| **〜を ください** | ~o kudasai | — | Làm ơn cho tôi... | これを ひとつ ください。 *(Cho tôi lấy 1 cái này.)* |
+| **メニュー** | menyuu | — | Thực đơn (Menu) | メニューを みせてください。 *(Làm ơn cho tôi xem thực đơn.)* |
+| **ラーメン** | raamen | — | Mì Ramen Nhật | しょうゆラーメンを ひとつ ください。 *(Cho tôi 1 mì ramen shoyu.)* |
+| **サンドイッチ** | sandoicchi | — | Bánh sandwich | サンドイッチを ふたつ かいました。 *(Tôi đã mua 2 cái sandwich.)* |
+| **みず (水) / おみず** | mizu / omizu | Thủy | Nước lọc | おみずを おねがいします。 *(Làm ơn cho tôi xin nước lọc.)* |
+| **おちゃ (お茶)** | ocha | Trà | Trà xanh Nhật Bản | あたたかい おちゃを どうぞ。 *(Xin mời bạn dùng trà nóng.)* |
+| **りんご** | ringo | — | Quả táo | あかい りんごを みっつ ください。 *(Cho tôi 3 quả táo đỏ.)* |
+| **レシート** | reshiito | — | Hóa đơn, biên lai | レシートは けっこうです。 *(Tôi không lấy hóa đơn đâu ạ.)* |
+| **おつり** | otsuri | — | Tiền thừa, tiền thối lại | にひゃくえんの おつりです。 *(Tiền thừa thối lại 200 yên.)* |
+| **いらっしゃいませ** | irasshaimase | — | Kính chào quý khách! | いらっしゃいませ、なんめいさまですか。 *(Chào quý khách, đi mấy người ạ?)* |
+| **かしこまりました** | kashikomarimashita | — | Tôi đã hiểu rõ (kính ngữ phục vụ) | はい、かしこまりました。 *(Vâng, tôi đã tiếp nhận yêu cầu ạ.)* |
+
+---
+
+## 4. Ngữ pháp mổ xẻ từng trợ từ & Cấu trúc câu
+
+### 4.1. Mẫu câu hỏi giá: `[Danh từ] は いくらですか`
+- **Ý nghĩa**: ""[Danh từ] có giá bao nhiêu tiền?"".
+- Trợ từ `は` đứng sau danh từ cần hỏi giá.
+- Ví dụ:
+  - `これは いくらですか。` *(Cái này giá bao nhiêu?)*
+  - `このホットコーヒーは いくらですか。` *(Cốc cà phê nóng này giá bao nhiêu?)*
+
+### 4.2. Mẫu câu gọi món & đề nghị: `[Danh từ] を [Số lượng] ください`
+- **Ý nghĩa**: ""Làm ơn cho tôi [số lượng] [danh từ]"".
+- **Trợ từ tân ngữ `を` (đọc là o)**: Đứng sau món đồ muốn lấy.
+- Vị trí của số đếm: Số lượng đồ vật thuần Nhật (`ひとつ, ふたつ...`) thường đặt ngay trước `ください`.
+- Ví dụ:
+  - `コーヒーを ひとつ ください。` *(Cho tôi 1 cốc cà phê).*
+  - `サンドイッチを ふたつと おちゃを ひとつ ください。` *(Cho tôi 2 bánh sandwich và 1 trà).*
+
+### 4.3. Trợ từ liên kết liệt kê `と (to)`
+- **Công thức**: `N1 と N2`
+- **Ý nghĩa**: ""N1 và N2"".
+- Dùng để liệt kê toàn bộ các danh từ ngang hàng với nhau.
+- Ví dụ: `パンと ミルクを かいます。` *(Tôi mua bánh mì và sữa).*
+
+### 4.4. 4 ví dụ đối chiếu Đúng / Sai kinh điển người Việt hay mắc
+
+```markdown
+1. ❌ SAI: このは いくらですか (Dùng この đứng một mình trước は)
+   ⭕ ĐÚNG: これは いくらですか。 hoặc このかばんは いくらですか。
+   💡 GIẢI THÍCH: この bắt buộc phải có danh từ đi liền phía sau, không bao giờ đứng độc lập.
+
+2. ❌ SAI: コーヒーを いち ください (Dùng số đếm thường khi gọi món)
+   ⭕ ĐÚNG: コーヒーを ひとつ ください。
+   💡 GIẢI THÍCH: Khi gọi món đồ vật, người Nhật luôn dùng bộ số đếm thuần Nhật ひとつ, ふたつ...
+
+3. ❌ SAI: 300 yên đọc là さんひゃくえん
+   ⭕ ĐÚNG: さんびゃくえん (sanbyaku en) — biến âm đục びゃ.
+   💡 GIẢI THÍCH: 300, 600, 800 có biến âm bắt buộc, đọc sai sẽ khiến người bán khó hiểu.
+
+4. ❌ SAI: Đặt số đếm trước trợ từ を: ひとつを コーヒー ください
+   ⭕ ĐÚNG: コーヒーを ひとつ ください。
+   💡 GIẢI THÍCH: Trật tự tự nhiên nhất là [Danh từ] + を + [Số lượng] + ください.
+```
+
+---
+
+## 5. Hội thoại thực tế bóc tách từng từ (かいわ — Kaiwa)
+
+### Bối cảnh:
+Buổi trưa tại một quán cà phê bánh ngọt ấm cúng ở khu phố Shibuya, Tokyo. Bạn Minh vào quầy gọi đồ ăn trưa.
+
+- **Nhân viên**: いらっしゃいませ！ごちゅうもんは おきまりですか。
+  - *Romaji*: Irasshaimase! Gochuumon wa okimari desu ka?
+  - *Phân tích*: `いらっしゃいませ` (kính chào quý khách) + `ごちゅうもん` (món gọi của quý khách - kính ngữ ご) + `おきまりですか` (đã quyết định xong chưa ạ?).
+  - *Dịch*: Xin kính chào quý khách! Quý khách đã chọn được món chưa ạ?
+
+- **Minh**: すみません、この サンドイッチは いくらですか。
+  - *Romaji*: Sumimasen, kono sandoicchi wa ikura desu ka?
+  - *Phân tích*: `すみません` (xin lỗi) + `この サンドイッチは` (chiếc bánh sandwich này) + `いくらですか` (bao nhiêu tiền?).
+  - *Dịch*: Xin lỗi, chiếc bánh sandwich này bao nhiêu tiền vậy ạ?
+
+- **Nhân viên**: さんびゃくごじゅうえんです。
+  - *Romaji*: Sanbyaku gojuu en desu.
+  - *Phân tích*: `さんびゃく` (300) + `ごじゅう` (50) + `えんです` (yên ạ).
+  - *Dịch*: Dạ 350 yên ạ.
+
+- **Minh**: じゃ、サンドイッチを ひとつと、ホットコーヒーを ひとつ ください。
+  - *Romaji*: Ja, sandoicchi o hitotsu to, hotto koohii o hitotsu kudasai.
+  - *Phân tích*: `じゃ` (vậy thì) + `サンドイッチを ひとつ` (1 sandwich) + `と` (và) + `ホットコーヒーを ひとつ` (1 cà phê nóng) + `ください` (cho tôi xin).
+  - *Dịch*: Vậy làm ơn cho tôi 1 bánh sandwich và 1 cà phê nóng nhé.
+
+- **Nhân viên**: かしこまりました。ぜんぶで ななひゃくえんです。
+  - *Romaji*: Kashikomarimashita. Zenbu de nanahyaku en desu.
+  - *Phân tích*: `かしこまりました` (tôi đã hiểu rõ yêu cầu) + `ぜんぶで` (tổng cộng tất cả) + `ななひゃくえんです` (là 700 yên ạ).
+  - *Dịch*: Vâng tôi xin tiếp nhận đơn. Tổng cộng hết 700 yên ạ.
+
+- **Minh**: せんえん おねがいします。
+  - *Romaji*: Sen'en onegaishimasu.
+  - *Phân tích*: `せんえん` (1.000 yên) + `おねがいします` (xin gửi bạn).
+  - *Dịch*: Tôi gửi 1.000 yên nhé.
+
+- **Nhân viên**: はい、せんえん おあずかりします。さんびゃくえんの おつりです。ありがとうございます！
+  - *Romaji*: Hai, sen'en oazukari shimasu. Sanbyaku en no otsuri desu. Arigatou gozaimasu!
+  - *Phân tích*: `おあずかりします` (tôi xin nhận tạm) + `さんびゃくえんの おつり` (tiền thối lại 300 yên) + `ありがとうございます` (cảm ơn quý khách).
+  - *Dịch*: Vâng, tôi nhận 1.000 yên. Tiền thừa của quý khách là 300 yên. Cảm ơn quý khách rất nhiều!
+
+---
+
+## 6. Bài tập tự luyện & Tự kiểm tra cuối bài
+
+### Phần A: Luyện tập chỉ định từ & số tiền
+1. Điền `これ` hoặc `この` vào chỗ trống:
+   - `___ は わたしのかばんです。`
+   - `___ シャツは いくらですか。`
+2. Viết cách đọc Hiragana cho các mức giá sau: `300 yên`, `600 yên`, `800 yên`, `3.000 yên`.
+3. Dịch câu sau sang tiếng Nhật: *""Cho tôi 2 bát mì ramen và 1 ly nước lọc.""*
+
+### Phần B: Đề tự kiểm tra năng lực cuối bài (5 câu mô phỏng N5)
+
+<details>
+<summary>👉 Xem đáp án & Giải thích chi tiết từng câu</summary>
+
+1. **Câu 1**:
+   - Câu đầu điền **これ** (`これは わたしのかばんです` — Cái này là cặp của tôi).
+   - Câu sau điền **この** (`このシャツ` — Áo sơ mi này).
+2. **Câu 2**:
+   - 300 yên: `さんびゃくえん`
+   - 600 yên: `ろっぴゃくえん`
+   - 800 yên: `はっぴゃくえん`
+   - 3.000 yên: `さんぜんえん`
+3. **Câu 3**: `ラーメンを ふたつと おみずを ひとつ ください。`
+4. **Câu 4 trắc nghiệm**: Tại sao số 10 trong bộ đếm đồ vật thuần Nhật lại là `とお`?
+   - *Đáp án*: Vì đây là chữ số tròn chục duy nhất không có đuôi `つ`, đọc kéo dài trường âm `too`.
+5. **Câu 5 trắc nghiệm**: Cụm từ `かしこまりました` thường do ai nói?
+   - *Đáp án*: Do nhân viên bán hàng hoặc phục vụ nói với khách hàng để biểu thị sự tiếp nhận yêu cầu một cách cung kính.
+
+</details>
+
+> [!TIP]
+> **Mẹo ôn tập nhanh:** Sau khi đọc xong lý thuyết, hãy mở **Phòng Thực Hành (Shadowing / Dictation / Word Map)** ngay bên dưới để rèn phản xạ nghe-nói ja-JP và lưu từ mới vào FSRS.
+
+<!-- studxy-cjk-v1 -->
+<!-- studxy-cjk-v2 -->
+<!-- studxy-cjk-v3 -->",
             "Sử dụng linh hoạt これ/それ/あれ và この/その/あの để hỏi giá, mua sắm và gọi món ăn.",
             "Thuộc biến âm giá tiền Yên (さんびゃく, ろっぴゃく, さんぜん) và mẫu câu lịch sự 〜をください."),
 
         new CjkLessonMeta(
             SeedDataInitializer.JapaneseCourseId, SeedDataInitializer.JapaneseChapter3Id, SeedDataInitializer.JapaneseLesson31Id,
             "Bài 3.1: Hỏi đường, Tàu điện & Phương hướng",
-            "ja-n5-hoi-duong-tau-dien-phuong-huong", 1, 25,
+            "ja-n5-hoi-duong-tau-dien-phuong-huong", 1, 35,
             @"# Bài 3.1: Hỏi đường, Tàu điện & Phương hướng
 
-## 1. Mục tiêu bài học
-- Hỏi vị trí địa điểm bằng **〜はどこですか** và phân biệt hai động từ tồn tại **あります** (đồ vật/địa điểm) và **います** (người/động vật).
-- Sử dụng thành thạo từ chỉ phương hướng (`みぎ`, `ひだり`, `まっすぐ`, `まえ`, `うしろ`, `となり`) và phương tiện giao thông với trợ từ **で**.
-- Giao tiếp cơ bản khi mua vé tàu điện và hỏi hướng đi tại nhà ga Nhật Bản.
+## 1. Mục tiêu bài học (がくしゅうもくひょう)
+Đi tàu điện và hỏi đường xá là kỹ năng sinh tồn thiết yếu bậc nhất khi đặt chân đến các đô thị sầm uất của Nhật Bản:
+- Phân biệt bản chất tuyệt đối giữa hai động từ tồn tại cốt lõi: **あります** (vật vô tri, địa điểm) và **います** (sinh mệnh có ý thức: con người, động vật).
+- Làm chủ toàn bộ từ vựng chỉ phương hướng và vị trí không gian: `みぎ (phải)`, `ひだり (trái)`, `まえ (trước)`, `うしろ (sau)`, `となり (bên cạnh)`, `ちかく (gần)`.
+- Sử dụng thành thạo trợ từ phương tiện **で (de)** khi di chuyển bằng tàu điện, xe buýt, máy bay, và ghi nhớ ngoại lệ đi bộ (`あるいて`).
+- Vận dụng chuẩn xác trợ từ phương hướng **へ (đọc là e)** và **に (ni)** trước các động từ chuyển động: `いきます`, `きます`, `かえります`.
+- Tự tin hỏi đường người bản xứ bằng cấu trúc **〜は どこですか** và lắng nghe hướng dẫn chỉ đường bằng thể **〜てください**.
+- Hiểu văn hóa ga tàu điện Nhật Bản: mua vé tàu (`きっぷ`), qua cửa soát vé (`かいさつぐち`) và sử dụng thẻ IC thông minh.
 
-## 2. Từ vựng Vị trí, Phương hướng & Phương tiện
+---
 
-| Tiếng Nhật | Đọc (Hiragana / Romaji) | Nghĩa tiếng Việt | Ví dụ ngắn |
-|---|---|---|---|
-| **駅 / えき** | えき (eki) | Nhà ga tàu điện | えきはどこですか。 |
-| **右 / 左** | みぎ (migi) / ひだり (hidari) | Bên phải / Bên trái | みぎにまがってください。 |
-| **まっすぐ** | まっすぐ (massugu) | Đi thẳng | まっすぐいってください。 |
-| **隣 / 前** | となり (tonari) / まえ (mae) | Bên cạnh / Phía trước | ぎんこうのとなりにあります。 |
-| **電車 / バス** | でんしゃ (densha) / バス (basu) | Tàu điện / Xe buýt | でんしゃでいきます。 |
-| **切符** | きっぷ (kippu) | Vé tàu / vé xe | きっぷをかいます。 |
+## 2. 🌱 Nhập môn chậm rãi từng bước: Động từ tồn tại & Phương hướng
 
-## 3. Hội thoại hỏi đường ra nhà ga
-- **Du khách:** すみません、とうきょうえきはどこですか。 *(Sumimasen, Toukyou-eki wa doko desu ka?)* — Xin lỗi, ga Tokyo ở đâu vậy ạ?
-- **Người dân:** このみちをまっすぐいって、つぎのかどをひだりにまがってください。 *(Kono michi o massugu itte, tsugi no kado o hidari ni magatte kudasai.)* — Bạn đi thẳng con đường này, rồi rẽ trái ở góc đường tiếp theo nhé.
-- **Du khách:** あるいてなんぷんぐらいかかりますか。 *(Aruite nanpun gurai kakarimasu ka?)* — Đi bộ mất khoảng mấy phút ạ?
-- **Người dân:** ごふんぐらいです。コンビニのとなりにありますよ。 *(Gofun gurai desu. Konbini no tonari ni arimasu yo.)* — Khoảng 5 phút thôi. Nó nằm ngay cạnh cửa hàng tiện lợi ấy.
-- **Du khách:** どうもありがとうございます！ *(Doumo arigatou gozaimasu!)* — Cảm ơn anh rất nhiều ạ!
+### 2.1. Phân biệt sống còn giữa `あります` và `います`
+Trong tiếng Việt, ta chỉ dùng một từ ""có"" cho mọi thứ (""Có quyển sách"", ""Có con mèo"", ""Có thầy giáo""). Nhưng trong tiếng Nhật, việc chọn động từ phụ thuộc vào việc chủ thể **có khả năng tự di chuyển bằng ý chí sinh học hay không**:
+1. **あります (arimasu - Có / Tồn tại)**:
+   - Dùng cho **vật vô tri vô giác**: bàn ghế, sách vở, tiền bạc, điện thoại (`ほんが あります`).
+   - Dùng cho **thực vật, cây cỏ, hoa lá**: tuy là sinh vật sống nhưng cây cối không có ý thức tự chuyển động (`はなが あります`).
+   - Dùng cho **các địa điểm tĩnh, tòa nhà**: nhà ga, ngân hàng, trường học, bệnh viện (`えきが あります`).
+2. **います (imasu - Có / Ở)**:
+   - Dùng cho **con người**: bạn bè, thầy cô, gia đình, nhân viên (`ともだちが います`).
+   - Dùng cho **động vật, thú cưng, côn trùng**: chó, mèo, chim, cá (`ねこが います`).
 
-## 4. Điểm ngữ pháp & Khái niệm cốt lõi
-- **Phân biệt あります và います**: Dùng `あります` cho vật vô tri/địa điểm (`えきがあります`) và `います` cho người/động vật (`ともだちがいます`).
-- **Trợ từ で (de) chỉ phương tiện**: Gắn sau phương tiện di chuyển (`でんしゃでいきます` = đi bằng tàu điện; riêng đi bộ là `あるいていきます`, không dùng `で`).
-- **Trợ từ へ (đọc là e) / に chỉ hướng đến**: Dùng trước động từ di chuyển `いきます / きます / かえります` (`えきへいきます`).
-- **Mẫu câu chỉ đường 〜てください**: Nhờ vả hoặc chỉ dẫn lịch sự (`まっすぐいってください` = hãy đi thẳng, `みぎにまがってください` = hãy rẽ phải).
+### 2.2. Vị trí & Phương hướng trong không gian (Vị trí từ)
+Để mô tả đường đi và địa điểm, bạn cần thuộc lòng các cặp từ đối lập sau:
+- `みぎ (migi - Bên phải)` ↔ `ひだり (hidari - Bên trái)`
+- `まえ (mae - Phía trước)` ↔ `うしろ (ushiro - Phía sau)`
+- `うえ (ue - Phía trên)` ↔ `した (shita - Phía dưới)`
+- `なか (naka - Bên trong)` ↔ `そと (soto - Bên ngoài)`
+- `となり (tonari - Bên cạnh sát vách, cùng chủng loại)`: Ví dụ ngân hàng nằm ngay cạnh hiệu sách (`ほんやの となり`).
+- `ちかく (chikaku - Ở gần khu vực)`: Không nhất thiết phải sát vách, chỉ cần ở phạm vi lân cận.
+- `まっすぐ (massugu - Đi thẳng)`: Có âm ngắt `っ`, đọc dứt khoát.
 
-## 5. Lỗi phát âm người Việt hay mắc
-- **Âm ngắt trong chỉ đường**: `まっすぐ` (đi thẳng), `きっぷ` (vé tàu), `いって` (đi) đều có âm ngắt `っ` rất rõ.
-- **Nhầm trợ từ `へ` đọc là `he`**: Khi là trợ từ chỉ phương hướng (`えきへいきます`), `へ` luôn đọc là `e`.
+### 2.3. Trợ từ phương tiện `で` & Ngoại lệ đi bộ
+Khi muốn nói đi bằng phương tiện gì, ta đặt trợ từ **で (de)** ngay sau tên phương tiện:
+- `でんしゃで いきます` *(Đi bằng tàu điện)*.
+- `バスで いきます` *(Đi bằng xe buýt)*.
+- `タクシーで いきます` *(Đi bằng taxi)*.
+- **NGOẠI LỆ TỐI QUAN TRỌNG**:
+  - Khi **đi bộ**, ta dùng thể Te của động từ đi bộ là **あるいて (aruite)** và **TUYỆT ĐỐI KHÔNG DÙNG TRỢ TỪ で**!
+  - Nói `あるきで いきます` là SAI! Bắt buộc phải nói: `あるいて いきます` *(Tôi đi bộ đi)*.
 
-<!-- studxy-cjk-v1 -->",
+### 2.4. Trợ từ phương hướng `へ` (đọc là e)
+- Chữ viết là `へ` (hàng he), nhưng khi đóng vai trò là **trợ từ chỉ hướng đích đến**, bắt buộc phải phát âm là **e**.
+- Trợ từ `へ` hướng sự chú ý về phía đích đến của hành trình:
+  - `とうきょうへ いきます。` *(Đi về hướng Tokyo).*
+  - `いえへ かえります。` *(Về nhà).*
+
+---
+
+## 3. Bảng Từ vựng đầy đủ (単語リスト — Tango Risuto)
+
+| Chữ Kana / Kanji | Romaji | Âm Hán Việt | Nghĩa tiếng Việt | Câu ví dụ hoàn chỉnh |
+|---|---|---|---|---|
+| **えき (駅)** | eki | Dịch | Nhà ga tàu điện | えきは どこですか。 *(Nhà ga ở đâu vậy?)* |
+| **でんしゃ (電車)** | densha | Điện Xa | Tàu điện | でんしゃで がっこうへ いきます。 *(Đi học bằng tàu điện.)* |
+| **ちかてつ (地下鉄)** | chikatetsu | Địa Hạ Thiết | Tàu điện ngầm | ちかてつに のります。 *(Lên tàu điện ngầm.)* |
+| **バス** | basu | — | Xe buýt (Bus) | バスていは どこですか。 *(Trạm xe buýt ở đâu?)* |
+| **きっぷ (切符)** | kippu | Thiết Phù | Vé tàu, vé xe | きっぷうりばで きっぷを かいます。 *(Mua vé ở quầy bán vé.)* |
+| **ぎんこう (銀行)** | ginkou | Ngân Hàng | Ngân hàng | ぎんこうは えきの まえです。 *(Ngân hàng ở trước ga.)* |
+| **びょういん (病院)** | byouin | Bệnh Viện | Bệnh viện | おおきい びょういんへ いきます。 *(Đi đến bệnh viện lớn.)* |
+| **コンビニ** | konbini | — | Cửa hàng tiện lợi | コンビニの となりに あります。 *(Nằm cạnh cửa hàng tiện lợi.)* |
+| **みぎ (右) / ひだり (左)** | migi / hidari | Hữu / Tả | Bên phải / Bên trái | つぎのかどを みぎへ まがります。 *(Rẽ phải ở góc phố tiếp theo.)* |
+| **まっすぐ** | massugu | — | Đi thẳng | このみちを まっすぐ いってください。 *(Hãy đi thẳng con đường này.)* |
+| **かど (角)** | kado | Giác | Góc đường, ngã rẽ | かどを ひだりへ まがってください。 *(Hãy rẽ trái ở góc đường.)* |
+| **あるいて (歩いて)** | aruite | Bộ | Đi bộ | えきから あるいて ごふんです。 *(Từ ga đi bộ mất 5 phút.)* |
+| **どこ** | doko | — | Ở đâu? | トイレは どこですか。 *(Nhà vệ sinh ở đâu ạ?)* |
+| **あります** | arimasu | Tại | Có (đồ vật, tòa nhà) | あそこに ゆうびんきょくが あります。 *(Đằng kia có bưu điện.)* |
+| **います** | imasu | Cư | Có, ở (người, động vật) | あそこに けいさつかんが います。 *(Đằng kia có chú cảnh sát.)* |
+
+---
+
+## 4. Ngữ pháp mổ xẻ từng trợ từ & Cấu trúc câu
+
+### 4.1. Mẫu câu hỏi vị trí: `[Địa điểm] は どこですか`
+- **Ý nghĩa**: ""[Địa điểm] nằm ở đâu?"".
+- Để lịch sự hơn trong giao tiếp với người lạ, người Nhật dùng từ `どちら (dochira)` thay cho `どこ`.
+- Ví dụ:
+  - `すみません、とうきょうえきは どこですか。` *(Xin lỗi, ga Tokyo ở đâu vậy ạ?)*
+  - `おてあらいは どちらですか。` *(Nhà vệ sinh ở phía nào ạ?)*
+
+### 4.2. Mẫu câu chỉ vị trí tồn tại: `N1 は N2 の [Vị trí từ] に あります / います`
+- **Ý nghĩa**: ""N1 nằm ở [vị trí] của N2"".
+- **Trợ từ `に` (ni)**: Đánh dấu nơi chốn của sự tồn tại tĩnh tại.
+- Ví dụ:
+  - `ぎんこうは えきの まえに あります。` *(Ngân hàng ở phía trước nhà ga).*
+  - `いぬは つくえの したに います。` *(Con chó ở dưới gầm bàn).*
+
+### 4.3. Mẫu câu chỉ đường cầu khiến lịch sự: `〜てください`
+- **Công thức**: `[Phương hướng] へ まがってください` *(Hãy rẽ về hướng...)* hoặc `まっすぐ いってください` *(Hãy đi thẳng)*.
+- Động từ thể Te + `ください` tạo thành câu chỉ dẫn ân cần, giúp người nghe dễ dàng lần theo lộ trình.
+
+### 4.4. 4 ví dụ đối chiếu Đúng / Sai kinh điển người Việt hay mắc
+
+```markdown
+1. ❌ SAI: あそこに ねこが あります (Dùng あります cho động vật sống)
+   ⭕ ĐÚNG: あそこに ねこが います。
+   💡 GIẢI THÍCH: Mèo là sinh vật có ý thức di chuyển, bắt buộc phải dùng động từ います.
+
+2. ❌ SAI: わたしは あるきで がっこうへ いきます (Dùng で sau あるき)
+   ⭕ ĐÚNG: わたしは あるいて がっこうへ いきます。
+   💡 GIẢI THÍCH: Đi bộ dùng thể động từ あるいて, tuyệt đối không dùng trợ từ で.
+
+3. ❌ SAI: Phát âm trợ từ へ là ""he"" trong えきへ いきます
+   ⭕ ĐÚNG: えきへ (eki e) いきます。
+   💡 GIẢI THÍCH: Khi đóng vai trò trợ từ chỉ phương hướng chuyển động, へ luôn đọc là ""e"".
+
+4. ❌ SAI: Nhầm lẫn となり (sát vách cùng hàng) với ちかく (ở gần khu vực)
+   ⭕ ĐÚNG: ぎんこうの となり (Ngay sát cạnh ngân hàng); えきの ちかく (Ở khu vực gần ga).
+   💡 GIẢI THÍCH: となり yêu cầu hai vật thể tiếp giáp cạnh nhau và thường cùng tính chất.
+```
+
+---
+
+## 5. Hội thoại thực tế bóc tách từng từ (かいわ — Kaiwa)
+
+### Bối cảnh:
+Bạn Minh vừa bước ra khỏi một con phố nhỏ ở Shinjuku và bị lạc đường. Minh tiến lại gần một bác người dân địa phương tốt bụng để hỏi đường ra nhà ga.
+
+- **Minh**: すみません、しんじゅくえきは どこですか。
+  - *Romaji*: Sumimasen, Shinjuku-eki wa doko desu ka?
+  - *Phân tích*: `すみません` (lời mở đầu lịch sự) + `しんじゅくえきは` (ga Shinjuku) + `どこですか` (ở đâu vậy ạ?).
+  - *Dịch*: Xin lỗi bác, ga Shinjuku nằm ở đâu vậy ạ?
+
+- **Người dân**: ああ、しんじゅくえきですね。このみちを まっすぐ いってください。
+  - *Romaji*: Aa, Shinjuku-eki desu ne. Kono michi o massugu itte kudasai.
+  - *Phân tích*: `ああ` (À) + `しんじゅくえきですね` (ga Shinjuku nhỉ) + `このみちを` (con đường này) + `まっすぐ` (thẳng) + `いってください` (hãy đi).
+  - *Dịch*: À, ga Shinjuku hả cháu. Cháu cứ đi thẳng con đường này nhé.
+
+- **Minh**: はい、まっすぐですね。
+  - *Romaji*: Hai, massugu desu ne.
+  - *Phân tích*: `はい` (vâng) + `まっすぐですね` (đi thẳng đúng không ạ).
+  - *Dịch*: Dạ vâng, đi thẳng ạ.
+
+- **Người dân**: ええ。そして、つぎの しんごうを ひだりへ まがってください。コンビニの となりに ありますよ。
+  - *Romaji*: Ee. Soshite, tsugi no shingou o hidari e magatte kudasai. Konbini no tonari ni arimasu yo.
+  - *Phân tích*: `そして` (sau đó) + `つぎの しんごうを` (cột đèn giao thông tiếp theo) + `ひだりへ` (về bên trái) + `まがってください` (hãy rẽ) + `コンビニの となりに` (ngay cạnh cửa hàng tiện lợi) + `ありますよ` (có đấy nhé).
+  - *Dịch*: Ừ. Sau đó, ở cột đèn giao thông tiếp theo cháu rẽ trái nhé. Nó nằm ngay cạnh cửa hàng tiện lợi Konbini đấy.
+
+- **Minh**: あるいて なんぷんぐらい かかりますか。
+  - *Romaji*: Aruite nanpun gurai kakarimasu ka?
+  - *Phân tích*: `あるいて` (đi bộ) + `なんぷんぐらい` (khoảng mấy phút) + `かかりますか` (mất tốn thời gian?).
+  - *Dịch*: Đi bộ mất khoảng bao nhiêu phút ạ?
+
+- **Người dân**: ごふんぐらいですよ。ちかいですよ。
+  - *Romaji*: Gofun gurai desu yo. Chikai desu yo.
+  - *Phân tích*: `ごふんぐらい` (khoảng 5 phút) + `ちかいですよ` (gần lắm đấy).
+  - *Dịch*: Khoảng 5 phút thôi cháu, gần lắm!
+
+- **Minh**: どうも ありがとうございました！
+  - *Romaji*: Doumo arigatou gozaimashita!
+  - *Phân tích*: Dùng quá khứ `gozaimashita` để cảm ơn sự việc đã được giúp đỡ xong xuôi.
+  - *Dịch*: Cháu cảm ơn bác rất nhiều ạ!
+
+---
+
+## 6. Bài tập tự luyện & Tự kiểm tra cuối bài
+
+### Phần A: Luyện tập phân biệt trợ từ & động từ
+1. Chọn `あります` hoặc `います` điền vào chỗ trống:
+   - `こうえんに こどもが ___。`
+   - `へやに テレビが ___。`
+2. Điền trợ từ `で`, `へ`, `に` thích hợp:
+   - `わたしは でんしゃ___ とうきょう___ いきます。`
+   - `ぎんこうは えきの まえ___ あります。`
+3. Hãy viết câu chỉ dẫn: *""Hãy rẽ phải ở ngã rẽ tiếp theo.""*
+
+### Phần B: Đề tự kiểm tra năng lực cuối bài (5 câu mô phỏng N5)
+
+<details>
+<summary>👉 Xem đáp án & Giải thích chi tiết từng câu</summary>
+
+1. **Câu 1**:
+   - Trẻ em (こども) là con người → điền **います** (`こどもが います`).
+   - Tivi (テレビ) là đồ vật vô tri → điền **あります** (`テレビが あります`).
+2. **Câu 2**:
+   - `でんしゃで` (bằng tàu điện) + `とうきょうへ` (đến Tokyo).
+   - `えきの まえに` (ở phía trước nhà ga — tồn tại dùng `に`).
+3. **Câu 3**: `つぎのかどを みぎへ まがってください。`
+4. **Câu 4 trắc nghiệm**: Khi đi bộ đến trường, cách nói nào đúng?
+   - *Đáp án*: `あるいて がっこうへ いきます` (không dùng trợ từ `で` sau `あるいて`).
+5. **Câu 5 trắc nghiệm**: Trợ từ `へ` trong câu chỉ phương hướng đọc là gì?
+   - *Đáp án*: Đọc là `e` (giống nguyên âm `え`).
+
+</details>
+
+> [!TIP]
+> **Mẹo ôn tập nhanh:** Sau khi đọc xong lý thuyết, hãy mở **Phòng Thực Hành (Shadowing / Dictation / Word Map)** ngay bên dưới để rèn phản xạ nghe-nói ja-JP và lưu từ mới vào FSRS.
+
+<!-- studxy-cjk-v1 -->
+<!-- studxy-cjk-v2 -->
+<!-- studxy-cjk-v3 -->",
             "Hỏi vị trí địa điểm, phân biệt あります/います và nghe hiểu hướng dẫn đi thẳng, rẽ trái/phải.",
             "Vận dụng trợ từ で (phương tiện), へ/に (hướng đến) và cấu trúc chỉ dẫn 〜てください."),
 
         new CjkLessonMeta(
             SeedDataInitializer.JapaneseCourseId, SeedDataInitializer.JapaneseChapter3Id, SeedDataInitializer.JapaneseLesson32Id,
             "Bài 3.2: Thói quen hằng ngày, Sở thích & Đề nghị lịch sự",
-            "ja-n5-thoi-quen-so-thich-de-nghi", 2, 25,
+            "ja-n5-thoi-quen-so-thich-de-nghi", 2, 35,
             @"# Bài 3.2: Thói quen hằng ngày, Sở thích & Đề nghị lịch sự
 
-## 1. Mục tiêu bài học
-- Diễn đạt lịch trình sinh hoạt hằng ngày bằng động từ thể **〜ます / 〜ません / 〜ました** và trợ từ tân ngữ **を**, địa điểm hành động **で**.
-- Nói về sở thích cá nhân với cấu trúc **〜がすきです** và **しゅみは〜ことです**.
-- Mời rủ và đưa ra đề nghị lịch sự bằng **〜ませんか** (Bạn có muốn cùng... không?) và **〜ましょう** (Chúng ta cùng... nhé!).
+## 1. Mục tiêu bài học (がくしゅうもくひょう)
+Đây là bài học tổng kết quan trọng của cấp độ N5, mở ra cánh cửa giao tiếp sinh hoạt và kết nối tình bạn tự nhiên:
+- Nắm vững hệ thống chia động từ thể lịch sự **〜ます (Masu)** theo 4 thì: Hiện tại khẳng định (`〜ます`), Hiện tại phủ định (`〜ません`), Quá khứ khẳng định (`〜ました`) và Quá khứ phủ định (`〜ませんでした`).
+- Sử dụng chuẩn xác trợ từ tân ngữ trực tiếp **を (đọc là o)** và phân biệt rạch ròi trợ từ địa điểm hành động **で (de)** với trợ từ vị trí tồn tại **に (ni)**.
+- Bày tỏ sở thích cá nhân thành thạo qua 2 mẫu câu kinh điển: **[Danh từ] が すきです** và **しゅみは [Động từ thể từ điển] ことです**.
+- Làm chủ nghệ thuật mời rủ và giao tiếp tinh tế của người Nhật bằng cấu trúc **〜ませんか** (Bạn có muốn cùng... không?) và hưởng ứng bằng **〜ましょう** (Chúng ta cùng... nhé!).
+- Nắm vững các phó từ chỉ tần suất thường nhật: `まいにち`, `いつも`, `よく`, `ときどき`, `あまり + Phủ định`.
+- Chỉnh sửa dứt điểm các lỗi dùng nhầm trợ từ `を` trước tính từ `すき` và lỗi quên chia thì quá khứ.
 
-## 2. Động từ sinh hoạt hằng ngày & Chia thể Lịch sự (〜ます)
+---
 
-| Nguyên mẫu / Nghĩa | Hiện tại khẳng định | Hiện tại phủ định | Quá khứ khẳng định | Ví dụ thực tế |
+## 2. 🌱 Nhập môn chậm rãi từng bước: Hệ thống thì Động từ & Trợ từ cốt lõi
+
+### 2.1. 4 thì cơ bản của Động từ thể lịch sự (〜ます)
+Trong tiếng Nhật, động từ ở thể lịch sự (Masu-kei) biến đổi linh hoạt ở đuôi từ để biểu thị thời gian và sắc thái khẳng định hay phủ định:
+
+| Thời / Sắc thái | Đuôi chia | Động từ Ăn (たべます) | Động từ Uống (のみます) | Động từ Học (べんきょうします) |
 |---|---|---|---|---|
-| Ăn | たべます (tabemasu) | たべません | たべました | あさごはんをたべます |
-| Uống | のみます (nomimasu) | のみません | のみました | おちゃをのみます |
-| Học | べんきょうします | べんきょうしません | べんきょうしました | にほんごをべんきょうします |
-| Xem / Nhìn | みます (mimasu) | みません | みました | えいがをみます |
-| Nghe | ききます (kikimasu) | ききません | ききました | おんがくをききます |
+| **Hiện tại / Tương lai Khẳng định** | **〜ます** | たべます *(ăn / sẽ ăn)* | のみます *(uống / sẽ uống)* | べんきょうします *(học / sẽ học)* |
+| **Hiện tại / Tương lai Phủ định** | **〜ません** | たべません *(không ăn)* | のみません *(không uống)* | べんきょうしません *(không học)* |
+| **Quá khứ Khẳng định** | **〜ました** | たべました *(đã ăn)* | のみました *(đã uống)* | べんきょうしました *(đã học)* |
+| **Quá khứ Phủ định** | **〜ませんでした** | たべませんでした *(đã không ăn)* | のみませんでした *(đã không uống)* | べんきょうしませんでした *(đã không học)* |
 
-## 3. Hội thoại về sở thích & rủ bạn cuối tuần
-- **Yuki:** ミンさんのしゅみはなんですか。 *(Min-san no shumi wa nan desu ka?)* — Sở thích của Minh là gì thế?
-- **Minh:** わたしのしゅみはえいがをみることです。にほんのおんがくもすきです。 *(Watashi no shumi wa eiga o miru koto desu. Nihon no ongaku mo suki desu.)* — Sở thích của tôi là xem phim. Tôi cũng thích nhạc Nhật nữa.
-- **Yuki:** いいですね！まいにちにほんごをべんきょうしますか。 *(Ii desu ne! Mainichi nihongo o benkyou shimasu ka?)* — Hay quá nhỉ! Ngày nào bạn cũng học tiếng Nhật à?
-- **Minh:** はい、まいばんとしょかんでいちじかんべんきょうします。 *(Hai, maiban toshokan de ichijikan benkyou shimasu.)* — Vâng, mỗi tối tôi học một tiếng ở thư viện.
-- **Yuki:** しゅうまつにいっしょにラーメンをたべませんか。 *(Shuumatsu ni issho ni raamen o tabemasen ka?)* — Cuối tuần chúng ta cùng đi ăn ramen nhé?
-- **Minh:** ええ、いいですね！いきましょう！ *(Ee, ii desu ne! Ikimashou!)* — Ừ, hay quá! Đi thôi nào!
+**Đặc điểm thời gian**: Tiếng Nhật không có thì tương lai riêng biệt. Thể `〜ます` đảm nhận cả hai chức năng: diễn tả thói quen lặp đi lặp lại ở hiện tại và diễn tả hành động sẽ diễn ra trong tương lai.
 
-## 4. Điểm ngữ pháp & Khái niệm cốt lõi
-- **Trợ từ で (de) chỉ nơi diễn ra hành động**: Khác với `に` (chỉ sự tồn tại), `で` dùng khi có hành động xảy ra tại địa điểm đó (`としょかんでべんきょうします` = học bài ở thư viện).
-- **Cấu trúc sở thích 〜がすきです**: Đối tượng yêu thích đi với trợ từ **が** (không dùng `を`), ví dụ `にほんごがすきです` (Tôi thích tiếng Nhật).
-- **Lời mời lịch sự 〜ませんか**: Dùng thể phủ định + `か` để mời người khác một cách tinh tế, tôn trọng ý kiến đối phương (`いっしょにいきませんか`).
-- **Lời rủ đồng thuận 〜ましょう**: Dùng để hưởng ứng lời mời hoặc rủ người thân quen (`たべましょう` = Cùng ăn nào!).
+### 2.2. Phân biệt sống còn giữa trợ từ `で` và `に`
+Hai trợ từ này đều đi sau từ chỉ nơi chốn, nhưng bản chất khác nhau 180 độ:
+- **Trợ từ `で` (Địa điểm diễn ra HÀNH ĐỘNG)**: Dùng khi tại địa điểm đó có một **hành động cụ thể, tích cực** đang diễn ra (học bài, ăn cơm, xem phim, đọc sách, làm việc).
+  - `としょかんで べんきょうします。` *(Học bài ở thư viện).*
+  - `レストランで たべます。` *(Ăn ở nhà hàng).*
+- **Trợ từ `に` (Địa điểm của sự TỒN TẠI hoặc ĐÍCH ĐẾN)**: Chỉ sự tồn tại tĩnh tại (`あります/います`) hoặc điểm đến của sự di chuyển (`いきます/きます`).
+  - `いえに います。` *(Ở nhà — tĩnh tại).*
+  - `がっこうに いきます。` *(Đến trường — đích đến).*
 
-## 5. Lỗi phát âm người Việt hay mắc
-- **Nuốt trường âm trong `べんきょう` và `えいが`**: `べんきょう` (benkyou) kéo dài âm `ō`; `えいが` (eiga) kéo dài âm `ē`.
-- **Nhầm `しゅうまつ (cuối tuần)` với `しゅまつ`**: Nhớ kéo dài `しゅう` và phát âm nhẹ nhàng `し` không bật mạnh thành `ち`.
+### 2.3. Bày tỏ sở thích: Tại sao dùng `が` mà không dùng `を`?
+Trong tiếng Việt ta nói: ""Tôi thích tiếng Nhật"" (tiếng Nhật đóng vai trò như tân ngữ).
+Nhưng trong tiếng Nhật, từ `すき (suki - thích)` về bản chất ngữ pháp là một **Tính từ đuôi Na**. Vì nó là tính từ, nên đối tượng gây ra cảm xúc yêu thích đó **BẮT BUỘC phải đi với trợ từ `が`**, tuyệt đối KHÔNG đi với trợ từ `を`!
+- `わたしは にほんごが すきです。` *(Tôi thích tiếng Nhật — ĐÚNG).*
+- `わたしは にほんごを すきです。` *(SAI NGHIÊM TRỌNG).*
 
-<!-- studxy-cjk-v1 -->",
+Khi muốn nói sở thích là một hành động cụ thể, ta đổi động từ sang thể từ điển rồi thêm `こと (việc/cái)` để danh từ hóa nó:
+- `わたしの しゅみは えいがを みることです。` *(Sở thích của tôi là việc xem phim).*
+- `わたしの しゅみは おんがくを きくことです。` *(Sở thích của tôi là nghe nhạc).*
+
+### 2.4. Nghệ thuật mời rủ tinh tế: `〜ませんか` vs `〜ましょう`
+Văn hóa Nhật Bản rất sợ việc áp đặt ý kiến lên người khác. Vì vậy khi đưa ra một lời mời, họ sử dụng thể phủ định nghi vấn:
+1. **Lời mời lịch sự `〜ませんか` (Masen ka)**:
+   - ""Bạn có muốn cùng... không?"".
+   - Hỏi bằng thể phủ định để người nghe nếu bận rộn có thể từ chối một cách dễ dàng, tự nhiên mà không cảm thấy áy náy hay thô lỗ.
+   - Ví dụ: `いっしょに コーヒーを のみませんか。` *(Bạn có muốn cùng đi uống cà phê không?)*.
+2. **Lời rủ đồng thuận hoặc hưởng ứng `〜ましょう` (Mashou)**:
+   - ""Chúng ta cùng... nhé!"" / ""Cùng làm thôi nào!"".
+   - Dùng khi hai người đã thân thiết, hoặc dùng để đáp lại một cách hào hứng lời mời của đối phương.
+   - Ví dụ: `ええ、いいですね！いきましょう！` *(Ừ, hay quá! Đi thôi nào!)*.
+
+---
+
+## 3. Bảng Từ vựng đầy đủ (単語リスト — Tango Risuto)
+
+| Chữ Kana / Kanji | Romaji | Âm Hán Việt | Nghĩa tiếng Việt | Câu ví dụ hoàn chỉnh |
+|---|---|---|---|---|
+| **たべます (食べます)** | tabemasu | Thực | Ăn | あさごはんを たべます。 *(Tôi ăn bữa sáng.)* |
+| **のみます (飲みます)** | nomimasu | Ẩm | Uống | おちゃを のみます。 *(Tôi uống trà.)* |
+| **みます (見ます)** | mimasu | Kiến | Xem, nhìn | まいばん えいがを みます。 *(Mỗi tối tôi xem phim.)* |
+| **ききます (聞きます)** | kikimasu | Văn | Nghe | にほんの おんがくを ききます。 *(Tôi nghe nhạc Nhật.)* |
+| **よみます (読みます)** | yomimasu | Độc | Đọc | としょかんで ほんを よみます。 *(Đọc sách ở thư viện.)* |
+| **かきます (書きます)** | kakimasu | Thư | Viết | てがみを かきます。 *(Tôi viết thư.)* |
+| **べんきょうします** | benkyou shimasu | Miễn Cưỡng | Học tập | まいにち にほんごを べんきょうします。 *(Học tiếng Nhật mỗi ngày.)* |
+| **しゅみ (趣味)** | shumi | Thú Vị | Sở thích | あなたの しゅみは なんですか。 *(Sở thích của bạn là gì?)* |
+| **スポーツ** | supootsu | — | Thể thao (Sports) | スポーツが だいすきです。 *(Tôi rất thích thể thao.)* |
+| **おんがく (音楽)** | ongaku | Âm Nhạc | Âm nhạc | おんがくを きくのが すきです。 *(Tôi thích việc nghe nhạc.)* |
+| **えいが (映画)** | eiga | Ánh Họa | Phim ảnh | しゅうまつに えいがを みます。 *(Cuối tuần tôi xem phim.)* |
+| **としょかん (図書館)** | toshokan | Đồ Thư Quán | Thư viện | としょかんで べんきょうします。 *(Học ở thư viện.)* |
+| **いっしょに** | issho ni | Nhất Tự | Cùng nhau | いっしょに ひるごはんを たべませんか。 *(Cùng ăn trưa nhé?)* |
+| **しゅうまつ (週末)** | shuumatsu | Chu Mạt | Cuối tuần | しゅうまつは ひまですか。 *(Cuối tuần bạn có rảnh không?)* |
+| **いつも** | itsumo | — | Luôn luôn | いつも ろくじに おきます。 *(Tôi luôn dậy lúc 6 giờ.)* |
+| **ときどき** | tokidoki | Thì | Thỉnh thoảng | ときどき カフェへ いきます。 *(Thỉnh thoảng tôi ra quán cà phê.)* |
+
+---
+
+## 4. Ngữ pháp mổ xẻ từng trợ từ & Cấu trúc câu
+
+### 4.1. Mẫu câu hành động tân ngữ: `N を V-ます`
+- **Trợ từ `を` (đọc là o)**: Đánh dấu đối tượng trực tiếp chịu tác động của hành động.
+- Trật tự chuẩn: `[Tân ngữ] を [Động từ]`.
+- Ví dụ:
+  - `みずを のみます。` *(Uống nước).*
+  - `にほんごを べんきょうします。` *(Học tiếng Nhật).*
+
+### 4.2. Mẫu câu địa điểm hành động: `[Địa điểm] で N を V-ます`
+- **Trợ từ `で` (de)**: Đánh dấu nơi diễn ra hành động.
+- Ví dụ:
+  - `いえで ばんごはんを たべます。` *(Ăn tối ở nhà).*
+  - `としょかんで ほんを よみます。` *(Đọc sách ở thư viện).*
+
+### 4.3. Cấu trúc sở thích: `N が すきです`
+- Đối tượng được yêu thích đi kèm trợ từ **が**.
+- Mức độ cao hơn dùng `だいすきです` (Rất thích). Phủ định dùng `すきじゃありません` (Không thích).
+- Ví dụ:
+  - `わたしは にほんりょうりが すきです。` *(Tôi thích ẩm thực Nhật).*
+  - `スポーツが だいすきです。` *(Tôi cực kỳ thích thể thao).*
+
+### 4.4. 4 ví dụ đối chiếu Đúng / Sai kinh điển người Việt hay mắc
+
+```markdown
+1. ❌ SAI: わたしは にほんごを すきです (Dùng を trước すき)
+   ⭕ ĐÚNG: わたしは にほんごが すきです。
+   💡 GIẢI THÍCH: すき là tính từ chỉ cảm xúc, đối tượng đi kèm bắt buộc phải dùng trợ từ が.
+
+2. ❌ SAI: カフェに コーヒーを のみます (Dùng に cho nơi diễn ra hành động uống)
+   ⭕ ĐÚNG: カフェで コーヒーを のみます。
+   💡 GIẢI THÍCH: Nơi diễn ra hành động tích cực bắt buộc dùng trợ từ で, に chỉ dùng cho sự tồn tại tĩnh.
+
+3. ❌ SAI: きのう えいがを みます (Không chia quá khứ khi có từ chỉ quá khứ きのう)
+   ⭕ ĐÚNG: きのう えいがを みました。
+   💡 GIẢI THÍCH: Đã xảy ra trong quá khứ thì đuôi động từ phải chia sang 〜ました.
+
+4. ❌ SAI: いっしょに たべますか (Dùng thể khẳng định để mời mọc nghe cộc lốc)
+   ⭕ ĐÚNG: いっしょに たべませんか。 (Dùng thể phủ định lịch sự)
+   💡 GIẢI THÍCH: Trong văn hóa Nhật, mời bằng 〜ませんか thể hiện sự tôn trọng tối đa sự lựa chọn của đối phương.
+```
+
+---
+
+## 5. Hội thoại thực tế bóc tách từng từ (かいわ — Kaiwa)
+
+### Bối cảnh:
+Giờ giải lao chiều thứ Sáu tại thư viện trường. Bạn Yuki (bạn học người Nhật) trò chuyện cùng bạn Minh về sở thích và kế hoạch cuối tuần.
+
+- **Yuki**: ミンさんの しゅみは なんですか。
+  - *Romaji*: Min-san no shumi wa nan desu ka?
+  - *Phân tích*: `ミンさんの` (của Minh) + `しゅみは` (sở thích) + `なんですか` (là cái gì?).
+  - *Dịch*: Sở thích của bạn Minh là gì thế?
+
+- **Minh**: わたしの しゅみは えいがを みることです。にほんの おんがくも すきです。
+  - *Romaji*: Watashi no shumi wa eiga o miru koto desu. Nihon no ongaku mo suki desu.
+  - *Phân tích*: `えいがを みること` (việc xem phim) + `です` + `にほんの おんがくも` (nhạc Nhật cũng) + `すきです` (thích).
+  - *Dịch*: Sở thích của mình là xem phim. Mình cũng thích cả âm nhạc Nhật Bản nữa.
+
+- **Yuki**: そうですか！いいですね。まいにち にほんごを べんきょうしますか。
+  - *Romaji*: Sou desu ka! Ii desu ne. Mainichi nihongo o benkyou shimasu ka?
+  - *Phân tích*: `まいにち` (mỗi ngày) + `にほんごを` (tiếng Nhật) + `べんきょうしますか` (bạn có học không?).
+  - *Dịch*: Thế à! Hay quá nhỉ. Hằng ngày bạn đều học tiếng Nhật à?
+
+- **Minh**: はい、まいばん としょかんで にじかん べんきょうします。
+  - *Romaji*: Hai, maiban toshokan de nijikan benkyou shimasu.
+  - *Phân tích*: `まいばん` (mỗi tối) + `としょかんで` (ở thư viện) + `にじかん` (2 tiếng đồng hồ) + `べんきょうします` (học).
+  - *Dịch*: Vâng, mỗi tối mình đều học 2 tiếng ở thư viện.
+
+- **Yuki**: すばらしいですね！しゅうまつに いっしょに ラーメンを たべませんか。
+  - *Romaji*: Subarashii desu ne! Shuumatsu ni issho ni raamen o tabemasen ka?
+  - *Phân tích*: `しゅうまつに` (vào cuối tuần) + `いっしょに` (cùng nhau) + `ラーメンを` (mì ramen) + `たべませんか` (cùng đi ăn không?).
+  - *Dịch*: Tuyệt vời thật đấy! Cuối tuần này bạn có muốn cùng mình đi ăn mì ramen không?
+
+- **Minh**: ええ、いいですね！ぜひ いきましょう！
+  - *Romaji*: Ee, ii desu ne! Zehi ikimashou!
+  - *Phân tích*: `ええ` (Ừ) + `いいですね` (hay quá) + `ぜひ` (nhất định) + `いきましょう` (chúng ta cùng đi nào!).
+  - *Dịch*: Ôi hay quá! Nhất định chúng mình cùng đi nhé!
+
+---
+
+## 6. Bài tập tự luyện & Tự kiểm tra cuối bài
+
+### Phần A: Luyện tập chia động từ & trợ từ
+1. Chia động từ trong ngoặc sang dạng đúng:
+   - `きのうの ばん、わたしは テレビを (みます → ___ )。`
+   - `あした ともだちと えいがを (みます → ___ )。`
+2. Điền trợ từ `を`, `で`, `が` vào chỗ trống:
+   - `カフェ___ コーヒー___ のみます。`
+   - `わたしは アニメ___ すきです。`
+3. Hãy đặt một câu mời bạn đi uống trà vào Chủ nhật bằng cấu trúc `〜ませんか`.
+
+### Phần B: Đề tự kiểm tra năng lực cuối bài (5 câu mô phỏng N5)
+
+<details>
+<summary>👉 Xem đáp án & Giải thích chi tiết từng câu</summary>
+
+1. **Câu 1**:
+   - `きのう` (hôm qua) → chia quá khứ: **みました** (`テレビを みました`).
+   - `あした` (ngày mai) → chia tương lai khẳng định: **みます** (`えいがを みます`).
+2. **Câu 2**:
+   - `カフェで` (địa điểm hành động dùng `で`) + `コーヒーを` (tân ngữ dùng `を`).
+   - `アニメが` (sở thích đi với tính từ `すき` dùng `が`).
+3. **Câu 3**: `にちようびに いっしょに おちゃを のみませんか。`
+4. **Câu 4 trắc nghiệm**: Khác biệt giữa `〜ませんか` và `〜ましょう` là gì?
+   - *Đáp án*: `〜ませんか` là lời mời lịch sự tạo cơ hội cho đối phương dễ lựa chọn, còn `〜ましょう` là lời rủ hào hứng hoặc hưởng ứng lời mời.
+5. **Câu 5 trắc nghiệm**: Tại sao nói `カフェに コーヒーを のみます` là sai?
+   - *Đáp án*: Vì uống cà phê là một hành động cụ thể, nơi diễn ra hành động bắt buộc phải dùng trợ từ `で`.
+
+</details>
+
+> [!TIP]
+> **Mẹo ôn tập nhanh:** Sau khi đọc xong lý thuyết, hãy mở **Phòng Thực Hành (Shadowing / Dictation / Word Map)** ngay bên dưới để rèn phản xạ nghe-nói ja-JP và lưu từ mới vào FSRS.
+
+<!-- studxy-cjk-v1 -->
+<!-- studxy-cjk-v2 -->
+<!-- studxy-cjk-v3 -->",
             "Chia động từ thể ます/ません/ました, dùng đúng trợ từ で cho địa điểm hành động và が cho sở thích.",
             "Tự tin trò chuyện về thói quen hằng ngày và mời rủ lịch sự bằng 〜ませんか / 〜ましょう.")
     };
 
+
+    private sealed record CjkQuizQuestion(
+        string Question,
+        string OptionA,
+        string OptionB,
+        string OptionC,
+        string OptionD,
+        string CorrectKey,
+        string Explanation
+    );
+
+    private static (PracticeQuiz Quiz, List<PracticeQuizItem> Items) BuildCjkQuiz(
+        string quizKey,
+        Guid lessonId,
+        string title,
+        DateTimeOffset now,
+        CjkQuizQuestion[] questions)
+    {
+        var quizId = CreateDeterministicQuizGuid(quizKey);
+        var quiz = new PracticeQuiz
+        {
+            Id = quizId,
+            UserId = SeedDataInitializer.DefaultUserId,
+            Title = title,
+            LessonId = lessonId,
+            TotalItems = questions.Length,
+            CorrectItems = 0,
+            Status = "in_progress",
+            StartedAt = now
+        };
+
+        var items = new List<PracticeQuizItem>(questions.Length);
+        for (int i = 0; i < questions.Length; i++)
+        {
+            var q = questions[i];
+            items.Add(new PracticeQuizItem
+            {
+                Id = CreateDeterministicQuizGuid($"{quizKey}:item:{i + 1}"),
+                QuizId = quizId,
+                ItemType = "multiple_choice",
+                PromptAstJson = JsonSerializer.Serialize(new { question = q.Question }, CjkJsonOptions),
+                ChoicesJson = JsonSerializer.Serialize(new[]
+                {
+                    new { key = "A", text = q.OptionA },
+                    new { key = "B", text = q.OptionB },
+                    new { key = "C", text = q.OptionC },
+                    new { key = "D", text = q.OptionD }
+                }, CjkJsonOptions),
+                ClozeSolution = q.CorrectKey,
+                AiRubricFeedbackJson = JsonSerializer.Serialize(new { summary = q.Explanation }, CjkJsonOptions),
+                CreatedAt = now.AddSeconds(i)
+            });
+        }
+
+        return (quiz, items);
+    }
+
+    private static Guid CreateDeterministicQuizGuid(string seedKey)
+    {
+        using var sha = System.Security.Cryptography.SHA256.Create();
+        var hash = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(seedKey));
+        var bytes = new byte[16];
+        Array.Copy(hash, bytes, 16);
+        return new Guid(bytes);
+    }
+
+    private static async Task EnsureCjkQuizzesSeededAsync(SwmsDbContext db, DateTimeOffset now)
+    {
+        var quizzes = new List<(PracticeQuiz Quiz, List<PracticeQuizItem> Items)>();
+        quizzes.AddRange(GetJapaneseQuizzes(now));
+        quizzes.AddRange(GetChineseQuizzes(now));
+
+        foreach (var (quiz, items) in quizzes)
+        {
+            var existing = await db.PracticeQuizzes.FirstOrDefaultAsync(q =>
+                q.Id == quiz.Id ||
+                (q.UserId == SeedDataInitializer.DefaultUserId &&
+                 q.LessonId == quiz.LessonId &&
+                 q.Title == quiz.Title));
+
+            if (existing == null)
+            {
+                db.PracticeQuizzes.Add(quiz);
+                var existingItemIds = await db.PracticeQuizItems
+                    .Where(i => items.Select(x => x.Id).Contains(i.Id))
+                    .Select(i => i.Id)
+                    .ToListAsync();
+                var itemsToAdd = items.Where(it => !existingItemIds.Contains(it.Id)).ToList();
+                if (itemsToAdd.Count > 0)
+                {
+                    db.PracticeQuizItems.AddRange(itemsToAdd);
+                }
+            }
+            else
+            {
+                existing.LessonId = quiz.LessonId;
+                existing.Title = quiz.Title;
+                existing.TotalItems = quiz.TotalItems;
+
+                var existingItemIds = await db.PracticeQuizItems
+                    .Where(i => i.QuizId == existing.Id)
+                    .Select(i => i.Id)
+                    .ToListAsync();
+
+                var missingItems = items.Where(it => !existingItemIds.Contains(it.Id)).ToList();
+                if (missingItems.Count > 0)
+                {
+                    foreach (var it in missingItems)
+                    {
+                        it.QuizId = existing.Id;
+                    }
+                    db.PracticeQuizItems.AddRange(missingItems);
+                }
+            }
+        }
+        await db.SaveChangesAsync();
+    }
+
     // =========================================================================
-    // KHÓA 1: TIẾNG NHẬT SƠ CẤP (N5) — KHO ĐỀ LUYỆN TẬP 6 BÀI (48 PACK / 228 CÂU)
+    // KHÓA 1: TIẾNG NHẬT SƠ CẤP (N5) — 7 ĐỀ THI THỬ (70 CÂU HỎI MULTIPLE CHOICE)
+    // =========================================================================
+
+    private static List<(PracticeQuiz Quiz, List<PracticeQuizItem> Items)> GetJapaneseQuizzes(DateTimeOffset now)
+    {
+        return new List<(PracticeQuiz Quiz, List<PracticeQuizItem> Items)>
+        {
+            BuildCjkQuiz("cjk-quiz:ja:l11", SeedDataInitializer.JapaneseLesson11Id,
+                "Bài 1.1: Trắc nghiệm Hiragana & Chào hỏi N5", now,
+                new CjkQuizQuestion[]
+                {
+                    new("Chữ cái Hiragana \"あ\" được phát âm chuẩn là gì?", "a", "o", "e", "u", "A", "あ là chữ cái đầu tiên trong hàng nguyên âm Gojūon của tiếng Nhật, phát âm là 'a'."),
+                    new("Chữ cái Hiragana \"し\" trong hàng Sa được phát âm theo chuẩn Hepburn là gì?", "si", "shi", "chi", "su", "B", "し đọc là 'shi' (phát âm êm, đẩy hơi nhẹ qua kẽ răng, không chu môi)."),
+                    new("Chữ Hán \"私\" trong câu \"私はベトナム人です\" có cách đọc Hiragana là gì?", "わたし", "あなた", "かれ", "だれ", "A", "私 (âm Hán Việt: Tư) có cách đọc thuần Nhật là わたし (watashi - tôi)."),
+                    new("Lời chào buổi sáng lịch sự, trang trọng dùng cho thầy cô và cấp trên là gì?", "おはようございます", "こんにちは", "こんばんは", "おやすみなさい", "A", "おはようございます là lời chào buổi sáng trang trọng đầy đủ kính ngữ."),
+                    new("Khi muốn nói \"Cảm ơn bạn rất nhiều\" một cách chân thành và lịch thiệp, người Nhật nói gì?", "どういたしまして", "ありがとうございます", "すみません", "ごめんなさい", "B", "ありがとうございます (hoặc どうもありがとうございます) là mẫu câu cảm ơn chuẩn mực."),
+                    new("Từ nào sau đây có chứa trường âm (kéo dài 2 phách) hàng O?", "さくら", "おはよう", "あさ", "はな", "B", "Trong おはよう, đuôi おう là trường âm của hàng O, phát âm kéo dài 2 phách là ohayō."),
+                    new("Điền trợ từ đánh dấu chủ đề (đọc là wa) vào chỗ trống: \"わたし___ ミンです。\"", "は", "が", "を", "に", "A", "Trợ từ đánh dấu chủ đề viết bằng chữ Hiragana は nhưng luôn phát âm là 'wa'."),
+                    new("Đuôi câu lịch sự khẳng định chuẩn N5 đứng ở vị trí cuối câu danh từ là gì?", "だ", "です", "ます", "でした", "B", "です (desu) là đuôi câu lịch sự khẳng định đi sau danh từ và tính từ đuôi Na."),
+                    new("Tanaka hỏi: \"おげんきですか。\" Minh nên đáp lại lịch sự như thế nào?", "はい、げんきです。", "いいえ、がくせいです。", "こんにちは。", "またあした。", "A", "Khi được hỏi thăm sức khỏe (Ogenki desu ka?), câu đáp lại lịch sự là はい、げんきです (Vâng, tôi khỏe)."),
+                    new("Trước khi ra về vào cuối ngày làm việc hoặc chia tay đồng nghiệp, câu nói chuẩn nhất là gì?", "おつかれさまでした。", "おはようございます。", "いただきます。", "ごちそうさまでした。", "A", "おつかれさまでした (Bạn đã vất vả rồi) là câu chào kinh điển khi kết thúc ngày làm việc tại Nhật.")
+                }),
+
+            BuildCjkQuiz("cjk-quiz:ja:l12", SeedDataInitializer.JapaneseLesson12Id,
+                "Bài 1.2: Trắc nghiệm Katakana, Từ mượn & Giới thiệu bản thân", now,
+                new CjkQuizQuestion[]
+                {
+                    new("Chữ Katakana nào sau đây đọc là \"コ\" (ko)?", "コ", "ロ", "ユ", "ヨ", "A", "コ là chữ ko trong hàng Ka Katakana. ロ là ro, ユ là yu, ヨ là yo."),
+                    new("Phân biệt cặp chữ dễ nhầm: Chữ nào sau đây là \"シ\" (shi) với các nét vuốt từ dưới lên?", "シ", "ツ", "ソ", "ン", "A", "シ (shi) có nét vuốt từ dưới chếch lên; còn ツ (tsu) có nét chém từ trên xuống."),
+                    new("Dấu gạch ngang \"ー\" trong từ Katakana \"コーヒー\" (cà phê) có vai trò gì?", "Biểu thị trường âm kéo dài 1 phách", "Biểu thị âm ngắt dừng hơi", "Biểu thị biến âm đục", "Biểu thị trọng âm cao", "A", "Dấu gạch ngang ー (Chōonpu) trong Katakana dùng để kéo dài nguyên âm đứng trước đúng 1 phách."),
+                    new("Tên quốc gia \"Việt Nam\" được viết bằng Katakana chuẩn là gì?", "ベトナム", "バトナム", "ベトナン", "ベトマム", "A", "Việt Nam phiên âm sang Katakana chuẩn là ベトナム (Betonamu)."),
+                    new("Từ Katakana nào có nghĩa là \"kỹ sư\" (Engineer)?", "がくせい", "かいしゃいん", "エンジニア", "せんせい", "C", "エンジニア (Enjinia) là từ mượn tiếng Anh có nghĩa là kỹ sư."),
+                    new("Cụm từ mở đầu một bài tự giới thiệu bản thân (Lần đầu gặp mặt) là gì?", "はじめまして", "よろしく", "どうぞ", "こんばんは", "A", "はじめまして (Hajimemashite - Sơ) là lời chào trang trọng khi lần đầu tiên gặp mặt ai đó."),
+                    new("Điền trợ từ nối hai danh từ biểu thị quan hệ sở hữu/thuộc về: \"わたし___ パソコンです。\"", "は", "の", "も", "と", "B", "Trợ từ の nối hai danh từ (A の B = B của A; わたしの パソコン = Máy tính của tôi)."),
+                    new("Để diễn đạt \"Tôi cũng là sinh viên\", ta thay thế trợ từ は bằng trợ từ nào?", "の", "も", "で", "に", "B", "Trợ từ も mang nghĩa 'cũng', thay thế trực tiếp cho trợ từ は khi thông tin câu sau tương đồng câu trước."),
+                    new("Sato: \"ミンさんは がくせいですか。\" Minh là sinh viên, Minh trả lời thế nào?", "はい、がくせいです。", "いいえ、がくせいではありません。", "はい、せんせいです。", "いいえ、そうです。", "A", "Khẳng định đúng là sinh viên thì trả lời: はい、がくせいです (Vâng, tôi là sinh viên)."),
+                    new("Minh: \"どうぞ よろしく おねがいします。\" Sato đáp lại thế nào để thể hiện sự tương hỗ lịch sự?", "こちらこそ、よろしくおねがいします。", "いいえ、ちがいます。", "さようなら。", "どういたしまして。", "A", "こちらこそ、よろしくおねがいします (Chính tôi mới là người cần sự giúp đỡ của bạn) là câu đáp lễ lịch sự tuyệt đối.")
+                }),
+
+            BuildCjkQuiz("cjk-quiz:ja:l21", SeedDataInitializer.JapaneseLesson21Id,
+                "Bài 2.1: Trắc nghiệm Số đếm, Giờ giấc & Lịch hẹn N5", now,
+                new CjkQuizQuestion[]
+                {
+                    new("Số 4 khi đi với đơn vị giờ (〜じ) có biến âm bất quy tắc đọc là gì?", "しじ", "よじ", "よんじ", "ななじ", "B", "4 giờ bắt buộc đọc là よじ (yoji), tuyệt đối không đọc là しじ hay よんじ."),
+                    new("Số 9 khi đi với đơn vị giờ (〜じ) có biến âm bất quy tắc đọc là gì?", "きゅうじ", "くじ", "ここのじ", "はちじ", "B", "9 giờ bắt buộc đọc là くじ (kuji), không đọc là きゅうじ."),
+                    new("\"1 phút\" trong tiếng Nhật có biến âm ngắt đọc là gì?", "いちふん", "いっぷん", "いちぷん", "いつふん", "B", "1 phút có biến âm ngắt っ + ぷ: いっぷん (ippun)."),
+                    new("\"6 giờ rưỡi sáng\" trong tiếng Nhật được diễn đạt là gì?", "ごご ろくじはん", "ごぜん ろくじはん", "ごぜん しちじはん", "ごご ろくじじゅっぷん", "B", "ごぜん (buổi sáng AM) + ろくじはん (6 giờ rưỡi) = ごぜん ろくじはん."),
+                    new("Từ vựng nào sau đây chỉ \"Hôm nay\"?", "きのう", "きょう", "あした", "あさって", "B", "きょう (今日) là hôm nay. きのう là hôm qua, あした là ngày mai."),
+                    new("Thứ Tư trong tuần gắn với hành Thủy, Kanji là \"水曜日\", đọc là gì?", "げつようび", "かようび", "すいようび", "もくようび", "C", "水曜日 đọc là すいようび (suiyoubi - thứ Tư)."),
+                    new("Điền trợ từ đi sau mốc thời gian cụ thể: \"まいあさ しちじ___ おきます。\"", "に", "で", "を", "から", "A", "Trợ từ に gắn ngay sau mốc thời gian có con số cụ thể (しちじに = lúc 7 giờ)."),
+                    new("Cấu trúc nào diễn đạt khoảng thời gian \"từ 9 giờ đến 5 giờ\"?", "くじから ごじまで", "くじまで ごじから", "くじに ごじで", "くじへ ごじを", "A", "Cấu trúc 〜から (từ) 〜まで (đến) = くじから ごじまで."),
+                    new("A: \"いま なんじですか。\" B: \"ごご にじじゅっぷんです。\" Bây giờ là mấy giờ?", "2 giờ 10 phút chiều", "2 giờ 10 phút sáng", "12 giờ 20 phút trưa", "2 giờ 50 phút chiều", "A", "ごご (chiều PM) + にじ (2 giờ) + じゅっぷん (10 phút) = 2 giờ 10 phút chiều."),
+                    new("Thông báo: \"かいぎは じゅうじから じゅういちじはんまでです。\" Cuộc họp diễn ra trong bao lâu?", "1 tiếng", "1 tiếng 30 phút", "2 tiếng", "45 phút", "B", "Từ 10:00 (じゅうじ) đến 11:30 (じゅういちじはん) kéo dài đúng 1 tiếng 30 phút.")
+                }),
+
+            BuildCjkQuiz("cjk-quiz:ja:l22", SeedDataInitializer.JapaneseLesson22Id,
+                "Bài 2.2: Trắc nghiệm Mua sắm, Hỏi giá & Gọi món N5", now,
+                new CjkQuizQuestion[]
+                {
+                    new("Đại từ chỉ định độc lập chỉ vật ở gần người nghe nhưng xa người nói là gì?", "これ", "それ", "あれ", "どれ", "B", "それ (sore) chỉ vật ở gần người nghe. これ gần người nói, あれ xa cả hai người."),
+                    new("Từ hạn định nào BẮT BUỘC phải đi kèm danh từ ngay phía sau (không đứng một mình)?", "これ", "この", "ここ", "どれ", "B", "この (kono) là liên thể từ, bắt buộc đi kèm danh từ (ví dụ: このほん, このシャツ)."),
+                    new("Khi gọi \"3 cái bánh sandwich\", ta dùng từ đếm đồ vật thuần Nhật nào?", "さん", "みっつ", "ひとつ", "ふたつ", "B", "みっつ (mittsu) là số đếm đồ vật thuần Nhật chỉ số lượng 3 cái."),
+                    new("Số tiền \"300 yên\" có biến âm đục, đọc chuẩn là gì?", "さんひゃくえん", "さんびゃくえん", "さんぴゃくえん", "さんぜんえん", "B", "300 yên có biến âm đục: さんびゃくえん (sanbyaku en)."),
+                    new("Câu nói chào đón khách quen thuộc nhất khi bước chân vào cửa hàng Nhật là gì?", "いらっしゃいませ", "かしこまりました", "ごちそうさまでした", "おねがいします", "A", "いらっしゃいませ (Irasshaimase) là câu chào kính cẩn đón khách của mọi cửa hàng Nhật."),
+                    new("Mẫu câu chuẩn để hỏi giá \"Cái này bao nhiêu tiền?\" là gì?", "これは なんじですか", "これは いくらですか", "これは だれですか", "これは どこですか", "B", "いくら (ikura) là từ để hỏi giá tiền: これは いくらですか."),
+                    new("Điền trợ từ tân ngữ vào câu gọi món: \"ホットコーヒー___ ひとつ ください。\"", "は", "を", "に", "で", "B", "Trợ từ を đánh dấu món đồ cần lấy trước động từ ください (ホットコーヒーを ひとつ ください)."),
+                    new("Trợ từ \"と\" trong câu \"パンと ミルクを ください\" có ý nghĩa gì?", "Liệt kê toàn bộ: và, cùng với", "Chỉ phương tiện", "Chỉ nơi chốn", "Chỉ thời gian", "A", "Trợ từ と dùng để nối hai danh từ ngang hàng biểu thị sự liệt kê (A và B)."),
+                    new("Khách: \"このリンゴは いくらですか。\" Người bán: \"ひとつ ひゃくごじゅうえんです。\" Mua 2 quả táo hết bao nhiêu tiền?", "150 yên", "200 yên", "300 yên", "450 yên", "C", "1 quả giá 150 yên (ひゃくごじゅうえん), mua 2 quả (ふたつ) = 150 x 2 = 300 yên (さんびゃくえん)."),
+                    new("Khách: \"コーヒーを ふたつと ケーキを ひとつ ください。\" Khách đã gọi những gì?", "2 cà phê và 1 bánh ngọt", "1 cà phê và 2 bánh ngọt", "2 trà và 1 bánh sandwich", "3 cà phê", "A", "コーヒーを ふたつ (2 cà phê) + ケーキを ひとつ (1 bánh ngọt).")
+                }),
+
+            BuildCjkQuiz("cjk-quiz:ja:l31", SeedDataInitializer.JapaneseLesson31Id,
+                "Bài 3.1: Trắc nghiệm Hỏi đường, Phương hướng & Di chuyển N5", now,
+                new CjkQuizQuestion[]
+                {
+                    new("Động từ \"あります\" (có / tồn tại) được dùng cho đối tượng nào sau đây?", "Con người", "Động vật sống (chó, mèo)", "Đồ vật vô tri và địa điểm tĩnh (nhà ga, ngân hàng)", "Cả người và động vật", "C", "あります dùng cho đồ vật vô tri, thực vật và công trình địa điểm tĩnh. Người và động vật dùng います."),
+                    new("Chữ Kanji \"右\" (Hữu) và \"左\" (Tả) có cách đọc tương ứng là gì?", "みぎ (phải) và ひだり (trái)", "ひだり (phải) và みぎ (trái)", "まえ (trước) và うしろ (sau)", "うえ (trên) và した (dưới)", "A", "右 đọc là みぎ (migi - phải), 左 đọc là ひだり (hidari - trái)."),
+                    new("Từ vựng nào sau đây có nghĩa là \"đi thẳng\"?", "まっすぐ", "かど", "となり", "ちかく", "A", "まっすぐ (massugu) nghĩa là đi thẳng. かど là góc phố, となり là bên cạnh."),
+                    new("Từ nào có nghĩa là \"nhà ga tàu điện\"?", "びょういん", "ぎんこう", "えき", "ゆうびんきょく", "C", "えき (駅) là nhà ga tàu điện. びょういん là bệnh viện, ぎんこう là ngân hàng."),
+                    new("Phương tiện \"tàu điện\" trong tiếng Nhật đọc là gì?", "でんしゃ", "バス", "ひこうき", "じてんしゃ", "A", "でんしゃ (電車) là tàu điện."),
+                    new("Khi muốn nói \"đi bộ đến trường\", cách diễn đạt chuẩn xác là gì?", "あるきで いきます", "あるいて いきます", "あるくに いきます", "あるくを いきます", "B", "Đi bộ dùng thể Te của động từ là あるいて いきます, tuyệt đối không dùng trợ từ で!"),
+                    new("Điền trợ từ chỉ phương tiện di chuyển: \"わたしは でんしゃ___ かいしゃへ いきます。\"", "で", "に", "を", "は", "A", "Trợ từ で đứng sau phương tiện giao thông (でんしゃで = đi bằng tàu điện)."),
+                    new("Điền trợ từ chỉ hướng đích đến (phát âm là e): \"あした とうきょう___ いきます。\"", "へ", "で", "を", "から", "A", "Trợ từ へ (đọc là e) chỉ hướng di chuyển đến đích (とうきょうへ いきます)."),
+                    new("Người hỏi: \"ぎんこうは どこですか。\" Người chỉ đường: \"えきの まえに あります。\" Ngân hàng nằm ở đâu?", "Phía sau nhà ga", "Phía trước nhà ga", "Bên cạnh nhà ga", "Trong nhà ga", "B", "えきの まえ (trước nhà ga) + に あります = Nằm ở phía trước nhà ga."),
+                    new("Chỉ dẫn: \"つぎのかどを みぎへ まがってください。\" Người nghe cần thao tác gì ở góc rẽ tiếp theo?", "Rẽ trái", "Rẽ phải", "Đi thẳng", "Dừng lại", "B", "みぎへ まがってください có nghĩa là hãy rẽ về bên phải.")
+                }),
+
+            BuildCjkQuiz("cjk-quiz:ja:l32", SeedDataInitializer.JapaneseLesson32Id,
+                "Bài 3.2: Trắc nghiệm Thói quen, Sở thích & Đề nghị N5", now,
+                new CjkQuizQuestion[]
+                {
+                    new("Động từ \"たべます\" (ăn) khi chuyển sang thì quá khứ khẳng định sẽ biến đổi thành gì?", "たべません", "たべました", "たべませんでした", "たべる", "B", "Quá khứ khẳng định của thể ます là 〜ました (たべました = đã ăn)."),
+                    new("Động từ \"のみます\" (uống) khi chuyển sang thì hiện tại phủ định là gì?", "のみません", "のみました", "のみませんでした", "のむ", "A", "Hiện tại phủ định của thể ます là 〜ません (のみません = không uống)."),
+                    new("Trong câu \"わたしは おんがく___ すきです\", trợ từ nào đi cùng tính từ すき?", "を", "が", "で", "に", "B", "すき là tính từ biểu thị cảm xúc, đối tượng được yêu thích bắt buộc phải đi với trợ từ が."),
+                    new("Từ nào sau đây có nghĩa là \"sở thích\" trong tiếng Nhật?", "しゅみ", "しごと", "べんきょう", "りょこう", "A", "しゅみ (趣味) có nghĩa là sở thích."),
+                    new("Từ chỉ tần suất \"Mỗi tối\" trong tiếng Nhật đọc là gì?", "まいあさ", "まいにち", "まいばん", "こんばん", "C", "まいばん (毎晩) nghĩa là mỗi tối. まいあさ là mỗi sáng, まいにち là mỗi ngày."),
+                    new("Mẫu câu nào dùng để đưa ra lời mời rủ lịch sự: \"Bạn có muốn cùng đi ăn ramen không?\"", "ラーメンを たべましょう", "ラーメンを たべませんか", "ラーメンを たべますか", "ラーメンを たべてください", "B", "〜ませんか là mẫu câu mời mọc lịch sự, tôn trọng sự lựa chọn của đối phương."),
+                    new("Điền trợ từ đánh dấu nơi diễn ra hành động: \"としょかん___ ほんを よみます。\"", "で", "に", "へ", "を", "A", "Trợ từ で đánh dấu nơi diễn ra hành động tích cực (としょかんで = tại thư viện)."),
+                    new("Điền trợ từ tân ngữ chịu tác động trực tiếp của hành động: \"あさごはん___ たべます。\"", "を", "は", "が", "で", "A", "Trợ từ を (đọc là o) đánh dấu tân ngữ trực tiếp trước động từ ngoại động từ."),
+                    new("Yuki: \"しゅうまつに いっしょに えいがを みませんか。\" Minh: \"ええ、いいですね！いきましょう！\" Minh có thái độ thế nào?", "Đồng ý hào hứng tham gia", "Từ chối khéo léo vì bận", "Hẹn sang tuần sau", "Minh muốn ở nhà ngủ", "A", "ええ、いいですね！いきましょう！ thể hiện sự đồng thuận hào hứng hưởng ứng lời mời."),
+                    new("Câu: \"きのうの ばん、カフェで ともだちと にほんごを べんきょうしました。\" Diễn ra khi nào và ở đâu?", "Sáng nay ở thư viện", "Tối qua ở quán cà phê", "Trưa nay ở nhà", "Tối mai ở trường học", "B", "きのうの ばん (tối hôm qua) + カフェで (ở quán cà phê).")
+                }),
+
+            BuildCjkQuiz("cjk-quiz:ja:final-n5", SeedDataInitializer.JapaneseLesson32Id,
+                "Đề thi thử Tổng kết Năng lực Tiếng Nhật JLPT N5", now,
+                new CjkQuizQuestion[]
+                {
+                    new("[JLPT N5 Kanji] Chữ Hán \"日本\" trong câu \"にほんへ いきます\" có cách đọc là gì?", "にほん", "にっぽん", "にほんご", "にちほん", "A", "日本 có cách đọc thông dụng là にほん (Nihon - Nhật Bản)."),
+                    new("[JLPT N5 Kanji] Cách đọc Hiragana chuẩn của chữ Hán \"先生\" là gì?", "がくせい", "せんせい", "いしゃ", "かいしゃ", "B", "先生 (Tiên sinh) đọc là せんせい (sensei - thầy/cô giáo)."),
+                    new("[JLPT N5 Katakana] Từ mượn \"パソコン\" là viết tắt của cụm từ tiếng Anh nào?", "Personal Computer (Máy tính cá nhân)", "Passport (Hộ chiếu)", "Party (Bữa tiệc)", "Package (Gói hàng)", "A", "パソコン (Pasokon) là cách viết tắt độc đáo của người Nhật từ cụm Personal Computer."),
+                    new("[JLPT N5 Lượng từ] Khi đếm 2 chiếc vé tàu (vật mỏng dẹt), ta dùng đơn vị đếm nào?", "にまい", "ふたつ", "にほん", "にさつ", "A", "Đồ vật mỏng, phẳng (vé tàu, giấy, áo sơ mi) đếm bằng lượng từ 〜まい (枚): にまい (2 chiếc)."),
+                    new("[JLPT N5 Biến âm] Mức tiền \"8.000 yên\" có biến âm ngắt đọc là gì?", "はちせんえん", "はっせんえん", "はっぴゃくえん", "はちひゃくえん", "B", "8.000 yên có biến âm ngắt: はっせんえん (hassen en)."),
+                    new("[JLPT N5 Từ vựng] Từ chỉ thời gian mang nghĩa \"Hôm qua\" là gì?", "きょう", "きのう", "あした", "おとatoi", "B", "きのう (昨日) nghĩa là hôm qua. おととい là hôm kia."),
+                    new("[JLPT N5 Ngữ pháp] Chọn cặp trợ từ đúng: \"わたしは まいにち しちじ___ おきて、がっこう___ いきます。\"", "に / へ", "で / を", "を / に", "は / で", "A", "Thời gian có số cụ thể dùng に (しちじに); hướng đích đến dùng へ (がっこうへ)."),
+                    new("[JLPT N5 Ngữ pháp] Chia động từ đúng thì: \"きのう カフェで えいがを ____。\"", "みます", "みました", "みません", "みること", "B", "Có từ chỉ quá khứ きのう (hôm qua) nên động từ phải chia quá khứ khẳng định: みました."),
+                    new("[JLPT N5 Đọc hiểu] \"わたしは ミンです。まいあさ ろくじはんにおきます。あさごはんを たべてから、しちじに バスで がっこうへ いきます。\" Minh đi đến trường bằng phương tiện gì và lúc mấy giờ?", "Đi tàu điện lúc 6:30", "Đi xe buýt lúc 7:00", "Đi bộ lúc 8:00", "Đi xe đạp lúc 6:30", "B", "Trong bài viết: しちじに バスで がっこうへ いきます (Lúc 7:00 đi xe buýt đến trường)."),
+                    new("[JLPT N5 Đọc hiểu] Khách mua sách: \"すみません、このほんを ください。\" Nhân viên: \"はい、せんごひゃくえんです。\" Khách đưa 2.000 yên, nhân viên thối lại bao nhiêu tiền?", "500 yên", "1.500 yên", "200 yên", "1.000 yên", "A", "Sách giá 1.500 yên (せんごひゃくえん), khách đưa 2.000 yên (にせんえん) thì tiền thối (おつり) là 500 yên (ごひゃくえん).")
+                })
+
+        };
+    }
+
     // =========================================================================
 
     private static List<PracticeActivity> GetJapaneseActivities(Guid cId, DateTimeOffset now)

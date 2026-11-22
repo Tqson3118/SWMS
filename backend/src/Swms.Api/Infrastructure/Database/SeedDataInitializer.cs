@@ -125,6 +125,7 @@ public static class SeedDataInitializer
                 await EnsureEnglishCommunicationCourseSeededAsync(db);
                 await EnsurePracticeExpansionCoursesSeededAsync(db);
                 await EnsureJapaneseAndChineseCoursesSeededAsync(db);
+                await AcademicOsPracticeContent.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
                 return;
             }
 
@@ -146,6 +147,7 @@ public static class SeedDataInitializer
             UpdatedAt = now
         };
         db.Users.Add(user);
+        await db.SaveChangesAsync();
 
         // 1.1 Learner FSRS v5 Parameters (19 canonical weights)
         db.UserFsrsParameters.Add(new UserFsrsParameters
@@ -416,6 +418,7 @@ public static class SeedDataInitializer
             CharCount = 186,
             WordCount = 27
         });
+        await db.SaveChangesAsync();
 
         // 5. Annotations (3 anchored + 2 orphaned for reconciliation banner)
         var quote1 = "Translation Lookaside Buffer (TLB), một bộ nhớ cache liên kết tốc độ cao nằm trong Memory Management Unit (MMU)";
@@ -606,6 +609,7 @@ public static class SeedDataInitializer
                 RefLessonId = LessonPagingId
             }
         );
+        await db.SaveChangesAsync();
 
         // 7. Orthogonal Tags & Unified Review Queue Flashcards (No Decks per ADR-020)
         var tagOs = new Tag { Id = Guid.Parse("88888881-1111-4111-8111-111111111111"), UserId = DefaultUserId, Name = "OS-Paging", ColorKey = "blue" };
@@ -722,6 +726,7 @@ public static class SeedDataInitializer
                 DueAt = now.AddMinutes(-5)
             }
         );
+        await db.SaveChangesAsync();
 
         db.FlashcardTags.AddRange(
             new FlashcardTag { FlashcardId = card1Id, TagId = tagOs.Id },
@@ -821,6 +826,7 @@ public static class SeedDataInitializer
         await EnsureEnglishCommunicationCourseSeededAsync(db);
         await EnsurePracticeExpansionCoursesSeededAsync(db);
         await EnsureJapaneseAndChineseCoursesSeededAsync(db);
+        await AcademicOsPracticeContent.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
         }
         finally
         {

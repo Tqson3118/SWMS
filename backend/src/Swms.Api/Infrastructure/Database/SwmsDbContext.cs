@@ -31,6 +31,7 @@ public class SwmsDbContext : DbContext
     public DbSet<PracticeQuizItem> PracticeQuizItems => Set<PracticeQuizItem>();
     public DbSet<BackgroundJob> BackgroundJobs => Set<BackgroundJob>();
     public DbSet<UserLessonProgress> UserLessonProgresses => Set<UserLessonProgress>();
+    public DbSet<CourseReview> CourseReviews => Set<CourseReview>();
     public DbSet<PracticeActivity> PracticeActivities => Set<PracticeActivity>();
     public DbSet<PracticeAttempt> PracticeAttempts => Set<PracticeAttempt>();
 
@@ -64,6 +65,7 @@ public class SwmsDbContext : DbContext
             [typeof(PracticeQuizItem)] = "practice_quiz_items",
             [typeof(BackgroundJob)] = "background_jobs",
             [typeof(UserLessonProgress)] = "user_lesson_progress",
+            [typeof(CourseReview)] = "course_reviews",
             [typeof(PracticeActivity)] = "practice_activities",
             [typeof(PracticeAttempt)] = "practice_attempts"
         };
@@ -102,6 +104,7 @@ public class SwmsDbContext : DbContext
         modelBuilder.Entity<FlashcardReview>().HasIndex(fr => fr.ReviewEventId).IsUnique();
         modelBuilder.Entity<BackgroundJob>().HasIndex(bj => bj.IdempotencyKey).IsUnique();
         modelBuilder.Entity<UserLessonProgress>().HasIndex(ulp => new { ulp.UserId, ulp.LessonId }).IsUnique();
+        modelBuilder.Entity<CourseReview>().HasIndex(cr => new { cr.CourseId, cr.UserId }).IsUnique();
         modelBuilder.Entity<PracticeActivity>().HasIndex(pa => new { pa.CourseId, pa.LessonId });
         modelBuilder.Entity<PracticeAttempt>().HasIndex(pa => new { pa.UserId, pa.CreatedAt });
         modelBuilder.Entity<PracticeAttempt>().HasIndex(pa => new { pa.UserId, pa.CourseId, pa.LessonId });
@@ -112,6 +115,45 @@ public class SwmsDbContext : DbContext
             .HasForeignKey(dp => dp.DocumentId)
             .OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<DocumentPage>().HasIndex(dp => new { dp.DocumentId, dp.PageNumber }).IsUnique();
+
+        // Foreign Key Relationships for EF Core Dependency Graph Sorting
+        modelBuilder.Entity<UserFsrsParameters>().HasOne<User>().WithOne().HasForeignKey<UserFsrsParameters>(p => p.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<UserQuota>().HasOne<User>().WithOne().HasForeignKey<UserQuota>(q => q.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<AiUsageLedger>().HasOne<User>().WithMany().HasForeignKey(l => l.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Course>().HasOne<User>().WithMany().HasForeignKey(c => c.InstructorId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CourseEnrollment>().HasOne<User>().WithMany().HasForeignKey(ce => ce.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CourseEnrollment>().HasOne<Course>().WithMany().HasForeignKey(ce => ce.CourseId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Chapter>().HasOne<Course>().WithMany().HasForeignKey(ch => ch.CourseId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Lesson>().HasOne<Chapter>().WithMany().HasForeignKey(l => l.ChapterId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<LessonVersion>().HasOne<Lesson>().WithMany().HasForeignKey(lv => lv.LessonId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Document>().HasOne<Course>().WithMany().HasForeignKey(d => d.CourseId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Document>().HasOne<User>().WithMany().HasForeignKey(d => d.UploaderId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Annotation>().HasOne<User>().WithMany().HasForeignKey(a => a.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Annotation>().HasOne<Lesson>().WithMany().HasForeignKey(a => a.LessonId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Annotation>().HasOne<Document>().WithMany().HasForeignKey(a => a.DocumentId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Notebook>().HasOne<User>().WithMany().HasForeignKey(n => n.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<NotebookLink>().HasOne<Notebook>().WithMany().HasForeignKey(nl => nl.NotebookId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Tag>().HasOne<User>().WithMany().HasForeignKey(t => t.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Flashcard>().HasOne<User>().WithMany().HasForeignKey(f => f.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Flashcard>().HasOne<Lesson>().WithMany().HasForeignKey(f => f.LessonId).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<Flashcard>().HasOne<Document>().WithMany().HasForeignKey(f => f.DocumentId).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<FlashcardTag>().HasOne<Flashcard>().WithMany().HasForeignKey(ft => ft.FlashcardId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<FlashcardTag>().HasOne<Tag>().WithMany().HasForeignKey(ft => ft.TagId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<FlashcardReview>().HasOne<Flashcard>().WithMany().HasForeignKey(fr => fr.FlashcardId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<FlashcardReview>().HasOne<User>().WithMany().HasForeignKey(fr => fr.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<PracticeQuiz>().HasOne<User>().WithMany().HasForeignKey(pq => pq.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<PracticeQuiz>().HasOne<Lesson>().WithMany().HasForeignKey(pq => pq.LessonId).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<PracticeQuizItem>().HasOne<PracticeQuiz>().WithMany().HasForeignKey(pqi => pqi.QuizId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<PracticeActivity>().HasOne<Course>().WithMany().HasForeignKey(pa => pa.CourseId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<PracticeActivity>().HasOne<Lesson>().WithMany().HasForeignKey(pa => pa.LessonId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<PracticeAttempt>().HasOne<User>().WithMany().HasForeignKey(pa => pa.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<PracticeAttempt>().HasOne<Course>().WithMany().HasForeignKey(pa => pa.CourseId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<PracticeAttempt>().HasOne<Lesson>().WithMany().HasForeignKey(pa => pa.LessonId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<PracticeAttempt>().HasOne<PracticeActivity>().WithMany().HasForeignKey(pa => pa.ActivityId).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<UserLessonProgress>().HasOne<User>().WithMany().HasForeignKey(ulp => ulp.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<UserLessonProgress>().HasOne<Lesson>().WithMany().HasForeignKey(ulp => ulp.LessonId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CourseReview>().HasOne<User>().WithMany().HasForeignKey(cr => cr.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CourseReview>().HasOne<Course>().WithMany().HasForeignKey(cr => cr.CourseId).OnDelete(DeleteBehavior.Cascade);
     }
 
     private static string ToSnakeCase(string name)

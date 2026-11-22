@@ -2,55 +2,83 @@ using System.Data.Common;
 using System.Net.Sockets;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using Swms.Api.Features;
 using Swms.Api.Features.Pdf;
 using Swms.Api.Infrastructure.Ai;
 using Swms.Api.Infrastructure.Database;
 using Swms.Api.Infrastructure.Security;
 
-var builder = WebApplication.CreateBuilder(args);
+bool isTestHostProcess = AppDomain.CurrentDomain.GetAssemblies()
+    .Any(a => a.GetName().Name?.Contains("testhost", StringComparison.OrdinalIgnoreCase) == true);
 
-// Ensure default listening URL is port 5080 (aligned with Next.js BFF rewrite destination)
-if (string.IsNullOrEmpty(builder.Configuration["Urls"]) &&
-    string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
+var builder = WebApplication.CreateBuilder(args);
+if (!isTestHostProcess)
+{
+    builder.Configuration.AddJsonFile("appsettings.Development.local.json", optional: true, reloadOnChange: true);
+}
+builder.Configuration.AddEnvironmentVariables();
+
+// Ensure default listening URL is port 5080 for local Kestrel runs, without overriding IIS/hosting ports
+var hasHostBoundUrl = !string.IsNullOrWhiteSpace(builder.Configuration["Urls"])
+    || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ASPNETCORE_URLS"))
+    || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ASPNETCORE_PORT"))
+    || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ASPNETCORE_IIS_PHYSICAL_PATH"));
+if (!hasHostBoundUrl)
 {
     builder.WebHost.UseUrls("http://127.0.0.1:5080");
 }
 builder.WebHost.ConfigureKestrel(k => k.AddServerHeader = false);
 
 // 1. Dual-Mode Database Persistence:
-// Uses PostgreSQL 17 if reachable (or forced via SWMS_USE_POSTGRES=true),
-// otherwise gracefully falls back to InMemory database with Vietnamese Seed Data so local dev & E2E run immediately.
-var usePostgresEnv = Environment.GetEnvironmentVariable("SWMS_USE_POSTGRES");
-var postgresConn = builder.Configuration.GetConnectionString("Postgres");
+// Uses PostgreSQL (Supabase / Docker / self-hosted) when configured & reachable,
+// never touching remote cloud DB when running under automated xUnit tests.
+bool isRunningUnderTests = isTestHostProcess
+                            || !string.IsNullOrWhiteSpace(builder.Configuration["Database:InMemoryName"]);
+
+var usePostgresSetting = Environment.GetEnvironmentVariable("SWMS_USE_POSTGRES")
+    ?? builder.Configuration["Database:UsePostgres"];
+var rawPostgresConn = Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("Postgres");
+var postgresConn = NormalizePostgresConnectionString(rawPostgresConn);
 bool isPostgresAvailable = false;
 
-if (string.Equals(usePostgresEnv, "true", StringComparison.OrdinalIgnoreCase))
+if (!isRunningUnderTests && !string.IsNullOrWhiteSpace(postgresConn))
 {
-    isPostgresAvailable = true;
-}
-else if (!string.Equals(usePostgresEnv, "false", StringComparison.OrdinalIgnoreCase))
-{
-    try
+    if (string.Equals(usePostgresSetting, "true", StringComparison.OrdinalIgnoreCase))
     {
-        using var tcp = new TcpClient();
-        var connectTask = tcp.ConnectAsync("127.0.0.1", 5432);
-        if (connectTask.Wait(TimeSpan.FromMilliseconds(350)) && tcp.Connected)
-        {
-            isPostgresAvailable = true;
-        }
+        isPostgresAvailable = true;
     }
-    catch
+    else if (!string.Equals(usePostgresSetting, "false", StringComparison.OrdinalIgnoreCase))
     {
-        isPostgresAvailable = false;
+        try
+        {
+            var (pgHost, pgPort) = ExtractPostgresHostAndPort(postgresConn);
+            using var tcp = new TcpClient();
+            var connectTask = tcp.ConnectAsync(pgHost, pgPort);
+            if (connectTask.Wait(TimeSpan.FromMilliseconds(2500)) && tcp.Connected)
+            {
+                isPostgresAvailable = true;
+            }
+        }
+        catch
+        {
+            isPostgresAvailable = false;
+        }
     }
 }
 
-bool isRunningUnderTests = AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name?.Contains("testhost", StringComparison.OrdinalIgnoreCase) == true)
-                            || !string.IsNullOrWhiteSpace(builder.Configuration["Database:InMemoryName"]);
+var activeDatabaseMode = isRunningUnderTests
+    ? "Test (InMemory/SQLite)"
+    : (isPostgresAvailable && !string.IsNullOrWhiteSpace(postgresConn)
+        ? (postgresConn.Contains("supabase.com", StringComparison.OrdinalIgnoreCase) ? "PostgreSQL (Supabase)" : "PostgreSQL")
+        : "SQLite");
 
 var rawSqliteConn = builder.Configuration.GetConnectionString("SqliteFallback");
 string sqliteConn;
@@ -174,6 +202,13 @@ var allowedOrigins = new[] { "http://localhost:3000", "http://127.0.0.1:3000" }
     .Distinct(StringComparer.OrdinalIgnoreCase)
     .ToArray();
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("SwmsFrontend", policy =>
@@ -186,6 +221,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 app.Use(async (ctx, next) =>
 {
@@ -219,12 +256,78 @@ app.Use(async (ctx, next) =>
 app.UseAuthorization();
 
 // Seed Vietnamese OS & Paging Data on Startup
+app.Logger.LogInformation("SWMS Backend starting in database mode: {DatabaseMode}", activeDatabaseMode);
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
-    await db.Database.EnsureCreatedAsync();
-    await SwmsEndpoints.EnsureSqliteSchemaUpdatedAsync(db);
-    await SeedDataInitializer.SeedAsync(db, builder.Configuration["DocumentLibrary:RootPath"]);
+    if (db.Database.IsNpgsql())
+    {
+        try
+        {
+            var hasUsersTable = (await db.Database
+                .SqlQueryRaw<int>("SELECT COUNT(*)::int AS \"Value\" FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users'")
+                .ToListAsync())
+                .FirstOrDefault() > 0;
+            if (!hasUsersTable)
+            {
+                await db.Database.EnsureCreatedAsync();
+                hasUsersTable = (await db.Database
+                    .SqlQueryRaw<int>("SELECT COUNT(*)::int AS \"Value\" FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users'")
+                    .ToListAsync())
+                    .FirstOrDefault() > 0;
+                if (!hasUsersTable)
+                {
+                    var creator = db.Database.GetService<IRelationalDatabaseCreator>();
+                    await creator.CreateTablesAsync();
+                }
+            }
+
+            var forceStartupSeed = string.Equals(
+                Environment.GetEnvironmentVariable("SWMS_FORCE_STARTUP_SEED") ?? builder.Configuration["Database:ForceStartupSeed"],
+                "true",
+                StringComparison.OrdinalIgnoreCase);
+
+            var hasAnyUser = await db.Users.AsNoTracking().AnyAsync();
+            var existingCourseCount = hasAnyUser ? await db.Courses.AsNoTracking().CountAsync() : 0;
+
+            if (forceStartupSeed || !hasAnyUser || existingCourseCount < 14)
+            {
+                await SwmsEndpoints.EnsureSqliteSchemaUpdatedAsync(db);
+                await SeedDataInitializer.SeedAsync(db, builder.Configuration["DocumentLibrary:RootPath"]);
+            }
+            else
+            {
+                app.Logger.LogInformation(
+                    "Fast cold-start: PostgreSQL already has {CourseCount} courses. Running lightweight schema check in background.",
+                    existingCourseCount);
+                var rootScopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+                var startupLogger = app.Logger;
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        using var bgScope = rootScopeFactory.CreateScope();
+                        var bgDb = bgScope.ServiceProvider.GetRequiredService<SwmsDbContext>();
+                        await SwmsEndpoints.EnsureSqliteSchemaUpdatedAsync(bgDb);
+                    }
+                    catch (Exception bgEx)
+                    {
+                        startupLogger.LogWarning(bgEx, "Background PostgreSQL schema check warning.");
+                    }
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            app.Logger.LogWarning(ex, "PostgreSQL startup initialization warning; continuing startup so IIS/Kestrel health probes do not time out.");
+        }
+    }
+    else
+    {
+        await db.Database.EnsureCreatedAsync();
+        await SwmsEndpoints.EnsureSqliteSchemaUpdatedAsync(db);
+        await SeedDataInitializer.SeedAsync(db, builder.Configuration["DocumentLibrary:RootPath"]);
+    }
 }
 
 app.MapGet("/health", () => Results.Ok(new
@@ -237,7 +340,120 @@ app.MapSwmsEndpoints();
 
 app.Run();
 
-public partial class Program { }
+public partial class Program
+{
+    private static string NormalizePostgresConnectionString(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
+        var trimmed = raw.Trim();
+
+        NpgsqlConnectionStringBuilder csb;
+        if (trimmed.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+        {
+            var schemeEnd = trimmed.IndexOf("://", StringComparison.Ordinal);
+            var rest = trimmed[(schemeEnd + 3)..];
+            var queryIdx = rest.IndexOf('?');
+            var queryPart = queryIdx >= 0 ? rest[(queryIdx + 1)..] : string.Empty;
+            if (queryIdx >= 0) rest = rest[..queryIdx];
+
+            var slashIdx = rest.IndexOf('/');
+            var authority = slashIdx >= 0 ? rest[..slashIdx] : rest;
+            var database = slashIdx >= 0 && slashIdx + 1 < rest.Length
+                ? Uri.UnescapeDataString(rest[(slashIdx + 1)..])
+                : "postgres";
+
+            var atIdx = authority.LastIndexOf('@');
+            string? username = null;
+            string? password = null;
+            var hostPort = authority;
+            if (atIdx >= 0)
+            {
+                var userInfo = authority[..atIdx];
+                hostPort = authority[(atIdx + 1)..];
+                var colonUserIdx = userInfo.IndexOf(':');
+                if (colonUserIdx >= 0)
+                {
+                    username = Uri.UnescapeDataString(userInfo[..colonUserIdx]);
+                    password = Uri.UnescapeDataString(userInfo[(colonUserIdx + 1)..]);
+                }
+                else
+                {
+                    username = Uri.UnescapeDataString(userInfo);
+                }
+            }
+
+            var host = hostPort;
+            var port = 5432;
+            var colonHostIdx = hostPort.LastIndexOf(':');
+            if (colonHostIdx > 0 && int.TryParse(hostPort[(colonHostIdx + 1)..], out var parsedPort))
+            {
+                host = hostPort[..colonHostIdx];
+                port = parsedPort;
+            }
+
+            csb = new NpgsqlConnectionStringBuilder
+            {
+                Host = host,
+                Port = port,
+                Database = string.IsNullOrWhiteSpace(database) ? "postgres" : database,
+                Pooling = true,
+                Timeout = 20,
+                CommandTimeout = 120,
+                KeepAlive = 30
+            };
+            if (!string.IsNullOrEmpty(username)) csb.Username = username;
+            if (!string.IsNullOrEmpty(password)) csb.Password = password;
+
+            if (!string.IsNullOrWhiteSpace(queryPart))
+            {
+                foreach (var pair in queryPart.Split('&', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var eq = pair.IndexOf('=');
+                    if (eq <= 0) continue;
+                    var k = Uri.UnescapeDataString(pair[..eq]).Trim().ToLowerInvariant();
+                    var v = Uri.UnescapeDataString(pair[(eq + 1)..]).Trim();
+                    if (k == "sslmode" && Enum.TryParse<SslMode>(v, true, out var parsedSsl))
+                    {
+                        csb.SslMode = parsedSsl;
+                    }
+                }
+            }
+        }
+        else
+        {
+            csb = new NpgsqlConnectionStringBuilder(trimmed);
+        }
+
+        if (!string.IsNullOrWhiteSpace(csb.Host) &&
+            csb.Host.Contains("supabase.com", StringComparison.OrdinalIgnoreCase) &&
+            csb.SslMode == SslMode.Disable)
+        {
+            csb.SslMode = SslMode.Require;
+        }
+        else if (!string.IsNullOrWhiteSpace(csb.Host) &&
+                 csb.Host.Contains("supabase.com", StringComparison.OrdinalIgnoreCase) &&
+                 csb.SslMode == SslMode.Prefer)
+        {
+            csb.SslMode = SslMode.Require;
+        }
+
+        return csb.ConnectionString;
+    }
+
+    private static (string Host, int Port) ExtractPostgresHostAndPort(string connStr)
+    {
+        try
+        {
+            var csb = new NpgsqlConnectionStringBuilder(connStr);
+            return (string.IsNullOrWhiteSpace(csb.Host) ? "127.0.0.1" : csb.Host, csb.Port > 0 ? csb.Port : 5432);
+        }
+        catch
+        {
+            return ("127.0.0.1", 5432);
+        }
+    }
+}
 
 public sealed class SqlitePragmaConnectionInterceptor : DbConnectionInterceptor
 {

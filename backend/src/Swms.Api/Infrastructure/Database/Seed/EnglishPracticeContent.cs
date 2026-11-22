@@ -1,9 +1,12 @@
 // Auto-generated extended content for English Communication Course (A2 -> B1)
-// Contains rich Markdown theory and expanded practice activities for all 6 lessons.
+// Contains rich Markdown theory, interactive quizzes, and expanded practice activities for all 6 lessons.
 namespace Swms.Api.Infrastructure.Database.Seed;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +14,8 @@ using Swms.Api.Domain.Entities;
 
 public static class EnglishPracticeContent
 {
-    public const string UpgradeMarker = "<!-- studxy-en-v2 -->";
+    public const string UpgradeMarker = "<!-- studxy-en-v3 -->";
+    public const string LegacyUpgradeMarker = "<!-- studxy-en-v2 -->";
 
     public record LessonSeedMeta(
         Guid LessonId,
@@ -60,9 +64,50 @@ public static class EnglishPracticeContent
 
 ---
 
-## 3. Ngữ pháp & Cấu trúc câu trọng tâm (Key Grammar & Sentence Structures)
+## 3. 🌱 Bước khởi động cho người mới bắt đầu (Beginner Warm-up)
+Nếu bạn đã lâu không dùng tiếng Anh hoặc cảm thấy bối rối trước đoạn hội thoại trên, đừng lo lắng! Hãy quan sát các khối xây dựng cơ bản nhất:
 
-### 3.1. Công thức giới thiệu 3 bước Hook - Background - Passion
+### 3.1. Khung câu cơ bản S - V - O (Chủ ngữ + Động từ + Tân ngữ)
+- Mọi câu tiếng Anh đều cần **Chủ ngữ (S)** và **Động từ chính (V)**:
+  - *Ví dụ 1:* `I (S)` + `work (V)` + `on cloud solutions (Bổ ngữ)`.
+  - *Ví dụ 2:* `The keynote speaker (S)` + `was (V To-Be)` + `really inspiring (Tính từ)`.
+  - Người Việt hay nói tắt không chủ ngữ (như *""Trời đẹp nhỉ""*), nhưng tiếng Anh luôn cần chủ ngữ giả hoặc câu hỏi đuôi: *""Beautiful morning, isn't it?""*.
+
+### 3.2. Khi nào dùng Is / Are (Động từ To Be)?
+- Dùng **is** khi chủ ngữ là số ít hoặc danh từ không đếm được:
+  - *""is this seat taken?""* (`this seat` là 1 chiếc ghế duy nhất).
+- Dùng **are** khi chủ ngữ là số nhiều hoặc đại từ `you / we / they`:
+  - *""You are a software engineer.""*, *""We are colleagues.""*.
+
+### 3.3. Vì sao động từ có lúc thêm -s/-es, có lúc không?
+- Khi kể sự việc hiển nhiên hoặc thói quen ở Hiện tại đơn:
+  - Ngôi thứ 3 số ít (`He / She / It / Alex`): động từ thêm `-s`: *""That aligns perfectly""* (chủ ngữ `That` là số ít nên `align` thêm `s` thành `aligns`).
+  - Ngôi `I / You / We / They`: động từ giữ nguyên mẫu: *""I work on cloud solutions.""*.
+
+### 3.4. Hướng dẫn khẩu hình phát âm cho người Việt
+- **Âm `/θ/` trong ""think, thank"":** Cắn nhẹ đầu lưỡi giữa hai hàm răng, thổi luồng gió nhẹ ra ngoài không rung thanh quản (đừng đọc thành ""th"" hay ""t"" tiếng Việt).
+- **Âm `/ð/` trong ""this, that, there"":** Đặt lưỡi vị trí y hệt `/θ/` nhưng rung dây thanh quản trong cổ họng (không đọc thành ""đít"" hay ""dít"").
+
+---
+
+## 4. 🗣️ Phân tích hội thoại từng câu một (Line-by-line Breakdown)
+
+| Người nói | Câu thoại tiếng Anh | Dịch nghĩa tự nhiên | Cụm từ hay dùng & Bẫy ngữ pháp cần tránh |
+|---|---|---|---|
+| **Alex** | *Hi there! Excuse me, is this seat taken?* | Xin chào bạn! Xin lỗi, chỗ này đã có ai ngồi chưa ạ? | • `Excuse me`: Mở lời lịch sự.<br>• `Is this seat taken?`: Thành ngữ tự nhiên nhất để hỏi ghế trống (tránh hỏi cộc lốc *""Sit here ok?""*). |
+| **Mai** | *No, not at all, please go ahead! Beautiful morning for a conference, isn't it?* | Dạ chưa, bạn cứ tự nhiên ngồi nhé! Buổi sáng hôm nay thật đẹp cho một buổi hội thảo, bạn nhỉ? | • `Not at all`: Hoàn toàn không sao.<br>• `Please go ahead`: Cứ tự nhiên làm điều bạn muốn.<br>• `..., isn't it?`: Câu hỏi đuôi thân thiện phá tan sự e ngại (break the ice). |
+| **Alex** | *Absolutely! The keynote speaker was really inspiring. I'm Alex, by the way. I work on cloud solutions in Melbourne.* | Chắc chắn rồi! Diễn giả mở màn thực sự rất truyền cảm hứng. Nhân tiện, tôi là Alex. Tôi làm về các giải pháp điện toán đám mây tại Melbourne. | • `keynote speaker`: Diễn giả chính mở màn sự kiện.<br>• `by the way`: Nhân tiện, tiện thể.<br>• `work on [field]`: Làm việc trong lĩnh vực gì. |
+| **Mai** | *Pleasure to meet you, Alex! I'm Mai. I am a software engineer based in Hanoi, focusing on distributed systems.* | Rất hân hạnh được gặp bạn, Alex! Tôi là Mai. Tôi là kỹ sư phần mềm tại Hà Nội, chuyên sâu về các hệ thống phân tán. | • `Pleasure to meet you`: Lịch sự hơn *""Nice to meet you""* trong bối cảnh nghề nghiệp.<br>• `based in [City]`: Đang sinh sống và làm việc tại.<br>• ⚠️ **Bẫy:** Phải có mạo từ `a` trong *""a software engineer""*, không được nói *""I am software engineer""*. |
+| **Alex** | *Fantastic! Is this your first time attending the summit, or do you come here regularly?* | Tuyệt quá! Đây là lần đầu tiên bạn tham dự hội nghị này, hay bạn đến đây thường xuyên? | • `first time attending`: Lần đầu tham dự.<br>• `regularly` /ˈreɡjələli/: Đều đặn, thường xuyên (trọng âm rơi vào âm 1). |
+| **Mai** | *This is actually my second time. I'm hoping to connect with fellow engineers and exchange insights on system scalability.* | Thực ra đây là lần thứ hai của tôi. Tôi hy vọng sẽ được kết nối với các bạn kỹ sư đồng nghiệp và trao đổi kinh nghiệm về khả năng mở rộng hệ thống. | • `fellow engineers`: Các kỹ sư đồng nghiệp.<br>• `exchange insights`: Trao đổi góc nhìn, kinh nghiệm quý báu.<br>• `system scalability`: Khả năng mở rộng quy mô hệ thống. |
+| **Alex** | *That aligns perfectly with our workshop this afternoon. Would you mind if we stay in touch on LinkedIn?* | Điều đó hoàn toàn trùng khớp với buổi hội thảo thực hành của chúng tôi chiều nay. Bạn có phiền nếu chúng ta giữ liên lạc qua LinkedIn không? | • `align with`: Hoàn toàn ăn khớp, phù hợp với.<br>• `Would you mind if + S + V`: Mẫu câu xin phép lịch thiệp tuyệt đối. |
+| **Mai** | *That would be wonderful! Here is my QR code. I look forward to our fruitful discussions.* | Điều đó thật tuyệt vời! Đây là mã QR của tôi. Tôi rất mong đợi những buổi thảo luận hiệu quả của chúng ta. | • `That would be wonderful`: Đồng ý nhiệt tình và nhã nhặn.<br>• `look forward to + V-ing / Noun`: Cực kỳ trông đợi (⚠️ Không dùng động từ nguyên mẫu sau *to* ở cụm này). |
+
+---
+
+## 5. Ngữ pháp & Cấu trúc câu trọng tâm (Key Grammar & Sentence Structures)
+
+### 5.1. Công thức giới thiệu 3 bước Hook - Background - Passion
 1. **Bước 1 - Hook (Phá vỡ khoảng cách):**
    - *Công thức:* `Excuse me / Hi there + Friendly observation / Question?`
    - *Ví dụ:* ""Beautiful morning for a conference, isn't it?"" *(Hôm nay trời đẹp cho buổi hội thảo nhỉ?)*
@@ -73,14 +118,14 @@ public static class EnglishPracticeContent
    - *Công thức:* `I'm keen on / I'm looking forward to [V-ing / Noun].`
    - *Ví dụ:* ""I look forward to learning from experienced mentors and building long-term relationships.""
 
-### 3.2. Cấu trúc câu hỏi gián tiếp & câu hỏi đuôi lịch thiệp (Tag Questions)
+### 5.2. Cấu trúc câu hỏi gián tiếp & câu hỏi đuôi lịch thiệp (Tag Questions)
 - Khi bắt chuyện, người bản xứ thường dùng câu hỏi đuôi hoặc câu hỏi gợi mở thay vì hỏi dồn dập:
   - *Positive statement + Negative tag:* ""Great turnout today, isn't it?""
   - *Indirect inquiry:* ""Do you happen to know when the next session starts?""
 
 ---
 
-## 4. Từ vựng & Cụm từ then chốt (Key Vocabulary & Collocations)
+## 6. Từ vựng & Cụm từ then chốt (Key Vocabulary & Collocations)
 
 | Từ vựng / Cụm từ | Phiên âm IPA | Nghĩa tiếng Việt | Ví dụ thực hành |
 |---|---|---|---|
@@ -94,31 +139,67 @@ public static class EnglishPracticeContent
 
 ---
 
-## 5. Lỗi phát âm & ngữ pháp người Việt hay mắc (Common Pitfalls & Fixes)
+## 7. Lỗi phát âm & ngữ pháp người Việt hay mắc (Common Pitfalls & Fixes)
 
-### 5.1. Cặp âm vô thanh `/θ/` và hữu thanh `/ð/`
+### 7.1. Cặp âm vô thanh `/θ/` và hữu thanh `/ð/`
 - **Lỗi thường gặp:** Người Việt hay phát âm `/θ/` thành `/t/` hoặc `/s/` (*thank* đọc thành *tanh* hoặc *sanh*); phát âm `/ð/` thành `/d/` hoặc `/z/` (*this* đọc thành *đít*).
 - **Cách khắc phục:** Đặt đầu lưỡi nhẹ nhàng giữa hai hàm răng, thổi luồng hơi ra:
   - Với `/θ/` (không rung dây thanh): *thank you* `/θæŋk juː/`, *think* `/θɪŋk/`, *three* `/θriː/`.
   - Với `/ð/` (có rung dây thanh): *this* `/ðɪs/`, *that* `/ðæt/`, *there* `/ðeə/`, *with* `/wɪð/`.
 
-### 5.2. Quên âm cuối (Ending Sounds) & Đuôi `-s/-es`
+### 7.2. Quên âm cuối (Ending Sounds) & Đuôi `-s/-es`
 - Tiếng Việt là ngôn ngữ đơn âm, không bật âm đuôi. Trong tiếng Anh, thiếu âm đuôi làm đổi nghĩa:
   - *seat* `/siːt/` khác *see* `/siː/`.
   - *projects* `/ˈprɒdʒekts/` bắt buộc bật cả cụm phụ âm `/kts/`.
   - *relationships* `/rɪˈleɪʃnʃɪps/` phải có âm xì `/ps/`.
 
-### 5.3. Nối âm (Linking Consonant to Vowel)
+### 7.3. Nối âm (Linking Consonant to Vowel)
 - Trong cụm *is this seat taken*, nối âm: `seat_is` -> `/siːt ɪz/`.
 - Cụm *look forward to*: không đọc ngắt quãng, nối âm nhẹ nhàng: `look_forward`.
 
-### 5.4. Lỗi ngữ pháp: Thiếu mạo từ nghề nghiệp
+### 7.4. Lỗi ngữ pháp: Thiếu mạo từ nghề nghiệp
 - **Sai:** *""I am software engineer in Hanoi.""* (Người Việt hay bỏ quên mạo từ).
 - **Đúng:** *""I am a software engineer based in Hanoi.""* (Nghề nghiệp đếm được số ít luôn cần *a/an*).
 - **Sai:** *""I look forward to meet you.""*
 - **Đúng:** *""I look forward to meeting you.""* (*look forward to* luôn đi với V-ing).
 
-<!-- studxy-en-v2 -->",
+---
+
+## 8. 📝 Bài tập tự luyện từng bước (Từ dễ đến khó) + Đề tự kiểm tra cuối bài
+
+### Bài tập 1: Điền mạo từ hoặc dạng từ thích hợp (Cực dễ cho người mới)
+1. I am (a / an / ø) ______ frontend developer based in Da Nang.
+2. She looks forward to (meet / meeting) ______ the keynote speaker.
+3. Is this seat (take / taken) ______?
+4. Alex works (in / on) ______ cloud infrastructure solutions.
+
+### Bài tập 2: Sắp xếp các cụm từ thành câu hoàn chỉnh
+1. based / engineer / I / software / in / am / a / Hanoi / .
+2. conference / Beautiful / isn't / a / morning / for / it / ?
+3. would / wonderful / That / be / !
+4. stay / in / on / Would / if / we / touch / you / mind / LinkedIn / ?
+
+---
+
+<details>
+<summary>👉 Bấm vào đây để Xem đáp án & Giải thích từng câu</summary>
+
+### Đáp án Bài tập 1:
+1. **a** — ""frontend developer"" bắt đầu bằng phụ âm /f/, dùng mạo từ `a`.
+2. **meeting** — Cấu trúc `look forward to + V-ing`.
+3. **taken** — Thể bị động miêu tả trạng thái chiếc ghế: `is this seat taken?`.
+4. **on** — Cụm collocations `work on something` (làm việc về mảng gì).
+
+### Đáp án Bài tập 2:
+1. **I am a software engineer based in Hanoi.** *(Tôi là một kỹ sư phần mềm tại Hà Nội).*
+2. **Beautiful morning for a conference, isn't it?** *(Buổi sáng thật đẹp cho buổi hội thảo, phải không?)*
+3. **That would be wonderful!** *(Điều đó thật tuyệt vời!)*
+4. **Would you mind if we stay in touch on LinkedIn?** *(Bạn có phiền nếu chúng ta giữ liên lạc qua LinkedIn không?)*
+
+</details>
+
+<!-- studxy-en-v2 -->
+<!-- studxy-en-v3 -->",
                 @"Nắm vững kỹ năng mở đầu cuộc trò chuyện tự nhiên và giới thiệu bản thân 3 bước.",
                 @"Thực hành Shadowing và Dictation phản xạ với các âm hay sai."
             ),
@@ -159,29 +240,74 @@ public static class EnglishPracticeContent
 
 ---
 
-## 3. Ngữ pháp & Cấu trúc câu trọng tâm (Key Grammar & Sentence Structures)
+## 3. 🌱 Bước khởi động cho người mới bắt đầu (Beginner Warm-up)
 
-### 3.1. Câu hỏi gián tiếp lịch sự (Indirect Questions)
+### 3.1. Khung câu mệnh lệnh thức chỉ đường (Imperative Sentences)
+- Khi chỉ đường, người bản xứ dùng động từ nguyên mẫu đứng đầu câu (không cần chủ ngữ):
+  - `Take the escalator down...` *(Hãy đi thang cuốn xuống...)*
+  - `Board the blue line train...` *(Hãy bước lên chuyến tàu tuyến xanh...)*
+  - `Turn right at the intersection.` *(Rẽ phải ở ngã tư).*
+
+### 3.2. Cấu trúc câu hỏi gián tiếp: Tuyệt đối KHÔNG đảo ngữ
+- Người mới bắt đầu hay hỏi trực diện theo kiểu dịch tiếng Việt: *""Where is the station?""* (nghe hơi cộc lốc).
+- Người bản xứ chuộng câu hỏi gián tiếp: `Could you tell me where [Chủ ngữ] + [Động từ]?`.
+  - ⚠️ **Quy tắc vàng:** Sau từ hỏi (`where/how`), giữ nguyên trật tự `S + V`, không đảo `is/can` lên trước:
+  - *Đúng:* `Could you tell me where the pharmacy is?`
+  - *Sai:* `Could you tell me where is the pharmacy?`
+
+### 3.3. Vì sao dùng ""It takes + thời gian""?
+- Cấu trúc diễn tả mất bao nhiêu thời gian để đi đâu: `It takes + [Thời gian] + on foot / by bus`.
+  - *""It takes twenty minutes on foot.""* *(Mất 20 phút đi bộ).*
+
+### 3.4. Hướng dẫn khẩu hình phát âm cho người Việt
+- **Cụm phụ âm `/st/` (straight, station):** Khép nhẹ hai hàm răng, xì luồng hơi gió `/s/` trước, rồi lập tức bật âm `/t/`. Tuyệt đối không chèn âm ""tơ-rết"" hay ""xì-tây-sần"".
+- **Âm cuối `/tʃ/` (touch, purchase):** Chu tròn môi, bật luồng hơi gió dứt khoát không rung cổ họng.
+- **Âm cuối `/dʒ/` (bridge, change, luggage):** Chu tròn môi nhưng rung thanh quản mạnh ở cổ.
+
+---
+
+## 4. 🗣️ Phân tích hội thoại từng câu một (Line-by-line Breakdown)
+
+| Tình huống & Người nói | Câu thoại tiếng Anh | Dịch nghĩa tự nhiên | Cụm từ hay dùng & Bẫy ngữ pháp cần tránh |
+|---|---|---|---|
+| **Transit — Khách** | *Excuse me, could you tell me how to get to the international terminal from here?* | Xin lỗi, bạn có thể chỉ cho tôi cách đến nhà ga quốc tế từ đây được không? | • `could you tell me how to get to...`: Mẫu câu hỏi đường lịch sự nhất.<br>• `international terminal`: Nhà ga sân bay quốc tế. |
+| **Transit — Attendant** | *Certainly! Take the escalator down to platform two, board the blue line train, and ride it for three stops.* | Dĩ nhiên rồi! Bạn hãy đi thang cuốn xuống ke số hai, lên tàu tuyến xanh và đi qua ba ga dừng nhé. | • `escalator`: Thang cuốn tự động.<br>• `platform`: Ke ga, sân ga.<br>• `board`: Lên tàu / máy bay.<br>• `ride it for three stops`: Đi qua 3 trạm dừng. |
+| **Transit — Khách** | *Thank you! Is it within walking distance if I prefer to walk with my luggage?* | Cảm ơn bạn! Liệu chỗ đó có trong khoảng cách đi bộ được không nếu tôi muốn đi bộ với hành lý? | • `within walking distance`: Khoảng cách gần có thể đi bộ.<br>• `luggage`: Hành lý (danh từ không đếm được, không có số nhiều *luggages*). |
+| **Transit — Attendant** | *It takes about twenty-five minutes on foot, but with heavy bags, taking the automated shuttle is much more convenient.* | Mất khoảng hai mươi lăm phút đi bộ, nhưng với túi xách nặng thì đi xe đưa đón tự động sẽ tiện hơn nhiều. | • `on foot`: Đi bộ.<br>• `automated shuttle`: Xe buýt điện trung chuyển tự động. |
+| **Transit — Khách** | *That sounds great. Where can I tap my contactless card for the ticket?* | Nghe hay quá. Tôi có thể chạm thẻ không tiếp xúc để mua vé ở đâu vậy? | • `That sounds great`: Lời đáp thể hiện sự ưng ý.<br>• `contactless card`: Thẻ thanh toán chạm. |
+| **Transit — Attendant** | *Right over there at the smart gate. Just tap and go!* | Ngay đằng kia ở cổng thông minh. Chỉ cần chạm thẻ là đi qua thôi! | • `Right over there`: Ngay ở đằng kia.<br>• `tap and go`: Chạm và đi (khẩu hiệu thanh toán metro phổ biến). |
+| **Shop — Khách** | *Hello, do you have this wool sweater in a medium size?* | Xin chào, cửa hàng có chiếc áo len lông cừu này ở cỡ vừa (size M) không ạ? | • `wool sweater`: Áo len dệt từ lông cừu.<br>• `in a medium size`: Ở cỡ size vừa. |
+| **Shop — Thu ngân** | *Let me check our inventory... Yes, here is the last one in navy blue!* | Để tôi kiểm tra kho hàng... Vâng, đây là chiếc cuối cùng màu xanh navy! | • `inventory`: Kho hàng, danh mục tồn kho.<br>• `the last one`: Chiếc cuối cùng còn lại. |
+| **Shop — Khách** | *Wonderful! Does this store offer tax-free shopping for international tourists?* | Tuyệt vời! Cửa hàng mình có chính sách mua sắm miễn thuế cho khách du lịch quốc tế không? | • `tax-free shopping`: Mua sắm hoàn thuế / miễn thuế.<br>• `international tourists`: Khách du lịch quốc tế. |
+| **Shop — Thu ngân** | *Yes, absolutely. If your total purchase exceeds fifty dollars, we can issue an official tax refund receipt.* | Dạ có chứ. Nếu tổng hóa đơn mua sắm của bạn vượt quá năm mươi đô la, chúng tôi có thể xuất hóa đơn hoàn thuế chính thức. | • `total purchase exceeds`: Tổng giá trị mua sắm vượt qua mức.<br>• `tax refund receipt`: Hóa đơn hoàn thuế. |
+| **Shop — Khách** | *Perfect. Can I pay with Apple Pay or credit card?* | Tuyệt. Tôi có thể thanh toán bằng Apple Pay hay thẻ tín dụng được không? | • Phương thức thanh toán phổ biến khi đi công tác nước ngoài. |
+| **Shop — Thu ngân** | *Both are accepted. Please hold your device near the reader.* | Cả hai đều được chấp nhận ạ. Xin mời bạn đưa thiết bị lại gần máy đọc thẻ. | • `hold your device near the reader`: Giữ thiết bị gần đầu đọc NFC. |
+
+---
+
+## 5. Ngữ pháp & Cấu trúc câu trọng tâm (Key Grammar & Sentence Structures)
+
+### 5.1. Câu hỏi gián tiếp lịch sự (Indirect Questions)
 - Thay vì hỏi trực tiếp cộc lốc (*""Where is the train station?""*), người bản xứ luôn dùng câu hỏi gián tiếp:
   - *Công thức:* `Could you please tell me + where / how / whether + S + V?`
   - *Lưu ý vàng:* **Không đảo trợ động từ lên trước chủ ngữ!**
   - *Đúng:* ""Could you tell me where the nearest pharmacy **is**?"" (Không dùng *is the nearest pharmacy*).
 
-### 3.2. Cụm từ chỉ phương hướng và vị trí không gian
+### 5.2. Cụm từ chỉ phương hướng và vị trí không gian
 - **straight ahead** `/streɪt əˈhed/`: Đi thẳng về phía trước.
 - **turn left / right at the intersection**: Rẽ trái / phải ở ngã tư.
 - **take the second exit at the roundabout**: Đi lối ra thứ hai ở bùng binh.
 - **across from / opposite to**: Đối diện với.
 - **within walking distance**: Trong khoảng cách có thể đi bộ được.
 
-### 3.3. Mẫu câu mua sắm & thanh toán
+### 5.3. Mẫu câu mua sắm & thanh toán
 - ""Do you have this item in stock?"" *(Món đồ này còn hàng không?)*
 - ""Can I try this on in the fitting room?"" *(Tôi có thể thử món này trong phòng thay đồ không?)*
 - ""Do you accept contactless payments or cards?"" *(Cửa hàng có nhận chạm thẻ hoặc thanh toán thẻ không?)*
 
 ---
 
-## 4. Từ vựng & Cụm từ then chốt (Key Vocabulary & Collocations)
+## 6. Từ vựng & Cụm từ then chốt (Key Vocabulary & Collocations)
 
 | Từ vựng / Cụm từ | Phiên âm IPA | Nghĩa tiếng Việt | Ví dụ thực hành |
 |---|---|---|---|
@@ -195,23 +321,57 @@ public static class EnglishPracticeContent
 
 ---
 
-## 5. Lỗi phát âm & ngữ pháp người Việt hay mắc (Common Pitfalls & Fixes)
+## 7. Lỗi phát âm & ngữ pháp người Việt hay mắc (Common Pitfalls & Fixes)
 
-### 5.1. Cụm phụ âm đầu `/st/` và `/sk/`
+### 7.1. Cụm phụ âm đầu `/st/` và `/sk/`
 - **Lỗi thường gặp:** Người Việt hay bỏ âm `/s/` hoặc chèn nguyên âm đệm: đọc *straight* thành *tơ-rết* hoặc *rayt*; đọc *station* thành *tây-sần*.
 - **Cách sửa:** Khép răng, thổi gió xì âm `/s/` trước rồi mới bật phụ âm `/t/`: `/streɪt/`, `/ˈsteɪʃn/`, `/skjuːz/` (*excuse*).
 
-### 5.2. Âm cuối `/tʃ/` (ch) và `/dʒ/` (j)
+### 7.2. Âm cuối `/tʃ/` (ch) và `/dʒ/` (j)
 - *touch* `/tʌtʃ/`, *purchase* `/ˈpɜːtʃəs/`: phải chu môi bật hơi dứt khoát.
 - *bridge* `/brɪdʒ/`, *change* `/tʃeɪndʒ/`, *luggage* `/ˈlʌɡɪdʒ/`: rung cổ họng khi phát âm âm cuối `/dʒ/`.
 
-### 5.3. Lỗi ngữ pháp: Đảo ngữ sai trong câu hỏi gián tiếp
+### 7.3. Lỗi ngữ pháp: Đảo ngữ sai trong câu hỏi gián tiếp
 - **Sai:** *""Could you tell me how can I get to the airport?""*
 - **Đúng:** *""Could you tell me how I can get to the airport?""*
 - **Sai:** *""Do you know what time does the shop close?""*
 - **Đúng:** *""Do you know what time the shop closes?""*
 
-<!-- studxy-en-v2 -->",
+---
+
+## 8. 📝 Bài tập tự luyện từng bước (Từ dễ đến khó) + Đề tự kiểm tra cuối bài
+
+### Bài tập 1: Chọn từ đúng điền vào câu hỏi gián tiếp
+1. Could you tell me where (is the station / the station is)?
+2. Do you know what time the store (opens / does open)?
+3. Can I pay (by / with) contactless card?
+4. Is the hotel within (walk / walking) distance?
+
+### Bài tập 2: Sắp xếp các từ thành câu chỉ đường hoàn chỉnh
+1. the / escalator / to / platform / Take / two / down / .
+2. the / exit / at / second / Take / roundabout / the / .
+3. device / hold / near / reader / Please / your / the / .
+
+---
+
+<details>
+<summary>👉 Bấm vào đây để Xem đáp án & Giải thích từng câu</summary>
+
+### Đáp án Bài tập 1:
+1. **the station is** — Câu hỏi gián tiếp không đảo trợ động từ lên trước chủ ngữ.
+2. **opens** — Sau từ hỏi *what time*, mệnh đề giữ trật tự S + V ở hiện tại đơn (chủ ngữ số ít *the store* đi với *opens*).
+3. **with** (hoặc *by*) — *pay with a card / pay by card*.
+4. **walking** — Cụm collocations cố định: *within walking distance*.
+
+### Đáp án Bài tập 2:
+1. **Take the escalator down to platform two.** *(Hãy đi thang cuốn xuống ke ga số hai).*
+2. **Take the second exit at the roundabout.** *(Hãy đi theo lối ra thứ hai ở bùng binh).*
+3. **Please hold your device near the reader.** *(Xin vui lòng giữ thiết bị của bạn gần đầu đọc thẻ).*
+
+</details>
+
+<!-- studxy-en-v2 -->
+<!-- studxy-en-v3 -->",
                 @"Hỏi đường và xử lý các tình huống đời sống, mua sắm và thanh toán thực tế.",
                 @"Mẫu câu thực tế và phản xạ nhanh khi du lịch hoặc công tác nước ngoài."
             ),
@@ -276,26 +436,71 @@ Sincerely,
 
 ---
 
-## 3. Ngữ pháp & Cấu trúc câu trọng tâm (Key Grammar & Sentence Structures)
+## 3. 🌱 Bước khởi động cho người mới bắt đầu (Beginner Warm-up)
 
-### 3.1. Các mẫu câu mở đầu email chuyên nghiệp
+### 3.1. Khung xương của một bức email công việc chuẩn quốc tế
+Mọi email tiếng Anh chuyên nghiệp đều tuân theo 5 khối logic đơn giản:
+1. **Tiêu đề (Subject Line):** Rõ ràng, có nhãn phân loại: `[Status Update] ...` hoặc `Rescheduling Request: ...`.
+2. **Chào hỏi (Salutation):** `Dear Mr. Harrison,` hoặc `Dear Ms. Anderson,`.
+3. **Mục đích viết thư (Purpose):** `I am writing to provide an update on...` hoặc `I am writing to request...`.
+4. **Hành động tiếp theo (Call to Action):** `Would you be available for a brief sync tomorrow at 3:00 PM?`.
+5. **Chào kết (Sign-off):** `Best regards,` hoặc `Sincerely,` kèm chữ ký chức danh.
+
+### 3.2. Thì Hiện tại hoàn thành (Present Perfect) trong báo cáo tiến độ
+- Khi báo cáo kết quả vừa hoàn thành và còn nóng hổi giá trị đến hiện tại, ta dùng:
+  $$\text{have / has} + \text{V3 / V-ed}$$
+  - *""Our team has finalized the authentication microservice.""* *(Nhóm chúng tôi đã hoàn tất vi dịch vụ xác thực).*
+  - Dùng `has` vì chủ ngữ `our team` là một tập thể số ít.
+
+### 3.3. Câu điều kiện lịch thiệp với ""Would""
+- Để hỏi đối tác có rảnh không, không dùng *""Do you have time?""* (nghe hơi suồng sã). Hãy dùng:
+  - `Would you be available for a brief sync on [Day] at [Time]?`
+  - Chữ `Would` làm câu nói trở nên mềm mại và tôn trọng đối phương.
+
+### 3.4. 3 Quy tắc vàng phát âm đuôi -ed không bao giờ sai
+1. **Nhóm 1 - Đọc là `/ɪd/`:** Chỉ khi động từ tận cùng bằng âm `/t/` hoặc `/d/`:
+   - *completed* `/kəmˈpliːtɪd/`, *decided* `/dɪˈsaɪdɪd/`.
+2. **Nhóm 2 - Đọc là `/t/`:** Khi tận cùng là các âm vô thanh (`/k, p, s, ʃ, tʃ, f/`):
+   - *launched* `/lɔːntʃt/`, *fixed* `/fɪkst/`, *developed* `/dɪˈveləpt/`.
+3. **Nhóm 3 - Đọc là `/d/`:** Tất cả các âm còn lại (âm rung cổ họng):
+   - *finalized* `/ˈfaɪnəlaɪzd/`, *streamlined* `/ˈstriːmlaɪnd/`, *deployed* `/dɪˈplɔɪd/`.
+
+---
+
+## 4. 🗣️ Phân tích hội thoại từng câu một (Line-by-line Breakdown)
+
+| Đoạn trích email | Phân tích ngữ nghĩa tự nhiên | Điểm ngữ pháp then chốt & Từ vựng công sở |
+|---|---|---|
+| *I am writing to provide a concise update regarding our progress on Sprint 14.* | Tôi viết thư này nhằm cung cấp bản cập nhật ngắn gọn về tiến độ của nhóm trong Sprint 14. | • `concise`: Ngắn gọn, súc tích, đi thẳng vào trọng tâm.<br>• `regarding`: Về vấn đề gì (trang trọng hơn *about*). |
+| *Over the past week, our engineering team has successfully finalized the authentication microservice.* | Trong tuần vừa qua, nhóm kỹ thuật của chúng tôi đã hoàn thiện thành công dịch vụ xác thực. | • `Over the past week`: Trong suốt tuần qua (dấu hiệu Hiện tại hoàn thành).<br>• `finalize`: Hoàn tất khâu cuối cùng. |
+| *All critical deliverables remain on track for the staging deployment this Friday.* | Toàn bộ các sản phẩm bàn giao then chốt vẫn đang đúng tiến độ cho đợt triển khai môi trường staging thứ Sáu này. | • `critical deliverables`: Các hạng mục bàn giao trọng yếu.<br>• `on track`: Đúng lộ trình, đúng tiến độ. |
+| *Please find attached the detailed metric breakdown for your review.* | Xin vui lòng xem tệp đính kèm bảng phân tích chỉ số chi tiết để anh xem xét. | • Mẫu câu đính kèm tệp chuẩn mực nhất trong thư giao dịch. |
+| *Due to an urgent production incident that requires my immediate presence...* | Do có một sự cố nghiêm trọng trên hệ thống vận hành đòi hỏi sự có mặt trực tiếp ngay lập tức của tôi... | • `urgent production incident`: Sự cố kỹ thuật khẩn cấp trên hệ thống thực tế.<br>• `immediate presence`: Sự hiện diện ngay tức khắc. |
+| *I regret to inform you that I will be unable to attend our scheduled alignment meeting...* | Tôi rất tiếc phải thông báo rằng tôi sẽ không thể tham dự cuộc họp định hướng đã lên lịch... | • `regret to inform you`: Rất tiếc phải báo tin (văn phong dời lịch trang trọng). |
+| *Please accept my sincere apologies for this short-notice inconvenience.* | Xin vui lòng chấp nhận lời xin lỗi chân thành của tôi vì sự bất tiện gấp rút này. | • `sincere apologies`: Lời xin lỗi chân thành.<br>• `short-notice inconvenience`: Bất tiện do thông báo quá gấp. |
+
+---
+
+## 5. Ngữ pháp & Cấu trúc câu trọng tâm (Key Grammar & Sentence Structures)
+
+### 5.1. Các mẫu câu mở đầu email chuyên nghiệp
 - *Mở đầu trang trọng:* ""I hope this email finds you well."" *(Hy vọng email này tìm thấy bạn trong trạng thái tốt đẹp).*
 - *Nêu mục đích trực tiếp:* ""I am writing to update you on..."", ""I am writing to request your approval regarding...""
 - *Hạn chế:* Tránh viết cộc lốc *""I want to tell you about...""* trong thư giao dịch.
 
-### 3.2. Cấu trúc câu hỏi điều kiện lịch thiệp (Courteous Requests)
+### 5.2. Cấu trúc câu hỏi điều kiện lịch thiệp (Courteous Requests)
 - `Would you be available for a brief sync on [Day] at [Time]?`
 - `Could you please confirm if this timeframe aligns with your availability?`
 - `Should your schedule permit, we would greatly appreciate your input.`
 
-### 3.3. Thì Hiện tại hoàn thành (Present Perfect) trong báo cáo tiến độ
+### 5.3. Thì Hiện tại hoàn thành (Present Perfect) trong báo cáo tiến độ
 - Dùng Present Perfect (`have/has + V3/ed`) để báo cáo các kết quả vừa hoàn thành có tác động đến hiện tại:
   - *""We have finalized the core modules.""* (Đã hoàn thiện các module cốt lõi).
   - *""Our team has resolved all blocking defects.""* (Nhóm đã khắc phục toàn bộ lỗi chặn tiến độ).
 
 ---
 
-## 4. Từ vựng & Cụm từ then chốt (Key Vocabulary & Collocations)
+## 6. Từ vựng & Cụm từ then chốt (Key Vocabulary & Collocations)
 
 | Từ vựng / Cụm từ | Phiên âm IPA | Nghĩa tiếng Việt | Ví dụ thực hành |
 |---|---|---|---|
@@ -309,9 +514,9 @@ Sincerely,
 
 ---
 
-## 5. Lỗi phát âm & ngữ pháp người Việt hay mắc (Common Pitfalls & Fixes)
+## 7. Lỗi phát âm & ngữ pháp người Việt hay mắc (Common Pitfalls & Fixes)
 
-### 5.1. Quy tắc phát âm đuôi `-ed` trong động từ công sở
+### 7.1. Quy tắc phát âm đuôi `-ed` trong động từ công sở
 - **Nhóm 1 - Phát âm `/ɪd/`:** Khi động từ kết thúc bằng `/t/` hoặc `/d/`:
   - *completed* `/kəmˈpliːtɪd/`, *decided* `/dɪˈsaɪdɪd/`, *requested* `/rɪˈkwestɪd/`.
 - **Nhóm 2 - Phát âm `/t/`:** Khi kết thúc bằng phụ âm vô thanh (`/k, p, s, ʃ, tʃ, f/`):
@@ -319,17 +524,53 @@ Sincerely,
 - **Nhóm 3 - Phát âm `/d/`:** Các trường hợp còn lại (âm hữu thanh & nguyên âm):
   - *finalized* `/ˈfaɪnəlaɪzd/`, *streamlined* `/ˈstriːmlaɪnd/`, *deployed* `/dɪˈplɔɪd/`.
 
-### 5.2. Âm cuối `/z/` trong danh từ số nhiều công sở
+### 7.2. Âm cuối `/z/` trong danh từ số nhiều công sở
 - *milestones* `/ˈmaɪlstəʊnz/`, *deliverables* `/dɪˈlɪvərəblz/`, *resources* `/rɪˈzɔːsɪz/`.
 - Lỗi người Việt: Nuốt âm xì cuối làm câu nghe rời rạc và mất đi tính chính xác ngữ pháp.
 
-### 5.3. Lỗi ngữ pháp: Trộn lẫn quá khứ đơn và hiện tại hoàn thành
+### 7.3. Lỗi ngữ pháp: Trộn lẫn quá khứ đơn và hiện tại hoàn thành
 - **Sai:** *""We finalized the task this morning and everything is ready now.""* (Nếu muốn nhấn mạnh kết quả còn nóng hổi).
 - **Đúng:** *""We have finalized the task this morning and everything is ready now.""*
 - **Sai:** *""Would you like to meet tomorrow at 2 PM? Wanna join?""* (Trộn lẫn trang trọng và tiếng lóng).
 - **Đúng:** *""Would you be available to meet tomorrow at 2:00 PM?""*
 
-<!-- studxy-en-v2 -->",
+---
+
+## 8. 📝 Bài tập tự luyện từng bước (Từ dễ đến khó) + Đề tự kiểm tra cuối bài
+
+### Bài tập 1: Phân loại cách đọc đuôi -ed (/t/, /d/, hay /ɪd/)
+1. completed -> ______
+2. launched -> ______
+3. streamlined -> ______
+4. requested -> ______
+
+### Bài tập 2: Điền từ thích hợp vào chỗ trống trong email
+1. I am writing to provide a ______ update on Sprint 14. (concise / conciseness)
+2. All deliverables remain ______ track. (on / in)
+3. Please find ______ the metric breakdown. (attach / attached)
+4. Would you be available ______ a brief meeting? (for / with)
+
+---
+
+<details>
+<summary>👉 Bấm vào đây để Xem đáp án & Giải thích từng câu</summary>
+
+### Đáp án Bài tập 1:
+1. **completed** -> `/ɪd/` (kết thúc bằng âm /t/).
+2. **launched** -> `/t/` (kết thúc bằng âm vô thanh /tʃ/).
+3. **streamlined** -> `/d/` (kết thúc bằng phụ âm hữu thanh /n/).
+4. **requested** -> `/ɪd/` (kết thúc bằng âm /t/).
+
+### Đáp án Bài tập 2:
+1. **concise** — Cần tính từ đứng trước danh từ *update*.
+2. **on** — Cụm thành ngữ *on track* (đúng tiến độ).
+3. **attached** — Cụm từ *find attached* (tìm thấy tệp đính kèm).
+4. **for** — Cấu trúc *available for something* (rảnh rỗi cho việc gì).
+
+</details>
+
+<!-- studxy-en-v2 -->
+<!-- studxy-en-v3 -->",
                 @"Viết email chuyên nghiệp, đặt lịch hẹn và báo cáo tiến độ công việc theo chuẩn SMART.",
                 @"Cấu trúc văn phong văn phòng chuẩn quốc tế và phản xạ giao tiếp công sở."
             ),
@@ -364,29 +605,66 @@ Sincerely,
 
 ---
 
-## 3. Ngữ pháp & Cấu trúc câu trọng tâm (Key Grammar & Sentence Structures)
+## 3. 🌱 Bước khởi động cho người mới bắt đầu (Beginner Warm-up)
 
-### 3.1. Ngôn ngữ điều phối và kiểm tra kỹ thuật trực tuyến
+### 3.1. Khung câu bắt đầu cuộc họp trực tuyến
+- Để bắt đầu cuộc họp chuyên nghiệp, người chủ trì (Chair) luôn kiểm tra 2 yếu tố: Âm thanh (Audio) và Màn hình (Video):
+  - `Can everyone hear me clearly?` *(Mọi người có nghe rõ tiếng tôi không?)*
+  - `Can everyone see my shared screen?` *(Mọi người có thấy màn hình tôi đang chia sẻ không?)*
+- Phản xạ đáp lại nhanh chóng và tự nhiên:
+  - `Loud and clear!` *(Nghe to và rõ ràng lắm ạ!)*
+  - `Coming through perfectly!` *(Hình ảnh/âm thanh truyền tới rất mượt mà!)*
+
+### 3.2. Công thức phản biện ngoại giao (Diplomatic Disagreement)
+- Trong môi trường làm việc quốc tế, không bao giờ nói trực diện *""You are wrong""* hoặc *""I disagree""* vì dễ gây căng thẳng.
+- Hãy dùng công thức **Đệm công nhận + Nêu góc nhìn khác**:
+  $$\text{I see your point / That is a valid concern} + \text{however, have we considered [Y]?}$$
+  - Điều này giúp đồng nghiệp thấy ý kiến của họ được trân trọng trước khi bàn về rủi ro.
+
+### 3.3. Phân biệt cặp âm phụ âm `/v/` vs `/w/`
+- **Âm `/v/` (video, valid, viable):** Đặt răng cửa trên chạm nhẹ vào lòng môi dưới, đẩy hơi và rung dây thanh quản (giống âm ""v"" tiếng Việt nhưng chặt hơn).
+- **Âm `/w/` (window, workshop, walk):** Hai môi chúm tròn lại thành hình chữ ""O"" nhỏ rồi mở rộng ra (không để răng chạm vào môi!).
+
+---
+
+## 4. 🗣️ Phân tích hội thoại từng câu một (Line-by-line Breakdown)
+
+| Người nói | Câu thoại tiếng Anh | Dịch nghĩa tự nhiên | Cụm từ hay dùng & Bẫy ngữ pháp cần tránh |
+|---|---|---|---|
+| **Robert (Chair)** | *Good morning, everyone! Can everyone hear me clearly and see my shared screen?* | Chào buổi sáng mọi người! Mọi người có nghe rõ tiếng tôi và thấy màn hình chia sẻ không ạ? | • Mẫu câu mở đầu cuộc họp trực tuyến chuẩn mực quốc tế. |
+| **Mai** | *Loud and clear, Robert! Your presentation slide is coming through perfectly.* | Nghe rất to và rõ, Robert ơi! Slide thuyết trình của anh hiển thị rất mượt mà. | • `Loud and clear`: Thành ngữ phản xạ âm thanh hoàn hảo.<br>• `coming through`: Truyền qua mạng thông suốt. |
+| **Robert** | *Excellent. Let's get down to business. Today our objective is to decide whether to migrate...* | Tuyệt vời. Chúng ta hãy bắt đầu vào việc chính thôi. Mục tiêu hôm nay là quyết định xem có nên chuyển đổi... | • `get down to business`: Đi thẳng vào công việc chính.<br>• `whether to [verb]`: Liệu có nên làm gì hay không. |
+| **Mai** | *Certainly. As you can see on slide four, decoupling our frontend from the backend services will significantly enhance horizontal scalability.* | Chắc chắn rồi. Như mọi người thấy ở slide bốn, việc tách rời frontend khỏi backend sẽ gia tăng đáng kể khả năng mở rộng theo chiều ngang. | • `decoupling`: Tách rời kiến trúc độc lập.<br>• `horizontal scalability`: Khả năng mở rộng theo chiều ngang (thêm máy chủ). |
+| **David** | *I see your point, Mai, and the scalability benefits are compelling. However, have we taken network latency into account?* | Tôi hiểu ý bạn rồi, Mai, và lợi ích về khả năng mở rộng rất thuyết phục. Tuy nhiên, chúng ta đã tính đến độ trễ mạng chưa? | • `I see your point`: Tôi hiểu góc nhìn của bạn.<br>• `compelling`: Đầy sức thuyết phục.<br>• `take into account`: Tính đến, cân nhắc đến yếu tố nào. |
+| **Mai** | *That is a valid concern, David. To mitigate latency, we plan to implement lightweight gRPC communication. Would that address your team's worries?* | Đó là một mối bận tâm rất xác đáng, David. Để giảm thiểu độ trễ, chúng tôi dự định áp dụng giao tiếp gRPC tinh gọn. Liệu điều đó có giải tỏa được nỗi lo của đội bạn không? | • `valid concern`: Mối quan ngại hoàn toàn chính đáng.<br>• `mitigate`: Giảm nhẹ rủi ro / tổn thất.<br>• `address someone's worries`: Giải quyết nỗi lo lắng của ai. |
+| **David** | *Yes, that sounds like a viable compromise. I'm comfortable moving forward with a small prototype.* | Được đó, nghe như một giải pháp thỏa hiệp khả thi. Tôi yên tâm để tiến hành với một bản thử nghiệm nhỏ. | • `viable compromise`: Thỏa hiệp khả thi.<br>• `comfortable moving forward`: Yên tâm tiến bước tiếp theo. |
+| **Robert** | *Great consensus. Let's summarize our action items: Mai will lead the prototype development, and David will review...* | Sự đồng thuận tuyệt vời. Chúng ta hãy tóm tắt các đầu việc hành động: Mai sẽ dẫn dắt bản thử nghiệm, còn David sẽ rà soát... | • `consensus`: Sự nhất trí, đồng lòng.<br>• `action items`: Các đầu việc cần làm sau họp.<br>• `lead`: Giữ vai trò chủ trì. |
+
+---
+
+## 5. Ngữ pháp & Cấu trúc câu trọng tâm (Key Grammar & Sentence Structures)
+
+### 5.1. Ngôn ngữ điều phối và kiểm tra kỹ thuật trực tuyến
 - *Kiểm tra mic / kết nối:* ""Can you hear me alright?"", ""Am I coming through clearly?""
 - *Chia sẻ màn hình:* ""Let me share my screen. Please let me know once you see the slides.""
 - *Xử lý quên bật mic:* ""Alex, I believe you are on mute."" *(Alex ơi, hình như bạn đang tắt mic).*
 - *Xử lý nói chen ngang lịch thiệp:* ""Sorry to cut you off, please go ahead."" *(Xin lỗi vì đã ngắt lời bạn, xin mời bạn nói tiếp).*
 
-### 3.2. Cấu trúc phản biện ngoại giao (Diplomatic Disagreement)
+### 5.2. Cấu trúc phản biện ngoại giao (Diplomatic Disagreement)
 - Thay vì nói cộc lốc *""You are wrong""* hoặc *""I disagree""*, người bản xứ luôn dùng các đệm xoa dịu (Softening Devices):
   - `I see your point, but we should also evaluate [Risk/Aspect].`
   - `That is a valid observation; however, have we considered [Alternative]?`
   - `While I agree in principle, wouldn't it be safer to start with a prototype?`
   - `From my perspective, allocating resources here might yield better long-term ROI.`
 
-### 3.3. Cấu trúc chốt việc (Action Items & Task Ownership)
+### 5.3. Cấu trúc chốt việc (Action Items & Task Ownership)
 - `Let's wrap up by assigning clear ownership for each deliverable.`
 - `[Person] will take the lead on [Task], with [Person] supporting on [Review].`
 - `The hard deadline is agreed for [Day/Date].`
 
 ---
 
-## 4. Từ vựng & Cụm từ then chốt (Key Vocabulary & Collocations)
+## 6. Từ vựng & Cụm từ then chốt (Key Vocabulary & Collocations)
 
 | Từ vựng / Cụm từ | Phiên âm IPA | Nghĩa tiếng Việt | Ví dụ thực hành |
 |---|---|---|---|
@@ -400,23 +678,57 @@ Sincerely,
 
 ---
 
-## 5. Lỗi phát âm & ngữ pháp người Việt hay mắc (Common Pitfalls & Fixes)
+## 7. Lỗi phát âm & ngữ pháp người Việt hay mắc (Common Pitfalls & Fixes)
 
-### 5.1. Nối âm trong họp trực tuyến (Linking Sounds)
+### 7.1. Nối âm trong họp trực tuyến (Linking Sounds)
 - *Can everyone* -> đọc nối âm: `/kæn ˈevriwʌn/` thành `Can_everyone`.
 - *Walk us through* -> `/wɔːk ʌs θruː/` nối âm thành `walk_us through`.
 - *Turn off* -> nối âm `turn_off`.
 
-### 5.2. Cặp phụ âm `/v/` và `/w/`
+### 7.2. Cặp phụ âm `/v/` và `/w/`
 - Người Việt hay đọc `/v/` thành `/w/` hoặc ngược lại:
   - *video* `/ˈvɪdiəʊ/` (răng trên chạm môi dưới, rung) khác *window* `/ˈwɪndəʊ/` (môi tròn chúm lại).
   - *valid* `/ˈvælɪd/`, *viable* `/ˈvaɪəbl/`, *evaluate* `/ɪˈvæljueɪt/`.
 
-### 5.3. Lỗi ngữ pháp: Tranh luận trực diện thiếu tính ngoại giao
+### 7.3. Lỗi ngữ pháp: Tranh luận trực diện thiếu tính ngoại giao
 - **Kém chuyên nghiệp:** *""Your idea is impossible because our team doesn't have time.""*
 - **Chuẩn mực ngoại giao:** *""That is an interesting proposition; however, given our current bandwidth constraints, could we explore Phase 2 implementation?""*
 
-<!-- studxy-en-v2 -->",
+---
+
+## 8. 📝 Bài tập tự luyện từng bước (Từ dễ đến khó) + Đề tự kiểm tra cuối bài
+
+### Bài tập 1: Điền cụm từ phù hợp khi họp trực tuyến
+1. When you want to discuss a detail after the meeting, you say: ""Let's take this ______."" (online / offline)
+2. When someone speaks while muted, you say: ""You are on ______."" (mute / quiet)
+3. When everyone agrees on a decision, they have reached a ______."" (conflict / consensus)
+4. ""Loud and ______!"" (clear / clarity)
+
+### Bài tập 2: Sắp xếp thành câu phản biện ngoại giao
+1. concern / That / valid / a / David / is / .
+2. this / walk / Could / us / proposed / you / blueprint / through / the / ?
+3. action / summarize / Let's / items / our / .
+
+---
+
+<details>
+<summary>👉 Bấm vào đây để Xem đáp án & Giải thích từng câu</summary>
+
+### Đáp án Bài tập 1:
+1. **offline** — *take something offline* (thảo luận riêng ngoài cuộc họp).
+2. **mute** — *you are on mute* (bạn đang tắt mic).
+3. **consensus** — *reach a consensus* (đạt được sự đồng thuận).
+4. **clear** — *loud and clear* (nghe to và rõ ràng).
+
+### Đáp án Bài tập 2:
+1. **That is a valid concern, David.** *(Đó là một mối quan ngại hoàn toàn chính đáng, David).*
+2. **Could you walk us through the proposed blueprint?** *(Bạn có thể trình bày cặn kẽ bản thiết kế đề xuất cho chúng tôi được không?)*
+3. **Let's summarize our action items.** *(Chúng ta hãy cùng tóm tắt lại các đầu việc hành động).*
+
+</details>
+
+<!-- studxy-en-v2 -->
+<!-- studxy-en-v3 -->",
                 @"Hội họp trực tuyến, chủ trì thảo luận và diễn đạt ý kiến chuyên môn rõ ràng.",
                 @"Kỹ năng phản biện ngoại giao, tìm giải pháp đồng thuận và thuyết phục đội ngũ."
             ),
@@ -453,27 +765,67 @@ Sincerely,
 
 ---
 
-## 3. Ngữ pháp & Cấu trúc câu trọng tâm (Key Grammar & Sentence Structures)
+## 3. 🌱 Bước khởi động cho người mới bắt đầu (Beginner Warm-up)
 
-### 3.1. Ngôn ngữ dẫn dắt chuyển ý (Signposting Language)
+### 3.1. Cấu trúc 3 phần bất biến của một bài nói 5 phút
+Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man. Bí quyết là bám sát khung 3 bước:
+1. **Tell them what you are going to tell them (Opening):** Giới thiệu chủ đề và lý do vì sao khán giả nên quan tâm.
+2. **Tell them (Body):** Trình bày tối đa 3 ý chính, mỗi ý kèm một con số thực tế.
+3. **Tell them what you told them (Conclusion):** Tóm tắt 1 câu cốt lõi và kêu gọi hành động (Call to action).
+
+### 3.2. Ngôn ngữ chỉ đường (Signposting Language) là gì?
+- Giống như các biển chỉ dẫn trên đường cao tốc, biển chỉ đường bằng lời giúp khán giả biết bạn đang ở đâu:
+  - *Bắt đầu:* `To begin with, let us look at...`
+  - *Chuyển ý:* `Moving on to...`, `Turning our attention to...`
+  - *Chốt bài:* `In conclusion...`, `To wrap up today's talk...`
+
+### 3.3. Phân biệt động từ Rise vs Raise
+- **rise** (nội động từ, tự tăng lên, KHÔNG có tân ngữ phía sau):
+  - *""Our sprint velocity rose by twenty percent.""* (Vận tốc chạy sprint tăng 20%).
+- **raise** (ngoại động từ, chủ động nâng cái gì lên, BẮT BUỘC có tân ngữ phía sau):
+  - *""We raised our quality standards.""* (Chúng tôi đã nâng chuẩn chất lượng lên).
+
+### 3.4. Kỹ thuật ngắt nghỉ kịch tính (Dramatic Pause)
+- Người nói không tự tin thường có xu hướng đọc nhanh như đuổi theo kịch bản.
+- Hãy hít sâu và dừng lại 1-2 giây sau khi đặt câu hỏi mở màn (*""Did you know that...?"" [Dừng 2 giây]*). Khoảng lặng này khiến cả hội trường tập trung chú ý vào bạn!
+
+---
+
+## 4. 🗣️ Phân tích hội thoại từng câu một (Line-by-line Breakdown)
+
+| Đoạn thuyết trình | Ý nghĩa tự nhiên | Kỹ thuật thuyết trình & Lưu ý ngữ pháp |
+|---|---|---|
+| *Did you know that over seventy percent of bottlenecks stem not from software bugs, but from knowledge silos?* | Bạn có biết rằng hơn bảy mươi phần trăm các điểm nghẽn năng suất không phải xuất phát từ lỗi phần mềm, mà từ tình trạng ứ đọng kiến thức cục bộ? | • `Hook with Rhetorical Question`: Câu hỏi tu từ gây tò mò tức thì.<br>• `stem from`: Xuất phát từ nguyên nhân nào.<br>• `knowledge silos`: Tình trạng giấu nghề, cô lập kiến thức giữa các nhóm. |
+| *Today, I am excited to demonstrate how embedding continuous learning accelerates technical velocity...* | Hôm nay, tôi rất hào hứng được chứng minh việc gắn việc học liên tục vào thói quen hàng ngày sẽ tăng tốc độ kỹ thuật như thế nào... | • `demonstrate`: Thị phạm, chứng minh.<br>• `embedding`: Nhúng, lồng ghép vào.<br>• `velocity`: Vận tốc, tốc độ xử lý. |
+| *To begin with, let us look at our baseline telemetry on slide three.* | Đầu tiên, chúng ta hãy cùng nhìn vào các chỉ số đo lường gốc ở trang chiếu số ba. | • `To begin with`: Cụm chỉ dẫn bắt đầu luận điểm 1.<br>• `baseline telemetry`: Dữ liệu đo lường cơ sở ban đầu. |
+| *...sprint velocity plateaued as team members spent significant time resolving duplicate questions.* | ...tốc độ sprint đã chững lại do các thành viên phải dành nhiều thời gian xử lý những thắc mắc trùng lặp. | • `plateaued`: Chững lại sau một chu kỳ tăng (tính từ/động từ miêu tả biểu đồ rất hay). |
+| *Moving on to our key initiative: our turnaround time dropped by forty-two percent, while defect leakage plummeted...* | Chuyển sang sáng kiến then chốt: thời gian phản hồi duyệt code đã giảm bốn mươi hai phần trăm, trong khi lỗi lọt ra ngoài giảm chạm đáy... | • `turnaround time`: Thời gian hoàn thành một chu trình xử lý.<br>• `plummeted`: Rơi thẳng đứng, giảm cực mạnh. |
+| *In conclusion, disciplined daily practice transforms competent teams into industry-leading squads.* | Tóm lại, việc rèn luyện kỷ luật mỗi ngày sẽ biến những đội ngũ có năng lực thành những biệt đội dẫn đầu ngành. | • `In conclusion`: Cụm từ chốt thông điệp.<br>• `disciplined daily practice`: Sự rèn luyện kỷ luật mỗi ngày. |
+| *Thank you for your time, and I would now be delighted to take any questions.* | Xin cảm ơn thời gian quý báu của quý vị, và bây giờ tôi rất vui lòng được giải đáp mọi câu hỏi. | • Lời kết chuẩn mực và lịch sự mở màn phần hỏi đáp (Q&A). |
+
+---
+
+## 5. Ngữ pháp & Cấu trúc câu trọng tâm (Key Grammar & Sentence Structures)
+
+### 5.1. Ngôn ngữ dẫn dắt chuyển ý (Signposting Language)
 - *Mở đầu bài nói:* ""Today, I would like to demonstrate how [Subject] accomplishes [Goal].""
 - *Chuyển sang luận điểm mới:* ""Moving on to our next key metric..."", ""Turning our attention to the customer retention charts...""
 - *Trình bày biểu đồ:* ""As illustrated by this upward trend on slide five..."", ""If you direct your attention to the bar graph...""
 - *Tóm tắt kết bài:* ""In conclusion..."", ""To wrap up today's presentation..."", ""The key takeaway here is that...""
 
-### 3.2. Cấu trúc mô tả xu hướng số liệu (Trends & Movement)
+### 5.2. Cấu trúc mô tả xu hướng số liệu (Trends & Movement)
 - **Tăng vọt:** `surged by [X]%`, `experienced an exponential surge`, `peaked at [Number]`.
 - **Giảm mạnh:** `plummeted to [Number]`, `dropped sharply by [X]%`.
 - **Ổn định / Chững lại:** `remained relatively steady`, `plateaued at [Level]`.
 
-### 3.3. Câu nhấn mạnh chốt thông điệp (Cleft Sentences & Emphatics)
+### 5.3. Câu nhấn mạnh chốt thông điệp (Cleft Sentences & Emphatics)
 - Dùng cấu trúc chẻ (Cleft sentences) để khắc sâu thông điệp trong tâm trí khán giả:
   - *""What truly sets this strategy apart is our uncompromising focus on user empathy.""*
   - *""It is disciplined daily practice that yields compound interest in communication mastery.""*
 
 ---
 
-## 4. Từ vựng & Cụm từ then chốt (Key Vocabulary & Collocations)
+## 6. Từ vựng & Cụm từ then chốt (Key Vocabulary & Collocations)
 
 | Từ vựng / Cụm từ | Phiên âm IPA | Nghĩa tiếng Việt | Ví dụ thực hành |
 |---|---|---|---|
@@ -487,24 +839,56 @@ Sincerely,
 
 ---
 
-## 5. Lỗi phát âm & ngữ pháp người Việt hay mắc (Common Pitfalls & Fixes)
+## 7. Lỗi phát âm & ngữ pháp người Việt hay mắc (Common Pitfalls & Fixes)
 
-### 5.1. Trọng âm từ (Word Stress)
+### 7.1. Trọng âm từ (Word Stress)
 - **Lỗi phổ biến:** Đọc đều các âm tiết hoặc nhấn sai vị trí trọng âm:
   - *demonstrate* `/ˈdemənstreɪt/`: trọng âm rơi vào âm tiết đầu tiên (**de**-mơn-strết).
   - *present* (danh từ/tính từ) là `/ˈpreznt/`, nhưng động từ *present* là `/prɪˈzent/` (nhấn âm 2).
   - *conclusion* `/kənˈkluːʒn/`: nhấn âm tiết thứ hai.
 
-### 5.2. Ngữ điệu (Intonation) & Kỹ thuật ngắt nghỉ (Pausing)
+### 7.2. Ngữ điệu (Intonation) & Kỹ thuật ngắt nghỉ (Pausing)
 - Đọc lướt không ngừng nghỉ khiến khán giả choáng ngợp và không theo kịp.
 - Hãy dùng **Dramatic Pause (khoảng dừng kịch tính)** 1-2 giây ngay trước hoặc sau thông điệp quan trọng nhất.
 - Hạ giọng cuối câu khẳng định (Falling intonation) để tạo cảm giác tự tin, chắc chắn.
 
-### 5.3. Lỗi ngữ pháp: Phân biệt ""Rise"" vs ""Raise""
+### 7.3. Lỗi ngữ pháp: Phân biệt ""Rise"" vs ""Raise""
 - **rise** (nội động từ, tự tăng, không có tân ngữ): *""Our metrics rose significantly.""* (Không dùng *raised*).
 - **raise** (ngoại động từ, chủ động nâng cái gì lên, cần tân ngữ): *""We raised our service standards.""*
 
-<!-- studxy-en-v2 -->",
+---
+
+## 8. 📝 Bài tập tự luyện từng bước (Từ dễ đến khó) + Đề tự kiểm tra cuối bài
+
+### Bài tập 1: Điền động từ Rise hoặc Raise thích hợp
+1. The company ______ its subscription prices last month. (rose / raised)
+2. Our customer satisfaction score ______ to an all-time high. (rose / raised)
+3. Defect leakage ______ to near zero. (dropped / plummeted)
+
+### Bài tập 2: Ghép cụm từ chỉ đường (Signposting) đúng ngữ cảnh
+1. Khi bắt đầu bài nói -> ______ (In conclusion / To begin with)
+2. Khi chuyển sang luận điểm số 2 -> ______ (Moving on to slide four / In summary)
+3. Khi mời khán giả đặt câu hỏi -> ______ (I am ready to take any questions / That is all)
+
+---
+
+<details>
+<summary>👉 Bấm vào đây để Xem đáp án & Giải thích từng câu</summary>
+
+### Đáp án Bài tập 1:
+1. **raised** — Có tân ngữ *its subscription prices* phía sau nên dùng ngoại động từ *raise*.
+2. **rose** — Không có tân ngữ trực tiếp (chỉ có giới từ *to*), dùng nội động từ *rise*.
+3. **plummeted** — Giảm cực mạnh, rơi thẳng đứng.
+
+### Đáp án Bài tập 2:
+1. **To begin with** — Bắt đầu bài thuyết trình.
+2. **Moving on to slide four** — Chuyển ý mượt mà sang slide tiếp theo.
+3. **I am ready to take any questions** — Lời mời hỏi đáp chuyên nghiệp.
+
+</details>
+
+<!-- studxy-en-v2 -->
+<!-- studxy-en-v3 -->",
                 @"Cấu trúc bài thuyết trình tiếng Anh tinh gọn 5 phút theo chuẩn quốc tế.",
                 @"Kỹ thuật dẫn dắt chuyển ý (signposting) và giữ chân người nghe hiệu quả."
             ),
@@ -538,28 +922,64 @@ Sincerely,
 
 ---
 
-## 3. Ngữ pháp & Cấu trúc câu trọng tâm (Key Grammar & Sentence Structures)
+## 3. 🌱 Bước khởi động cho người mới bắt đầu (Beginner Warm-up)
 
-### 3.1. Kỹ thuật nhượng bộ có điều kiện (Conditional Concessions)
+### 3.1. Sự khác nhau giữa Lập trường (Position) và Lợi ích (Interest)
+- Trong đàm phán, người chưa có kinh nghiệm thường bám chặt vào con số bề nổi:
+  - **Lập trường cứng nhắc (Position):** *""Tôi chỉ trả 100 triệu, bớt 1 đồng tôi cũng không mua!""*.
+  - **Lợi ích ngầm (Interest):** Người mua lo sợ phần mềm chậm tiến độ hoặc không được hỗ trợ bảo hành tốt.
+- Khi người tư vấn khéo léo bóc tách lợi ích thực sự (như Minh đề xuất chia kỳ bàn giao sớm để kiểm thử an ninh), hai bên sẽ tìm thấy giải pháp thỏa hiệp hoàn hảo (Win-Win).
+
+### 3.2. Cấu trúc câu nhượng bộ có điều kiện (Conditional Concessions)
+- **Quy tắc đắt giá:** Không bao giờ giảm giá hoặc nhượng bộ không công (*""Ok, I will lower the price""* -> đối tác sẽ tiếp tục ép giá).
+- Hãy luôn gắn điều kiện ràng buộc:
+  $$\text{If you commit to [Điều kiện của bạn]}, \text{we can adjust [Ưu đãi cho họ]}.$$
+  - ⚠️ **Ngữ pháp:** Trong mệnh đề `If`, dùng thì **Hiện tại đơn** (không dùng *will*):
+  - *Đúng:* `If you commit to a two-year agreement, we will adjust the fee.`
+  - *Sai:* `If you will commit to a two-year agreement...`
+
+### 3.3. Hướng dẫn phát âm các âm khó trong đàm phán
+- **Âm `/ʃ/` (s nặng chu môi):** Xuất hiện liên tục trong từ vựng đàm phán: *negotiation* `/nɪˌɡəʊʃiˈeɪʃn/`, *concession* `/kənˈseʃn/`, *crucial* `/ˈkruːʃl/`, *beneficial* `/ˌbenɪˈfɪʃl/`. Hãy chu môi tròn và bật hơi gió ma sát rõ rệt!
+- **Âm `/dʒ/` (j rung cổ):** *adjust* `/əˈdʒʌst/`, *objection* `/əbˈdʒekʃn/`.
+
+---
+
+## 4. 🗣️ Phân tích hội thoại từng câu một (Line-by-line Breakdown)
+
+| Người nói | Câu thoại tiếng Anh | Dịch nghĩa tự nhiên | Phân tích chiến thuật & Lưu ý ngữ pháp |
+|---|---|---|---|
+| **Sarah (Client)** | *...your proposed timeline of six weeks seems far too tight for our internal security auditing. Additionally, your fee is fifteen percent above our budgeted cap.* | ...thời gian bàn giao sáu tuần bạn đề xuất có vẻ quá gấp rút cho đợt kiểm toán an ninh nội bộ của chúng tôi. Ngoài ra, mức phí của bạn cao hơn mười lăm phần trăm so với trần ngân sách. | • `proposed delivery timeline`: Lộ trình bàn giao đề xuất.<br>• `budgeted cap`: Mức trần ngân sách cho phép.<br>• Khách hàng đưa ra 2 rào cản: Thời gian & Giá cả. |
+| **Minh (Consultant)** | *We completely understand your concerns, Sarah. Rigorous security auditing is absolutely essential... Could you help me understand which specific modules require the most scrutiny?* | Chúng tôi hoàn toàn thấu hiểu lo ngại của chị, Sarah. Việc kiểm toán an ninh nghiêm ngặt là tuyệt đối cần thiết... Chị có thể giúp tôi hiểu mô-đun cụ thể nào đòi hỏi sự xem xét kỹ lưỡng nhất không? | • `rigorous security auditing`: Kiểm toán an ninh nghiêm ngặt.<br>• `scrutiny`: Sự soi xét, kiểm tra chi tiết.<br>• `Clarifying Question`: Đặt câu hỏi làm rõ thay vì cãi lại giá cả. |
+| **Sarah** | *Our chief compliance officer must thoroughly inspect the cryptographic storage and identity access management layers.* | Giám đốc phụ trách tuân thủ của chúng tôi phải kiểm tra kỹ lưỡng các lớp lưu trữ mã hóa và quản lý truy cập danh tính. | • `chief compliance officer`: Giám đốc tuân thủ pháp chế.<br>• `cryptographic storage`: Lưu trữ mã hóa bảo mật. |
+| **Minh** | *If we deliver those two core modules within the first three weeks for your security team to review, would that alleviate your scheduling pressure?* | Nếu chúng tôi bàn giao trước hai mô-đun cốt lõi đó trong ba tuần đầu để đội an ninh rà soát, liệu điều đó có giải tỏa được áp lực tiến độ cho chị không? | • `alleviate pressure`: Làm giảm bớt áp lực.<br>• Đưa ra giải pháp phân kỳ bàn giao (phased delivery) giải quyết triệt để vấn đề thời gian. |
+| **Sarah** | *Yes, that phased delivery would give our auditors ample time. But what about the budget gap?* | Được đó, bàn giao theo giai đoạn sẽ giúp các kiểm toán viên có nhiều thời gian. Nhưng còn khoảng cách ngân sách thì sao? | • `ample time`: Rất nhiều thời gian, dư dả thời gian.<br>• `budget gap`: Khoảng chênh lệch ngân sách. |
+| **Minh** | *We could adjust our overall implementation fee by ten percent on condition that your team commits to a two-year enterprise support agreement.* | Chúng tôi có thể điều chỉnh giảm mười phần trăm tổng phí triển khai với điều kiện bên chị cam kết ký thỏa thuận hỗ trợ doanh nghiệp hai năm. | • `on condition that`: Với điều kiện là.<br>• Chiến thuật nhượng bộ có điều kiện chuẩn mực (Conditional Concession). |
+| **Sarah** | *That strikes a very reasonable balance between our immediate capital constraints and long-term stability. Let's draft the agreement terms accordingly!* | Điều đó tạo nên một sự cân bằng rất hợp lý giữa giới hạn vốn trước mắt và tính ổn định dài hạn của hệ thống. Chúng ta hãy cùng soạn thảo các điều khoản hợp đồng thôi! | • `strikes a reasonable balance`: Đạt được sự cân bằng hợp lý.<br>• `capital constraints`: Các ràng buộc về vốn/ngân sách.<br>• Kết thúc đàm phán Win-Win. |
+
+---
+
+## 5. Ngữ pháp & Cấu trúc câu trọng tâm (Key Grammar & Sentence Structures)
+
+### 5.1. Kỹ thuật nhượng bộ có điều kiện (Conditional Concessions)
 - Tuyệt đối không nhượng bộ đơn phương (*""Okay, we will lower the price""*). Luôn đi kèm điều kiện ràng buộc:
   - `If you can commit to [X], we will gladly adjust [Y].`
   - `We can agree to [Concession] on condition that [Requirement].`
   - `Provided that [Term is accepted], we are prepared to accommodate [Request].`
 
-### 3.2. Câu hỏi làm rõ sự từ chối thay vì tranh cãi (Clarifying Questions)
+### 5.2. Câu hỏi làm rõ sự từ chối thay vì tranh cãi (Clarifying Questions)
 - Khi đối tác nói *""Your price is too high""* hoặc *""That timeline is impossible""*:
   - *Không nói:* ""No, our price is very cheap compared to competitors!""
   - *Nói chuẩn mực:*
     - ""Could you elaborate on the primary constraints preventing your team from adopting this proposal?""
     - ""What would it take for this package to be acceptable to your steering committee?""
 
-### 3.3. Mẫu câu chốt thỏa thuận và ghi nhận tiếng nói chung
+### 5.3. Mẫu câu chốt thỏa thuận và ghi nhận tiếng nói chung
 - `Subject to legal review, we are comfortable moving forward with these terms.`
 - `This solution represents a mutually beneficial agreement that safeguards both parties' interests.`
 
 ---
 
-## 4. Từ vựng & Cụm từ then chốt (Key Vocabulary & Collocations)
+## 6. Từ vựng & Cụm từ then chốt (Key Vocabulary & Collocations)
 
 | Từ vựng / Cụm từ | Phiên âm IPA | Nghĩa tiếng Việt | Ví dụ thực hành |
 |---|---|---|---|
@@ -573,23 +993,55 @@ Sincerely,
 
 ---
 
-## 5. Lỗi phát âm & ngữ pháp người Việt hay mắc (Common Pitfalls & Fixes)
+## 7. Lỗi phát âm & ngữ pháp người Việt hay mắc (Common Pitfalls & Fixes)
 
-### 5.1. Âm `/ʃ/` trong từ vựng đàm phán
+### 7.1. Âm `/ʃ/` trong từ vựng đàm phán
 - *negotiate* `/nɪˈɡəʊʃieɪt/` (âm giữa là /ʃ/, không đọc thành /s/ hay /z/).
 - *concession* `/kənˈseʃn/` (âm /ʃ/ chu môi bật hơi).
 - *crucial* `/ˈkruːʃl/`, *beneficial* `/ˌbenɪˈfɪʃl/`.
 
-### 5.2. Âm `/dʒ/` trong adjust & objection
+### 7.2. Âm `/dʒ/` trong adjust & objection
 - *adjust* `/əˈdʒʌst/`: rung thanh quản rõ ràng.
 - *objection* `/əbˈdʒekʃn/`: phát âm dứt khoát phụ âm `/dʒ/`.
 
-### 5.3. Lỗi ngữ pháp: Dùng ""will"" trong mệnh đề điều kiện ""If""
+### 7.3. Lỗi ngữ pháp: Dùng ""will"" trong mệnh đề điều kiện ""If""
 - **Sai:** *""If you will agree to this timeline, we will adjust the price.""*
 - **Đúng:** *""If you agree to this timeline, we will adjust the price.""* (Mệnh đề if ở hiện tại đơn).
 - **Nhầm lẫn từ vựng:** Nhầm giữa *compromise* (sự thỏa hiệp nhượng bộ) và *promise* (lời hứa).
 
-<!-- studxy-en-v2 -->",
+---
+
+## 8. 📝 Bài tập tự luyện từng bước (Từ dễ đến khó) + Đề tự kiểm tra cuối bài
+
+### Bài tập 1: Điền dạng đúng của từ trong câu điều kiện
+1. If your team (commits / will commit) ______ to a two-year contract, we can discount the fee.
+2. We can adjust the delivery schedule on condition that you (accept / accepted) ______ the phased plan.
+3. Principled negotiation aims for a ______ outcome. (win-win / win-lose)
+
+### Bài tập 2: Sắp xếp các cụm từ thành câu đàm phán hoàn chỉnh
+1. both / safeguards / This / parties' / solution / interests / .
+2. our / could / you / Would / that / alleviate / scheduling / pressure / ?
+3. a / balance / strikes / very / reasonable / That / .
+
+---
+
+<details>
+<summary>👉 Bấm vào đây để Xem đáp án & Giải thích từng câu</summary>
+
+### Đáp án Bài tập 1:
+1. **commits** — Trong mệnh đề *If*, động từ chia ở Hiện tại đơn khi nói về thỏa thuận tương lai.
+2. **accept** — Sau *on condition that*, động từ chia ở Hiện tại đơn.
+3. **win-win** — Đàm phán nguyên tắc hướng tới đôi bên cùng có lợi (*win-win*).
+
+### Đáp án Bài tập 2:
+1. **This solution safeguards both parties' interests.** *(Giải pháp này bảo vệ lợi ích của cả hai bên).*
+2. **Would that alleviate your scheduling pressure?** *(Liệu điều đó có giải tỏa được áp lực tiến độ cho quý vị không?)*
+3. **That strikes a very reasonable balance.** *(Điều đó tạo nên một sự cân bằng rất hợp lý).*
+
+</details>
+
+<!-- studxy-en-v2 -->
+<!-- studxy-en-v3 -->",
                 @"Đàm phán nguyên tắc (principled negotiation) và tìm giải pháp win-win cùng đối tác.",
                 @"Phản biện khéo léo, xử lý phản hồi từ chối bằng câu hỏi làm rõ và thuyết phục đối tác."
             ),
@@ -637,6 +1089,979 @@ Sincerely,
             }
         }
         await db.SaveChangesAsync();
+
+        // Ensure 6 lesson quizzes + 1 final comprehensive quiz are seeded idempotently
+        await EnsureCourseQuizzesSeededAsync(db, courseId, now);
+    }
+
+    private static Guid CreateDeterministicGuid(string key)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(key));
+        Span<byte> guidBytes = stackalloc byte[16];
+        hash.AsSpan(0, 16).CopyTo(guidBytes);
+        return new Guid(guidBytes);
+    }
+
+    private record QuizChoiceDef(string Key, string Text);
+    private record QuizItemDef(string Question, QuizChoiceDef[] Choices, string CorrectKey, string Explanation);
+    private record CourseQuizDef(Guid QuizId, Guid LessonId, string Title, List<QuizItemDef> Items);
+
+    public static async Task EnsureCourseQuizzesSeededAsync(SwmsDbContext db, Guid courseId, DateTimeOffset now)
+    {
+        var quizDefs = GetCourseQuizDefinitions();
+        var existingQuizzes = await db.PracticeQuizzes
+            .Where(q => q.UserId == SeedDataInitializer.DefaultUserId && q.LessonId.HasValue)
+            .ToListAsync();
+
+        foreach (var def in quizDefs)
+        {
+            var existing = existingQuizzes.FirstOrDefault(q => q.LessonId == def.LessonId && q.Title == def.Title);
+            if (existing == null)
+            {
+                var quiz = new PracticeQuiz
+                {
+                    Id = def.QuizId,
+                    UserId = SeedDataInitializer.DefaultUserId,
+                    Title = def.Title,
+                    LessonId = def.LessonId,
+                    TotalItems = def.Items.Count,
+                    CorrectItems = 0,
+                    Status = "in_progress",
+                    StartedAt = now
+                };
+                db.PracticeQuizzes.Add(quiz);
+
+                for (int i = 0; i < def.Items.Count; i++)
+                {
+                    var itemDef = def.Items[i];
+                    var itemId = CreateDeterministicGuid($"quiz-item:en:{def.QuizId}:{i}");
+                    db.PracticeQuizItems.Add(new PracticeQuizItem
+                    {
+                        Id = itemId,
+                        QuizId = quiz.Id,
+                        ItemType = "multiple_choice",
+                        PromptAstJson = JsonSerializer.Serialize(new { question = itemDef.Question }),
+                        ChoicesJson = JsonSerializer.Serialize(itemDef.Choices.Select(c => new { key = c.Key, text = c.Text })),
+                        ClozeSolution = itemDef.CorrectKey,
+                        AiRubricFeedbackJson = JsonSerializer.Serialize(new { summary = itemDef.Explanation }),
+                        CreatedAt = now.AddSeconds(i)
+                    });
+                }
+            }
+            else
+            {
+                var existingItemsCount = await db.PracticeQuizItems.CountAsync(i => i.QuizId == existing.Id);
+                if (existingItemsCount == 0)
+                {
+                    for (int i = 0; i < def.Items.Count; i++)
+                    {
+                        var itemDef = def.Items[i];
+                        var itemId = CreateDeterministicGuid($"quiz-item:en:{existing.Id}:{i}");
+                        db.PracticeQuizItems.Add(new PracticeQuizItem
+                        {
+                            Id = itemId,
+                            QuizId = existing.Id,
+                            ItemType = "multiple_choice",
+                            PromptAstJson = JsonSerializer.Serialize(new { question = itemDef.Question }),
+                            ChoicesJson = JsonSerializer.Serialize(itemDef.Choices.Select(c => new { key = c.Key, text = c.Text })),
+                            ClozeSolution = itemDef.CorrectKey,
+                            AiRubricFeedbackJson = JsonSerializer.Serialize(new { summary = itemDef.Explanation }),
+                            CreatedAt = now.AddSeconds(i)
+                        });
+                    }
+                    existing.TotalItems = def.Items.Count;
+                }
+            }
+        }
+        await db.SaveChangesAsync();
+    }
+
+    private static List<CourseQuizDef> GetCourseQuizDefinitions()
+    {
+        var list = new List<CourseQuizDef>();
+        {
+            var qId = CreateDeterministicGuid("quiz:en:44444444-4444-4444-8444-444444444446:1");
+            var lId = Guid.Parse("44444444-4444-4444-8444-444444444446");
+            var items = new List<QuizItemDef>();
+            items.Add(new QuizItemDef(
+                "Âm vô thanh /θ/ trong các từ 'think', 'thank you' được phát âm chuẩn như thế nào?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Khép chặt môi và bật hơi giống chữ 'th' tiếng Việt"),
+                    new QuizChoiceDef("B", "Đặt đầu lưỡi giữa hai hàm răng, thổi luồng hơi nhẹ ra và không rung dây thanh quản"),
+                    new QuizChoiceDef("C", "Đặt đầu lưỡi sau răng cửa trên và rung mạnh cổ họng"),
+                    new QuizChoiceDef("D", "Phát âm giống hệt chữ 's' hoặc 't' trong tiếng Việt"),
+                },
+                "B",
+                "Âm /θ/ là phụ âm xát vô thanh răng-lưỡi. Người học đặt đầu lưỡi nhẹ giữa hai hàm răng và đẩy luồng khí ra ngoài mà không rung dây thanh quản. Người Việt hay nhầm thành âm 't' hoặc 'th' tiếng Việt."
+            ));
+            items.Add(new QuizItemDef(
+                "Cặp từ nào sau đây có sự khác biệt rõ rệt về âm kết thúc (ending sounds) mà người Việt hay bỏ quên?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "seat (/siːt/) và see (/siː/)"),
+                    new QuizChoiceDef("B", "cat và hat"),
+                    new QuizChoiceDef("C", "big và bag"),
+                    new QuizChoiceDef("D", "pen và ten"),
+                },
+                "A",
+                "Từ 'seat' kết thúc bằng âm /t/, trong khi 'see' kết thúc bằng nguyên âm dài /iː/. Nếu nuốt âm cuối /t/, người nghe bản xứ sẽ hiểu nhầm 'seat' thành 'see'."
+            ));
+            items.Add(new QuizItemDef(
+                "Từ 'regularly' có trọng âm chính rơi vào âm tiết thứ mấy?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Âm tiết thứ nhất (/ˈreɡjələli/)"),
+                    new QuizChoiceDef("B", "Âm tiết thứ hai (/reˈɡjələli/)"),
+                    new QuizChoiceDef("C", "Âm tiết thứ ba (/reɡjəˈləli/)"),
+                    new QuizChoiceDef("D", "Âm tiết thứ tư (/reɡjələˈli/)"),
+                },
+                "A",
+                "Từ 'regularly' có trọng âm rơi vào âm tiết đầu tiên: /ˈreɡjələli/. Lỗi phổ biến của người học là nhấn vào âm thứ hai."
+            ));
+            items.Add(new QuizItemDef(
+                "Thành ngữ 'break the ice' trong giao tiếp mở đầu có nghĩa là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Làm vỡ tảng băng để lấy nước uống"),
+                    new QuizChoiceDef("B", "Phá vỡ sự e ngại, ngượng ngùng ban đầu để bắt đầu cuộc trò chuyện tự nhiên"),
+                    new QuizChoiceDef("C", "Chấm dứt một cuộc tranh cãi căng thẳng"),
+                    new QuizChoiceDef("D", "Từ chối lời mời của người khác một cách dứt khoát"),
+                },
+                "B",
+                "'Break the ice' là thành ngữ rất phổ biến chỉ hành động làm quen, mở lời thân thiện để xóa tan bầu không khí xa lạ, e dè ban đầu."
+            ));
+            items.Add(new QuizItemDef(
+                "Để diễn đạt sự hợp tác mang lại nhiều kết quả tốt đẹp và thành công, collocations nào chuẩn nhất?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "fruitful collaboration"),
+                    new QuizChoiceDef("B", "delicious collaboration"),
+                    new QuizChoiceDef("C", "sweet partnership"),
+                    new QuizChoiceDef("D", "heavy cooperation"),
+                },
+                "A",
+                "'Fruitful collaboration' (hoặc 'fruitful partnership') là sự kết hợp từ chuẩn mực trong tiếng Anh chuyên nghiệp mang nghĩa sự hợp tác gặt hái nhiều kết quả tốt đẹp."
+            ));
+            items.Add(new QuizItemDef(
+                "Chọn từ thích hợp điền vào chỗ trống: 'We quickly found _______ ground because we both specialize in distributed systems.'",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "equal"),
+                    new QuizChoiceDef("B", "common"),
+                    new QuizChoiceDef("C", "public"),
+                    new QuizChoiceDef("D", "familiar"),
+                },
+                "B",
+                "Cụm thành ngữ cố định 'find common ground' mang nghĩa tìm thấy điểm tương đồng, mối quan tâm chung hoặc tiếng nói chung."
+            ));
+            items.Add(new QuizItemDef(
+                "Câu nào sau đây đúng chuẩn ngữ pháp khi giới thiệu nghề nghiệp bản thân?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "I am software engineer based in Hanoi."),
+                    new QuizChoiceDef("B", "I am a software engineer based in Hanoi."),
+                    new QuizChoiceDef("C", "I work software engineer based in Hanoi."),
+                    new QuizChoiceDef("D", "I am an software engineer based in Hanoi."),
+                },
+                "B",
+                "Danh từ chỉ nghề nghiệp số ít đếm được bắt buộc phải có mạo từ 'a/an'. Vì 'software' bắt đầu bằng phụ âm /s/ nên dùng 'a software engineer'."
+            ));
+            items.Add(new QuizItemDef(
+                "Sau cấu trúc 'look forward to', động từ theo sau ở dạng nào?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Động từ nguyên mẫu không 'to' (V-inf)"),
+                    new QuizChoiceDef("B", "Động từ dạng V-ing (hoặc danh từ)"),
+                    new QuizChoiceDef("C", "Động từ ở dạng quá khứ V2/ed"),
+                    new QuizChoiceDef("D", "Động từ có 'to' (to V)"),
+                },
+                "B",
+                "Trong cụm 'look forward to', từ 'to' là giới từ (preposition), vì vậy động từ theo sau bắt buộc phải ở dạng V-ing (ví dụ: 'look forward to meeting you')."
+            ));
+            items.Add(new QuizItemDef(
+                "Trong đoạn hội thoại mẫu, Alex và Mai đã đề xuất kết nối với nhau qua kênh nào?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Facebook cá nhân"),
+                    new QuizChoiceDef("B", "Mạng xã hội nghề nghiệp LinkedIn qua mã QR"),
+                    new QuizChoiceDef("C", "Số điện thoại bàn văn phòng"),
+                    new QuizChoiceDef("D", "Địa chỉ nhà riêng"),
+                },
+                "B",
+                "Alex hỏi: 'Would you mind if we stay in touch on LinkedIn?' và Mai đưa mã QR: 'Here is my QR code.' Đây là chuẩn mực kết nối tại các hội thảo công nghệ quốc tế."
+            ));
+            items.Add(new QuizItemDef(
+                "Khi một người lạ hỏi: 'Excuse me, is this seat taken?' và chiếc ghế còn trống, câu trả lời tự nhiên và thân thiện nhất là:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "No, not at all, please go ahead!"),
+                    new QuizChoiceDef("B", "Yes, I am sitting here alone."),
+                    new QuizChoiceDef("C", "You can take it away."),
+                    new QuizChoiceDef("D", "I don't know who owns this chair."),
+                },
+                "A",
+                "'No, not at all, please go ahead!' nghĩa là 'Dạ chưa có ai ngồi, bạn cứ tự nhiên ngồi nhé!'. Đây là phản xạ lịch thiệp chuẩn mực nhất."
+            ));
+            list.Add(new CourseQuizDef(qId, lId, "Đề kiểm tra đánh giá Bài 1.1: Small Talk & Giới Thiệu Bản Thân", items));
+        }
+        {
+            var qId = CreateDeterministicGuid("quiz:en:44444444-4444-4444-8444-444444444447:1");
+            var lId = Guid.Parse("44444444-4444-4444-8444-444444444447");
+            var items = new List<QuizItemDef>();
+            items.Add(new QuizItemDef(
+                "Cụm phụ âm đầu trong các từ 'straight' và 'station' cần phát âm như thế nào để tránh lỗi của người Việt?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Xì âm /s/ nhẹ trước rồi bật âm /t/, không chèn nguyên âm đệm thành 'tơ-rết' hay 'xì-tây'"),
+                    new QuizChoiceDef("B", "Bỏ qua âm /s/ và chỉ phát âm âm /t/"),
+                    new QuizChoiceDef("C", "Đọc âm /s/ thật to và ngắt hẳn 1 giây trước khi đọc phần còn lại"),
+                    new QuizChoiceDef("D", "Biến âm /st/ thành âm 'ch'"),
+                },
+                "A",
+                "Cụm phụ âm /st/ đòi hỏi chuyển nhanh từ âm xát /s/ sang âm tắc /t/. Người Việt hay mắc lỗi nuốt âm /s/ hoặc chèn thêm nguyên âm thừa như 'tơ-rết'."
+            ));
+            items.Add(new QuizItemDef(
+                "Từ 'purchase' (mua hàng) có âm kết thúc được phát âm chuẩn là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "/s/"),
+                    new QuizChoiceDef("B", "/tʃ/ (chu môi bật hơi dứt khoát)"),
+                    new QuizChoiceDef("C", "/z/"),
+                    new QuizChoiceDef("D", "/k/"),
+                },
+                "B",
+                "Từ 'purchase' có phiên âm /ˈpɜːtʃəs/ (danh từ/động từ), âm giữa là /tʃ/ và kết thúc bằng /s/, phát âm dứt khoát."
+            ));
+            items.Add(new QuizItemDef(
+                "Từ 'pedestrian' (người đi bộ) có trọng âm chính rơi vào âm tiết thứ mấy?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Âm tiết thứ nhất (/ˈpedəstriən/)"),
+                    new QuizChoiceDef("B", "Âm tiết thứ hai (/pəˈdestriən/)"),
+                    new QuizChoiceDef("C", "Âm tiết thứ ba (/pədesˈtriən/)"),
+                    new QuizChoiceDef("D", "Âm tiết thứ tư (/pədestriˈən/)"),
+                },
+                "B",
+                "'Pedestrian' có trọng âm rơi vào âm tiết thứ hai: /pəˈdestriən/."
+            ));
+            items.Add(new QuizItemDef(
+                "Cụm từ 'within walking distance' mang ý nghĩa gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Khoảng cách rất xa bắt buộc phải đi taxi"),
+                    new QuizChoiceDef("B", "Trong khoảng cách gần, có thể đi bộ tới được"),
+                    new QuizChoiceDef("C", "Đoạn đường cấm người đi bộ"),
+                    new QuizChoiceDef("D", "Tuyến đường chỉ dành cho xe buýt"),
+                },
+                "B",
+                "'Within walking distance' có nghĩa là đủ gần để có thể đi bộ mà không cần phương tiện cơ giới."
+            ));
+            items.Add(new QuizItemDef(
+                "Khi muốn hỏi người bán hàng xem món đồ này có còn hàng trong kho không, mẫu câu nào tự nhiên nhất?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Do you have this item in stock?"),
+                    new QuizChoiceDef("B", "Are you hiding this item?"),
+                    new QuizChoiceDef("C", "Where is your store storage?"),
+                    new QuizChoiceDef("D", "Is this item exist today?"),
+                },
+                "A",
+                "'In stock' có nghĩa là còn hàng trong kho; ngược lại 'out of stock' là hết hàng."
+            ));
+            items.Add(new QuizItemDef(
+                "Hình thức thanh toán bằng cách chạm điện thoại thông minh hoặc thẻ contactless vào máy đọc được gọi là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "contactless payment"),
+                    new QuizChoiceDef("B", "cash-only transaction"),
+                    new QuizChoiceDef("C", "paper check payment"),
+                    new QuizChoiceDef("D", "manual wire transfer"),
+                },
+                "A",
+                "'Contactless payment' là thanh toán không tiếp xúc (chạm thẻ hoặc chạm Apple Pay / Google Pay vào máy POS)."
+            ));
+            items.Add(new QuizItemDef(
+                "Chọn câu hỏi gián tiếp đúng ngữ pháp:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Could you tell me where is the nearest pharmacy?"),
+                    new QuizChoiceDef("B", "Could you tell me where the nearest pharmacy is?"),
+                    new QuizChoiceDef("C", "Could you tell me where does the nearest pharmacy stay?"),
+                    new QuizChoiceDef("D", "Could you tell me the nearest pharmacy where is?"),
+                },
+                "B",
+                "Trong câu hỏi gián tiếp, sau từ để hỏi 'where', mệnh đề giữ nguyên trật tự S + V ('the nearest pharmacy is'), không đảo động từ to be lên trước chủ ngữ."
+            ));
+            items.Add(new QuizItemDef(
+                "Câu nào sau đây mắc lỗi sai trật tự từ trong câu hỏi gián tiếp?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Do you know what time the museum closes?"),
+                    new QuizChoiceDef("B", "Do you know what time does the museum close?"),
+                    new QuizChoiceDef("C", "Could you explain how this ticket machine works?"),
+                    new QuizChoiceDef("D", "Would you mind telling me how to get to platform two?"),
+                },
+                "B",
+                "Câu B mắc lỗi đảo trợ động từ 'does' lên trước chủ ngữ 'the museum'. Câu đúng phải là: 'Do you know what time the museum closes?'"
+            ));
+            items.Add(new QuizItemDef(
+                "Trong đoạn hội thoại tại ga tàu, nhân viên khuyên du khách đi phương tiện gì khi mang hành lý nặng?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Đi bộ 25 phút"),
+                    new QuizChoiceDef("B", "Đi xe đưa đón tự động (automated shuttle)"),
+                    new QuizChoiceDef("C", "Thuê xe đạp công cộng"),
+                    new QuizChoiceDef("D", "Ở lại ga qua đêm"),
+                },
+                "B",
+                "Nhân viên ga giải thích: 'It takes about twenty-five minutes on foot, but with heavy bags, taking the automated shuttle is much more convenient.'"
+            ));
+            items.Add(new QuizItemDef(
+                "Khi nhân viên thu ngân thông báo số tiền và bạn muốn chạm thẻ Apple Pay thanh toán, câu nói nhanh gọn nhất là:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Can I tap with Apple Pay?"),
+                    new QuizChoiceDef("B", "I will give you my mobile phone forever."),
+                    new QuizChoiceDef("C", "Does your computer understand Apple?"),
+                    new QuizChoiceDef("D", "You touch my screen please."),
+                },
+                "A",
+                "'Can I tap with Apple Pay?' (hoặc 'Can I pay with Apple Pay?') là cách diễn đạt phổ biến và chuẩn xác nhất."
+            ));
+            list.Add(new CourseQuizDef(qId, lId, "Đề kiểm tra đánh giá Bài 1.2: Hỏi Đường & Xử Lý Tình Huống Thực Tế", items));
+        }
+        {
+            var qId = CreateDeterministicGuid("quiz:en:44444444-4444-4444-8444-444444444448:1");
+            var lId = Guid.Parse("44444444-4444-4444-8444-444444444448");
+            var items = new List<QuizItemDef>();
+            items.Add(new QuizItemDef(
+                "Động từ 'completed' có đuôi '-ed' được phát âm là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "/t/"),
+                    new QuizChoiceDef("B", "/d/"),
+                    new QuizChoiceDef("C", "/ɪd/"),
+                    new QuizChoiceDef("D", "/ed/"),
+                },
+                "C",
+                "Các động từ có âm tận cùng là /t/ hoặc /d/ (như complete -> /t/) khi thêm '-ed' luôn được phát âm là /ɪd/: /kəmˈpliːtɪd/."
+            ));
+            items.Add(new QuizItemDef(
+                "Động từ 'launched' có đuôi '-ed' được phát âm là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "/t/"),
+                    new QuizChoiceDef("B", "/d/"),
+                    new QuizChoiceDef("C", "/ɪd/"),
+                    new QuizChoiceDef("D", "/əs/"),
+                },
+                "A",
+                "Động từ 'launch' kết thúc bằng phụ âm vô thanh /tʃ/, vì vậy khi thêm '-ed' sẽ được phát âm là /t/: /lɔːntʃt/."
+            ));
+            items.Add(new QuizItemDef(
+                "Từ 'deliverable' (sản phẩm bàn giao) có trọng âm chính rơi vào âm tiết thứ mấy?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Âm tiết thứ nhất (/ˈdelɪvərəbl/)"),
+                    new QuizChoiceDef("B", "Âm tiết thứ hai (/dɪˈlɪvərəbl/)"),
+                    new QuizChoiceDef("C", "Âm tiết thứ ba (/dɪlɪˈvərəbl/)"),
+                    new QuizChoiceDef("D", "Âm tiết thứ tư (/dɪlɪvəˈrəbl/)"),
+                },
+                "B",
+                "Từ 'deliverable' có trọng âm rơi vào âm tiết thứ hai: /dɪˈlɪvərəbl/."
+            ));
+            items.Add(new QuizItemDef(
+                "Trong quản trị dự án công nghệ, 'action item' có nghĩa là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Một bộ phim hành động chiếu trong giờ giải lao"),
+                    new QuizChoiceDef("B", "Một đầu việc hành động cụ thể cần được hoàn thành và gán người phụ trách"),
+                    new QuizChoiceDef("C", "Danh sách các lỗi phần mềm nghiêm trọng"),
+                    new QuizChoiceDef("D", "Hóa đơn thanh toán lương cho nhân viên"),
+                },
+                "B",
+                "'Action item' là thuật ngữ quản trị chỉ một nhiệm vụ hay đầu việc cụ thể được phân công sau cuộc họp."
+            ));
+            items.Add(new QuizItemDef(
+                "Thuật ngữ nào sau đây chỉ 'điểm nghẽn gây chậm trễ tiến độ toàn bộ dự án'?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "milestone"),
+                    new QuizChoiceDef("B", "bottleneck"),
+                    new QuizChoiceDef("C", "deliverable"),
+                    new QuizChoiceDef("D", "streamline"),
+                },
+                "B",
+                "'Bottleneck' (nghĩa đen: cổ chai) dùng để chỉ điểm nghẽn năng suất khiến cả quy trình bị ách tắc."
+            ));
+            items.Add(new QuizItemDef(
+                "Từ nào sau đây mang ý nghĩa là 'tinh gọn, tối ưu hóa quy trình làm việc'?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "streamline"),
+                    new QuizChoiceDef("B", "complicate"),
+                    new QuizChoiceDef("C", "postpone"),
+                    new QuizChoiceDef("D", "neglect"),
+                },
+                "A",
+                "'Streamline' là động từ chuyên ngành chỉ việc tinh giản các bước rườm rà để quy trình chạy nhanh và mượt mà hơn."
+            ));
+            items.Add(new QuizItemDef(
+                "Khi thông báo kết quả công việc vừa hoàn thành ngay trước thời điểm viết email báo cáo, thì nào là chuẩn xác nhất?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Thì Quá khứ hoàn thành (had finalized)"),
+                    new QuizChoiceDef("B", "Thì Hiện tại hoàn thành (have/has finalized)"),
+                    new QuizChoiceDef("C", "Thì Tương lai đơn (will finalize)"),
+                    new QuizChoiceDef("D", "Thì Quá khứ tiếp diễn (was finalizing)"),
+                },
+                "B",
+                "Thì Hiện tại hoàn thành (Present Perfect) dùng để báo cáo công việc đã hoàn thành nhưng kết quả còn liên hệ trực tiếp với thời điểm hiện tại: 'Our team has finalized all critical deliverables.'"
+            ));
+            items.Add(new QuizItemDef(
+                "Câu nào thể hiện lời đề nghị dời lịch họp lịch sự và chuyên nghiệp nhất trong email?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "I am busy today, so no meeting."),
+                    new QuizChoiceDef("B", "Would you be available for a brief sync tomorrow at 10:30 AM?"),
+                    new QuizChoiceDef("C", "You must change the meeting time right now."),
+                    new QuizChoiceDef("D", "I cancel the meeting because I have other things to do."),
+                },
+                "B",
+                "'Would you be available for a brief sync tomorrow at 10:30 AM?' là cách hỏi lịch thiệp, tôn trọng lịch trình của đối tác."
+            ));
+            items.Add(new QuizItemDef(
+                "Lý do David Nguyễn xin dời cuộc họp với Ms. Anderson trong email mẫu là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "David muốn đi nghỉ mát"),
+                    new QuizChoiceDef("B", "Có sự cố kỹ thuật khẩn cấp trên hệ thống production đòi hỏi sự có mặt trực tiếp của anh"),
+                    new QuizChoiceDef("C", "David bị mất mạng internet tại nhà"),
+                    new QuizChoiceDef("D", "Ms. Anderson đã hủy dự án"),
+                },
+                "B",
+                "David viết: 'Due to an urgent production incident that requires my immediate presence, I regret to inform you that I will be unable to attend...'"
+            ));
+            items.Add(new QuizItemDef(
+                "Khi gửi tài liệu đính kèm trong email báo cáo, mẫu câu chuẩn mực quốc tế nhất là:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Look at my file now."),
+                    new QuizChoiceDef("B", "Please find attached the detailed metric breakdown for your review."),
+                    new QuizChoiceDef("C", "I throw a document into this mail."),
+                    new QuizChoiceDef("D", "File is here, open it."),
+                },
+                "B",
+                "'Please find attached [tên tài liệu] for your review' là mẫu câu kinh điển trong email công sở quốc tế."
+            ));
+            list.Add(new CourseQuizDef(qId, lId, "Đề kiểm tra đánh giá Bài 2.1: Viết Email Công Việc & Báo Cáo Tiến Độ", items));
+        }
+        {
+            var qId = CreateDeterministicGuid("quiz:en:44444444-4444-4444-8444-444444444449:1");
+            var lId = Guid.Parse("44444444-4444-4444-8444-444444444449");
+            var items = new List<QuizItemDef>();
+            items.Add(new QuizItemDef(
+                "Cặp phụ âm /v/ và /w/ khác nhau cơ bản ở điểm nào trong khẩu hình miệng?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Âm /v/ răng trên chạm môi dưới có rung thanh quản; âm /w/ hai môi chúm tròn mở ra"),
+                    new QuizChoiceDef("B", "Hai âm này hoàn toàn giống nhau, chỉ khác cách viết"),
+                    new QuizChoiceDef("C", "Âm /v/ phát âm bằng mũi; âm /w/ phát âm bằng cổ họng"),
+                    new QuizChoiceDef("D", "Âm /w/ răng cắn chặt môi dưới, âm /v/ mở to miệng"),
+                },
+                "A",
+                "Âm /v/ là âm cọ xát răng-môi (labiodental). Âm /w/ là âm lướt môi-vòm (labio-velar approximation) đòi hỏi hai môi tròn lại rồi mở ra, không để răng chạm vào môi."
+            ));
+            items.Add(new QuizItemDef(
+                "Hiện tượng nối âm (linking) chuẩn xác trong cụm 'walk us through' là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Đọc ngắt quãng từng từ: walk ... us ... through"),
+                    new QuizChoiceDef("B", "Nối phụ âm /k/ sang nguyên âm /ʌ/ thành /wɔːk ʌs/ -> 'wal-kus through'"),
+                    new QuizChoiceDef("C", "Bỏ âm /k/ đọc thành 'wal us'"),
+                    new QuizChoiceDef("D", "Biến âm /k/ thành âm /s/"),
+                },
+                "B",
+                "Khi từ trước kết thúc bằng phụ âm (/k/ trong walk) và từ sau bắt đầu bằng nguyên âm (/ʌ/ trong us), người bản xứ luôn nối âm mượt mà: /wɔːk_ʌs θruː/."
+            ));
+            items.Add(new QuizItemDef(
+                "Từ 'consensus' (sự đồng thuận) có trọng âm chính rơi vào âm tiết thứ mấy?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Âm tiết thứ nhất (/ˈkɒnsənsəs/)"),
+                    new QuizChoiceDef("B", "Âm tiết thứ hai (/kənˈsensəs/)"),
+                    new QuizChoiceDef("C", "Âm tiết thứ ba (/kənsenˈsəs/)"),
+                    new QuizChoiceDef("D", "Nhấn đều cả ba âm"),
+                },
+                "B",
+                "'Consensus' có trọng âm rơi vào âm tiết thứ hai: /kənˈsensəs/."
+            ));
+            items.Add(new QuizItemDef(
+                "Cụm từ 'take offline' trong một cuộc họp trực tuyến có ý nghĩa là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Tắt kết nối internet của phòng họp ngay lập tức"),
+                    new QuizChoiceDef("B", "Tách riêng vấn đề kỹ thuật chuyên sâu để những người liên quan thảo luận sau cuộc họp, tránh làm mất thời gian chung"),
+                    new QuizChoiceDef("C", "Xóa vĩnh viễn dự án khỏi hệ thống"),
+                    new QuizChoiceDef("D", "Gặp mặt trực tiếp tại quán cà phê ngoài đời thực"),
+                },
+                "B",
+                "'Take something offline' là thuật ngữ hội họp kinh điển chỉ việc tạm dừng tranh luận một chi tiết kỹ thuật quá sâu để bàn riêng sau."
+            ));
+            items.Add(new QuizItemDef(
+                "Khi muốn diễn tả đội ngũ hiện tại không còn đủ thời gian hoặc năng lực để nhận thêm đầu việc mới, từ vựng công sở nào chuẩn nhất?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "We do not have the bandwidth."),
+                    new QuizChoiceDef("B", "We do not have the internet cable."),
+                    new QuizChoiceDef("C", "Our hard disk is full."),
+                    new QuizChoiceDef("D", "We are lazy today."),
+                },
+                "A",
+                "'Bandwidth' trong ngôn ngữ văn phòng nghĩa bóng là dung lượng thời gian, sức lực hoặc nhân sự để đảm nhận công việc."
+            ));
+            items.Add(new QuizItemDef(
+                "Cụm từ 'table a discussion' trong hội họp quốc tế mang nghĩa là:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Đặt một chiếc bàn vào giữa phòng họp"),
+                    new QuizChoiceDef("B", "Tạm gác lại một chủ đề thảo luận để dời sang buổi họp sau khi có thêm dữ liệu"),
+                    new QuizChoiceDef("C", "Bắt buộc mọi người phải ký biên bản ngay lập tức"),
+                    new QuizChoiceDef("D", "Đập bàn thể hiện sự tức giận"),
+                },
+                "B",
+                "'Table a discussion/topic' nghĩa là tạm hoãn, gác chủ đề lại để xem xét vào thời điểm phù hợp hơn."
+            ));
+            items.Add(new QuizItemDef(
+                "Mẫu câu nào sau đây thể hiện kỹ thuật Phản biện ngoại giao (Diplomatic Disagreement) khéo léo nhất?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Your idea is wrong and inefficient."),
+                    new QuizChoiceDef("B", "That is a valid concern, but have we also evaluated the long-term maintenance costs?"),
+                    new QuizChoiceDef("C", "I reject your proposal completely."),
+                    new QuizChoiceDef("D", "Nobody in our team likes your suggestion."),
+                },
+                "B",
+                "Câu B dùng kỹ thuật đệm công nhận ('That is a valid concern') trước khi mở rộng góc nhìn ('have we evaluated...')."
+            ));
+            items.Add(new QuizItemDef(
+                "Khi đồng nghiệp đang nói hăng say nhưng quên mở micro trong Zoom, câu nhắc nhở lịch sự nhất là:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "You are stupid, turn on your mic!"),
+                    new QuizChoiceDef("B", "Alex, I believe you are on mute."),
+                    new QuizChoiceDef("C", "Why are you silent like that?"),
+                    new QuizChoiceDef("D", "Your audio is dead."),
+                },
+                "B",
+                "'I believe you are on mute' là câu nhắc nhở tế nhị và phổ biến nhất trên toàn thế giới trong các cuộc họp trực tuyến."
+            ));
+            items.Add(new QuizItemDef(
+                "Trong đoạn hội thoại mẫu, Mai đã đưa ra giải pháp gì để hóa giải lo ngại về network latency của David?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Hủy bỏ toàn bộ kế hoạch chuyển đổi microservices"),
+                    new QuizChoiceDef("B", "Áp dụng giao tiếp gRPC tinh gọn và giải pháp truy vết phân tán (distributed tracing)"),
+                    new QuizChoiceDef("C", "Mua thêm máy chủ đắt tiền nhất"),
+                    new QuizChoiceDef("D", "Chuyển toàn bộ database sang lưu file text"),
+                },
+                "B",
+                "Mai giải thích: 'To mitigate latency, we plan to implement lightweight gRPC communication and distributed tracing.'"
+            ));
+            items.Add(new QuizItemDef(
+                "Khi vừa bắt đầu cuộc họp và chuẩn bị chia sẻ màn hình, câu kiểm tra kỹ thuật chuẩn xác nhất là:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Can everyone hear me clearly and see my shared screen?"),
+                    new QuizChoiceDef("B", "Look at my computer immediately!"),
+                    new QuizChoiceDef("C", "Is my voice nice today?"),
+                    new QuizChoiceDef("D", "Do you see something on your phone?"),
+                },
+                "A",
+                "'Can everyone hear me clearly and see my shared screen?' là câu kiểm tra âm thanh và màn hình tiêu chuẩn khi bắt đầu họp."
+            ));
+            list.Add(new CourseQuizDef(qId, lId, "Đề kiểm tra đánh giá Bài 2.2: Hội Họp Trực Tuyến & Phản Biện Ngoại Giao", items));
+        }
+        {
+            var qId = CreateDeterministicGuid("quiz:en:44444444-4444-4444-8444-444444444450:1");
+            var lId = Guid.Parse("44444444-4444-4444-8444-444444444450");
+            var items = new List<QuizItemDef>();
+            items.Add(new QuizItemDef(
+                "Động từ 'present' (thuyết trình) và danh từ 'present' (món quà/hiện tại) khác nhau thế nào về trọng âm?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Động từ nhấn âm 2 (/prɪˈzent/); danh từ nhấn âm 1 (/ˈpreznt/)"),
+                    new QuizChoiceDef("B", "Động từ nhấn âm 1; danh từ nhấn âm 2"),
+                    new QuizChoiceDef("C", "Cả hai đều nhấn âm tiết thứ hai"),
+                    new QuizChoiceDef("D", "Cả hai đều nhấn âm tiết thứ nhất"),
+                },
+                "A",
+                "Trong tiếng Anh, nhiều từ 2 âm tiết có dạng danh từ nhấn âm 1 ('PRE-sent' /ˈpreznt/) và dạng động từ nhấn âm 2 ('pre-SENT' /prɪˈzent/)."
+            ));
+            items.Add(new QuizItemDef(
+                "Từ 'demonstrate' (chứng minh, thị phạm) có trọng âm chính rơi vào âm tiết thứ mấy?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Âm tiết thứ nhất (/ˈdemənstreɪt/)"),
+                    new QuizChoiceDef("B", "Âm tiết thứ hai (/dɪˈmɒnstreɪt/)"),
+                    new QuizChoiceDef("C", "Âm tiết thứ ba (/demənˈstreɪt/)"),
+                    new QuizChoiceDef("D", "Nhấn đều cả 3 âm tiết"),
+                },
+                "A",
+                "'Demonstrate' có trọng âm rơi vào âm tiết đầu tiên: /ˈdemənstreɪt/."
+            ));
+            items.Add(new QuizItemDef(
+                "Kỹ thuật 'Dramatic Pause' trong thuyết trình mang lại tác dụng chính là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Để người nói tranh thủ uống nước hoặc kiểm tra điện thoại"),
+                    new QuizChoiceDef("B", "Tạo khoảng ngắt nghỉ 1-2 giây giúp người nghe lắng đọng và tập trung vào thông điệp then chốt"),
+                    new QuizChoiceDef("C", "Chờ ban giám khảo nhắc bài"),
+                    new QuizChoiceDef("D", "Làm cho bài thuyết trình dài hơn để đủ giờ"),
+                },
+                "B",
+                "Khoảng dừng kịch tính (Dramatic Pause) ngay trước hoặc sau một thông điệp quan trọng giúp thu hút toàn bộ sự chú ý của khán phòng."
+            ));
+            items.Add(new QuizItemDef(
+                "Thuật ngữ 'Signposting language' trong thuyết trình tiếng Anh chỉ điều gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Các biển báo giao thông trên đường phố"),
+                    new QuizChoiceDef("B", "Ngôn ngữ chỉ đường, dẫn dắt người nghe biết bài nói đang ở phần nào (Mở bài, Thân bài, Kết bài)"),
+                    new QuizChoiceDef("C", "Chữ ký điện tử ở cuối bài trình chiếu"),
+                    new QuizChoiceDef("D", "Font chữ in đậm trên slide"),
+                },
+                "B",
+                "Signposting language là các cụm từ định hướng ('To begin with', 'Moving on to', 'In conclusion') giúp khán giả theo dõi mạch bài nói dễ dàng."
+            ));
+            items.Add(new QuizItemDef(
+                "Để diễn tả một chỉ số tăng trưởng vọt đột biến theo cấp số nhân, từ vựng nào mang tính ấn tượng mạnh mẽ nhất?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "exponential surge"),
+                    new QuizChoiceDef("B", "tiny increase"),
+                    new QuizChoiceDef("C", "slow movement"),
+                    new QuizChoiceDef("D", "small fluctuation"),
+                },
+                "A",
+                "'Exponential surge' nghĩa là sự tăng vọt theo cấp số nhân, thể hiện bước nhảy vọt ấn tượng trong biểu đồ số liệu."
+            ));
+            items.Add(new QuizItemDef(
+                "Từ vựng nào mô tả biểu đồ số liệu 'chững lại ở mức ổn định sau một chu kỳ tăng trưởng'?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "plummeted"),
+                    new QuizChoiceDef("B", "plateaued"),
+                    new QuizChoiceDef("C", "crashed"),
+                    new QuizChoiceDef("D", "exploded"),
+                },
+                "B",
+                "'Plateau' (danh từ: cao nguyên, động từ: chững lại ở đỉnh ổn định) là từ chuẩn để miêu tả biểu đồ đi ngang sau khi tăng."
+            ));
+            items.Add(new QuizItemDef(
+                "Chọn câu đúng ngữ pháp khi mô tả chỉ số năng suất tăng lên:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Our engineering productivity rose significantly last quarter."),
+                    new QuizChoiceDef("B", "Our engineering productivity raised significantly last quarter."),
+                    new QuizChoiceDef("C", "Our engineering productivity is rise significantly."),
+                    new QuizChoiceDef("D", "Our engineering productivity risen significantly."),
+                },
+                "A",
+                "'Rise' là nội động từ (không cần tân ngữ): quá khứ là 'rose'. Còn 'raise' là ngoại động từ bắt buộc có tân ngữ phía sau ('We raised our fees')."
+            ));
+            items.Add(new QuizItemDef(
+                "Câu chẻ (Cleft sentence) nào dưới đây dùng đúng ngữ pháp để tạo điểm nhấn chốt bài thuyết trình?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "What truly sets this strategy apart is our uncompromising focus on user empathy."),
+                    new QuizChoiceDef("B", "That truly set this strategy apart are our focus."),
+                    new QuizChoiceDef("C", "Which sets this strategy apart is focus."),
+                    new QuizChoiceDef("D", "It truly setting this strategy apart is focus."),
+                },
+                "A",
+                "Cấu trúc câu chẻ với 'What... is...' dùng để nhấn mạnh điều cốt lõi nhất: 'What truly sets this strategy apart is...'"
+            ));
+            items.Add(new QuizItemDef(
+                "Trong bài thuyết trình 5 phút mẫu, hơn 70% điểm nghẽn năng suất kỹ thuật xuất phát từ đâu?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Từ lỗi phần mềm nghiêm trọng (software bugs)"),
+                    new QuizChoiceDef("B", "Từ tình trạng cô lập, ứ đọng kiến thức cục bộ (knowledge silos)"),
+                    new QuizChoiceDef("C", "Từ phần cứng máy tính quá cũ"),
+                    new QuizChoiceDef("D", "Từ việc nhân viên đi làm muộn"),
+                },
+                "B",
+                "Bài nói khẳng định: 'over seventy percent of engineering productivity bottlenecks stem not from software bugs, but from knowledge silos'."
+            ));
+            items.Add(new QuizItemDef(
+                "Mẫu câu kết bài và mở lời cho phần hỏi đáp (Q&A) chuẩn mực và tự tin nhất là:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "I finish my speech, no more talking."),
+                    new QuizChoiceDef("B", "Thank you for your time, and I would now be delighted to take any questions."),
+                    new QuizChoiceDef("C", "Please don't ask any difficult questions."),
+                    new QuizChoiceDef("D", "That is the end, goodbye everyone."),
+                },
+                "B",
+                "'Thank you for your time, and I would now be delighted to take any questions' là lời chào kết thanh lịch và chuyên nghiệp."
+            ));
+            list.Add(new CourseQuizDef(qId, lId, "Đề kiểm tra đánh giá Bài 3.1: Cấu Trúc Thuyết Trình Tinh Gọn 5 Phút", items));
+        }
+        {
+            var qId = CreateDeterministicGuid("quiz:en:44444444-4444-4444-8444-444444444451:1");
+            var lId = Guid.Parse("44444444-4444-4444-8444-444444444451");
+            var items = new List<QuizItemDef>();
+            items.Add(new QuizItemDef(
+                "Âm giữa trong từ 'negotiation' (/nɪˌɡəʊʃiˈeɪʃn/) được phát âm chuẩn là âm gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "/s/"),
+                    new QuizChoiceDef("B", "/ʃ/ (chu tròn môi bật luồng hơi ma sát)"),
+                    new QuizChoiceDef("C", "/z/"),
+                    new QuizChoiceDef("D", "/tʃ/"),
+                },
+                "B",
+                "Cả hai vị trí 'ti' trong 'negotiation' đều phát âm thành âm vô thanh /ʃ/: /nɪˌɡəʊʃiˈeɪʃn/."
+            ));
+            items.Add(new QuizItemDef(
+                "Động từ 'adjust' (/əˈdʒʌst/) có phụ âm thứ hai là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "/dʒ/ (chu môi và rung mạnh dây thanh quản)"),
+                    new QuizChoiceDef("B", "/j/"),
+                    new QuizChoiceDef("C", "/z/"),
+                    new QuizChoiceDef("D", "/t/"),
+                },
+                "A",
+                "'Adjust' có âm /dʒ/: /əˈdʒʌst/. Người học cần chú ý phát âm rõ âm hữu thanh này."
+            ));
+            items.Add(new QuizItemDef(
+                "Từ 'beneficial' (có lợi, sinh lợi) có trọng âm chính rơi vào âm tiết thứ mấy?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Âm tiết thứ nhất (/ˈbenɪfɪʃl/)"),
+                    new QuizChoiceDef("B", "Âm tiết thứ hai (/bəˈnefɪʃl/)"),
+                    new QuizChoiceDef("C", "Âm tiết thứ ba (/ˌbenɪˈfɪʃl/)"),
+                    new QuizChoiceDef("D", "Âm tiết thứ tư (/benɪfɪˈʃl/)"),
+                },
+                "C",
+                "'Beneficial' có trọng âm rơi vào âm tiết thứ ba: /ˌbenɪˈfɪʃl/."
+            ));
+            items.Add(new QuizItemDef(
+                "Thế nào là 'Principled Negotiation' (Đàm phán theo nguyên tắc)?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Cố gắng ép giá đối phương xuống mức thấp nhất bất chấp hậu quả"),
+                    new QuizChoiceDef("B", "Tìm kiếm giải pháp đôi bên cùng có lợi (Win-Win) dựa trên lợi ích cốt lõi thay vì tranh chấp vị thế cứng nhắc"),
+                    new QuizChoiceDef("C", "Nhượng bộ vô điều kiện để giữ mối quan hệ"),
+                    new QuizChoiceDef("D", "Kéo dài cuộc đàm phán nhiều tháng để đối phương mệt mỏi"),
+                },
+                "B",
+                "Đàm phán theo nguyên tắc (trường phái Harvard) tập trung vào tách rời con người khỏi vấn đề, tập trung vào lợi ích (interests) thay vì lập trường bề mặt (positions)."
+            ));
+            items.Add(new QuizItemDef(
+                "Thành ngữ 'break the impasse' trong đàm phán hợp đồng có nghĩa là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Làm hỏng tài liệu hợp đồng"),
+                    new QuizChoiceDef("B", "Phá vỡ thế bế tắc để tìm ra hướng đi chung"),
+                    new QuizChoiceDef("C", "Từ chối tiếp tục đàm phán"),
+                    new QuizChoiceDef("D", "Khởi kiện đối tác ra tòa"),
+                },
+                "B",
+                "'Impasse' nghĩa là ngõ cụt, thế bế tắc. 'Break the impasse' là tìm ra giải pháp tháo gỡ bế tắc."
+            ));
+            items.Add(new QuizItemDef(
+                "Thuật ngữ 'non-negotiable clause' mang ý nghĩa là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Điều khoản có thể dễ dàng thay đổi bất cứ lúc nào"),
+                    new QuizChoiceDef("B", "Điều khoản cốt lõi mang tính bất khả thương lượng vì lý do an ninh, pháp lý hoặc quy chuẩn bắt buộc"),
+                    new QuizChoiceDef("C", "Điều khoản không cần ghi vào hợp đồng"),
+                    new QuizChoiceDef("D", "Điều khoản dành cho khách hàng thân thiết"),
+                },
+                "B",
+                "'Non-negotiable' là điều khoản sống còn, không thể thương lượng hay thỏa hiệp."
+            ));
+            items.Add(new QuizItemDef(
+                "Chọn câu nhượng bộ có điều kiện (Conditional Concession) đúng chuẩn ngữ pháp:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "If you commit to a two-year enterprise agreement, we will adjust our implementation fee by ten percent."),
+                    new QuizChoiceDef("B", "If you will commit to a two-year agreement, we will adjust the fee."),
+                    new QuizChoiceDef("C", "If you commit to agreement, we adjust fee yesterday."),
+                    new QuizChoiceDef("D", "We adjust the fee if you will agree."),
+                },
+                "A",
+                "Trong câu điều kiện loại 1, mệnh đề 'If' dùng thì Hiện tại đơn ('If you commit...'), không dùng 'will commit'."
+            ));
+            items.Add(new QuizItemDef(
+                "Khi đối tác nói 'Your price is too high', câu hỏi làm rõ (Clarifying Question) chuyên nghiệp nhất là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "You are wrong, our price is very cheap!"),
+                    new QuizChoiceDef("B", "Could you elaborate on the primary constraints preventing your team from adopting this proposal?"),
+                    new QuizChoiceDef("C", "Why do you have so little money?"),
+                    new QuizChoiceDef("D", "If you don't buy, another client will."),
+                },
+                "B",
+                "'Could you elaborate on the primary constraints...' giúp bóc tách rào cản thực tế của khách hàng một cách tôn trọng và chuyên nghiệp."
+            ));
+            items.Add(new QuizItemDef(
+                "Trong đoạn hội thoại mẫu, Minh đã đưa ra giải pháp thỏa hiệp nào để giải quyết áp lực ngân sách của Sarah?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Làm việc miễn phí hoàn toàn trong năm đầu tiên"),
+                    new QuizChoiceDef("B", "Giảm 10% phí triển khai với điều kiện phía khách hàng cam kết ký hợp đồng hỗ trợ doanh nghiệp 2 năm"),
+                    new QuizChoiceDef("C", "Tăng giá thêm 20%"),
+                    new QuizChoiceDef("D", "Bỏ bớt các tính năng bảo mật then chốt"),
+                },
+                "B",
+                "Minh đề xuất nhượng bộ có điều kiện: 'adjust our overall implementation fee by ten percent on condition that your team commits to a two-year enterprise support agreement.'"
+            ));
+            items.Add(new QuizItemDef(
+                "Mẫu câu chốt thỏa thuận tôn trọng quyền lợi của cả hai bên khi đàm phán thành công là:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "We won and you lost the negotiation."),
+                    new QuizChoiceDef("B", "This solution represents a mutually beneficial agreement that safeguards both parties' interests."),
+                    new QuizChoiceDef("C", "You must pay immediately before we change our mind."),
+                    new QuizChoiceDef("D", "This deal is not very good for us."),
+                },
+                "B",
+                "'This solution represents a mutually beneficial agreement that safeguards both parties' interests' thể hiện tinh thần Win-Win tôn trọng bền vững."
+            ));
+            list.Add(new CourseQuizDef(qId, lId, "Đề kiểm tra đánh giá Bài 3.2: Đàm Phán Nguyên Tắc & Thuyết Phục Đối Tác", items));
+        }
+        {
+            var qId = CreateDeterministicGuid("quiz:en:44444444-4444-4444-8444-444444444451:final");
+            var lId = Guid.Parse("44444444-4444-4444-8444-444444444451");
+            var items = new List<QuizItemDef>();
+            items.Add(new QuizItemDef(
+                "Cặp âm nào sau đây phân biệt giữa âm răng-lưỡi vô thanh (unvoiced) và hữu thanh (voiced)?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "/θ/ trong 'think' (vô thanh) và /ð/ trong 'this' (hữu thanh)"),
+                    new QuizChoiceDef("B", "/p/ trong 'pen' và /t/ trong 'ten'"),
+                    new QuizChoiceDef("C", "/s/ trong 'see' và /k/ trong 'cat'"),
+                    new QuizChoiceDef("D", "/m/ trong 'mother' và /n/ trong 'nice'"),
+                },
+                "A",
+                "Cặp /θ/ và /ð/ có cùng vị trí đặt lưỡi giữa răng, nhưng /θ/ chỉ đẩy luồng khí (vô thanh) còn /ð/ có rung thanh quản (hữu thanh)."
+            ));
+            items.Add(new QuizItemDef(
+                "Động từ nào sau đây có cách phát âm đuôi '-ed' khác với các động từ còn lại?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "decided (/dɪˈsaɪdɪd/ -> /ɪd/)"),
+                    new QuizChoiceDef("B", "launched (/lɔːntʃt/ -> /t/)"),
+                    new QuizChoiceDef("C", "fixed (/fɪkst/ -> /t/)"),
+                    new QuizChoiceDef("D", "worked (/wɜːkt/ -> /t/)"),
+                },
+                "A",
+                "'Decided' kết thúc bằng âm /d/ nên đuôi '-ed' đọc là /ɪd/. Ba từ còn lại kết thúc bằng phụ âm vô thanh (/tʃ, s, k/) nên đọc là /t/."
+            ));
+            items.Add(new QuizItemDef(
+                "Từ nào sau đây có trọng âm chính rơi vào âm tiết thứ hai?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "consensus (/kənˈsensəs/)"),
+                    new QuizChoiceDef("B", "demonstrate (/ˈdemənstreɪt/)"),
+                    new QuizChoiceDef("C", "roundabout (/ˈraʊndəbaʊt/)"),
+                    new QuizChoiceDef("D", "milestone (/ˈmaɪlstəʊn/)"),
+                },
+                "A",
+                "'Consensus' nhấn âm tiết thứ hai: /kənˈsensəs/. Các từ còn lại đều có trọng âm rơi vào âm tiết thứ nhất."
+            ));
+            items.Add(new QuizItemDef(
+                "Thành ngữ 'common ground' trong giao tiếp kinh doanh và ngoại giao quốc tế có nghĩa là gì?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Khu đất công cộng thuộc sở hữu nhà nước"),
+                    new QuizChoiceDef("B", "Điểm tương đồng, nền tảng chung hoặc mối quan tâm chung giữa các bên"),
+                    new QuizChoiceDef("C", "Mặt đất bằng phẳng để xây dựng tòa nhà"),
+                    new QuizChoiceDef("D", "Ý kiến bất đồng không thể hòa giải"),
+                },
+                "B",
+                "'Common ground' là tiếng nói chung, cơ sở đồng thuận để hai bên cùng hợp tác."
+            ));
+            items.Add(new QuizItemDef(
+                "Khi muốn tổ chức một cuộc họp nội bộ nhanh chóng trong 15 phút để cập nhật thông tin, cụm từ công sở nào tự nhiên nhất?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "a brief fifteen-minute sync"),
+                    new QuizChoiceDef("B", "a giant meeting conference"),
+                    new QuizChoiceDef("C", "a long endless debate"),
+                    new QuizChoiceDef("D", "a slow paper exchange"),
+                },
+                "A",
+                "'A brief sync' (hoặc 'a quick check-in') là cách nói phổ biến nhất trong các công ty công nghệ quốc tế."
+            ));
+            items.Add(new QuizItemDef(
+                "Từ vựng nào mô tả sự đồng thuận nhất trí 100% trong hội đồng quản trị hoặc ban lãnh đạo?",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "unanimous consensus"),
+                    new QuizChoiceDef("B", "partial conflict"),
+                    new QuizChoiceDef("C", "temporary division"),
+                    new QuizChoiceDef("D", "hesitant vote"),
+                },
+                "A",
+                "'Unanimous consensus' (hoặc 'unanimous agreement') nghĩa là sự nhất trí hoàn toàn, không có phiếu chống."
+            ));
+            items.Add(new QuizItemDef(
+                "Phát hiện lỗi sai trong câu: 'I look forward to meet you at the tech summit tomorrow.'",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Sai ở 'look forward to meet' -> cần sửa thành 'look forward to meeting'"),
+                    new QuizChoiceDef("B", "Sai ở 'at the' -> cần sửa thành 'on the'"),
+                    new QuizChoiceDef("C", "Sai ở 'tomorrow' -> cần sửa thành 'yesterday'"),
+                    new QuizChoiceDef("D", "Câu trên hoàn toàn không có lỗi"),
+                },
+                "A",
+                "Sau cụm 'look forward to', động từ luôn ở dạng danh động từ V-ing: 'look forward to meeting you'."
+            ));
+            items.Add(new QuizItemDef(
+                "Phát hiện lỗi sai trật tự từ trong câu hỏi gián tiếp: 'Could you tell me how can I get to platform two?'",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Đảo trợ động từ 'can' lên trước chủ ngữ 'I' -> cần sửa thành 'how I can get'"),
+                    new QuizChoiceDef("B", "Dùng 'tell' sai -> cần đổi thành 'say'"),
+                    new QuizChoiceDef("C", "Thiếu mạo từ trước 'platform two'"),
+                    new QuizChoiceDef("D", "Dùng 'Could you' quá trang trọng không cần thiết"),
+                },
+                "A",
+                "Trong câu hỏi gián tiếp, không đảo trợ động từ lên trước chủ ngữ. Mệnh đề sau 'how' phải là 'how I can get to platform two'."
+            ));
+            items.Add(new QuizItemDef(
+                "Chọn câu nhượng bộ có điều kiện chuẩn xác trong đàm phán hợp đồng:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Provided that you accept the security schedule, we are prepared to accommodate your budget request."),
+                    new QuizChoiceDef("B", "Provided that you will accept the schedule, we accommodated your request."),
+                    new QuizChoiceDef("C", "If you accommodated, we accommodate."),
+                    new QuizChoiceDef("D", "We accept your budget unconditionally without any terms."),
+                },
+                "A",
+                "'Provided that [Hiện tại đơn], we are prepared to [V]' là cấu trúc nhượng bộ ngoại giao chuẩn mực cao cấp."
+            ));
+            items.Add(new QuizItemDef(
+                "Khi chuyển sang trình bày trang chiếu số 4 trong buổi họp trực tuyến đa quốc gia, câu dẫn dắt chuyên nghiệp nhất là:",
+                new QuizChoiceDef[]
+                {
+                    new QuizChoiceDef("A", "Moving on to slide four, let us examine our baseline performance metrics."),
+                    new QuizChoiceDef("B", "I click next slide now, you must watch."),
+                    new QuizChoiceDef("C", "Slide four is here, I stop talking."),
+                    new QuizChoiceDef("D", "Do you see this picture or not?"),
+                },
+                "A",
+                "'Moving on to slide four, let us examine our baseline performance metrics' là ngôn ngữ chuyển ý (signposting) mẫu mực và chuyên nghiệp."
+            ));
+            list.Add(new CourseQuizDef(qId, lId, "Đề Tổng kết Khóa học: Tiếng Anh Giao Tiếp Toàn Diện (A2 → B1)", items));
+        }
+        return list;
     }
 
     public static List<PracticeActivity> GetExtendedPracticeActivities(Guid courseId, DateTimeOffset now)

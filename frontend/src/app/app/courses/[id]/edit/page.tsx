@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   AlertCircle,
+  ArrowDown,
+  ArrowUp,
   BookOpen,
   Check,
   ChevronDown,
@@ -13,6 +15,7 @@ import {
   Eye,
   FileText,
   Globe,
+  GripVertical,
   Lock,
   Pencil,
   Play,
@@ -89,6 +92,13 @@ export default function CourseEditPage() {
 
   const [confirmDeleteChapterId, setConfirmDeleteChapterId] = useState<string | null>(null);
   const [confirmDeleteLessonId, setConfirmDeleteLessonId] = useState<string | null>(null);
+
+  const [hasUnsavedOrder, setHasUnsavedOrder] = useState(false);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const [draggedLessonInfo, setDraggedLessonInfo] = useState<{
+    chapterId: string;
+    lessonIndex: number;
+  } | null>(null);
 
   const getAuthHeaders = useCallback(
     (extra?: Record<string, string>) => {
@@ -460,6 +470,105 @@ export default function CourseEditPage() {
     }
   };
 
+  const handleSaveOrder = async (chaptersToSave?: Chapter[]) => {
+    const targetChapters = chaptersToSave ?? course?.chapters;
+    if (!targetChapters || isSavingOrder) return;
+
+    setIsSavingOrder(true);
+    setErrorBanner(null);
+    try {
+      const payload = {
+        chapters: targetChapters.map((ch, idx) => ({
+          id: ch.chapterId || ch.id,
+          chapterId: ch.chapterId || ch.id,
+          sortOrder: idx + 1,
+        })),
+        lessons: targetChapters.flatMap((ch) =>
+          (ch.lessons ?? []).map((l, lIdx) => ({
+            id: l.lessonId || l.id,
+            lessonId: l.lessonId || l.id,
+            chapterId: ch.chapterId || ch.id,
+            sortOrder: lIdx + 1,
+          }))
+        ),
+      };
+
+      const resp = await fetch(`/api/v1/courses/${courseId}/reorder`, {
+        method: "PUT",
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text().catch(() => "");
+        setErrorBanner(
+          `Không thể lưu thứ tự mới (${resp.status})${errText ? `: ${errText}` : ""}`
+        );
+        return;
+      }
+
+      setHasUnsavedOrder(false);
+      setSaveMessage("Đã lưu thứ tự chương và bài học.");
+      window.dispatchEvent(new CustomEvent("swms:data-mutated"));
+    } catch (err) {
+      setErrorBanner(err instanceof Error ? err.message : "Lỗi kết nối khi lưu thứ tự.");
+    } finally {
+      setIsSavingOrder(false);
+    }
+  };
+
+  const handleMoveChapter = (chapterIndex: number, direction: -1 | 1) => {
+    if (!course) return;
+    const targetIndex = chapterIndex + direction;
+    if (targetIndex < 0 || targetIndex >= course.chapters.length) return;
+    const nextChapters = [...course.chapters];
+    const [moved] = nextChapters.splice(chapterIndex, 1);
+    nextChapters.splice(targetIndex, 0, moved);
+    const reindexed = nextChapters.map((ch, idx) => ({ ...ch, sortOrder: idx + 1 }));
+    setCourse({ ...course, chapters: reindexed });
+    setHasUnsavedOrder(true);
+  };
+
+  const handleMoveLesson = (chapterId: string, lessonIndex: number, direction: -1 | 1) => {
+    if (!course) return;
+    const nextChapters = course.chapters.map((ch) => {
+      const chKey = ch.chapterId || ch.id;
+      if (chKey !== chapterId) return ch;
+      const lessons = [...(ch.lessons ?? [])];
+      const targetIndex = lessonIndex + direction;
+      if (targetIndex < 0 || targetIndex >= lessons.length) return ch;
+      const [moved] = lessons.splice(lessonIndex, 1);
+      lessons.splice(targetIndex, 0, moved);
+      return {
+        ...ch,
+        lessons: lessons.map((l, idx) => ({ ...l, sortOrder: idx + 1 })),
+      };
+    });
+    setCourse({ ...course, chapters: nextChapters });
+    setHasUnsavedOrder(true);
+  };
+
+  const handleDropLesson = (targetChapterId: string, targetLessonIndex: number) => {
+    if (!course || !draggedLessonInfo) return;
+    const { chapterId: srcChapterId, lessonIndex: srcIndex } = draggedLessonInfo;
+    setDraggedLessonInfo(null);
+    if (srcChapterId !== targetChapterId || srcIndex === targetLessonIndex) return;
+
+    const nextChapters = course.chapters.map((ch) => {
+      const chKey = ch.chapterId || ch.id;
+      if (chKey !== targetChapterId) return ch;
+      const lessons = [...(ch.lessons ?? [])];
+      const [moved] = lessons.splice(srcIndex, 1);
+      lessons.splice(targetLessonIndex, 0, moved);
+      return {
+        ...ch,
+        lessons: lessons.map((l, idx) => ({ ...l, sortOrder: idx + 1 })),
+      };
+    });
+    setCourse({ ...course, chapters: nextChapters });
+    setHasUnsavedOrder(true);
+  };
+
   const handleDeleteLesson = async (chapterId: string, lessonId: string) => {
     if (!course) return;
     setErrorBanner(null);
@@ -636,19 +745,36 @@ export default function CourseEditPage() {
       {/* Main Split Editor */}
       <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
         {/* Left: Curriculum Tree */}
-        <aside className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-border bg-bg-secondary/30 flex flex-col min-h-0 max-h-72 lg:max-h-none">
-          <div className="px-3 py-2.5 border-b border-border flex items-center justify-between">
+        <aside className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-border bg-bg-secondary/30 flex flex-col min-h-0 max-h-80 lg:max-h-none">
+          <div className="px-3 py-2.5 border-b border-border flex items-center justify-between gap-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
               Cấu trúc khóa học
             </span>
-            <button
-              type="button"
-              onClick={() => setShowNewChapterInput((v) => !v)}
-              className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Thêm chương</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={isSavingOrder}
+                onClick={() => void handleSaveOrder()}
+                data-testid="save-course-order-btn"
+                className={`inline-flex items-center gap-1 h-6 px-2 rounded text-[11px] font-semibold transition cursor-pointer ${
+                  hasUnsavedOrder
+                    ? "bg-accent text-white shadow-2xs"
+                    : "border border-border bg-bg-primary text-text-secondary hover:text-text-primary"
+                }`}
+                title="Lưu thứ tự chương và bài học"
+              >
+                <Save className="w-3 h-3" />
+                <span>{isSavingOrder ? "Đang lưu..." : "Lưu thứ tự"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowNewChapterInput((v) => !v)}
+                className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Thêm chương</span>
+              </button>
+            </div>
           </div>
 
           {showNewChapterInput && (
@@ -698,6 +824,26 @@ export default function CourseEditPage() {
                     </button>
 
                     <div className="flex items-center gap-0.5 shrink-0">
+                      <button
+                        type="button"
+                        disabled={chIdx === 0}
+                        onClick={() => handleMoveChapter(chIdx, -1)}
+                        className="p-1 rounded text-text-tertiary hover:text-text-primary hover:bg-bg-secondary disabled:opacity-30 cursor-pointer"
+                        title="Di chuyển chương lên"
+                        aria-label="Di chuyển chương lên"
+                      >
+                        <ArrowUp className="w-3 h-3" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={chIdx === course.chapters.length - 1}
+                        onClick={() => handleMoveChapter(chIdx, 1)}
+                        className="p-1 rounded text-text-tertiary hover:text-text-primary hover:bg-bg-secondary disabled:opacity-30 cursor-pointer"
+                        title="Di chuyển chương xuống"
+                        aria-label="Di chuyển chương xuống"
+                      >
+                        <ArrowDown className="w-3 h-3" />
+                      </button>
                       <button
                         type="button"
                         onClick={() =>
@@ -755,17 +901,30 @@ export default function CourseEditPage() {
 
                   {isOpen && (
                     <div className="border-t border-border-subtle divide-y divide-border-subtle">
-                      {(chapter.lessons ?? []).map((lesson) => {
+                      {(chapter.lessons ?? []).map((lesson, lIdx) => {
                         const lId = lesson.lessonId || lesson.id;
                         const active =
                           selectedLesson && (selectedLesson.lessonId || selectedLesson.id) === lId;
+                        const lessonCountInChapter = (chapter.lessons ?? []).length;
                         return (
                           <div
                             key={lId}
-                            className={`flex items-center justify-between gap-1 px-2.5 py-2 ${
+                            draggable
+                            onDragStart={() =>
+                              setDraggedLessonInfo({ chapterId: chId, lessonIndex: lIdx })
+                            }
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={() => handleDropLesson(chId, lIdx)}
+                            className={`flex items-center justify-between gap-1 px-2 py-2 ${
                               active ? "bg-accent-subtle" : "hover:bg-bg-secondary"
                             }`}
                           >
+                            <span
+                              className="text-text-tertiary cursor-grab active:cursor-grabbing shrink-0"
+                              title="Kéo thả để đổi thứ tự bài học"
+                            >
+                              <GripVertical className="w-3 h-3" />
+                            </span>
                             <button
                               type="button"
                               onClick={() => void selectLesson(lesson)}
@@ -777,24 +936,47 @@ export default function CourseEditPage() {
                               <span className="truncate">{lesson.title}</span>
                             </button>
 
-                            {confirmDeleteLessonId === lId ? (
+                            <div className="flex items-center gap-0.5 shrink-0">
                               <button
                                 type="button"
-                                onClick={() => handleDeleteLesson(chId, lId)}
-                                className="px-1.5 py-0.5 rounded bg-red-600 text-white text-[10px] font-medium cursor-pointer shrink-0"
+                                disabled={lIdx === 0}
+                                onClick={() => handleMoveLesson(chId, lIdx, -1)}
+                                className="p-0.5 rounded text-text-tertiary hover:text-text-primary disabled:opacity-30 cursor-pointer"
+                                title="Đưa bài học lên"
+                                aria-label="Đưa bài học lên"
                               >
-                                Xóa?
+                                <ArrowUp className="w-3 h-3" />
                               </button>
-                            ) : (
                               <button
                                 type="button"
-                                onClick={() => setConfirmDeleteLessonId(lId)}
-                                className="p-1 rounded text-text-tertiary hover:text-red-500 cursor-pointer shrink-0"
-                                title="Xóa bài học"
+                                disabled={lIdx === lessonCountInChapter - 1}
+                                onClick={() => handleMoveLesson(chId, lIdx, 1)}
+                                className="p-0.5 rounded text-text-tertiary hover:text-text-primary disabled:opacity-30 cursor-pointer"
+                                title="Đưa bài học xuống"
+                                aria-label="Đưa bài học xuống"
                               >
-                                <Trash2 className="w-3 h-3" />
+                                <ArrowDown className="w-3 h-3" />
                               </button>
-                            )}
+
+                              {confirmDeleteLessonId === lId ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteLesson(chId, lId)}
+                                  className="px-1.5 py-0.5 rounded bg-red-600 text-white text-[10px] font-medium cursor-pointer shrink-0"
+                                >
+                                  Xóa?
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setConfirmDeleteLessonId(lId)}
+                                  className="p-1 rounded text-text-tertiary hover:text-red-500 cursor-pointer shrink-0"
+                                  title="Xóa bài học"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              )}
+                            </div>
                           </div>
                         );
                       })}

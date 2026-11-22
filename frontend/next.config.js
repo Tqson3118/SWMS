@@ -2,7 +2,29 @@ const backendBaseUrl = (
     process.env.BACKEND_INTERNAL_URL ||
     process.env.NEXT_PUBLIC_API_BASE_URL ||
     "http://127.0.0.1:5080"
-).replace(/\/+$/, "");
+)
+    .trim()
+    .replace(/\/+$/, "");
+
+let backendOrigin = "";
+try {
+    backendOrigin = new URL(backendBaseUrl).origin;
+} catch {
+    backendOrigin = "";
+}
+
+const allowedConnectSources = Array.from(
+    new Set(
+        [
+            "'self'",
+            "http://127.0.0.1:5080",
+            "http://localhost:5080",
+            "https://*.runasp.net",
+            backendOrigin,
+            "https://accounts.google.com",
+        ].filter(Boolean)
+    )
+).join(" ");
 
 const nextConfig = {
     reactStrictMode: true,
@@ -31,7 +53,7 @@ const nextConfig = {
                     },
                     {
                         key: "Content-Security-Policy",
-                        value: "default-src 'self' http://127.0.0.1:5080 http://localhost:5080 https://accounts.google.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://accounts.google.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' http://127.0.0.1:5080 http://localhost:5080 https://accounts.google.com; frame-src 'self' https://accounts.google.com https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors 'self';",
+                        value: `default-src ${allowedConnectSources}; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://accounts.google.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src ${allowedConnectSources}; frame-src 'self' https://accounts.google.com https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors 'self';`,
                     },
                 ],
             },
@@ -41,13 +63,14 @@ const nextConfig = {
         return [
             {
                 source: "/api/v1/:path*",
-                destination: `${backendBaseUrl}/api/v1/:path*`
+                destination: `${backendBaseUrl}/api/v1/:path*`,
             },
             {
                 source: "/health",
-                destination: `${backendBaseUrl}/health`
-            }
+                destination: `${backendBaseUrl}/health`,
+            },
         ];
-    }
+    },
 };
+
 export default nextConfig;

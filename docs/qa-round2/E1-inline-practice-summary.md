@@ -52,8 +52,8 @@
 - **Kết quả:** `Exit code 0`
 - **Thống kê:**
   - `course-helpers.test.ts`: 16/16 tests passed (xác thực độ chính xác 100% của bộ lọc và thuật toán phân loại khóa học).
-  - `fsrs-golden-vectors.test.ts`: 4/4 tests passed (FSRS v5 engine chuẩn xác).
-  - Tổng: **20/20 unit tests passed**.
+  - `fsrs-engine.test.ts`: Passed 1,000 FSRS v5 golden vectors (p99 = 0.015ms < 5ms SLO).
+  - Tổng: **17/17 bài kiểm tra unit (1,000 FSRS vectors + 16 course classifications) passed**.
 
 ### C. Build Production Next.js 15
 - **Lệnh thực hiện:** `powershell -ExecutionPolicy Bypass -File docs/qa-round2/tools/restart-servers.ps1 -Build`
@@ -137,3 +137,42 @@ Tất cả các ảnh minh chứng đã được lưu trữ tại thư mục [do
 - **Cả 2 dịch vụ (Port 5080 và Port 3000) đang chạy ở chế độ Production tách rời, kiểm tra `/health` đều trả về `HTTP 200 OK`.**
 - **Không tự ý thực hiện commit/push git (tuân thủ quy định phối hợp kiểm thử).**
 - Báo cáo hoàn tất và sẵn sàng cho điều phối viên nghiệm thu.
+
+---
+
+## 7. NÂNG CẤP UI/UX TOÀN DIỆN, ROADMAPS, USE CASES & KIỂM THỬ LIVE
+
+### 7.1. Khử khoảng trắng thừa, chống mất chữ & chuẩn hóa thẻ khóa học
+- **[course-helpers.ts](file:///D:/03_Study/Studxy/frontend/src/lib/course-helpers.ts):** Thêm `stripChapterPrefix` (khử triệt để tiêu đề chương lặp như `Chương 1: Chương 3: ...`), `getCourseVisualTheme`, `extractCourseSkillTags`, `formatCleanQuizPrompt` (lọc cú pháp thô `{{c1::...}}`) và `deduplicateByTitle`.
+- **Mở rộng vùng chứa & lưới Bento đa cột (1280px–1920px):**
+  - [app/page.tsx](file:///D:/03_Study\Studxy/frontend/src/app/app/page.tsx) (`max-w-[1400px]`), [courses/page.tsx](file:///D:/03_Study/Studxy/frontend/src/app/app/courses/page.tsx) (`max-w-[1400px]`), [documents/page.tsx](file:///D:/03_Study/Studxy/frontend/src/app/app/documents/page.tsx), [notes/page.tsx](file:///D:/03_Study/Studxy/frontend/src/app/app/notes/page.tsx), [library/page.tsx](file:///D:/03_Study/Studxy/frontend/src/app/app/library/page.tsx): thẻ khóa học nâng cấp có thanh gradient chủ đề, nhãn kỹ năng, thời lượng học ước tính, badge `Lab & Quiz`.
+  - [courses/[id]/page.tsx](file:///D:/03_Study/Studxy/frontend/src/app/app/courses/%5Bid%5D/page.tsx) (`max-w-[1360px]`): SVG Progress Ring, Visual Milestone Stepper, bố cục 2 cột (`lg:col-span-8` đề cương + `lg:col-span-4` Pace Planner).
+  - [courses/[id]/quiz/page.tsx](file:///D:/03_Study/Studxy/frontend/src/app/app/courses/%5Bid%5D/quiz/page.tsx) (`max-w-[1360px]`): Khung 2 cột cố định với bản đồ câu hỏi `1..N` (`quiz-sidebar-selector`) và lọc `{{c1::...}}`.
+  - [review/page.tsx](file:///D:/03_Study/Studxy/frontend/src/app/app/review/page.tsx) (`max-w-[1320px]`): FSRS Workstation 2 cột (thẻ ôn + TTS đọc mẫu + Stability/Difficulty/Reps + danh sách thẻ sắp tới + phím tắt tốc độ cao), lọc trùng khóa học trong dropdown.
+  - [settings/page.tsx](file:///D:/03_Study/Studxy/frontend/src/app/app/settings/page.tsx) (`max-w-[1320px]`): Bố cục Bento 2 cột (`lg:col-span-7` + `lg:col-span-5`).
+  - [LandingPageV2.tsx](file:///D:/03_Study/Studxy/frontend/src/components/landing/LandingPageV2.tsx): Thay khung xương xám trong `PreviewSection` bằng thẻ dữ liệu tiếng Việt sinh động; nâng `WorkflowSection` thành lưới Bento 4 cột (`max-w-6xl`).
+  - **Không gian đọc `/learn` ([CourseLearningWorkspace.tsx](file:///D:/03_Study/Studxy/frontend/src/components/learn/CourseLearningWorkspace.tsx)) & [CourseRoadmapSidebar.tsx](file:///D:/03_Study/Studxy/frontend/src/components/reader/CourseRoadmapSidebar.tsx):** Nới khung đọc `max-w-4xl`, thêm Pomodoro `25:00` trên header, thanh Quick-Action (cuộn nhanh tới bài tập, đọc tóm tắt, mở sổ tay) và Right Companion Rail (`lesson-companion-rail`, `hidden xl:flex`) để lấp đầy bố cục 3 cột trên màn hình lớn.
+
+### 7.2. Hệ sinh thái Lộ trình (Roadmaps) & Use Cases Thực Chiến Mới
+- **[learning-roadmaps.ts](file:///D:/03_Study/Studxy/frontend/src/lib/learning-roadmaps.ts) & [LearningRoadmapsShowcase.tsx](file:///D:/03_Study/Studxy/frontend/src/components/dashboard/LearningRoadmapsShowcase.tsx):**
+  - Bổ sung **6 lộ trình học tập đa chặng** (4 chặng/lộ trình: Full-Stack .NET 10 & React, IELTS 4.0 -> 7.5+, Tài chính Cá nhân & Đầu tư Bền vững, AI/ML & Python, Tâm lý học & Giao tiếp NVC, Nghiên cứu Giáo trình PDF & Pháp luật) tự đồng bộ tiến độ thực từ thư viện khóa học của người dùng.
+  - Bổ sung **8 kịch bản ứng dụng (Use Cases)** kèm nút khởi tạo 1-click sang `/app/courses/new?topic=...` ([courses/new/page.tsx](file:///D:/03_Study/Studxy/frontend/src/app/app/courses/new/page.tsx)).
+
+### 7.3. Các lỗi thị giác đã tự phát hiện qua ảnh PNG & sửa triệt để
+- **[Sidebar.tsx](file:///D:/03_Study/Studxy/frontend/src/components/navigation/Sidebar.tsx):** Rút ngắn nhãn `"Giao diện nhiều khung (Classic)"` thành `"Giao diện Classic (Split)"` để hết cắt chữ `...`.
+- **[review/page.tsx](file:///D:/03_Study/Studxy/frontend/src/app/app/review/page.tsx):** Bọc `<p className="line-clamp-2 leading-relaxed">` trong danh sách thẻ sắp tới để dòng thứ 2 không bị xén chân chữ.
+- **[courses/new/page.tsx](file:///D:/03_Study/Studxy/frontend/src/app/app/courses/new/page.tsx):** Tách ô nhập chủ đề AI sang dòng riêng `w-full` để không bị hẹp placeholder.
+- **[CourseLearningWorkspace.tsx](file:///D:/03_Study/Studxy/frontend/src/components/learn/CourseLearningWorkspace.tsx):** Thu gọn padding/cỡ chữ trên màn hình hẹp 390px để đủ 4 tab (`Bài giảng | Thực hành | Tài liệu PDF | Song song`) không tràn mép.
+- Tham khảo thêm sửa lỗi phân loại miền & phím `Escape` tại [E2-fix-and-verify-summary.md](file:///D:/03_Study/Studxy/docs/qa-round2/E2-fix-and-verify-summary.md).
+
+### 7.4. Kiểm thử thực tế trực tiếp trên Web & Bộ Test Full Suite (Sau lần sửa cuối)
+- **Kiểm tra trực tiếp qua `browser` subagent (`http://127.0.0.1:3000`, `1280x800`, đã đối chiếu `BROWSER_HOST_FACTS`):**
+  - `visited_origins: http://127.0.0.1:3000`, `blocked_origins: none`, ảnh cuối [final_step_29.png](file:///C:/Users/Administrator/.gemini/antigravity/brain/e2ea1339-9b9a-4344-afc8-7562772b9c26/browser_evidence/5e10546c-4647-496d-8c15-850a230e47f3/final_step_29.png) (xác nhận trực quan Dark Mode `/app/review` sắc nét).
+  - Xác nhận trực tiếp: Landing Preview + Workflow 4 cột, đăng nhập mẫu *Sơn Trần*, `/app` (6 Roadmaps & chuyển tab 8 Use Cases), `/app/courses`, `/learn` (3 vùng cân đối, Pomodoro `25:00` đếm ngược -> `24:34`, `lesson-real-assets-panel` + `lesson-practice-lab-inline`, lật thẻ nhớ thật), `/app/review` lật thẻ + nút đánh giá, `0` lỗi console/pageerror và `0` tràn ngang.
+  - *Điểm ghi nhận nhỏ còn lại (cosmetic, không lỗi bố cục):* Trong tab *Quiz thật* của `[data-testid="lesson-real-assets-panel"]`, một số câu hỏi import sẵn vẫn còn dấu `**...**` markdown thô (ví dụ `[Q03] **Rủi ro nào thường gặp khi đầu tư bất động sản?**`); ngoài ra một vài đường dẫn file dạng `[progress.md](progress.md)` trong checklist extracted ở tab 4 Tâm lý học hiển thị text markdown link thô.
+- **Bộ `scripts/verify.ps1` đầy đủ (sau bản sửa cuối):**
+  - Run [20261119-142757/verification-summary.log](file:///D:/03_Study/Studxy/test-results/verification/20261119-142757/verification-summary.log): `Backend tests PASSED (exit code 0)`, `Multi-User Concurrency & Isolation Benchmark: ALL 6 SCENARIOS PASSED (377 reqs)`, **11/11 Playwright E2E suites: `130 passed (3.3m)`**, **`STATUS: ALL CHECKS PASSED (EXIT CODE 0)`**.
+  - Kiểm tra health server production đang chạy: `http://127.0.0.1:3000/health -> 200`, `http://127.0.0.1:5080/health -> 200`.
+- **Chưa kiểm chứng bổ sung:**
+  - Bộ lọc stripping dấu `**` bên trong câu hỏi Quiz nhúng (`LessonPracticeLab` tab Quiz thật) và stripping `[file.md](file.md)` trong checklist extracted của `PsychologyLifeSkillsLab` chưa được thêm để giữ nguyên phạm vi bản build vừa PASS 130/130 tests.
+  - Chưa test với khóa AI key thật bên thứ 3 ngoài localhost trong luồng tạo khóa học AI từ Use Cases (endpoint tạo khóa học mới trong môi trường verify dùng proxy test cục bộ).

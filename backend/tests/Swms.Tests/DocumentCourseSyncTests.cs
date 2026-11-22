@@ -179,7 +179,7 @@ public class DocumentCourseSyncTests
             File.ReadAllText(fullStackAnsPath),
             now);
 
-        Assert.Equal(6, fsItems.Count);
+        Assert.Equal(12, fsItems.Count);
         Assert.All(fsItems, i => Assert.Equal("multiple_choice", i.ItemType));
         Assert.Equal("B", fsItems[0].ClozeSolution); // Q01-01 -> B
         Assert.Equal("C", fsItems[1].ClozeSolution); // Q01-02 -> C
@@ -192,7 +192,7 @@ public class DocumentCourseSyncTests
             File.ReadAllText(investingAnsPath),
             now);
 
-        Assert.Equal(8, invItems.Count);
+        Assert.Equal(10, invItems.Count);
         Assert.Equal("A", invItems[0].ClozeSolution); // Q01-01 -> A
         var firstPrompt = JsonDocument.Parse(invItems[0].PromptAstJson).RootElement.GetProperty("question").GetString() ?? "";
         Assert.Contains("tính", firstPrompt, StringComparison.OrdinalIgnoreCase);
