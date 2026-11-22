@@ -318,9 +318,13 @@ function cleanSnippet(text: string): string {
   return text
     .replace(/\[(?:C\d+-\d+|LO-[A-Z0-9-]+)\]/gi, "")
     .replace(/[*_`>#]/g, "")
+    .replace(/^(?:[-*+•]|\d+[.)])\s+/, "")
     .replace(/\s+/g, " ")
     .trim();
 }
+
+const STRUCTURAL_TITLES_PATTERN =
+  /\b(muc tieu bai hoc|learning objectives|doan hoi thoai mau|model dialogue|ngu phap|tu vung|loi phat am|boi canh|tong ket|vi du|bai tap|muc luc|tai lieu tham khao|bai tiep|tong ket nhanh)\b/i;
 
 /**
  * Extracts up to 2 lightweight multiple-choice quick-check questions from lesson Markdown
@@ -346,7 +350,8 @@ export function extractQuickCheckQuestions(
       desc.length >= 12 &&
       !seenTerms.has(norm) &&
       !norm.startsWith("lo-") &&
-      !norm.startsWith("c0")
+      !norm.startsWith("c0") &&
+      !STRUCTURAL_TITLES_PATTERN.test(norm)
     ) {
       seenTerms.add(norm);
       pairs.push({ term, desc });
@@ -365,7 +370,7 @@ export function extractQuickCheckQuestions(
         term.length >= 4 &&
         desc.length >= 18 &&
         !seenTerms.has(norm) &&
-        !/muc luc|tai lieu tham khao|bai tiep|tong ket nhanh/i.test(norm)
+        !STRUCTURAL_TITLES_PATTERN.test(norm)
       ) {
         seenTerms.add(norm);
         pairs.push({ term, desc });

@@ -19,7 +19,7 @@ async function mockCourseAndLessonRoutes(
       body: JSON.stringify([]),
     });
   });
-  await page.route(`**/api/v1/courses/${courseId}*`, async (route) => {
+  await page.route(new RegExp(`/api/v1/courses/${courseId}(?:[/?]|$)`), async (route) => {
     if (route.request().url().includes("/enroll")) {
       await route.fulfill({
         status: 200,
@@ -368,8 +368,8 @@ test.describe("Practice Expansion & Interactive Roadmaps (UX Suite)", () => {
     await compoundTab.click();
 
     // Verify SVG chart or compound calculator exists
-    await expect(page.getByText(/Lãi Kép & Tác Động Của Lạm Phát/i)).toBeVisible();
-    await expect(page.getByText(/Gửi Tiết Kiệm/i)).toBeVisible();
+    await expect(page.getByText(/Máy Tính Lãi Kép, Lạm Phát & Mục Tiêu Tài Chính/i)).toBeVisible();
+    await expect(page.getByText(/Gửi Tiết Kiệm/i).first()).toBeVisible();
 
     // 3. Tab 6: Portfolio Simulator
     const portfolioTab = page.locator('[data-testid="tab-portfolio"]');
@@ -384,7 +384,7 @@ test.describe("Practice Expansion & Interactive Roadmaps (UX Suite)", () => {
     ).toBeVisible();
 
     // Verify allocation sliders and normalize button
-    const normalizeBtn = page.getByRole("button", { name: /Cân Bằng Chuẩn 100%/i });
+    const normalizeBtn = page.getByRole("button", { name: /Cân bằng 100%/i });
     await expect(normalizeBtn).toBeVisible();
     await normalizeBtn.click();
 
@@ -401,7 +401,7 @@ test.describe("Practice Expansion & Interactive Roadmaps (UX Suite)", () => {
     await behavioralTab.click();
 
     await expect(page.locator('[data-testid="behavioral-finance-lab"]')).toBeVisible();
-    await expect(page.getByText(/Tâm Lý Học Hành Vi Trong Đầu Tư/i)).toBeVisible();
+    await expect(page.getByText(/Quiz Thiên Kiến Hành Vi Đầu Tư/i)).toBeVisible();
   });
 
   // =========================================================================

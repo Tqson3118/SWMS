@@ -130,7 +130,7 @@ test.describe("Practice Expansion Live End-to-End Suite (NO MOCKS)", () => {
 
     // 3A. Compound Calculator
     await page.getByTestId("tab-compound").click();
-    await expect(page.getByText(/Lãi Kép|DCA/i).first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId("finance-practice-lab").getByText(/Lãi Kép|DCA/i).first()).toBeVisible({ timeout: 10000 });
 
     // 3B. Portfolio Simulator
     await page.getByTestId("tab-portfolio").click();

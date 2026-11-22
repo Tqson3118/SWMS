@@ -1695,7 +1695,11 @@ export function EnglishPracticeLab({
   };
 
   // ----------------- WORD-BY-WORD SCORING (SHADOWING & PRONUNCIATION ENGINE) -----------------
-  const effectiveSpokenText = (spokenTranscript.trim() || manualTranscriptInput.trim()).trim();
+  const effectiveSpokenText = (
+    spokenTranscript.trim() ||
+    manualTranscriptInput.trim() ||
+    (activeMode === "speaking" ? speakingNotes.trim() : "")
+  ).trim();
 
   const pronunciationEval = useMemo(() => {
     if (!activeDrill) {
@@ -3338,6 +3342,29 @@ export function EnglishPracticeLab({
                 </p>
               </div>
             )}
+
+            {/* Quick manual transcript input for speaking mode when mic is unavailable */}
+            <div className="p-3 rounded-xl bg-[var(--surface-elevated,#f4f4f5)]/70 dark:bg-zinc-800/50 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700/70 space-y-2">
+              <label className="block text-[11px] font-semibold text-[var(--text-secondary,#52525b)] dark:text-zinc-400">
+                Kiểm tra phát âm từng từ khi không có micro (gõ lại câu bạn vừa đọc để tô màu Xanh/Vàng/Đỏ &amp; xem gợi ý lỗi người Việt):
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  data-testid="speaking-manual-transcript"
+                  value={manualTranscriptInput}
+                  onChange={e => setManualTranscriptInput(e.target.value)}
+                  placeholder={
+                    courseLang === "ja-JP"
+                      ? "Gõ hoặc dán câu tiếng Nhật (Hiragana/Katakana/Kanji) bạn vừa đọc để chấm từng ký tự..."
+                      : courseLang === "zh-CN"
+                      ? "Gõ hoặc dán câu tiếng Trung (Chữ Hán hoặc Pinyin) bạn vừa đọc để chấm từng ký tự..."
+                      : "Gõ hoặc dán câu tiếng Anh bạn vừa nói vào đây để chấm từng từ..."
+                  }
+                  className="flex-1 px-3 py-2 rounded-lg text-xs bg-[var(--surface-card,#ffffff)] dark:bg-zinc-900 border border-[var(--border-calm,#e4e4e7)] dark:border-zinc-700 min-h-[42px]"
+                />
+              </div>
+            </div>
 
             {/* Pronunciation Recognition Score (Word-by-word coloring + Vietnamese learner tips) */}
             {effectiveSpokenText && (

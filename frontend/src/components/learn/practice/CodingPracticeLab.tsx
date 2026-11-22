@@ -3497,6 +3497,20 @@ export function CodingPracticeLab({
       {/* ==================================================== */}
       {activeMainMode === "bug-hunter" && (
         <div data-testid="bug-hunter-container" className="p-4 sm:p-6 space-y-6">
+          {/* Nâng cấp Write-in: Trực tiếp sửa đoạn code lỗi + kiểm thử Web Worker / chuẩn hóa */}
+          <div className="pb-6 border-b border-zinc-200 dark:border-zinc-800">
+            <BugFixWriteInPanel
+              items={combinedBugFixItems}
+              lessonId={lessonId}
+              courseTitle={courseTitle}
+              lessonTitle={lessonTitle}
+              initialActivityKey={initialActivityKey}
+              onSaveToNotebook={onSaveToNotebook}
+              onCreateFlashcardQuick={onCreateFlashcardQuick}
+              onRecordAttempt={recordPracticeAttempt}
+            />
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-200 dark:border-zinc-800">
             <div>
               <span className="text-xs font-semibold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-mono">
@@ -3737,20 +3751,6 @@ export function CodingPracticeLab({
               </div>
             </div>
           )}
-
-          {/* Nâng cấp Write-in: Trực tiếp sửa đoạn code lỗi + kiểm thử Web Worker / chuẩn hóa */}
-          <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
-            <BugFixWriteInPanel
-              items={combinedBugFixItems}
-              lessonId={lessonId}
-              courseTitle={courseTitle}
-              lessonTitle={lessonTitle}
-              initialActivityKey={initialActivityKey}
-              onSaveToNotebook={onSaveToNotebook}
-              onCreateFlashcardQuick={onCreateFlashcardQuick}
-              onRecordAttempt={recordPracticeAttempt}
-            />
-          </div>
         </div>
       )}
 

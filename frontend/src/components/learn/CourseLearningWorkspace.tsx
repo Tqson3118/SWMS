@@ -199,6 +199,104 @@ interface QuickCheckQuestionState {
   submitting?: boolean;
   feedback?: string | null;
   errorMsg?: string | null;
+  isActivityQuiz?: boolean;
+}
+
+function parseActivityQuizQuestions(rawConfig: unknown): QuickCheckQuestionState[] {
+  let config = rawConfig;
+  if (typeof config === "string") {
+    try {
+      config = JSON.parse(config);
+    } catch {
+      return [];
+    }
+  }
+  if (!config || typeof config !== "object") return [];
+
+  let rawList: unknown[] = [];
+  if (Array.isArray(config)) {
+    rawList = config;
+  } else {
+    const obj = config as Record<string, unknown>;
+    if (Array.isArray(obj.questions)) rawList = obj.questions;
+    else if (Array.isArray(obj.items)) rawList = obj.items;
+    else if (Array.isArray(obj.drills)) rawList = obj.drills;
+  }
+
+  const result: QuickCheckQuestionState[] = [];
+  const letters = ["A", "B", "C", "D", "E", "F"];
+
+  for (const item of rawList) {
+    if (!item || typeof item !== "object") continue;
+    const rec = item as Record<string, unknown>;
+    const questionText =
+      typeof rec.question === "string"
+        ? rec.question
+        : extractPromptTextFromQuizItem(rec.prompt ?? rec.title);
+    if (!questionText || !questionText.trim()) continue;
+
+    const rawChoices = Array.isArray(rec.options)
+      ? rec.options
+      : Array.isArray(rec.choices)
+      ? rec.choices
+      : [];
+    if (!Array.isArray(rawChoices) || rawChoices.length < 2) continue;
+
+    let detectedCorrectKey: string | undefined = undefined;
+    const options: QuickCheckOption[] = rawChoices
+      .map((c, idx) => {
+        const fallbackKey = letters[idx] ?? String(idx + 1);
+        if (typeof c === "string") {
+          return { key: fallbackKey, text: c, submitValue: c };
+        }
+        if (c && typeof c === "object") {
+          const choiceRec = c as Record<string, unknown>;
+          const key = String(choiceRec.key ?? choiceRec.id ?? choiceRec.label ?? fallbackKey);
+          const text = String(choiceRec.text ?? choiceRec.label ?? choiceRec.value ?? "");
+          if (choiceRec.isCorrect === true || choiceRec.correct === true) {
+            detectedCorrectKey = key;
+          }
+          return { key, text, submitValue: String(choiceRec.key ?? choiceRec.id ?? text ?? key) };
+        }
+        return { key: fallbackKey, text: "", submitValue: fallbackKey };
+      })
+      .filter((opt) => opt.text.trim().length > 0);
+
+    if (options.length < 2) continue;
+
+    const explicitCorrectKey =
+      typeof rec.correctKey === "string"
+        ? rec.correctKey
+        : typeof rec.correctAnswer === "string"
+        ? rec.correctAnswer
+        : typeof rec.answer === "string"
+        ? rec.answer
+        : typeof rec.correctOption === "string"
+        ? rec.correctOption
+        : detectedCorrectKey ?? options[0].key;
+
+    const explanation =
+      typeof rec.explanation === "string"
+        ? rec.explanation
+        : typeof rec.feedback === "string"
+        ? rec.feedback
+        : undefined;
+
+    result.push({
+      id: String(rec.id ?? `act-quiz-${result.length}`),
+      source: "markdown",
+      isActivityQuiz: true,
+      question: questionText.trim(),
+      options,
+      correctKey: explicitCorrectKey,
+      explanation,
+      isCorrect: null,
+    });
+
+    if (result.length >= 2) break;
+  }
+
+  return result;
 }
 
 function extractPromptTextFromQuizItem(prompt: unknown): string {
@@ -843,55 +941,85 @@ export function CourseLearningWorkspace({
         }>;
         if (!Array.isArray(quizzes)) return;
         const lessonQuiz = quizzes.find((q) => q.lessonId === validLessonId && q.id);
-        if (!lessonQuiz?.id || cancelled) return;
+        let mappedQuizItems: QuickCheckQuestionState[] = [];
+        if (lessonQuiz?.id) {
+          const detailRes = await fetch(`/api/v1/practice-quizzes/${lessonQuiz.id}`, { headers });
+          if (detailRes.ok && !cancelled) {
+            const detail = (await detailRes.json().catch(() => null)) as {
+              id?: string;
+              items?: Array<{
+                id: string;
+                itemType?: string;
+                prompt?: unknown;
+                choices?: unknown;
+                userAnswer?: { text?: string } | null;
+                isCorrect?: boolean | null;
+                aiRubricFeedback?: { summary?: string } | null;
+              }>;
+            } | null;
 
-        const detailRes = await fetch(`/api/v1/practice-quizzes/${lessonQuiz.id}`, { headers });
-        if (!detailRes.ok || cancelled) return;
-        const detail = (await detailRes.json().catch(() => null)) as {
-          id?: string;
-          items?: Array<{
-            id: string;
-            itemType?: string;
-            prompt?: unknown;
-            choices?: unknown;
-            userAnswer?: { text?: string } | null;
-            isCorrect?: boolean | null;
-            aiRubricFeedback?: { summary?: string } | null;
-          }>;
-        } | null;
-
-        if (!detail || !Array.isArray(detail.items) || cancelled) return;
-
-        const mappedQuizItems: QuickCheckQuestionState[] = detail.items
-          .filter((item) => item.itemType === "multiple_choice")
-          .map((item) => {
-            const options = extractChoicesFromQuizItem(item.choices);
-            const question = extractPromptTextFromQuizItem(item.prompt);
-            const answeredText = item.userAnswer?.text;
-            const matchedOpt = answeredText
-              ? options.find(
-                  (o) =>
-                    o.key.toLowerCase() === answeredText.trim().toLowerCase() ||
-                    o.submitValue.toLowerCase() === answeredText.trim().toLowerCase() ||
-                    o.text.toLowerCase() === answeredText.trim().toLowerCase()
-                )
-              : undefined;
-            return {
-              id: item.id,
-              quizId: detail.id || lessonQuiz.id,
-              source: "quiz" as const,
-              question,
-              options,
-              selectedKey: matchedOpt?.key ?? (answeredText ? answeredText : undefined),
-              isCorrect: item.isCorrect ?? null,
-              feedback: item.aiRubricFeedback?.summary ?? null,
-            };
-          })
-          .filter((q) => q.question.trim().length > 0 && q.options.length >= 2)
-          .slice(0, 2);
+            if (detail && Array.isArray(detail.items)) {
+              mappedQuizItems = detail.items
+                .filter((item) => item.itemType === "multiple_choice")
+                .map((item) => {
+                  const options = extractChoicesFromQuizItem(item.choices);
+                  const question = extractPromptTextFromQuizItem(item.prompt);
+                  const answeredText = item.userAnswer?.text;
+                  const matchedOpt = answeredText
+                    ? options.find(
+                        (o) =>
+                          o.key.toLowerCase() === answeredText.trim().toLowerCase() ||
+                          o.submitValue.toLowerCase() === answeredText.trim().toLowerCase() ||
+                          o.text.toLowerCase() === answeredText.trim().toLowerCase()
+                      )
+                    : undefined;
+                  return {
+                    id: item.id,
+                    quizId: detail.id || lessonQuiz.id,
+                    source: "quiz" as const,
+                    question,
+                    options,
+                    selectedKey: matchedOpt?.key ?? (answeredText ? answeredText : undefined),
+                    isCorrect: item.isCorrect ?? null,
+                    feedback: item.aiRubricFeedback?.summary ?? null,
+                  };
+                })
+                .filter((q) => q.question.trim().length > 0 && q.options.length >= 2)
+                .slice(0, 2);
+            }
+          }
+        }
 
         if (mappedQuizItems.length > 0 && !cancelled) {
           setQuickCheckItems(mappedQuizItems);
+          return;
+        }
+
+        // Fallback: If no practice-quizzes items found, query practice activities
+        if (!cancelled) {
+          const actRes = await fetch(
+            `/api/v1/practice/activities?courseId=${encodeURIComponent(validCourseId)}&lessonId=${encodeURIComponent(validLessonId)}`,
+            { headers }
+          );
+          if (actRes.ok && !cancelled) {
+            const activities = (await actRes.json().catch(() => [])) as Array<{
+              id?: string;
+              type?: string;
+              configJson?: unknown;
+            }>;
+            if (Array.isArray(activities)) {
+              const quizAct = activities.find(
+                (a) => a.type?.toLowerCase() === "quiz" && a.configJson
+              );
+              if (quizAct) {
+                const actItems = parseActivityQuizQuestions(quizAct.configJson);
+                if (actItems.length > 0 && !cancelled) {
+                  setQuickCheckItems(actItems);
+                  return;
+                }
+              }
+            }
+          }
         }
       } catch {
         // Keep extracted lesson concept check if optional quiz fetch fails
@@ -914,7 +1042,11 @@ export function CourseLearningWorkspace({
     if (!target || target.submitting) return;
 
     if (target.source === "markdown") {
-      const ok = Boolean(target.correctKey && option.key === target.correctKey);
+      const ok = Boolean(
+        target.correctKey &&
+        (option.key.trim().toLowerCase() === target.correctKey.trim().toLowerCase() ||
+         option.submitValue.trim().toLowerCase() === target.correctKey.trim().toLowerCase())
+      );
       setQuickCheckItems((prev) =>
         prev.map((q) =>
           q.id === questionId
@@ -922,7 +1054,13 @@ export function CourseLearningWorkspace({
                 ...q,
                 selectedKey: option.key,
                 isCorrect: ok,
-                feedback: q.explanation ?? null,
+                feedback:
+                  q.explanation ??
+                  (ok
+                    ? "Chính xác! Bạn đã nắm vững nội dung bài học."
+                    : target.correctKey
+                    ? `Chưa chính xác. Đáp án đúng là ${target.correctKey}.`
+                    : null),
                 errorMsg: null,
               }
             : q
@@ -2248,8 +2386,8 @@ export function CourseLearningWorkspace({
         <main className="flex-1 min-w-[320px] flex flex-col bg-[var(--surface-card)] overflow-hidden relative">
           {/* Workspace Switcher Bar: Bài giảng / Tài liệu PDF / Song song */}
           {(hasLesson || hasPdf || availableDocs.length > 0) && (
-            <div className="h-11 px-2 sm:px-4 border-b border-border-subtle bg-bg-secondary/30 flex items-center justify-between gap-1.5 sm:gap-2 shrink-0 overflow-x-auto no-scrollbar swms-thin-scrollbar max-w-full">
-              <div className="inline-flex items-center rounded-md border border-border bg-bg-primary p-0.5 flex-nowrap gap-0.5 shrink-0 overflow-x-auto no-scrollbar">
+            <div className="min-h-11 py-1.5 px-2 sm:px-4 border-b border-border-subtle bg-bg-secondary/30 flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 shrink-0 max-w-full">
+              <div className="inline-flex items-center rounded-md border border-border bg-bg-primary p-0.5 flex-nowrap gap-0.5 shrink-0 overflow-x-auto no-scrollbar max-w-full">
                 {hasLesson && (
                   <button
                     type="button"
@@ -2312,9 +2450,9 @@ export function CourseLearningWorkspace({
                 )}
               </div>
 
-              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 max-w-full">
                 {availableDocs.length > 0 ? (
-                  <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                  <div className={`${centerTab === "lesson" ? "hidden sm:flex" : "flex"} items-center gap-1 sm:gap-2 shrink-0 min-w-0 max-w-full`}>
                     <label htmlFor="learn-pdf-selector" className="text-[11px] text-text-tertiary hidden sm:inline">
                       PDF tham chiếu:
                     </label>
@@ -2645,7 +2783,7 @@ export function CourseLearningWorkspace({
                                 Kiểm tra nhanh (1–2 câu)
                               </h2>
                               <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--surface-2)] text-text-secondary border border-[var(--border-calm)]">
-                                {quickCheckItems.some((q) => q.source === "quiz")
+                                {quickCheckItems.some((q) => q.source === "quiz" || q.isActivityQuiz)
                                   ? "Quiz bài học"
                                   : "Ôn khái niệm chính"}
                               </span>

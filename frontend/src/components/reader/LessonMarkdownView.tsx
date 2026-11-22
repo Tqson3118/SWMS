@@ -1436,7 +1436,7 @@ function InlineSpeechPracticeBar({ items }: { items: SpeechPracticeItem[] }) {
       </div>
 
       {items.length > 1 && (
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
+        <div className="flex flex-wrap items-center gap-1.5 pb-1 max-w-full">
           {items.slice(0, 10).map((it, idx) => (
             <button
               key={idx}
@@ -2621,7 +2621,7 @@ export function LessonMarkdownView({
               Sẵn sàng kiểm tra kiến thức bài học?
             </p>
             <p className="text-slate-600 dark:text-slate-400 text-[11px] mt-0.5">
-              Chuyển sang tab <strong>Thực hành</strong> ở phía trên để làm bài tập tương tác, sửa lỗi code hoặc luyện nói.
+              Bấm <strong>Mở Phòng Thực Hành</strong> để chuyển sang không gian luyện tập toàn màn hình với đầy đủ bài tập tương tác, sửa lỗi code và luyện nói.
             </p>
           </div>
         </div>

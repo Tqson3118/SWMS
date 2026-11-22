@@ -3065,7 +3065,7 @@ export function PortfolioSimulatorLab({
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div data-testid="portfolio-simulator-lab" className="space-y-6 animate-in fade-in duration-200">
       {/* KHUYẾN CÁO BẮT BUỘC ZERO-FACADE */}
       <div className="p-3.5 rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 text-xs font-semibold flex items-center gap-2.5 shadow-xs">
         <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0" />
@@ -3448,7 +3448,7 @@ export function BehavioralFinanceQuizLab({
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div data-testid="behavioral-finance-lab" className="space-y-6 animate-in fade-in duration-200">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 dark:border-zinc-800 pb-3">
         <div>
           <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">

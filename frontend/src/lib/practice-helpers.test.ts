@@ -190,4 +190,25 @@ runTest("resolvePracticeSelection & extractQuickCheckQuestions work accurately f
   assert.ok(zhQs.every((q) => q.options.length === 4));
 });
 
+runTest("extractQuickCheckQuestions ignores structural lesson headings and strips list/bullet prefixes", () => {
+  const structureMd = `
+# Bài 2: Giao tiếp văn phòng
+- **1. Mục tiêu bài học**: Nắm vững các mẫu câu chào hỏi và hẹn gặp đối tác chuyên nghiệp.
+- **2. Đoạn hội thoại mẫu**: Lắng nghe và thực hành theo ngữ cảnh thực tế tại cuộc họp.
+- **Từ vựng**: Tổng hợp các từ mới liên quan đến đàm phán hợp đồng.
+- **Ngữ pháp**: Các thì cơ bản và câu điều kiện loại 1.
+- **Lỗi phát âm**: Không nuốt âm đuôi và phát âm chuẩn phụ âm cuối.
+- **Ví dụ**: Minh họa trường hợp gọi điện hẹn lịch họp tuần tới.
+- **Fruitful Collaboration**: Sự cộng tác mang lại nhiều kết quả tích cực và giá trị chung cho cả hai bên.
+- **Follow-up Meeting**: Cuộc họp tiếp nối nhằm rà soát tiến độ và tháo gỡ các vướng mắc phát sinh.
+`;
+  const qs = extractQuickCheckQuestions(structureMd, "Bài 2: Giao tiếp văn phòng");
+  assert.equal(qs.length, 2);
+  assert.ok(qs[0].question.includes("Fruitful Collaboration"));
+  assert.ok(qs[1].question.includes("Follow-up Meeting"));
+  assert.ok(!qs.some((q) => q.question.includes("Mục tiêu bài học")));
+  assert.ok(!qs.some((q) => q.question.includes("Đoạn hội thoại mẫu")));
+  assert.ok(!qs.some((q) => q.question.includes("Từ vựng")));
+});
+
 console.log(`\n✅ All ${passed} practice-helpers unit tests passed!`);
