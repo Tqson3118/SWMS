@@ -623,4 +623,161 @@ public class PracticeEngineTests
         Assert.Contains("Nội dung do người dùng tự biên soạn tại Studio", reloadedLesson.ContentMarkdown);
         Assert.DoesNotContain("<!-- studxy-en-v2 -->", reloadedLesson.ContentMarkdown);
     }
+
+    [Fact]
+    public async Task Test13_PracticeStats_NeedsReviewLifecycle_CourseSummaries_And_FsrsDueCount_ReflectRealDb()
+    {
+        await using var conn = new SqliteConnection("Data Source=:memory:");
+        await conn.OpenAsync();
+
+        await using var factory = CreateRealSqliteFactory(conn);
+        using var rootClient = factory.CreateClient();
+
+        // 1. Register an isolated fresh user so counts are 100% deterministic
+        var regResp = await rootClient.PostAsJsonAsync("/api/v1/auth/register",
+            new RegisterRequest($"hub.user.{Guid.NewGuid():N}@studxy.vn", "Studxy@2026", "Hub Tester"));
+        Assert.Equal(HttpStatusCode.OK, regResp.StatusCode);
+        var regJson = await regResp.Content.ReadFromJsonAsync<JsonElement>();
+        var token = regJson.GetProperty("accessToken").GetString()!;
+        var userId = regJson.GetProperty("user").GetProperty("id").GetGuid();
+
+        using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        // 2. Seed flashcards (2 due now, 1 due next week, 1 archived due now) + resolve a real PracticeActivity
+        Guid realDictationActivityId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
+            var now = DateTimeOffset.UtcNow;
+
+            var act = await db.PracticeActivities.FirstAsync(a =>
+                a.CourseId == SeedDataInitializer.EnglishCourseId &&
+                a.LessonId == SeedDataInitializer.EnglishLesson11Id &&
+                a.Type == "dictation");
+            realDictationActivityId = act.Id;
+
+            db.Flashcards.AddRange(
+                new Flashcard
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    LessonId = SeedDataInitializer.EnglishLesson11Id,
+                    FrontAstJson = "{\"text\":\"Due 1\"}",
+                    BackAstJson = "{\"text\":\"Answer 1\"}",
+                    DueAt = now.AddMinutes(-10),
+                    IsArchived = false
+                },
+                new Flashcard
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    LessonId = SeedDataInitializer.EnglishLesson11Id,
+                    FrontAstJson = "{\"text\":\"Due 2\"}",
+                    BackAstJson = "{\"text\":\"Answer 2\"}",
+                    DueAt = now.AddMinutes(-1),
+                    IsArchived = false
+                },
+                new Flashcard
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    LessonId = SeedDataInitializer.EnglishLesson11Id,
+                    FrontAstJson = "{\"text\":\"Future card\"}",
+                    BackAstJson = "{\"text\":\"Not due yet\"}",
+                    DueAt = now.AddDays(5),
+                    IsArchived = false
+                },
+                new Flashcard
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    LessonId = SeedDataInitializer.EnglishLesson11Id,
+                    FrontAstJson = "{\"text\":\"Archived due\"}",
+                    BackAstJson = "{\"text\":\"Ignored\"}",
+                    DueAt = now.AddMinutes(-30),
+                    IsArchived = true
+                });
+            await db.SaveChangesAsync();
+        }
+
+        // 3. Submit a FAILING attempt in Coding course -> must appear in needsReview with courseTitle & lessonTitle
+        var failCodingReq = new RecordPracticeAttemptRequest(
+            ActivityId: null,
+            CourseId: SeedDataInitializer.CodingCourseId,
+            LessonId: SeedDataInitializer.CodingLesson11Id,
+            ActivityType: "js_sandbox",
+            ActivityKey: "coding-fail-retry-key",
+            ActivityTitle: "JS Sandbox Two Sum",
+            Score: 40,
+            MaxScore: 100,
+            IsPassed: false
+        );
+        var failRes = await client.PostAsJsonAsync("/api/v1/practice/attempts", failCodingReq);
+        Assert.Equal(HttpStatusCode.OK, failRes.StatusCode);
+
+        var statsAfterFailRes = await client.GetAsync("/api/v1/practice/stats");
+        Assert.Equal(HttpStatusCode.OK, statsAfterFailRes.StatusCode);
+        var statsAfterFail = await statsAfterFailRes.Content.ReadFromJsonAsync<JsonElement>();
+
+        Assert.Equal(2, statsAfterFail.GetProperty("fsrsDueCount").GetInt32());
+        Assert.Equal(1, statsAfterFail.GetProperty("totalAttempts").GetInt32());
+
+        var reviewAfterFail = statsAfterFail.GetProperty("needsReview").EnumerateArray().ToList();
+        var codingItem = reviewAfterFail.FirstOrDefault(x => x.GetProperty("activityKey").GetString() == "coding-fail-retry-key");
+        Assert.True(codingItem.ValueKind != JsonValueKind.Undefined, "Failed coding activity should appear in needsReview");
+        Assert.False(string.IsNullOrWhiteSpace(codingItem.GetProperty("courseTitle").GetString()));
+        Assert.False(string.IsNullOrWhiteSpace(codingItem.GetProperty("lessonTitle").GetString()));
+        Assert.Equal(1, codingItem.GetProperty("attemptCount").GetInt32());
+
+        // 4. Retry the same activityKey and PASS + submit a passed attempt for a seeded English PracticeActivity
+        await Task.Delay(20);
+        var passCodingReq = failCodingReq with { Score = 90, IsPassed = true };
+        var passCodingRes = await client.PostAsJsonAsync("/api/v1/practice/attempts", passCodingReq);
+        Assert.Equal(HttpStatusCode.OK, passCodingRes.StatusCode);
+
+        var passEnglishActReq = new RecordPracticeAttemptRequest(
+            ActivityId: realDictationActivityId,
+            CourseId: SeedDataInitializer.EnglishCourseId,
+            LessonId: SeedDataInitializer.EnglishLesson11Id,
+            ActivityType: "dictation",
+            ActivityKey: realDictationActivityId.ToString(),
+            ActivityTitle: "English Dictation 1.1",
+            Score: 95,
+            MaxScore: 100,
+            IsPassed: true
+        );
+        var passEngRes = await client.PostAsJsonAsync("/api/v1/practice/attempts", passEnglishActReq);
+        Assert.Equal(HttpStatusCode.OK, passEngRes.StatusCode);
+
+        // 5. Verify needsReview no longer contains the passed item, and courseSummaries reflects real DB counts
+        var statsAfterPassRes = await client.GetAsync("/api/v1/practice/stats");
+        Assert.Equal(HttpStatusCode.OK, statsAfterPassRes.StatusCode);
+        var statsAfterPass = await statsAfterPassRes.Content.ReadFromJsonAsync<JsonElement>();
+
+        Assert.Equal(3, statsAfterPass.GetProperty("totalAttempts").GetInt32());
+        Assert.Equal(2, statsAfterPass.GetProperty("passedCount").GetInt32());
+        Assert.Equal(2, statsAfterPass.GetProperty("fsrsDueCount").GetInt32());
+
+        var reviewAfterPass = statsAfterPass.GetProperty("needsReview").EnumerateArray().ToList();
+        Assert.DoesNotContain(reviewAfterPass, x => x.GetProperty("activityKey").GetString() == "coding-fail-retry-key");
+
+        var courseSummaries = statsAfterPass.GetProperty("courseSummaries").EnumerateArray().ToList();
+        Assert.NotEmpty(courseSummaries);
+
+        var englishSummary = courseSummaries.FirstOrDefault(c => c.GetProperty("courseId").GetGuid() == SeedDataInitializer.EnglishCourseId);
+        Assert.True(englishSummary.ValueKind != JsonValueKind.Undefined);
+        Assert.True(englishSummary.GetProperty("totalActivities").GetInt32() >= 8);
+        Assert.Equal(1, englishSummary.GetProperty("passedActivities").GetInt32());
+        Assert.Equal(95.0, englishSummary.GetProperty("averageScore").GetDouble());
+        Assert.True(englishSummary.GetProperty("lastAttemptAt").ValueKind != JsonValueKind.Null);
+
+        var engLessons = englishSummary.GetProperty("lessons").EnumerateArray().ToList();
+        var l11 = engLessons.FirstOrDefault(l => l.GetProperty("lessonId").GetGuid() == SeedDataInitializer.EnglishLesson11Id);
+        Assert.True(l11.ValueKind != JsonValueKind.Undefined);
+        Assert.False(string.IsNullOrWhiteSpace(l11.GetProperty("title").GetString()));
+        Assert.False(string.IsNullOrWhiteSpace(l11.GetProperty("chapterTitle").GetString()));
+        Assert.True(l11.GetProperty("activityCount").GetInt32() >= 8);
+        Assert.Equal(1, l11.GetProperty("passedCount").GetInt32());
+    }
 }

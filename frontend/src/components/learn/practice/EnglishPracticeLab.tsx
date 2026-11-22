@@ -70,6 +70,7 @@ import {
   VietnamesePronunciationTipsCard,
   type AutoSaveFsrsCandidate,
 } from "./LanguageWriteInViews";
+import { resolvePracticeSelection } from "@/lib/practice-helpers";
 
 export interface PracticeModuleProps {
   courseId: string;
@@ -79,6 +80,8 @@ export interface PracticeModuleProps {
   lessonMarkdown: string;
   onSaveToNotebook: (textToAppend: string) => Promise<void>;
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
+  initialActivityType?: string | null;
+  initialActivityKey?: string | null;
 }
 
 export type EnglishPracticeLabProps = PracticeModuleProps;
@@ -682,7 +685,9 @@ export function EnglishPracticeLab({
   lessonTitle,
   lessonMarkdown,
   onSaveToNotebook,
-  onCreateFlashcardQuick
+  onCreateFlashcardQuick,
+  initialActivityType,
+  initialActivityKey,
 }: PracticeModuleProps) {
   // Extract adaptive drills
   const { drills, detectedTopic } = useMemo(
@@ -709,7 +714,23 @@ export function EnglishPracticeLab({
   const [audioErrorNotice, setAudioErrorNotice] = useState<string | null>(null);
 
   // Main UI State
-  const [activeMode, setActiveMode] = useState<PracticeMode>("shadowing");
+  const resolvedInitialTab = useMemo(() => {
+    const resolved = resolvePracticeSelection(
+      initialActivityType,
+      initialActivityKey,
+      courseTitle,
+      lessonTitle,
+      lessonMarkdown
+    );
+    return resolved?.labMode === "english" && resolved.englishTab ? resolved.englishTab : null;
+  }, [initialActivityType, initialActivityKey, courseTitle, lessonTitle, lessonMarkdown]);
+
+  const [activeMode, setActiveMode] = useState<PracticeMode>(resolvedInitialTab ?? "shadowing");
+  useEffect(() => {
+    if (resolvedInitialTab) {
+      setActiveMode(resolvedInitialTab);
+    }
+  }, [resolvedInitialTab]);
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>("all");
   const [activeDrillIndex, setActiveDrillIndex] = useState(0);
   const [sessionItemStatus, setSessionItemStatus] = useState<Record<string, "passed" | "attempted">>({});
@@ -960,11 +981,25 @@ export function EnglishPracticeLab({
     filteredQuizQuestions,
   ]);
 
-  // Reset index when switching mode or difficulty filter
+  // Reset index when switching mode or difficulty filter (and match initialActivityKey if provided)
   useEffect(() => {
     setActiveDrillIndex(0);
     setCurrentQuizIdx(0);
   }, [activeMode, difficultyFilter]);
+
+  useEffect(() => {
+    if (!initialActivityKey || currentTabMeta.length === 0) return;
+    const normKey = initialActivityKey.trim().toLowerCase();
+    const matchIdx = currentTabMeta.findIndex(
+      (item) =>
+        item.statusKey.toLowerCase() === normKey ||
+        item.id.toLowerCase() === normKey ||
+        normKey.endsWith(`-${item.id.toLowerCase()}`)
+    );
+    if (matchIdx >= 0) {
+      setActiveDrillIndex(matchIdx);
+    }
+  }, [initialActivityKey, currentTabMeta]);
 
   const safeActiveIndex =
     currentTabMeta.length > 0 ? Math.min(activeDrillIndex, currentTabMeta.length - 1) : 0;

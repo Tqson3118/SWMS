@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { invalidateDashboardCache } from "@/lib/api-client";
+import { resolvePracticeSelection } from "@/lib/practice-helpers";
 
 export interface PracticeModuleProps {
   courseId: string;
@@ -48,6 +49,8 @@ export interface PracticeModuleProps {
   lessonMarkdown: string;
   onSaveToNotebook: (textToAppend: string) => Promise<void>;
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
+  initialActivityType?: string | null;
+  initialActivityKey?: string | null;
 }
 
 export type FinancePracticeLabProps = PracticeModuleProps;
@@ -3525,6 +3528,8 @@ export function FinancePracticeLab({
   lessonMarkdown,
   onSaveToNotebook,
   onCreateFlashcardQuick,
+  initialActivityType,
+  initialActivityKey,
 }: PracticeModuleProps) {
   // Tự động nhận diện công cụ phù hợp với nội dung bài học
   const defaultTab = useMemo(
@@ -3532,15 +3537,26 @@ export function FinancePracticeLab({
     [courseTitle, lessonTitle, lessonMarkdown]
   );
 
-  const [activeTab, setActiveTab] = useState<ActiveTab>(defaultTab);
+  const resolvedInitialTab = useMemo(() => {
+    const resolved = resolvePracticeSelection(
+      initialActivityType,
+      initialActivityKey,
+      courseTitle,
+      lessonTitle,
+      lessonMarkdown
+    );
+    return resolved?.labMode === "finance" && resolved.financeTab ? resolved.financeTab : null;
+  }, [initialActivityType, initialActivityKey, courseTitle, lessonTitle, lessonMarkdown]);
+
+  const [activeTab, setActiveTab] = useState<ActiveTab>(resolvedInitialTab ?? defaultTab);
   const [dbActivities, setDbActivities] = useState<any[]>([]);
   const [practiceAttempts, setPracticeAttempts] = useState<any[]>([]);
   const [isLoadingBackend, setIsLoadingBackend] = useState(false);
 
-  // Cập nhật tab khi đổi bài học
+  // Cập nhật tab khi đổi bài học hoặc có tham số điều hướng
   useEffect(() => {
-    setActiveTab(defaultTab);
-  }, [defaultTab]);
+    setActiveTab(resolvedInitialTab ?? defaultTab);
+  }, [resolvedInitialTab, defaultTab]);
 
   useEffect(() => {
     let isMounted = true;

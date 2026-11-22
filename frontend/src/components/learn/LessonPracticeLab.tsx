@@ -28,6 +28,7 @@ import {
 import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { invalidateDashboardCache } from "@/lib/api-client";
 import { formatCleanQuizPrompt } from "@/lib/course-helpers";
+import { resolvePracticeSelection } from "@/lib/practice-helpers";
 
 export interface LessonPracticeLabProps {
   courseId: string;
@@ -38,6 +39,8 @@ export interface LessonPracticeLabProps {
   onSaveToNotebook: (textToAppend: string) => Promise<void>;
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
   isEmbedded?: boolean;
+  initialActivityType?: string | null;
+  initialActivityKey?: string | null;
 }
 
 type PracticeMode = "english" | "code" | "finance" | "recall";
@@ -343,6 +346,8 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
     onSaveToNotebook,
     onCreateFlashcardQuick,
     isEmbedded = false,
+    initialActivityType,
+    initialActivityKey,
   } = props;
   const { activeUserHeaderId } = useWorkspaceStore();
 
@@ -351,10 +356,22 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
     [courseTitle, lessonTitle, lessonMarkdown]
   );
 
-  const [mode, setMode] = useState<PracticeMode>(defaultMode);
+  const resolvedTarget = useMemo(
+    () =>
+      resolvePracticeSelection(
+        initialActivityType,
+        initialActivityKey,
+        courseTitle,
+        lessonTitle,
+        lessonMarkdown
+      ),
+    [initialActivityType, initialActivityKey, courseTitle, lessonTitle, lessonMarkdown]
+  );
+
+  const [mode, setMode] = useState<PracticeMode>(resolvedTarget?.labMode ?? defaultMode);
   useEffect(() => {
-    setMode(defaultMode);
-  }, [defaultMode, lessonTitle]);
+    setMode(resolvedTarget?.labMode ?? defaultMode);
+  }, [resolvedTarget, defaultMode, lessonTitle]);
 
   const [labMessage, setLabMessage] = useState<string | null>(null);
   const notify = useCallback((msg: string) => {
@@ -617,12 +634,14 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
   }, [courseTitle, lessonTitle, cleanMarkdown]);
 
   const [recallSubMode, setRecallSubMode] = useState<"psychology" | "feynman">(
-    isPsychologyContext ? "psychology" : "feynman"
+    resolvedTarget?.recallSubMode ?? (isPsychologyContext ? "psychology" : "feynman")
   );
 
   useEffect(() => {
-    setRecallSubMode(isPsychologyContext ? "psychology" : "feynman");
-  }, [isPsychologyContext, lessonTitle]);
+    setRecallSubMode(
+      resolvedTarget?.recallSubMode ?? (isPsychologyContext ? "psychology" : "feynman")
+    );
+  }, [resolvedTarget, isPsychologyContext, lessonTitle]);
 
   const keyTerms = useMemo(
     () => extractKeyTerms(cleanMarkdown, lessonTitle),

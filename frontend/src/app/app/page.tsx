@@ -35,6 +35,7 @@ import {
   sortCoursesSmartly,
   type CourseLike,
 } from "@/lib/course-helpers";
+import { buildPracticeLessonHref } from "@/lib/practice-helpers";
 import { LearningRoadmapsShowcase } from "@/components/dashboard/LearningRoadmapsShowcase";
 import {
   getVietnameseGreetingName,
@@ -565,10 +566,10 @@ export default function DashboardPage() {
               </div>
             </div>
             <Link
-              href="/app/courses"
+              href="/app/practice"
               className="text-xs font-semibold text-accent hover:underline inline-flex items-center gap-1 self-start sm:self-auto"
             >
-              <span>Vào phòng luyện tập khóa học</span>
+              <span>Mở Hub Luyện tập</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -642,11 +643,11 @@ export default function DashboardPage() {
                 Bạn chưa có lượt luyện tập tương tác nào
               </h4>
               <p className="text-xs text-text-tertiary max-w-md mx-auto">
-                Hãy mở một bài học trong khóa học của bạn và chọn tab <strong>Luyện tập</strong> để thực hành Sandbox Web Worker, mô phỏng danh mục tài chính hoặc bài tập nhận thức Stroop.
+                Hãy mở Hub <strong>Luyện tập</strong> hoặc chọn bài học trong khóa học của bạn để thực hành Sandbox Web Worker, mô phỏng danh mục tài chính hoặc bài tập nhận thức Stroop.
               </p>
               <div>
                 <Link
-                  href="/app/courses"
+                  href="/app/practice"
                   className="px-4 py-2 rounded-lg bg-accent text-accent-contrast text-xs font-semibold inline-flex items-center gap-1.5 hover:opacity-90 transition"
                 >
                   <span>Bắt đầu luyện tập ngay</span>
@@ -755,7 +756,12 @@ export default function DashboardPage() {
                           </span>
                         </div>
                         <Link
-                          href={`/app/courses/${item.courseId}/learn${item.lessonId ? `?lessonId=${item.lessonId}` : ""}#practice`}
+                          href={buildPracticeLessonHref(
+                            item.courseId,
+                            item.lessonId,
+                            item.activityType,
+                            item.activityKey
+                          )}
                           className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-white text-[11px] font-bold shrink-0 transition"
                         >
                           Luyện lại &rarr;
@@ -944,7 +950,7 @@ export default function DashboardPage() {
                   </>
                 ) : nextLessonInfo ? (
                   <>
-                    Hoàn thành bài &ldquo;{nextLessonInfo.title}&rdquo; và thử tab Thực hành.
+                    Hoàn thành bài &ldquo;{nextLessonInfo.title}&rdquo; và luyện trong Hub Thực hành.
                   </>
                 ) : (
                   <>Chọn một khóa học bên dưới để củng cố kiến thức qua bài kiểm tra.</>

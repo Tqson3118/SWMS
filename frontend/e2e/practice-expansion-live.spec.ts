@@ -40,14 +40,18 @@ test.describe("Practice Expansion Live End-to-End Suite (NO MOCKS)", () => {
     expect(userId).toBeTruthy();
 
     // -----------------------------------------------------------------------
-    // SCENARIO 1: English Course (Dictation & Word Map)
+    // SCENARIO 1: English Course (Dictation & Word Map) via Fullscreen Practice
     // -----------------------------------------------------------------------
     await page.goto(`/app/courses/${ENGLISH_COURSE_ID}/learn`);
     await page.waitForLoadState("domcontentloaded");
 
-    const practiceTabBtn = page.getByTestId("center-tab-practice");
-    await expect(practiceTabBtn).toBeVisible({ timeout: 15000 });
-    await practiceTabBtn.click();
+    await expect(page.getByTestId("center-tab-practice")).toHaveCount(0);
+    await expect(page.getByTestId("lesson-quick-check-section")).toBeVisible({ timeout: 15000 });
+    const engGoPracticeBtn = page.getByTestId("go-to-lesson-practice-btn");
+    await expect(engGoPracticeBtn).toBeVisible({ timeout: 15000 });
+    await engGoPracticeBtn.click();
+    await page.waitForURL(`**/app/practice/${ENGLISH_COURSE_ID}/**`, { timeout: 15000 });
+    await expect(page.getByTestId("practice-back-to-lesson-btn")).toBeVisible({ timeout: 10000 });
 
     await expect(page.getByTestId("english-practice-lab")).toBeVisible({ timeout: 15000 });
 
@@ -86,9 +90,10 @@ test.describe("Practice Expansion Live End-to-End Suite (NO MOCKS)", () => {
     await page.goto(`/app/courses/${CODING_COURSE_ID}/learn`);
     await page.waitForLoadState("domcontentloaded");
 
-    const codingPracticeBtn = page.getByTestId("center-tab-practice");
+    const codingPracticeBtn = page.getByTestId("go-to-lesson-practice-btn");
     await expect(codingPracticeBtn).toBeVisible({ timeout: 15000 });
     await codingPracticeBtn.click();
+    await page.waitForURL(`**/app/practice/${CODING_COURSE_ID}/**`, { timeout: 15000 });
 
     await expect(page.getByTestId("coding-practice-lab")).toBeVisible({ timeout: 15000 });
 
@@ -116,9 +121,10 @@ test.describe("Practice Expansion Live End-to-End Suite (NO MOCKS)", () => {
     await page.goto(`/app/courses/${INVESTING_COURSE_ID}/learn`);
     await page.waitForLoadState("domcontentloaded");
 
-    const financePracticeBtn = page.getByTestId("center-tab-practice");
+    const financePracticeBtn = page.getByTestId("go-to-lesson-practice-btn");
     await expect(financePracticeBtn).toBeVisible({ timeout: 15000 });
     await financePracticeBtn.click();
+    await page.waitForURL(`**/app/practice/${INVESTING_COURSE_ID}/**`, { timeout: 15000 });
 
     await expect(page.getByTestId("finance-practice-lab")).toBeVisible({ timeout: 15000 });
 
@@ -150,9 +156,10 @@ test.describe("Practice Expansion Live End-to-End Suite (NO MOCKS)", () => {
     await page.goto(`/app/courses/${PSYCHOLOGY_COURSE_ID}/learn`);
     await page.waitForLoadState("domcontentloaded");
 
-    const psychPracticeBtn = page.getByTestId("center-tab-practice");
+    const psychPracticeBtn = page.getByTestId("go-to-lesson-practice-btn");
     await expect(psychPracticeBtn).toBeVisible({ timeout: 15000 });
     await psychPracticeBtn.click();
+    await page.waitForURL(`**/app/practice/${PSYCHOLOGY_COURSE_ID}/**`, { timeout: 15000 });
 
     await expect(page.getByTestId("psychology-practice-lab")).toBeVisible({ timeout: 15000 });
 
@@ -190,5 +197,24 @@ test.describe("Practice Expansion Live End-to-End Suite (NO MOCKS)", () => {
     // Verify total attempts tile shows at least 1 lượt (in fact >= 2 real attempts saved!)
     const statsContainer = page.getByTestId("today-practice-stats");
     await expect(statsContainer.getByText(/[1-9]\d*\s*lượt/)).toBeVisible({ timeout: 10000 });
+
+    // -----------------------------------------------------------------------
+    // SCENARIO 6: Navigate to dedicated Hub /app/practice & verify real data
+    // -----------------------------------------------------------------------
+    const [hubStatsRes] = await Promise.all([
+      page.waitForResponse(
+        (res) => res.url().includes("/api/v1/practice/stats") && res.status() === 200,
+        { timeout: 15000 }
+      ),
+      page.goto("/app/practice"),
+    ]);
+    expect(hubStatsRes.status()).toBe(200);
+
+    await expect(page.getByRole("heading", { name: "Hub Luyện tập" })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("practice-hub-error")).toHaveCount(0);
+    await expect(page.getByTestId("practice-hub-stats")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId("practice-hub-stats").getByText(/[1-9]\d*/).first()).toBeVisible();
+    await expect(page.getByTestId("practice-hub-review-queue")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId("practice-hub-courses")).toBeVisible({ timeout: 10000 });
   });
 });

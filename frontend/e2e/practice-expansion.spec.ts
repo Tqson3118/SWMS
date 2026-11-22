@@ -1,9 +1,77 @@
 import { test, expect } from "./fixtures/test-base";
+import type { Page } from "@playwright/test";
 
 const INVESTING_COURSE_ID = "c0000000-0000-0000-0000-000000002224";
 const CODING_COURSE_ID = "c0000000-0000-0000-0000-000000002225";
 const PSYCHOLOGY_COURSE_ID = "c0000000-0000-0000-0000-000000002226";
 const ENGLISH_COURSE_ID = "c0000000-0000-0000-0000-000000002223";
+
+async function mockCourseAndLessonRoutes(
+  page: Page,
+  coursePayload: Record<string, unknown>,
+  lessonPayload: { id: string; title: string; contentMarkdown: string }
+) {
+  const courseId = String(coursePayload.id);
+  await page.route("**/api/v1/documents*", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([]),
+    });
+  });
+  await page.route(`**/api/v1/courses/${courseId}*`, async (route) => {
+    if (route.request().url().includes("/enroll")) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ enrolled: true }),
+      });
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(coursePayload),
+    });
+  });
+  await page.route(`**/api/v1/lessons/${lessonPayload.id}*`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ...lessonPayload,
+        courseId,
+        annotations: [],
+      }),
+    });
+  });
+  await page.route("**/api/v1/notebooks/by-source*", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: `nb-${lessonPayload.id}`,
+        title: lessonPayload.title,
+        version: 1,
+        contentAst: { type: "doc", content: [] },
+      }),
+    });
+  });
+  await page.route("**/api/v1/flashcards/due*", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([]),
+    });
+  });
+  await page.route("**/api/v1/practice-quizzes*", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([]),
+    });
+  });
+}
 
 test.describe("Practice Expansion & Interactive Roadmaps (UX Suite)", () => {
   test.beforeEach(async ({ page }) => {
@@ -82,40 +150,36 @@ test.describe("Practice Expansion & Interactive Roadmaps (UX Suite)", () => {
       }
     });
 
-    // Mock Course & Learn page
-    await page.route(`**/api/v1/courses/${ENGLISH_COURSE_ID}*`, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          id: ENGLISH_COURSE_ID,
-          title: "Tiếng Anh Giao Tiếp Thực Hành & Phát Âm Chuẩn",
-          slug: "tieng-anh-giao-tiep-thuc-hanh",
-          chapters: [
-            {
-              id: "chap-1",
-              title: "Chương 1: Phản Xạ Giao Tiếp Nơi Công Sở",
-              lessons: [
-                {
-                  id: "les-eng-1",
-                  title: "Bài 1: Lắng Nghe Chủ Động & Trình Bày Ý Tưởng",
-                  contentMarkdown: "# Bài 1: Lắng Nghe\n\n```practice-english\n{\"type\":\"dictation\"}\n```\n"
-                }
-              ]
-            }
-          ]
-        })
-      });
-    });
+    // Mock Course & Lesson & open Learn -> Fullscreen Practice page
+    const engLesson = {
+      id: "les-eng-1",
+      title: "Bài 1: Lắng Nghe Chủ Động & Trình Bày Ý Tưởng",
+      contentMarkdown: "# Bài 1: Lắng Nghe\n\n```practice-english\n{\"type\":\"dictation\"}\n```\n"
+    };
+    await mockCourseAndLessonRoutes(
+      page,
+      {
+        id: ENGLISH_COURSE_ID,
+        title: "Tiếng Anh Giao Tiếp Thực Hành & Phát Âm Chuẩn",
+        slug: "tieng-anh-giao-tiep-thuc-hanh",
+        chapters: [
+          {
+            id: "chap-1",
+            title: "Chương 1: Phản Xạ Giao Tiếp Nơi Công Sở",
+            lessons: [engLesson]
+          }
+        ]
+      },
+      engLesson
+    );
 
     await page.goto(`/app/courses/${ENGLISH_COURSE_ID}/learn?lesson=les-eng-1`);
     await page.waitForLoadState("domcontentloaded");
 
-    // Switch to practice lab if not directly opened
-    const practiceTabBtn = page.locator('[data-testid="center-tab-practice"]');
-    if (await practiceTabBtn.isVisible()) {
-      await practiceTabBtn.click();
-    }
+    await expect(page.locator('[data-testid="center-tab-practice"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="lesson-quick-check-section"]')).toBeVisible({ timeout: 15000 });
+    await page.locator('[data-testid="go-to-lesson-practice-btn"]').click();
+    await page.waitForURL(`**/app/practice/${ENGLISH_COURSE_ID}/les-eng-1**`, { timeout: 15000 });
 
     // Verify English Practice Lab is loaded
     await expect(page.locator('[data-testid="english-practice-lab"]')).toBeVisible({ timeout: 15000 });
@@ -172,38 +236,34 @@ test.describe("Practice Expansion & Interactive Roadmaps (UX Suite)", () => {
       }
     });
 
-    await page.route(`**/api/v1/courses/${CODING_COURSE_ID}*`, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          id: CODING_COURSE_ID,
-          title: "Lập Trình Web C# .NET 10 & Frontend Thực Chiến",
-          slug: "lap-trinh-web-csharp-dotnet-frontend",
-          chapters: [
-            {
-              id: "chap-code-1",
-              title: "Chương 1: Thuật Toán & Xử Lý Bất Đồng Bộ",
-              lessons: [
-                {
-                  id: "les-code-1",
-                  title: "Bài 1: Tối Ưu Hóa & Thuật Toán Cơ Bản",
-                  contentMarkdown: "# Bài 1: Tối Ưu Hóa\n\n```javascript\nfunction twoSum(nums, target) { return [0, 1]; }\n```\n"
-                }
-              ]
-            }
-          ]
-        })
-      });
-    });
+    const codingLesson = {
+      id: "les-code-1",
+      title: "Bài 1: Tối Ưu Hóa & Thuật Toán Cơ Bản",
+      contentMarkdown: "# Bài 1: Tối Ưu Hóa\n\n```javascript\nfunction twoSum(nums, target) { return [0, 1]; }\n```\n"
+    };
+    await mockCourseAndLessonRoutes(
+      page,
+      {
+        id: CODING_COURSE_ID,
+        title: "Lập Trình Web C# .NET 10 & Frontend Thực Chiến",
+        slug: "lap-trinh-web-csharp-dotnet-frontend",
+        chapters: [
+          {
+            id: "chap-code-1",
+            title: "Chương 1: Thuật Toán & Xử Lý Bất Đồng Bộ",
+            lessons: [codingLesson]
+          }
+        ]
+      },
+      codingLesson
+    );
 
     await page.goto(`/app/courses/${CODING_COURSE_ID}/learn?lesson=les-code-1`);
     await page.waitForLoadState("domcontentloaded");
 
-    const practiceTabBtn = page.locator('[data-testid="center-tab-practice"]');
-    if (await practiceTabBtn.isVisible()) {
-      await practiceTabBtn.click();
-    }
+    await expect(page.locator('[data-testid="lesson-quick-check-section"]')).toBeVisible({ timeout: 15000 });
+    await page.locator('[data-testid="go-to-lesson-practice-btn"]').click();
+    await page.waitForURL(`**/app/practice/${CODING_COURSE_ID}/les-code-1**`, { timeout: 15000 });
 
     // 1. Verify Coding Lab Container
     await expect(page.locator('[data-testid="coding-practice-lab"]')).toBeVisible({ timeout: 15000 });
@@ -270,38 +330,34 @@ test.describe("Practice Expansion & Interactive Roadmaps (UX Suite)", () => {
       });
     });
 
-    await page.route(`**/api/v1/courses/${INVESTING_COURSE_ID}*`, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          id: INVESTING_COURSE_ID,
-          title: "Tài Chính Cá Nhân Thực Hành & Đầu Tư Cổ Phiếu Dài Hạn",
-          slug: "tai-chinh-ca-nhan-thuc-hanh-dau-tu",
-          chapters: [
-            {
-              id: "chap-fin-1",
-              title: "Chương 1: Lãi Kép & Quản Lý Rủi Ro",
-              lessons: [
-                {
-                  id: "les-fin-1",
-                  title: "Bài 1: Sức Mạnh Lãi Kép & Lạm Phát",
-                  contentMarkdown: "# Bài 1: Lãi kép\n\n```practice-finance\n{\"type\":\"compound\"}\n```\n"
-                }
-              ]
-            }
-          ]
-        })
-      });
-    });
+    const financeLesson = {
+      id: "les-fin-1",
+      title: "Bài 1: Sức Mạnh Lãi Kép & Lạm Phát",
+      contentMarkdown: "# Bài 1: Lãi kép\n\n```practice-finance\n{\"type\":\"compound\"}\n```\n"
+    };
+    await mockCourseAndLessonRoutes(
+      page,
+      {
+        id: INVESTING_COURSE_ID,
+        title: "Tài Chính Cá Nhân Thực Hành & Đầu Tư Cổ Phiếu Dài Hạn",
+        slug: "tai-chinh-ca-nhan-thuc-hanh-dau-tu",
+        chapters: [
+          {
+            id: "chap-fin-1",
+            title: "Chương 1: Lãi Kép & Quản Lý Rủi Ro",
+            lessons: [financeLesson]
+          }
+        ]
+      },
+      financeLesson
+    );
 
     await page.goto(`/app/courses/${INVESTING_COURSE_ID}/learn?lesson=les-fin-1`);
     await page.waitForLoadState("domcontentloaded");
 
-    const practiceTabBtn = page.locator('[data-testid="center-tab-practice"]');
-    if (await practiceTabBtn.isVisible()) {
-      await practiceTabBtn.click();
-    }
+    await expect(page.locator('[data-testid="lesson-quick-check-section"]')).toBeVisible({ timeout: 15000 });
+    await page.locator('[data-testid="go-to-lesson-practice-btn"]').click();
+    await page.waitForURL(`**/app/practice/${INVESTING_COURSE_ID}/les-fin-1**`, { timeout: 15000 });
 
     // 1. Verify Finance Lab is visible
     await expect(page.locator('[data-testid="finance-practice-lab"]')).toBeVisible({ timeout: 15000 });
@@ -368,38 +424,34 @@ test.describe("Practice Expansion & Interactive Roadmaps (UX Suite)", () => {
       });
     });
 
-    await page.route(`**/api/v1/courses/${PSYCHOLOGY_COURSE_ID}*`, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          id: PSYCHOLOGY_COURSE_ID,
-          title: "Tâm Lý Học Nhận Thức & Kỹ Năng Sống Ứng Dụng",
-          slug: "tam-ly-hoc-nhan-thuc-ky-nang-song",
-          chapters: [
-            {
-              id: "chap-psych-1",
-              title: "Chương 1: Trí Nhớ & Ức Chế Phản Xạ",
-              lessons: [
-                {
-                  id: "les-psych-1",
-                  title: "Bài 1: Hiệu Ứng Stroop & Hệ Thống 1-2",
-                  contentMarkdown: "# Bài 1: Stroop\n\n```practice-case\n{\"type\":\"stroop\"}\n```\n"
-                }
-              ]
-            }
-          ]
-        })
-      });
-    });
+    const psychLesson = {
+      id: "les-psych-1",
+      title: "Bài 1: Hiệu Ứng Stroop & Hệ Thống 1-2",
+      contentMarkdown: "# Bài 1: Stroop\n\n```practice-case\n{\"type\":\"stroop\"}\n```\n"
+    };
+    await mockCourseAndLessonRoutes(
+      page,
+      {
+        id: PSYCHOLOGY_COURSE_ID,
+        title: "Tâm Lý Học Nhận Thức & Kỹ Năng Sống Ứng Dụng",
+        slug: "tam-ly-hoc-nhan-thuc-ky-nang-song",
+        chapters: [
+          {
+            id: "chap-psych-1",
+            title: "Chương 1: Trí Nhớ & Ức Chế Phản Xạ",
+            lessons: [psychLesson]
+          }
+        ]
+      },
+      psychLesson
+    );
 
     await page.goto(`/app/courses/${PSYCHOLOGY_COURSE_ID}/learn?lesson=les-psych-1`);
     await page.waitForLoadState("domcontentloaded");
 
-    const practiceTabBtn = page.locator('[data-testid="center-tab-practice"]');
-    if (await practiceTabBtn.isVisible()) {
-      await practiceTabBtn.click();
-    }
+    await expect(page.locator('[data-testid="lesson-quick-check-section"]')).toBeVisible({ timeout: 15000 });
+    await page.locator('[data-testid="go-to-lesson-practice-btn"]').click();
+    await page.waitForURL(`**/app/practice/${PSYCHOLOGY_COURSE_ID}/les-psych-1**`, { timeout: 15000 });
 
     // 1. Verify Psychology Lab
     await expect(page.locator('[data-testid="psychology-practice-lab"]')).toBeVisible({ timeout: 15000 });
@@ -550,5 +602,102 @@ test.describe("Practice Expansion & Interactive Roadmaps (UX Suite)", () => {
     await expect(page.getByText("Tính lãi kép mục tiêu FIRE")).toBeVisible();
     const retryLink = page.getByRole("link", { name: /Luyện lại/i }).first();
     await expect(retryLink).toBeVisible();
+    await expect(retryLink).toHaveAttribute(
+      "href",
+      new RegExp(`/app/practice/${INVESTING_COURSE_ID}/les-fin-1`)
+    );
+  });
+
+  // =========================================================================
+  // SCENARIO 6: Dedicated Practice Hub /app/practice
+  // =========================================================================
+  test("Scenario 6: Dedicated Practice Hub /app/practice Stats, Queue, FSRS & Courses", async ({ page }) => {
+    await page.route("**/api/v1/dashboard/cached*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          user: { id: "u1", fullName: "Nguyễn Văn A", email: "a@studxy.vn", streakDays: 5 },
+          reviewStation: { totalDue: 4, totalCards: 20, newCount: 5, learningCount: 5, reviewCount: 10, estimatedMinutes: 6 },
+          courses: [],
+          documents: [],
+          notebooks: [],
+          quizzes: []
+        })
+      });
+    });
+
+    await page.route("**/api/v1/practice/stats*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          totalAttempts: 10,
+          averageScore: 84.5,
+          passedCount: 8,
+          todayAttempts: 2,
+          streakDays: 4,
+          fsrsDueCount: 4,
+          needsReview: [
+            {
+              activityKey: "investing-compound-1",
+              activityTitle: "Tính lãi kép mục tiêu FIRE",
+              activityType: "compound",
+              courseId: INVESTING_COURSE_ID,
+              courseTitle: "Tài Chính Cá Nhân Thực Hành",
+              lessonId: "les-fin-1",
+              lessonTitle: "Bài 1: Sức Mạnh Lãi Kép",
+              score: 55,
+              passingScore: 70,
+              attemptCount: 2,
+              createdAt: new Date().toISOString()
+            }
+          ],
+          recentHistory: [],
+          chartData: [
+            { date: "2026-11-16", dayName: "T2", count: 1, avgScore: 80 },
+            { date: "2026-11-17", dayName: "T3", count: 2, avgScore: 82 },
+            { date: "2026-11-18", dayName: "T4", count: 1, avgScore: 85 },
+            { date: "2026-11-19", dayName: "T5", count: 2, avgScore: 88 },
+            { date: "2026-11-20", dayName: "T6", count: 1, avgScore: 79 },
+            { date: "2026-11-21", dayName: "T7", count: 1, avgScore: 90 },
+            { date: "2026-11-22", dayName: "CN", count: 2, avgScore: 84.5 }
+          ],
+          courseSummaries: [
+            {
+              courseId: INVESTING_COURSE_ID,
+              title: "Tài Chính Cá Nhân Thực Hành",
+              slug: "tai-chinh-ca-nhan",
+              totalActivities: 6,
+              passedActivities: 3,
+              averageScore: 81.2,
+              attemptCount: 5,
+              lastAttemptAt: new Date().toISOString(),
+              lessons: [
+                {
+                  lessonId: "les-fin-1",
+                  title: "Bài 1: Sức Mạnh Lãi Kép",
+                  chapterTitle: "Chương 1",
+                  activityCount: 2,
+                  passedCount: 1,
+                  attemptCount: 2
+                }
+              ]
+            }
+          ]
+        })
+      });
+    });
+
+    await page.goto("/app/practice");
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page.getByRole("heading", { name: "Hub Luyện tập" })).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="practice-hub-stats"]')).toBeVisible();
+    await expect(page.locator('[data-testid="practice-hub-review-queue"]')).toBeVisible();
+    await expect(page.getByText("Tính lãi kép mục tiêu FIRE")).toBeVisible();
+    await expect(page.getByRole("link", { name: /Mở hàng ôn FSRS/i })).toBeVisible();
+    await expect(page.locator('[data-testid="practice-hub-courses"]')).toBeVisible();
+    await expect(page.getByText("Tài Chính Cá Nhân Thực Hành").first()).toBeVisible();
   });
 });

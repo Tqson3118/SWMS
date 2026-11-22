@@ -19,6 +19,7 @@ import {
   Sun,
   Flame,
   LayoutGrid,
+  Target,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { setAccessToken, fetchDashboardCached } from "@/lib/api-client";
@@ -61,6 +62,12 @@ const NAV_ITEMS: NavItem[] = [
     matchPrefix: true,
   },
   {
+    href: "/app/practice",
+    label: "Luyện tập",
+    icon: Target,
+    matchPrefix: true,
+  },
+  {
     href: "/app/documents",
     label: "Tài liệu",
     icon: FileText,
@@ -93,6 +100,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const [recentCourses, setRecentCourses] = useState<RecentCourse[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [dueCount, setDueCount] = useState(0);
+  const [practiceReviewCount, setPracticeReviewCount] = useState(0);
   const [streakDays, setStreakDays] = useState(0);
   const [userName, setUserName] = useState("Học viên");
   const [userEmail, setUserEmail] = useState("");
@@ -101,7 +109,20 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   // Fetch minimal sidebar data
   const fetchSidebarData = useCallback(async () => {
     try {
-      const data = await fetchDashboardCached();
+      const effectiveUserId =
+        activeUserHeaderId ??
+        (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
+      const reqHeaders = getClientRequestHeaders(
+        effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
+      );
+
+      const [data, practiceStatsResp] = await Promise.all([
+        fetchDashboardCached({
+          headers: effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined,
+        }),
+        fetch("/api/v1/practice/stats", { headers: reqHeaders }).catch(() => null),
+      ]);
+
       if (data) {
         setDueCount(data.reviewStation?.totalDue ?? 0);
         setStreakDays(data.user?.streakDays ?? 0);
@@ -121,12 +142,19 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           }))
         );
       }
+
+      if (practiceStatsResp && practiceStatsResp.ok) {
+        const pStats = await practiceStatsResp.json().catch(() => null);
+        if (pStats && Array.isArray(pStats.needsReview)) {
+          setPracticeReviewCount(pStats.needsReview.length);
+        }
+      }
     } catch {
       // Silent fail for sidebar data
     } finally {
       setLoadingCourses(false);
     }
-  }, []);
+  }, [activeUserHeaderId]);
 
   useEffect(() => {
     fetchSidebarData();
@@ -149,6 +177,9 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   const navItemsWithBadge = NAV_ITEMS.map((item) => {
     if (item.href === "/app/review" && dueCount > 0) {
       return { ...item, badge: dueCount };
+    }
+    if (item.href === "/app/practice" && practiceReviewCount > 0) {
+      return { ...item, badge: practiceReviewCount };
     }
     return item;
   });
@@ -247,7 +278,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
               key={item.href}
               href={item.href}
               data-testid={`sidebar-nav-${item.href.split("/").pop()}`}
-              className={`flex items-center gap-2.5 h-8.5 rounded-[8px] text-sm font-medium transition ${
+              className={`relative flex items-center gap-2.5 h-8.5 rounded-[8px] text-sm font-medium transition ${
                 collapsed ? "justify-center px-0" : "px-2.5"
               } ${
                 active

@@ -6154,7 +6154,10 @@ public static class SwmsEndpoints
             SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
+            var now = DateTimeOffset.UtcNow;
+
             var userAttempts = (await db.PracticeAttempts
+                .AsNoTracking()
                 .Where(pa => pa.UserId == userId)
                 .ToListAsync())
                 .OrderByDescending(pa => pa.CreatedAt)
@@ -6163,7 +6166,7 @@ public static class SwmsEndpoints
             var totalAttempts = userAttempts.Count;
             var averageScore = totalAttempts > 0 ? Math.Round(userAttempts.Average(pa => pa.Score), 1) : 0.0;
             var passedCount = userAttempts.Count(pa => pa.IsPassed);
-            var todayUtc = DateTimeOffset.UtcNow.Date;
+            var todayUtc = now.Date;
             var todayAttempts = userAttempts.Count(pa => pa.CreatedAt.UtcDateTime.Date == todayUtc);
 
             var activeDates = userAttempts
@@ -6188,25 +6191,131 @@ public static class SwmsEndpoints
             }
             if (streakDays == 0)
             {
-                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
                 streakDays = user?.StreakDays ?? 0;
             }
 
+            // Readable courses for this user (enrolled, owned, or published public)
+            var enrolledIds = await db.CourseEnrollments
+                .AsNoTracking()
+                .Where(e => e.UserId == userId)
+                .Select(e => e.CourseId)
+                .ToListAsync();
+
+            var rawUserCourses = await db.Courses
+                .AsNoTracking()
+                .Where(c => (c.InstructorId == userId ||
+                             enrolledIds.Contains(c.Id) ||
+                             (c.Visibility == "public" && c.IsPublished))
+                            && !c.Slug.StartsWith("personal-workspace-"))
+                .ToListAsync();
+
+            var readableCourses = OrderCoursesForUser(rawUserCourses, userId);
+            var readableCourseIds = readableCourses.Select(c => c.Id).ToHashSet();
+
+            var attemptCourseIds = userAttempts.Select(a => a.CourseId).Distinct().ToHashSet();
+            var missingAttemptCourseIds = attemptCourseIds.Where(id => !readableCourseIds.Contains(id)).ToList();
+            var extraAttemptCourses = missingAttemptCourseIds.Count > 0
+                ? await db.Courses.AsNoTracking().Where(c => missingAttemptCourseIds.Contains(c.Id)).ToListAsync()
+                : new List<Course>();
+
+            var courseTitleMap = readableCourses
+                .Concat(extraAttemptCourses)
+                .GroupBy(c => c.Id)
+                .ToDictionary(g => g.Key, g => g.First().Title);
+
+            var allChapters = readableCourseIds.Count > 0
+                ? await db.Chapters
+                    .AsNoTracking()
+                    .Where(ch => readableCourseIds.Contains(ch.CourseId))
+                    .OrderBy(ch => ch.SortOrder)
+                    .ToListAsync()
+                : new List<Chapter>();
+
+            var chapterById = allChapters.ToDictionary(ch => ch.Id);
+            var chaptersByCourse = allChapters.ToLookup(ch => ch.CourseId);
+            var readableChapterIds = chapterById.Keys.ToHashSet();
+
+            var readableLessons = readableChapterIds.Count > 0
+                ? await db.Lessons
+                    .AsNoTracking()
+                    .Where(l => readableChapterIds.Contains(l.ChapterId))
+                    .OrderBy(l => l.SortOrder)
+                    .ToListAsync()
+                : new List<Lesson>();
+
+            var readableLessonIds = readableLessons.Select(l => l.Id).ToHashSet();
+            var attemptLessonIds = userAttempts
+                .Where(a => a.LessonId.HasValue)
+                .Select(a => a.LessonId!.Value)
+                .Distinct()
+                .Where(id => !readableLessonIds.Contains(id))
+                .ToList();
+
+            var extraAttemptLessons = attemptLessonIds.Count > 0
+                ? await db.Lessons.AsNoTracking().Where(l => attemptLessonIds.Contains(l.Id)).ToListAsync()
+                : new List<Lesson>();
+
+            var lessonTitleMap = readableLessons
+                .Concat(extraAttemptLessons)
+                .GroupBy(l => l.Id)
+                .ToDictionary(g => g.Key, g => g.First().Title);
+
+            var attemptActivityIds = userAttempts
+                .Where(a => a.ActivityId.HasValue)
+                .Select(a => a.ActivityId!.Value)
+                .Distinct()
+                .ToHashSet();
+
+            var allPracticeActivities = (readableCourseIds.Count > 0 || attemptActivityIds.Count > 0)
+                ? await db.PracticeActivities
+                    .AsNoTracking()
+                    .Where(pa => readableCourseIds.Contains(pa.CourseId) || attemptActivityIds.Contains(pa.Id))
+                    .OrderBy(pa => pa.OrderIndex)
+                    .ToListAsync()
+                : new List<PracticeActivity>();
+
+            var activityPassingMap = allPracticeActivities.ToDictionary(a => a.Id, a => a.PassingScore);
+            var activitiesByCourse = allPracticeActivities
+                .Where(a => readableCourseIds.Contains(a.CourseId))
+                .OrderBy(a => a.OrderIndex)
+                .ToLookup(a => a.CourseId);
+
             var needsReview = userAttempts
                 .GroupBy(pa => pa.ActivityKey)
-                .Select(g => g.OrderByDescending(x => x.CreatedAt).First())
-                .Where(latest => !latest.IsPassed || latest.Score < 70)
-                .Select(latest => new
+                .Select(g => new
                 {
-                    latest.ActivityKey,
-                    latest.ActivityTitle,
-                    latest.ActivityType,
-                    latest.CourseId,
-                    latest.LessonId,
-                    latest.Score,
-                    latest.CreatedAt
+                    Latest = g.OrderByDescending(x => x.CreatedAt).First(),
+                    AttemptCount = g.Count()
                 })
-                .Take(10)
+                .Select(x =>
+                {
+                    var passingScore = x.Latest.ActivityId.HasValue &&
+                                       activityPassingMap.TryGetValue(x.Latest.ActivityId.Value, out var ps)
+                        ? ps
+                        : 70;
+                    return new { x.Latest, x.AttemptCount, PassingScore = passingScore };
+                })
+                .Where(x => !x.Latest.IsPassed || x.Latest.Score < x.PassingScore)
+                .OrderByDescending(x => x.Latest.CreatedAt)
+                .Take(30)
+                .Select(x => new
+                {
+                    x.Latest.ActivityKey,
+                    x.Latest.ActivityTitle,
+                    x.Latest.ActivityType,
+                    x.Latest.CourseId,
+                    courseTitle = courseTitleMap.GetValueOrDefault(x.Latest.CourseId, "Khóa học"),
+                    x.Latest.LessonId,
+                    lessonTitle = x.Latest.LessonId.HasValue
+                        ? lessonTitleMap.GetValueOrDefault(x.Latest.LessonId.Value)
+                        : null,
+                    x.Latest.Score,
+                    x.Latest.MaxScore,
+                    passingScore = x.PassingScore,
+                    attemptCount = x.AttemptCount,
+                    x.Latest.CreatedAt
+                })
                 .ToList();
 
             var recentHistory = userAttempts
@@ -6239,6 +6348,106 @@ public static class SwmsEndpoints
                 })
                 .ToList();
 
+            // Count FSRS cards due right now (DueAt <= now) in memory to remain SQLite-safe
+            var userCardDueDates = await db.Flashcards
+                .AsNoTracking()
+                .Where(f => f.UserId == userId && !f.IsArchived)
+                .Select(f => f.DueAt)
+                .ToListAsync();
+            var fsrsDueCount = userCardDueDates.Count(dueAt => dueAt <= now);
+
+            var lessonsByChapter = readableLessons.ToLookup(l => l.ChapterId);
+            var attemptsByCourse = userAttempts.ToLookup(a => a.CourseId);
+
+            static bool IsActivityPassedByUser(PracticeActivity act, IReadOnlyList<PracticeAttempt> courseAttempts)
+            {
+                var actIdStr = act.Id.ToString();
+                return courseAttempts.Any(att =>
+                    att.IsPassed &&
+                    ((att.ActivityId.HasValue && att.ActivityId.Value == act.Id) ||
+                     string.Equals(att.ActivityKey, actIdStr, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            var courseSummaries = readableCourses.Select(course =>
+            {
+                var courseChapters = chaptersByCourse[course.Id].OrderBy(ch => ch.SortOrder).ToList();
+                var orderedLessons = courseChapters
+                    .SelectMany(ch => lessonsByChapter[ch.Id]
+                        .OrderBy(l => l.SortOrder)
+                        .ThenBy(l => l.CreatedAt)
+                        .Select(l => new { Lesson = l, ChapterTitle = ch.Title }))
+                    .ToList();
+
+                var courseActivities = activitiesByCourse[course.Id].ToList();
+                var courseAttempts = attemptsByCourse[course.Id].ToList();
+
+                int totalActivities;
+                int passedActivities;
+
+                if (courseActivities.Count > 0)
+                {
+                    totalActivities = courseActivities.Count;
+                    passedActivities = courseActivities.Count(a => IsActivityPassedByUser(a, courseAttempts));
+                }
+                else
+                {
+                    var keyGroups = courseAttempts.GroupBy(a => a.ActivityKey).ToList();
+                    totalActivities = keyGroups.Count;
+                    passedActivities = keyGroups.Count(g => g.Any(a => a.IsPassed));
+                }
+
+                var courseAvgScore = courseAttempts.Count > 0
+                    ? Math.Round(courseAttempts.Average(a => a.Score), 1)
+                    : 0.0;
+                DateTimeOffset? lastAttemptAt = courseAttempts.Count > 0
+                    ? courseAttempts.Max(a => a.CreatedAt)
+                    : null;
+
+                var lessonSummaries = orderedLessons.Select(item =>
+                {
+                    var lesson = item.Lesson;
+                    var lessonAttempts = courseAttempts.Where(a => a.LessonId == lesson.Id).ToList();
+                    var lessonActivities = courseActivities.Where(a => a.LessonId == lesson.Id).ToList();
+
+                    int activityCount;
+                    int lessonPassedCount;
+                    if (courseActivities.Count > 0)
+                    {
+                        activityCount = lessonActivities.Count;
+                        lessonPassedCount = lessonActivities.Count(a => IsActivityPassedByUser(a, lessonAttempts.Count > 0 ? lessonAttempts : courseAttempts));
+                    }
+                    else
+                    {
+                        var lGroups = lessonAttempts.GroupBy(a => a.ActivityKey).ToList();
+                        activityCount = lGroups.Count;
+                        lessonPassedCount = lGroups.Count(g => g.Any(a => a.IsPassed));
+                    }
+
+                    return new
+                    {
+                        lessonId = lesson.Id,
+                        title = lesson.Title,
+                        chapterTitle = item.ChapterTitle,
+                        activityCount,
+                        passedCount = lessonPassedCount,
+                        attemptCount = lessonAttempts.Count
+                    };
+                }).ToList();
+
+                return new
+                {
+                    courseId = course.Id,
+                    title = course.Title,
+                    slug = course.Slug,
+                    totalActivities,
+                    passedActivities,
+                    averageScore = courseAvgScore,
+                    attemptCount = courseAttempts.Count,
+                    lastAttemptAt,
+                    lessons = lessonSummaries
+                };
+            }).ToList();
+
             return Results.Ok(new
             {
                 totalAttempts,
@@ -6246,9 +6455,11 @@ public static class SwmsEndpoints
                 passedCount,
                 todayAttempts,
                 streakDays,
+                fsrsDueCount,
                 needsReview,
                 recentHistory,
-                chartData = last7Days
+                chartData = last7Days,
+                courseSummaries
             });
         });
     }

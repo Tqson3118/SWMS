@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { invalidateDashboardCache } from "@/lib/api-client";
+import { resolvePracticeSelection } from "@/lib/practice-helpers";
 import { ArrowUp, ArrowDown } from "lucide-react";
 
 import {
@@ -55,6 +56,8 @@ export interface PracticeModuleProps {
   lessonMarkdown: string;
   onSaveToNotebook: (textToAppend: string) => Promise<void>;
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
+  initialActivityType?: string | null;
+  initialActivityKey?: string | null;
 }
 
 type MainPracticeMode = "fill-code" | "bug-hunter" | "system-visualizer" | "lesson-tasks" | "js-sandbox" | "parsons";
@@ -2192,6 +2195,8 @@ export function CodingPracticeLab({
   lessonMarkdown,
   onSaveToNotebook,
   onCreateFlashcardQuick,
+  initialActivityType,
+  initialActivityKey,
 }: PracticeModuleProps) {
   // Tự động nhận diện chủ đề học tập
   const detectedCategory = useMemo<TopicCategory>(() => {
@@ -2272,7 +2277,25 @@ export function CodingPracticeLab({
     return list;
   }, [lessonMarkdown, lessonTitle]);
 
-  const [activeMainMode, setActiveMainMode] = useState<MainPracticeMode>("fill-code");
+  const resolvedInitialCodingMode = useMemo(() => {
+    const resolved = resolvePracticeSelection(
+      initialActivityType,
+      initialActivityKey,
+      courseTitle,
+      lessonTitle,
+      lessonMarkdown
+    );
+    return resolved?.labMode === "code" && resolved.codingTab ? resolved.codingTab : null;
+  }, [initialActivityType, initialActivityKey, courseTitle, lessonTitle, lessonMarkdown]);
+
+  const [activeMainMode, setActiveMainMode] = useState<MainPracticeMode>(
+    resolvedInitialCodingMode ?? "fill-code"
+  );
+  useEffect(() => {
+    if (resolvedInitialCodingMode) {
+      setActiveMainMode(resolvedInitialCodingMode);
+    }
+  }, [resolvedInitialCodingMode]);
   const [selectedTopic, setSelectedTopic] = useState<TopicCategory>("auto");
   const currentEffectiveCategory = selectedTopic === "auto" ? detectedCategory : selectedTopic;
 

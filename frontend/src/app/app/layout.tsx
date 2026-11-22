@@ -43,9 +43,12 @@ export default function AppShellLayout({
     };
   }, [pathname, router, setActiveUserHeaderId]);
 
-  // Determine if we're in an immersive view (learn/reader mode, review, or quiz)
+  // Determine if we're in an immersive view (learn/reader mode, review, quiz, or full-screen practice)
   const isImmersive =
-    pathname.includes("/learn") || pathname.includes("/review") || pathname.includes("/quiz");
+    pathname.includes("/learn") ||
+    pathname.includes("/review") ||
+    pathname.includes("/quiz") ||
+    /^\/app\/practice\/[^/]+\/[^/]+/.test(pathname);
 
   // Global keyboard shortcuts
   useEffect(() => {

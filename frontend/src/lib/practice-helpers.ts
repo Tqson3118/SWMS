@@ -1,0 +1,360 @@
+export type LabMode = "english" | "code" | "finance" | "recall";
+
+export type EnglishTabMode =
+  | "shadowing"
+  | "dictation"
+  | "speaking"
+  | "word_map"
+  | "cloze"
+  | "translate"
+  | "grammar_fix"
+  | "roleplay"
+  | "quiz";
+
+export type CodingTabMode =
+  | "fill-code"
+  | "bug-hunter"
+  | "system-visualizer"
+  | "lesson-tasks"
+  | "js-sandbox"
+  | "parsons";
+
+export type FinanceTabMode =
+  | "budget"
+  | "compound"
+  | "debt"
+  | "trading"
+  | "cases"
+  | "portfolio"
+  | "behavioral";
+
+export type PsychTabMode =
+  | "roleplay"
+  | "biases"
+  | "cbt"
+  | "lesson-cases"
+  | "cognitive-labs";
+
+export type PsychCogSubTab = "stroop" | "memory-span" | "cbt-journal";
+
+export interface ResolvedPracticeTarget {
+  labMode: LabMode;
+  englishTab?: EnglishTabMode;
+  codingTab?: CodingTabMode;
+  financeTab?: FinanceTabMode;
+  psychTab?: PsychTabMode;
+  psychCogSubTab?: PsychCogSubTab;
+  recallSubMode?: "psychology" | "feynman";
+}
+
+function stripDiacriticsLower(input: string): string {
+  return (input || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase();
+}
+
+function isPsychologyCourseOrLesson(courseTitle = "", lessonTitle = "", md = ""): boolean {
+  const combined = stripDiacriticsLower(`${courseTitle} ${lessonTitle} ${md.slice(0, 1200)}`);
+  return /\b(tam ly|ky nang|giao tiep|thao tung|nhan thuc|cbt|life skills|psychology|cam xuc|stress|tu duy|thuyet trinh|dam phan|attachment|eq|nvc)\b/.test(
+    combined
+  );
+}
+
+/**
+ * Resolves a backend activityType + optional activityKey (e.g. from /app/practice query params)
+ * into the exact top-level LabMode and sub-tab for LessonPracticeLab and its sub-labs.
+ */
+export function resolvePracticeSelection(
+  activityType?: string | null,
+  activityKey?: string | null,
+  courseTitle = "",
+  lessonTitle = "",
+  lessonMarkdown = ""
+): ResolvedPracticeTarget | null {
+  const rawType = (activityType || "").trim().toLowerCase();
+  const rawKey = (activityKey || "").trim().toLowerCase();
+  if (!rawType && !rawKey) return null;
+
+  // English / Language modes
+  if (rawType === "shadowing") return { labMode: "english", englishTab: "shadowing" };
+  if (rawType === "dictation") return { labMode: "english", englishTab: "dictation" };
+  if (rawType === "pronunciation" || rawType === "speaking") {
+    return { labMode: "english", englishTab: "speaking" };
+  }
+  if (rawType === "word_map") return { labMode: "english", englishTab: "word_map" };
+  if (rawType === "cloze") return { labMode: "english", englishTab: "cloze" };
+  if (rawType === "translate") return { labMode: "english", englishTab: "translate" };
+  if (rawType === "grammar_fix") return { labMode: "english", englishTab: "grammar_fix" };
+  if (rawType === "quiz") return { labMode: "english", englishTab: "quiz" };
+
+  if (rawType === "roleplay") {
+    const looksLikeEnglish =
+      rawKey.startsWith("roleplay-") ||
+      /\b(ielts|tieng anh|english)\b/.test(stripDiacriticsLower(`${courseTitle} ${lessonTitle}`));
+    if (looksLikeEnglish) {
+      return { labMode: "english", englishTab: "roleplay" };
+    }
+    if (rawKey.startsWith("psych-") || isPsychologyCourseOrLesson(courseTitle, lessonTitle, lessonMarkdown)) {
+      return { labMode: "recall", recallSubMode: "psychology", psychTab: "roleplay" };
+    }
+    return { labMode: "english", englishTab: "roleplay" };
+  }
+
+  // Coding modes
+  if (rawType === "js_sandbox" || rawType === "js-sandbox") {
+    return { labMode: "code", codingTab: "js-sandbox" };
+  }
+  if (rawType === "parsons") return { labMode: "code", codingTab: "parsons" };
+  if (rawType === "bug_hunt" || rawType === "bug-hunter") {
+    return { labMode: "code", codingTab: "bug-hunter" };
+  }
+  if (rawType === "fill-code" || rawType === "fill_code") {
+    return { labMode: "code", codingTab: "fill-code" };
+  }
+  if (rawType === "system-visualizer" || rawType === "system_visualizer") {
+    return { labMode: "code", codingTab: "system-visualizer" };
+  }
+  if (rawType === "lesson-tasks" || rawType === "lesson_tasks") {
+    return { labMode: "code", codingTab: "lesson-tasks" };
+  }
+
+  // Finance modes
+  if (rawType === "compound_calculator" || rawType === "compound") {
+    return { labMode: "finance", financeTab: "compound" };
+  }
+  if (rawType === "portfolio_sim" || rawType === "portfolio") {
+    return { labMode: "finance", financeTab: "portfolio" };
+  }
+  if (rawType === "behavioral_quiz" || rawType === "behavioral") {
+    return { labMode: "finance", financeTab: "behavioral" };
+  }
+  if (rawType === "investment_case" || rawType === "cases") {
+    return { labMode: "finance", financeTab: "cases" };
+  }
+  if (rawType === "budget") return { labMode: "finance", financeTab: "budget" };
+  if (rawType === "debt") return { labMode: "finance", financeTab: "debt" };
+  if (rawType === "trading") return { labMode: "finance", financeTab: "trading" };
+
+  // Psychology / Recall modes
+  if (rawType === "stroop_test" || rawType === "stroop") {
+    return {
+      labMode: "recall",
+      recallSubMode: "psychology",
+      psychTab: "cognitive-labs",
+      psychCogSubTab: "stroop",
+    };
+  }
+  if (rawType === "memory_span" || rawType === "memory-span") {
+    return {
+      labMode: "recall",
+      recallSubMode: "psychology",
+      psychTab: "cognitive-labs",
+      psychCogSubTab: "memory-span",
+    };
+  }
+  if (rawType === "reflection_journal" || rawType === "cbt-journal") {
+    return {
+      labMode: "recall",
+      recallSubMode: "psychology",
+      psychTab: "cognitive-labs",
+      psychCogSubTab: "cbt-journal",
+    };
+  }
+  if (rawType === "psych_scenario" || rawType === "lesson-cases") {
+    return { labMode: "recall", recallSubMode: "psychology", psychTab: "lesson-cases" };
+  }
+  if (rawType === "biases") {
+    return { labMode: "recall", recallSubMode: "psychology", psychTab: "biases" };
+  }
+  if (rawType === "cbt") {
+    return { labMode: "recall", recallSubMode: "psychology", psychTab: "cbt" };
+  }
+  if (rawType === "feynman") {
+    return { labMode: "recall", recallSubMode: "feynman" };
+  }
+
+  return null;
+}
+
+const ACTIVITY_TYPE_LABELS_VI: Record<string, string> = {
+  shadowing: "Nhại giọng",
+  dictation: "Chép chính tả",
+  pronunciation: "Phát âm",
+  speaking: "Luyện nói",
+  word_map: "Sơ đồ từ vựng",
+  cloze: "Điền từ",
+  translate: "Dịch câu",
+  grammar_fix: "Sửa ngữ pháp",
+  roleplay: "Nhập vai hội thoại",
+  quiz: "Trắc nghiệm",
+  js_sandbox: "Web Worker Sandbox",
+  "js-sandbox": "Web Worker Sandbox",
+  parsons: "Ghép dòng code",
+  bug_hunt: "Săn lỗi code",
+  "bug-hunter": "Săn lỗi code",
+  "fill-code": "Điền code",
+  "system-visualizer": "Mô phỏng hệ thống",
+  "lesson-tasks": "Nhiệm vụ code",
+  compound_calculator: "Tính lãi kép",
+  compound: "Tính lãi kép",
+  portfolio_sim: "Mô phỏng danh mục",
+  portfolio: "Mô phỏng danh mục",
+  behavioral_quiz: "Tâm lý đầu tư",
+  behavioral: "Tâm lý đầu tư",
+  investment_case: "Tình huống tài chính",
+  budget: "Ngân sách 50/30/20",
+  debt: "Lộ trình trả nợ",
+  trading: "Biểu đồ nến",
+  stroop_test: "Thí nghiệm Stroop",
+  memory_span: "Trí nhớ ngắn hạn",
+  reflection_journal: "Nhật ký CBT",
+  psych_scenario: "Tình huống tâm lý",
+  biases: "Bẫy tâm lý",
+  cbt: "Gỡ rối CBT",
+};
+
+export function getPracticeActivityTypeLabel(activityType?: string | null): string {
+  const key = (activityType || "").trim().toLowerCase();
+  return ACTIVITY_TYPE_LABELS_VI[key] ?? (activityType || "Thực hành");
+}
+
+export function buildPracticeLessonHref(
+  courseId: string,
+  lessonId?: string | null,
+  activityType?: string | null,
+  activityKey?: string | null
+): string {
+  if (!courseId || !lessonId) {
+    return "/app/practice";
+  }
+  const params = new URLSearchParams();
+  if (activityType && activityType.trim()) {
+    params.set("type", activityType.trim());
+  }
+  if (activityKey && activityKey.trim()) {
+    params.set("key", activityKey.trim());
+  }
+  const qs = params.toString();
+  return `/app/practice/${encodeURIComponent(courseId)}/${encodeURIComponent(lessonId)}${qs ? `?${qs}` : ""}`;
+}
+
+export interface QuickCheckQuestion {
+  id: string;
+  question: string;
+  options: Array<{ key: string; text: string }>;
+  correctKey: string;
+  explanation: string;
+}
+
+function cleanSnippet(text: string): string {
+  return text
+    .replace(/\[(?:C\d+-\d+|LO-[A-Z0-9-]+)\]/gi, "")
+    .replace(/[*_`>#]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Extracts up to 2 lightweight multiple-choice quick-check questions from lesson Markdown
+ * when a lesson does not yet have persisted PracticeQuiz items in the database.
+ */
+export function extractQuickCheckQuestions(
+  lessonMarkdown: string,
+  lessonTitle: string
+): QuickCheckQuestion[] {
+  const md = (lessonMarkdown || "").trim();
+  const pairs: Array<{ term: string; desc: string }> = [];
+  const seenTerms = new Set<string>();
+
+  // 1. Definition bullets: - **Term**: Description
+  const defRegex = /(?:^|\n)(?:[-*]\s*)?\*\*([^*\n:]{3,55})\*\*\s*[:–—\-]\s*([^\n]{12,200})/g;
+  let match: RegExpExecArray | null;
+  while ((match = defRegex.exec(md)) !== null) {
+    const term = cleanSnippet(match[1]);
+    const desc = cleanSnippet(match[2]);
+    const norm = stripDiacriticsLower(term);
+    if (
+      term.length >= 3 &&
+      desc.length >= 12 &&
+      !seenTerms.has(norm) &&
+      !norm.startsWith("lo-") &&
+      !norm.startsWith("c0")
+    ) {
+      seenTerms.add(norm);
+      pairs.push({ term, desc });
+    }
+    if (pairs.length >= 6) break;
+  }
+
+  // 2. Headings + first descriptive paragraph
+  if (pairs.length < 4) {
+    const headingRegex = /^#{2,3}\s+([^\n]{4,70})\r?\n+([^#\n`|<][^\n]{18,200})/gm;
+    while ((match = headingRegex.exec(md)) !== null) {
+      const term = cleanSnippet(match[1]);
+      const desc = cleanSnippet(match[2]);
+      const norm = stripDiacriticsLower(term);
+      if (
+        term.length >= 4 &&
+        desc.length >= 18 &&
+        !seenTerms.has(norm) &&
+        !/muc luc|tai lieu tham khao|bai tiep|tong ket nhanh/i.test(norm)
+      ) {
+        seenTerms.add(norm);
+        pairs.push({ term, desc });
+      }
+      if (pairs.length >= 6) break;
+    }
+  }
+
+  if (pairs.length === 0) {
+    return [];
+  }
+
+  const fallbackDistractorDescs = [
+    "Khái niệm không thuộc trọng tâm của bài giảng này và chỉ dùng để tham khảo phụ.",
+    "Quy trình bỏ qua bước kiểm chứng thực tế để rút ngắn thời gian đọc lướt.",
+    "Phương pháp ghi nhớ thụ động bằng cách chép lại nguyên văn mà không tự kiểm tra.",
+  ];
+
+  const questions: QuickCheckQuestion[] = [];
+  const targetCount = Math.min(2, pairs.length);
+  const keys = ["A", "B", "C", "D"];
+
+  for (let i = 0; i < targetCount; i++) {
+    const target = pairs[i];
+    const otherDescs = pairs
+      .filter((_, idx) => idx !== i)
+      .map((p) => p.desc);
+    const distractors = [...otherDescs, ...fallbackDistractorDescs]
+      .filter((d) => d !== target.desc)
+      .slice(0, 3);
+
+    // Deterministic rotation by index so SSR/CSR match without random jitter
+    const correctSlot = (i + target.term.length) % 4;
+    const rawTexts: string[] = [];
+    let dPtr = 0;
+    for (let slot = 0; slot < 4; slot++) {
+      if (slot === correctSlot) {
+        rawTexts.push(target.desc);
+      } else {
+        rawTexts.push(distractors[dPtr++] || fallbackDistractorDescs[slot % fallbackDistractorDescs.length]);
+      }
+    }
+
+    questions.push({
+      id: `qc-${i + 1}`,
+      question: `Trong bài "${lessonTitle}", ý nào mô tả đúng nhất về "${target.term}"?`,
+      options: rawTexts.map((text, idx) => ({
+        key: keys[idx],
+        text: text.length > 150 ? `${text.slice(0, 147)}...` : text,
+      })),
+      correctKey: keys[correctSlot],
+      explanation: `${target.term}: ${target.desc}`,
+    });
+  }
+
+  return questions;
+}

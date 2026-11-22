@@ -116,6 +116,16 @@ test.describe("Top-Down 4-Level Sitemap Real E2E (No Mocks)", () => {
     await expect(page.getByRole("heading", { name: "Sổ tay", exact: true })).toBeVisible({
       timeout: 15000,
     });
+
+    // Level 2: /app/practice (Practice Hub)
+    await page.getByTestId("sidebar-nav-practice").click();
+    await page.waitForURL("**/app/practice", { timeout: 15000 });
+    await expect(page.getByRole("heading", { name: "Hub Luyện tập", exact: true })).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(page.getByTestId("practice-hub-stats")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("practice-hub-review-queue")).toBeVisible();
+    await expect(page.getByTestId("practice-hub-courses")).toBeVisible();
   });
 
   test("Level 3 & Level 4: Course Hub, Course Edit persistence, Quiz, & Learn 4-tab workspace + Study Drawer", async ({
@@ -171,12 +181,21 @@ test.describe("Top-Down 4-Level Sitemap Real E2E (No Mocks)", () => {
     await expect(page.getByTestId("reading-prose-column")).toBeVisible({ timeout: 15000 });
     await expect(page.getByTestId("course-roadmap-sidebar").first()).toBeVisible();
 
-    // Switch center tab -> Thực hành (LessonPracticeLab)
-    await page.getByTestId("center-tab-practice").click();
-    await expect(page.getByTestId("lesson-practice-lab")).toBeVisible({ timeout: 10000 });
+    // Verify Quick Check on /learn and open dedicated fullscreen Practice Lab
+    await expect(page.getByTestId("center-tab-practice")).toHaveCount(0);
+    await expect(page.getByTestId("lesson-quick-check-section")).toBeVisible({ timeout: 10000 });
+    await page.getByTestId("go-to-lesson-practice-btn").click();
+    await page.waitForURL(`**/app/practice/${courseId}/**`, { timeout: 15000 });
+
+    await expect(page.getByTestId("lesson-practice-lab")).toBeVisible({ timeout: 15000 });
     await page.getByTestId("practice-mode-finance").click();
     await page.getByTestId("practice-finance-reveal-btn").click();
     await expect(page.getByTestId("practice-finance-result")).toBeVisible();
+
+    // Return back to /app/courses/[id]/learn from fullscreen Practice Lab
+    await page.getByTestId("practice-back-to-lesson-btn").click();
+    await page.waitForURL(`**/app/courses/${courseId}/learn**`, { timeout: 15000 });
+    await expect(page.getByTestId("reading-prose-column")).toBeVisible({ timeout: 15000 });
 
     // Switch center tab -> Tài liệu PDF & Song song
     await page.getByTestId("center-tab-pdf").click();

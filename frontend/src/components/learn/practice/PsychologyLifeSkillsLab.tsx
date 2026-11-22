@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { invalidateDashboardCache } from "@/lib/api-client";
+import { resolvePracticeSelection } from "@/lib/practice-helpers";
 import { Timer, Activity, ListChecks, CheckSquare, Target, Play, RotateCcw } from "lucide-react";
 
 import {
@@ -44,6 +45,8 @@ export interface PracticeModuleProps {
   lessonMarkdown: string;
   onSaveToNotebook: (textToAppend: string) => Promise<void>;
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
+  initialActivityType?: string | null;
+  initialActivityKey?: string | null;
 }
 
 /* =========================================================================
@@ -1014,6 +1017,7 @@ export interface CognitiveLabsShowcaseProps {
   onSaveToNotebook: (text: string) => Promise<void>;
   onCreateFlashcardQuick?: (front: string, back: string) => Promise<void>;
   onRecordAttempt?: (params: any) => Promise<void>;
+  initialSubLab?: CognitiveSubLab | null;
 }
 
 type CognitiveSubLab = "stroop" | "memory-span" | "cbt-journal";
@@ -1046,8 +1050,14 @@ export function CognitiveLabsShowcase({
   onSaveToNotebook,
   onCreateFlashcardQuick,
   onRecordAttempt,
+  initialSubLab,
 }: CognitiveLabsShowcaseProps) {
-  const [activeSubLab, setActiveSubLab] = useState<CognitiveSubLab>("stroop");
+  const [activeSubLab, setActiveSubLab] = useState<CognitiveSubLab>(initialSubLab ?? "stroop");
+  useEffect(() => {
+    if (initialSubLab) {
+      setActiveSubLab(initialSubLab);
+    }
+  }, [initialSubLab]);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   // ----------------------------------------------------
@@ -1717,9 +1727,29 @@ export function PsychologyLifeSkillsLab({
   lessonMarkdown,
   onSaveToNotebook,
   onCreateFlashcardQuick,
+  initialActivityType,
+  initialActivityKey,
 }: PracticeModuleProps) {
+  const resolvedPsychTarget = useMemo(() => {
+    const resolved = resolvePracticeSelection(
+      initialActivityType,
+      initialActivityKey,
+      courseTitle,
+      lessonTitle,
+      lessonMarkdown
+    );
+    return resolved?.labMode === "recall" ? resolved : null;
+  }, [initialActivityType, initialActivityKey, courseTitle, lessonTitle, lessonMarkdown]);
+
   // Navigation tabs
-  const [activeTab, setActiveTab] = useState<"roleplay" | "biases" | "cbt" | "lesson-cases" | "cognitive-labs">("roleplay");
+  const [activeTab, setActiveTab] = useState<"roleplay" | "biases" | "cbt" | "lesson-cases" | "cognitive-labs">(
+    resolvedPsychTarget?.psychTab ?? "roleplay"
+  );
+  useEffect(() => {
+    if (resolvedPsychTarget?.psychTab) {
+      setActiveTab(resolvedPsychTarget.psychTab);
+    }
+  }, [resolvedPsychTarget]);
 
   const [dbActivities, setDbActivities] = useState<any[]>([]);
   const [practiceAttempts, setPracticeAttempts] = useState<any[]>([]);
@@ -3021,6 +3051,7 @@ ${chatHistory
           onSaveToNotebook={onSaveToNotebook}
           onCreateFlashcardQuick={onCreateFlashcardQuick}
           onRecordAttempt={recordPracticeAttempt}
+          initialSubLab={resolvedPsychTarget?.psychCogSubTab ?? null}
         />
       )}
 

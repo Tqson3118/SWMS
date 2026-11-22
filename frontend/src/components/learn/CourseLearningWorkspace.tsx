@@ -61,19 +61,7 @@ import {
   type LessonHeadingItem,
   type MarkdownAnnotationItem,
 } from "@/components/reader/LessonMarkdownView";
-import dynamic from "next/dynamic";
-
-const LessonPracticeLab = dynamic(
-  () => import("@/components/learn/LessonPracticeLab").then((mod) => mod.LessonPracticeLab),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex-1 flex items-center justify-center p-8 text-[var(--text-muted)] animate-pulse">
-        Đang tải phòng thực hành...
-      </div>
-    )
-  }
-);
+import { buildPracticeLessonHref, extractQuickCheckQuestions } from "@/lib/practice-helpers";
 
 export interface CourseLearningWorkspaceProps {
   courseId: string;
@@ -186,11 +174,69 @@ interface FlashcardItem {
   sourceQuoteSnapshot?: string | null;
 }
 
-type CenterViewTab = "lesson" | "practice" | "pdf" | "split";
+type CenterViewTab = "lesson" | "pdf" | "split";
 type RightPanelMode = "closed" | "toc" | "drawer";
 type DrawerTab = "notebook" | "highlights" | "flashcards";
 type PdfRenderMode = "canvas" | "text";
 type DraftCardMode = "cloze" | "manual" | "ai";
+
+interface QuickCheckOption {
+  key: string;
+  text: string;
+  submitValue: string;
+}
+
+interface QuickCheckQuestionState {
+  id: string;
+  quizId?: string;
+  source: "quiz" | "markdown";
+  question: string;
+  options: QuickCheckOption[];
+  correctKey?: string;
+  explanation?: string;
+  selectedKey?: string;
+  isCorrect?: boolean | null;
+  submitting?: boolean;
+  feedback?: string | null;
+  errorMsg?: string | null;
+}
+
+function extractPromptTextFromQuizItem(prompt: unknown): string {
+  if (typeof prompt === "string") return prompt;
+  if (!prompt || typeof prompt !== "object") return "";
+  const obj = prompt as Record<string, unknown>;
+  if (typeof obj.question === "string") return obj.question;
+  if (typeof obj.text === "string") return obj.text;
+  if (Array.isArray(obj.content)) {
+    return obj.content
+      .map((n) => extractPromptTextFromQuizItem(n))
+      .filter(Boolean)
+      .join(" ");
+  }
+  return "";
+}
+
+function extractChoicesFromQuizItem(choices: unknown): QuickCheckOption[] {
+  if (!Array.isArray(choices)) return [];
+  const letters = ["A", "B", "C", "D", "E", "F"];
+  return choices
+    .map((c, idx) => {
+      if (typeof c === "string") {
+        const key = letters[idx] ?? String(idx + 1);
+        return { key, text: c, submitValue: c };
+      }
+      if (c && typeof c === "object") {
+        const rec = c as Record<string, unknown>;
+        const key = String(rec.key ?? rec.id ?? rec.label ?? letters[idx] ?? idx + 1);
+        const text = String(rec.text ?? rec.label ?? rec.value ?? "");
+        const submitValue = String(rec.key ?? rec.id ?? text ?? key);
+        return { key, text, submitValue };
+      }
+      const fallbackKey = String(idx + 1);
+      return { key: fallbackKey, text: "", submitValue: fallbackKey };
+    })
+    .filter((opt) => opt.text.trim().length > 0);
+}
 
 const COLOR_DOT_CLASSES: Record<AnnotationItem["colorKey"], string> = {
   yellow: "bg-amber-400 border-amber-500",
@@ -416,8 +462,12 @@ export function CourseLearningWorkspace({
   const renderTaskRef = useRef<RenderTask | null>(null);
   const pageCacheRef = useRef<Map<number, DocumentPageDto>>(new Map());
   const readerScrollRef = useRef<HTMLDivElement | null>(null);
-  const inlinePracticeRef = useRef<HTMLDivElement | null>(null);
+  const quickCheckRef = useRef<HTMLDivElement | null>(null);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Quick-Check (1-2 questions from real lesson PracticeQuiz or Markdown concept check)
+  const [quickCheckItems, setQuickCheckItems] = useState<QuickCheckQuestionState[]>([]);
+  const [quickCheckLoading, setQuickCheckLoading] = useState(false);
 
   // Pomodoro Focus Timer (25m Study / 5m Break) & Quick Lesson TTS
   const [pomoSecondsLeft, setPomoSecondsLeft] = useState(25 * 60);
@@ -748,6 +798,217 @@ export function CourseLearningWorkspace({
       void loadLessonContext(activeLessonId);
     }
   }, [activeLessonId, loadLessonContext]);
+
+  // 2b. Load lightweight Quick-Check (1-2 real DB quiz questions or Markdown fallback)
+  useEffect(() => {
+    if (!lesson) {
+      setQuickCheckItems([]);
+      return;
+    }
+
+    const fallbackItems: QuickCheckQuestionState[] = extractQuickCheckQuestions(
+      lesson.contentMarkdown || "",
+      lesson.title
+    ).map((q) => ({
+      id: q.id,
+      source: "markdown",
+      question: q.question,
+      options: q.options.map((o) => ({ key: o.key, text: o.text, submitValue: o.key })),
+      correctKey: q.correctKey,
+      explanation: q.explanation,
+      isCorrect: null,
+    }));
+
+    setQuickCheckItems(fallbackItems);
+
+    const validCourseId = toNullableUuid(courseId);
+    const validLessonId = toNullableUuid(lesson.id);
+    if (!validCourseId || !validLessonId) {
+      return;
+    }
+
+    let cancelled = false;
+    setQuickCheckLoading(true);
+    const loadQuickCheck = async () => {
+      try {
+        const headers = getHeaders();
+        const listRes = await fetch(
+          `/api/v1/practice-quizzes?courseId=${encodeURIComponent(validCourseId)}`,
+          { headers }
+        );
+        if (!listRes.ok || cancelled) return;
+        const quizzes = (await listRes.json().catch(() => [])) as Array<{
+          id?: string;
+          lessonId?: string | null;
+        }>;
+        if (!Array.isArray(quizzes)) return;
+        const lessonQuiz = quizzes.find((q) => q.lessonId === validLessonId && q.id);
+        if (!lessonQuiz?.id || cancelled) return;
+
+        const detailRes = await fetch(`/api/v1/practice-quizzes/${lessonQuiz.id}`, { headers });
+        if (!detailRes.ok || cancelled) return;
+        const detail = (await detailRes.json().catch(() => null)) as {
+          id?: string;
+          items?: Array<{
+            id: string;
+            itemType?: string;
+            prompt?: unknown;
+            choices?: unknown;
+            userAnswer?: { text?: string } | null;
+            isCorrect?: boolean | null;
+            aiRubricFeedback?: { summary?: string } | null;
+          }>;
+        } | null;
+
+        if (!detail || !Array.isArray(detail.items) || cancelled) return;
+
+        const mappedQuizItems: QuickCheckQuestionState[] = detail.items
+          .filter((item) => item.itemType === "multiple_choice")
+          .map((item) => {
+            const options = extractChoicesFromQuizItem(item.choices);
+            const question = extractPromptTextFromQuizItem(item.prompt);
+            const answeredText = item.userAnswer?.text;
+            const matchedOpt = answeredText
+              ? options.find(
+                  (o) =>
+                    o.key.toLowerCase() === answeredText.trim().toLowerCase() ||
+                    o.submitValue.toLowerCase() === answeredText.trim().toLowerCase() ||
+                    o.text.toLowerCase() === answeredText.trim().toLowerCase()
+                )
+              : undefined;
+            return {
+              id: item.id,
+              quizId: detail.id || lessonQuiz.id,
+              source: "quiz" as const,
+              question,
+              options,
+              selectedKey: matchedOpt?.key ?? (answeredText ? answeredText : undefined),
+              isCorrect: item.isCorrect ?? null,
+              feedback: item.aiRubricFeedback?.summary ?? null,
+            };
+          })
+          .filter((q) => q.question.trim().length > 0 && q.options.length >= 2)
+          .slice(0, 2);
+
+        if (mappedQuizItems.length > 0 && !cancelled) {
+          setQuickCheckItems(mappedQuizItems);
+        }
+      } catch {
+        // Keep extracted lesson concept check if optional quiz fetch fails
+      } finally {
+        if (!cancelled) setQuickCheckLoading(false);
+      }
+    };
+
+    void loadQuickCheck();
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId, lesson, getHeaders]);
+
+  const handleSelectQuickCheckOption = async (
+    questionId: string,
+    option: QuickCheckOption
+  ) => {
+    const target = quickCheckItems.find((q) => q.id === questionId);
+    if (!target || target.submitting) return;
+
+    if (target.source === "markdown") {
+      const ok = Boolean(target.correctKey && option.key === target.correctKey);
+      setQuickCheckItems((prev) =>
+        prev.map((q) =>
+          q.id === questionId
+            ? {
+                ...q,
+                selectedKey: option.key,
+                isCorrect: ok,
+                feedback: q.explanation ?? null,
+                errorMsg: null,
+              }
+            : q
+        )
+      );
+      return;
+    }
+
+    if (!target.quizId || target.isCorrect !== null && target.isCorrect !== undefined) {
+      return;
+    }
+
+    setQuickCheckItems((prev) =>
+      prev.map((q) =>
+        q.id === questionId ? { ...q, submitting: true, errorMsg: null } : q
+      )
+    );
+
+    try {
+      const resp = await fetch(
+        `/api/v1/practice-quizzes/${target.quizId}/items/${target.id}/submit`,
+        {
+          method: "POST",
+          headers: getHeaders({ "Content-Type": "application/json" }),
+          body: JSON.stringify({
+            answer: option.submitValue,
+            idempotencyKey: crypto.randomUUID(),
+            waitForAiCompletion: true,
+          }),
+        }
+      );
+
+      if (!resp.ok) {
+        const errBody = await resp.json().catch(() => null);
+        setQuickCheckItems((prev) =>
+          prev.map((q) =>
+            q.id === questionId
+              ? {
+                  ...q,
+                  submitting: false,
+                  errorMsg:
+                    errBody?.error ||
+                    `Không thể nộp đáp án (HTTP ${resp.status}). Vui lòng thử lại.`,
+                }
+              : q
+          )
+        );
+        return;
+      }
+
+      const data = await resp.json().catch(() => null);
+      const nextCorrect =
+        typeof data?.isCorrect === "boolean" ? data.isCorrect : null;
+      const summaryFeedback =
+        typeof data?.aiRubricFeedback?.summary === "string"
+          ? data.aiRubricFeedback.summary
+          : null;
+
+      setQuickCheckItems((prev) =>
+        prev.map((q) =>
+          q.id === questionId
+            ? {
+                ...q,
+                selectedKey: option.key,
+                isCorrect: nextCorrect,
+                feedback: summaryFeedback,
+                submitting: false,
+                errorMsg: null,
+              }
+            : q
+        )
+      );
+    } catch {
+      setQuickCheckItems((prev) =>
+        prev.map((q) =>
+          q.id === questionId
+            ? {
+                ...q,
+                submitting: false,
+                errorMsg: "Lỗi kết nối khi nộp câu kiểm tra nhanh.",
+              }
+            : q
+        )
+      );
+    }
+  };
 
   // 3. Load document metadata + binary PDF when activeDocId changes
   useEffect(() => {
@@ -1483,7 +1744,7 @@ export function CourseLearningWorkspace({
     setPdfJumpInput("1");
     if (nextMode) {
       setCenterTab(nextMode);
-    } else if (centerTab === "lesson" || centerTab === "practice") {
+    } else if (centerTab === "lesson") {
       setCenterTab(hasLesson ? "split" : "pdf");
     }
   };
@@ -1985,39 +2246,24 @@ export function CourseLearningWorkspace({
 
         {/* Center Canvas - Reading column never shrinks below 320px (Bug B2) */}
         <main className="flex-1 min-w-[320px] flex flex-col bg-[var(--surface-card)] overflow-hidden relative">
-          {/* Workspace Switcher Bar: Bài giảng / Thực hành / Tài liệu PDF / Song song */}
+          {/* Workspace Switcher Bar: Bài giảng / Tài liệu PDF / Song song */}
           {(hasLesson || hasPdf || availableDocs.length > 0) && (
             <div className="h-11 px-2 sm:px-4 border-b border-border-subtle bg-bg-secondary/30 flex items-center justify-between gap-1.5 sm:gap-2 shrink-0 overflow-x-auto no-scrollbar swms-thin-scrollbar max-w-full">
               <div className="inline-flex items-center rounded-md border border-border bg-bg-primary p-0.5 flex-nowrap gap-0.5 shrink-0 overflow-x-auto no-scrollbar">
                 {hasLesson && (
-                  <>
-                    <button
-                      type="button"
-                      data-testid="center-tab-lesson"
-                      onClick={() => setCenterTab("lesson")}
-                      className={`inline-flex items-center gap-1 h-7 px-1.5 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
-                        centerTab === "lesson"
-                          ? "bg-accent text-white"
-                          : "text-text-secondary hover:text-text-primary"
-                      }`}
-                    >
-                      <BookOpen className="w-3.5 h-3.5 shrink-0" />
-                      <span>Bài giảng</span>
-                    </button>
-                    <button
-                      type="button"
-                      data-testid="center-tab-practice"
-                      onClick={() => setCenterTab("practice")}
-                      className={`inline-flex items-center gap-1 h-7 px-1.5 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
-                        centerTab === "practice"
-                          ? "bg-accent text-white"
-                          : "text-text-secondary hover:text-text-primary"
-                      }`}
-                    >
-                      <FlaskConical className="w-3.5 h-3.5 shrink-0" />
-                      <span>Thực hành</span>
-                    </button>
-                  </>
+                  <button
+                    type="button"
+                    data-testid="center-tab-lesson"
+                    onClick={() => setCenterTab("lesson")}
+                    className={`inline-flex items-center gap-1 h-7 px-1.5 sm:px-2.5 rounded text-[11px] sm:text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                      centerTab === "lesson"
+                        ? "bg-accent text-white"
+                        : "text-text-secondary hover:text-text-primary"
+                    }`}
+                  >
+                    <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                    <span>Bài giảng</span>
+                  </button>
                 )}
 
                 {(hasPdf || availableDocs.length > 0) && (
@@ -2066,36 +2312,49 @@ export function CourseLearningWorkspace({
                 )}
               </div>
 
-              {availableDocs.length > 0 ? (
-                <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-                  <label htmlFor="learn-pdf-selector" className="text-[11px] text-text-tertiary hidden sm:inline">
-                    PDF tham chiếu:
-                  </label>
-                  <select
-                    id="learn-pdf-selector"
-                    data-testid="learn-pdf-selector"
-                    value={activeDocId || ""}
-                    onChange={(e) => {
-                      const chosen = e.target.value;
-                      if (chosen) handleSelectPdfDocument(chosen);
-                    }}
-                    className="h-7 max-w-[130px] sm:max-w-[230px] rounded-md border border-border bg-bg-primary px-1.5 sm:px-2 text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-accent truncate"
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                {availableDocs.length > 0 ? (
+                  <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                    <label htmlFor="learn-pdf-selector" className="text-[11px] text-text-tertiary hidden sm:inline">
+                      PDF tham chiếu:
+                    </label>
+                    <select
+                      id="learn-pdf-selector"
+                      data-testid="learn-pdf-selector"
+                      value={activeDocId || ""}
+                      onChange={(e) => {
+                        const chosen = e.target.value;
+                        if (chosen) handleSelectPdfDocument(chosen);
+                      }}
+                      className="h-7 max-w-[130px] sm:max-w-[230px] rounded-md border border-border bg-bg-primary px-1.5 sm:px-2 text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-accent truncate"
+                    >
+                      <option value="">Chọn PDF đọc song song...</option>
+                      {availableDocs.map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  docMeta?.title && (
+                    <span className="text-xs text-text-tertiary truncate hidden sm:inline">
+                      {docMeta.title}
+                    </span>
+                  )
+                )}
+
+                {!isStandalone && hasLesson && lesson && (
+                  <Link
+                    href={buildPracticeLessonHref(courseId, lesson.id)}
+                    data-testid="toolbar-practice-link"
+                    className="inline-flex items-center gap-1 h-7 px-2.5 rounded-md bg-accent-subtle text-accent border border-accent/25 hover:bg-accent hover:text-white text-[11px] sm:text-xs font-semibold whitespace-nowrap transition shrink-0"
                   >
-                    <option value="">Chọn PDF đọc song song...</option>
-                    {availableDocs.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
-                docMeta?.title && (
-                  <span className="text-xs text-text-tertiary truncate hidden sm:inline">
-                    {docMeta.title}
-                  </span>
-                )
-              )}
+                    <FlaskConical className="w-3.5 h-3.5 shrink-0" />
+                    <span>Luyện bài này →</span>
+                  </Link>
+                )}
+              </div>
             </div>
           )}
 
@@ -2210,24 +2469,9 @@ export function CourseLearningWorkspace({
               centerTab === "split" ? "flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-border" : ""
             }`}
           >
-            {/* Interactive Practice Lab */}
-            {centerTab === "practice" && hasLesson && lesson && (
-              <div className="flex-1 min-h-0 overflow-y-auto swms-thin-scrollbar">
-                <LessonPracticeLab
-                  courseId={courseId}
-                  courseTitle={course?.title || "Khóa học"}
-                  lessonId={lesson.id}
-                  lessonTitle={lesson.title}
-                  lessonMarkdown={lesson.contentMarkdown || ""}
-                  onSaveToNotebook={handleSaveToNotebook}
-                  onCreateFlashcardQuick={(front, back) => handleCreateFlashcardQuick(front, back)}
-                />
-              </div>
-            )}
-
             {/* Lesson Pane */}
             {((centerTab === "lesson" || centerTab === "split") ||
-              (centerTab !== "practice" && !hasPdf && availableDocs.length === 0)) && (
+              (!hasPdf && availableDocs.length === 0)) && (
               <div
                 ref={readerScrollRef}
                 data-swms-scroll-container="learn-page"
@@ -2289,17 +2533,23 @@ export function CourseLearningWorkspace({
                         <button
                           type="button"
                           onClick={() => {
-                            if (inlinePracticeRef.current) {
-                              inlinePracticeRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-                            } else {
-                              setCenterTab("practice");
-                            }
+                            quickCheckRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
                           }}
                           className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-accent-subtle text-accent border border-accent/25 hover:bg-accent hover:text-white text-xs font-semibold transition cursor-pointer"
                         >
                           <Zap className="w-3.5 h-3.5" />
-                          <span>Thực hành &amp; Quiz ngay ↓</span>
+                          <span>Kiểm tra nhanh ↓</span>
                         </button>
+                        {!isStandalone && lesson && (
+                          <Link
+                            href={buildPracticeLessonHref(courseId, lesson.id)}
+                            data-testid="top-go-practice-link"
+                            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-accent text-white hover:bg-accent-hover text-xs font-semibold transition"
+                          >
+                            <FlaskConical className="w-3.5 h-3.5" />
+                            <span>Luyện bài này →</span>
+                          </Link>
+                        )}
                         <button
                           type="button"
                           onClick={handleToggleSpeakLessonSummary}
@@ -2371,43 +2621,157 @@ export function CourseLearningWorkspace({
                       onOpenRelativeMarkdown={handleOpenRelativeMarkdown}
                       onHeadingsExtracted={setHeadings}
                       onOpenPractice={() => {
-                        if (inlinePracticeRef.current) {
-                          inlinePracticeRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                        if (!isStandalone && lesson) {
+                          router.push(buildPracticeLessonHref(courseId, lesson.id));
                         } else {
-                          setCenterTab("practice");
-                          readerScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                          quickCheckRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
                         }
                       }}
                       onQuickSaveToNotebook={handleSaveToNotebook}
                     />
 
-                    {/* Inline Practice Lab */}
+                    {/* Compact Quick-Check & Practice Room CTA */}
                     <section
-                      ref={inlinePracticeRef}
-                      data-testid="inline-practice-section"
-                      className="mt-12 pt-8 border-t-2 border-dashed border-border"
+                      ref={quickCheckRef}
+                      data-testid="lesson-quick-check-section"
+                      className="mt-12 pt-8 border-t-2 border-dashed border-border font-sans"
                     >
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <div className="h-6 w-1.5 rounded-full bg-accent" />
-                          <h2 className="text-lg font-semibold text-text-primary">
-                            Thực hành bài học (Interactive Practice Lab)
-                          </h2>
+                      <div className="rounded-2xl border border-[var(--border-calm)] bg-[var(--surface-1)] p-5 sm:p-6 shadow-xs space-y-5">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <div className="h-5 w-1.5 rounded-full bg-accent" />
+                              <h2 className="text-base sm:text-lg font-semibold text-text-primary">
+                                Kiểm tra nhanh (1–2 câu)
+                              </h2>
+                              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--surface-2)] text-text-secondary border border-[var(--border-calm)]">
+                                {quickCheckItems.some((q) => q.source === "quiz")
+                                  ? "Quiz bài học"
+                                  : "Ôn khái niệm chính"}
+                              </span>
+                            </div>
+                            <p className="text-xs text-text-tertiary">
+                              Trả lời nhanh trước khi bước vào phòng thực hành chuyên sâu toàn màn hình.
+                            </p>
+                          </div>
+
+                          {!isStandalone && lesson && (
+                            <Link
+                              href={buildPracticeLessonHref(courseId, lesson.id)}
+                              data-testid="go-to-lesson-practice-btn"
+                              className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent-hover shadow-sm transition shrink-0"
+                            >
+                              <FlaskConical className="w-4 h-4 shrink-0" />
+                              <span>Luyện bài này →</span>
+                            </Link>
+                          )}
                         </div>
-                        <span className="text-xs text-text-tertiary">
-                          Luyện tập tại chỗ không cần chuyển trang
-                        </span>
+
+                        {quickCheckLoading && quickCheckItems.length === 0 ? (
+                          <div className="flex items-center gap-2 py-4 text-xs text-text-tertiary">
+                            <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                            <span>Đang tải câu hỏi kiểm tra nhanh...</span>
+                          </div>
+                        ) : quickCheckItems.length === 0 ? (
+                          <div className="rounded-xl border border-dashed border-border bg-bg-secondary/50 p-4 text-xs text-text-secondary flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <span>
+                              Bài học này tập trung thực hành trực tiếp (Sandbox, Mô phỏng hoặc Tình huống tương tác).
+                            </span>
+                            {!isStandalone && lesson && (
+                              <Link
+                                href={buildPracticeLessonHref(courseId, lesson.id)}
+                                className="inline-flex items-center gap-1 font-semibold text-accent hover:underline shrink-0"
+                              >
+                                <span>Mở phòng thực hành ngay</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </Link>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {quickCheckItems.map((q, qIdx) => {
+                              const answered = q.isCorrect !== null && q.isCorrect !== undefined;
+                              return (
+                                <div
+                                  key={q.id}
+                                  data-testid={`quick-check-q-${qIdx}`}
+                                  className="rounded-xl border border-border bg-bg-primary p-4 space-y-3"
+                                >
+                                  <p className="text-sm font-medium text-text-primary leading-relaxed">
+                                    <span className="font-bold text-accent mr-1.5">
+                                      Câu {qIdx + 1}:
+                                    </span>
+                                    {q.question}
+                                  </p>
+
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    {q.options.map((opt) => {
+                                      const isSelected = q.selectedKey === opt.key;
+                                      const isCorrectChoice =
+                                        answered &&
+                                        q.source === "markdown" &&
+                                        q.correctKey === opt.key;
+                                      const isLocked =
+                                        Boolean(q.submitting) ||
+                                        (q.source === "quiz" && answered);
+
+                                      let btnCls =
+                                        "border-border bg-bg-secondary/50 text-text-primary hover:border-accent/60";
+                                      if (isSelected && answered) {
+                                        btnCls = q.isCorrect
+                                          ? "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                                          : "border-rose-500 bg-rose-500/10 text-rose-700 dark:text-rose-300";
+                                      } else if (isCorrectChoice) {
+                                        btnCls =
+                                          "border-emerald-500/60 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300";
+                                      }
+
+                                      return (
+                                        <button
+                                          key={opt.key}
+                                          type="button"
+                                          disabled={isLocked}
+                                          onClick={() => void handleSelectQuickCheckOption(q.id, opt)}
+                                          className={`text-left p-2.5 rounded-lg border text-xs transition flex items-start gap-2 ${btnCls} ${
+                                            isLocked ? "cursor-default" : "cursor-pointer"
+                                          }`}
+                                        >
+                                          <span className="font-bold shrink-0">{opt.key}.</span>
+                                          <span className="leading-snug">{opt.text}</span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+
+                                  {q.errorMsg && (
+                                    <p className="text-xs text-rose-600 dark:text-rose-400">
+                                      {q.errorMsg}
+                                    </p>
+                                  )}
+
+                                  {answered && (
+                                    <div
+                                      data-testid={`quick-check-feedback-${qIdx}`}
+                                      className={`rounded-lg px-3 py-2 text-xs ${
+                                        q.isCorrect
+                                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                                          : "bg-amber-500/10 text-amber-800 dark:text-amber-300"
+                                      }`}
+                                    >
+                                      <span className="font-semibold">
+                                        {q.isCorrect
+                                          ? "Chính xác!"
+                                          : "Chưa chính xác — hãy xem lại gợi ý:"}
+                                      </span>{" "}
+                                      {q.feedback || "Tiếp tục thử sức trong phòng thực hành."}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
-                      <LessonPracticeLab
-                        isEmbedded={true}
-                        courseId={courseId}
-                        courseTitle={course?.title || "Khóa học"}
-                        lessonId={lesson.id}
-                        lessonTitle={lesson.title}
-                        lessonMarkdown={lesson.contentMarkdown || ""}
-                        onSaveToNotebook={handleSaveToNotebook}
-                        onCreateFlashcardQuick={(front, back) => handleCreateFlashcardQuick(front, back)}
-                      />
                     </section>
 
                     {/* Lesson Navigation & Completion Footer */}
@@ -2426,21 +2790,28 @@ export function CourseLearningWorkspace({
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (inlinePracticeRef.current) {
-                              inlinePracticeRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-                            } else {
-                              setCenterTab("practice");
-                            }
-                          }}
-                          data-testid="scroll-to-practice-lab-btn"
-                          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-indigo-200 dark:border-indigo-800 bg-indigo-50/70 dark:bg-indigo-950/40 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition cursor-pointer"
-                        >
-                          <FlaskConical className="w-3.5 h-3.5" />
-                          <span>Thực hành cuối bài ↓</span>
-                        </button>
+                        {!isStandalone && lesson ? (
+                          <Link
+                            href={buildPracticeLessonHref(courseId, lesson.id)}
+                            data-testid="scroll-to-practice-lab-btn"
+                            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-indigo-200 dark:border-indigo-800 bg-indigo-50/70 dark:bg-indigo-950/40 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition"
+                          >
+                            <FlaskConical className="w-3.5 h-3.5" />
+                            <span>Phòng thực hành →</span>
+                          </Link>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              quickCheckRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                            }}
+                            data-testid="scroll-to-practice-lab-btn"
+                            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-indigo-200 dark:border-indigo-800 bg-indigo-50/70 dark:bg-indigo-950/40 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition cursor-pointer"
+                          >
+                            <FlaskConical className="w-3.5 h-3.5" />
+                            <span>Kiểm tra nhanh ↓</span>
+                          </button>
+                        )}
 
                         <button
                           type="button"
@@ -2688,16 +3059,26 @@ export function CourseLearningWorkspace({
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-1.5">
-                <button
-                  type="button"
-                  onClick={() =>
-                    inlinePracticeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-                  }
-                  className="h-8 px-2 rounded-lg bg-accent text-white text-[11px] font-semibold hover:bg-accent-hover transition cursor-pointer inline-flex items-center justify-center gap-1"
-                >
-                  <Zap className="w-3 h-3" />
-                  <span>Làm bài tập</span>
-                </button>
+                {!isStandalone && lesson ? (
+                  <Link
+                    href={buildPracticeLessonHref(courseId, lesson.id)}
+                    className="h-8 px-2 rounded-lg bg-accent text-white text-[11px] font-semibold hover:bg-accent-hover transition inline-flex items-center justify-center gap-1"
+                  >
+                    <Zap className="w-3 h-3" />
+                    <span>Luyện bài này</span>
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      quickCheckRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                    }
+                    className="h-8 px-2 rounded-lg bg-accent text-white text-[11px] font-semibold hover:bg-accent-hover transition cursor-pointer inline-flex items-center justify-center gap-1"
+                  >
+                    <Zap className="w-3 h-3" />
+                    <span>Kiểm tra nhanh</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => {
