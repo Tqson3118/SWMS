@@ -21,7 +21,7 @@ import {
   Target,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
-import { setAccessToken, fetchDashboardCached } from "@/lib/api-client";
+import { setAccessToken, fetchDashboardCached, fetchPracticeStatsCached } from "@/lib/api-client";
 import {
   deduplicateCourses,
   getCourseId,
@@ -111,15 +111,13 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
       const effectiveUserId =
         activeUserHeaderId ??
         (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
-      const reqHeaders = getClientRequestHeaders(
-        effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
-      );
+      const cachedReqOpts = effectiveUserId
+        ? { headers: { "X-Test-User-Id": effectiveUserId } }
+        : undefined;
 
-      const [data, practiceStatsResp] = await Promise.all([
-        fetchDashboardCached({
-          headers: effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined,
-        }),
-        fetch("/api/v1/practice/stats", { headers: reqHeaders }).catch(() => null),
+      const [data, pStats] = await Promise.all([
+        fetchDashboardCached(cachedReqOpts),
+        fetchPracticeStatsCached(cachedReqOpts),
       ]);
 
       if (data) {
@@ -142,11 +140,8 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         );
       }
 
-      if (practiceStatsResp && practiceStatsResp.ok) {
-        const pStats = await practiceStatsResp.json().catch(() => null);
-        if (pStats && Array.isArray(pStats.needsReview)) {
-          setPracticeReviewCount(pStats.needsReview.length);
-        }
+      if (pStats && Array.isArray(pStats.needsReview)) {
+        setPracticeReviewCount(pStats.needsReview.length);
       }
     } catch {
       // Silent fail for sidebar data

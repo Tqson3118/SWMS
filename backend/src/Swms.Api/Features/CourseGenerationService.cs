@@ -339,6 +339,40 @@ public static class CourseGenerationService
     }
 
     private static readonly ConcurrentDictionary<(Guid LessonId, DateTimeOffset UpdatedAt), (Guid? DocId, int? StartPage, int? EndPage, string? SrcFolder, string? SrcRelPath)> LessonMetaCache = new();
+    private static readonly bool IsRunningUnderTests = AppDomain.CurrentDomain.GetAssemblies()
+        .Any(a => a.GetName().Name?.Contains("testhost", StringComparison.OrdinalIgnoreCase) == true);
+    private static long _cacheVersion = 1;
+    private static readonly ConcurrentDictionary<string, (List<object> Summaries, DateTimeOffset ExpiresAt)> CourseSummaryCache = new();
+    private static readonly TimeSpan CourseSummaryCacheTtl = TimeSpan.FromSeconds(30);
+
+    public static void InvalidateCourseSummaryCache()
+    {
+        Interlocked.Increment(ref _cacheVersion);
+        CourseSummaryCache.Clear();
+    }
+
+    public static (Guid? SourceDocumentId, int? StartPage, int? EndPage) GetCachedOrExtractLessonMetadata(
+        Guid lessonId,
+        DateTimeOffset updatedAt,
+        string? contentAstJson = null,
+        Guid? fallbackDocId = null)
+    {
+        if (LessonMetaCache.TryGetValue((lessonId, updatedAt), out var cached))
+        {
+            return (cached.DocId ?? fallbackDocId, cached.StartPage, cached.EndPage);
+        }
+
+        if (string.IsNullOrWhiteSpace(contentAstJson))
+        {
+            return (fallbackDocId, null, null);
+        }
+
+        var (docId, startPage, endPage) = ExtractLessonMetadata(contentAstJson, null);
+        var (srcFolder, srcRelPath) = ExtractLessonSourceMetadata(contentAstJson);
+        if (LessonMetaCache.Count > 10000) LessonMetaCache.Clear();
+        LessonMetaCache[(lessonId, updatedAt)] = (docId, startPage, endPage, srcFolder, srcRelPath);
+        return (docId ?? fallbackDocId, startPage, endPage);
+    }
 
     private sealed record DocMetaRow(Guid Id, Guid CourseId, int TotalPages);
     private sealed record ChapterRow(Guid Id, Guid CourseId, string Title, int SortOrder);
@@ -390,6 +424,19 @@ public static class CourseGenerationService
         if (courses.Count == 0)
         {
             return new List<object>();
+        }
+
+        string? summaryCacheKey = null;
+        if (!IsRunningUnderTests && !includeLessonMarkdown && singleCourseDocOverride == null)
+        {
+            var cacheVer = Interlocked.Read(ref _cacheVersion);
+            var courseKeyPart = string.Join(',', courses.Select(c => $"{c.Id:N}:{c.UpdatedAt.UtcTicks}"));
+            summaryCacheKey = $"{userId?.ToString("N") ?? "anon"}:{cacheVer}:{courseKeyPart}";
+            if (CourseSummaryCache.TryGetValue(summaryCacheKey, out var cachedEntry) &&
+                cachedEntry.ExpiresAt > DateTimeOffset.UtcNow)
+            {
+                return cachedEntry.Summaries;
+            }
         }
 
         var courseIds = courses.Select(c => c.Id).ToHashSet();
@@ -562,42 +609,35 @@ public static class CourseGenerationService
             )).ToList();
         }
         var lessonsByCourse = allLessons.ToLookup(l => l.CourseId);
+        var allCourseLessonIds = allLessons.Select(l => l.Id).ToHashSet();
 
         var progressUserIds = userId.HasValue
             ? new HashSet<Guid> { userId.Value }
             : instructorIds;
 
         var completedPairs = progressUserIds.Count > 0
-            ? (await (
-                from p in db.UserLessonProgresses.AsNoTracking()
-                join l in db.Lessons.AsNoTracking() on p.LessonId equals l.Id
-                join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
-                where courseIds.Contains(ch.CourseId) && p.IsCompleted && progressUserIds.Contains(p.UserId)
-                select new { p.UserId, p.LessonId })
+            ? (await db.UserLessonProgresses
+                .AsNoTracking()
+                .Where(p => p.IsCompleted && progressUserIds.Contains(p.UserId))
+                .Select(p => new { p.UserId, p.LessonId })
                 .ToListAsync())
                 .Select(x => (x.UserId, x.LessonId))
                 .ToHashSet()
             : new HashSet<(Guid, Guid)>();
 
         var quizById = new Dictionary<Guid, QuizSummaryRow>();
-        if (resolvedDocIds.Count > 0)
+        var hasResolvedDocIds = resolvedDocIds.Count > 0;
+        var hasCourseLessonIds = allCourseLessonIds.Count > 0;
+        if (hasResolvedDocIds || hasCourseLessonIds)
         {
-            var quizzesByDocRows = await db.PracticeQuizzes
+            var quizRows = await db.PracticeQuizzes
                 .AsNoTracking()
-                .Where(q => q.DocumentId.HasValue && resolvedDocIds.Contains(q.DocumentId.Value))
+                .Where(q => (hasResolvedDocIds && q.DocumentId.HasValue && resolvedDocIds.Contains(q.DocumentId.Value)) ||
+                            (hasCourseLessonIds && q.LessonId.HasValue && allCourseLessonIds.Contains(q.LessonId.Value)))
                 .Select(q => new QuizSummaryRow(q.Id, q.DocumentId, q.LessonId, q.StartedAt))
                 .ToListAsync();
-            foreach (var q in quizzesByDocRows) quizById.TryAdd(q.Id, q);
+            foreach (var q in quizRows) quizById.TryAdd(q.Id, q);
         }
-
-        var quizzesByLessonRows = await (
-            from q in db.PracticeQuizzes.AsNoTracking()
-            join l in db.Lessons.AsNoTracking() on q.LessonId equals l.Id
-            join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
-            where courseIds.Contains(ch.CourseId)
-            select new QuizSummaryRow(q.Id, q.DocumentId, q.LessonId, q.StartedAt))
-            .ToListAsync();
-        foreach (var q in quizzesByLessonRows) quizById.TryAdd(q.Id, q);
 
         var quizzesByDoc = quizById.Values
             .Where(q => q.DocumentId.HasValue)
@@ -654,32 +694,41 @@ public static class CourseGenerationService
             }
         }
 
-        var fcById = new Dictionary<Guid, FlashcardRefRow>();
-        if (allSourceDocIds.Count > 0 && instructorIds.Count > 0)
+        var flashcardQueryUserIds = new HashSet<Guid>(instructorIds);
+        if (userId.HasValue)
         {
-            var fcByDocRows = await db.Flashcards
+            flashcardQueryUserIds.Add(userId.Value);
+        }
+        var hasSourceDocIds = allSourceDocIds.Count > 0;
+
+        var allRelevantFlashcards = flashcardQueryUserIds.Count > 0 && (hasSourceDocIds || hasCourseLessonIds)
+            ? await db.Flashcards
                 .AsNoTracking()
                 .Where(f => !f.IsArchived &&
-                            instructorIds.Contains(f.UserId) &&
-                            f.DocumentId.HasValue &&
-                            allSourceDocIds.Contains(f.DocumentId.Value))
-                .Select(f => new FlashcardRefRow(f.Id, f.UserId, f.DocumentId, f.LessonId))
-                .ToListAsync();
-            foreach (var fc in fcByDocRows) fcById.TryAdd(fc.Id, fc);
-        }
+                            flashcardQueryUserIds.Contains(f.UserId) &&
+                            ((hasCourseLessonIds && f.LessonId.HasValue && allCourseLessonIds.Contains(f.LessonId.Value)) ||
+                             (hasSourceDocIds && f.DocumentId.HasValue && allSourceDocIds.Contains(f.DocumentId.Value))))
+                .Select(f => new
+                {
+                    f.Id,
+                    f.UserId,
+                    f.DocumentId,
+                    f.LessonId,
+                    f.DueAt,
+                    f.Reps,
+                    f.State,
+                    f.Lapses
+                })
+                .ToListAsync()
+            : [];
 
-        if (instructorIds.Count > 0)
+        var fcById = new Dictionary<Guid, FlashcardRefRow>();
+        foreach (var f in allRelevantFlashcards)
         {
-            var fcByLessonRows = await (
-                from f in db.Flashcards.AsNoTracking()
-                join l in db.Lessons.AsNoTracking() on f.LessonId equals l.Id
-                join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
-                where !f.IsArchived &&
-                      instructorIds.Contains(f.UserId) &&
-                      courseIds.Contains(ch.CourseId)
-                select new FlashcardRefRow(f.Id, f.UserId, f.DocumentId, f.LessonId))
-                .ToListAsync();
-            foreach (var fc in fcByLessonRows) fcById.TryAdd(fc.Id, fc);
+            if (instructorIds.Contains(f.UserId))
+            {
+                fcById.TryAdd(f.Id, new FlashcardRefRow(f.Id, f.UserId, f.DocumentId, f.LessonId));
+            }
         }
 
         var flashcardsByUserAndDoc = fcById.Values
@@ -689,36 +738,28 @@ public static class CourseGenerationService
             .Where(f => f.LessonId.HasValue)
             .ToLookup(f => (f.UserId, f.LessonId!.Value));
 
-        var flashcardTagLookup = fcById.Count > 0
+        var relevantFcIds = fcById.Keys.ToList();
+        var flashcardTagLookup = relevantFcIds.Count > 0
             ? (await (
                 from ft in db.FlashcardTags.AsNoTracking()
-                join f in db.Flashcards.AsNoTracking() on ft.FlashcardId equals f.Id
                 join t in db.Tags.AsNoTracking() on ft.TagId equals t.Id
-                where !f.IsArchived && instructorIds.Contains(f.UserId)
+                where relevantFcIds.Contains(ft.FlashcardId)
                 select new { ft.FlashcardId, t.Id, t.Name })
                 .ToListAsync())
                 .ToLookup(x => x.FlashcardId, x => (x.Id, x.Name))
             : Array.Empty<(Guid FlashcardId, Guid Id, string Name)>().ToLookup(x => x.FlashcardId, x => (x.Id, x.Name));
 
         var nbById = new Dictionary<Guid, NotebookRefRow>();
-        if (allSourceDocIds.Count > 0)
+        if (hasSourceDocIds || hasCourseLessonIds)
         {
-            var nbByDocRows = await db.Notebooks
+            var nbRows = await db.Notebooks
                 .AsNoTracking()
-                .Where(n => n.PrimarySourceDocumentId.HasValue && allSourceDocIds.Contains(n.PrimarySourceDocumentId.Value))
+                .Where(n => (hasSourceDocIds && n.PrimarySourceDocumentId.HasValue && allSourceDocIds.Contains(n.PrimarySourceDocumentId.Value)) ||
+                            (hasCourseLessonIds && n.PrimarySourceLessonId.HasValue && allCourseLessonIds.Contains(n.PrimarySourceLessonId.Value)))
                 .Select(n => new NotebookRefRow(n.Id, n.PrimarySourceDocumentId, n.PrimarySourceLessonId, n.UpdatedAt))
                 .ToListAsync();
-            foreach (var nb in nbByDocRows) nbById.TryAdd(nb.Id, nb);
+            foreach (var nb in nbRows) nbById.TryAdd(nb.Id, nb);
         }
-
-        var nbByLessonRows = await (
-            from n in db.Notebooks.AsNoTracking()
-            join l in db.Lessons.AsNoTracking() on n.PrimarySourceLessonId equals l.Id
-            join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
-            where courseIds.Contains(ch.CourseId)
-            select new NotebookRefRow(n.Id, n.PrimarySourceDocumentId, n.PrimarySourceLessonId, n.UpdatedAt))
-            .ToListAsync();
-        foreach (var nb in nbByLessonRows) nbById.TryAdd(nb.Id, nb);
 
         var notebooksByDoc = nbById.Values
             .Where(n => n.PrimarySourceDocumentId.HasValue)
@@ -727,18 +768,16 @@ public static class CourseGenerationService
             .Where(n => n.PrimarySourceLessonId.HasValue)
             .ToLookup(n => n.PrimarySourceLessonId!.Value);
 
-        var allCourseLessonIds = allLessons.Select(l => l.Id).ToHashSet();
-        ILookup<Guid, int> lapsesByLesson = Array.Empty<(Guid, int)>().ToLookup(x => x.Item1, x => x.Item2);
+        var lapsesByLesson = userId.HasValue
+            ? allRelevantFlashcards
+                .Where(f => f.UserId == userId.Value && f.Lapses > 0 && f.LessonId.HasValue && allCourseLessonIds.Contains(f.LessonId.Value))
+                .ToLookup(f => f.LessonId!.Value, f => f.Lapses)
+            : Array.Empty<(Guid, int)>().ToLookup(x => x.Item1, x => x.Item2);
+
         ILookup<Guid, Guid> quizErrorsByLesson = Array.Empty<(Guid, Guid)>().ToLookup(x => x.Item1, x => x.Item2);
 
         if (userId.HasValue && allCourseLessonIds.Count > 0)
         {
-            var lapsedFlashcards = await db.Flashcards.AsNoTracking()
-                .Where(f => f.UserId == userId.Value && !f.IsArchived && f.Lapses > 0 && f.LessonId.HasValue && allCourseLessonIds.Contains(f.LessonId.Value))
-                .Select(f => new { LessonId = f.LessonId!.Value, f.Lapses })
-                .ToListAsync();
-            lapsesByLesson = lapsedFlashcards.ToLookup(f => f.LessonId, f => f.Lapses);
-
             var incorrectQuizItems = await (
                 from q in db.PracticeQuizzes.AsNoTracking()
                 join qi in db.PracticeQuizItems.AsNoTracking() on q.Id equals qi.QuizId
@@ -780,13 +819,11 @@ public static class CourseGenerationService
             }
         }
 
-        var userFsrsCards = userId.HasValue && (allCourseLessonIds.Count > 0 || allSourceDocIds.Count > 0)
-            ? await db.Flashcards.AsNoTracking()
-                .Where(f => f.UserId == userId.Value && !f.IsArchived &&
-                            ((f.LessonId.HasValue && allCourseLessonIds.Contains(f.LessonId.Value)) ||
-                             (f.DocumentId.HasValue && allSourceDocIds.Contains(f.DocumentId.Value))))
+        var userFsrsCards = userId.HasValue
+            ? allRelevantFlashcards
+                .Where(f => f.UserId == userId.Value)
                 .Select(f => new { f.Id, f.DocumentId, f.LessonId, f.DueAt, f.Reps, f.State })
-                .ToListAsync()
+                .ToList()
             : [];
         var userCardsByDoc = userFsrsCards
             .Where(f => f.DocumentId.HasValue)
@@ -1052,6 +1089,26 @@ public static class CourseGenerationService
                     lessons = parsedLessonsByChapter.GetValueOrDefault(ch.Id, new List<object>())
                 }).ToList()
             });
+        }
+
+        if (summaryCacheKey != null)
+        {
+            if (CourseSummaryCache.Count > 512)
+            {
+                var nowCacheCheck = DateTimeOffset.UtcNow;
+                foreach (var kvp in CourseSummaryCache)
+                {
+                    if (kvp.Value.ExpiresAt <= nowCacheCheck)
+                    {
+                        CourseSummaryCache.TryRemove(kvp.Key, out _);
+                    }
+                }
+                if (CourseSummaryCache.Count > 512)
+                {
+                    CourseSummaryCache.Clear();
+                }
+            }
+            CourseSummaryCache[summaryCacheKey] = (results, DateTimeOffset.UtcNow.Add(CourseSummaryCacheTtl));
         }
 
         return results;

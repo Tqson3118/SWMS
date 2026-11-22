@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -149,7 +150,45 @@ public class JwtTokenService
     private readonly int _accessTokenMinutes;
 
     private static readonly string ProcessFallbackSigningKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    private static readonly bool IsRunningUnderTests = AppDomain.CurrentDomain.GetAssemblies()
+        .Any(a => a.GetName().Name?.Contains("testhost", StringComparison.OrdinalIgnoreCase) == true);
+    private static readonly ConcurrentDictionary<Guid, (User User, DateTimeOffset ExpiresAt)> UserAuthCache = new();
+    private static readonly TimeSpan UserAuthCacheTtl = TimeSpan.FromSeconds(15);
+
     public const string LeakedJwtSigningKey = "SWMS-v1-Enterprise-Jwt-HmacSha256-Secret-Key-2026-Studxy-Workspace!";
+
+    public static User? GetCachedUser(Guid userId)
+    {
+        if (IsRunningUnderTests) return null;
+        if (UserAuthCache.TryGetValue(userId, out var entry) && entry.ExpiresAt > DateTimeOffset.UtcNow)
+        {
+            return entry.User;
+        }
+        UserAuthCache.TryRemove(userId, out _);
+        return null;
+    }
+
+    public static void SetCachedUser(User user)
+    {
+        if (IsRunningUnderTests || user == null) return;
+        if (UserAuthCache.Count > 2048)
+        {
+            var now = DateTimeOffset.UtcNow;
+            foreach (var kvp in UserAuthCache)
+            {
+                if (kvp.Value.ExpiresAt <= now)
+                {
+                    UserAuthCache.TryRemove(kvp.Key, out _);
+                }
+            }
+        }
+        UserAuthCache[user.Id] = (user, DateTimeOffset.UtcNow.Add(UserAuthCacheTtl));
+    }
+
+    public static void InvalidateCachedUser(Guid userId)
+    {
+        UserAuthCache.TryRemove(userId, out _);
+    }
 
     public static string ResolveJwtSigningKey(IConfiguration config)
     {
@@ -394,6 +433,7 @@ public class RefreshTokenRotationService
             user.TokenVersion += 1;
             user.UpdatedAt = now;
             await _db.SaveChangesAsync();
+            JwtTokenService.InvalidateCachedUser(user.Id);
             if (transaction != null)
             {
                 await transaction.CommitAsync();

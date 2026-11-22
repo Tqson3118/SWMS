@@ -175,12 +175,16 @@ interface DashboardCacheEntry<T = unknown> {
 const DASHBOARD_CACHE_TTL_MS = 25_000;
 const dashboardCache = new Map<string, DashboardCacheEntry<any>>();
 const dashboardInFlight = new Map<string, Promise<any>>();
+const practiceStatsCache = new Map<string, DashboardCacheEntry<any>>();
+const practiceStatsInFlight = new Map<string, Promise<any>>();
 
 export function invalidateDashboardCache(userId?: string): void {
   if (userId) {
     dashboardCache.delete(userId);
+    practiceStatsCache.delete(userId);
   } else {
     dashboardCache.clear();
+    practiceStatsCache.clear();
   }
 }
 
@@ -256,6 +260,61 @@ export async function fetchDashboardCached<T = any>(options?: {
   })();
 
   dashboardInFlight.set(cacheKey, fetchPromise);
+  return fetchPromise;
+}
+
+export async function fetchPracticeStatsCached<T = any>(options?: {
+  forceRefresh?: boolean;
+  headers?: Record<string, string>;
+}): Promise<T | null> {
+  const headers = buildDashboardHeaders(options?.headers);
+  const cacheKey = headers["X-Test-User-Id"] || "default_user";
+
+  if (!options?.forceRefresh) {
+    const cached = practiceStatsCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < DASHBOARD_CACHE_TTL_MS) {
+      return cached.data as T;
+    }
+    const inFlight = practiceStatsInFlight.get(cacheKey);
+    if (inFlight) {
+      return inFlight as Promise<T | null>;
+    }
+  }
+
+  const fetchPromise = (async () => {
+    try {
+      let resp = await fetch("/api/v1/practice/stats", {
+        credentials: "include",
+        headers
+      });
+
+      if (resp.status === 401) {
+        const refreshed = await refreshAccessTokenSingleFlight();
+        if (refreshed) {
+          headers["Authorization"] = `Bearer ${refreshed}`;
+          resp = await fetch("/api/v1/practice/stats", {
+            credentials: "include",
+            headers
+          });
+        }
+      }
+
+      if (!resp.ok) {
+        return null;
+      }
+      const data = await resp.json().catch(() => null);
+      if (data) {
+        practiceStatsCache.set(cacheKey, { data, timestamp: Date.now() });
+      }
+      return data as T | null;
+    } catch {
+      return null;
+    } finally {
+      practiceStatsInFlight.delete(cacheKey);
+    }
+  })();
+
+  practiceStatsInFlight.set(cacheKey, fetchPromise);
   return fetchPromise;
 }
 

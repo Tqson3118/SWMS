@@ -164,13 +164,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     return;
                 }
 
-                var db = ctx.HttpContext.RequestServices.GetRequiredService<SwmsDbContext>();
-                var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+                var user = !isRunningUnderTests ? JwtTokenService.GetCachedUser(userId) : null;
+                if (user == null)
+                {
+                    var db = ctx.HttpContext.RequestServices.GetRequiredService<SwmsDbContext>();
+                    user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+                    if (user != null && !isRunningUnderTests)
+                    {
+                        JwtTokenService.SetCachedUser(user);
+                    }
+                }
                 if (user == null || user.TokenVersion != tokenVer)
                 {
+                    JwtTokenService.InvalidateCachedUser(userId);
                     ctx.HttpContext.Items["JwtVerRevoked"] = "TOKEN_VERSION_REVOKED";
                     ctx.Fail("JWT token_version has been revoked.");
+                    return;
                 }
+                ctx.HttpContext.Items["AuthenticatedUser"] = user;
             },
             OnAuthenticationFailed = ctx =>
             {

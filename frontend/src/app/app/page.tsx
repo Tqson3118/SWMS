@@ -23,7 +23,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
-import { fetchDashboardCached } from "@/lib/api-client";
+import { fetchDashboardCached, fetchPracticeStatsCached } from "@/lib/api-client";
 import {
   classifyCourseDomain,
   deduplicateCourses,
@@ -161,12 +161,12 @@ export default function DashboardPage() {
       const headers = getClientRequestHeaders(
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
-      const [data, coursesResp, practiceStatsResp] = await Promise.all([
-        fetchDashboardCached({
-          headers: effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
-        }),
-        fetch("/api/v1/courses", { headers }).catch(() => null),
-        fetch("/api/v1/practice/stats", { headers }).catch(() => null),
+      const cachedReqOpts = effectiveUserId
+        ? { headers: { "X-Test-User-Id": effectiveUserId } }
+        : undefined;
+      const [data, pStats] = await Promise.all([
+        fetchDashboardCached(cachedReqOpts),
+        fetchPracticeStatsCached(cachedReqOpts),
       ]);
 
       if (!data) {
@@ -188,26 +188,23 @@ export default function DashboardPage() {
       setNotebooksCount(Array.isArray(data.notebooks) ? data.notebooks.length : 0);
       setQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
 
-      if (practiceStatsResp && practiceStatsResp.ok) {
-        const pStats = await practiceStatsResp.json().catch(() => null);
-        if (pStats && typeof pStats.totalAttempts === "number") {
-          setPracticeStats(pStats);
-          setPracticeStatsError(null);
-        } else {
-          setPracticeStatsError("Dữ liệu thống kê luyện tập không hợp lệ.");
-        }
+      if (pStats && typeof pStats.totalAttempts === "number") {
+        setPracticeStats(pStats);
+        setPracticeStatsError(null);
       } else {
         setPracticeStatsError("Không thể tải dữ liệu thống kê luyện tập từ máy chủ.");
       }
 
-      const extraCourses =
-        coursesResp && coursesResp.ok ? await coursesResp.json().catch(() => null) : null;
-      const rawCourses: CourseLike[] =
-        Array.isArray(extraCourses) && extraCourses.length > 0
-          ? extraCourses
-          : Array.isArray(data.courses)
-            ? data.courses
-            : [];
+      let rawCourses: CourseLike[] =
+        Array.isArray(data.courses) && data.courses.length > 0 ? data.courses : [];
+      if (rawCourses.length === 0) {
+        const coursesResp = await fetch("/api/v1/courses", { headers }).catch(() => null);
+        const extraCourses =
+          coursesResp && coursesResp.ok ? await coursesResp.json().catch(() => null) : null;
+        if (Array.isArray(extraCourses) && extraCourses.length > 0) {
+          rawCourses = extraCourses;
+        }
+      }
 
       const unique = sortCoursesSmartly(deduplicateCourses(rawCourses));
       setCourses(unique);
@@ -220,35 +217,49 @@ export default function DashboardPage() {
         unique.find((c) => getCourseProgress(c) < 100) ||
         unique[0];
 
-      const activeId = activeCourse ? getCourseId(activeCourse) : "";
-      if (activeId) {
-        const detailResp = await fetch(`/api/v1/courses/${activeId}`, { headers }).catch(() => null);
-        if (detailResp && detailResp.ok) {
-          const detail = await detailResp.json();
-          const completedSet = new Set<string>(detail.completedLessonIds ?? []);
-          const chapters: CourseDetailChapter[] = Array.isArray(detail.chapters)
-            ? detail.chapters
-            : [];
-          const flattened = chapters.flatMap((ch) =>
-            (ch.lessons ?? []).map((lesson) => ({
-              lesson,
-              chapterTitle: ch.title,
-            }))
-          );
-          const candidate =
-            flattened.find(
-              ({ lesson }) => !lesson.isCompleted && !completedSet.has(lesson.id)
-            ) || flattened[0];
+      const applyNextLessonFromCourse = (courseDetail: {
+        completedLessonIds?: string[];
+        chapters?: CourseDetailChapter[];
+      }) => {
+        const completedSet = new Set<string>(courseDetail.completedLessonIds ?? []);
+        const chapters: CourseDetailChapter[] = Array.isArray(courseDetail.chapters)
+          ? courseDetail.chapters
+          : [];
+        const flattened = chapters.flatMap((ch) =>
+          (ch.lessons ?? []).map((lesson) => ({
+            lesson,
+            chapterTitle: ch.title,
+          }))
+        );
+        const candidate =
+          flattened.find(
+            ({ lesson }) => !lesson.isCompleted && !completedSet.has(lesson.id)
+          ) || flattened[0];
 
-          if (candidate) {
-            setNextLessonInfo({
-              id: candidate.lesson.id,
-              title: candidate.lesson.title,
-              chapterTitle: candidate.chapterTitle,
-              minutes: candidate.lesson.durationMinutes ?? candidate.lesson.estimatedMinutes,
-            });
-          }
+        if (candidate) {
+          setNextLessonInfo({
+            id: candidate.lesson.id,
+            title: candidate.lesson.title,
+            chapterTitle: candidate.chapterTitle,
+            minutes: candidate.lesson.durationMinutes ?? candidate.lesson.estimatedMinutes,
+          });
         }
+      };
+
+      const activeCourseChapters = (activeCourse as { chapters?: CourseDetailChapter[] } | undefined)?.chapters;
+      const activeId = activeCourse ? getCourseId(activeCourse) : "";
+      if (Array.isArray(activeCourseChapters) && activeCourseChapters.length > 0) {
+        applyNextLessonFromCourse({
+          completedLessonIds: (activeCourse as { completedLessonIds?: string[] }).completedLessonIds,
+          chapters: activeCourseChapters,
+        });
+      } else if (activeId) {
+        void fetch(`/api/v1/courses/${activeId}`, { headers })
+          .then((resp) => (resp.ok ? resp.json() : null))
+          .then((detail) => {
+            if (detail) applyNextLessonFromCourse(detail);
+          })
+          .catch(() => null);
       }
     } catch {
       setFetchError("Không thể kết nối tới máy chủ. Vui lòng thử lại.");

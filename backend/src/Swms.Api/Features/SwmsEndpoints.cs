@@ -1308,6 +1308,7 @@ public static class SwmsEndpoints
                 t.RevokedAt = DateTimeOffset.UtcNow;
             }
             await db.SaveChangesAsync();
+            JwtTokenService.InvalidateCachedUser(userId);
 
             var (accessToken, rawRefresh, _) = await rtr.IssueInitialTokenPairAsync(
                 user,
@@ -1376,6 +1377,7 @@ public static class SwmsEndpoints
                     t.RevokedAt = DateTimeOffset.UtcNow;
                 }
                 await db.SaveChangesAsync();
+                JwtTokenService.InvalidateCachedUser(userId);
             }
 
             http.Response.Cookies.Delete("swms_refresh_token", new CookieOptions { Path = "/api/v1/auth/refresh" });
@@ -1413,8 +1415,10 @@ public static class SwmsEndpoints
         ws.MapGet("/dashboard", async (HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
-            var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId)
-                       ?? await db.Users.AsNoTracking().FirstAsync(u => u.Id == SeedDataInitializer.DefaultUserId);
+            var user = (http.Items["AuthenticatedUser"] as User is { } cachedAuthUser && cachedAuthUser.Id == userId)
+                ? cachedAuthUser
+                : await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId)
+                  ?? await db.Users.AsNoTracking().FirstAsync(u => u.Id == SeedDataInitializer.DefaultUserId);
 
             var now = DateTimeOffset.UtcNow;
             var allCards = await db.Flashcards
@@ -1467,17 +1471,26 @@ public static class SwmsEndpoints
                     l.Slug,
                     l.CurrentVersion,
                     l.IsPublished,
-                    l.UpdatedAt,
-                    l.ContentAstJson
+                    l.UpdatedAt
                 })
                 .ToListAsync())
                 .Where(l => instructorOwnedCourseIds.Contains(chapterToCourseMap.GetValueOrDefault(l.ChapterId)) || l.IsPublished)
                 .ToList();
 
+            var syllabusCourses = OrderCoursesForUser(
+                ownedCourses.Where(c => !c.Slug.StartsWith("personal-workspace-", StringComparison.OrdinalIgnoreCase)),
+                user.Id);
+
+            var courses = await CourseGenerationService.BuildCourseSummariesBatchAsync(
+                db,
+                syllabusCourses,
+                includeLessonMarkdown: false,
+                userId: user.Id);
+
             var lessons = rawLessons.Select(l =>
             {
                 var cId = chapterToCourseMap.GetValueOrDefault(l.ChapterId);
-                var (srcDocId, startP, endP) = CourseGenerationService.ExtractLessonMetadata(l.ContentAstJson);
+                var (srcDocId, startP, endP) = CourseGenerationService.GetCachedOrExtractLessonMetadata(l.Id, l.UpdatedAt);
                 return new
                 {
                     l.Id,
@@ -1493,16 +1506,6 @@ public static class SwmsEndpoints
                     itemType = "lesson"
                 };
             }).ToList();
-
-            var syllabusCourses = OrderCoursesForUser(
-                ownedCourses.Where(c => !c.Slug.StartsWith("personal-workspace-", StringComparison.OrdinalIgnoreCase)),
-                user.Id);
-
-            var courses = await CourseGenerationService.BuildCourseSummariesBatchAsync(
-                db,
-                syllabusCourses,
-                includeLessonMarkdown: false,
-                userId: user.Id);
 
             var rawDocuments = await db.Documents
                 .AsNoTracking()
@@ -1624,13 +1627,19 @@ public static class SwmsEndpoints
                 .ToList();
 
             var tags = await db.Tags
+                .AsNoTracking()
                 .Where(t => t.UserId == user.Id)
                 .ToListAsync();
 
-            var tagCounts = await db.FlashcardTags
-                .GroupBy(ft => ft.TagId)
-                .Select(g => new { TagId = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.TagId, x => x.Count);
+            var tagIds = tags.Select(t => t.Id).ToList();
+            var tagCounts = tagIds.Count > 0
+                ? await db.FlashcardTags
+                    .AsNoTracking()
+                    .Where(ft => tagIds.Contains(ft.TagId))
+                    .GroupBy(ft => ft.TagId)
+                    .Select(g => new { TagId = g.Key, Count = g.Count() })
+                    .ToDictionaryAsync(x => x.TagId, x => x.Count)
+                : new Dictionary<Guid, int>();
 
             var quota = await GetQuotaSummaryAsync(db, user.Id);
 
@@ -1960,6 +1969,7 @@ public static class SwmsEndpoints
                         EnrolledAt = DateTimeOffset.UtcNow
                     });
                     await db.SaveChangesAsync();
+                    CourseGenerationService.InvalidateCourseSummaryCache();
                 }
                 catch (DbUpdateException)
                 {
@@ -1974,6 +1984,7 @@ public static class SwmsEndpoints
             var userId = ResolveUserId(http);
             var rootPath = DocumentCourseSyncService.ResolveDocumentRootPath(config);
             var report = await DocumentCourseSyncService.SyncAllFromDocumentsAsync(db, rootPath, useSnapshotCache: false);
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             var enrolledIds = await db.CourseEnrollments
                 .Where(e => e.UserId == userId)
@@ -2070,6 +2081,7 @@ public static class SwmsEndpoints
             {
                 using var stream = file.OpenReadStream();
                 var summary = await CourseWizardAndImportService.ImportCourseFromZipAsync(db, stream, userId);
+                CourseGenerationService.InvalidateCourseSummaryCache();
                 return Results.Ok(summary);
             }
             catch (InvalidDataException)
@@ -2136,6 +2148,7 @@ public static class SwmsEndpoints
                 }
 
                 var summary = await CourseWizardAndImportService.CommitWizardCourseAsync(db, gemini, req, userId, aiOverrides);
+                CourseGenerationService.InvalidateCourseSummaryCache();
 
                 if (idempKey != null)
                 {
@@ -2165,6 +2178,7 @@ public static class SwmsEndpoints
             course.UpdatedAt = DateTimeOffset.UtcNow;
 
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
             var summary = await CourseGenerationService.BuildCourseSummaryAsync(db, course);
             return Results.Ok(summary);
         });
@@ -2191,6 +2205,7 @@ public static class SwmsEndpoints
             db.Chapters.RemoveRange(chapters);
             db.Courses.Remove(course);
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new { message = "Đã xóa khóa học thành công." });
         });
@@ -2223,6 +2238,7 @@ public static class SwmsEndpoints
 
             db.Chapters.Add(chapter);
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
             return Results.Ok(chapter);
         });
 
@@ -2274,6 +2290,7 @@ public static class SwmsEndpoints
 
             course.UpdatedAt = DateTimeOffset.UtcNow;
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new
             {
@@ -2599,6 +2616,7 @@ public static class SwmsEndpoints
             }).ToList();
             db.PracticeQuizItems.AddRange(createdItems);
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Created($"/api/v1/practice-quizzes/{newQuiz.Id}", new
             {
@@ -2813,6 +2831,7 @@ public static class SwmsEndpoints
 
             course.UpdatedAt = now;
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new
             {
@@ -2963,6 +2982,7 @@ public static class SwmsEndpoints
             chapter.UpdatedAt = DateTimeOffset.UtcNow;
 
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
             return Results.Ok(chapter);
         });
 
@@ -2988,6 +3008,7 @@ public static class SwmsEndpoints
             db.Lessons.RemoveRange(lessons);
             db.Chapters.Remove(chapter);
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new { message = "Đã xóa chương mục thành công." });
         });
@@ -3052,6 +3073,7 @@ public static class SwmsEndpoints
             });
 
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
             return Results.Ok(lesson);
         });
 
@@ -3125,6 +3147,7 @@ public static class SwmsEndpoints
 
             lesson.UpdatedAt = now;
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(lesson);
         });
@@ -3152,6 +3175,7 @@ public static class SwmsEndpoints
             db.LessonVersions.RemoveRange(versions);
             db.Lessons.Remove(lesson);
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new { message = "Đã xóa bài học thành công." });
         });
@@ -3236,6 +3260,7 @@ public static class SwmsEndpoints
                 try
                 {
                     await db.SaveChangesAsync();
+                    CourseGenerationService.InvalidateCourseSummaryCache();
                 }
                 catch (DbUpdateException)
                 {
@@ -3257,6 +3282,8 @@ public static class SwmsEndpoints
                     }
                     await db.SaveChangesAsync();
                 }
+
+                CourseGenerationService.InvalidateCourseSummaryCache();
 
                 return Results.Ok(new
                 {
@@ -3430,6 +3457,7 @@ public static class SwmsEndpoints
                 {
                     db.Flashcards.AddRange(createdCards);
                     await db.SaveChangesAsync();
+                    CourseGenerationService.InvalidateCourseSummaryCache();
                 }
 
                 var totalCards = await db.Flashcards
@@ -3480,6 +3508,7 @@ public static class SwmsEndpoints
             {
                 db.UserLessonProgresses.Remove(progress);
                 await db.SaveChangesAsync();
+                CourseGenerationService.InvalidateCourseSummaryCache();
             }
 
             return Results.Ok(new
@@ -3856,6 +3885,7 @@ public static class SwmsEndpoints
             }
 
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new
             {
@@ -4389,6 +4419,7 @@ public static class SwmsEndpoints
             var aiOverrides = CourseGenerationService.ExtractAiOverrides(http);
             var generatedCourse = await CourseGenerationService.GenerateCourseFromDocumentAsync(
                 db, gemini, doc, pages, userId, aiOverrides);
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(generatedCourse);
         });
@@ -5288,6 +5319,7 @@ public static class SwmsEndpoints
                 }
 
                 await db.SaveChangesAsync();
+                CourseGenerationService.InvalidateCourseSummaryCache();
                 return Results.Ok(card);
             }
             finally
@@ -5306,6 +5338,7 @@ public static class SwmsEndpoints
             card.IsArchived = true;
             card.UpdatedAt = DateTimeOffset.UtcNow;
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             var preservedReviewsCount = await db.FlashcardReviews.CountAsync(r => r.FlashcardId == id);
             return Results.Ok(new
@@ -5390,6 +5423,7 @@ public static class SwmsEndpoints
                 card.UpdatedAt = now;
 
                 await db.SaveChangesAsync();
+                CourseGenerationService.InvalidateCourseSummaryCache();
 
                 return Results.Ok(new
                 {
@@ -5619,6 +5653,7 @@ public static class SwmsEndpoints
                 }
 
                 await db.SaveChangesAsync();
+                CourseGenerationService.InvalidateCourseSummaryCache();
                 return Results.Ok(new
                 {
                     syncedCount = syncedResults.Count,
@@ -5835,6 +5870,7 @@ public static class SwmsEndpoints
                         quiz.CompletedAt = DateTimeOffset.UtcNow;
                     }
                     await db.SaveChangesAsync();
+                    CourseGenerationService.InvalidateCourseSummaryCache();
 
                     return Results.Ok(new
                     {
@@ -6005,6 +6041,7 @@ public static class SwmsEndpoints
             quiz.StartedAt = now;
             quiz.AiSummaryFeedback = null;
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new
             {
@@ -6082,6 +6119,7 @@ public static class SwmsEndpoints
             quiz.Status = "completed";
             quiz.CompletedAt = now;
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             var answeredCount = allItems.Count(i => !string.IsNullOrWhiteSpace(i.UserAnswerJson));
             var scorePercent = allItems.Count > 0 ? Math.Round(quiz.CorrectItems * 100.0 / allItems.Count, 1) : 0.0;
@@ -7805,6 +7843,7 @@ public static class SwmsEndpoints
 
             db.PracticeAttempts.Add(attempt);
             await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(attempt);
         });
