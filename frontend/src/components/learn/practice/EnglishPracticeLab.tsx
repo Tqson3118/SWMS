@@ -778,12 +778,26 @@ export function EnglishPracticeLab({
   useEffect(() => {
     let isMounted = true;
     async function loadBackendPractice() {
+      const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const validCourseId = courseId && UUID_REGEX.test(courseId) ? courseId : null;
+      const validLessonId = lessonId && UUID_REGEX.test(lessonId) ? lessonId : null;
+      if (!validCourseId && !validLessonId) {
+        return;
+      }
       setIsLoadingBackend(true);
       try {
         const headers = getClientRequestHeaders();
-        const actUrl = `/api/v1/practice/activities?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}`;
-        const attUrl = `/api/v1/practice/attempts?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}&limit=50`;
-        const fcUrl = `/api/v1/flashcards/due?courseId=${encodeURIComponent(courseId)}&includeAll=true`;
+        const queryParams = new URLSearchParams();
+        if (validCourseId) queryParams.set("courseId", validCourseId);
+        if (validLessonId) queryParams.set("lessonId", validLessonId);
+        const actUrl = `/api/v1/practice/activities?${queryParams.toString()}`;
+        const attParams = new URLSearchParams(queryParams);
+        attParams.set("limit", "50");
+        const attUrl = `/api/v1/practice/attempts?${attParams.toString()}`;
+        const fcParams = new URLSearchParams({ includeAll: "true" });
+        if (validCourseId) fcParams.set("courseId", validCourseId);
+        if (validLessonId) fcParams.set("lessonId", validLessonId);
+        const fcUrl = `/api/v1/flashcards/due?${fcParams.toString()}`;
 
         const [actRes, attRes, fcRes] = await Promise.all([
           fetch(actUrl, { headers }).catch(() => null),

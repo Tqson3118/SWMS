@@ -124,6 +124,13 @@ public class Course
     [Required, MaxLength(30)]
     public string Visibility { get; set; } = "personal"; // personal, private, public
     public bool IsPublished { get; set; } = true;
+    [MaxLength(100)]
+    public string? Category { get; set; }
+    [MaxLength(60)]
+    public string? Level { get; set; } // "foundation", "intermediate", "advanced"
+    public string? LearningOutcomesJson { get; set; }
+    public string? PrerequisitesJson { get; set; }
+    public bool IsArchived { get; set; } = false;
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
@@ -136,6 +143,10 @@ public class CourseEnrollment
     public Guid CourseId { get; set; }
     [Required, MaxLength(50)]
     public string Role { get; set; } = "student";
+    public bool IsPinned { get; set; } = false;
+    public bool IsArchived { get; set; } = false;
+    public int DailyLessonGoal { get; set; } = 2;
+    public DateTimeOffset? TargetCompletionDate { get; set; }
     public DateTimeOffset EnrolledAt { get; set; } = DateTimeOffset.UtcNow;
 }
 
@@ -186,6 +197,8 @@ public class UserLessonProgress
     public int TimeSpentSeconds { get; set; } = 0;
     public int ScrollPercent { get; set; } = 0;
     public int LastScrollOffset { get; set; } = 0;
+    public bool IsBookmarked { get; set; } = false;
+    public bool NeedsReview { get; set; } = false;
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

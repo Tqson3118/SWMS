@@ -2034,7 +2034,7 @@ public static class CourseWizardAndImportService
         DateTimeOffset now)
     {
         var items = new List<PracticeQuizItem>();
-        var (answersByCode, answersByIndex) = ParseQuizAnswerKey(answerKeyMarkdown);
+        var (answersByCode, answersByIndex, explanationsByCode, explanationsByIndex) = ParseQuizAnswerKey(answerKeyMarkdown);
 
         var cleanedMarkdown = Regex.Replace(quizMarkdown.Trim(), @"^---\r?\n[\s\S]*?\r?\n---\r?\n", string.Empty);
         var lines = cleanedMarkdown.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
@@ -2052,17 +2052,24 @@ public static class CourseWizardAndImportService
             @"^(?<num>\d+)\.\s+(?:\*\*\[?(?<code4>Q\d+(?:-\d+)?)\]?\*\*\s*)?(?<rest>.+)$",
             RegexOptions.IgnoreCase);
         var choicePattern = new Regex(
-            @"^\s*(?:[-*]\s*)?(?:\*\*)?(?<key>[A-D])(?:\*\*)?[\.\)](?:\*\*)?\s+(?<text>.+)$");
+            @"^\s*(?:[-*]\s*(?:\[[ xX]\]\s*)?)?(?:\*\*)?(?:\[(?<key>[A-D])\]|(?<key>[A-D])(?:\*\*)?[\.\)])(?:\*\*)?(?:\s+(?<text>.*))?$");
         var inlineAnsPattern = new Regex(
-            @"(?:\*\*Đáp án(?:\s+đúng)?:\*\*|\bĐáp án(?:\s+đúng)?:)\s*(?:\*\*)?(?<ans>[A-D])\b",
+            @"(?:\*\*)?Đáp án(?:\s+(?:đúng|chính\s*xác))?(?:\s+là)?\s*:?(?:\*\*)?\s*(?:\*\*)?(?<ans>[A-D])\b",
+            RegexOptions.IgnoreCase);
+        var inlineExpPattern = new Regex(
+            @"^(?:>\s*)?(?:[-*]\s*)?(?:\*\*)?Giải thích(?:\s+chi\s*tiết)?\s*:?(?:\*\*)?\s*(?<exp>.+)$",
             RegexOptions.IgnoreCase);
 
         string? activeCode = null;
         int activeNum = 0;
         var promptLines = new List<string>();
-        var choices = new List<(string Key, string Text)>();
+        var choiceBuffers = new List<(string Key, List<string> Lines)>();
+        int activeChoiceIdx = -1;
         string? inlineAnswer = null;
+        string? inlineExplanation = null;
+        var detailsLines = new List<string>();
         bool inCodeFence = false;
+        bool inDetailsBlock = false;
         int sequentialIdx = 0;
 
         static string CleanHeadingPromptRemainder(string rawRest)
@@ -2084,29 +2091,91 @@ public static class CourseWizardAndImportService
             return m.Success && int.TryParse(m.Groups[1].Value, out int parsed) ? parsed : fallbackNum;
         }
 
+        static string? ExtractExplanationFromDetailsLines(List<string> linesBuffer)
+        {
+            if (linesBuffer.Count == 0) return null;
+            var collected = new List<string>();
+            foreach (var raw in linesBuffer)
+            {
+                var line = raw.Trim();
+                if (string.IsNullOrWhiteSpace(line) ||
+                    line.StartsWith("<summary", StringComparison.OrdinalIgnoreCase) ||
+                    line.StartsWith("</summary", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                var expMatch = Regex.Match(line, @"^(?:>\s*)?(?:[-*]\s*)?(?:\*\*)?Giải thích(?:\s+chi\s*tiết)?\s*:?(?:\*\*)?\s*(?<exp>.+)$", RegexOptions.IgnoreCase);
+                if (expMatch.Success)
+                {
+                    collected.Add(expMatch.Groups["exp"].Value.Trim());
+                    continue;
+                }
+
+                // If line starts with answer marker + explanation on the same line (e.g. "**Đáp án: C** — ..."), keep remainder
+                var ansRem = Regex.Match(line, @"^(?:>\s*)?(?:[-*]\s*)?(?:\*\*)?Đáp án(?:\s+(?:đúng|chính\s*xác))?(?:\s+là)?\s*:?(?:\*\*)?\s*(?:\*\*)?[A-D](?:\*\*)?(?:\s*[:.\-–—]\s*(?<exp>.+))?$", RegexOptions.IgnoreCase);
+                if (ansRem.Success)
+                {
+                    var rem = ansRem.Groups["exp"].Value.Trim();
+                    if (!string.IsNullOrWhiteSpace(rem))
+                    {
+                        collected.Add(rem);
+                    }
+                    continue;
+                }
+
+                collected.Add(line.TrimStart('>', ' '));
+            }
+            var joined = string.Join(" ", collected).Trim();
+            return string.IsNullOrWhiteSpace(joined) ? null : joined;
+        }
+
         void CommitQuestion()
         {
-            if (activeCode == null && choices.Count == 0)
+            activeChoiceIdx = -1;
+            if (string.IsNullOrWhiteSpace(inlineExplanation) && detailsLines.Count > 0)
+            {
+                inlineExplanation = ExtractExplanationFromDetailsLines(detailsLines);
+            }
+            detailsLines.Clear();
+
+            var validChoices = new List<(string Key, string Text)>();
+            foreach (var (key, cLines) in choiceBuffers)
+            {
+                var text = string.Join("\n", cLines).Trim();
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    validChoices.Add((key, text));
+                }
+            }
+
+            if (activeCode == null && validChoices.Count == 0)
             {
                 promptLines.Clear();
+                choiceBuffers.Clear();
+                inlineExplanation = null;
                 return;
             }
 
-            if (choices.Count == 0 && promptLines.Count == 0)
+            if (validChoices.Count == 0 && promptLines.Count == 0)
             {
                 activeCode = null;
                 activeNum = 0;
                 inlineAnswer = null;
+                inlineExplanation = null;
+                choiceBuffers.Clear();
                 return;
             }
 
             // Skip non-question trailing meta headings or intro numbered bullets in non-heading quizzes
-            if ((choices.Count == 0 && activeCode == null) || (choices.Count == 0 && !usesExplicitHeadingStyle))
+            if ((validChoices.Count == 0 && activeCode == null) || (validChoices.Count == 0 && !usesExplicitHeadingStyle))
             {
                 activeCode = null;
                 activeNum = 0;
                 promptLines.Clear();
                 inlineAnswer = null;
+                inlineExplanation = null;
+                choiceBuffers.Clear();
                 return;
             }
 
@@ -2140,7 +2209,29 @@ public static class CourseWizardAndImportService
                 correctKey = inlineAnswer;
             }
 
-            var choiceObjects = choices
+            string? explanationText = null;
+            if (!string.IsNullOrWhiteSpace(activeCode) && explanationsByCode.TryGetValue(activeCode, out var expByCode))
+            {
+                explanationText = expByCode;
+            }
+            else if (explanationsByCode.TryGetValue($"Q{qNumber:D2}", out var expByPadded))
+            {
+                explanationText = expByPadded;
+            }
+            else if (explanationsByIndex.TryGetValue(qNumber, out var expByNum))
+            {
+                explanationText = expByNum;
+            }
+            else if (explanationsByIndex.TryGetValue(sequentialIdx, out var expBySeq))
+            {
+                explanationText = expBySeq;
+            }
+            else if (!string.IsNullOrWhiteSpace(inlineExplanation))
+            {
+                explanationText = inlineExplanation.Trim();
+            }
+
+            var choiceObjects = validChoices
                 .Select(c => (object)new { key = c.Key, text = c.Text })
                 .ToList();
 
@@ -2149,7 +2240,9 @@ public static class CourseWizardAndImportService
                 Id = Guid.NewGuid(),
                 QuizId = quizId,
                 ItemType = choiceObjects.Count > 0 ? "multiple_choice" : "essay",
-                PromptAstJson = JsonSerializer.Serialize(new { question = prompt }),
+                PromptAstJson = !string.IsNullOrWhiteSpace(explanationText)
+                    ? JsonSerializer.Serialize(new { question = prompt, explanation = explanationText })
+                    : JsonSerializer.Serialize(new { question = prompt }),
                 ChoicesJson = choiceObjects.Count > 0 ? JsonSerializer.Serialize(choiceObjects) : null,
                 ClozeSolution = correctKey,
                 CreatedAt = now.AddSeconds(items.Count)
@@ -2158,8 +2251,11 @@ public static class CourseWizardAndImportService
             activeCode = null;
             activeNum = 0;
             promptLines.Clear();
-            choices.Clear();
+            choiceBuffers.Clear();
+            activeChoiceIdx = -1;
             inlineAnswer = null;
+            inlineExplanation = null;
+            inDetailsBlock = false;
         }
 
         foreach (var rawLine in lines)
@@ -2169,7 +2265,11 @@ public static class CourseWizardAndImportService
             if (trimmed.StartsWith("```"))
             {
                 inCodeFence = !inCodeFence;
-                if (activeCode != null)
+                if (activeChoiceIdx >= 0)
+                {
+                    choiceBuffers[activeChoiceIdx].Lines.Add(rawLine.TrimEnd());
+                }
+                else if (activeCode != null && !inDetailsBlock)
                 {
                     promptLines.Add(rawLine.TrimEnd());
                 }
@@ -2178,7 +2278,11 @@ public static class CourseWizardAndImportService
 
             if (inCodeFence)
             {
-                if (activeCode != null)
+                if (activeChoiceIdx >= 0)
+                {
+                    choiceBuffers[activeChoiceIdx].Lines.Add(rawLine.TrimEnd());
+                }
+                else if (activeCode != null && !inDetailsBlock)
                 {
                     promptLines.Add(rawLine.TrimEnd());
                 }
@@ -2229,18 +2333,66 @@ public static class CourseWizardAndImportService
             // Top-level non-question section headers end the previous question cleanly
             if (Regex.IsMatch(trimmed, @"^##\s+"))
             {
+                activeChoiceIdx = -1;
                 CommitQuestion();
                 continue;
             }
 
             if (trimmed == "---")
             {
+                activeChoiceIdx = -1;
+                continue;
+            }
+
+            if (trimmed.StartsWith("<details", StringComparison.OrdinalIgnoreCase))
+            {
+                activeChoiceIdx = -1;
+                inDetailsBlock = true;
+                detailsLines.Clear();
+                continue;
+            }
+
+            if (trimmed.StartsWith("</details>", StringComparison.OrdinalIgnoreCase))
+            {
+                activeChoiceIdx = -1;
+                inDetailsBlock = false;
+                if (string.IsNullOrWhiteSpace(inlineExplanation))
+                {
+                    inlineExplanation = ExtractExplanationFromDetailsLines(detailsLines);
+                }
+                detailsLines.Clear();
+                continue;
+            }
+
+            if (inDetailsBlock)
+            {
+                var detailsAnsMatch = inlineAnsPattern.Match(trimmed);
+                if (detailsAnsMatch.Success && string.IsNullOrWhiteSpace(inlineAnswer))
+                {
+                    inlineAnswer = detailsAnsMatch.Groups["ans"].Value.ToUpperInvariant();
+                }
+                detailsLines.Add(trimmed);
+                continue;
+            }
+
+            var inlineExpMatch = inlineExpPattern.Match(trimmed);
+            if (inlineExpMatch.Success)
+            {
+                activeChoiceIdx = -1;
+                var expVal = inlineExpMatch.Groups["exp"].Value.Trim();
+                if (!string.IsNullOrWhiteSpace(expVal))
+                {
+                    inlineExplanation = string.IsNullOrWhiteSpace(inlineExplanation)
+                        ? expVal
+                        : $"{inlineExplanation} {expVal}";
+                }
                 continue;
             }
 
             var ansMatch = inlineAnsPattern.Match(trimmed);
             if (ansMatch.Success)
             {
+                activeChoiceIdx = -1;
                 inlineAnswer = ansMatch.Groups["ans"].Value.ToUpperInvariant();
                 continue;
             }
@@ -2248,11 +2400,25 @@ public static class CourseWizardAndImportService
             var cm = choicePattern.Match(rawLine);
             if (cm.Success)
             {
-                choices.Add((cm.Groups["key"].Value.Trim().ToUpperInvariant(), cm.Groups["text"].Value.Trim()));
+                var key = cm.Groups["key"].Value.Trim().ToUpperInvariant();
+                var text = cm.Groups["text"].Value.Trim();
+                var linesList = new List<string>();
+                if (!string.IsNullOrEmpty(text))
+                {
+                    linesList.Add(text);
+                }
+                choiceBuffers.Add((key, linesList));
+                activeChoiceIdx = choiceBuffers.Count - 1;
                 continue;
             }
 
-            if (choices.Count == 0)
+            if (activeChoiceIdx >= 0 && (rawLine.StartsWith("  ") || rawLine.StartsWith("\t")))
+            {
+                choiceBuffers[activeChoiceIdx].Lines.Add(rawLine.TrimEnd());
+                continue;
+            }
+
+            if (choiceBuffers.Count == 0)
             {
                 if (!string.IsNullOrWhiteSpace(trimmed) || promptLines.Count > 0)
                 {
@@ -2265,17 +2431,34 @@ public static class CourseWizardAndImportService
         return items;
     }
 
-    private static (Dictionary<string, string> ByCode, Dictionary<int, string> ByIndex) ParseQuizAnswerKey(string? answerKeyMarkdown)
+    private static (
+        Dictionary<string, string> ByCode,
+        Dictionary<int, string> ByIndex,
+        Dictionary<string, string> ExplanationsByCode,
+        Dictionary<int, string> ExplanationsByIndex) ParseQuizAnswerKey(string? answerKeyMarkdown)
     {
         var byCode = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var byIndex = new Dictionary<int, string>();
+        var expByCode = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var expByIndex = new Dictionary<int, string>();
         if (string.IsNullOrWhiteSpace(answerKeyMarkdown))
         {
-            return (byCode, byIndex);
+            return (byCode, byIndex, expByCode, expByIndex);
         }
 
         static string StripCellMarkdown(string raw) =>
             raw.Replace("**", string.Empty).Replace("`", string.Empty).Trim();
+
+        static string CleanExplanationText(string raw)
+        {
+            var s = raw.Trim();
+            s = Regex.Replace(s, @"^[\:\-–—\.\)\s]+", string.Empty).Trim();
+            if (s.StartsWith("**", StringComparison.Ordinal) && s.IndexOf("**", 2, StringComparison.Ordinal) < 0)
+            {
+                s = s[2..].Trim();
+            }
+            return s;
+        }
 
         static void RecordAnswer(
             Dictionary<string, string> codes,
@@ -2296,20 +2479,69 @@ public static class CourseWizardAndImportService
             }
         }
 
+        static void RecordExplanation(
+            Dictionary<string, string> expCodes,
+            Dictionary<int, string> expIndices,
+            string? code,
+            int index,
+            string? explanation,
+            bool append = false)
+        {
+            if (string.IsNullOrWhiteSpace(explanation)) return;
+            var clean = CleanExplanationText(explanation);
+            if (string.IsNullOrWhiteSpace(clean)) return;
+
+            if (!string.IsNullOrWhiteSpace(code))
+            {
+                var k = code.Trim();
+                if (append && expCodes.TryGetValue(k, out var prevCodeExp))
+                {
+                    expCodes[k] = $"{prevCodeExp} {clean}";
+                }
+                else
+                {
+                    expCodes.TryAdd(k, clean);
+                }
+            }
+            if (index > 0)
+            {
+                if (append && expIndices.TryGetValue(index, out var prevIdxExp))
+                {
+                    expIndices[index] = $"{prevIdxExp} {clean}";
+                }
+                else
+                {
+                    expIndices.TryAdd(index, clean);
+                }
+            }
+        }
+
         var lines = answerKeyMarkdown.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
         string? currentSectionCode = null;
         int currentSectionNum = 0;
+        string? activeListCode = null;
+        int activeListNum = 0;
 
         foreach (var rawLine in lines)
         {
             var trimmed = rawLine.Trim();
             if (string.IsNullOrWhiteSpace(trimmed)) continue;
+            if (trimmed.StartsWith("<details", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.StartsWith("</details", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.StartsWith("<summary", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.StartsWith("</summary", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
 
-            // 1. Markdown table row: | Q01-01 | ... | **B** | ...
+            // 1. Markdown table row: | Q01-01 | ... | **B** | Giải thích |
             if (trimmed.StartsWith('|'))
             {
+                activeListCode = null;
+                activeListNum = 0;
                 if (trimmed.Contains("---")) continue;
-                var cells = trimmed.Trim('|').Split('|').Select(StripCellMarkdown).ToArray();
+                var rawCells = trimmed.Trim('|').Split('|');
+                var cells = rawCells.Select(StripCellMarkdown).ToArray();
                 if (cells.Length >= 2)
                 {
                     var codeMatch = Regex.Match(cells[0], @"^(?:Câu\s*)?(?<code>Q\d+(?:-\d+)?|\d+)$", RegexOptions.IgnoreCase);
@@ -2321,9 +2553,15 @@ public static class CourseWizardAndImportService
 
                         for (int ci = 1; ci < cells.Length; ci++)
                         {
-                            if (Regex.IsMatch(cells[ci], @"^[A-D]$", RegexOptions.IgnoreCase))
+                            var cellMatch = Regex.Match(cells[ci], @"^(?:Đáp án(?:\s+(?:đúng|chính\s*xác))?\s*:?\s*)?\[?(?<ans>[A-D])\]?\.?$", RegexOptions.IgnoreCase);
+                            if (cellMatch.Success)
                             {
-                                RecordAnswer(byCode, byIndex, qCode, qIdx, cells[ci]);
+                                RecordAnswer(byCode, byIndex, qCode, qIdx, cellMatch.Groups["ans"].Value);
+                                if (ci + 1 < rawCells.Length)
+                                {
+                                    var expJoined = string.Join(" — ", rawCells.Skip(ci + 1).Select(c => c.Trim()).Where(c => !string.IsNullOrWhiteSpace(c)));
+                                    RecordExplanation(expByCode, expByIndex, qCode, qIdx, expJoined);
+                                }
                                 break;
                             }
                         }
@@ -2332,11 +2570,54 @@ public static class CourseWizardAndImportService
                 continue;
             }
 
-            // 2. Numbered answer list item: `1. **A** – ...` or `1. **B. Duy trì...**`
-            var listAns = Regex.Match(trimmed, @"^(?<num>\d+)\.\s+\*\*(?<ans>[A-D])(?:\.|\*\*|\s|–|—|-)", RegexOptions.IgnoreCase);
+            // 2. Numbered/bulleted answer list item:
+            //    `1. **A** – ...`, `1. **Đáp án B**: ...`, `- **Câu 1: [B]** - ...`, `- **Câu 1: Chọn B.** ...`, `**Câu 1:** Đáp án C`
+            var bulletOrCâuAns = Regex.Match(
+                trimmed,
+                @"^(?:[-*]\s*)?(?:\*\*)?(?:Câu\s+)?(?<num>\d+)(?:\*\*)?\s*[:\.\)]\s*(?:\*\*)?(?:(?:Đáp án(?:\s+(?:đúng|chính\s*xác))?(?:\s+là)?|Chọn)\s*:?\s*)?(?:\*\*)?\[?(?<ans>[A-D])\]?(?:\*\*|[\.\):,\s–—-]|$)(?<rest>.*)$",
+                RegexOptions.IgnoreCase);
+            if (bulletOrCâuAns.Success && int.TryParse(bulletOrCâuAns.Groups["num"].Value, out int bNum) && bNum >= 1 && bNum <= 200)
+            {
+                RecordAnswer(byCode, byIndex, bNum.ToString(), bNum, bulletOrCâuAns.Groups["ans"].Value);
+                RecordExplanation(expByCode, expByIndex, bNum.ToString(), bNum, bulletOrCâuAns.Groups["rest"].Value);
+                activeListCode = bNum.ToString();
+                activeListNum = bNum;
+                continue;
+            }
+
+            var listAns = Regex.Match(trimmed, @"^(?<num>\d+)\.\s+\*\*(?<ans>[A-D])(?:\.|\*\*|\s|–|—|-)(?<rest>.*)$", RegexOptions.IgnoreCase);
             if (listAns.Success && int.TryParse(listAns.Groups["num"].Value, out int listNum))
             {
                 RecordAnswer(byCode, byIndex, listNum.ToString(), listNum, listAns.Groups["ans"].Value);
+                RecordExplanation(expByCode, expByIndex, listNum.ToString(), listNum, listAns.Groups["rest"].Value);
+                activeListCode = listNum.ToString();
+                activeListNum = listNum;
+                continue;
+            }
+
+            var listAnsWithLabel = Regex.Match(
+                trimmed,
+                @"^(?:[-*]\s*)?(?:\*\*)?(?:Câu\s+)?(?<num>\d+)(?:\*\*)?[\.\):]\s*(?:\*\*)?Đáp án(?:\s+(?:đúng|chính\s*xác))?(?:\s+là)?\s*:?(?:\*\*)?\s*(?:\*\*)?(?<ans>[A-D])(?:\*\*|[\.\):,\s–—-]|$)(?<rest>.*)$",
+                RegexOptions.IgnoreCase);
+            if (listAnsWithLabel.Success && int.TryParse(listAnsWithLabel.Groups["num"].Value, out int labelNum))
+            {
+                RecordAnswer(byCode, byIndex, labelNum.ToString(), labelNum, listAnsWithLabel.Groups["ans"].Value);
+                RecordExplanation(expByCode, expByIndex, labelNum.ToString(), labelNum, listAnsWithLabel.Groups["rest"].Value);
+                activeListCode = labelNum.ToString();
+                activeListNum = labelNum;
+                continue;
+            }
+
+            var plainNumAns = Regex.Match(
+                trimmed,
+                @"^(?:[-*]\s*)?(?<num>\d+)[\.\)]\s*(?<ans>[A-D])(?:\s|$|[\.\):–—-])(?<rest>.*)$",
+                RegexOptions.IgnoreCase);
+            if (plainNumAns.Success && int.TryParse(plainNumAns.Groups["num"].Value, out int plainNum))
+            {
+                RecordAnswer(byCode, byIndex, plainNum.ToString(), plainNum, plainNumAns.Groups["ans"].Value);
+                RecordExplanation(expByCode, expByIndex, plainNum.ToString(), plainNum, plainNumAns.Groups["rest"].Value);
+                activeListCode = plainNum.ToString();
+                activeListNum = plainNum;
                 continue;
             }
 
@@ -2344,30 +2625,54 @@ public static class CourseWizardAndImportService
             var secHead = Regex.Match(trimmed, @"^#{1,4}\s*(?:Câu|Question)?\s*`?(?<code>Q\d+(?:-\d+)?|\d+)`?\b(.*)$", RegexOptions.IgnoreCase);
             if (secHead.Success)
             {
+                activeListCode = null;
+                activeListNum = 0;
                 currentSectionCode = secHead.Groups["code"].Value;
                 var tailNum = Regex.Match(currentSectionCode, @"(\d+)$");
                 currentSectionNum = tailNum.Success && int.TryParse(tailNum.Groups[1].Value, out int p) ? p : 0;
 
-                var sameLineAns = Regex.Match(secHead.Groups[1].Value, @"Đáp án(?:\s+đúng)?\s*[:\-]?\s*\**(?<ans>[A-D])\**", RegexOptions.IgnoreCase);
+                var sameLineAns = Regex.Match(secHead.Groups[1].Value, @"Đáp án(?:\s+(?:đúng|chính\s*xác))?\s*[:\-]?\s*\**(?<ans>[A-D])\**(?<rest>.*)$", RegexOptions.IgnoreCase);
                 if (sameLineAns.Success)
                 {
                     RecordAnswer(byCode, byIndex, currentSectionCode, currentSectionNum, sameLineAns.Groups["ans"].Value);
+                    RecordExplanation(expByCode, expByIndex, currentSectionCode, currentSectionNum, sameLineAns.Groups["rest"].Value);
                 }
                 continue;
             }
 
-            // 4. Answer bullet inside a question section: `- **Đáp án đúng:** **C...**`
+            // 4. Answer/explanation body inside a question section
             if (currentSectionCode != null)
             {
-                var bodyAns = Regex.Match(trimmed, @"Đáp án(?:\s+đúng)?\s*[:\-]\s*(?:\*\*)?(?<ans>[A-D])\b", RegexOptions.IgnoreCase);
+                var bodyAns = Regex.Match(trimmed, @"Đáp án(?:\s+(?:đúng|chính\s*xác))?\s*[:\-]\s*(?:\*\*)?(?<ans>[A-D])\b(?<rest>.*)$", RegexOptions.IgnoreCase);
                 if (bodyAns.Success)
                 {
                     RecordAnswer(byCode, byIndex, currentSectionCode, currentSectionNum, bodyAns.Groups["ans"].Value);
+                    RecordExplanation(expByCode, expByIndex, currentSectionCode, currentSectionNum, bodyAns.Groups["rest"].Value);
+                    continue;
                 }
+
+                var bodyExp = Regex.Match(trimmed, @"^(?:>\s*)?(?:[-*]\s*)?(?:\*\*)?Giải thích(?:\s+chi\s*tiết)?\s*:?(?:\*\*)?\s*(?<exp>.+)$", RegexOptions.IgnoreCase);
+                if (bodyExp.Success)
+                {
+                    RecordExplanation(expByCode, expByIndex, currentSectionCode, currentSectionNum, bodyExp.Groups["exp"].Value);
+                    continue;
+                }
+
+                if (!trimmed.StartsWith('#') && !trimmed.StartsWith("---"))
+                {
+                    RecordExplanation(expByCode, expByIndex, currentSectionCode, currentSectionNum, trimmed.TrimStart('>', '-', '*', ' '), append: true);
+                    continue;
+                }
+            }
+
+            // 5. Multi-line continuation of a numbered/bulleted answer item
+            if (activeListNum > 0 && (rawLine.StartsWith("  ") || rawLine.StartsWith("\t") || trimmed.StartsWith(">")))
+            {
+                RecordExplanation(expByCode, expByIndex, activeListCode, activeListNum, trimmed.TrimStart('>', '-', '*', ' '), append: true);
             }
         }
 
-        return (byCode, byIndex);
+        return (byCode, byIndex, expByCode, expByIndex);
     }
 
     private static string? ExtractFirstHeading(string markdown)

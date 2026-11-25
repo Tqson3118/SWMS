@@ -1,3 +1,11 @@
+import {
+  detectCodingCategory,
+  isAsciiOrNonCodeBlock,
+  type CodingTopicCategory,
+} from "./writein-practice.ts";
+
+export { detectCodingCategory, isAsciiOrNonCodeBlock, type CodingTopicCategory };
+
 export type LabMode = "english" | "code" | "finance" | "recall";
 
 export type EnglishTabMode =
@@ -131,7 +139,7 @@ export function resolvePracticeSelection(
   ) {
     return { labMode: "code", codingTab: "bug-hunter" };
   }
-  if (rawType === "fill-code" || rawType === "fill_code") {
+  if (rawType === "fill-code" || rawType === "fill_code" || rawType === "code" || rawType === "coding") {
     return { labMode: "code", codingTab: "fill-code" };
   }
   if (rawType === "system-visualizer" || rawType === "system_visualizer") {

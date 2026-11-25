@@ -167,6 +167,24 @@ export async function swmsFetch<T>(url: string, init?: RequestInit): Promise<T> 
   return (await resp.json()) as T;
 }
 
+export async function apiFetch<T = unknown>(url: string, init?: RequestInit): Promise<T> {
+  const headers = new Headers(init?.headers);
+  if (typeof window !== "undefined" && !headers.has("X-Test-User-Id")) {
+    try {
+      const activeUserId = window.localStorage.getItem("swms_active_user_id");
+      if (activeUserId && activeUserId.trim()) {
+        headers.set("X-Test-User-Id", activeUserId.trim());
+      }
+    } catch {
+      // ignore localStorage read errors
+    }
+  }
+  return swmsFetch<T>(url, {
+    ...init,
+    headers,
+  });
+}
+
 interface DashboardCacheEntry<T = unknown> {
   data: T;
   timestamp: number;
@@ -178,13 +196,20 @@ const dashboardInFlight = new Map<string, Promise<any>>();
 const practiceStatsCache = new Map<string, DashboardCacheEntry<any>>();
 const practiceStatsInFlight = new Map<string, Promise<any>>();
 
+let clientCacheGeneration = 0;
+
 export function invalidateDashboardCache(userId?: string): void {
+  clientCacheGeneration++;
   if (userId) {
     dashboardCache.delete(userId);
     practiceStatsCache.delete(userId);
+    dashboardInFlight.delete(userId);
+    practiceStatsInFlight.delete(userId);
   } else {
     dashboardCache.clear();
     practiceStatsCache.clear();
+    dashboardInFlight.clear();
+    practiceStatsInFlight.clear();
   }
 }
 
@@ -230,6 +255,7 @@ export async function fetchDashboardCached<T = any>(options?: {
     }
   }
 
+  const reqGen = clientCacheGeneration;
   const fetchPromise = (async () => {
     try {
       let resp = await fetch("/api/v1/workspace/dashboard", {
@@ -252,7 +278,9 @@ export async function fetchDashboardCached<T = any>(options?: {
         throw new Error(`HTTP ${resp.status}`);
       }
       const data = await resp.json();
-      dashboardCache.set(cacheKey, { data, timestamp: Date.now() });
+      if (reqGen === clientCacheGeneration) {
+        dashboardCache.set(cacheKey, { data, timestamp: Date.now() });
+      }
       return data as T;
     } finally {
       dashboardInFlight.delete(cacheKey);
@@ -281,6 +309,7 @@ export async function fetchPracticeStatsCached<T = any>(options?: {
     }
   }
 
+  const reqGen = clientCacheGeneration;
   const fetchPromise = (async () => {
     try {
       let resp = await fetch("/api/v1/practice/stats", {
@@ -303,7 +332,7 @@ export async function fetchPracticeStatsCached<T = any>(options?: {
         return null;
       }
       const data = await resp.json().catch(() => null);
-      if (data) {
+      if (data && reqGen === clientCacheGeneration) {
         practiceStatsCache.set(cacheKey, { data, timestamp: Date.now() });
       }
       return data as T | null;

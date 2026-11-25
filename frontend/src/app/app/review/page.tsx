@@ -478,8 +478,18 @@ function ReviewPageContent() {
 
   if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8 min-h-[80vh] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 min-h-[80vh] space-y-6">
+        <div className="h-12 rounded-xl border border-[var(--border-calm)] swms-skeleton" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 space-y-4">
+            <div className="h-[360px] rounded-2xl border border-[var(--border-calm)] swms-skeleton" />
+            <div className="h-10 w-44 mx-auto rounded-xl swms-skeleton" />
+          </div>
+          <div className="lg:col-span-4 space-y-4">
+            <div className="h-44 rounded-xl border border-[var(--border-calm)] swms-skeleton" />
+            <div className="h-40 rounded-xl border border-[var(--border-calm)] swms-skeleton" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -489,21 +499,22 @@ function ReviewPageContent() {
 
   // Empty / Session complete state
   if (sessionComplete || queue.cards.length === 0) {
+    const reviewedCount = reviewHistory.length || queue.cards.length;
     return (
       <div
         data-testid="v2-review-page"
-        className="flex flex-col h-full"
+        className="flex flex-col min-h-full overflow-x-hidden"
       >
-        <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 h-12 border-b border-border-subtle shrink-0">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-2.5 min-h-12 border-b border-[var(--border-calm)] bg-[var(--surface-card)]/60 shrink-0">
           <Link
             href="/app"
-            className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary transition"
+            className="flex items-center gap-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition shrink-0"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Tổng quan</span>
           </Link>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 min-w-0">
             {courses.length > 0 && (
               <select
                 data-testid="review-filter-course"
@@ -512,7 +523,7 @@ function ReviewPageContent() {
                   setSelectedCourseId(e.target.value);
                   setSessionComplete(false);
                 }}
-                className="h-8 px-2.5 rounded-md border border-border bg-bg-secondary text-xs text-text-primary focus:outline-none focus:border-accent"
+                className="h-8 px-2.5 rounded-lg border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] max-w-[140px] sm:max-w-[200px] truncate"
                 aria-label="Lọc theo khóa học"
               >
                 <option value="">Tất cả khóa học</option>
@@ -531,7 +542,7 @@ function ReviewPageContent() {
                   setSelectedTagId(e.target.value);
                   setSessionComplete(false);
                 }}
-                className="h-8 px-2.5 rounded-md border border-border bg-bg-secondary text-xs text-text-primary focus:outline-none focus:border-accent"
+                className="h-8 px-2.5 rounded-lg border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] max-w-[120px] sm:max-w-[160px] truncate"
                 aria-label="Lọc theo thẻ tag"
               >
                 <option value="">Tất cả tag</option>
@@ -545,27 +556,40 @@ function ReviewPageContent() {
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center px-4">
-          <div className="text-center max-w-md">
+        <div className="flex-1 flex items-center justify-center px-4 py-8">
+          <div className="w-full max-w-lg rounded-2xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-2 p-6 sm:p-8 text-center">
             {errorBanner && (
               <div
                 data-testid="review-error-banner"
-                className="mb-4 p-3 rounded-md border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 text-left"
+                className="mb-5 p-3 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 text-left break-words"
               >
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorBanner}</span>
               </div>
             )}
 
-            <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-4">
+            <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-4 shadow-xs">
               {sessionComplete ? <Check className="w-8 h-8" /> : <Brain className="w-8 h-8" />}
+              {sessionComplete && (
+                <span className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-500 flex items-center justify-center">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </span>
+              )}
             </div>
-            <h2 className="text-xl font-bold text-text-primary mb-2">
+
+            {sessionComplete && (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-3">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Đã hoàn tất {reviewedCount} thẻ FSRS</span>
+              </div>
+            )}
+
+            <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
               {sessionComplete ? "Hoàn thành phiên ôn tập!" : "Không có thẻ đến hạn ôn"}
             </h2>
-            <p className="text-sm text-text-secondary mb-6">
+            <p className="text-sm text-[var(--text-secondary)] mb-6 leading-relaxed">
               {sessionComplete
-                ? `Bạn đã ôn xong ${reviewHistory.length || queue.cards.length} thẻ trong phiên này theo giới hạn hôm nay.${
+                ? `Bạn đã ôn xong ${reviewedCount} thẻ trong phiên này theo giới hạn hôm nay.${
                     totalBacklog > 0 ? ` (Còn ${totalBacklog} thẻ tồn trong kho).` : ""
                   }`
                 : hasFilters
@@ -574,7 +598,7 @@ function ReviewPageContent() {
                 ? `Hiện có ${queue.totalCards} thẻ trong kho nhưng chưa đến hạn. Bạn có thể ôn tập trước hạn bất cứ lúc nào.`
                 : "Hãy bôi đen đoạn văn trong bài học để tạo thẻ điền từ hoặc thẻ hỏi đáp và bắt đầu ôn tập."}
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-2.5">
               {sessionComplete && (
                 <button
                   type="button"
@@ -583,7 +607,7 @@ function ReviewPageContent() {
                     setExtraSessionCap((prev) => prev + 20);
                     setSessionComplete(false);
                   }}
-                  className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-[#5E51E8] hover:bg-[#4F46E5] text-white text-sm font-semibold shadow-xs transition cursor-pointer"
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white text-sm font-semibold shadow-xs transition cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   Ôn thêm 20 thẻ
@@ -591,7 +615,7 @@ function ReviewPageContent() {
               )}
               <Link
                 href="/app"
-                className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-border text-text-primary text-sm font-medium hover:bg-bg-secondary transition"
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-[var(--text-primary)] text-sm font-medium hover:bg-[var(--surface-card)] transition"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Tổng quan
@@ -602,7 +626,7 @@ function ReviewPageContent() {
                   data-testid="review-undo-last-btn"
                   onClick={() => void handleUndoLastReview()}
                   disabled={isSubmitting}
-                  className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-border text-text-primary text-sm font-medium hover:bg-bg-secondary transition cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-[var(--text-primary)] text-sm font-medium hover:bg-[var(--surface-card)] transition cursor-pointer disabled:opacity-50"
                 >
                   <RotateCcw className="w-4 h-4" />
                   Hoàn tác thẻ cuối (Z)
@@ -618,7 +642,7 @@ function ReviewPageContent() {
                     setSessionComplete(false);
                     void fetchReviewQueue(true);
                   }}
-                  className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition cursor-pointer"
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-[10px] bg-[var(--accent)] text-white text-sm font-medium hover:opacity-95 transition cursor-pointer shadow-xs"
                 >
                   <Zap className="w-4 h-4" />
                   {sessionComplete ? "Ôn lại hàng đợi" : `Ôn trước hạn (${queue.totalCards} thẻ)`}
@@ -648,21 +672,21 @@ function ReviewPageContent() {
   };
 
   return (
-    <div data-testid="v2-review-page" className="h-full flex flex-col">
+    <div data-testid="v2-review-page" className="min-h-full flex flex-col overflow-x-hidden">
       <h1 className="sr-only">Trạm ôn tập thẻ ghi nhớ FSRS</h1>
       {/* Minimal header + filters */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-2.5 border-b border-border-subtle shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-2.5 border-b border-[var(--border-calm)] bg-[var(--surface-card)]/60 shrink-0">
         <button
           type="button"
           onClick={() => router.back()}
-          className="min-h-[36px] min-w-[36px] px-2.5 py-1.5 rounded-md inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition cursor-pointer"
+          className="min-h-[36px] min-w-[36px] px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition cursor-pointer shrink-0"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="hidden sm:inline">Quay lại</span>
         </button>
 
         {/* Progress & filters */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
           {courses.length > 0 && (
             <select
               data-testid="review-filter-course"
@@ -671,7 +695,7 @@ function ReviewPageContent() {
                 setSelectedCourseId(e.target.value);
                 setReviewHistory([]);
               }}
-              className="h-7 px-2 rounded border border-border bg-bg-secondary text-xs text-text-primary focus:outline-none focus:border-accent max-w-[160px] truncate"
+              className="h-8 px-2.5 rounded-lg border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] max-w-[130px] sm:max-w-[180px] truncate"
               aria-label="Lọc theo khóa học"
             >
               <option value="">Tất cả khóa học</option>
@@ -690,7 +714,7 @@ function ReviewPageContent() {
                 setSelectedTagId(e.target.value);
                 setReviewHistory([]);
               }}
-              className="h-7 px-2 rounded border border-border bg-bg-secondary text-xs text-text-primary focus:outline-none focus:border-accent max-w-[130px] truncate"
+              className="h-8 px-2.5 rounded-lg border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] max-w-[110px] sm:max-w-[150px] truncate"
               aria-label="Lọc theo tag"
             >
               <option value="">Tất cả tag</option>
@@ -709,23 +733,23 @@ function ReviewPageContent() {
               setReviewHistory([]);
               void fetchReviewQueue(next);
             }}
-            className={`h-7 px-2.5 rounded text-xs font-medium border transition cursor-pointer ${
+            className={`h-8 px-2.5 rounded-lg text-xs font-medium border transition cursor-pointer whitespace-nowrap ${
               practiceAll
-                ? "border-accent bg-accent-subtle text-accent"
-                : "border-border bg-bg-secondary text-text-secondary hover:text-text-primary"
+                ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
+                : "border-[var(--border-calm)] bg-[var(--surface-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
             }`}
             title="Bao gồm cả các thẻ chưa đến hạn"
           >
             {practiceAll ? "Đang ôn tất cả" : "Chỉ thẻ đến hạn"}
           </button>
 
-          <div className="flex items-center gap-2">
-            <span data-testid="review-progress-count" className="text-xs text-text-tertiary">
+          <div className="flex items-center gap-2 shrink-0">
+            <span data-testid="review-progress-count" className="text-xs font-medium tabular-nums text-[var(--text-secondary)]">
               {currentIndex + 1} / {queue.cards.length}
             </span>
-            <div className="w-20 h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
+            <div className="w-16 sm:w-20 h-1.5 bg-[var(--surface-elevated)] rounded-full overflow-hidden">
               <div
-                className="h-full bg-accent rounded-full transition-all"
+                className="h-full bg-[var(--accent)] rounded-full transition-all duration-300"
                 style={{ width: `${((currentIndex + 1) / queue.cards.length) * 100}%` }}
               />
             </div>
@@ -738,7 +762,7 @@ function ReviewPageContent() {
           data-testid="review-undo-btn"
           onClick={() => void handleUndoLastReview()}
           disabled={reviewHistory.length === 0 || isSubmitting}
-          className="min-h-[36px] min-w-[36px] px-2.5 py-1.5 rounded-md inline-flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-primary hover:bg-bg-secondary disabled:opacity-30 transition cursor-pointer"
+          className="min-h-[36px] min-w-[36px] px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] disabled:opacity-35 transition cursor-pointer shrink-0"
           title="Hoàn tác đánh giá vừa rồi (Z)"
         >
           <RotateCcw className="w-3.5 h-3.5" />
@@ -752,7 +776,7 @@ function ReviewPageContent() {
           {errorBanner && (
             <div
               data-testid="review-error-banner"
-              className="p-2.5 rounded-md border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2"
+              className="p-3 rounded-xl border border-rose-500/35 bg-rose-500/10 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 break-words"
             >
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorBanner}</span>
@@ -761,7 +785,7 @@ function ReviewPageContent() {
           {undoBanner && (
             <div
               data-testid="review-undo-banner"
-              className="p-2.5 rounded-md border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2"
+              className="p-3 rounded-xl border border-emerald-500/35 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2 break-words"
             >
               <RotateCcw className="w-3.5 h-3.5 shrink-0" />
               <span>{undoBanner}</span>
@@ -772,7 +796,7 @@ function ReviewPageContent() {
 
       {/* Card area — 2-Column FSRS Memory Workstation */}
       <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <div className="lg:col-span-8 w-full">
+        <div className="lg:col-span-8 w-full min-w-0">
           {/* Card */}
           <div
             className="perspective-1200 cursor-pointer"
@@ -782,29 +806,29 @@ function ReviewPageContent() {
               className={`relative preserve-3d transition-transform duration-500 ${
                 isFlipped ? "rotate-y-180" : ""
               }`}
-              style={{ minHeight: "340px" }}
+              style={{ minHeight: "360px" }}
             >
               {/* Front */}
               <div
                 data-testid="review-card-front"
-                className="absolute inset-0 backface-hidden rounded-2xl border border-border bg-bg-primary p-6 sm:p-8 flex flex-col shadow-xs"
+                className="absolute inset-0 backface-hidden rounded-2xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-5 sm:p-8 flex flex-col shadow-elevation-2"
               >
-                <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-accent bg-accent-subtle rounded-md px-2 py-0.5">
+                <div className="flex items-center justify-between gap-2 mb-5 flex-wrap">
+                  <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--accent)] bg-[var(--accent)]/10 border border-[var(--accent)]/20 rounded-md px-2.5 py-0.5">
                       <Clock className="w-3 h-3" />
                       {cardStateLabel} · Lặp {currentCard?.reps ?? 0}
                     </span>
                     {currentCard?.tags?.slice(0, 3).map((tag) => (
                       <span
                         key={tag.id}
-                        className="text-[11px] font-medium text-text-tertiary bg-bg-tertiary rounded-md px-2 py-0.5"
+                        className="text-[11px] font-medium text-[var(--text-secondary)] bg-[var(--surface-elevated)] border border-[var(--border-calm)] rounded-md px-2 py-0.5"
                       >
                         #{tag.name}
                       </span>
                     ))}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -817,13 +841,13 @@ function ReviewPageContent() {
                         window.speechSynthesis.speak(utter);
                       }}
                       title="Đọc to câu hỏi"
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-border bg-bg-secondary text-[11px] font-medium text-text-secondary hover:text-accent transition cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--accent)] transition cursor-pointer shrink-0"
                     >
                       <Volume2 className="w-3.5 h-3.5" />
                       <span>Nghe</span>
                     </button>
                     {currentCard?.sourceTitleSnapshot && (
-                      <span className="inline-flex items-center gap-1 text-[11px] text-text-tertiary truncate max-w-[220px]">
+                      <span className="inline-flex items-center gap-1 text-[11px] text-[var(--text-tertiary)] truncate max-w-[180px] sm:max-w-[220px]">
                         <BookOpen className="w-3 h-3 shrink-0" />
                         <span className="truncate">
                           {currentCard.sourceTitleSnapshot}
@@ -834,8 +858,8 @@ function ReviewPageContent() {
                   </div>
                 </div>
 
-                <div className="flex-1 flex items-center justify-center px-2">
-                  <div className="text-lg sm:text-xl text-text-primary text-center leading-relaxed whitespace-pre-wrap">
+                <div className="flex-1 flex items-center justify-center px-2 py-4">
+                  <div className="text-lg sm:text-xl font-medium text-[var(--text-primary)] text-center leading-relaxed whitespace-pre-wrap break-words max-w-full">
                     {currentCard?.frontText
                       ? hasClozeSyntax
                         ? renderClozeText(currentCard.frontText, false)
@@ -844,25 +868,25 @@ function ReviewPageContent() {
                   </div>
                 </div>
 
-                <p className="text-xs text-text-tertiary text-center mt-4">
-                  Nhấn <kbd className="px-1.5 py-0.5 rounded bg-bg-tertiary border border-border text-[10px]">Space</kbd> hoặc click để lật thẻ
+                <p className="text-xs text-[var(--text-tertiary)] text-center mt-4 pt-3 border-t border-[var(--border-calm)]/60">
+                  Nhấn <kbd className="px-1.5 py-0.5 rounded bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px] font-mono">Space</kbd> hoặc chạm vào thẻ để lật
                 </p>
               </div>
 
               {/* Back */}
               <div
                 data-testid="review-card-back"
-                className="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl border border-border bg-bg-primary p-6 sm:p-8 flex flex-col shadow-xs overflow-y-auto"
+                className="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-5 sm:p-8 flex flex-col shadow-elevation-2 overflow-y-auto swms-thin-scrollbar"
               >
-                <div className="flex items-center justify-between text-[11px] text-text-tertiary mb-3">
-                  <span>
+                <div className="flex items-center justify-between gap-2 text-[11px] text-[var(--text-tertiary)] mb-4 pb-3 border-b border-[var(--border-calm)]/60">
+                  <span className="font-medium">
                     Đáp án ·{" "}
                     {currentCard && currentCard.stability > 0
                       ? `Độ nhớ ${currentCard.stability.toFixed(1)} ngày`
                       : "Thẻ mới"}
                   </span>
                   {currentCard?.cardType && (
-                    <span className="px-2 py-0.5 rounded bg-bg-secondary border border-border text-[10px] font-medium text-text-secondary">
+                    <span className="px-2 py-0.5 rounded-md bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px] font-semibold text-[var(--text-secondary)]">
                       {currentCard.cardType === "cloze"
                         ? "Điền khuyết"
                         : currentCard.cardType === "ai_generated"
@@ -872,25 +896,25 @@ function ReviewPageContent() {
                   )}
                 </div>
 
-                <div className="flex-1 flex flex-col items-center justify-center gap-3 px-2">
+                <div className="flex-1 flex flex-col items-center justify-center gap-4 px-2 py-3">
                   {hasClozeSyntax && currentCard?.frontText && (
-                    <div className="text-base sm:text-lg text-text-primary text-center leading-relaxed whitespace-pre-wrap">
+                    <div className="text-base sm:text-lg text-[var(--text-primary)] text-center leading-relaxed whitespace-pre-wrap break-words max-w-full">
                       {renderClozeText(currentCard.frontText, true)}
                     </div>
                   )}
                   {currentCard?.backText && (
                     <p
-                      className={`text-center leading-relaxed whitespace-pre-wrap ${
+                      className={`text-center leading-relaxed whitespace-pre-wrap break-words max-w-full ${
                         hasClozeSyntax
-                          ? "text-sm text-text-secondary border-t border-border-subtle pt-3 w-full"
-                          : "text-base sm:text-lg text-text-primary font-medium"
+                          ? "text-sm text-[var(--text-secondary)] border-t border-[var(--border-calm)] pt-3 w-full"
+                          : "text-base sm:text-lg text-[var(--text-primary)] font-medium"
                       }`}
                     >
                       {currentCard.backText}
                     </p>
                   )}
                   {currentCard?.sourceQuoteSnapshot && (
-                    <blockquote className="text-xs text-text-tertiary italic border-l-2 border-accent/40 pl-3 text-left max-w-md mt-1">
+                    <blockquote className="text-xs text-[var(--text-tertiary)] italic border-l-2 border-[var(--accent)]/50 pl-3 text-left max-w-md mt-1 bg-[var(--surface-elevated)]/40 py-2 pr-3 rounded-r-lg">
                       &ldquo;{currentCard.sourceQuoteSnapshot}&rdquo;
                     </blockquote>
                   )}
@@ -901,119 +925,166 @@ function ReviewPageContent() {
 
           {/* Rating buttons — only visible when flipped */}
           {isFlipped ? (
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {([
-                {
-                  key: "again" as const,
-                  label: "Quên",
-                  interval: previews.again,
-                  hotkey: "1",
-                  color:
-                    "hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-300 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400",
-                },
-                {
-                  key: "hard" as const,
-                  label: "Khó",
-                  interval: previews.hard,
-                  hotkey: "2",
-                  color:
-                    "hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:border-amber-300 dark:hover:border-amber-800 text-amber-600 dark:text-amber-400",
-                },
-                {
-                  key: "good" as const,
-                  label: "Tốt",
-                  interval: previews.good,
-                  hotkey: "3",
-                  color:
-                    "hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:border-emerald-300 dark:hover:border-emerald-800 text-emerald-600 dark:text-emerald-400",
-                },
-                {
-                  key: "easy" as const,
-                  label: "Dễ",
-                  interval: previews.easy,
-                  hotkey: "4",
-                  color:
-                    "hover:bg-sky-50 dark:hover:bg-sky-950/30 hover:border-sky-300 dark:hover:border-sky-800 text-sky-600 dark:text-sky-400",
-                },
-              ]).map((btn, idx) => (
-                <button
-                  key={btn.key}
-                  type="button"
-                  data-testid={`review-rate-${idx + 1}`}
-                  disabled={isSubmitting}
-                  onClick={() => void handleRate(btn.key)}
-                  className={`h-16 rounded-xl border border-border bg-bg-primary text-sm font-medium transition cursor-pointer flex flex-col items-center justify-center gap-0.5 disabled:opacity-50 ${btn.color}`}
-                >
-                  <span>{btn.label}</span>
-                  <span className="text-[11px] font-normal opacity-80">{btn.interval}</span>
-                  <span className="text-[10px] opacity-50">Phím {btn.hotkey}</span>
-                </button>
-              ))}
+            <div className="mt-6 space-y-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {([
+                  {
+                    key: "again" as const,
+                    label: "Quên",
+                    interval: previews.again,
+                    hotkey: "1",
+                    color:
+                      "hover:bg-rose-50 dark:hover:bg-rose-950/35 hover:border-rose-400 dark:hover:border-rose-700 text-rose-600 dark:text-rose-400",
+                  },
+                  {
+                    key: "hard" as const,
+                    label: "Khó",
+                    interval: previews.hard,
+                    hotkey: "2",
+                    color:
+                      "hover:bg-amber-50 dark:hover:bg-amber-950/35 hover:border-amber-400 dark:hover:border-amber-700 text-amber-600 dark:text-amber-400",
+                  },
+                  {
+                    key: "good" as const,
+                    label: "Tốt",
+                    interval: previews.good,
+                    hotkey: "3",
+                    color:
+                      "hover:bg-emerald-50 dark:hover:bg-emerald-950/35 hover:border-emerald-400 dark:hover:border-emerald-700 text-emerald-600 dark:text-emerald-400",
+                  },
+                  {
+                    key: "easy" as const,
+                    label: "Dễ",
+                    interval: previews.easy,
+                    hotkey: "4",
+                    color:
+                      "hover:bg-sky-50 dark:hover:bg-sky-950/35 hover:border-sky-400 dark:hover:border-sky-700 text-sky-600 dark:text-sky-400",
+                  },
+                ]).map((btn, idx) => (
+                  <button
+                    key={btn.key}
+                    type="button"
+                    data-testid={`review-rate-${idx + 1}`}
+                    disabled={isSubmitting}
+                    onClick={() => void handleRate(btn.key)}
+                    className={`h-16 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 text-sm font-semibold transition cursor-pointer flex flex-col items-center justify-center gap-0.5 disabled:opacity-50 ${btn.color}`}
+                  >
+                    <span>{btn.label}</span>
+                    <span className="text-[11px] font-normal opacity-80">{btn.interval}</span>
+                    <span className="text-[10px] opacity-55">Phím {btn.hotkey}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="hidden sm:flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-[var(--text-tertiary)]">
+                <span>
+                  <kbd className="font-mono px-1.5 py-0.5 rounded bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px]">
+                    Space
+                  </kbd>{" "}
+                  Lật thẻ
+                </span>
+                <span>·</span>
+                <span>
+                  <kbd className="font-mono px-1.5 py-0.5 rounded bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px]">
+                    1-4
+                  </kbd>{" "}
+                  Đánh giá
+                </span>
+                <span>·</span>
+                <span>
+                  <kbd className="font-mono px-1.5 py-0.5 rounded bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px]">
+                    Z
+                  </kbd>{" "}
+                  Hoàn tác
+                </span>
+              </div>
             </div>
           ) : (
-            <div className="mt-6 flex justify-center">
+            <div className="mt-6 flex flex-col items-center gap-2.5">
               <button
                 type="button"
                 data-testid="review-flip-btn"
                 onClick={() => setIsFlipped(true)}
-                className="h-10 px-8 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent-hover transition cursor-pointer shadow-xs"
+                className="h-10 px-8 rounded-xl bg-[var(--accent)] text-white text-sm font-semibold hover:opacity-95 transition cursor-pointer shadow-elevation-1"
               >
                 Hiện đáp án (Space)
               </button>
+              <div className="hidden sm:flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-[var(--text-tertiary)]">
+                <span>
+                  <kbd className="font-mono px-1.5 py-0.5 rounded bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px]">
+                    Space
+                  </kbd>{" "}
+                  Lật thẻ
+                </span>
+                <span>·</span>
+                <span>
+                  <kbd className="font-mono px-1.5 py-0.5 rounded bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px]">
+                    1-4
+                  </kbd>{" "}
+                  Đánh giá
+                </span>
+                <span>·</span>
+                <span>
+                  <kbd className="font-mono px-1.5 py-0.5 rounded bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px]">
+                    Z
+                  </kbd>{" "}
+                  Hoàn tác
+                </span>
+              </div>
             </div>
           )}
         </div>
 
         {/* Right Companion Column: FSRS Stats, Upcoming Queue & Shortcuts */}
-        <aside className="lg:col-span-4 space-y-4">
-          <div className="rounded-xl border border-border bg-bg-secondary p-4 space-y-3">
+        <aside className="lg:col-span-4 space-y-4 min-w-0">
+          <div className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-accent" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
                 <span>Chỉ số FSRS thẻ hiện tại</span>
               </span>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-accent-subtle text-accent">
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[var(--accent)]/10 text-[var(--accent)]">
                 {cardStateLabel}
               </span>
             </div>
 
             <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-lg bg-bg-primary border border-border p-2.5">
-                <p className="text-[10px] text-text-tertiary">Độ bền</p>
-                <p className="text-sm font-bold text-text-primary">
+              <div className="rounded-lg bg-[var(--surface-elevated)]/60 border border-[var(--border-calm)] p-2.5">
+                <p className="text-[10px] text-[var(--text-tertiary)]">Độ bền</p>
+                <p className="text-sm font-bold text-[var(--text-primary)]">
                   {currentCard && currentCard.stability > 0
                     ? `${currentCard.stability.toFixed(1)}d`
                     : "Mới"}
                 </p>
               </div>
-              <div className="rounded-lg bg-bg-primary border border-border p-2.5">
-                <p className="text-[10px] text-text-tertiary">Độ khó</p>
-                <p className="text-sm font-bold text-text-primary">
+              <div className="rounded-lg bg-[var(--surface-elevated)]/60 border border-[var(--border-calm)] p-2.5">
+                <p className="text-[10px] text-[var(--text-tertiary)]">Độ khó</p>
+                <p className="text-sm font-bold text-[var(--text-primary)]">
                   {currentCard ? currentCard.difficulty.toFixed(1) : "0.0"}
                 </p>
               </div>
-              <div className="rounded-lg bg-bg-primary border border-border p-2.5">
-                <p className="text-[10px] text-text-tertiary">Số lần lặp</p>
-                <p className="text-sm font-bold text-text-primary">
+              <div className="rounded-lg bg-[var(--surface-elevated)]/60 border border-[var(--border-calm)] p-2.5">
+                <p className="text-[10px] text-[var(--text-tertiary)]">Số lần lặp</p>
+                <p className="text-sm font-bold text-[var(--text-primary)]">
                   {currentCard?.reps ?? 0}
                 </p>
               </div>
             </div>
 
-            <div className="pt-2 border-t border-border/70 flex items-center justify-between text-xs text-text-secondary">
+            <div className="pt-2 border-t border-[var(--border-calm)]/70 flex items-center justify-between text-xs text-[var(--text-secondary)]">
               <span>Phiên hôm nay: {currentIndex + 1}/{queue.cards.length}</span>
               <span>{totalBacklog > 0 ? `+${totalBacklog} thẻ tồn` : "Hàng đợi tối ưu"}</span>
             </div>
           </div>
 
           {/* Upcoming Cards Preview */}
-          <div className="rounded-xl border border-border bg-bg-secondary p-4 space-y-2.5">
-            <div className="flex items-center justify-between text-xs font-semibold text-text-primary">
+          <div className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-4 space-y-2.5">
+            <div className="flex items-center justify-between text-xs font-semibold text-[var(--text-primary)]">
               <span className="inline-flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-accent" />
+                <Layers className="w-3.5 h-3.5 text-[var(--accent)]" />
                 <span>Thẻ sắp tới trong hàng đợi</span>
               </span>
-              <span className="text-[11px] text-text-tertiary">
+              <span className="text-[11px] text-[var(--text-tertiary)]">
                 Còn {Math.max(0, queue.cards.length - currentIndex - 1)} thẻ
               </span>
             </div>
@@ -1023,38 +1094,38 @@ function ReviewPageContent() {
                 {queue.cards.slice(currentIndex + 1, currentIndex + 4).map((upcoming, uIdx) => (
                   <div
                     key={upcoming.id}
-                    className="rounded-lg border border-border bg-bg-primary px-3 py-2 text-xs text-text-secondary"
+                    className="rounded-lg border border-[var(--border-calm)] bg-[var(--surface-elevated)]/50 px-3 py-2 text-xs text-[var(--text-secondary)]"
                   >
                     <p className="line-clamp-2 leading-relaxed">
-                      <span className="font-semibold text-accent mr-1.5">#{currentIndex + uIdx + 2}</span>
+                      <span className="font-semibold text-[var(--accent)] mr-1.5">#{currentIndex + uIdx + 2}</span>
                       {formatCleanQuizPrompt(upcoming.frontText || "Thẻ ghi nhớ", false)}
                     </p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-text-tertiary">Đây là thẻ cuối cùng trong phiên ôn tập này.</p>
+              <p className="text-xs text-[var(--text-tertiary)]">Đây là thẻ cuối cùng trong phiên ôn tập này.</p>
             )}
           </div>
 
           {/* Keyboard Shortcuts */}
-          <div className="rounded-xl border border-border bg-bg-secondary p-4 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-text-primary">
-              <Keyboard className="w-3.5 h-3.5 text-accent" />
+          <div className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-4 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-primary)]">
+              <Keyboard className="w-3.5 h-3.5 text-[var(--accent)]" />
               <span>Phím tắt tốc độ cao</span>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-[11px] text-text-secondary">
-              <div className="flex items-center justify-between bg-bg-primary border border-border rounded px-2.5 py-1.5">
+            <div className="grid grid-cols-2 gap-2 text-[11px] text-[var(--text-secondary)]">
+              <div className="flex items-center justify-between bg-[var(--surface-elevated)]/50 border border-[var(--border-calm)] rounded-lg px-2.5 py-1.5">
                 <span>Lật thẻ</span>
-                <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-bg-tertiary border border-border">Space</kbd>
+                <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[var(--surface-card)] border border-[var(--border-calm)]">Space</kbd>
               </div>
-              <div className="flex items-center justify-between bg-bg-primary border border-border rounded px-2.5 py-1.5">
+              <div className="flex items-center justify-between bg-[var(--surface-elevated)]/50 border border-[var(--border-calm)] rounded-lg px-2.5 py-1.5">
                 <span>Đánh giá</span>
-                <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-bg-tertiary border border-border">1 - 4</kbd>
+                <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[var(--surface-card)] border border-[var(--border-calm)]">1 - 4</kbd>
               </div>
-              <div className="flex items-center justify-between bg-bg-primary border border-border rounded px-2.5 py-1.5 col-span-2">
+              <div className="flex items-center justify-between bg-[var(--surface-elevated)]/50 border border-[var(--border-calm)] rounded-lg px-2.5 py-1.5 col-span-2">
                 <span>Hoàn tác đánh giá vừa rồi</span>
-                <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-bg-tertiary border border-border">Z</kbd>
+                <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[var(--surface-card)] border border-[var(--border-calm)]">Z</kbd>
               </div>
             </div>
           </div>

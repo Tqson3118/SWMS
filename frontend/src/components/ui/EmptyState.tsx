@@ -39,14 +39,14 @@ export function EmptyState({
       return Icon;
     }
     const Comp = Icon as React.ComponentType<{ className?: string }>;
-    return <Comp className="w-8 h-8 text-[#5E51E8] dark:text-[#818CF8]" />;
+    return <Comp className="w-8 h-8 text-[#5E51E8] dark:text-[#A5B4FC]" />;
   };
 
   return (
     <div
-      className={`flex flex-col items-center justify-center text-center p-8 sm:p-12 border border-dashed border-[var(--border-calm)] rounded-[16px] bg-[var(--surface-card)]/50 ${className}`}
+      className={`flex flex-col items-center justify-center text-center p-6 sm:p-10 border border-dashed border-[var(--border-calm)] rounded-[16px] bg-[var(--surface-card)]/75 shadow-elevation-1 ${className}`}
     >
-      <div className="w-16 h-16 rounded-full bg-[#EEF0FD] dark:bg-[#1E1B4B] flex items-center justify-center mb-4 shadow-xs">
+      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/15 dark:border-[#818CF8]/25 flex items-center justify-center mb-4 shadow-xs">
         {renderIcon()}
       </div>
       <h3 className="text-base font-semibold text-[var(--text-primary)] max-w-sm tracking-tight">

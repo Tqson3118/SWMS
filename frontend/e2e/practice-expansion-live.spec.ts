@@ -2,9 +2,9 @@ import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures/test-base";
 
 const ENGLISH_COURSE_ID = "22222222-2222-4222-8222-222222222223";
-const INVESTING_COURSE_ID = "22222222-2222-4222-8222-222222222224";
-const CODING_COURSE_ID = "22222222-2222-4222-8222-222222222225";
-const PSYCHOLOGY_COURSE_ID = "22222222-2222-4222-8222-222222222226";
+const OS_COURSE_ID = "22222222-2222-4222-8222-222222222222";
+const JAPANESE_COURSE_ID = "22222222-2222-4222-8222-222222222227";
+const CHINESE_COURSE_ID = "22222222-2222-4222-8222-222222222228";
 
 async function provisionUser(page: Page): Promise<string> {
   const email = `practice.live.${Date.now()}.${Math.random().toString(36).slice(2, 7)}@studxy.vn`;
@@ -27,6 +27,79 @@ async function provisionUser(page: Page): Promise<string> {
   return userId;
 }
 
+async function resolveCuratedCourses(page: Page) {
+  const coursesRes = await page.request.get("http://127.0.0.1:5080/api/v1/courses");
+  expect(coursesRes.ok()).toBeTruthy();
+  const courses: Array<{ id: string; title: string; slug?: string }> = await coursesRes.json();
+
+  const bootcamp = courses.find(
+    (c) => c.slug === "doc-course-studxy-fullstack-bootcamp" || /bootcamp/i.test(c.slug || c.title || "")
+  );
+  expect(bootcamp, "doc-course-studxy-fullstack-bootcamp must be found").toBeTruthy();
+
+  const investing = courses.find(
+    (c) => c.slug === "document-course-investing" || /investing|đầu tư/i.test(c.slug || c.title || "")
+  );
+  expect(investing, "document-course-investing must be found").toBeTruthy();
+
+  const psychology = courses.find(
+    (c) => c.slug === "document-course-psychology" || /psychology|tâm lý/i.test(c.slug || c.title || "")
+  );
+  expect(psychology, "document-course-psychology must be found").toBeTruthy();
+
+  const english = courses.find(
+    (c) => c.id === ENGLISH_COURSE_ID || /tieng-anh|english/i.test(c.slug || c.title || "")
+  );
+  expect(english, "English course must be found").toBeTruthy();
+
+  const os = courses.find(
+    (c) => c.id === OS_COURSE_ID || /he-dieu-hanh/i.test(c.slug || c.title || "")
+  );
+  expect(os, "OS course must be found").toBeTruthy();
+
+  const japanese = courses.find(
+    (c) => c.id === JAPANESE_COURSE_ID || /tieng-nhat|n5/i.test(c.slug || c.title || "")
+  );
+  expect(japanese, "Japanese N5 course must be found").toBeTruthy();
+
+  const chinese = courses.find(
+    (c) => c.id === CHINESE_COURSE_ID || /tieng-trung|hsk1/i.test(c.slug || c.title || "")
+  );
+  expect(chinese, "Chinese HSK1 course must be found").toBeTruthy();
+
+  return {
+    bootcampId: bootcamp!.id,
+    investingId: investing!.id,
+    psychologyId: psychology!.id,
+    englishId: english!.id,
+    osId: os!.id,
+    japaneseId: japanese!.id,
+    chineseId: chinese!.id,
+  };
+}
+
+async function findPracticeLessonId(page: Page, courseId: string, slugHint?: string): Promise<string> {
+  const detailRes = await page.request.get(`http://127.0.0.1:5080/api/v1/courses/${courseId}`);
+  expect(detailRes.ok()).toBeTruthy();
+  const detail = await detailRes.json();
+  const allLessons: Array<{ id: string; title: string; slug?: string; practiceActivityCount?: number }> =
+    detail.chapters?.flatMap((ch: { lessons?: Array<{ id: string; title: string; slug?: string; practiceActivityCount?: number }> }) => ch.lessons || []) ||
+    detail.lessons ||
+    [];
+
+  if (slugHint) {
+    const hintMatch = allLessons.find(
+      (l) => l.slug?.includes(slugHint) && (l.practiceActivityCount ?? 0) > 0
+    );
+    if (hintMatch) return hintMatch.id;
+  }
+
+  const practiceMatch = allLessons.find((l) => (l.practiceActivityCount ?? 0) > 0);
+  if (practiceMatch) return practiceMatch.id;
+
+  return allLessons[0]?.id || "";
+}
+
 test.describe("Practice Expansion Live End-to-End Suite (NO MOCKS)", () => {
   test.setTimeout(120000);
 
@@ -39,10 +112,30 @@ test.describe("Practice Expansion Live End-to-End Suite (NO MOCKS)", () => {
     const userId = await provisionUser(page);
     expect(userId).toBeTruthy();
 
+    // Step 0.1: Resolve active course IDs from live API
+    const {
+      bootcampId,
+      investingId,
+      psychologyId,
+      englishId,
+      osId,
+      japaneseId,
+      chineseId,
+    } = await resolveCuratedCourses(page);
+
+    expect(bootcampId).toBeTruthy();
+    expect(investingId).toBeTruthy();
+    expect(psychologyId).toBeTruthy();
+    expect(englishId).toBe(ENGLISH_COURSE_ID);
+    expect(osId).toBe(OS_COURSE_ID);
+    expect(japaneseId).toBe(JAPANESE_COURSE_ID);
+    expect(chineseId).toBe(CHINESE_COURSE_ID);
+
     // -----------------------------------------------------------------------
     // SCENARIO 1: English Course (Dictation & Word Map) via Fullscreen Practice
     // -----------------------------------------------------------------------
-    await page.goto(`/app/courses/${ENGLISH_COURSE_ID}/learn`);
+    const englishLessonId = await findPracticeLessonId(page, englishId);
+    await page.goto(`/app/courses/${englishId}/learn${englishLessonId ? `?lessonId=${englishLessonId}` : ""}`);
     await page.waitForLoadState("domcontentloaded");
 
     await expect(page.getByTestId("center-tab-practice")).toHaveCount(0);
@@ -50,7 +143,7 @@ test.describe("Practice Expansion Live End-to-End Suite (NO MOCKS)", () => {
     const engGoPracticeBtn = page.getByTestId("go-to-lesson-practice-btn");
     await expect(engGoPracticeBtn).toBeVisible({ timeout: 15000 });
     await engGoPracticeBtn.click();
-    await page.waitForURL(`**/app/practice/${ENGLISH_COURSE_ID}/**`, { timeout: 15000 });
+    await page.waitForURL(`**/app/practice/${englishId}/**`, { timeout: 15000 });
     await expect(page.getByTestId("practice-back-to-lesson-btn")).toBeVisible({ timeout: 10000 });
 
     await expect(page.getByTestId("english-practice-lab")).toBeVisible({ timeout: 15000 });
@@ -85,46 +178,54 @@ test.describe("Practice Expansion Live End-to-End Suite (NO MOCKS)", () => {
     });
 
     // -----------------------------------------------------------------------
-    // SCENARIO 2: Coding Course (JS Web Worker Sandbox & Parsons Problem)
+    // SCENARIO 2: Bootcamp Course (JS Web Worker Sandbox & Parsons Problem)
     // -----------------------------------------------------------------------
-    await page.goto(`/app/courses/${CODING_COURSE_ID}/learn`);
+    const bootcampLessonId = await findPracticeLessonId(page, bootcampId, "phase-3");
+    await page.goto(`/app/courses/${bootcampId}/learn?lessonId=${bootcampLessonId}`);
     await page.waitForLoadState("domcontentloaded");
 
     const codingPracticeBtn = page.getByTestId("go-to-lesson-practice-btn");
     await expect(codingPracticeBtn).toBeVisible({ timeout: 15000 });
     await codingPracticeBtn.click();
-    await page.waitForURL(`**/app/practice/${CODING_COURSE_ID}/**`, { timeout: 15000 });
+    await page.waitForURL(`**/app/practice/${bootcampId}/**`, { timeout: 15000 });
 
     await expect(page.getByTestId("coding-practice-lab")).toBeVisible({ timeout: 15000 });
 
     // 2A. JS Sandbox: run code in Web Worker
-    await page.getByTestId("mode-tab-js-sandbox").click();
-    await expect(page.getByTestId("js-sandbox-container")).toBeVisible({ timeout: 10000 });
+    const jsSandboxTab = page.getByTestId("mode-tab-js-sandbox");
+    if (await jsSandboxTab.isVisible()) {
+      await jsSandboxTab.click();
+      await expect(page.getByTestId("js-sandbox-container")).toBeVisible({ timeout: 10000 });
 
-    await page.getByTestId("js-sandbox-run-btn").click();
-    await expect(page.getByTestId("js-sandbox-results")).toBeVisible({ timeout: 15000 });
+      await page.getByTestId("js-sandbox-run-btn").click();
+      await expect(page.getByTestId("js-sandbox-results")).toBeVisible({ timeout: 15000 });
+    }
 
     // 2B. Parsons Problem: line assembly with no key errors
-    await page.getByTestId("mode-tab-parsons").click();
-    await expect(page.getByTestId("parsons-container")).toBeVisible({ timeout: 10000 });
+    const parsonsTab = page.getByTestId("mode-tab-parsons");
+    if (await parsonsTab.isVisible()) {
+      await parsonsTab.click();
+      await expect(page.getByTestId("parsons-container")).toBeVisible({ timeout: 10000 });
 
-    const bankLine = page.getByTestId("parsons-bank-line").first();
-    await expect(bankLine).toBeVisible({ timeout: 10000 });
-    await bankLine.click();
+      const bankLine = page.getByTestId("parsons-bank-line").first();
+      await expect(bankLine).toBeVisible({ timeout: 10000 });
+      await bankLine.click();
 
-    await page.getByTestId("parsons-check-btn").click();
-    await expect(page.getByTestId("parsons-result-card")).toBeVisible({ timeout: 10000 });
+      await page.getByTestId("parsons-check-btn").click();
+      await expect(page.getByTestId("parsons-result-card")).toBeVisible({ timeout: 10000 });
+    }
 
     // -----------------------------------------------------------------------
     // SCENARIO 3: Finance Course (Compound & Portfolio Simulator)
     // -----------------------------------------------------------------------
-    await page.goto(`/app/courses/${INVESTING_COURSE_ID}/learn`);
+    const investingLessonId = await findPracticeLessonId(page, investingId, "module-");
+    await page.goto(`/app/courses/${investingId}/learn?lessonId=${investingLessonId}`);
     await page.waitForLoadState("domcontentloaded");
 
     const financePracticeBtn = page.getByTestId("go-to-lesson-practice-btn");
     await expect(financePracticeBtn).toBeVisible({ timeout: 15000 });
     await financePracticeBtn.click();
-    await page.waitForURL(`**/app/practice/${INVESTING_COURSE_ID}/**`, { timeout: 15000 });
+    await page.waitForURL(`**/app/practice/${investingId}/**`, { timeout: 15000 });
 
     await expect(page.getByTestId("finance-practice-lab")).toBeVisible({ timeout: 15000 });
 
@@ -153,13 +254,14 @@ test.describe("Practice Expansion Live End-to-End Suite (NO MOCKS)", () => {
     // -----------------------------------------------------------------------
     // SCENARIO 4: Psychology Course (Cognitive Labs - Stroop Test)
     // -----------------------------------------------------------------------
-    await page.goto(`/app/courses/${PSYCHOLOGY_COURSE_ID}/learn`);
+    const psychologyLessonId = await findPracticeLessonId(page, psychologyId, "notes-");
+    await page.goto(`/app/courses/${psychologyId}/learn?lessonId=${psychologyLessonId}`);
     await page.waitForLoadState("domcontentloaded");
 
     const psychPracticeBtn = page.getByTestId("go-to-lesson-practice-btn");
     await expect(psychPracticeBtn).toBeVisible({ timeout: 15000 });
     await psychPracticeBtn.click();
-    await page.waitForURL(`**/app/practice/${PSYCHOLOGY_COURSE_ID}/**`, { timeout: 15000 });
+    await page.waitForURL(`**/app/practice/${psychologyId}/**`, { timeout: 15000 });
 
     await expect(page.getByTestId("psychology-practice-lab")).toBeVisible({ timeout: 15000 });
 

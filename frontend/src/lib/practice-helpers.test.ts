@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {
   buildPracticeLessonHref,
+  detectCodingCategory,
   extractQuickCheckQuestions,
   getPracticeActivityTypeLabel,
   resolvePracticeSelection,
@@ -209,6 +210,44 @@ runTest("extractQuickCheckQuestions ignores structural lesson headings and strip
   assert.ok(!qs.some((q) => q.question.includes("Mục tiêu bài học")));
   assert.ok(!qs.some((q) => q.question.includes("Đoạn hội thoại mẫu")));
   assert.ok(!qs.some((q) => q.question.includes("Từ vựng")));
+});
+
+runTest("detectCodingCategory classifies SQL, Python, JS, HTML without falling into dotnet", () => {
+  assert.equal(
+    detectCodingCategory({
+      courseTitle: "Nhập môn Lập trình Python",
+      lessonTitle: "FastAPI & Pydantic Validation",
+    }),
+    "os"
+  );
+  assert.equal(
+    detectCodingCategory({
+      courseTitle: "Cơ sở dữ liệu nâng cao",
+      lessonTitle: "SQL Injection & Inner Join",
+    }),
+    "sql"
+  );
+  assert.equal(
+    detectCodingCategory({
+      courseTitle: "Lập trình Web Frontend",
+      lessonTitle: "HTML5 CSS Grid & JavaScript Closure",
+    }),
+    "react"
+  );
+  assert.equal(
+    detectCodingCategory({
+      courseTitle: "C# .NET Backend",
+      lessonTitle: "ASP.NET Core Web API",
+    }),
+    "dotnet"
+  );
+  assert.equal(
+    detectCodingCategory({
+      courseTitle: "Lập trình cơ bản",
+      lessonTitle: "Giới thiệu tổng quan",
+    }),
+    "react"
+  );
 });
 
 console.log(`\n✅ All ${passed} practice-helpers unit tests passed!`);

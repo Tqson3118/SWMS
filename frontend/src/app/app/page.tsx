@@ -21,6 +21,8 @@ import {
   TrendingUp,
   Target,
   Sparkles,
+  Pin,
+  Archive,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { fetchDashboardCached, fetchPracticeStatsCached } from "@/lib/api-client";
@@ -32,8 +34,10 @@ import {
   getCourseLessonCount,
   getCourseProgress,
   getCourseVisualTheme,
+  normalizeCourseSummary,
   sortCoursesSmartly,
   type CourseLike,
+  type CourseSummary,
 } from "@/lib/course-helpers";
 import { buildPracticeLessonHref } from "@/lib/practice-helpers";
 import { LearningRoadmapsShowcase } from "@/components/dashboard/LearningRoadmapsShowcase";
@@ -123,6 +127,14 @@ interface CourseDetailChapter {
   lessons?: CourseDetailLesson[];
 }
 
+interface ContinueCourseMeta {
+  courseId: string;
+  dailyLessonGoal: number;
+  targetCompletionDate?: string | null;
+  totalLessons: number;
+  completedLessons: number;
+}
+
 export default function DashboardPage() {
   const { activeUserHeaderId, setCommandPaletteOpen } = useWorkspaceStore();
   const [user, setUser] = useState<DashboardUser>({
@@ -140,12 +152,14 @@ export default function DashboardPage() {
     estimatedMinutes: 0,
   });
   const [courses, setCourses] = useState<CourseLike[]>([]);
+  const [archivedCoursesCount, setArchivedCoursesCount] = useState(0);
   const [quizzes, setQuizzes] = useState<DashboardQuizItem[]>([]);
   const [documentsCount, setDocumentsCount] = useState(0);
   const [notebooksCount, setNotebooksCount] = useState(0);
   const [practiceStats, setPracticeStats] = useState<PracticeStatsData | null>(null);
   const [practiceStatsError, setPracticeStatsError] = useState<string | null>(null);
   const [nextLessonInfo, setNextLessonInfo] = useState<NextLessonInfo | null>(null);
+  const [continueCourseMeta, setContinueCourseMeta] = useState<ContinueCourseMeta | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
@@ -154,6 +168,7 @@ export default function DashboardPage() {
     setFetchError(null);
     setPracticeStatsError(null);
     setNextLessonInfo(null);
+    setContinueCourseMeta(null);
     try {
       const effectiveUserId =
         activeUserHeaderId ??
@@ -206,10 +221,17 @@ export default function DashboardPage() {
         }
       }
 
-      const unique = sortCoursesSmartly(deduplicateCourses(rawCourses));
+      const normalizedAll = rawCourses.map(normalizeCourseSummary);
+      const archived = normalizedAll.filter((c) => Boolean(c.isArchived));
+      const active = normalizedAll.filter((c) => !c.isArchived);
+      setArchivedCoursesCount(archived.length);
+
+      const unique = sortCoursesSmartly(deduplicateCourses(active));
       setCourses(unique);
 
       const activeCourse =
+        unique.find((c) => Boolean(c.isPinned) && !c.isArchived && getCourseProgress(c) < 100) ||
+        unique.find((c) => Boolean(c.isPinned) && !c.isArchived) ||
         unique.find((c) => {
           const p = getCourseProgress(c);
           return p > 0 && p < 100;
@@ -217,10 +239,18 @@ export default function DashboardPage() {
         unique.find((c) => getCourseProgress(c) < 100) ||
         unique[0];
 
-      const applyNextLessonFromCourse = (courseDetail: {
-        completedLessonIds?: string[];
-        chapters?: CourseDetailChapter[];
-      }) => {
+      const applyNextLessonFromCourse = (
+        courseDetail: {
+          id?: string;
+          completedLessonIds?: string[];
+          chapters?: CourseDetailChapter[];
+          dailyLessonGoal?: number | null;
+          targetCompletionDate?: string | null;
+          totalLessons?: number | null;
+          completedLessons?: number | null;
+        },
+        fallbackCourse?: CourseLike
+      ) => {
         const completedSet = new Set<string>(courseDetail.completedLessonIds ?? []);
         const chapters: CourseDetailChapter[] = Array.isArray(courseDetail.chapters)
           ? courseDetail.chapters
@@ -244,20 +274,69 @@ export default function DashboardPage() {
             minutes: candidate.lesson.durationMinutes ?? candidate.lesson.estimatedMinutes,
           });
         }
+
+        const resolvedId =
+          courseDetail.id || (fallbackCourse ? getCourseId(fallbackCourse) : "");
+        if (resolvedId) {
+          const fallbackRaw = (fallbackCourse ?? {}) as {
+            dailyLessonGoal?: number | null;
+            targetCompletionDate?: string | null;
+            totalLessons?: number | null;
+            completedLessons?: number | null;
+          };
+          const completedFromChapters = flattened.filter(
+            ({ lesson }) => Boolean(lesson.isCompleted) || completedSet.has(lesson.id)
+          ).length;
+          const totalLessons =
+            Number(courseDetail.totalLessons ?? fallbackRaw.totalLessons ?? 0) ||
+            flattened.length ||
+            (fallbackCourse ? getCourseLessonCount(fallbackCourse) : 0);
+          const completedLessons =
+            Number(
+              courseDetail.completedLessons ??
+                fallbackRaw.completedLessons ??
+                completedFromChapters
+            ) || 0;
+          const dailyLessonGoal = Number(
+            courseDetail.dailyLessonGoal ?? fallbackRaw.dailyLessonGoal ?? 0
+          );
+          const targetCompletionDate =
+            courseDetail.targetCompletionDate ?? fallbackRaw.targetCompletionDate ?? null;
+
+          setContinueCourseMeta({
+            courseId: resolvedId,
+            dailyLessonGoal: Number.isFinite(dailyLessonGoal) ? dailyLessonGoal : 0,
+            targetCompletionDate,
+            totalLessons,
+            completedLessons,
+          });
+        }
       };
 
       const activeCourseChapters = (activeCourse as { chapters?: CourseDetailChapter[] } | undefined)?.chapters;
       const activeId = activeCourse ? getCourseId(activeCourse) : "";
+      const hasEmbeddedGoal =
+        (activeCourse as { dailyLessonGoal?: unknown } | undefined)?.dailyLessonGoal !== undefined;
       if (Array.isArray(activeCourseChapters) && activeCourseChapters.length > 0) {
-        applyNextLessonFromCourse({
-          completedLessonIds: (activeCourse as { completedLessonIds?: string[] }).completedLessonIds,
-          chapters: activeCourseChapters,
-        });
-      } else if (activeId) {
+        applyNextLessonFromCourse(
+          {
+            id: activeId,
+            completedLessonIds: (activeCourse as { completedLessonIds?: string[] }).completedLessonIds,
+            chapters: activeCourseChapters,
+            dailyLessonGoal: (activeCourse as { dailyLessonGoal?: number | null }).dailyLessonGoal,
+            targetCompletionDate: (activeCourse as { targetCompletionDate?: string | null })
+              .targetCompletionDate,
+            totalLessons: (activeCourse as { totalLessons?: number | null }).totalLessons,
+            completedLessons: (activeCourse as { completedLessons?: number | null }).completedLessons,
+          },
+          activeCourse
+        );
+      }
+      if (activeId && (!Array.isArray(activeCourseChapters) || activeCourseChapters.length === 0 || !hasEmbeddedGoal)) {
         void fetch(`/api/v1/courses/${activeId}`, { headers })
           .then((resp) => (resp.ok ? resp.json() : null))
           .then((detail) => {
-            if (detail) applyNextLessonFromCourse(detail);
+            if (detail) applyNextLessonFromCourse(detail, activeCourse);
           })
           .catch(() => null);
       }
@@ -295,6 +374,8 @@ export default function DashboardPage() {
   const recentQuizzes = submittedQuizzes.slice(0, 3);
 
   const continueCourse =
+    courses.find((c) => Boolean(c.isPinned) && !c.isArchived && getCourseProgress(c) < 100) ||
+    courses.find((c) => Boolean(c.isPinned) && !c.isArchived) ||
     courses.find((c) => {
       const p = getCourseProgress(c);
       return p > 0 && p < 100;
@@ -309,6 +390,38 @@ export default function DashboardPage() {
       ? `/app/courses/${continueCourseId}/learn?lesson=${nextLessonInfo.id}`
       : `/app/courses/${continueCourseId}/learn`
     : "/app/courses/new";
+
+  const activeMeta =
+    continueCourseMeta && continueCourseMeta.courseId === continueCourseId
+      ? continueCourseMeta
+      : null;
+  const continueDailyGoal =
+    activeMeta?.dailyLessonGoal ??
+    Number((continueCourse as { dailyLessonGoal?: number } | undefined)?.dailyLessonGoal ?? 0);
+  const continueTargetDate =
+    activeMeta?.targetCompletionDate ??
+    (continueCourse as { targetCompletionDate?: string | null } | undefined)?.targetCompletionDate ??
+    null;
+  const continueTotalLessons =
+    activeMeta?.totalLessons ?? (continueCourse ? getCourseLessonCount(continueCourse) : 0);
+  const continueCompletedLessons =
+    activeMeta?.completedLessons ??
+    Number((continueCourse as { completedLessons?: number } | undefined)?.completedLessons ?? 0);
+  const continueRemaining = Math.max(0, continueTotalLessons - continueCompletedLessons);
+
+  let continueForecastText: string | null = null;
+  if (continueRemaining > 0 && continueDailyGoal > 0) {
+    const daysNeeded = Math.ceil(continueRemaining / continueDailyGoal);
+    const parsedTarget = continueTargetDate ? new Date(continueTargetDate) : null;
+    const targetDateObj =
+      parsedTarget && !Number.isNaN(parsedTarget.getTime())
+        ? parsedTarget
+        : new Date(Date.now() + daysNeeded * 86_400_000);
+    const dd = String(targetDateObj.getDate()).padStart(2, "0");
+    const mm = String(targetDateObj.getMonth() + 1).padStart(2, "0");
+    const yyyy = targetDateObj.getFullYear();
+    continueForecastText = `Dự kiến xong: ${dd}/${mm}/${yyyy} (~${daysNeeded} ngày)`;
+  }
 
   const avgCourseProgress =
     courses.length > 0
@@ -335,17 +448,81 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh] space-y-6">
-        <div className="h-10 w-64 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-28 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh] space-y-8">
+        {/* Header skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-8 w-64 max-w-full rounded-[8px] swms-skeleton" />
+            <div className="h-4 w-48 max-w-full rounded-[6px] swms-skeleton" />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:block h-9 w-32 rounded-[8px] swms-skeleton" />
+            <div className="h-9 w-32 rounded-[8px] swms-skeleton" />
+          </div>
+        </div>
+
+        {/* 2 Focus cards skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[0, 1].map((i) => (
+            <div
+              key={i}
+              className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 overflow-hidden p-5 space-y-4"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="h-4 w-32 rounded-[6px] swms-skeleton" />
+                <div className="h-5 w-20 rounded-[6px] swms-skeleton" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-6 w-3/4 rounded-[6px] swms-skeleton" />
+                <div className="h-4 w-1/2 rounded-[6px] swms-skeleton" />
+              </div>
+              <div className="h-2 w-full rounded-full swms-skeleton" />
+              <div className="h-9 w-32 rounded-[8px] swms-skeleton" />
+            </div>
           ))}
         </div>
-        <div className="h-44 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="h-56 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
-          <div className="h-56 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+
+        {/* Practice hub skeleton */}
+        <div className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-5 space-y-5">
+          <div className="flex items-center justify-between gap-2 border-b border-[var(--border-calm)] pb-3">
+            <div className="h-5 w-60 max-w-full rounded-[6px] swms-skeleton" />
+            <div className="h-4 w-24 rounded-[6px] swms-skeleton" />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="h-20 rounded-lg swms-skeleton" />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div className="lg:col-span-7 h-44 rounded-lg swms-skeleton" />
+            <div className="lg:col-span-5 h-44 rounded-lg swms-skeleton" />
+          </div>
+        </div>
+
+        {/* 4 Recent course cards skeleton */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="h-5 w-40 rounded-[6px] swms-skeleton" />
+            <div className="h-4 w-28 rounded-[6px] swms-skeleton" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="min-h-[176px] rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-4 flex flex-col justify-between gap-3"
+              >
+                <div className="space-y-2.5">
+                  <div className="h-4 w-20 rounded-[5px] swms-skeleton" />
+                  <div className="h-5 w-full rounded-[6px] swms-skeleton" />
+                  <div className="h-4 w-2/3 rounded-[6px] swms-skeleton" />
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 w-full rounded-[4px] swms-skeleton" />
+                  <div className="h-1.5 w-full rounded-full swms-skeleton" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -385,7 +562,7 @@ export default function DashboardPage() {
           </button>
           <Link
             href="/app/courses/new"
-            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition"
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-sm font-medium transition shadow-xs"
           >
             <Plus className="w-4 h-4" />
             <span>Tạo khóa học</span>
@@ -413,135 +590,170 @@ export default function DashboardPage() {
       {/* Focus Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
         {/* Card 1: Continue Course Roadmap */}
-        <div className="rounded-lg border border-border bg-bg-secondary p-5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-text-tertiary">
-                <BookOpen className="w-3.5 h-3.5 text-accent" />
-                <span>Tiếp tục lộ trình</span>
+        <div className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 hover:shadow-elevation-2 transition-all overflow-hidden flex flex-col">
+          <div className="h-1 w-full bg-gradient-to-r from-[#5E51E8] via-indigo-500 to-violet-500" />
+          <div className="p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-text-tertiary">
+                  <span className="p-1.5 rounded-lg bg-[var(--accent-subtle)] text-[#5E51E8] dark:text-[#A5B4FC]">
+                    <BookOpen className="w-3.5 h-3.5" />
+                  </span>
+                  <span>Tiếp tục lộ trình</span>
+                </div>
+                {continueCourse && (
+                  <div className="flex items-center gap-1.5">
+                    {Boolean((continueCourse as { isPinned?: boolean }).isPinned) && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-md">
+                        <Pin className="w-3 h-3 fill-current text-amber-500" />
+                        <span>Đã ghim</span>
+                      </span>
+                    )}
+                    <span className="text-xs px-2 py-0.5 rounded-md bg-bg-tertiary text-text-secondary">
+                      {classifyCourseDomain(continueCourse).label}
+                    </span>
+                  </div>
+                )}
               </div>
-              {continueCourse && (
-                <span className="text-xs px-2 py-0.5 rounded-md bg-bg-tertiary text-text-secondary">
-                  {classifyCourseDomain(continueCourse).label}
-                </span>
+
+              {continueCourse ? (
+                <>
+                  <h2 className="text-base font-semibold text-text-primary mb-1 line-clamp-2">
+                    {continueCourse.title}
+                  </h2>
+                  {nextLessonInfo ? (
+                    <p className="text-sm text-text-secondary mb-3 line-clamp-1">
+                      Bài tiếp theo: <span className="text-text-primary font-medium">{nextLessonInfo.title}</span>
+                      {nextLessonInfo.minutes ? ` (${nextLessonInfo.minutes}p)` : ""}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-text-tertiary mb-3">
+                      {getCourseLessonCount(continueCourse)} bài giảng trong lộ trình
+                    </p>
+                  )}
+
+                  {(continueDailyGoal > 0 || continueForecastText) && (
+                    <div className="flex flex-wrap items-center gap-2 mb-3.5">
+                      {continueDailyGoal > 0 && (
+                        <Badge variant="brand" size="sm">
+                          <Target className="w-3 h-3" />
+                          <span>Mục tiêu: {continueDailyGoal} bài/ngày</span>
+                        </Badge>
+                      )}
+                      {continueForecastText && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--text-secondary)] bg-[var(--surface-elevated)] border border-[var(--border-calm)] px-2 py-0.5 rounded-[5px]">
+                          <Clock className="w-3 h-3 text-[var(--text-tertiary)]" />
+                          <span>{continueForecastText}</span>
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between text-xs text-text-tertiary mb-1.5">
+                      <span>Tiến độ khóa học</span>
+                      <span className="font-medium text-text-secondary">{continueProgress}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          continueProgress === 100 ? "bg-emerald-500" : "bg-[#5E51E8] dark:bg-[#818CF8]"
+                        }`}
+                        style={{ width: `${continueProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="py-4">
+                  <h2 className="text-base font-semibold text-text-primary mb-1">
+                    Bắt đầu hành trình học mới
+                  </h2>
+                  <p className="text-sm text-text-secondary">
+                    Tạo khóa học từ tài liệu PDF hoặc để AI phác thảo lộ trình theo mục tiêu của bạn.
+                  </p>
+                </div>
               )}
             </div>
 
-            {continueCourse ? (
-              <>
-                <h2 className="text-base font-semibold text-text-primary mb-1 line-clamp-2">
-                  {continueCourse.title}
-                </h2>
-                {nextLessonInfo ? (
-                  <p className="text-sm text-text-secondary mb-4 line-clamp-1">
-                    Bài tiếp theo: <span className="text-text-primary font-medium">{nextLessonInfo.title}</span>
-                    {nextLessonInfo.minutes ? ` (${nextLessonInfo.minutes}p)` : ""}
-                  </p>
-                ) : (
-                  <p className="text-sm text-text-tertiary mb-4">
-                    {getCourseLessonCount(continueCourse)} bài giảng trong lộ trình
-                  </p>
-                )}
-
-                <div className="mb-4">
-                  <div className="flex items-center justify-between text-xs text-text-tertiary mb-1.5">
-                    <span>Tiến độ khóa học</span>
-                    <span className="font-medium text-text-secondary">{continueProgress}%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${
-                        continueProgress === 100 ? "bg-emerald-500" : "bg-accent"
-                      }`}
-                      style={{ width: `${continueProgress}%` }}
-                    />
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="py-4">
-                <h2 className="text-base font-semibold text-text-primary mb-1">
-                  Bắt đầu hành trình học mới
-                </h2>
-                <p className="text-sm text-text-secondary">
-                  Tạo khóa học từ tài liệu PDF hoặc để AI phác thảo lộ trình theo mục tiêu của bạn.
-                </p>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center justify-between gap-3 pt-1">
-            {continueCourse ? (
-              <>
+            <div className="flex items-center justify-between gap-3 pt-1">
+              {continueCourse ? (
+                <>
+                  <Link
+                    href={continueLearnHref}
+                    className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-sm font-medium transition shadow-xs"
+                  >
+                    <Play className="w-3.5 h-3.5" />
+                    <span>{continueProgress > 0 ? "Học tiếp" : "Bắt đầu học"}</span>
+                  </Link>
+                  <Link
+                    href={`/app/courses/${continueCourseId}`}
+                    className="text-xs font-medium text-text-secondary hover:text-accent transition"
+                  >
+                    Xem đề cương →
+                  </Link>
+                </>
+              ) : (
                 <Link
-                  href={continueLearnHref}
-                  className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition"
+                  href="/app/courses/new"
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-sm font-medium transition shadow-xs"
                 >
-                  <Play className="w-3.5 h-3.5" />
-                  <span>{continueProgress > 0 ? "Học tiếp" : "Bắt đầu học"}</span>
+                  <Plus className="w-4 h-4" />
+                  <span>Tạo khóa học đầu tiên</span>
                 </Link>
-                <Link
-                  href={`/app/courses/${continueCourseId}`}
-                  className="text-xs font-medium text-text-secondary hover:text-accent transition"
-                >
-                  Xem đề cương →
-                </Link>
-              </>
-            ) : (
-              <Link
-                href="/app/courses/new"
-                className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Tạo khóa học đầu tiên</span>
-              </Link>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
         {/* Card 2: Today's Memory Review */}
-        <div className="rounded-lg border border-border bg-bg-secondary p-5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-text-tertiary">
-                <Brain className="w-3.5 h-3.5 text-accent" />
-                <span>Ôn tập ghi nhớ</span>
+        <div className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 hover:shadow-elevation-2 transition-all overflow-hidden flex flex-col">
+          <div className="h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+          <div className="p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-text-tertiary">
+                  <span className="p-1.5 rounded-lg bg-[var(--accent-subtle)] text-[#5E51E8] dark:text-[#A5B4FC]">
+                    <Brain className="w-3.5 h-3.5" />
+                  </span>
+                  <span>Ôn tập ghi nhớ</span>
+                </div>
+                <span className="text-xs text-text-tertiary">
+                  {reviewStation.totalCards} thẻ đang lưu
+                </span>
               </div>
-              <span className="text-xs text-text-tertiary">
-                {reviewStation.totalCards} thẻ đang lưu
-              </span>
+
+              <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+                <span className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
+                  Hôm nay: {cappedDue} thẻ
+                </span>
+                <span className="text-sm font-medium text-text-secondary">
+                  (~{estimatedMins} phút)
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 mb-4 text-xs">
+                <span className="text-text-tertiary">
+                  {backlogCount > 0 ? `còn ${backlogCount} thẻ tồn` : "Đã lên lịch tối ưu"}
+                </span>
+                <span className="text-text-tertiary">·</span>
+                <span className="text-text-tertiary">Giới hạn {reviewCaps.maxReviewsPerDay} thẻ/ngày</span>
+              </div>
             </div>
 
-            <div className="flex items-baseline gap-2 mb-1 flex-wrap">
-              <span className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
-                Hôm nay: {cappedDue} thẻ
-              </span>
-              <span className="text-sm font-medium text-text-secondary">
-                (~{estimatedMins} phút)
-              </span>
+            <div className="pt-1">
+              <Link
+                href="/app/review"
+                className={`inline-flex items-center gap-2 h-9 px-4 rounded-md text-sm font-medium transition ${
+                  cappedDue > 0
+                    ? "bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] shadow-xs"
+                    : "border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-[var(--text-primary)] hover:bg-[var(--border-calm)]"
+                }`}
+              >
+                <span>{cappedDue > 0 ? "Bắt đầu ôn tập" : "Mở phòng ôn tập"}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
-
-            <div className="flex items-center gap-2 mb-4 text-xs">
-              <span className="text-text-tertiary">
-                {backlogCount > 0 ? `còn ${backlogCount} thẻ tồn` : "Đã lên lịch tối ưu"}
-              </span>
-              <span className="text-text-tertiary">·</span>
-              <span className="text-text-tertiary">Giới hạn {reviewCaps.maxReviewsPerDay} thẻ/ngày</span>
-            </div>
-          </div>
-
-          <div className="pt-1">
-            <Link
-              href="/app/review"
-              className={`inline-flex items-center gap-2 h-9 px-4 rounded-md text-sm font-medium transition ${
-                cappedDue > 0
-                  ? "bg-accent text-white hover:bg-accent-hover shadow-xs"
-                  : "border border-border bg-bg-primary text-text-primary hover:bg-bg-tertiary"
-              }`}
-            >
-              <span>{cappedDue > 0 ? "Bắt đầu ôn tập" : "Mở phòng ôn tập"}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
           </div>
         </div>
       </div>
@@ -656,7 +868,7 @@ export default function DashboardPage() {
               <div>
                 <Link
                   href="/app/practice"
-                  className="px-4 py-2 rounded-lg bg-accent text-accent-contrast text-xs font-semibold inline-flex items-center gap-1.5 hover:opacity-90 transition"
+                  className="px-4 py-2 rounded-lg bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-semibold inline-flex items-center gap-1.5 transition shadow-xs"
                 >
                   <span>Bắt đầu luyện tập ngay</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -978,13 +1190,25 @@ export default function DashboardPage() {
               {courses.length}
             </span>
           </div>
-          <Link
-            href="/app/courses"
-            className="text-sm font-medium text-text-secondary hover:text-accent transition inline-flex items-center gap-1"
-          >
-            <span>Xem tất cả khóa học</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          <div className="flex items-center gap-3">
+            {archivedCoursesCount > 0 && (
+              <Link
+                href="/app/courses?tab=archived"
+                className="text-xs text-text-tertiary hover:text-accent transition inline-flex items-center gap-1"
+                title="Xem các khóa học đã lưu trữ"
+              >
+                <Archive className="w-3.5 h-3.5" />
+                <span>Đã lưu trữ ({archivedCoursesCount})</span>
+              </Link>
+            )}
+            <Link
+              href="/app/courses"
+              className="text-sm font-medium text-text-secondary hover:text-accent transition inline-flex items-center gap-1"
+            >
+              <span>Xem tất cả khóa học</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
 
         {courses.length > 0 ? (
@@ -995,6 +1219,7 @@ export default function DashboardPage() {
               const lessonCount = getCourseLessonCount(course);
               const theme = getCourseVisualTheme(course);
               const skillTags = extractCourseSkillTags(course);
+              const isPinned = Boolean((course as { isPinned?: boolean }).isPinned);
               return (
                 <Link
                   key={id}
@@ -1005,9 +1230,17 @@ export default function DashboardPage() {
                   <div className="p-4 flex-1 flex flex-col justify-between gap-3">
                     <div>
                       <div className="flex items-center justify-between gap-1.5 mb-2">
-                        <span className={`inline-block text-[10px] font-semibold border rounded-md px-2 py-0.5 ${theme.badgeBgClass}`}>
-                          {theme.domainLabel}
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className={`inline-block text-[10px] font-semibold border rounded-md px-2 py-0.5 ${theme.badgeBgClass}`}>
+                            {theme.domainLabel}
+                          </span>
+                          {isPinned && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-1.5 py-0.2 rounded">
+                              <Pin className="w-2.5 h-2.5 fill-current text-amber-500" />
+                              <span>Ghim</span>
+                            </span>
+                          )}
+                        </div>
                         <span className="text-[11px] text-text-tertiary shrink-0">
                           {theme.estimatedHoursLabel}
                         </span>
@@ -1062,7 +1295,7 @@ export default function DashboardPage() {
             </p>
             <Link
               href="/app/courses/new"
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-sm font-medium transition shadow-xs"
             >
               <Plus className="w-4 h-4" />
               <span>Tạo khóa học mới</span>

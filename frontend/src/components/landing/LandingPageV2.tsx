@@ -80,9 +80,9 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
           : "bg-transparent"
       }`}
     >
-      <div className="max-w-6xl mx-auto flex items-center justify-between h-14 px-6">
+      <div className="max-w-6xl mx-auto flex items-center justify-between h-14 px-4 sm:px-6 gap-2">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href="/" className="flex items-center gap-2 group shrink-0">
           <div className="w-7 h-7 rounded-[8px] bg-[#5E51E8] dark:bg-[#818CF8] flex items-center justify-center text-white dark:text-[#0F0F12] text-xs font-bold shadow-xs">
             S
           </div>
@@ -92,12 +92,12 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
         </Link>
 
         {/* Right actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
           <button
             type="button"
             data-testid="theme-toggle-btn"
             onClick={toggleDark}
-            className="p-2 rounded-[8px] hover:bg-[var(--surface-elevated)] transition text-[var(--text-secondary)] cursor-pointer"
+            className="p-2 rounded-[8px] hover:bg-[var(--surface-elevated)] transition text-[var(--text-secondary)] cursor-pointer shrink-0"
             aria-label="Toggle theme"
           >
             {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -106,24 +106,24 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
             <Link
               href="/app"
               data-testid="landing-nav-cta"
-              className="text-sm font-medium bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] px-4 py-1.5 rounded-[10px] transition shadow-xs inline-flex items-center gap-1.5"
+              className="text-xs sm:text-sm font-medium bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:hover:bg-[#6366F1] dark:text-[#0F0F12] px-3 sm:px-4 py-1.5 rounded-[10px] transition shadow-xs inline-flex items-center gap-1.5 max-w-[190px] sm:max-w-none"
             >
-              <span>Vào Studxy ({signedInUser.fullName})</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span className="truncate">Vào Studxy ({signedInUser.fullName})</span>
+              <ArrowRight className="w-3.5 h-3.5 shrink-0" />
             </Link>
           ) : (
             <>
               <Link
                 href="/auth"
                 data-testid="landing-login-link"
-                className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition px-3 py-1.5"
+                className="text-xs sm:text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition px-2 sm:px-3 py-1.5 whitespace-nowrap"
               >
                 Đăng nhập
               </Link>
               <Link
                 href="/auth?tab=register"
                 data-testid="landing-nav-cta"
-                className="text-sm font-medium bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] px-4 py-1.5 rounded-[10px] transition shadow-xs"
+                className="text-xs sm:text-sm font-medium bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:hover:bg-[#6366F1] dark:text-[#0F0F12] px-3 sm:px-4 py-1.5 rounded-[10px] transition shadow-xs whitespace-nowrap"
               >
                 Bắt đầu miễn phí
               </Link>
@@ -193,18 +193,18 @@ function HeroSection() {
 /* ── Visual Preview ───────────────────────────────────────────── */
 function PreviewSection() {
   return (
-    <section className="px-6 pb-24">
+    <section className="px-4 sm:px-6 pb-24">
       <div className="max-w-5xl mx-auto">
-        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-2xl shadow-neutral-200/50 dark:shadow-black/30 overflow-hidden">
+        <div className="rounded-2xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-2xl shadow-neutral-200/50 dark:shadow-black/40 overflow-hidden">
           {/* Window chrome */}
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-neutral-100 dark:border-neutral-800">
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--border-calm)] bg-[var(--surface-card)]">
             <div className="flex gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-red-400" />
-              <div className="w-3 h-3 rounded-full bg-amber-400" />
-              <div className="w-3 h-3 rounded-full bg-green-400" />
+              <div className="w-3 h-3 rounded-full bg-red-400/90" />
+              <div className="w-3 h-3 rounded-full bg-amber-400/90" />
+              <div className="w-3 h-3 rounded-full bg-green-400/90" />
             </div>
             <div className="flex-1 flex justify-center">
-              <div className="px-4 py-1 rounded-md bg-neutral-50 dark:bg-neutral-800 text-xs text-neutral-400 dark:text-neutral-500 font-mono">
+              <div className="px-4 py-1 rounded-md bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-xs text-[var(--text-tertiary)] font-mono">
                 studxy.vn/app
               </div>
             </div>
@@ -213,28 +213,32 @@ function PreviewSection() {
           {/* Simulated workspace layout */}
           <div className="flex h-80 sm:h-96">
             {/* Sidebar mock */}
-            <div className="w-48 shrink-0 border-r border-neutral-100 dark:border-neutral-800 p-3 hidden sm:block">
+            <div className="w-48 shrink-0 border-r border-[var(--border-calm)] bg-[var(--surface-card)] p-3 hidden sm:block">
               <div className="space-y-1">
                 {["Tổng quan", "Khóa học", "Tài liệu", "Sổ tay", "Ôn tập"].map((item, i) => (
                   <div
                     key={item}
                     className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium ${
                       i === 0
-                        ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white"
-                        : "text-neutral-500 dark:text-neutral-400"
+                        ? "bg-[#EEF0FD] dark:bg-[#1E1B4B] text-[#5E51E8] dark:text-[#818CF8]"
+                        : "text-[var(--text-secondary)]"
                     }`}
                   >
-                    <div className={`w-4 h-4 rounded ${i === 0 ? "bg-indigo-500" : "bg-neutral-300 dark:bg-neutral-600"}`} />
+                    <div
+                      className={`w-3.5 h-3.5 rounded ${
+                        i === 0 ? "bg-[#5E51E8] dark:bg-[#818CF8]" : "bg-[var(--border-calm)]"
+                      }`}
+                    />
                     {item}
                   </div>
                 ))}
               </div>
               <div className="mt-6 space-y-2">
-                <div className="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500 px-3 uppercase tracking-wider">
+                <div className="text-[10px] font-semibold text-[var(--text-tertiary)] px-3 uppercase tracking-wider">
                   Gần đây
                 </div>
                 {["IELTS 7.5+ Mastery", ".NET 10 & React", "Tài Chính Cá Nhân"].map((c) => (
-                  <div key={c} className="px-3 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 truncate">
+                  <div key={c} className="px-3 py-1.5 text-xs text-[var(--text-secondary)] truncate">
                     {c}
                   </div>
                 ))}
@@ -242,39 +246,39 @@ function PreviewSection() {
             </div>
 
             {/* Main content mock */}
-            <div className="flex-1 p-5 sm:p-6 bg-neutral-50/40 dark:bg-neutral-900/30">
+            <div className="flex-1 min-w-0 p-4 sm:p-6 bg-[var(--surface-elevated)]/40">
               <div className="flex items-center justify-between gap-3 mb-4">
-                <div>
-                  <div className="text-sm font-bold text-neutral-900 dark:text-white">
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-[var(--text-primary)] truncate">
                     Chào bạn, hôm nay học gì?
                   </div>
-                  <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                  <div className="text-[11px] text-[var(--text-secondary)] truncate">
                     Mục tiêu tuần này: 4/5 ngày · Chuỗi 7 ngày liên tiếp
                   </div>
                 </div>
-                <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/50">
+                <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#EEF0FD] text-[#5E51E8] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] border border-[#5E51E8]/20 shrink-0">
                   Sẵn sàng ôn tập
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="rounded-lg bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/40 dark:to-violet-950/30 border border-indigo-100 dark:border-indigo-900/40 p-3.5 sm:p-4">
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 mb-1">
+                <div className="rounded-lg bg-gradient-to-br from-[#EEF0FD] to-violet-50 dark:from-[#1E1B4B]/70 dark:to-violet-950/40 border border-[#5E51E8]/20 p-3.5 sm:p-4">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-[#5E51E8] dark:text-[#A5B4FC] mb-1">
                     <span>Đang học dở</span>
                     <span>68%</span>
                   </div>
-                  <div className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white truncate">
+                  <div className="text-xs sm:text-sm font-bold text-[var(--text-primary)] truncate">
                     .NET 10 & React FullStack
                   </div>
-                  <div className="mt-2 h-1.5 w-full rounded-full bg-indigo-100 dark:bg-indigo-900/50 overflow-hidden">
-                    <div className="h-full w-2/3 rounded-full bg-indigo-600" />
+                  <div className="mt-2 h-1.5 w-full rounded-full bg-[#5E51E8]/15 dark:bg-[#818CF8]/20 overflow-hidden">
+                    <div className="h-full w-2/3 rounded-full bg-[#5E51E8] dark:bg-[#818CF8]" />
                   </div>
                 </div>
-                <div className="rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/30 border border-emerald-100 dark:border-emerald-900/40 p-3.5 sm:p-4">
+                <div className="rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/30 border border-emerald-200/70 dark:border-emerald-800/40 p-3.5 sm:p-4">
                   <div className="flex items-center justify-between text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 mb-1">
                     <span>Ôn tập FSRS v5</span>
                     <span>Hôm nay</span>
                   </div>
-                  <div className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white truncate">
+                  <div className="text-xs sm:text-sm font-bold text-[var(--text-primary)] truncate">
                     24 thẻ đến hạn
                   </div>
                   <div className="mt-1.5 text-[11px] text-emerald-700/80 dark:text-emerald-300/80 truncate">
@@ -282,20 +286,20 @@ function PreviewSection() {
                   </div>
                 </div>
               </div>
-              <div className="mt-3 sm:mt-4 grid grid-cols-3 gap-2.5 sm:gap-3">
+              <div className="mt-3 sm:mt-4 grid grid-cols-3 gap-2 sm:gap-3">
                 {[
                   { title: "IELTS Speaking", tag: "Nói & IPA", color: "bg-sky-500" },
                   { title: "Tài chính 101", tag: "Case study", color: "bg-amber-500" },
                   { title: "Tâm lý học", tag: "Roadmap 48T", color: "bg-rose-500" },
                 ].map((card) => (
-                  <div key={card.title} className="rounded-lg border border-neutral-200/70 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-2.5 sm:p-3">
+                  <div key={card.title} className="rounded-lg border border-[var(--border-calm)] bg-[var(--surface-card)] p-2.5 sm:p-3 min-w-0">
                     <div className="flex items-center gap-1.5 mb-1">
-                      <span className={`w-2 h-2 rounded-full ${card.color}`} />
-                      <span className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 truncate">
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${card.color}`} />
+                      <span className="text-[10px] font-medium text-[var(--text-secondary)] truncate">
                         {card.tag}
                       </span>
                     </div>
-                    <div className="text-[11px] sm:text-xs font-semibold text-neutral-900 dark:text-white truncate">
+                    <div className="text-[11px] sm:text-xs font-semibold text-[var(--text-primary)] truncate">
                       {card.title}
                     </div>
                   </div>
@@ -347,13 +351,13 @@ const PILLARS = [
 
 function FeaturesSection() {
   return (
-    <section id="features" data-testid="landing-pillars-section" className="px-6 py-24">
+    <section id="features" data-testid="landing-pillars-section" className="px-4 sm:px-6 py-24">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-white tracking-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight mb-4">
             Mọi thứ bạn cần, một nơi duy nhất
           </h2>
-          <p className="text-base text-neutral-500 dark:text-neutral-400 max-w-lg mx-auto">
+          <p className="text-base text-[var(--text-secondary)] max-w-lg mx-auto">
             Bốn trụ cột tạo nên hệ sinh thái học tập hoàn chỉnh
           </p>
         </div>
@@ -362,17 +366,17 @@ function FeaturesSection() {
           {PILLARS.map((p) => (
             <div
               key={p.title}
-              className={`group rounded-xl border border-neutral-200 dark:border-neutral-800 p-6 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 ${p.bg}`}
+              className="group rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-6 hover:border-[#5E51E8]/40 dark:hover:border-[#818CF8]/40 hover:shadow-md transition-all duration-200"
             >
               <div
-                className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.gradient} flex items-center justify-center mb-4 shadow-sm`}
+                className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.gradient} flex items-center justify-center mb-4 shadow-sm transition-transform duration-200 group-hover:scale-105`}
               >
                 <p.icon className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-base font-semibold text-neutral-900 dark:text-white mb-2">
+              <h3 className="text-base font-semibold text-[var(--text-primary)] mb-2">
                 {p.title}
               </h3>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                 {p.description}
               </p>
             </div>
@@ -409,13 +413,13 @@ const STEPS = [
 
 function WorkflowSection() {
   return (
-    <section data-testid="landing-workflow-section" className="px-6 py-24 bg-neutral-50 dark:bg-neutral-950/50">
+    <section data-testid="landing-workflow-section" className="px-4 sm:px-6 py-24 bg-[var(--surface-elevated)]/50 border-y border-[var(--border-calm)]">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-white tracking-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight mb-4">
             Quy trình đơn giản
           </h2>
-          <p className="text-base text-neutral-500 dark:text-neutral-400">
+          <p className="text-base text-[var(--text-secondary)]">
             Từ tài liệu thô đến kiến thức bền vững trong 4 bước
           </p>
         </div>
@@ -424,18 +428,18 @@ function WorkflowSection() {
           {STEPS.map((s) => (
             <div
               key={s.step}
-              className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 flex flex-col justify-between transition-all hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-sm"
+              className="rounded-2xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-5 flex flex-col justify-between transition-all hover:border-[#5E51E8]/40 dark:hover:border-[#818CF8]/40 hover:shadow-md"
             >
               <div>
-                <div className="w-11 h-11 rounded-xl bg-neutral-900 dark:bg-white flex items-center justify-center mb-4">
-                  <span className="text-sm font-bold text-white dark:text-neutral-900 font-mono">
+                <div className="w-11 h-11 rounded-xl bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center mb-4">
+                  <span className="text-sm font-bold text-[#5E51E8] dark:text-[#818CF8] font-mono">
                     {s.step}
                   </span>
                 </div>
-                <h3 className="text-base font-semibold text-neutral-900 dark:text-white mb-2">
+                <h3 className="text-base font-semibold text-[var(--text-primary)] mb-2">
                   {s.title}
                 </h3>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                   {s.description}
                 </p>
               </div>
@@ -458,33 +462,33 @@ function ShortcutsSection() {
   ];
 
   return (
-    <section id="shortcuts" data-testid="landing-shortcuts-section" className="px-6 py-24 scroll-mt-16">
+    <section id="shortcuts" data-testid="landing-shortcuts-section" className="px-4 sm:px-6 py-24 scroll-mt-16">
       <div className="max-w-4xl mx-auto">
-        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-8 sm:p-12">
+        <div className="rounded-2xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-6 sm:p-12 shadow-sm">
           <div className="flex items-start gap-4 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shrink-0">
-              <Command className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+            <div className="w-10 h-10 rounded-xl bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+              <Command className="w-5 h-5 text-[#5E51E8] dark:text-[#818CF8]" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-1">
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-1">
                 Thiết kế cho bàn phím
               </h2>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+              <p className="text-sm text-[var(--text-secondary)]">
                 Mọi thao tác đều có phím tắt. Tay bạn không cần rời bàn phím.
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {shortcuts.map((s) => (
               <div
                 key={s.keys}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg bg-neutral-50 dark:bg-neutral-800/50"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-calm)]"
               >
-                <kbd className="px-2 py-1 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs font-mono text-neutral-600 dark:text-neutral-300 shadow-sm whitespace-nowrap">
+                <kbd className="px-2 py-1 rounded-md bg-[var(--surface-card)] border border-[var(--border-calm)] text-xs font-mono text-[var(--text-primary)] shadow-xs whitespace-nowrap">
                   {s.keys}
                 </kbd>
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                <span className="text-sm text-[var(--text-secondary)]">
                   {s.label}
                 </span>
               </div>
@@ -499,17 +503,17 @@ function ShortcutsSection() {
 /* ── CTA ──────────────────────────────────────────────────────── */
 function CTASection() {
   return (
-    <section className="px-6 py-24">
+    <section className="px-4 sm:px-6 py-24">
       <div className="max-w-3xl mx-auto text-center">
-        <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-white tracking-tight mb-4">
+        <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight mb-4">
           Sẵn sàng học hiệu quả hơn?
         </h2>
-        <p className="text-base text-neutral-500 dark:text-neutral-400 mb-8">
+        <p className="text-base text-[var(--text-secondary)] mb-8">
           Bắt đầu miễn phí — không cần thẻ tín dụng.
         </p>
         <Link
           href="/auth?tab=register"
-          className="inline-flex items-center gap-2 h-12 px-8 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-100 transition shadow-lg shadow-neutral-900/10 dark:shadow-white/10"
+          className="inline-flex items-center gap-2 h-12 px-8 rounded-xl bg-[#5E51E8] hover:bg-[#4F46E5] dark:bg-[#818CF8] dark:hover:bg-[#6366F1] text-white dark:text-[#0F0F12] text-sm font-semibold transition shadow-lg shadow-[#5E51E8]/20 dark:shadow-[#818CF8]/15"
         >
           Tạo tài khoản miễn phí
           <ArrowRight className="w-4 h-4" />
@@ -522,25 +526,25 @@ function CTASection() {
 /* ── Footer ───────────────────────────────────────────────────── */
 function Footer({ onOpenInfo }: { onOpenInfo: (tab: "privacy" | "terms") => void }) {
   return (
-    <footer data-testid="landing-footer" className="border-t border-neutral-200 dark:border-neutral-800 px-6 py-8">
+    <footer data-testid="landing-footer" className="border-t border-[var(--border-calm)] bg-[var(--surface-card)]/60 px-4 sm:px-6 py-8">
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-[10px] font-bold">
+          <div className="w-6 h-6 rounded-md bg-[#5E51E8] dark:bg-[#818CF8] flex items-center justify-center text-white dark:text-[#0F0F12] text-[10px] font-bold">
             S
           </div>
-          <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+          <span className="text-sm font-medium text-[var(--text-secondary)]">
             Studxy
           </span>
-          <span className="text-xs text-neutral-400 dark:text-neutral-500">
+          <span className="text-xs text-[var(--text-tertiary)]">
             © 2026
           </span>
         </div>
-        <div className="flex items-center gap-6 text-xs text-neutral-400 dark:text-neutral-500">
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-[var(--text-tertiary)]">
           <button
             type="button"
             data-testid="privacy-modal-trigger"
             onClick={() => onOpenInfo("privacy")}
-            className="hover:text-neutral-600 dark:hover:text-neutral-300 transition cursor-pointer"
+            className="hover:text-[var(--text-primary)] transition cursor-pointer"
           >
             Chính sách bảo mật
           </button>
@@ -548,14 +552,14 @@ function Footer({ onOpenInfo }: { onOpenInfo: (tab: "privacy" | "terms") => void
             type="button"
             data-testid="terms-modal-trigger"
             onClick={() => onOpenInfo("terms")}
-            className="hover:text-neutral-600 dark:hover:text-neutral-300 transition cursor-pointer"
+            className="hover:text-[var(--text-primary)] transition cursor-pointer"
           >
             Điều khoản sử dụng
           </button>
           <Link
             href="/app"
             data-testid="landing-app-link"
-            className="hover:text-neutral-600 dark:hover:text-neutral-300 transition"
+            className="hover:text-[var(--text-primary)] transition"
           >
             Vào ứng dụng
           </Link>
@@ -627,7 +631,7 @@ export function LandingPageV2() {
   return (
     <div
       data-testid="landing-page-root"
-      className="min-h-screen bg-[var(--canvas-bg)] text-[var(--text-primary)] antialiased"
+      className="min-h-screen overflow-x-hidden bg-[var(--canvas-bg)] text-[var(--text-primary)] antialiased"
     >
       <Header dark={darkMode} toggleDark={toggleDarkMode} />
       <HeroSection />
@@ -648,24 +652,24 @@ export function LandingPageV2() {
             role="dialog"
             aria-modal="true"
             data-testid="landing-info-modal"
-            className="w-full max-w-md rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-xl"
+            className="w-full max-w-md rounded-2xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-base font-semibold text-neutral-900 dark:text-white">
+              <h3 className="text-base font-semibold text-[var(--text-primary)]">
                 {infoModal === "privacy" ? "Chính sách bảo mật Studxy" : "Điều khoản sử dụng Studxy"}
               </h3>
               <button
                 type="button"
                 data-testid="close-info-modal"
                 onClick={() => setInfoModal(null)}
-                className="p-1 rounded-md text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition cursor-pointer"
+                className="p-1 rounded-md text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition cursor-pointer"
                 aria-label="Đóng"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
+            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
               {infoModal === "privacy"
                 ? "Tài liệu PDF, ghi chú và thẻ flashcard FSRS thuộc quyền sở hữu của từng tài khoản học viên và được lưu trữ tách biệt theo người dùng. Bạn có thể xuất toàn bộ khóa học sang Markdown ZIP bất cứ lúc nào."
                 : "Studxy cung cấp môi trường học tập chủ động (đọc giáo trình, trích dẫn PDF, ôn tập lặp lại ngắt quãng FSRS v5 và bài luyện tập Practice Quiz) phục vụ mục đích học tập và nghiên cứu cá nhân."}

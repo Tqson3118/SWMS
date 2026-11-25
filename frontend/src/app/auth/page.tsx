@@ -102,11 +102,19 @@ function AuthPageContent() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
+  const rawEnvGoogleClientId = (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "").trim();
+  const initialEnvGoogleClientId =
+    rawEnvGoogleClientId.length >= 10 &&
+    !rawEnvGoogleClientId.toUpperCase().startsWith("YOUR_") &&
+    !rawEnvGoogleClientId.startsWith("<")
+      ? rawEnvGoogleClientId
+      : null;
+
   const [googleClientId, setGoogleClientId] = useState<string | null>(
-    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || null
+    initialEnvGoogleClientId
   );
   const [googleEnabled, setGoogleEnabled] = useState(
-    Boolean(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID)
+    Boolean(initialEnvGoogleClientId)
   );
   const [googleProvidersLoaded, setGoogleProvidersLoaded] = useState(false);
   const [googleSdkError, setGoogleSdkError] = useState<string | null>(null);

@@ -17,7 +17,7 @@ import {
   Target,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
-import { invalidateDashboardCache } from "@/lib/api-client";
+import { bootstrapAuthSession, invalidateDashboardCache } from "@/lib/api-client";
 
 const LessonPracticeLab = dynamic(
   () => import("@/components/learn/LessonPracticeLab").then((mod) => mod.LessonPracticeLab),
@@ -136,7 +136,7 @@ function FullscreenPracticePageInner() {
     [activeUserHeaderId]
   );
 
-  const loadContext = useCallback(async () => {
+  const loadContext = useCallback(async (isRetry = false) => {
     if (!courseId || !lessonId) {
       setLoadError("Thiếu thông tin khóa học hoặc bài học.");
       setIsLoading(false);
@@ -146,6 +146,8 @@ function FullscreenPracticePageInner() {
     setIsLoading(true);
     setLoadError(null);
     try {
+      // Chờ bootstrap session / token hydration hoàn tất
+      await bootstrapAuthSession().catch(() => false);
       const headers = getHeaders();
 
       // Best-effort auto-enroll for public courses
@@ -154,22 +156,43 @@ function FullscreenPracticePageInner() {
         headers,
       }).catch(() => null);
 
-      const [courseResp, lessonResp, dueResp] = await Promise.all([
+      let [courseResp, lessonResp] = await Promise.all([
         fetch(`/api/v1/courses/${courseId}`, { headers }),
         fetch(`/api/v1/lessons/${lessonId}`, { headers }),
-        fetch(`/api/v1/flashcards/due?courseId=${encodeURIComponent(courseId)}`, { headers }).catch(
-          () => null
-        ),
       ]);
 
+      // Nếu lần đầu nhận 401 do race condition trong lúc token đang hydrate, tự động retry an toàn 1 lần sau 350ms
+      if (!isRetry && (courseResp.status === 401 || lessonResp.status === 401)) {
+        await new Promise((r) => setTimeout(r, 350));
+        await bootstrapAuthSession().catch(() => false);
+        const retryHeaders = getHeaders();
+        [courseResp, lessonResp] = await Promise.all([
+          fetch(`/api/v1/courses/${courseId}`, { headers: retryHeaders }),
+          fetch(`/api/v1/lessons/${lessonId}`, { headers: retryHeaders }),
+        ]);
+      }
+
       if (!courseResp.ok) {
+        if (!isRetry && (courseResp.status === 0 || courseResp.status >= 500)) {
+          await new Promise((r) => setTimeout(r, 300));
+          return void loadContext(true);
+        }
         setLoadError(`Không tải được thông tin khóa học (HTTP ${courseResp.status}).`);
         return;
       }
       if (!lessonResp.ok) {
+        if (!isRetry && (lessonResp.status === 0 || lessonResp.status >= 500)) {
+          await new Promise((r) => setTimeout(r, 300));
+          return void loadContext(true);
+        }
         setLoadError(`Không tải được thông tin bài học (HTTP ${lessonResp.status}).`);
         return;
       }
+
+      const currentHeaders = getHeaders();
+      const dueResp = await fetch(`/api/v1/flashcards/due?courseId=${encodeURIComponent(courseId)}`, {
+        headers: currentHeaders,
+      }).catch(() => null);
 
       const courseRaw = await courseResp.json();
       const lessonRaw: LessonDetailData = await lessonResp.json();
@@ -205,6 +228,10 @@ function FullscreenPracticePageInner() {
         setNotebook(nbData);
       }
     } catch {
+      if (!isRetry) {
+        await new Promise((r) => setTimeout(r, 400));
+        return void loadContext(true);
+      }
       setLoadError("Không thể kết nối tới máy chủ để mở phòng thực hành.");
     } finally {
       setIsLoading(false);
@@ -377,25 +404,26 @@ function FullscreenPracticePageInner() {
   return (
     <div className="h-screen flex flex-col bg-[var(--canvas-bg)] text-[var(--text-primary)] overflow-hidden">
       {/* Compact Sticky Top Header */}
-      <header className="min-h-14 shrink-0 border-b border-[var(--border-calm)] bg-[var(--surface-card)] px-3 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-2 z-20">
+      <header className="min-h-11 sm:min-h-14 shrink-0 border-b border-[var(--border-calm)] bg-[var(--surface-card)] px-2 sm:px-5 py-1.5 sm:py-2 flex items-center justify-between gap-1.5 sm:gap-2 z-20">
         {/* Left Navigation */}
-        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0 shrink">
           <Link
             href={`/app/courses/${courseId}/learn?lesson=${lessonId}`}
             data-testid="practice-back-to-lesson-btn"
-            className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-[8px] border border-[var(--border-calm)] bg-[var(--canvas-bg)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition shrink-0"
+            className="inline-flex items-center gap-1 sm:gap-1.5 h-7 sm:h-8 px-2 sm:px-2.5 rounded-[8px] border border-[var(--border-calm)] bg-[var(--canvas-bg)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition shrink-0"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Quay lại bài học</span>
+            <span className="hidden xs:inline">Quay lại bài học</span>
+            <span className="xs:hidden">Bài học</span>
           </Link>
 
           <Link
             href="/app/practice"
             data-testid="practice-hub-link"
-            className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-[8px] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-[var(--accent-subtle)] transition shrink-0"
+            className="hidden sm:inline-flex items-center gap-1.5 h-8 px-2.5 rounded-[8px] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-[var(--accent-subtle)] transition shrink-0"
           >
             <Target className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Hub Luyện tập</span>
+            <span>Hub Luyện tập</span>
           </Link>
 
           <span className="hidden lg:inline text-[var(--text-tertiary)]">/</span>
@@ -408,9 +436,9 @@ function FullscreenPracticePageInner() {
         </div>
 
         {/* Center/Right Lesson Switcher + FSRS + Theme */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 max-w-full">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {flatLessons.length > 0 && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5 sm:gap-1">
               <button
                 type="button"
                 disabled={!prevLesson}
@@ -421,9 +449,9 @@ function FullscreenPracticePageInner() {
                 }}
                 title={prevLesson ? `Bài trước: ${prevLesson.title}` : "Đây là bài đầu tiên"}
                 aria-label="Bài học trước"
-                className="h-8 w-8 rounded-[8px] border border-[var(--border-calm)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-40 cursor-pointer"
+                className="h-7 w-7 sm:h-8 sm:w-8 rounded-[8px] border border-[var(--border-calm)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-40 cursor-pointer"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
 
               <select
@@ -436,7 +464,7 @@ function FullscreenPracticePageInner() {
                     router.push(`/app/practice/${courseId}/${nextId}`);
                   }
                 }}
-                className="h-8 max-w-[160px] sm:max-w-[240px] rounded-[8px] border border-[var(--border-calm)] bg-[var(--canvas-bg)] px-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] truncate"
+                className="h-7 sm:h-8 max-w-[125px] xs:max-w-[160px] sm:max-w-[240px] rounded-[8px] border border-[var(--border-calm)] bg-[var(--canvas-bg)] px-1.5 sm:px-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] truncate"
               >
                 {flatLessons.map((item) => (
                   <option key={item.id} value={item.id}>
@@ -455,9 +483,9 @@ function FullscreenPracticePageInner() {
                 }}
                 title={nextLesson ? `Bài tiếp theo: ${nextLesson.title}` : "Đây là bài cuối cùng"}
                 aria-label="Bài học tiếp theo"
-                className="h-8 w-8 rounded-[8px] border border-[var(--border-calm)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-40 cursor-pointer"
+                className="h-7 w-7 sm:h-8 sm:w-8 rounded-[8px] border border-[var(--border-calm)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-40 cursor-pointer"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             </div>
           )}
@@ -477,9 +505,9 @@ function FullscreenPracticePageInner() {
             onClick={toggleDarkMode}
             aria-label={darkMode ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối"}
             title={darkMode ? "Giao diện sáng" : "Giao diện tối"}
-            className="h-8 w-8 rounded-[8px] border border-[var(--border-calm)] bg-[var(--canvas-bg)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition cursor-pointer"
+            className="h-7 w-7 sm:h-8 sm:w-8 rounded-[8px] border border-[var(--border-calm)] bg-[var(--canvas-bg)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition cursor-pointer"
           >
-            {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+            {darkMode ? <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" /> : <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
         </div>
       </header>

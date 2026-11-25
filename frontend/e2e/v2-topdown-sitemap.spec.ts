@@ -90,14 +90,15 @@ test.describe("Top-Down 4-Level Sitemap Real E2E (No Mocks)", () => {
     await expect(page.getByText("Lộ trình Mẫu Chuẩn SWM").first()).toBeVisible();
     await courseSearch.fill("");
 
-    // Level 2: /app/courses/new (3 creation methods + template download)
+    // Level 2: /app/courses/new (4 creation methods + template download)
     await page.goto("/app/courses/new");
     await expect(page.getByRole("heading", { name: "Tạo khóa học mới" })).toBeVisible({
       timeout: 15000,
     });
-    await expect(page.getByText("1. Tạo từ tài liệu sẵn có")).toBeVisible();
-    await expect(page.getByText("2. Tạo lộ trình theo chủ đề với AI")).toBeVisible();
-    await expect(page.getByText("3. Nhập gói khóa học (.swm / .zip)")).toBeVisible();
+    await expect(page.getByText("1. Khởi tạo lộ trình với Trợ lý AI")).toBeVisible();
+    await expect(page.getByText("2. Tạo khóa học thủ công")).toBeVisible();
+    await expect(page.getByText("3. Tạo từ tài liệu sẵn có")).toBeVisible();
+    await expect(page.getByText("4. Nhập gói khóa học (.swm / .zip)")).toBeVisible();
     await expect(page.getByTestId("download-swm-template-btn")).toBeVisible();
 
     // Level 2: /app/documents (PDF Library)

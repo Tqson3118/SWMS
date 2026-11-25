@@ -21,15 +21,15 @@ export function Badge({
     neutral:
       "bg-[var(--surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-calm)]",
     brand:
-      "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] border border-[#5E51E8]/20",
+      "bg-[#EEF0FD] text-[#4338CA] dark:bg-[#1E1B4B] dark:text-[#C7D2FE] border border-[#5E51E8]/25 dark:border-[#818CF8]/30",
     streak:
-      "bg-[#FEF3C7] text-[#B45309] dark:bg-[#451A03] dark:text-[#FBBF24] border border-[#F59E0B]/20",
+      "bg-[#FEF3C7] text-[#92400E] dark:bg-[#451A03] dark:text-[#FDE68A] border border-[#F59E0B]/30",
     success:
-      "bg-[#D1FAE5] text-[#047857] dark:bg-[#064E3B] dark:text-[#34D399] border border-[#10B981]/20",
+      "bg-[#D1FAE5] text-[#065F46] dark:bg-[#064E3B] dark:text-[#6EE7B7] border border-[#10B981]/30",
     warning:
-      "bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40",
+      "bg-amber-50 text-amber-800 dark:bg-amber-950/70 dark:text-amber-200 border border-amber-200 dark:border-amber-700/50",
     danger:
-      "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800/40"
+      "bg-rose-50 text-rose-700 dark:bg-rose-950/70 dark:text-rose-200 border border-rose-200 dark:border-rose-700/50"
   }[variant];
 
   return (

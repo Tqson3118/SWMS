@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {
   WRITEIN_GRADING_LABELS,
+  detectCodingCategory,
   evaluateBiasSpotterAnswer,
   evaluateBugFixStatic,
   evaluateCbtExercise,
@@ -11,7 +12,9 @@ import {
   evaluateParsonsOrder,
   evaluatePracticeWithAiOrOffline,
   evaluatePredictOutput,
+  extractCodeBlocksFromMarkdown,
   generateFinanceCalculationProblem,
+  isAsciiOrNonCodeBlock,
   normalizeCodingActivities,
   normalizeFinanceActivities,
   normalizePsychologyActivities,
@@ -396,6 +399,182 @@ await runTest("Normalizers parse DB activities for Finance and Psychology", () =
     },
   ]);
   assert.equal(psyBank.biasSpotters.length, 1);
+});
+
+await runTest("Coding: normalizeCodingActivities preserves language on predictOutput (sql, python, javascript)", () => {
+  const bank = normalizeCodingActivities([
+    {
+      id: "act-pred-lang",
+      type: "predict_output",
+      configJson: JSON.stringify({
+        items: [
+          {
+            id: "p-sql",
+            title: "SQL Query",
+            language: "SQL",
+            code: "SELECT COUNT(*) FROM Users WHERE IsActive = 1;",
+            expectedOutput: "42",
+            explanation: "Đếm số bản ghi đang hoạt động.",
+          },
+          {
+            id: "p-py",
+            title: "Python Async",
+            language: "python",
+            code: "print(len([x for x in range(10) if x % 2 == 0]))",
+            expectedOutput: "5",
+            explanation: "Danh sách số chẵn từ 0 đến 9 gồm 5 phần tử.",
+          },
+          {
+            id: "p-js",
+            title: "JS Closure",
+            language: "JavaScript",
+            code: "console.log(typeof null);",
+            expectedOutput: "object",
+            explanation: "Lỗi lịch sử của JS typeof null trả về object.",
+          },
+        ],
+      }),
+    },
+  ]);
+
+  assert.equal(bank.predictOutput.length, 3);
+  assert.equal(bank.predictOutput[0].language, "sql");
+  assert.equal(bank.predictOutput[1].language, "python");
+  assert.equal(bank.predictOutput[2].language, "javascript");
+});
+
+await runTest("Coding: isAsciiOrNonCodeBlock & extractCodeBlocksFromMarkdown filters ASCII tables and Mermaid diagrams", () => {
+  // Test raw lang / tag filtering
+  assert.equal(isAsciiOrNonCodeBlock("text", "Some notes"), true);
+  assert.equal(isAsciiOrNonCodeBlock("txt", "Raw text"), true);
+  assert.equal(isAsciiOrNonCodeBlock("plain", "Just text"), true);
+  assert.equal(isAsciiOrNonCodeBlock("plaintext", "Plain"), true);
+  assert.equal(isAsciiOrNonCodeBlock("mermaid", "graph TD;\n A-->B;"), true);
+  assert.equal(isAsciiOrNonCodeBlock("ascii", "Diagram"), true);
+  assert.equal(isAsciiOrNonCodeBlock("diagram", "Architecture"), true);
+
+  // Test ASCII table borders
+  const asciiTable1 = `
++---+----------------------+
+| 1 | Table column         |
++---+----------------------+
+`;
+  assert.equal(isAsciiOrNonCodeBlock("csharp", asciiTable1), true);
+
+  const asciiTable2 = `
+|---|----------------------|
+| A | Row data             |
+|---|----------------------|
+`;
+  assert.equal(isAsciiOrNonCodeBlock("sql", asciiTable2), true);
+
+  // Test Box-drawing characters (┌─┐│└┘├┤┬┴┼)
+  const boxDiagram = `
+┌──────────────┐
+│  Component   │
+└──────────────┘
+`;
+  assert.equal(isAsciiOrNonCodeBlock("react", boxDiagram), true);
+
+  // Test valid code blocks pass
+  assert.equal(isAsciiOrNonCodeBlock("javascript", "const x = 10;\nconsole.log(x);"), false);
+  assert.equal(isAsciiOrNonCodeBlock("csharp", "public async Task Run() { await Task.Delay(1); }"), false);
+  assert.equal(isAsciiOrNonCodeBlock("python", "def process(): return [1, 2, 3]"), false);
+  assert.equal(isAsciiOrNonCodeBlock("sql", "SELECT id, name FROM courses;"), false);
+
+  // Test markdown extraction skips ascii/diagram
+  const md = `
+# Bài học demo
+
+\`\`\`text
++---+----------------+
+| 1 | Sơ đồ hệ thống |
++---+----------------+
+\`\`\`
+
+\`\`\`mermaid
+graph LR
+A[Client] --> B[API]
+\`\`\`
+
+\`\`\`typescript
+export function calculate(a: number, b: number): number {
+  return a + b;
+}
+\`\`\`
+`;
+  const extracted = extractCodeBlocksFromMarkdown(md);
+  assert.equal(extracted.length, 1);
+  assert.equal(extracted[0].language, "typescript");
+  assert.ok(extracted[0].code.includes("calculate"));
+});
+
+await runTest("Coding: detectCodingCategory classifies SQL, Python, JS, HTML without falling into dotnet", () => {
+  // SQL
+  assert.equal(
+    detectCodingCategory({
+      courseTitle: "Database Fundamentals",
+      lessonTitle: "Bài 6: SQL Phase 6 - Index và Query Optimization",
+      lessonMarkdown: "Tìm hiểu cấu trúc B-Tree Index và tối ưu câu lệnh SELECT WHERE JOIN trong cơ sở dữ liệu.",
+    }),
+    "sql"
+  );
+
+  // Python / OS / DevOps
+  assert.equal(
+    detectCodingCategory({
+      courseTitle: "Lập trình Backend hiện đại",
+      lessonTitle: "Bài 4: Xây dựng REST API bất đồng bộ với Python FastAPI",
+      lessonMarkdown: "Sử dụng async def, Pydantic schema và httpx client để xử lý luồng dữ liệu.",
+    }),
+    "os"
+  );
+  assert.equal(
+    detectCodingCategory({
+      courseTitle: "DevOps & Hệ thống",
+      lessonTitle: "Bài 2: Docker Container & Bash Scripting",
+      lessonMarkdown: "Quản lý tiến trình trong container Linux và thiết lập script tự động hóa.",
+    }),
+    "os"
+  );
+
+  // React / Web
+  assert.equal(
+    detectCodingCategory({
+      courseTitle: "Frontend Mastery",
+      lessonTitle: "Bài 3: Xử lý Form và DOM với JavaScript",
+      lessonMarkdown: "Thao tác trên DOM tree, bắt sự kiện click và validate input bằng JS.",
+    }),
+    "react"
+  );
+  assert.equal(
+    detectCodingCategory({
+      courseTitle: "Thiết kế Web Cơ bản",
+      lessonTitle: "Bài 1: HTML5 Semantics & CSS Flexbox Grid",
+      lessonMarkdown: "Bố cục giao diện hiện đại với Flexbox và Grid container.",
+    }),
+    "react"
+  );
+
+  // C# / .NET
+  assert.equal(
+    detectCodingCategory({
+      courseTitle: "Khóa học .NET 10",
+      lessonTitle: "Bài 5: ASP.NET Core Web API & Entity Framework",
+      lessonMarkdown: "C# Controllers, Dependency Injection và DbContext với EF Core.",
+    }),
+    "dotnet"
+  );
+
+  // Generic fallback must be "react", NOT "dotnet"
+  assert.equal(
+    detectCodingCategory({
+      courseTitle: "Tổng quan Lập trình",
+      lessonTitle: "Bài mở đầu",
+      lessonMarkdown: "Giới thiệu chung về lập trình phần mềm.",
+    }),
+    "react"
+  );
 });
 
 console.log(`\n✅ All ${passed} writein-practice unit tests passed!`);

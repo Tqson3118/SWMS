@@ -227,6 +227,9 @@ export function PredictOutputLab({
   const [fsrsToast, setFsrsToast] = useState<string | null>(null);
   const workerAbortRef = useRef<AbortController | null>(null);
 
+  const itemLang = (activeItem.language || "javascript").toLowerCase();
+  const isJs = itemLang === "javascript" || itemLang === "js";
+
   useEffect(() => {
     return () => {
       workerAbortRef.current?.abort();
@@ -243,7 +246,7 @@ export function PredictOutputLab({
   }, [activeItem.id]);
 
   const handleSaveCard = async (isAuto = false) => {
-    const front = `[Đoán Output JS] ${activeItem.title}\nĐoạn code sau in ra gì?\n${activeItem.code.slice(0, 260)}`;
+    const front = `[Đoán Output ${itemLang.toUpperCase()}] ${activeItem.title}\nĐoạn code sau in ra gì?\n${activeItem.code.slice(0, 260)}`;
     const back = `**Output đúng:**\n${actualOutput ?? activeItem.expectedOutput}\n\n**Giải thích:**\n${activeItem.explanation}`;
     const res = await saveWriteInFlashcardDeduplicated({
       front,
@@ -269,6 +272,56 @@ export function PredictOutputLab({
 
   const handleCheckPrediction = async () => {
     if (!prediction.trim() || isRunning) return;
+
+    const itemLang = (activeItem.language || "javascript").toLowerCase();
+    const isJs = itemLang === "javascript" || itemLang === "js";
+
+    if (!isJs) {
+      // Non-JS (sql, python, csharp, bash, dockerfile, etc.): Chấm đối chiếu trực tiếp
+      setIsRunning(false);
+      setWorkerError(null);
+      setExecMs(null);
+
+      const realOut = activeItem.expectedOutput;
+      setActualOutput(realOut);
+
+      const comparison = evaluatePredictOutput(
+        prediction,
+        realOut,
+        activeItem.acceptedOutputs
+      );
+      setEvalResult(comparison);
+
+      const passing = activeItem.passingScore ?? 70;
+      const isPassed = comparison.isCorrect || comparison.score >= passing;
+
+      if (onRecordAttempt) {
+        await onRecordAttempt({
+          mode: "predict_output",
+          activityId: activeItem.sourceActivityId || null,
+          score: comparison.score,
+          maxScore: 100,
+          isPassed,
+          activityKey: `predict-output-${activeItem.id}`,
+          activityTitle: `${activeItem.title} · Đoán Output (${itemLang.toUpperCase()})`,
+          durationSeconds: 1,
+          details: {
+            itemId: activeItem.id,
+            language: itemLang,
+            userPrediction: prediction,
+            actualWorkerOutput: realOut,
+            matchedLines: comparison.matchedLines,
+            totalExpectedLines: comparison.totalExpectedLines,
+          },
+        });
+      }
+
+      if (!isPassed) {
+        await handleSaveCard(true);
+      }
+      return;
+    }
+
     workerAbortRef.current?.abort();
     const ctrl = new AbortController();
     workerAbortRef.current = ctrl;
@@ -334,7 +387,9 @@ export function PredictOutputLab({
         <div>
           <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 inline-flex items-center gap-1.5">
             <Cpu className="w-3.5 h-3.5" />
-            Active Recall · Chạy kiểm chứng thực tế bằng Web Worker
+            {isJs
+              ? "Active Recall · Chạy kiểm chứng thực tế bằng Web Worker"
+              : `Active Recall · Đối chiếu đầu ra chuẩn (${itemLang.toUpperCase()})`}
           </span>
           <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100 mt-0.5">
             {activeItem.title}
@@ -374,7 +429,7 @@ export function PredictOutputLab({
             <div className="px-4 py-2 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between text-xs text-zinc-400">
               <span className="font-mono flex items-center gap-1.5">
                 <Terminal className="w-3.5 h-3.5 text-indigo-400" />
-                snippet.js (Chỉ đọc — hãy tự chạy nhẩm trong đầu trước!)
+                snippet.{isJs ? "js" : itemLang} (Chỉ đọc — hãy tự chạy nhẩm trong đầu trước!)
               </span>
               <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-[11px] text-zinc-300">
                 {activeItem.difficulty}
@@ -446,7 +501,13 @@ export function PredictOutputLab({
               ) : (
                 <Play className="w-4 h-4" />
               )}
-              <span>{isRunning ? "Đang chạy Web Worker..." : "Chạy thực tế & Kiểm tra"}</span>
+              <span>
+                {isRunning
+                  ? "Đang chạy Web Worker..."
+                  : isJs
+                  ? "Chạy thực tế & Kiểm tra"
+                  : `Đối chiếu kết quả (${itemLang.toUpperCase()})`}
+              </span>
             </button>
 
             <button
@@ -495,6 +556,11 @@ export function PredictOutputLab({
               <span>{evalResult.feedbackVi}</span>
             </div>
             <div className="flex items-center gap-2">
+              {!isJs && (
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30">
+                  Đối chiếu đầu ra chuẩn ({itemLang.toUpperCase()})
+                </span>
+              )}
               {execMs !== null && (
                 <span className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
                   Worker: {execMs}ms
@@ -523,7 +589,7 @@ export function PredictOutputLab({
             </div>
             <div className="p-3 rounded-lg bg-zinc-950 text-emerald-300 border border-zinc-800 space-y-1">
               <div className="font-sans font-bold text-emerald-400">
-                Output thực tế (Web Worker):
+                {isJs ? "Output thực tế (Web Worker):" : `Output chuẩn (${itemLang.toUpperCase()}):`}
               </div>
               <pre className="whitespace-pre-wrap">{actualOutput || "(không in ra dòng nào)"}</pre>
             </div>

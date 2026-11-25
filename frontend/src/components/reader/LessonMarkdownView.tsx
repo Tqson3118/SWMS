@@ -47,6 +47,7 @@ import {
   normalizeTitleForComparison,
 } from "./markdown/markdownCleaner";
 import { CodeBlockCard } from "./markdown/CodeBlockCard";
+import { BlockMath, InlineMath } from "@/lib/math-markdown";
 import {
   InlineSpeechPracticeBar,
   SpeechButton,
@@ -109,7 +110,7 @@ interface AudioAttachment {
 }
 
 interface InlineToken {
-  kind: "text" | "code" | "link" | "image";
+  kind: "text" | "code" | "link" | "image" | "math";
   text: string;
   href?: string;
   alt?: string;
@@ -119,6 +120,7 @@ interface InlineToken {
   isExternal?: boolean;
   audioMeta?: AudioAttachment;
   mdTargetPath?: string;
+  mathDisplay?: boolean;
 }
 
 interface TableData {
@@ -160,6 +162,7 @@ type ParsedBlock =
   | { type: "table"; table: TableData }
   | { type: "list"; ordered: boolean; items: ListItemData[] }
   | { type: "details"; summary: string; body: string }
+  | { type: "math"; tex: string; displayMode?: boolean }
   | { type: "hr" };
 
 function shouldHideTechnicalNoteBlock(block: ParsedBlock): boolean {
@@ -270,11 +273,31 @@ function tokenizeInlineMarkdown(
     return `\uE000CODE_${idx}\uE000`;
   });
 
+  // Step 1b: Protect block math $$...$$ and inline math $...$
+  const mathItems: Array<{ tex: string; displayMode: boolean }> = [];
+  let withMathPlaceholders = withCodePlaceholders.replace(/\$\$([\s\S]+?)\$\$/g, (_m, tex) => {
+    const idx = mathItems.length;
+    mathItems.push({ tex: tex.trim(), displayMode: true });
+    return `\uE000MATH_${idx}\uE000`;
+  });
+  withMathPlaceholders = withMathPlaceholders.replace(
+    /(?<!\\)\$(?!\s)([^$\r\n]+?)(?<![\s\\])\$/g,
+    (full, tex) => {
+      // Guard against false positive currency like $10 or $100
+      if (/^\d+(?:,\d+)*(?:\.\d+)?$/.test(tex.trim())) {
+        return full;
+      }
+      const idx = mathItems.length;
+      mathItems.push({ tex: tex.trim(), displayMode: false });
+      return `\uE000MATH_${idx}\uE000`;
+    }
+  );
+
   // Step 2: Protect images and links (excluding dead/internal md links which should become plain text)
   const linkItems: Array<InlineToken> = [];
   const linkRegex = /(!\[([^\]]*)\]\(([^)\s]+(?:\s+"[^"]*")?)\)|\[([^\]]+)\]\(([^)]+)\))/g;
 
-  const withAllPlaceholders = withCodePlaceholders.replace(
+  const withAllPlaceholders = withMathPlaceholders.replace(
     linkRegex,
     (full, _m1, imgAlt, imgUrl, linkText, linkHref) => {
       if (full.startsWith("![")) {
@@ -367,7 +390,7 @@ function tokenizeInlineMarkdown(
       continue;
     }
 
-    const segments = token.text.split(/(\uE000(?:CODE|LINK)_\d+\uE000)/g);
+    const segments = token.text.split(/(\uE000(?:CODE|LINK|MATH)_\d+\uE000)/g);
     for (const seg of segments) {
       if (!seg) continue;
       const codeMatch = seg.match(/^\uE000CODE_(\d+)\uE000$/);
@@ -408,6 +431,22 @@ function tokenizeInlineMarkdown(
           finalTokens.push({
             kind: "code",
             text: item.code,
+            bold: token.bold,
+            italic: token.italic,
+          });
+          continue;
+        }
+      }
+
+      const mathMatch = seg.match(/^\uE000MATH_(\d+)\uE000$/);
+      if (mathMatch) {
+        const mIdx = parseInt(mathMatch[1], 10);
+        const item = mathItems[mIdx];
+        if (item) {
+          finalTokens.push({
+            kind: "math",
+            text: item.tex,
+            mathDisplay: item.displayMode,
             bold: token.bold,
             italic: token.italic,
           });
@@ -596,6 +635,41 @@ function parseMarkdownBlocks(rawMarkdown: string): ParsedBlock[] {
         i = details.nextIndex;
         continue;
       }
+    }
+
+    // Standalone block math ($$...$$ or multi-line $$\n...\n$$)
+    if (trimmed.startsWith("$$")) {
+      if (trimmed.length > 2 && trimmed.endsWith("$$")) {
+        const tex = trimmed.slice(2, -2).trim();
+        blocks.push({
+          type: "math",
+          tex,
+          displayMode: true,
+        });
+        i++;
+        continue;
+      }
+      const mathLines: string[] = [];
+      const firstLineContent = trimmed.slice(2).trim();
+      if (firstLineContent) mathLines.push(firstLineContent);
+      i++;
+      while (i < lines.length) {
+        const closeTrim = lines[i].trim();
+        if (closeTrim.endsWith("$$")) {
+          const lastLine = closeTrim.slice(0, -2).trim();
+          if (lastLine) mathLines.push(lastLine);
+          i++;
+          break;
+        }
+        mathLines.push(lines[i]);
+        i++;
+      }
+      blocks.push({
+        type: "math",
+        tex: mathLines.join("\n").trim(),
+        displayMode: true,
+      });
+      continue;
     }
 
     // Fenced code block (``` or ~~~)
@@ -999,8 +1073,17 @@ function DetailsInteractiveAccordion({
   const [isSaving, setIsSaving] = useState(false);
 
   const isQuestionOrExercise = useMemo(() => {
+    const rawSum = (cleanSummary || "").toLowerCase();
     const norm = normalizeTitleForComparison(cleanSummary || "");
-    return /(cau hoi|câu hỏi|mini-review|mini review|tinh huong|tình huống|case|bai tap|bài tập|kiem tra|kiểm tra|dot 1|đợt 1|dot 2|đợt 2|self-check|self check|reflection|tu kiem tra|tự kiểm tra|luyen tap|luyện tập)/i.test(
+
+    // Loại trừ các summary đáp án của phần Quiz trắc nghiệm cuối bài
+    const isQuizSummary =
+      /quiz/i.test(rawSum) ||
+      /(dap an.*giai thich|giai thich chi tiet|dap an quiz|trac nghiem)/i.test(norm);
+    if (isQuizSummary) return false;
+
+    // Nhận diện câu hỏi, bài tập, mini-review, lời giải / gợi ý thực hành
+    return /(cau hoi|mini-review|mini review|tinh huong|case|bai tap|kiem tra|dot 1|dot 2|self-check|self check|reflection|tu kiem tra|luyen tap|xem loi giai|loi giai|goi y|dap an|solution|hint|answer)/i.test(
       norm
     );
   }, [cleanSummary]);
@@ -1020,122 +1103,130 @@ function DetailsInteractiveAccordion({
   const subBlocks = useMemo(() => parseMarkdownBlocks(body), [body]);
 
   return (
-    <details
-      key={keyId}
-      data-testid="lesson-details-accordion"
-      className="group my-2.5 rounded-xl border border-indigo-200/80 dark:border-indigo-800/70 bg-indigo-50/40 dark:bg-indigo-950/25 overflow-hidden font-sans"
-    >
-      <summary className="flex items-center gap-2 px-3.5 py-2 text-xs sm:text-[13px] font-bold text-indigo-900 dark:text-indigo-200 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden hover:bg-indigo-100/50 dark:hover:bg-indigo-900/35 transition">
-        <ChevronRight className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0 transition-transform duration-150 group-open:rotate-90" />
-        <span className="flex-1 min-w-0">
-          {renderInlineTokens(
-            tokenizeInlineMarkdown(cleanSummary || "Xem gợi ý", sourceFolder, sourceRelativePath),
-            `${blockId}-sum`
-          )}
-        </span>
-      </summary>
-      <div className="px-3.5 pb-3 pt-2 text-sm text-slate-700 dark:text-slate-200 border-t border-indigo-100/80 dark:border-indigo-900/50 space-y-2 leading-relaxed">
-        {isQuestionOrExercise && (
-          <div className="mb-3 p-3 rounded-lg bg-white dark:bg-slate-900 border border-indigo-200/80 dark:border-indigo-800/60 shadow-xs space-y-2">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-                <span>✍️ Hộp tự trả lời tại chỗ</span>
+    <div key={keyId} className="my-3 space-y-2">
+      {isQuestionOrExercise && (
+        <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-indigo-200/80 dark:border-indigo-800/60 shadow-xs space-y-2 font-sans">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+              <span>✍️ Hộp tự thực hành / viết nháp trước khi xem lời giải</span>
+            </span>
+            {isSaved && (
+              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                <Check className="w-3 h-3" />
+                <span>Đã lưu vào Sổ tay</span>
               </span>
-              {isSaved && (
-                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-                  <Check className="w-3 h-3" />
-                  <span>Đã lưu vào Sổ tay</span>
-                </span>
-              )}
-            </div>
-            <textarea
-              rows={2}
-              value={userAnswer}
-              onChange={(e) => setUserAnswer(e.target.value)}
-              placeholder="✍️ Thử gõ nhanh câu trả lời / suy nghĩ của bạn trước khi xem gợi ý..."
-              className="w-full p-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 leading-relaxed resize-y"
-            />
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                Gõ suy nghĩ của bạn trước khi mở đối chiếu với đáp án bên dưới.
-              </span>
-              {onQuickSaveToNotebook && (
-                <button
-                  type="button"
-                  disabled={!userAnswer.trim() || isSaving}
-                  onClick={handleSaveToNotebook}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-[11px] font-medium transition cursor-pointer"
-                >
-                  <NotebookPen className="w-3 h-3" />
-                  <span>{isSaving ? "Đang lưu..." : "Lưu câu trả lời vào Sổ tay"}</span>
-                </button>
-              )}
-            </div>
+            )}
           </div>
-        )}
+          <textarea
+            rows={2}
+            value={userAnswer}
+            onChange={(e) => setUserAnswer(e.target.value)}
+            placeholder="✍️ Tự viết code, ý tưởng hoặc câu trả lời của bạn trước khi bấm mở xem lời giải..."
+            className="w-full p-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 leading-relaxed resize-y"
+          />
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400">
+              Tự thử sức viết code hoặc phác thảo lời giải trước khi đối chiếu với gợi ý bên dưới.
+            </span>
+            {onQuickSaveToNotebook && (
+              <button
+                type="button"
+                disabled={!userAnswer.trim() || isSaving}
+                onClick={handleSaveToNotebook}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-[11px] font-medium transition cursor-pointer"
+              >
+                <NotebookPen className="w-3 h-3" />
+                <span>{isSaving ? "Đang lưu..." : "Lưu vào Sổ tay"}</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
-        {subBlocks.length === 0 ? (
-          <p className="text-xs text-slate-500">Không có nội dung chi tiết.</p>
-        ) : (
-          subBlocks.map((sb, sbIdx) => {
-            const sbKey = `${keyId}-b-${sbIdx}`;
-            if (sb.type === "code") {
+      <details
+        data-testid="lesson-details-accordion"
+        className="group rounded-xl border border-indigo-200/80 dark:border-indigo-800/70 bg-indigo-50/40 dark:bg-indigo-950/25 overflow-hidden font-sans"
+      >
+        <summary className="flex items-center gap-2 px-3.5 py-2 text-xs sm:text-[13px] font-bold text-indigo-900 dark:text-indigo-200 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden hover:bg-indigo-100/50 dark:hover:bg-indigo-900/35 transition">
+          <ChevronRight className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0 transition-transform duration-150 group-open:rotate-90" />
+          <span className="flex-1 min-w-0">
+            {renderInlineTokens(
+              tokenizeInlineMarkdown(cleanSummary || "Xem gợi ý", sourceFolder, sourceRelativePath),
+              `${blockId}-sum`
+            )}
+          </span>
+        </summary>
+        <div className="px-3.5 pb-3 pt-2 text-sm text-slate-700 dark:text-slate-200 border-t border-indigo-100/80 dark:border-indigo-900/50 space-y-2 leading-relaxed">
+          {subBlocks.length === 0 ? (
+            <p className="text-xs text-slate-500">Không có nội dung chi tiết.</p>
+          ) : (
+            subBlocks.map((sb, sbIdx) => {
+              const sbKey = `${keyId}-b-${sbIdx}`;
+              if (sb.type === "code") {
+                return (
+                  <CodeBlockCard
+                    key={sbKey}
+                    lang={sb.lang}
+                    code={sb.code}
+                    onOpenPractice={onOpenPractice}
+                  />
+                );
+              }
+              if (sb.type === "math") {
+                return (
+                  <div key={sbKey} className="my-2 overflow-x-auto text-center py-1">
+                    <BlockMath math={sb.tex} />
+                  </div>
+                );
+              }
+              if (sb.type === "list") {
+                const SubListTag = sb.ordered ? "ol" : "ul";
+                return (
+                  <SubListTag
+                    key={sbKey}
+                    className={`pl-5 space-y-1 ${sb.ordered ? "list-decimal" : "list-disc"}`}
+                  >
+                    {sb.items.map((it, itIdx) => (
+                      <li key={itIdx}>
+                        {renderInlineTokens(
+                          tokenizeInlineMarkdown(
+                            cleanReadingMode ? cleanStudyInlineArtifacts(it.text) : it.text,
+                            sourceFolder,
+                            sourceRelativePath
+                          ),
+                          `${sbKey}-${itIdx}`
+                        )}
+                      </li>
+                    ))}
+                  </SubListTag>
+                );
+              }
+              const rawParagraph =
+                sb.type === "paragraph"
+                  ? sb.text
+                  : sb.type === "blockquote"
+                  ? sb.lines.join(" ")
+                  : sb.type === "heading"
+                  ? sb.text
+                  : "";
               return (
-                <CodeBlockCard
-                  key={sbKey}
-                  lang={sb.lang}
-                  code={sb.code}
-                  onOpenPractice={onOpenPractice}
-                />
+                <p key={sbKey}>
+                  {renderInlineTokens(
+                    tokenizeInlineMarkdown(
+                      cleanReadingMode ? cleanStudyInlineArtifacts(rawParagraph) : rawParagraph,
+                      sourceFolder,
+                      sourceRelativePath
+                    ),
+                    sbKey
+                  )}
+                </p>
               );
-            }
-            if (sb.type === "list") {
-              const SubListTag = sb.ordered ? "ol" : "ul";
-              return (
-                <SubListTag
-                  key={sbKey}
-                  className={`pl-5 space-y-1 ${sb.ordered ? "list-decimal" : "list-disc"}`}
-                >
-                  {sb.items.map((it, itIdx) => (
-                    <li key={itIdx}>
-                      {renderInlineTokens(
-                        tokenizeInlineMarkdown(
-                          cleanReadingMode ? cleanStudyInlineArtifacts(it.text) : it.text,
-                          sourceFolder,
-                          sourceRelativePath
-                        ),
-                        `${sbKey}-${itIdx}`
-                      )}
-                    </li>
-                  ))}
-                </SubListTag>
-              );
-            }
-            const rawParagraph =
-              sb.type === "paragraph"
-                ? sb.text
-                : sb.type === "blockquote"
-                ? sb.lines.join(" ")
-                : sb.type === "heading"
-                ? sb.text
-                : "";
-            return (
-              <p key={sbKey}>
-                {renderInlineTokens(
-                  tokenizeInlineMarkdown(
-                    cleanReadingMode ? cleanStudyInlineArtifacts(rawParagraph) : rawParagraph,
-                    sourceFolder,
-                    sourceRelativePath
-                  ),
-                  sbKey
-                )}
-              </p>
-            );
-          })
-        )}
-      </div>
-    </details>
+            })
+          )}
+        </div>
+      </details>
+    </div>
   );
 }
 
@@ -1312,6 +1403,13 @@ export function LessonMarkdownView({
             loading="lazy"
           />
         );
+      }
+
+      if (token.kind === "math") {
+        if (token.mathDisplay) {
+          return <BlockMath key={key} math={pieceText} />;
+        }
+        return <InlineMath key={key} math={pieceText} />;
       }
 
       if (token.kind === "code") {
@@ -1661,22 +1759,28 @@ export function LessonMarkdownView({
     );
   };
 
-  return (
-    <div data-testid="lesson-markdown-view" className="space-y-4 text-slate-800 dark:text-slate-200 min-w-0 max-w-full">
-      {indexedBlocks.map(({ block, bIdx }) => {
-        const blockId = makeDeterministicBlockUuid(bIdx);
+  const renderSingleBlock = (block: ParsedBlock, bIdx: number): React.ReactNode => {
+    const blockId = makeDeterministicBlockUuid(bIdx);
 
-        if (block.type === "hr") {
-          return <hr key={blockId} className="my-6 border-slate-200 dark:border-slate-800" />;
-        }
+    if (block.type === "hr") {
+      return <hr key={blockId} className="my-6 border-slate-200 dark:border-slate-800" />;
+    }
 
-        if (block.type === "code") {
-          return <CodeBlockCard key={blockId} lang={block.lang} code={block.code} onOpenPractice={onOpenPractice} />;
-        }
+    if (block.type === "code") {
+      return <CodeBlockCard key={blockId} lang={block.lang} code={block.code} onOpenPractice={onOpenPractice} />;
+    }
 
-        if (block.type === "details") {
-          return renderDetailsAccordion(block.summary, block.body, blockId, blockId);
-        }
+    if (block.type === "math") {
+      return (
+        <div key={blockId} className="my-4 overflow-x-auto text-center py-2">
+          <BlockMath math={block.tex} />
+        </div>
+      );
+    }
+
+    if (block.type === "details") {
+      return renderDetailsAccordion(block.summary, block.body, blockId, blockId);
+    }
 
         if (block.type === "heading") {
           const displayHeading = cleanText(block.text);
@@ -2033,7 +2137,60 @@ export function LessonMarkdownView({
             )}
           </div>
         );
-      })}
+      };
+
+  return (
+    <div data-testid="lesson-markdown-view" className="space-y-4 text-slate-800 dark:text-slate-200 min-w-0 max-w-full">
+      {(() => {
+        const result: React.ReactNode[] = [];
+        let k = 0;
+        while (k < indexedBlocks.length) {
+          const entry = indexedBlocks[k];
+          const { block, bIdx } = entry;
+
+          if (
+            block.type === "heading" &&
+            block.level === 2 &&
+            /quiz\s*(kiểm\s*tra|ôn\s*tập|kiem\s*tra|on\s*tap)?/i.test(
+              normalizeTitleForComparison(block.text) || block.text
+            )
+          ) {
+            let nextH2 = k + 1;
+            while (nextH2 < indexedBlocks.length) {
+              const nextB = indexedBlocks[nextH2].block;
+              if (nextB.type === "heading" && nextB.level <= 2) {
+                break;
+              }
+              nextH2++;
+            }
+            const quizSlice = indexedBlocks.slice(k, nextH2);
+            result.push(
+              <details
+                key={`quiz-accordion-${bIdx}`}
+                data-testid="lesson-quiz-static-accordion"
+                className="group my-5 rounded-xl border border-indigo-200/80 dark:border-indigo-800/70 bg-indigo-50/30 dark:bg-indigo-950/20 overflow-hidden font-sans"
+              >
+                <summary className="flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-bold text-indigo-900 dark:text-indigo-200 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden hover:bg-indigo-100/50 dark:hover:bg-indigo-900/35 transition">
+                  <ChevronRight className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 transition-transform duration-150 group-open:rotate-90" />
+                  <span className="flex-1 min-w-0">📝 Xem bản văn bản câu hỏi ôn tập cuối bài</span>
+                  <span className="text-[11px] font-normal text-indigo-600 dark:text-indigo-400 hidden sm:inline">
+                    (Đã thu gọn để nhường chỗ cho Quick-Check tương tác)
+                  </span>
+                </summary>
+                <div className="px-4 py-3 border-t border-indigo-100 dark:border-indigo-900/40 space-y-4">
+                  {quizSlice.map((qb) => renderSingleBlock(qb.block, qb.bIdx))}
+                </div>
+              </details>
+            );
+            k = nextH2;
+            continue;
+          }
+
+          result.push(renderSingleBlock(block, bIdx));
+          k++;
+        }
+        return result;
+      })()}
 
       {autoGenerateFsrsSection}
 

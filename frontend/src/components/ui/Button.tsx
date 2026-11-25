@@ -25,7 +25,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-medium transition-all duration-150 ease-out select-none focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100";
+      "inline-flex items-center justify-center font-medium cursor-pointer transition-all duration-150 ease-out select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:active:scale-100";
 
     const sizeStyles = {
       sm: "h-8 px-3 text-xs rounded-[6px] gap-1.5",
@@ -35,17 +35,17 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles = {
       primary:
-        "bg-[#5E51E8] text-white hover:bg-[#4F46E5] active:bg-[#4338CA] dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#6366F1] shadow-xs hover:shadow-elevation-1",
+        "bg-[#5E51E8] text-white hover:bg-[#4F46E5] active:bg-[#4338CA] dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] dark:active:bg-[#6366F1] shadow-xs hover:shadow-elevation-1",
       secondary:
-        "bg-[var(--surface-elevated)] text-[var(--text-primary)] hover:bg-[var(--border-calm)] border border-[var(--border-calm)]",
+        "bg-[var(--surface-elevated)] text-[var(--text-primary)] hover:bg-[var(--border-calm)] border border-[var(--border-calm)] shadow-2xs",
       outline:
         "bg-transparent border border-[var(--border-calm)] text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] hover:border-[var(--text-tertiary)]",
       ghost:
         "bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]",
       streak:
-        "bg-[#D97706] text-white hover:bg-[#B45309] dark:bg-[#F59E0B] dark:text-[#0F0F12] shadow-xs",
+        "bg-[#B45309] text-white hover:bg-[#92400E] active:bg-[#78350F] dark:bg-[#F59E0B] dark:text-[#0F0F12] dark:hover:bg-[#FBBF24] shadow-xs",
       danger:
-        "bg-rose-600 text-white hover:bg-rose-700 dark:bg-rose-500 dark:text-white shadow-xs"
+        "bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800 dark:bg-rose-600 dark:text-white dark:hover:bg-rose-500 shadow-xs"
     }[variant];
 
     return (

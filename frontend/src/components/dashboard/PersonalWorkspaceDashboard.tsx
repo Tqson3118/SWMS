@@ -200,7 +200,18 @@ export function PersonalWorkspaceDashboard({
 
   useEffect(() => {
     setFetchedCourses([]);
-  }, [data.user.id]);
+  }, [data.user.id, data.courses]);
+
+  useEffect(() => {
+    const handleMutated = () => {
+      setFetchedCourses([]);
+      void fetchCourses();
+    };
+    window.addEventListener("swms:data-mutated", handleMutated);
+    return () => {
+      window.removeEventListener("swms:data-mutated", handleMutated);
+    };
+  }, [fetchCourses]);
 
   useEffect(() => {
     if (isLoadingDashboard || hasPreloadedCourses) {

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "@/components/navigation/Sidebar";
-import { MobileNav } from "@/components/navigation/MobileNav";
+import { MobileNav, MobileTopBar } from "@/components/navigation/MobileNav";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { CommandPaletteModal } from "@/components/command/CommandPaletteModal";
 import { bootstrapAuthSession, setAccessToken } from "@/lib/api-client";
@@ -86,30 +86,30 @@ export default function AppShellLayout({
   if (!authReady) {
     return (
       <div className={darkMode ? "dark" : ""}>
-        <div className="h-screen w-screen overflow-hidden bg-[var(--canvas-bg)] text-[var(--text-primary)] flex">
+        <div className="h-screen w-full overflow-hidden bg-[var(--canvas-bg)] text-[var(--text-primary)] flex">
           {/* Layout preserving skeleton to keep CLS < 0.1 */}
           {!isImmersive && (
             <div className="hidden md:flex flex-col h-screen w-[240px] border-r border-[var(--border-calm)] bg-[var(--surface-card)] p-3 space-y-4 shrink-0">
               <div className="flex items-center gap-2.5 h-10 border-b border-[var(--border-calm)] pb-3">
-                <div className="w-7 h-7 rounded-[8px] bg-[var(--surface-elevated)] animate-pulse" />
-                <div className="w-20 h-4 rounded-[6px] bg-[var(--surface-elevated)] animate-pulse" />
+                <div className="w-7 h-7 rounded-[8px] swms-skeleton" />
+                <div className="w-20 h-4 rounded-[6px] swms-skeleton" />
               </div>
               <div className="space-y-2 pt-2">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-8.5 rounded-[8px] bg-[var(--surface-elevated)] animate-pulse" />
+                  <div key={i} className="h-8.5 rounded-[8px] swms-skeleton" />
                 ))}
               </div>
             </div>
           )}
           <main className="flex-1 min-w-0 h-screen p-6 overflow-hidden">
             <div className="max-w-5xl mx-auto space-y-6">
-              <div className="h-8 w-48 rounded-[8px] bg-[var(--surface-elevated)] animate-pulse" />
+              <div className="h-8 w-48 rounded-[8px] swms-skeleton" />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-28 rounded-[14px] bg-[var(--surface-elevated)] animate-pulse" />
+                  <div key={i} className="h-28 rounded-[14px] swms-skeleton" />
                 ))}
               </div>
-              <div className="h-64 rounded-[14px] bg-[var(--surface-elevated)] animate-pulse" />
+              <div className="h-64 rounded-[14px] swms-skeleton" />
             </div>
           </main>
         </div>
@@ -119,7 +119,7 @@ export default function AppShellLayout({
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="h-screen w-screen overflow-hidden bg-[var(--canvas-bg)] text-[var(--text-primary)] flex">
+      <div className="h-screen w-full overflow-hidden bg-[var(--canvas-bg)] text-[var(--text-primary)] flex">
         {/* Sidebar — hidden in immersive mode on desktop, always available via toggle */}
         {!isImmersive && (
           <Sidebar
@@ -128,14 +128,17 @@ export default function AppShellLayout({
           />
         )}
 
-        {/* Main content area */}
-        <main
-          className={`flex-1 min-w-0 h-screen overflow-y-auto overflow-x-clip transition-all duration-200 ${
-            isImmersive ? "w-full" : ""
-          }`}
-        >
-          {children}
-        </main>
+        {/* Right column: mobile utility bar + smooth scrollable main area */}
+        <div className="flex-1 min-w-0 h-screen flex flex-col overflow-hidden">
+          {!isImmersive && <MobileTopBar />}
+          <main
+            className={`flex-1 min-w-0 overflow-y-auto overflow-x-clip transition-all duration-200 ${
+              isImmersive ? "w-full" : ""
+            }`}
+          >
+            {children}
+          </main>
+        </div>
       </div>
 
       {/* Mobile bottom navigation — hidden in immersive mode */}

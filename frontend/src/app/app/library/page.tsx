@@ -94,7 +94,8 @@ export default function LibraryPage() {
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
       const data = await fetchDashboardCached({
-        headers: effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
+        forceRefresh: true,
+        headers: Object.keys(headers).length > 0 ? headers : undefined
       });
       if (data) {
         setCourses(sortCoursesSmartly(deduplicateCourses(data.courses ?? [])));

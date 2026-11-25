@@ -21,6 +21,7 @@ using Swms.Api.Domain.Entities;
 public static class AcademicOsPracticeContent
 {
     public const string UpgradeMarker = "<!-- studxy-os-v3 -->";
+    public const string UpgradeMarkerV4 = "<!-- studxy-os-v4 -->";
 
     public static readonly Guid OsChapter1Id = Guid.Parse("33333333-3333-4333-8333-333333333361");
     public static readonly Guid OsChapter2Id = Guid.Parse("33333333-3333-4333-8333-333333333362");
@@ -147,7 +148,7 @@ public static class AcademicOsPracticeContent
                     UpdatedAt = now
                 });
             }
-            else if (existing.CurrentVersion == 1 && !(existing.ContentMarkdown ?? string.Empty).Contains(UpgradeMarker, StringComparison.Ordinal))
+            else if (existing.CurrentVersion == 1 && !(existing.ContentMarkdown ?? string.Empty).Contains(UpgradeMarkerV4, StringComparison.Ordinal))
             {
                 existing.ContentMarkdown = meta.Markdown;
                 existing.PlainText = meta.Markdown;
@@ -157,20 +158,22 @@ public static class AcademicOsPracticeContent
         }
 
         // 3.2 (LessonPagingId): STRICT INVARIANT — NEVER modify ContentAstJson, PlainText, or CurrentVersion (= 2).
-        // Only fill ContentMarkdown if empty so Markdown reader renders rich v3 theory alongside AST/Annotations.
+        // Only fill or upgrade ContentMarkdown if empty or missing UpgradeMarkerV4 so Markdown reader renders rich v4 theory alongside AST/Annotations.
         var lesson32 = await db.Lessons.FirstOrDefaultAsync(l => l.Id == SeedDataInitializer.LessonPagingId);
-        if (lesson32 != null && string.IsNullOrWhiteSpace(lesson32.ContentMarkdown))
+        if (lesson32 != null && (string.IsNullOrWhiteSpace(lesson32.ContentMarkdown) || !lesson32.ContentMarkdown.Contains(UpgradeMarkerV4, StringComparison.Ordinal)))
         {
             lesson32.ContentMarkdown = GetLesson32Markdown();
-            lesson32.EstimatedMinutes = Math.Max(lesson32.EstimatedMinutes, 25);
+            lesson32.EstimatedMinutes = Math.Max(lesson32.EstimatedMinutes, 45);
+            lesson32.UpdatedAt = now;
         }
 
         // 3.3 (LessonPageReplacementId): Safe upgrade ONLY if CurrentVersion == 1 and marker missing.
         var lesson33 = await db.Lessons.FirstOrDefaultAsync(l => l.Id == SeedDataInitializer.LessonPageReplacementId);
-        if (lesson33 != null && lesson33.CurrentVersion == 1 && !(lesson33.ContentMarkdown ?? string.Empty).Contains(UpgradeMarker, StringComparison.Ordinal))
+        if (lesson33 != null && lesson33.CurrentVersion == 1 && !(lesson33.ContentMarkdown ?? string.Empty).Contains(UpgradeMarkerV4, StringComparison.Ordinal))
         {
             lesson33.ContentMarkdown = GetLesson33Markdown();
-            lesson33.EstimatedMinutes = 25;
+            lesson33.PlainText = lesson33.ContentMarkdown;
+            lesson33.EstimatedMinutes = 45;
             lesson33.UpdatedAt = now;
         }
 
@@ -199,47 +202,8 @@ public static class AcademicOsPracticeContent
             "Bài 1.1: Tiến trình (Process), Luồng (Thread) & Chuyển ngữ cảnh (Context Switch)",
             "tien-trinh-luong-va-chuyen-ngu-canh",
             1,
-            25,
-            @"# Bài 1.1: Tiến trình (Process), Luồng (Thread) & Chuyển ngữ cảnh
-
-> [!TIP]
-> Nếu bạn mới làm quen với Hệ điều hành: hãy tưởng tượng **Program** là cuốn công thức nấu ăn nằm trên ổ đĩa, còn **Process** là một căn bếp đang thực sự mở lửa nấu theo công thức đó, và **Threads** là các đầu bếp làm việc cùng nhau trong cùng một căn bếp!
-
----
-
-## 🌱 Phần 0 — Nhập môn từ trực giác
-- **Chương trình (Program)** là tệp nhị phân tĩnh (`.exe`, ELF) nằm yên trên SSD.
-- **Tiến trình (Process)** là một chương trình đang chạy, được hệ điều hành cấp cho **Không gian địa chỉ ảo riêng biệt** (Code, Data, Heap, Stack) và một cấu trúc quản lý gọi là **PCB (Process Control Block)**.
-- **Luồng (Thread)** là đơn vị thực thi nhỏ nhất bên trong một tiến trình. Nhiều Thread trong cùng Process **dùng chung Heap & Biến toàn cục**, nhưng mỗi Thread sở hữu **Stack riêng và Bộ đếm lệnh (PC) + Thanh ghi (Registers) riêng**.
-
----
-
-## 1. Kiến trúc Bộ nhớ của Process & Multi-Threading
-
-| Thành phần | Process (Tiến trình) | Thread (Luồng) |
-|---|---|---|
-| **Không gian địa chỉ** | Cô lập hoàn toàn giữa các Process | Dùng chung không gian địa chỉ (Code, Data, Heap) của Process cha |
-| **Stack & Registers** | Mỗi Process có ít nhất 1 Thread chính | Mỗi Thread có Call Stack và CPU Registers riêng |
-| **Chi phí Context Switch** | Đắt (phải đổi bảng trang CR3, xả/nạp TLB) | Rẻ hơn nhiều (giữ nguyên bảng trang, chỉ đổi thanh ghi & Stack Pointer) |
-| **Lỗi Crash** | 1 Process crash không làm sập Process khác | 1 Thread lỗi segmentation fault làm sập cả Process |
-
----
-
-## 2. Vòng đời Tiến trình & Chuyển ngữ cảnh (Context Switch)
-Một tiến trình luân chuyển qua 5 trạng thái kinh điển: `New → Ready → Running → Waiting/Blocked → Terminated`.
-Khi hệ điều hành chuyển CPU từ Process A sang Process B:
-1. Lưu toàn bộ trạng thái CPU hiện tại (Registers, Program Counter, Stack Pointer) vào `PCB_A`.
-2. Cập nhật trạng thái `PCB_A` sang `Ready` hoặc `Blocked`.
-3. Nạp trạng thái từ `PCB_B` lên thanh ghi CPU và chuyển thanh ghi bảng trang (`CR3` trên x86-64).
-4. Tiếp tục thực thi Process B. Quá trình này tốn vài micro-giây và tạo ra **Overhead (chi phí ẩn)** nếu chuyển đổi quá dày đặc!
-
----
-
-## 3. Checklist Ghi nhớ Thực chiến
-- [ ] Phân biệt được dữ liệu **dùng chung (Heap/Global)** và **riêng tư (Stack/Registers)** giữa các Thread.
-- [ ] Hiểu vì sao chuyển ngữ cảnh giữa 2 Process tốn kém hơn chuyển giữa 2 Thread cùng Process (liên quan tới TLB Shootdown/Flush).
-
-<!-- studxy-os-v3 -->",
+            45,
+            GetLesson11Markdown(),
             "Tiến trình sở hữu không gian địa chỉ cô lập và PCB; các luồng trong cùng tiến trình chia sẻ Heap nhưng giữ Stack và Registers riêng.",
             "Context Switch giữa các tiến trình có chi phí cao do phải chuyển thanh ghi bảng trang CR3 và làm mất nóng bộ đệm TLB."
         ),
@@ -250,35 +214,8 @@ Khi hệ điều hành chuyển CPU từ Process A sang Process B:
             "Bài 1.2: Thuật toán Điều phối CPU (FCFS, SJF, Round Robin & MLFQ)",
             "thuat-toan-dieu-phoi-cpu-fcfs-sjf-rr-mlfq",
             2,
-            25,
-            @"# Bài 1.2: Thuật toán Điều phối CPU (FCFS, SJF, Round Robin & MLFQ)
-
-> [!TIP]
-> Tại sao máy tính có 4 nhân CPU nhưng vẫn mở được 50 tab trình duyệt, nghe nhạc và chạy VS Code mượt mà cùng lúc? Bí quyết nằm ở bộ **CPU Scheduler** chia lát cắt thời gian (Time Slice) siêu nhỏ!
-
----
-
-## 🌱 Phần 0 — Hai chỉ số đánh giá bộ điều phối
-1. **Turnaround Time (Thời gian hoàn thành):** $T_{\text{turnaround}} = T_{\text{completion}} - T_{\text{arrival}}$. Đo lường tổng thời gian tiến trình chờ từ lúc xuất hiện đến lúc chạy xong.
-2. **Response Time (Thời gian phản hồi):** $T_{\text{response}} = T_{\text{firstRun}} - T_{\text{arrival}}$. Đo lường độ trễ từ lúc người dùng bấm phím đến khi tiến trình được CPU chạm vào lần đầu.
-
----
-
-## 1. Bốn thuật toán Điều phối CPU kinh điển
-
-| Thuật toán | Cơ chế cốt lõi | Ưu điểm | Nhược điểm |
-|---|---|---|---|
-| **FCFS (First-Come, First-Served)** | Ai đến trước chạy trước (Non-preemptive) | Đơn giản, không gây đói tài nguyên (Starvation) | **Convoy Effect**: 1 tác vụ nặng chặn đứng hàng loạt tác vụ ngắn phía sau |
-| **SJF / STCF (Shortest Job First)** | Ưu tiên tác vụ ngắn nhất chạy trước | Tối ưu nhất về Turnaround Time trung bình | Dễ gây **Starvation** cho tác vụ dài; không biết trước thời gian chạy |
-| **Round Robin (RR)** | Xoay vòng mỗi tiến trình 1 lát cắt `quantum (q)` | Công bằng, tối ưu **Response Time** cho ứng dụng tương tác | `q` quá nhỏ → Overhead Context Switch cao; `q` quá lớn → thoái hóa thành FCFS |
-| **MLFQ (Multi-Level Feedback Queue)** | Nhiều hàng đợi ưu tiên; tiến trình dùng hết quantum bị hạ cấp, tác vụ I/O được giữ ưu tiên | Cân bằng cả Response Time lẫn Turnaround Time; không cần biết trước burst time | Cần cơ chế **Priority Boost** định kỳ để tránh Starvation |
-
----
-
-## 2. Công thức tính nhanh Round Robin
-Với $N$ tiến trình trong hàng đợi Ready và độ dài lát cắt $q$, thời gian chờ tối đa cho lượt chạy đầu tiên xấp xỉ $(N - 1) \times q$. Nếu $q = 10\text{ ms}$ và Context Switch tốn $0.1\text{ ms}$, chi phí chuyển ngữ cảnh chỉ chiếm $\approx 1\%$.
-
-<!-- studxy-os-v3 -->",
+            45,
+            GetLesson12Markdown(),
             "FCFS dễ gặp hiệu ứng đoàn tàu (Convoy Effect); SJF tối ưu thời gian hoàn thành nhưng có thể gây đói CPU cho tác vụ dài.",
             "Round Robin tối ưu thời gian phản hồi theo lát cắt quantum, còn MLFQ tự động học hành vi CPU-bound và I/O-bound."
         ),
@@ -289,40 +226,8 @@ Với $N$ tiến trình trong hàng đợi Ready và độ dài lát cắt $q$, 
             "Bài 2.1: Race Condition, Critical Section, Mutex & Semaphore",
             "race-condition-critical-section-mutex-semaphore",
             1,
-            25,
-            @"# Bài 2.1: Race Condition, Critical Section, Mutex & Semaphore
-
-> [!TIP]
-> Lỗi khó tìm nhất trong hệ thống backend chịu tải cao là **Race Condition**: hai luồng cùng đọc số dư 100k, cùng trừ 50k và ghi đè kết quả 50k thay vì 0đ!
-
----
-
-## 🌱 Phần 0 — Vì sao `counter++` không an toàn trong đa luồng?
-Một dòng code `counter++` thực chất biên dịch thành **3 lệnh máy riêng lẻ**:
-1. `LOAD`: Đọc `counter` từ RAM vào thanh ghi CPU.
-2. `ADD 1`: Cộng thêm 1 trong ALU.
-3. `STORE`: Ghi giá trị mới từ thanh ghi ra RAM.
-
-Nếu OS ngắt Context Switch đúng giữa bước 2 và bước 3, hai luồng sẽ ghi đè kết quả của nhau — gọi là **Race Condition (Tranh chấp dữ liệu)**. Đoạn mã truy cập biến dùng chung được gọi là **Critical Section (Vùng tranh chấp)**.
-
----
-
-## 1. Các công cụ Đồng bộ hóa (Synchronization Primitives)
-
-| Công cụ | Giá trị / Trạng thái | Ai được phép mở khóa (Release)? | Tình huống sử dụng chuẩn |
-|---|---|---|---|
-| **Spinlock** | Vòng lặp bận (Busy-waiting) với lệnh nguyên tử CAS | Luồng đang giữ khóa | Vùng tranh chấp cực ngắn (< vài micro-giây) trong Kernel |
-| **Mutex (Mutual Exclusion)** | Nhị phân (`Locked / Unlocked`) có hàng đợi ngủ (Sleep) | **Chính luồng đã Lock** (Ownership) | Bảo vệ biến dùng chung, cấu trúc dữ liệu, OCC Locks |
-| **Semaphore (`SemaphoreSlim(k)`)** | Bộ đếm nguyên $N \ge 0$ (`Wait()` giảm, `Release()` tăng) | Bất kỳ luồng nào gọi `Release()` | Giới hạn đồng thời $K$ kết nối (ví dụ `SemaphoreSlim(5)` trong Outbox Worker) & Producer-Consumer |
-
----
-
-## 2. Ba điều kiện bắt buộc của Critical Section
-1. **Mutual Exclusion (Loại trừ lẫn nhau):** Tại một thời điểm tối đa 1 luồng ở trong Critical Section.
-2. **Progress:** Nếu không có luồng nào trong Critical Section, các luồng đang chờ phải chọn được người vào mà không trì hoãn vô hạn.
-3. **Bounded Waiting:** Mỗi luồng chờ phải có giới hạn số lần bị luồng khác chen ngang (chống Starvation).
-
-<!-- studxy-os-v3 -->",
+            45,
+            GetLesson21Markdown(),
             "Race Condition xảy ra khi nhiều luồng thực thi không nguyên tử trên cùng vùng nhớ chia sẻ; Mutex đảm bảo loại trừ lẫn nhau có sở hữu.",
             "Semaphore đếm cho phép tối đa K luồng truy cập tài nguyên đồng thời hoặc đồng bộ tín hiệu Producer-Consumer."
         ),
@@ -333,102 +238,1552 @@ Nếu OS ngắt Context Switch đúng giữa bước 2 và bước 3, hai luồn
             "Bài 2.2: Deadlock — 4 Điều kiện Coffman, Phòng tránh & Phục hồi",
             "deadlock-4-dieu-kien-coffman-va-phong-tranh",
             2,
-            25,
-            @"# Bài 2.2: Deadlock — 4 Điều kiện Coffman, Phòng tránh & Phục hồi
-
-> [!TIP]
-> **Deadlock (Khóa chết)** giống như hai người đi qua cầu hẹp: người A giữ nửa cầu trái và chờ nửa phải; người B giữ nửa cầu phải và chờ nửa trái — cả hai đứng im mãi mãi!
-
----
-
-## 🌱 Phần 0 — Kịch bản Deadlock kinh điển
-```text
-Thread 1: Lock(A) ---> chờ Lock(B)...
-Thread 2: Lock(B) ---> chờ Lock(A)...
-=> Cả hai luồng bị treo vĩnh viễn!
-```
-
----
-
-## 1. Bốn điều kiện Coffman (Cần VÀ Đủ để xảy ra Deadlock)
-Deadlock **chỉ xảy ra** khi cả 4 điều kiện sau đồng thời thỏa mãn:
-1. **Mutual Exclusion (Loại trừ lẫn nhau):** Tài nguyên chỉ phục vụ 1 luồng tại một thời điểm.
-2. **Hold and Wait (Giữ và Chờ):** Luồng đang giữ ít nhất 1 tài nguyên và tiếp tục xin thêm tài nguyên khác đang bị giữ.
-3. **No Preemption (Không trưng dụng):** Không thể tước đoạt cưỡng bức tài nguyên đang được luồng khác nắm giữ.
-4. **Circular Wait (Chờ đợi vòng tròn):** Tồn tại chu trình $T_1 \rightarrow T_2 \rightarrow \dots \rightarrow T_n \rightarrow T_1$.
-
----
-
-## 2. Chiến lược Phá vỡ Deadlock trong Thực tế
-
-| Chiến lược | Phá vỡ điều kiện nào? | Cách triển khai thực tế trong hệ thống |
-|---|---|---|
-| **Lock Ordering (Sắp xếp thứ tự khóa)** | Phá vỡ **Circular Wait** | Mọi luồng luôn khóa tài nguyên theo thứ tự ID tăng dần (`Lock(minId)` trước `Lock(maxId)`) |
-| **TryLock + Timeout / Backoff** | Phá vỡ **Hold & Wait / No Preemption** | Nếu không lấy được khóa B trong 50ms thì nhả khóa A ra và thử lại ngẫu nhiên |
-| **Thuật toán Banker (Banker's Algorithm)** | Tránh trạng thái không an toàn (Deadlock Avoidance) | Kiểm tra trước khi cấp phát: chỉ cấp tài nguyên nếu hệ thống còn giữ được ít nhất 1 chuỗi hoàn thành an toàn (Safe Sequence) |
-
-<!-- studxy-os-v3 -->",
+            45,
+            GetLesson22Markdown(),
             "Deadlock chỉ xảy ra khi đồng thời thỏa mãn 4 điều kiện Coffman: Mutual Exclusion, Hold & Wait, No Preemption và Circular Wait.",
             "Sắp xếp thứ tự khóa toàn cục (Lock Ordering) là giải pháp thực chiến đơn giản và triệt để nhất để phá vỡ Circular Wait."
         )
     };
 
-    private static string GetLesson32Markdown() => @"# Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp
+    private static string GetLesson11Markdown() => """"
+# Bài 1.1: Tiến trình (Process), Luồng (Thread) & Chuyển ngữ cảnh (Context Switch)
+
+> [!NOTE]
+> **Khái niệm then chốt:** Một chương trình (Program) trên ổ đĩa chỉ là một tệp nhị phân tĩnh (Executable File). Khi được nạp vào bộ nhớ và cấp phát tài nguyên bởi hệ điều hành, nó trở thành một thực thể sống động mang tên **Tiến trình (Process)**. Bên trong mỗi tiến trình, một hoặc nhiều **Luồng (Threads)** cùng vận hành song song để thực thi các dòng lệnh.
 
 > [!TIP]
-> Mỗi chương trình chạy trên máy tính đều tin rằng nó sở hữu toàn bộ thanh RAM riêng tư, liên tục từ địa chỉ `0x0000...`. Ảo giác tuyệt đẹp này được tạo ra nhờ **Virtual Memory (Bộ nhớ ảo)** và phần cứng **MMU + TLB**!
+> **Hình ảnh trực quan:** Tưởng tượng một nhà hàng tiêu chuẩn 5 sao:
+> - **Chương trình (Program)**: Cuốn sách công thức nấu ăn nằm yên trên kệ sách.
+> - **Tiến trình (Process)**: Căn bếp hoàn chỉnh đang hoạt động với đầy đủ mặt bằng, bếp ga, tủ lạnh, nguyên liệu và giấy phép kinh doanh riêng biệt.
+> - **Luồng (Thread)**: Các đầu bếp làm việc đồng thời trong cùng căn bếp đó. Họ dùng chung bàn bếp, gia vị và tủ lạnh (Heap/Global Data), nhưng mỗi đầu bếp có đôi tay, mắt nhìn và sổ tay ghi nhớ bước làm riêng (Registers, Program Counter, Call Stack).
 
 ---
 
-## 1. Cơ sở lý thuyết Phân trang (Paging)
-Phân trang cho phép không gian địa chỉ vật lý của tiến trình không cần liên tục:
-- Không gian địa chỉ vật lý chia thành các **Khung trang (Frames)** kích thước cố định (thường 4 KB).
-- Không gian địa chỉ logic (ảo) chia thành các **Trang (Pages)** cùng kích thước.
-- Địa chỉ ảo gồm `VPN (Virtual Page Number) + Offset`; MMU tra bảng trang để đổi `VPN → PFN (Page Frame Number)` rồi ghép lại với `Offset` gốc.
+## 1. Không gian Địa chỉ Ảo của Tiến trình (Virtual Address Space)
+
+Mỗi tiến trình trong hệ điều hành hiện đại (như Linux hoặc Windows 64-bit) đều được cung cấp một ảo giác rằng nó sở hữu toàn bộ không gian địa chỉ tuyến tính riêng biệt, cô lập hoàn toàn với các tiến trình khác.
+
+```text
++------------------------------------+ 0xFFFFFFFFFFFFFFFF (Kernel Space Top)
+| Linux Kernel Space (128 TB)        | Dành riêng cho nhân Hệ điều hành
++------------------------------------+ 0xFFFF800000000000 (Kernel Space Base)
+| Không gian địa chỉ không hợp lệ     | Canonical Address Hole (Non-canonical gap)
++------------------------------------+ 0x00007FFFFFFFFFFF (User Space Top)
+| User Stack (Ngăn xếp cục bộ)       | Phát triển từ địa chỉ cao xuống thấp (v)
+|               |                    | Lưu trữ Stack Frame, biến cục bộ, địa chỉ trả về
+|               v                    |
+|                                    |
+| Memory Mapping Segment (mmap)      | Nạp các Shared Libraries (.so / .dll), IPC
+|               ^                    |
+|               |                    |
+| Run-time Heap (Bộ nhớ động)        | Phát triển từ địa chỉ thấp lên cao (^)
+|                                    | Cấp phát qua malloc(), new, brk/sbrk
++------------------------------------+
+| BSS Segment (Uninitialized Data)   | Biến toàn cục & static chưa khởi tạo (= 0)
++------------------------------------+
+| Data Segment (Initialized Data)    | Biến toàn cục & static đã gán giá trị ban đầu
++------------------------------------+
+| Text Segment (Code Segment)        | Mã máy nhị phân thực thi (Read-Only)
++------------------------------------+ 0x0000000000400000 (Base User Address)
+```
+
+### Các phân vùng bộ nhớ chính của Process:
+1. **Text Segment (Phân vùng mã lệnh):** Chứa các chỉ thị mã máy nhị phân của chương trình. Vùng nhớ này được đánh dấu quyền **Chỉ đọc (Read-Only)** để ngăn chặn việc tự sửa mã lệnh và cho phép nhiều tiến trình chạy cùng một chương trình dùng chung một bản copy trong RAM vật lý.
+2. **Data Segment (Dữ liệu đã khởi tạo):** Lưu trữ các biến toàn cục (global variables) và biến tĩnh (static variables) đã được gán giá trị rõ ràng khi biên dịch (ví dụ: `int max_users = 1000;`).
+3. **BSS Segment (Block Started by Symbol):** Lưu trữ các biến toàn cục và static chưa được khởi tạo giá trị ban đầu. Kernel chỉ cần ghi nhớ kích thước của vùng này và tự động điền toàn bộ byte 0 khi nạp, giúp tiết kiệm dung lượng file thực thi trên ổ đĩa.
+4. **Heap (Vùng nhớ động):** Dành cho dữ liệu được cấp phát linh hoạt trong thời gian chạy (runtime) thông qua các hàm như `malloc()`, `calloc()` trong C hoặc toán tử `new` trong C++/C#/Java. Vùng nhớ này phát triển từ địa chỉ thấp lên địa chỉ cao. Quản lý Heap đòi hỏi bộ thu gom rác (Garbage Collector) hoặc giải phóng thủ công (`free()`), nếu không sẽ dẫn tới hiện tượng rò rỉ bộ nhớ (Memory Leak).
+5. **Memory Mapping Segment (mmap):** Vùng nạp các thư viện liên kết động (Dynamic Shared Libraries như `libc.so`, `kernel32.dll`), bộ nhớ chia sẻ IPC (POSIX Shared Memory), hoặc file mapping.
+6. **Stack (Ngăn xếp lời gọi hàm):** Lưu trữ các khung ngăn xếp (Stack Frames), bao gồm tham số hàm truyền vào, biến cục bộ (local variables), và địa chỉ trả về của thanh ghi con trỏ lệnh (`RIP/PC`). Ngăn xếp phát triển từ địa chỉ cao xuống địa chỉ thấp theo cơ chế LIFO (Last-In, First-Out).
 
 ---
 
-## 2. Tăng tốc phần cứng với TLB & Công thức EAT
-**TLB (Translation Lookaside Buffer)** là bộ nhớ cache liên kết siêu nhanh bên trong MMU, cho phép tra cứu ánh xạ `VPN → PFN` trong $O(1)$ chu kỳ xung nhịp nhờ **Tính cục bộ không gian & thời gian (Spatial & Temporal Locality)**.
+## 2. Kiến trúc Đa luồng (Multi-threading) & Phân tách Tài nguyên
+
+Một tiến trình có thể chứa nhiều luồng thực thi (threads). Hãy phân tích sự khác biệt cốt lõi giữa Tiến trình và Luồng:
+
+| Tiêu chí | Tiến trình (Process) | Luồng (Thread) |
+|---|---|---|
+| **Không gian nhớ** | Cô lập hoàn toàn; một tiến trình không thể đọc/ghi trực tiếp vào bộ nhớ của tiến trình khác | Dùng chung toàn bộ không gian địa chỉ ảo của tiến trình cha (Code, Data, BSS, Heap) |
+| **Call Stack & Registers** | Mỗi tiến trình có ít nhất một Stack và tập thanh ghi của luồng chính | Mỗi luồng sở hữu một Stack riêng biệt, con trỏ Stack (`RSP`), và tập thanh ghi CPU riêng |
+| **Thời gian khởi tạo** | Chậm (phải cấp phát VAS mới, khởi tạo bảng trang MMU, nạp mã từ đĩa) | Nhanh hơn từ 10 đến 100 lần (tận dụng lại không gian địa chỉ hiện có) |
+| **Chi phí Chuyển ngữ cảnh** | Rất cao: phải lưu/tải thanh ghi, chuyển thanh ghi bảng trang `CR3`, làm mất hiệu lực bộ đệm TLB | Nhẹ hơn nhiều: giữ nguyên không gian nhớ và bảng trang, chỉ đổi thanh ghi CPU và Stack Pointer |
+| **Giao tiếp liên lạc** | Phức tạp qua IPC: Unix Sockets, Pipes, Shared Memory, Message Queues | Rất nhanh qua biến toàn cục hoặc con trỏ Heap dùng chung (cần cơ chế đồng bộ) |
+| **Khả năng chịu lỗi** | Cách ly lỗi cao: nếu 1 tiến trình gặp Segmentation Fault và sập, các tiến trình khác vẫn an toàn | Nguy cơ cao: 1 luồng gặp lỗi bộ nhớ (Segfault) sẽ kéo sập toàn bộ tiến trình |
+| **Cấu trúc quản lý Kernel** | Quản lý bởi `struct task_struct` với `struct mm_struct` độc lập trong Linux | Quản lý bởi `struct task_struct` nhưng chia sẻ chung con trỏ `mm_struct` |
+
+```text
+TIẾN TRÌNH (PROCESS)
++------------------------------------------------------------------------+
+| Shared Resources: Text Segment | Data | Heap | File Descriptors | PID   |
+|                                                                        |
+|  +--------------------+  +--------------------+  +--------------------+|
+|  | Luồng 1 (Thread 1) |  | Luồng 2 (Thread 2) |  | Luồng 3 (Thread 3) ||
+|  | - Registers / PC   |  | - Registers / PC   |  | - Registers / PC   ||
+|  | - Private Stack    |  | - Private Stack    |  | - Private Stack    ||
+|  | - Thread-Local (TLS)|  | - Thread-Local (TLS)|  | - Thread-Local (TLS)|
+|  +--------------------+  +--------------------+  +--------------------+|
++------------------------------------------------------------------------+
+```
+
+### Các mô hình liên kết luồng (Threading Models):
+- **Mô hình 1:1 (Kernel-Level Threads):** Mỗi luồng người dùng (user thread) tương ứng với đúng một luồng nhân (kernel thread). Đây là mô hình chuẩn mực của Linux (NPTL qua `clone()`) và Windows. Ưu điểm: tận dụng tối đa kiến trúc đa lõi CPU; nhược điểm: chi phí tạo luồng và chuyển ngữ cảnh vẫn phụ thuộc vào kernel.
+- **Mô hình N:1 (User-Level Threads / Green Threads):** Toàn bộ các luồng ứng dụng được quản lý bởi một Runtime bên trong User Space, hệ điều hành chỉ nhìn thấy 1 tiến trình đơn luồng duy nhất. Ưu điểm: chuyển đổi cực nhanh; nhược điểm: khi 1 luồng gọi hàm I/O chặn (blocking system call), toàn bộ tiến trình bị đóng băng.
+- **Mô hình M:N (Hybrid / Two-tier):** Ghép M luồng ứng dụng lên N luồng hệ điều hành ($M \ge N$). Tiêu biểu là Goroutines của Go hoặc Virtual Threads (Project Loom) của Java. Go Runtime tự lập lịch hàng triệu goroutines trên một nhóm nhỏ OS threads bằng kỹ thuật Work-Stealing Scheduler, mang lại hiệu năng đồng thời vượt trội.
+
+---
+
+## 3. Vòng đời Tiến trình & 5 Trạng thái Kinh điển
+
+Hệ điều hành quản lý vòng đời của một tiến trình thông qua cấu trúc **PCB (Process Control Block)**, trong Linux là `struct task_struct`.
+
+```text
+                    +-------------------+
+                    |     MỚI (NEW)     |
+                    +---------+---------+
+                              | Được chấp nhận (Admitted)
+                              v
+       Hết lát cắt (Preempt)  +-------------------+
+        +---------------------| SẴN SÀNG (READY)  |<-------------------+
+        |                     +---------+---------+                    |
+        |                               |                              |
+        |                               | Được cấp phát CPU (Dispatch) | Hoàn thành I/O
+        |                               v                              | (Event occurs)
++-------+-----------+         +-------------------+                    |
+| ĐANG CHẠY (RUNNING)|-------->| ĐANG CHỜ (BLOCKED)|--------------------+
++---------+---------+         +-------------------+
+          | Yêu cầu I/O / Đợi tài nguyên (Wait for event)
+          |
+          | Hoàn tất câu lệnh cuối (Exit)
+          v
++-------------------+
+| KẾT THÚC (TERMINATED)
++-------------------+
+```
+
+### Phân tích trạng thái:
+1. **New (Khởi tạo):** Tiến trình vừa được tạo ra bằng lời gọi hệ thống (như `fork()` trên POSIX hoặc `CreateProcess()` trên Windows) nhưng chưa được nạp đầy đủ vào hàng đợi sẵn sàng.
+2. **Ready (Sẵn sàng):** Tiến trình đã có đầy đủ tài nguyên cần thiết trong bộ nhớ, chỉ đang chờ bộ điều phối (CPU Scheduler) cấp cho một lát cắt thời gian CPU để chạy.
+3. **Running (Đang thực thi):** Các lệnh mã máy của tiến trình đang được CPU trực tiếp giải mã và tính toán trong các chu kỳ xung nhịp.
+4. **Waiting / Blocked (Chờ / Nghẽn):** Tiến trình không thể chạy vì đang phải chờ một sự kiện ngoại vi hoàn tất: đọc/ghi đĩa SSD, nhận gói tin mạng qua Socket, chờ người dùng nhập bàn phím, hoặc chờ giải phóng khóa Mutex.
+5. **Terminated (Kết thúc):** Tiến trình thực thi lệnh `exit()` hoặc bị hệ thống hủy. Tài nguyên bộ nhớ được giải phóng, nhưng mục nhập trong bảng tiến trình vẫn được lưu tạm để gửi mã thoát (exit code) cho tiến trình cha.
+
+> [!WARNING]
+> **Hiểm họa Tiến trình Zombie và Orphan:**
+> - **Zombie Process (`<defunct>`):** Xảy ra khi tiến trình con kết thúc nhưng tiến trình cha chưa gọi hàm `wait()` hoặc `waitpid()` để đọc mã thoát. Lúc này, tiến trình con không còn tốn RAM hay CPU, nhưng nó chiếm giữ một **PID (Process ID)** trong bảng Process Table của kernel. Nếu hàng nghìn zombie tích tụ, hệ thống sẽ cạn kiệt PID (`PID exhaustion`) và không thể mở thêm bất kỳ phần mềm nào!
+> - **Orphan Process (Tiến trình mồ côi):** Xảy ra khi tiến trình cha kết thúc trước tiến trình con. Khi đó, Kernel sẽ tự động chuyển quyền làm cha của tiến trình mồ côi này cho tiến trình gốc `init` hoặc `systemd` (PID 1). PID 1 có trách nhiệm định kỳ gọi `wait()` để dọn dẹp sạch sẽ các tiến trình con khi chúng kết thúc.
+
+---
+
+## 4. Cơ chế Chuyển ngữ cảnh (Context Switch) & Chi phí ẩn
+
+**Chuyển ngữ cảnh (Context Switch)** là chuỗi thao tác của nhân hệ điều hành nhằm dừng việc thực thi một tiến trình/luồng hiện tại, lưu lại trạng thái tính toán của nó, và nạp trạng thái của một tiến trình/luồng khác lên CPU để tiếp tục chạy.
+
+```text
+TIẾN TRÌNH A                     KERNEL (HỆ ĐIỀU HÀNH)                  TIẾN TRÌNH B
+    |                                     |                                    |
+Đang chạy (User Mode)                     |                                    |
+    |---- Ngắt Timer / System Call ------>|                                    |
+    |                               Lưu trạng thái vào PCB_A                   |
+    |                               (Registers, PC, SP)                        |
+    |                                     |                                    |
+    |                               Chọn Process B                             |
+    |                               (CPU Scheduler)                            |
+    |                                     |                                    |
+    |                               Đổi thanh ghi CR3                          |
+    |                               (Chuyển Page Table)                        |
+    |                                     |                                    |
+    |                               Nạp trạng thái từ PCB_B                    |
+    |                                     |                                    |
+    |                                     |---- Chuyển sang User Mode -------->|
+    |                                     |                               Đang chạy (User Mode)
+```
+
+### Bảy bước thực thi vi mô của một Context Switch:
+1. **Bẫy vào Kernel Mode (Trap):** Tín hiệu ngắt phần cứng (Timer Interrupt từ Local APIC) hoặc bẫy phần mềm (System Call) khiến CPU chuyển từ Ring 3 (User Space) sang Ring 0 (Kernel Space).
+2. **Lưu thanh ghi phần cứng:** CPU tự động đẩy thanh ghi con trỏ ngăn xếp người dùng (`RSP`), con trỏ lệnh (`RIP`), và cờ trạng thái (`RFLAGS`) lên Kernel Stack của luồng hiện tại.
+3. **Lưu thanh ghi đa dụng:** Mã hợp ngữ của Kernel lưu các thanh ghi đa năng (`RAX`, `RBX`, `RCX`, `RDX`, `RSI`, `RDI`, `RBP`, `R8`-`R15`) vào cấu trúc `struct pt_regs`.
+4. **Bộ điều phối lựa chọn mục tiêu:** Hàm `schedule()` duyệt qua hàng đợi Runqueue và chọn luồng tiếp theo dựa trên chính sách lập lịch (ví dụ Linux CFS).
+5. **Chuyển đổi Stack Pointer:** Hàm hợp ngữ `__switch_to` tráo đổi con trỏ ngăn xếp `RSP` từ Kernel Stack của luồng A sang Kernel Stack của luồng B.
+6. **Thay đổi Bảng trang (Memory Context Swap):**
+   - Nếu chuyển đổi giữa hai luồng trong **cùng một tiến trình**: Bước này được **bỏ qua** vì cả hai luồng dùng chung bảng trang!
+   - Nếu chuyển đổi giữa hai **tiến trình khác nhau**: Kernel phải ghi địa chỉ vật lý của bảng trang mới vào thanh ghi điều khiển **`CR3`** (Control Register 3). Thao tác này làm vô hiệu hóa bộ nhớ đệm dịch địa chỉ **TLB (Translation Lookaside Buffer)** (gây hiện tượng *TLB Invalidation / TLB Flush*), trừ khi CPU hỗ trợ tính năng PCID (Process-Context Identifier).
+7. **Khôi phục trạng thái & Tiếp tục:** Tải lại tập thanh ghi của tiến trình B và thực thi lệnh hợp ngữ `sysret` hoặc `iret` để hạ quyền về Ring 3, trao quyền điều khiển cho tiến trình B.
+
+### Công thức tính toán Hiệu suất CPU và Lãng phí Chuyển ngữ cảnh:
+Gọi $T_{\text{quantum}}$ là thời lượng một lát cắt thời gian CPU cấp cho tiến trình, và $T_{\text{overhead}}$ là tổng thời gian tiêu tốn cho một lần chuyển ngữ cảnh. Hiệu suất sử dụng CPU hữu ích $\eta$ được xác định theo công thức:
+
+$$\eta = \frac{T_{\text{quantum}}}{T_{\text{quantum}} + T_{\text{overhead}}}$$
+
+> [!IMPORTANT]
+> **Hiện tượng Bão Chuyển Ngữ Cảnh (Context Switch Storm):**
+> Trong điều kiện hoạt động bình thường, $T_{\text{quantum}} = 10\text{ ms} = 10,000\,\mu\text{s}$ và $T_{\text{overhead}} \approx 5\,\mu\text{s}$, hiệu suất đạt:
+> $$\eta = \frac{10000}{10000 + 5} \approx 99.95\%$$
+> Tuy nhiên, nếu một kỹ sư cấu hình ứng dụng backend tạo ra 10,000 OS threads cùng chạy tranh chấp trên một máy chủ 8 nhân CPU, các luồng liên tục bị ngắt nhả và tranh giành khóa. Khi đó $T_{\text{quantum}}$ thực tế giảm chỉ còn $50\,\mu\text{s}$, trong khi $T_{\text{overhead}}$ vọt lên $25\,\mu\text{s}$ do tranh chấp hàng đợi:
+> $$\eta = \frac{50}{50 + 25} \approx 66.7\%$$
+> Hơn **33% toàn bộ năng lực CPU máy chủ bị thiêu rụi** chỉ để lưu và nạp thanh ghi mà không xử lý được bất kỳ logic nghiệp vụ nào!
+> Chưa kể chi phí lạnh bộ nhớ cache (**Cache Coldness Penalty**): Khi tiến trình mới vào chạy, toàn bộ bộ nhớ đệm CPU L1/L2/L3 đang chứa dữ liệu của tiến trình cũ. Tiến trình mới liên tục bị *Cache Miss*, khiến tốc độ xử lý lệnh ban đầu chậm đi hàng trăm chu kỳ xung nhịp.
+
+---
+
+## 5. Giám sát & Debug Thực tế trên Hệ điều hành Linux
+
+### 1. Phân biệt Voluntary vs Involuntary Context Switch:
+Truy cập thông tin chi tiết của một tiến trình bất kỳ qua tệp ảo `/proc/[pid]/status`:
+```bash
+$ cat /proc/12345/status | grep ctxt
+voluntary_ctxt_switches:    45210
+nonvoluntary_ctxt_switches: 320
+```
+- **`voluntary_ctxt_switches` (Tự nguyện chuyển ngữ cảnh):** Luồng chủ động nhường CPU khi cần chờ một tài nguyên chưa sẵn sàng: chờ đọc đĩa, gọi `sleep()`, chờ khóa Mutex, hoặc đợi dữ liệu từ mạng.
+- **`nonvoluntary_ctxt_switches` (Cưỡng bức chuyển ngữ cảnh):** Luồng bị Kernel tước đoạt quyền CPU khi hết lát cắt thời gian (*quantum expired*) hoặc có một tiến trình ưu tiên cao hơn xuất hiện trong hàng đợi Ready. Nếu chỉ số này cao đột biến, hệ thống đang bị quá tải CPU (CPU Bottleneck).
+
+### 2. Giám sát thời gian thực với `pidstat`:
+```bash
+# Giám sát tần suất chuyển ngữ cảnh mỗi 1 giây
+$ pidstat -w 1
+
+# Kết quả phân tích:
+# UID       PID   cswch/s  nvcswch/s  Command
+# 1000     4512    850.00      12.00  node
+# 1000     4590     20.00    1450.00  ffmpeg
+```
+Ở ví dụ trên, tiến trình `ffmpeg` đang xử lý video nặng (CPU-bound) nên bị cưỡng bức chuyển ngữ cảnh tới 1,450 lần/giây (`nvcswch/s`), trong khi `node` xử lý web socket (I/O-bound) chủ yếu tự nguyện nhường CPU (`cswch/s`).
+
+### 3. Kiểm tra không gian bộ nhớ qua `/proc/[pid]/maps`:
+```bash
+$ cat /proc/self/maps | head -n 5
+00400000-0040c000 r-xp 00000000 08:01 131234  /bin/cat     # Text (r-x)
+0060b000-0060c000 r--p 0000b000 08:01 131234  /bin/cat     # Data (r--)
+0060c000-0060d000 rw-p 0000c000 08:01 131234  /bin/cat     # BSS (rw-)
+019a2000-019c3000 rw-p 00000000 00:00 0         [heap]       # Heap (rw-)
+7ffd8c21a000-7ffd8c23b000 rw-p 00000000 00:00 0 [stack]      # Stack (rw-)
+```
+
+---
+
+## 6. Câu hỏi Tự kiểm tra Học thuật (Self-Check Questions)
+
+### Câu 1: Tại sao chuyển ngữ cảnh giữa 2 luồng trong cùng tiến trình lại có chi phí rẻ hơn đáng kể so với chuyển ngữ cảnh giữa 2 tiến trình khác nhau?
+> **Đáp án:** Khi chuyển đổi giữa 2 luồng cùng tiến trình, cả hai luồng dùng chung không gian địa chỉ ảo (VAS) và bảng trang. Do đó, Kernel không cần phải ghi đè thanh ghi bảng trang `CR3` và không làm mất hiệu lực bộ nhớ đệm dịch địa chỉ phần cứng (TLB). Ngược lại, chuyển giữa 2 tiến trình bắt buộc phải đổi `CR3`, dẫn tới xả sạch TLB (TLB Flush) và chịu tổn thất nặng nề từ hiện tượng Cache Coldness.
+
+### Câu 2: Trong kiến trúc máy tính 64-bit, nếu một luồng trong tiến trình vô tình truy cập vào địa chỉ con trỏ `NULL` (0x00000000), điều gì sẽ xảy ra ở cấp độ phần cứng và Kernel?
+> **Đáp án:** Địa chỉ `0x0` nằm trong vùng nhớ không được ánh xạ quyền truy cập trong bảng trang (PTE có bit `Present = 0`). Phần cứng MMU phát hiện lỗi và kích hoạt ngắt ngoại lệ **Page Fault Exception (Vector 14)**. Kernel nhận ngắt, tra cứu danh sách `vm_area_struct` và xác định đây là hành vi truy cập trái phép. Kernel lập tức gửi tín hiệu **`SIGSEGV` (Segmentation Fault)** đến tiến trình. Vì lỗi xảy ra ở cấp độ không gian địa chỉ của tiến trình cha, toàn bộ các luồng khác trong cùng tiến trình đó đều bị hệ điều hành tiêu diệt.
+
+### Câu 3: Kích thước mặc định của Stack cho mỗi luồng là bao nhiêu và nguy cơ khi tạo quá nhiều luồng là gì?
+> **Đáp án:** Trên Linux 64-bit, kích thước Stack mặc định của một luồng thường là 8 MB (có thể xem qua `ulimit -s`); trên Windows và .NET, mặc định là 1 MB. Nếu ứng dụng backend tạo 5,000 luồng theo mô hình "one-thread-per-request", riêng bộ nhớ ảo dành cho Stack đã ngốn $5,000 \times 8\text{ MB} = 40\text{ GB}$ không gian ảo! Điều này gây cạn kiệt bộ nhớ ảo hoặc RAM vật lý và gây nghẽn nghiêm trọng do bão chuyển ngữ cảnh.
+
+### Câu 4: Một tiến trình chuyển từ trạng thái `Running` sang `Ready` trong trường hợp nào?
+> **Đáp án:** Xảy ra khi tiến trình bị **chiếm quyền (Preempted)**: hoặc do bộ đếm thời gian (Hardware Timer) báo hiệu tiến trình đã sử dụng hết lát cắt thời gian (`Time Slice / Quantum`), hoặc do bộ điều phối phát hiện có một tiến trình khác có mức độ ưu tiên cao hơn (Higher Priority) vừa gia nhập hàng đợi Ready.
+
+<!-- studxy-os-v4 -->
+"""";
+
+    private static string GetLesson12Markdown() => """"
+# Bài 1.2: Thuật toán Điều phối CPU (FCFS, SJF, Round Robin & MLFQ)
+
+> [!NOTE]
+> **Khái niệm then chốt:** Một hệ thống máy tính hiện đại có thể chỉ có 8 nhân CPU vật lý nhưng lại chạy đồng thời hàng trăm tiến trình và hàng nghìn luồng. Trái tim của khả năng đa nhiệm này chính là **Bộ điều phối CPU (CPU Scheduler)** — thành phần nhân Kernel chịu trách nhiệm phân chia tài nguyên tính toán một cách công bằng, hiệu quả và tối ưu hóa độ trễ phản hồi.
+
+> [!TIP]
+> **Hình ảnh trực quan:** Hãy hình dung CPU Scheduler giống như nhân viên trực quầy vé máy bay tại sân bay quốc tế:
+> - Nếu phục vụ theo kiểu ai đến trước mua trước (**FCFS**): Một vị khách mua vé cho cả đoàn 50 người sẽ khiến 20 vị khách đi một mình phía sau bị trễ chuyến bay (Hiệu ứng đoàn tàu - *Convoy Effect*).
+> - Nếu ưu tiên khách làm thủ tục nhanh nhất (**SJF**): Khách có hành lý cồng kềnh có thể bị mắc kẹt cả ngày không bao giờ được phục vụ (*Starvation*).
+> - Nếu xoay vòng mỗi khách 2 phút (**Round Robin**): Mọi người đều được hỏi han nhanh chóng, tạo cảm giác hệ thống luôn phản hồi mượt mà.
+
+---
+
+## 1. Các Đại lượng Đo lường Hiệu năng Bộ Điều phối
+
+Để đánh giá một thuật toán điều phối là tốt hay xấu, các nhà khoa học máy tính sử dụng các đại lượng toán học chuẩn xác sau:
+
+```text
+Thời gian:   Arrival (T_arr)           Start (T_start)                 Completion (T_comp)
+                  |                          |                                 |
+                  v                          v                                 v
+Tiến trình:       +--------------------------+=================================+
+                  |   Chờ trong Ready Queue  |       Thực thi trên CPU         |
+                  +--------------------------+=================================+
+                  <------------------- Response Time ----------------->
+                  <----------------------------- Turnaround Time ------------------------------>
+```
+
+### Các công thức cốt lõi:
+1. **Turnaround Time (Thời gian hoàn thành toàn phần):** Tổng thời gian từ lúc tiến trình xuất hiện trong hệ thống cho đến khi hoàn thành xong câu lệnh cuối cùng:
+   $$T_{\text{turnaround}} = T_{\text{completion}} - T_{\text{arrival}}$$
+2. **Waiting Time (Thời gian chờ đợi):** Tổng thời gian tiến trình phải nằm yên trong hàng đợi Ready để chờ được cấp CPU:
+   $$T_{\text{waiting}} = T_{\text{turnaround}} - T_{\text{burst}} = (T_{\text{completion}} - T_{\text{arrival}}) - T_{\text{burst}}$$
+3. **Response Time (Thời gian phản hồi):** Khoảng thời gian từ lúc tiến trình xuất hiện đến lần đầu tiên CPU chạm vào thực thi nó:
+   $$T_{\text{response}} = T_{\text{firstRun}} - T_{\text{arrival}}$$
+4. **Throughput (Thông lượng):** Số lượng tiến trình hoàn thành trên một đơn vị thời gian (ví dụ: tiến trình/giây).
+5. **CPU Utilization (Tỷ lệ sử dụng CPU):** Tỷ lệ phần trăm thời gian CPU bận rộn xử lý công việc hữu ích (thường hướng tới $40\% - 90\%$).
+
+> [!IMPORTANT]
+> **Định luật Little (Little's Law) trong Hệ thống Hàng đợi:**
+> Trong điều kiện hệ thống ổn định, số lượng tiến trình trung bình đang nằm chờ trong hàng đợi Ready ($L$) bằng tích của tốc độ xuất hiện tiến trình mới ($\lambda$) và thời gian chờ trung bình ($W$):
+> $$L = \lambda \times W$$
+> Định luật này chứng minh rằng nếu muốn giảm độ dài hàng đợi chờ đợi $L$, ta bắt buộc phải tăng thông lượng xử lý hoặc giảm thời gian trễ trung bình $W$.
+
+---
+
+## 2. Bốn Thuật toán Điều phối CPU Kinh điển
+
+| Thuật toán | Cơ chế Preemption | Ưu điểm cốt lõi | Nhược điểm lớn nhất |
+|---|---|---|---|
+| **FCFS (First-Come, First-Served)** | Non-preemptive | Đơn giản, không overhead, không bao giờ bị Starvation | Hiệu ứng đoàn tàu (**Convoy Effect**): tác vụ ngắn bị nghẽn sau tác vụ dài |
+| **SJF / SRTF** | Non-preemptive (SJF) hoặc Preemptive (SRTF) | Tối ưu hóa tuyệt đối về thời gian hoàn thành trung bình (**Optimal Turnaround Time**) | Dễ gây đói tài nguyên (**Starvation**) cho tác vụ dài; không biết trước Burst Time |
+| **Round Robin (RR)** | Preemptive (theo Quantum $q$) | Công bằng, tối ưu **Response Time** cho ứng dụng đồ họa/web tương tác | Nếu $q$ quá nhỏ $\to$ bão Context Switch; nếu $q$ quá lớn $\to$ thoái hóa thành FCFS |
+| **MLFQ** | Preemptive đa tầng | Cân bằng tự động giữa tác vụ I/O tương tác và tác vụ CPU nặng | Phức tạp trong cấu hình số hàng đợi và cần cơ chế **Priority Boost** chống Starvation |
+
+### Phân tích sâu từng thuật toán:
+
+### 1. FCFS và Hiện tượng Convoy Effect:
+Tiến trình nào đến trước trong Ready Queue thì được chiếm CPU chạy cho đến khi hoàn tất hoặc tự nhường.
+Giả sử có 3 tiến trình: $P_1 (Burst = 24\text{ ms})$, $P_2 (Burst = 3\text{ ms})$, $P_3 (Burst = 3\text{ ms})$ cùng đến tại thời điểm $t = 0$.
+- Nếu thứ tự chạy là $P_1 \to P_2 \to P_3$:
+  - Waiting time: $P_1 = 0$, $P_2 = 24$, $P_3 = 27$.
+  - Average Waiting Time: $\frac{0 + 24 + 27}{3} = 17\text{ ms}$.
+- Nếu thứ tự chạy là $P_2 \to P_3 \to P_1$:
+  - Waiting time: $P_2 = 0$, $P_3 = 3$, $P_1 = 6$.
+  - Average Waiting Time: $\frac{0 + 3 + 6}{3} = 3\text{ ms}$ (Nhanh hơn gần 6 lần!).
+Hiện tượng $P_1$ chạy dài khiến các tiến trình nhẹ phải lê bước sau lưng gọi là **Convoy Effect**.
+
+### 2. SJF / SRTF và Dự đoán CPU Burst bằng Làm mịn Hàm mũ:
+SJF chọn tiến trình có CPU burst ngắn nhất chạy trước. Phiên bản chiếm quyền của nó gọi là **SRTF (Shortest Remaining Time First)**: khi có tiến trình mới xuất hiện với thời gian còn lại ngắn hơn tiến trình đang chạy, CPU lập tức bị chiếm quyền.
+Do hệ điều hành không thể biết trước chính xác thời gian một tiến trình sẽ chạy trong bao lâu, nó dùng kỹ thuật **Exponential Smoothing (Làm mịn hàm mũ)** để dự đoán burst tiếp theo:
+$$\tau_{n+1} = \alpha t_n + (1 - \alpha) \tau_n$$
+Trong đó:
+- $t_n$: Thời gian burst thực tế của lần chạy thứ $n$.
+- $\tau_n$: Thời gian burst được dự đoán ở lần thứ $n$.
+- $\alpha \in [0, 1]$: Trọng số lịch sử gần (thường chọn $\alpha = 0.5$).
+
+### 3. Round Robin (RR) và Nghệ thuật Chọn Lát cắt Thời gian ($q$):
+RR gán cho mỗi tiến trình một khoảng thời gian tối đa gọi là **Time Slice / Quantum ($q$)**. Khi hết $q$, ngắt đồng hồ Timer Interrupt sẽ đưa tiến trình về cuối hàng đợi Ready.
+- **Nếu $q \to \infty$:** Round Robin biến thành FCFS.
+- **Nếu $q \to 0$:** Hệ thống tiếp cận mô hình lý tưởng Processor Sharing (mỗi tiến trình cảm giác như có riêng một CPU tốc độ $\frac{1}{N}$), nhưng chi phí chuyển ngữ cảnh $T_{\text{overhead}}$ sẽ nuốt chửng toàn bộ CPU.
+- **Quy tắc thực nghiệm:** Khoảng $80\%$ CPU bursts của các tiến trình nên ngắn hơn độ dài của $q$. Giá trị chuẩn thường chọn là $10\text{ ms} - 50\text{ ms}$.
+
+### 4. MLFQ (Multi-Level Feedback Queue) - Năm Quy tắc Vàng:
+MLFQ là đỉnh cao của bộ điều phối tương tác, được xây dựng trên 5 quy tắc chuẩn của Remzi Arpaci-Dusseau:
+1. **Quy tắc 1:** Nếu $\text{Priority}(A) > \text{Priority}(B)$, $A$ được chạy, $B$ không chạy.
+2. **Quy tắc 2:** Nếu $\text{Priority}(A) == \text{Priority}(B)$, $A$ và $B$ luân phiên theo Round Robin với quantum của hàng đợi đó.
+3. **Quy tắc 3:** Khi một tiến trình mới tham gia hệ thống, nó được xếp vào hàng đợi có mức ưu tiên cao nhất (**Top Priority Queue**).
+4. **Quy tắc 4 (Chống gian lận - Anti-Gaming):** Khi tiến trình tích lũy đủ thời gian chạy ở một mức ưu tiên (dù nó có chủ động nhường CPU ngắt quãng để làm I/O), mức ưu tiên của nó sẽ bị hạ xuống một bậc.
+5. **Quy tắc 5 (Chống đói CPU - Priority Boost):** Sau một chu kỳ thời gian $S$ cố định, toàn bộ tiến trình trong hệ thống sẽ được đưa trở lại hàng đợi cao nhất. Điều này giải quyết triệt để vấn đề Starvation và thích ứng khi một tiến trình chuyển từ tính toán nặng sang tương tác người dùng.
+
+---
+
+## 3. Linux Completely Fair Scheduler (CFS) - Chuẩn Công nghiệp
+
+Kể từ nhân Linux 2.6.23, **CFS (Completely Fair Scheduler)** đã trở thành bộ điều phối mặc định cho các tiến trình thông thường (`SCHED_OTHER`).
+
+```text
+HÀNG ĐỢI CFS (RED-BLACK TREE)
+                       [vruntime = 15ms]
+                             /   \
+                            /     \
+             [vruntime = 10ms]    [vruntime = 25ms]
+                   /
+                  /
+       (rb_leftmost) -> [vruntime = 4ms]  <--- Luồng tiếp theo được chọn chạy!
+```
+
+### Nguyên lý hoạt động của CFS:
+1. **Virtual Runtime (`vruntime`):** Mỗi tiến trình được gán một bộ đếm `vruntime` đại diện cho lượng thời gian ảo nó đã chiếm dụng CPU.
+   $$\Delta \text{vruntime} = \Delta \text{exec\_time} \times \frac{\text{NICE\_0\_LOAD}}{\text{weight}}$$
+   - Tiến trình có mức ưu tiên cao (giá trị `nice` nhỏ, trọng số `weight` lớn) sẽ có `vruntime` tăng rất chậm.
+   - Tiến trình có mức ưu tiên thấp (giá trị `nice` lớn) sẽ có `vruntime` tăng rất nhanh.
+2. **Cây Đỏ-Đen (Red-Black Tree):** Thay vì dùng danh sách hàng đợi phẳng, CFS lưu các tiến trình có thể chạy trong một cây nhị phân cân bằng Red-Black Tree sắp xếp theo thứ tự `vruntime` tăng dần:
+   - Node bên trái cùng (**`rb_leftmost`**) có `vruntime` bé nhất $\to$ luôn được chọn để chạy với chi phí tra cứu cực nhanh **$O(1)$**.
+   - Sau khi chạy xong lát cắt, cập nhật lại `vruntime` và chèn lại vào cây với độ phức tạp **$O(\log N)$**.
+3. **Mức ưu tiên `nice`:** Có dải giá trị từ $-20$ (ưu tiên cao nhất) đến $+19$ (ưu tiên thấp nhất, mức 0 là mặc định). Mỗi nấc chênh lệch tương ứng với việc thay đổi khoảng $10\%$ lượng thời gian CPU được phân bổ.
+
+---
+
+## 4. Lần vết Thực tế Từng bước (Step-by-Step Gantt Trace)
+
+Hãy xem xét kịch bản kinh điển với 4 tiến trình sau:
+
+| Tiến trình | Thời điểm đến ($T_{\text{arr}}$) | Thời gian chạy ($T_{\text{burst}}$) |
+|---|---|---|
+| **P1** | 0 ms | 8 ms |
+| **P2** | 1 ms | 4 ms |
+| **P3** | 2 ms | 9 ms |
+| **P4** | 3 ms | 5 ms |
+
+### 1. FCFS (First-Come, First-Served):
+- Trình tự thực thi: `P1 (0..8) -> P2 (8..12) -> P3 (12..21) -> P4 (21..26)`
+- $T_{\text{completion}}$: $P_1 = 8, P_2 = 12, P_3 = 21, P_4 = 26$.
+- $T_{\text{turnaround}} = T_{\text{completion}} - T_{\text{arr}}$:
+  - $P_1 = 8 - 0 = 8\text{ ms}$
+  - $P_2 = 12 - 1 = 11\text{ ms}$
+  - $P_3 = 21 - 2 = 19\text{ ms}$
+  - $P_4 = 26 - 3 = 23\text{ ms}$
+- **Average Turnaround Time:** $\frac{8 + 11 + 19 + 23}{4} = \frac{61}{4} = 15.25\text{ ms}$.
+- $T_{\text{waiting}} = T_{\text{turnaround}} - T_{\text{burst}}$:
+  - $P_1 = 8 - 8 = 0\text{ ms}$
+  - $P_2 = 11 - 4 = 7\text{ ms}$
+  - $P_3 = 19 - 9 = 10\text{ ms}$
+  - $P_4 = 23 - 5 = 18\text{ ms}$
+- **Average Waiting Time:** $\frac{0 + 7 + 10 + 18}{4} = \frac{35}{4} = 8.75\text{ ms}$.
+
+### 2. SRTF (Shortest Remaining Time First - Preemptive):
+- Tại $t = 0$: Chỉ có $P_1$ chạy.
+- Tại $t = 1$: $P_2$ đến ($Burst = 4$). $P_1$ còn lại $7\text{ ms} > 4\text{ ms} \to P_2$ chiếm quyền!
+- Tại $t = 2$: $P_3$ đến ($Burst = 9$). $P_2$ còn lại $3\text{ ms} < 9\text{ ms} \to P_2$ chạy tiếp.
+- Tại $t = 3$: $P_4$ đến ($Burst = 5$). $P_2$ còn lại $2\text{ ms} < 5\text{ ms} \to P_2$ chạy tiếp đến $t = 5$ (xong $P_2$).
+- Tại $t = 5$: Các tiến trình còn lại: $P_4 (5\text{ ms}), P_1 (7\text{ ms}), P_3 (9\text{ ms}) \to P_4$ chạy từ 5..10 (xong $P_4$).
+- Tại $t = 10$: $P_1 (7\text{ ms})$ ngắn hơn $P_3 (9\text{ ms}) \to P_1$ chạy từ 10..17 (xong $P_1$).
+- Tại $t = 17$: $P_3$ chạy từ 17..26 (xong $P_3$).
+- Sơ đồ Gantt: `P1 (0..1) -> P2 (1..5) -> P4 (5..10) -> P1 (10..17) -> P3 (17..26)`
+- $T_{\text{completion}}$: $P_2 = 5, P_4 = 10, P_1 = 17, P_3 = 26$.
+- $T_{\text{turnaround}}$:
+  - $P_1 = 17 - 0 = 17\text{ ms}$
+  - $P_2 = 5 - 1 = 4\text{ ms}$
+  - $P_3 = 26 - 2 = 24\text{ ms}$
+  - $P_4 = 10 - 3 = 7\text{ ms}$
+- **Average Turnaround Time:** $\frac{17 + 4 + 24 + 7}{4} = \frac{52}{4} = 13.0\text{ ms}$ (Tối ưu nhất!).
+- **Average Waiting Time:** $\frac{(17-8) + (4-4) + (24-9) + (7-5)}{4} = \frac{9 + 0 + 15 + 2}{4} = 6.5\text{ ms}$.
+
+### 3. Round Robin với Quantum $q = 3\text{ ms}$:
+- Sơ đồ thực thi qua các lát cắt:
+  - $t = 0..3$: $P_1$ chạy 3ms (còn 5ms). Hàng đợi: $P_2, P_3, P_4, P_1$.
+  - $t = 3..6$: $P_2$ chạy 3ms (còn 1ms). Hàng đợi: $P_3, P_4, P_1, P_2$.
+  - $t = 6..9$: $P_3$ chạy 3ms (còn 6ms). Hàng đợi: $P_4, P_1, P_2, P_3$.
+  - $t = 9..12$: $P_4$ chạy 3ms (còn 2ms). Hàng đợi: $P_1, P_2, P_3, P_4$.
+  - $t = 12..15$: $P_1$ chạy 3ms (còn 2ms). Hàng đợi: $P_2, P_3, P_4, P_1$.
+  - $t = 15..16$: $P_2$ chạy 1ms (**Hoàn thành $P_2$ tại $t = 16$**).
+  - $t = 16..19$: $P_3$ chạy 3ms (còn 3ms).
+  - $t = 19..21$: $P_4$ chạy 2ms (**Hoàn thành $P_4$ tại $t = 21$**).
+  - $t = 21..23$: $P_1$ chạy 2ms (**Hoàn thành $P_1$ tại $t = 23$**).
+  - $t = 23..26$: $P_3$ chạy 3ms (**Hoàn thành $P_3$ tại $t = 26$**).
+- $T_{\text{turnaround}}$:
+  - $P_1 = 23 - 0 = 23\text{ ms}$
+  - $P_2 = 16 - 1 = 15\text{ ms}$
+  - $P_3 = 26 - 2 = 24\text{ ms}$
+  - $P_4 = 21 - 3 = 18\text{ ms}$
+- **Average Turnaround Time:** $\frac{23 + 15 + 24 + 18}{4} = \frac{80}{4} = 20.0\text{ ms}$.
+- **Đánh đổi:** Round Robin có Turnaround Time trung bình kém hơn SRTF, nhưng đổi lại Response Time của các tiến trình tương tác ($P_2, P_3, P_4$) cực kỳ nhanh: $P_2$ chỉ đợi 2ms là được chạy lần đầu!
+
+---
+
+## 5. Giám sát & Tối ưu Thực chiến trên Hệ thống Linux
+
+### 1. Kiểm tra chính sách lập lịch bằng `chrt`:
+```bash
+# Xem chính sách lập lịch của tiến trình
+$ chrt -p 1234
+pid 1234's current scheduling policy: SCHED_OTHER
+pid 1234's current scheduling priority: 0
+
+# Đổi sang chính sách Real-Time Round Robin (SCHED_RR) với ưu tiên 50 (cần quyền root)
+$ sudo chrt -r -p 50 1234
+```
+
+### 2. Quản lý mức ưu tiên bằng `nice` và `renice`:
+```bash
+# Khởi chạy tác vụ backup nén dữ liệu với ưu tiên thấp nhất (+19)
+$ nice -n 19 tar -czf backup.tar.gz /var/data
+
+# Tăng ưu tiên cho database engine đang chạy (từ nice 0 thành -10)
+$ sudo renice -n -10 -p $(pgrep postgres)
+```
+
+### 3. Sự cố CPU Throttling trong Kubernetes / Docker Container:
+Trong Kubernetes, khi bạn cấu hình giới hạn CPU:
+```yaml
+resources:
+  limits:
+    cpu: "500m"  # Tương đương 0.5 core CPU
+```
+Linux Kernel áp dụng cơ chế cgroups CFS Bandwidth Control:
+- `cpu.cfs_period_us = 100000` ($100\text{ ms}$)
+- `cpu.cfs_quota_us = 50000` ($50\text{ ms}$)
+Nếu ứng dụng backend đa luồng (như Java / Go / .NET) tạo ra 8 luồng cùng tính toán, nó sẽ đốt sạch $50\text{ ms}$ quota chỉ trong vòng $6.25\text{ ms}$ đầu tiên của chu kỳ! Suốt $93.75\text{ ms}$ còn lại, toàn bộ container bị **bóp nghẹt (CPU Throttled)**, dẫn tới hiện tượng *latency spikes* (độ trễ p99 vọt lên hàng trăm ms) dù mức sử dụng CPU trung bình hiển thị trên Grafana chỉ mới đạt 30%!
+
+---
+
+## 6. Câu hỏi Tự kiểm tra Học thuật (Self-Check Questions)
+
+### Câu 1: Tại sao thuật toán Shortest Job First (SJF) được chứng minh toán học là tối ưu về Average Waiting Time nhưng không thể dùng làm bộ điều phối chính trong hệ điều hành đa năng?
+> **Đáp án:** Vì hai lý do sống còn:
+> 1. Hệ điều hành không thể biết trước chính xác độ dài CPU Burst của một tiến trình khi người dùng khởi chạy.
+> 2. Gây ra hiện tượng **Starvation (Đói CPU vĩnh viễn)**: Nếu người dùng liên tục bấm phím hoặc các tiến trình nền ngắn liên tục xuất hiện, các tiến trình xử lý tính toán dài (như render video, nén file) sẽ không bao giờ được cấp CPU.
+
+### Câu 2: Trong thuật toán Round Robin, điều gì sẽ xảy ra nếu ta chọn lát cắt thời gian Quantum $q$ bằng $0.001\text{ ms}$?
+> **Đáp án:** Nếu $q = 0.001\text{ ms} = 1\,\mu\text{s}$, trong khi chi phí một lần chuyển ngữ cảnh $T_{\text{overhead}}$ mất từ $3\,\mu\text{s} - 5\,\mu\text{s}$, hệ thống sẽ dành hơn $80\%$ thời gian xung nhịp chỉ để lưu và nạp thanh ghi. CPU sẽ rơi vào tình trạng quá tải nghiêm trọng, thông lượng hữu ích sụt giảm gần như bằng 0.
+
+### Câu 3: Thuật toán MLFQ giải quyết bài toán "Gian lận thời gian CPU" (Gaming the Scheduler) như thế nào?
+> **Đáp án:** Một tiến trình gian xảo có thể chạy $99\%$ thời lượng của quantum rồi chủ động gọi một lệnh I/O giả để nhường CPU, nhằm giữ nguyên mức ưu tiên cao nhất ở hàng đợi đỉnh. Quy tắc 4 của MLFQ sửa đổi cơ chế này bằng cách: **Tính lũy kế tổng thời gian chạy** của tiến trình tại mức ưu tiên đó. Dù tiến trình có nhường CPU bao nhiêu lần, khi tổng thời gian CPU cộng dồn đạt đủ quota, nó vẫn bị giáng cấp xuống hàng đợi dưới.
+
+### Câu 4: Trong hệ điều hành Linux CFS, nếu hai tiến trình $A$ có `nice = 0` và $B$ có `nice = 5` cùng chạy tính toán 100% CPU, tiến trình nào sẽ có `vruntime` tăng nhanh hơn?
+> **Đáp án:** Tiến trình $B$ (nice = 5) có mức ưu tiên thấp hơn, do đó trọng số `weight` của nó nhỏ hơn. Theo công thức:
+> $$\Delta \text{vruntime} = \Delta \text{exec\_time} \times \frac{\text{NICE\_0\_LOAD}}{\text{weight}}$$
+> `vruntime` của tiến trình $B$ sẽ tăng nhanh hơn nhiều so với $A$. Vì CFS luôn ưu tiên chọn tiến trình có `vruntime` nhỏ nhất để cấp CPU, tiến trình $A$ sẽ nhận được nhiều thời gian thực thi thực tế trên CPU hơn $B$.
+
+<!-- studxy-os-v4 -->
+"""";
+
+    private static string GetLesson21Markdown() => """"
+# Bài 2.1: Race Condition, Critical Section, Mutex & Semaphore
+
+> [!NOTE]
+> **Khái niệm then chốt:** Trong môi trường đa luồng (Multi-threading) hoặc đa lõi (Multi-core), việc nhiều luồng cùng truy cập và chỉnh sửa một vùng nhớ dữ liệu chia sẻ mà không có cơ chế điều phối sẽ dẫn tới **Race Condition (Tranh chấp dữ liệu)** — một trong những loại lỗi phần mềm quái đản và khó tái hiện nhất trong lịch sử công nghệ thông tin.
+
+> [!TIP]
+> **Hình ảnh trực quan:** Hãy hình dung tài khoản ngân hàng của một cặp vợ chồng có số dư 10,000,000 VNĐ:
+> - Người chồng đứng tại cây ATM ở Hà Nội rút 6,000,000 VNĐ.
+> - Cùng một phần nghìn giây đó, người vợ quẹt thẻ POS tại TP.HCM mua túi xách trị giá 7,000,000 VNĐ.
+> - Cả hai máy đều đọc số dư là 10 triệu (hợp lệ $\ge$ số tiền cần rút), trừ tiền và ghi đè số dư mới: một bên ghi 4 triệu, bên kia ghi 3 triệu! Ngân hàng bị thất thoát tiền vì hai thao tác không được thực hiện **Nguyên tử (Atomicity)**!
+
+---
+
+## 1. Bản chất Vi kiến trúc của Race Condition
+
+Tại sao một dòng mã nguồn đơn giản như `counter++` trong ngôn ngữ C/C++/Java/C# lại không an toàn trong môi trường đa luồng?
+
+```text
+CẤP ĐỘ MÃ NGUỒN C#:
+counter++;
+
+CẤP ĐỘ HỢP NGỮ x86-64 (DISASSEMBLY):
+1. mov eax, dword ptr [counter]    ; [READ]  Nạp giá trị từ RAM vào thanh ghi CPU EAX
+2. add eax, 1                      ; [MODIFY] Cộng thêm 1 trong bộ số học logic ALU
+3. mov dword ptr [counter], eax    ; [WRITE] Ghi giá trị mới từ EAX ngược lại RAM
+```
+
+### Kịch bản Xen kẽ (Interleaving) dẫn tới Lỗi Ghi đè (Lost Update):
+Giả sử ban đầu `counter = 50`. Luồng A và Luồng B cùng thực thi `counter++`:
+
+```text
+Thời gian   Luồng A (Thread A)             Luồng B (Thread B)             RAM (counter)
+   t1       mov eax, [counter] (eax_A=50)                                      50
+   t2       add eax, 1         (eax_A=51)                                      50
+   t3       ------ CONTEXT SWITCH TỪ LUỒNG A SANG LUỒNG B ------               50
+   t4                                      mov eax, [counter] (eax_B=50)       50
+   t5                                      add eax, 1         (eax_B=51)       50
+   t6                                      mov [counter], eax (ghi 51)         51
+   t7       ------ CONTEXT SWITCH TỪ LUỒNG B SANG LUỒNG A ------               51
+   t8       mov [counter], eax (ghi 51)                                        51 !
+```
+Kết quả sau khi cả hai luồng tăng biến: `counter = 51` thay vì `52`! Lần tăng của Luồng B đã bị Luồng A ghi đè và biến mất hoàn toàn.
+
+> [!IMPORTANT]
+> **Hiện tượng Vi mô: Giao thức MESI & False Sharing trên CPU Cache:**
+> Trên phần cứng đa nhân hiện đại, mỗi CPU Core có bộ nhớ đệm L1/L2 riêng. Để giữ cho dữ liệu nhất quán giữa các lõi, phần cứng sử dụng giao thức **MESI (Modified, Exclusive, Shared, Invalid)**:
+> Khi Core 1 ghi vào biến, nó phát tín hiệu vô hiệu hóa (*Invalidate*) toàn bộ đường nhớ đệm (**Cache Line** 64 byte) chứa biến đó trên L1 Cache của Core 2. Nếu hai luồng nằm trên hai Core khác nhau liên tục ghi vào hai biến độc lập nhưng vô tình nằm chung một Cache Line 64 byte, hiện tượng **False Sharing** sẽ làm đường truyền bus vi xử lý bị nghẽn nghẹt, hiệu năng sụt giảm nghiêm trọng!
+
+---
+
+## 2. Vùng Tranh Chấp (Critical Section) & Ba Điều Kiện Tiên Quyết
+
+**Vùng tranh chấp (Critical Section - CS)** là đoạn mã nguồn trong chương trình có hành vi truy cập và thao tác trên tài nguyên chia sẻ (biến bộ nhớ, bảng dữ liệu, tệp tin, socket).
+
+```text
+do {
+    // 1. Entry Section: Xin quyền vào vùng tranh chấp (Lock)
+    [ CRITICAL SECTION: Truy cập biến chia sẻ, ghi dữ liệu ]
+    // 2. Exit Section: Giải phóng quyền cho luồng khác (Unlock)
+    // 3. Remainder Section: Xử lý logic riêng không tranh chấp
+} while (true);
+```
+
+### Ba điều kiện bắt buộc của một giải pháp Critical Section chuẩn mực:
+1. **Mutual Exclusion (Loại trừ lẫn nhau):** Nếu luồng $T_i$ đang thực thi trong vùng Critical Section của nó, thì không có bất kỳ luồng $T_j$ nào khác được phép thực thi trong vùng Critical Section của chúng.
+2. **Progress (Tính tiến triển):** Nếu không có luồng nào đang nằm trong Critical Section và có một số luồng đang muốn bước vào, thì chỉ những luồng không nằm trong Remainder Section mới được tham gia vào quyết định chọn ai sẽ vào tiếp theo, và quyết định này **không thể bị trì hoãn vô thời hạn**.
+3. **Bounded Waiting (Chờ đợi có giới hạn):** Phải tồn tại một giới hạn xác định về số lần các luồng khác được phép vượt mặt đi vào Critical Section sau khi một luồng đã gửi yêu cầu xin vào và trước khi yêu cầu đó được chấp thuận. Điều kiện này đảm bảo **ngăn chặn triệt để tình trạng Starvation**.
+
+---
+
+## 3. Các Cơ Chế Hỗ Trợ Đồng Bộ từ Phần Cứng
+
+Các thuật toán phần mềm thuần túy (như giải thuật Peterson) rất dễ bị vô hiệu hóa trên các CPU hiện đại do cơ chế đảo thứ tự lệnh (**Out-of-Order Execution**) của trình biên dịch và phần cứng. Do đó, hệ điều hành dựa vào các chỉ thị nguyên tử phần cứng:
+
+### 1. Lệnh Nguyên tử Test-And-Set (TAS):
+Lệnh phần cứng đọc một giá trị bộ nhớ và gán giá trị mới là `true` trong đúng một chu kỳ xung nhịp không thể bị ngắt:
+```c
+bool TestAndSet(bool *target) {
+    bool rv = *target;
+    *target = true;
+    return rv; // Trả về giá trị cũ
+}
+```
+
+### 2. Lệnh Nguyên tử Compare-And-Swap (CAS):
+Cốt lõi của mọi cấu trúc dữ liệu không khóa (**Lock-Free Data Structures**):
+```c
+int CompareAndSwap(int *value, int expected, int new_value) {
+    int temp = *value;
+    if (temp == expected) {
+        *value = new_value;
+    }
+    return temp; // Trên x86 là lệnh LOCK CMPXCHG
+}
+```
+Nếu giá trị hiện tại tại ô nhớ khớp với kỳ vọng (`expected`), CPU ghi đè giá trị mới `new_value`. Nếu không khớp (nghĩa là có luồng khác đã can thiệp vào trước), thao tác thất bại và luồng có thể thử lại trong vòng lặp.
+
+> [!WARNING]
+> **Vấn đề ABA trong Lập trình Lock-Free:**
+> Luồng 1 đọc giá trị ô nhớ là $A$. Luồng 2 chen ngang đổi $A \to B \to A$. Luồng 1 thức dậy thấy ô nhớ vẫn là $A$ nên nghĩ rằng không có gì thay đổi và thực thi lệnh CAS thành công! Tuy nhiên, con trỏ nội tại có thể đã trỏ tới một vùng nhớ đã bị giải phóng (*use-after-free*).
+> **Giải pháp:** Sử dụng kỹ thuật **Tagged Pointer / Version Counter**: đi kèm với mỗi giá trị là một số nguyên phiên bản tăng dần ($A_1 \to B_2 \to A_3$). Khi so sánh, CAS kiểm tra cả giá trị lẫn số phiên bản!
+
+### 3. Rào cản Bộ nhớ (Memory Barriers / Memory Fences):
+Chỉ thị `MFENCE`, `LFENCE`, `SFENCE` trên kiến trúc x86 buộc CPU phải hoàn thành toàn bộ các lệnh đọc/ghi bộ nhớ phía trước trước khi thực thi bất kỳ lệnh nào phía sau rào cản. Trong C# và Java, từ khóa `volatile` áp dụng cơ chế Acquire/Release semantics để ngăn chặn compiler đảo thứ tự câu lệnh.
+
+---
+
+## 4. Các Công Cụ Đồng Bộ Hóa Phần Mềm (Software Synchronization Primitives)
+
+| Công cụ | Cơ chế chờ đợi | Khái niệm Sở hữu (Ownership) | Trường hợp sử dụng chuẩn |
+|---|---|---|---|
+| **Spinlock** | Vòng lặp bận (**Busy-waiting**) ngốn 100% core CPU | Có | Vùng tranh chấp cực ngắn ($< 1\,\mu\text{s}$), trong nhân Kernel, trình xử lý ngắt ISR |
+| **Mutex** | Ngủ trong hàng đợi Blocked Queue (hạ CPU về 0%) | **Bắt buộc**: Luồng nào Lock thì chỉ luồng đó được Unlock | Bảo vệ biến dùng chung, cấu trúc dữ liệu In-Memory, tài nguyên đơn độc |
+| **Semaphore** | Bộ đếm nguyên $S \ge 0$, ngủ khi $S = 0$ | **Không có**: Luồng A có thể Wait, Luồng B có thể Signal | Giới hạn số kết nối đồng thời (Connection Pool), báo hiệu Producer-Consumer |
+| **Reader-Writer Lock** | Cho phép nhiều Readers đọc đồng thời, chỉ 1 Writer được ghi | Có (đối với Writer) | Cấu trúc dữ liệu đọc nhiều ghi ít (Cache, bảng định tuyến Routing Table) |
+
+### Chi tiết về Cơ chế Mutex và Linux Futex:
+Trên hệ thống Linux hiện đại, Mutex được triển khai thông qua cơ chế **`futex` (Fast Userspace Mutex)**:
+- Ở trường hợp không có tranh chấp (*Uncontended Case*): Luồng lấy được khóa hoàn toàn trong User Space bằng một lệnh nguyên tử CAS duy nhất, **không tốn chi phí gọi System Call** vào Kernel!
+- Chỉ khi phát hiện có luồng khác đang giữ khóa (*Contended Case*): Luồng mới thực hiện system call `sys_futex()` để yêu cầu Kernel đưa mình vào danh sách ngủ (Wait Queue), nhường CPU cho tiến trình khác.
+
+### Chi tiết về Semaphore (Dijkstra):
+Semaphore là một biến đếm nguyên không âm $S$ đi kèm với 2 thao tác nguyên tử:
+1. **`wait(S)` (hoặc $P(S)$):**
+   ```c
+   wait(S) {
+       while (S <= 0) {
+           // Đưa luồng vào hàng đợi ngủ Blocked Queue
+       }
+       S--;
+   }
+   ```
+2. **`signal(S)` (hoặc $V(S)$):**
+   ```c
+   signal(S) {
+       S++;
+       // Đánh thức một luồng đang ngủ trong hàng đợi (nếu có)
+   }
+   ```
+
+### Bài toán Bộ đệm Giới hạn (Bounded Buffer / Producer-Consumer):
+Kịch bản kinh điển: Một luồng Sản xuất (Producer) tạo dữ liệu bỏ vào mảng cố định có kích thước $N$, một luồng Tiêu thụ (Consumer) lấy dữ liệu ra xử lý.
+Cần sử dụng 3 primitive đồng bộ:
+- `Semaphore empty = N;` // Đếm số vị trí còn trống trong bộ đệm
+- `Semaphore full = 0;`  // Đếm số phần tử hiện có sẵn để tiêu thụ
+- `Mutex mutex = 1;`     // Đảm bảo chỉ 1 người được cập nhật con trỏ mảng tại một thời điểm
+
+```c
+// TIẾN TRÌNH PRODUCER:
+while (true) {
+    item = produce_item();
+    wait(empty);  // 1. Chờ cho đến khi có ít nhất 1 chỗ trống
+    wait(mutex);  // 2. Khóa vùng đệm để ghi
+    insert_item(item);
+    signal(mutex);// 3. Mở khóa vùng đệm
+    signal(full); // 4. Báo hiệu cho Consumer biết đã có thêm 1 phần tử
+}
+
+// TIẾN TRÌNH CONSUMER:
+while (true) {
+    wait(full);   // 1. Chờ cho đến khi có ít nhất 1 phần tử có sẵn
+    wait(mutex);  // 2. Khóa vùng đệm để lấy
+    item = remove_item();
+    signal(mutex);// 3. Mở khóa vùng đệm
+    signal(empty);// 4. Báo hiệu cho Producer biết đã giải phóng 1 chỗ trống
+    consume_item(item);
+}
+```
+
+> [!WARNING]
+> **Thứ tự Lời gọi Khóa sống còn để tránh Deadlock:**
+> Trong đoạn mã trên, nếu lập trình viên đảo thứ tự hai câu lệnh:
+> ```c
+> wait(mutex); // NGUY HIỂM CHẾT NGƯỜI!
+> wait(empty);
+> ```
+> Khi bộ đệm bị đầy (`empty = 0`), Producer sẽ giữ chặt `mutex` rồi đi ngủ để chờ `empty`. Trong khi đó, Consumer cần `mutex` để lấy hàng ra giải phóng chỗ trống, nhưng `mutex` lại đang bị Producer nắm giữ! Kết quả: Cả Producer và Consumer nhìn nhau đứng im vĩnh viễn (**Deadlock**)!
+
+---
+
+## 5. Hiện tượng Đảo ngược Mức ưu tiên (Priority Inversion) & Bài học Mars Pathfinder
+
+Một trong những sự cố đồng bộ hóa chấn động lịch sử diễn ra vào năm 1997 trên con tàu thám hiểm sao Hỏa **Mars Pathfinder** của NASA.
+
+```text
+Luồng H (High Priority)    --- Chờ Mutex M -------------------------> [ĐƯỢC CHẠY TIẾP]
+                                  ^                                       ^
+Luồng M (Medium Priority)         |   ====================== (Chạy) ===== |
+                                  |   (Cướp CPU vì M > L!)                |
+Luồng L (Low Priority)     -- Giữ M --                                    nhả M
+```
+
+### Kịch bản Thảm họa:
+1. Luồng $L$ (Ưu tiên thấp: thu thập dữ liệu khí tượng) lấy khóa Mutex $M$ để ghi dữ liệu vào bus thông tin.
+2. Luồng $H$ (Ưu tiên cao: quản lý điều hướng tàu vũ trụ) thức dậy, cần truy cập bus nên yêu cầu khóa Mutex $M$. Vì $L$ đang giữ $M$, luồng $H$ bị đưa vào trạng thái Blocked.
+3. Luồng $M$ (Ưu tiên trung bình: truyền thông tin khoa học) thức dậy. Luồng $M$ không hề cần khóa $M$, nhưng vì mức ưu tiên của $M > L$, bộ điều phối CPU lập tức tước quyền CPU của $L$ để trao cho $M$ chạy!
+4. **Hậu quả:** Luồng $L$ không được cấp CPU nên không thể chạy xong để nhả khóa $M$. Luồng $H$ (quan trọng nhất hệ thống) bị gián tiếp chặn đứng bởi luồng $M$! Sau vài phút, bộ đếm thời gian giám sát (**Watchdog Timer**) thấy luồng điều hướng $H$ không phản hồi nên kết luận hệ thống bị treo và tự động khởi động lại toàn bộ máy tính trên sao Hỏa nhiều lần mỗi ngày.
+
+### Giải pháp Cứu rỗi: Giao thức Thừa kế Mức ưu tiên (Priority Inheritance Protocol)
+Khi một luồng ưu tiên cao $H$ bị nghẽn vì chờ một khóa Mutex do luồng ưu tiên thấp $L$ nắm giữ, hệ điều hành **tạm thời nâng mức ưu tiên của luồng $L$ lên ngang bằng với mức ưu tiên của luồng $H$**. Nhờ đó, luồng $M$ không thể chen ngang cướp CPU của $L$. Ngay sau khi $L$ thực thi xong vùng tranh chấp và nhả khóa Mutex, mức ưu tiên của $L$ được trả về ban đầu, và luồng $H$ lập tức chiếm lấy khóa để chạy trơn tru.
+
+---
+
+## 6. Kỹ Năng Debug & Phát Hiện Race Condition trong Thực Tế
+
+### 1. Sử dụng ThreadSanitizer (TSan):
+Công cụ kiểm tra bộ nhớ động mạnh mẽ được tích hợp sẵn trong trình biên dịch GCC, Clang và Go runtime:
+```bash
+# Trong Golang:
+$ go test -race ./...
+$ go run -race server.go
+
+# Trong C/C++ với GCC/Clang:
+$ gcc -fsanitize=thread -g main.c -o app
+$ ./app
+# ==================
+# WARNING: ThreadSanitizer: data race (pid=12345)
+#   Write of size 4 at 0x7ffd8c21a000 by thread T2:
+#     #0 thread_worker main.c:42 (app+0x1234)
+#   Previous read of size 4 at 0x7ffd8c21a000 by thread T1:
+#     #0 thread_reader main.c:28 (app+0x1120)
+# ==================
+```
+
+### 2. Các nguyên tắc vàng để viết mã an toàn đa luồng:
+- **Lock Striping:** Thay vì khóa toàn bộ bảng dữ liệu lớn bằng 1 Mutex duy nhất, hãy băm dữ liệu thành nhiều bucket nhỏ và mỗi bucket có một Mutex riêng (như kiến trúc `ConcurrentDictionary` trong .NET hoặc `ConcurrentHashMap` trong Java).
+- **Hạn chế tối đa thời gian giữ khóa:** Đọc dữ liệu ra biến cục bộ, giải phóng Mutex ngay lập tức rồi mới xử lý các thuật toán nặng hoặc gửi mạng. **TUYỆT ĐỐI KHÔNG BAO GIỜ gọi I/O hoặc HTTP API khi đang nắm giữ Mutex!**
+- **Ưu tiên cấu trúc dữ liệu bất biến (Immutability):** Dữ liệu chỉ đọc (Read-Only) có thể được hàng triệu luồng đọc song song an toàn mà không cần tốn bất kỳ khóa nào.
+
+---
+
+## 7. Câu hỏi Tự kiểm tra Học thuật (Self-Check Questions)
+
+### Câu 1: Tại sao việc sử dụng biến cờ hiệu kiểm tra thông thường kiểu `while (flag == true)` để làm khóa lại không giải quyết được bài toán Critical Section?
+> **Đáp án:** Vì thao tác kiểm tra điều kiện `flag == true` và thao tác gán `flag = true` là hai thao tác tách biệt không có tính nguyên tử. Hai luồng có thể cùng đọc thấy `flag == false` tại cùng một thời điểm, cùng vượt qua vòng lặp kiểm tra và cùng bước vào Critical Section, phá vỡ hoàn toàn tính chất Mutual Exclusion.
+
+### Câu 2: Sự khác biệt bản chất giữa Binary Semaphore và Mutex là gì?
+> **Đáp án:** Điểm khác biệt quan trọng nhất là **Khái niệm Sở hữu (Ownership)**. Với Mutex, luồng nào gọi lệnh khóa (`Lock()`) thì bắt buộc chỉ có chính luồng đó mới có quyền gọi lệnh mở khóa (`Unlock()`). Với Binary Semaphore, một luồng có thể gọi `wait()` để chờ tín hiệu, và một luồng hoàn toàn khác có thể gọi `signal()` để đánh thức nó (phục vụ cơ chế đồng bộ hóa luồng).
+
+### Câu 3: Khi nào nên sử dụng Spinlock thay vì Mutex?
+> **Đáp án:** Nên dùng Spinlock khi:
+> 1. Vùng Critical Section cực kỳ ngắn (chỉ vài phép gán hoặc tính toán dưới $1\,\mu\text{s}$).
+> 2. Chạy trên hệ thống máy tính có **nhiều nhân CPU thực sự** (multi-core).
+> 3. Không thể đưa luồng vào giấc ngủ (ví dụ: bên trong trình xử lý ngắt Interrupt Service Routine của Kernel). Trong trường hợp này, thời gian bận chờ (busy-wait) của Spinlock còn ngắn hơn thời gian hệ điều hành tiêu tốn để thực hiện một lần chuyển ngữ cảnh context switch khi ngủ.
+
+### Câu 4: Làm thế nào để ngăn chặn hiện tượng Priority Inversion trong các hệ điều hành thời gian thực (RTOS)?
+> **Đáp án:** Sử dụng **Giao thức Thừa kế Mức ưu tiên (Priority Inheritance Protocol)** hoặc **Giao thức Trần Mức ưu tiên (Priority Ceiling Protocol)**. Khi luồng ưu tiên thấp đang giữ khóa cần thiết cho luồng ưu tiên cao, mức ưu tiên của luồng thấp sẽ được tự động nâng lên ngang mức ưu tiên cao nhất của các luồng đang chờ khóa, ngăn không cho các luồng trung gian cướp quyền CPU.
+
+<!-- studxy-os-v4 -->
+"""";
+
+    private static string GetLesson22Markdown() => """"
+# Bài 2.2: Deadlock — 4 Điều kiện Coffman, Phòng tránh & Phục hồi
+
+> [!NOTE]
+> **Khái niệm then chốt:** Trong khoa học máy tính, **Deadlock (Khóa chết)** là tình trạng đóng băng vĩnh viễn của một tập hợp các tiến trình hoặc luồng, trong đó mỗi tiến trình đang nắm giữ ít nhất một tài nguyên và vĩnh viễn chờ đợi một tài nguyên khác đang bị chiếm giữ bởi một tiến trình khác trong cùng tập hợp.
+
+> [!TIP]
+> **Hình ảnh trực quan:** Câu chuyện hai đoàn tàu đối đầu trên cây cầu đường ray đơn bắc qua hẻm núi sâu:
+> - Đoàn tàu A đã đi vào giữa cầu từ phía bờ Tây và cần đi tiếp bờ Đông.
+> - Đoàn tàu B đã đi vào giữa cầu từ phía bờ Đông và cần đi tiếp bờ Tây.
+> - Cả hai tài xế đều kiên quyết không chịu lùi lại và không thể vượt qua nhau. Cả hai đoàn tàu đứng im bất động vĩnh viễn giữa cầu!
+
+---
+
+## 1. Phân biệt Deadlock, Livelock và Starvation
+
+Rất nhiều kỹ sư nhầm lẫn giữa ba trạng thái bất thường của hệ thống đa nhiệm. Bảng phân tích chuẩn xác:
+
+| Tiêu chí | Deadlock (Khóa chết) | Livelock (Khóa sống) | Starvation (Đói tài nguyên) |
+|---|---|---|---|
+| **Mức tiêu thụ CPU** | **0% CPU** (Tất cả các luồng rơi vào trạng thái ngủ Blocked Queue) | **100% CPU** (Các luồng liên tục chạy vòng lặp bận thay đổi trạng thái) | Tiến trình bị đói có thể tốn ít CPU, nhưng CPU hệ thống vẫn chạy các tiến trình khác |
+| **Thay đổi trạng thái** | Đóng băng tĩnh hoàn toàn, không có bất kỳ lệnh nào được thực thi | Trạng thái luồng thay đổi liên tục nhưng không đạt được bước tiến triển nào | Tiến trình bị hoãn vô thời hạn vì luôn có tiến trình ưu tiên cao hơn vượt mặt |
+| **Khả năng tự hồi phục** | Không thể tự thoát nếu không có sự can thiệp cưỡng bức từ bên ngoài | Rất khó thoát trừ khi có cơ chế giải phóng ngẫu nhiên (Random Backoff) | Tự thoát khi các tiến trình ưu tiên cao kết thúc hoặc nhờ cơ chế Aging |
+| **Ví dụ đời thực** | Hai người đi qua cửa hẹp cùng lúc, người này nắm áo người kia và cả hai đứng im | Hai người đi đối diện trên vỉa hè: cùng né sang trái, cùng né sang phải hàng chục lần | Người nghèo xếp hàng mua vé luôn bị người có thẻ VIP chen ngang vào trước |
+
+---
+
+## 2. Bốn Điều Kiện Coffman (Coffman Conditions)
+
+Vào năm 1971, nhà khoa học máy tính Edward G. Coffman Jr. đã chứng minh rằng một tình trạng Deadlock **chỉ có thể xảy ra khi và chỉ khi cả 4 điều kiện sau đồng thời thỏa mãn**:
+
+```text
+               +---------------------------------------+
+               |      1. MUTUAL EXCLUSION              |
+               | (Tài nguyên không thể chia sẻ)        |
+               +-------------------+-------------------+
+                                   |
+                                   v
+               +---------------------------------------+
+               |      2. HOLD AND WAIT                 |
+               | (Giữ tài nguyên và chờ xin thêm)      |
+               +-------------------+-------------------+
+                                   |
+                                   v
+               +---------------------------------------+
+               |      3. NO PREEMPTION                 |
+               | (Không thể tước đoạt cưỡng bức)       |
+               +-------------------+-------------------+
+                                   |
+                                   v
+               +---------------------------------------+
+               |      4. CIRCULAR WAIT                 |
+               | (Chờ đợi vòng tròn: P0->P1->...->P0)  |
+               +-------------------+-------------------+
+                                   |
+                                   v
+                        ====== DEADLOCK! ======
+```
+
+### Chi tiết 4 điều kiện:
+1. **Mutual Exclusion (Loại trừ lẫn nhau):** Tồn tại ít nhất một tài nguyên được nắm giữ ở chế độ không thể chia sẻ (*Non-sharable*). Chỉ có đúng một tiến trình được phép sử dụng tài nguyên đó tại một thời điểm. Nếu tiến trình khác yêu cầu, nó bắt buộc phải chờ đợi.
+2. **Hold and Wait (Nắm giữ và Chờ đợi):** Một tiến trình đang nắm giữ ít nhất một tài nguyên và đang tiếp tục yêu cầu thêm các tài nguyên mới mà các tài nguyên này hiện đang bị các tiến trình khác chiếm giữ.
+3. **No Preemption (Không trưng dụng):** Tài nguyên không thể bị hệ điều hành tước đoạt cưỡng bức khỏi tay tiến trình. Tài nguyên chỉ có thể được giải phóng một cách tự nguyện bởi chính tiến trình đang sở hữu nó sau khi hoàn thành nhiệm vụ.
+4. **Circular Wait (Chờ đợi vòng tròn):** Tồn tại một chuỗi các tiến trình $\{P_0, P_1, P_2, \dots, P_n\}$ sao cho:
+   - $P_0$ đang chờ tài nguyên do $P_1$ nắm giữ.
+   - $P_1$ đang chờ tài nguyên do $P_2$ nắm giữ.
+   - $\dots$
+   - $P_n$ đang chờ tài nguyên do $P_0$ nắm giữ.
+
+> [!IMPORTANT]
+> **Định lý Bất biến:** Bốn điều kiện Coffman vừa là **điều kiện cần**, vừa là **điều kiện đủ**. Nếu bạn phá vỡ được **bất kỳ một trong bốn điều kiện này**, Deadlock toán học chắc chắn không thể hình thành!
+
+---
+
+## 3. Đồ Thị Cấp Phát Tài Nguyên (Resource Allocation Graph - RAG)
+
+Hệ điều hành mô hình hóa trạng thái phân bổ tài nguyên dưới dạng một đồ thị có hướng $G = (V, E)$:
+- **Tập đỉnh $V$:** Chia làm 2 nhóm:
+  - Tập các tiến trình $P = \{P_1, P_2, \dots, P_n\}$ (vẽ bằng hình tròn).
+  - Tập các loại tài nguyên $R = \{R_1, R_2, \dots, R_m\}$ (vẽ bằng hình chữ nhật, bên trong chứa các dấu chấm tròn thể hiện số lượng cá thể - *instances*).
+- **Tập cạnh $E$:**
+  - **Cạnh yêu cầu (Request Edge):** $P_i \to R_j$ (tiến trình $P_i$ đang chờ xin cấp 1 cá thể của tài nguyên $R_j$).
+  - **Cạnh cấp phát (Assignment Edge):** $R_j \to P_i$ (một cá thể của tài nguyên $R_j$ đã được cấp cho tiến trình $P_i$).
+
+```text
+KỊCH BẢN 1: CÓ DEADLOCK (Mỗi tài nguyên 1 instance, có chu trình)
+      ( P1 ) ------------> [ R1 ]
+        ^                    |
+        |                    v
+      [ R2 ] <------------ ( P2 )
+  Chu trình: P1 -> R1 -> P2 -> R2 -> P1  ===> CHẮC CHẮN DEADLOCK!
+
+KỊCH BẢN 2: CÓ CHU TRÌNH NHƯNG KHÔNG DEADLOCK (Tài nguyên có nhiều instances)
+      ( P1 ) ------------> [ R1 (2 chấm) ] <---- ( P3 )
+        ^                    |                      |
+        |                    v                      v
+      [ R2 (2 chấm) ] <--- ( P2 )                 [ R2 ]
+  (Khi P3 chạy xong giải phóng R1 và R2, chu trình sẽ bị phá vỡ hoàn toàn!)
+```
+
+### Hai định lý vàng của đồ thị RAG:
+1. **Định lý 1:** Nếu đồ thị RAG **không chứa bất kỳ chu trình nào** $\implies$ Hệ thống **chắc chắn không có Deadlock**.
+2. **Định lý 2:** Nếu đồ thị RAG **có chứa chu trình**:
+   - Nếu mỗi loại tài nguyên chỉ có **đúng 1 cá thể (Single-instance)** $\implies$ Chu trình là điều kiện cần và đủ, hệ thống **chắc chắn đang bị Deadlock**.
+   - Nếu có tài nguyên có **nhiều cá thể (Multi-instance)** $\implies$ Chu trình chỉ là điều kiện cần nhưng chưa đủ, hệ thống **có thể** bị Deadlock hoặc không.
+
+---
+
+## 4. Bốn Chiến Lược Xử Lý Deadlock của Hệ Điều Hành
+
+### 1. Bỏ qua (Ostrich Algorithm - Thuật toán Đà điểu):
+- **Triết lý:** Vùi đầu vào cát và giả vờ như Deadlock không bao giờ xảy ra.
+- **Thực tế:** Các hệ điều hành thông dụng (Linux, Windows, macOS) áp dụng chiến lược này cho không gian User Space! Lý do: Chi phí tính toán để phát hiện và phòng tránh Deadlock liên tục trong nhân Kernel đắt đỏ hơn rất nhiều so với tần suất xảy ra lỗi. Nếu ứng dụng người dùng bị Deadlock, Kernel phó mặc cho người dùng tắt tiến trình qua Task Manager hoặc `kill -9`.
+
+### 2. Phòng ngừa Deadlock (Deadlock Prevention):
+Mục tiêu là thiết kế hệ thống sao cho loại bỏ vĩnh viễn ít nhất 1 trong 4 điều kiện Coffman:
+- **Phá vỡ Mutual Exclusion:** Chuyển đổi tài nguyên sang dạng có thể chia sẻ (ví dụ: cơ chế Spooling cho máy in). Tuy nhiên, các tài nguyên như Mutex, file ghi độc quyền không thể chia sẻ được.
+- **Phá vỡ Hold and Wait:** Yêu cầu tiến trình phải xin cấp phát toàn bộ mọi tài nguyên cần thiết trong 1 lần duy nhất (*All-or-Nothing*). Nếu thiếu 1 tài nguyên, không được giữ bất kỳ cái nào. Nhược điểm: Lãng phí tài nguyên và dễ gây Starvation.
+- **Phá vỡ No Preemption:** Nếu tiến trình đang giữ tài nguyên mà xin thêm tài nguyên khác không được cấp, nó buộc phải giải phóng toàn bộ các tài nguyên hiện có và thử lại từ đầu.
+- **Phá vỡ Circular Wait (Chiến lược hiệu quả nhất trong thực tế):**
+  Áp dụng nguyên tắc **Thứ tự Khóa Toàn cục (Lock Ordering)**. Định nghĩa một hàm số ánh xạ toàn ánh gán cho mỗi tài nguyên một số thứ tự nguyên duy nhất: $F: R \to \mathbb{N}$.
+  **Quy tắc:** Mọi luồng trong hệ thống bắt buộc phải yêu cầu các khóa theo thứ tự tăng dần của chỉ số: $F(R_a) < F(R_b)$.
+  *Chứng minh:* Giả sử có chu trình $P_0 \to P_1 \to \dots \to P_n \to P_0$, điều này dẫn tới chuỗi bất đẳng thức toán học mâu thuẫn: $F(R_0) < F(R_1) < \dots < F(R_n) < F(R_0)$ (vô lý vì một số không thể nhỏ hơn chính nó!). Chu trình Circular Wait bị tiêu diệt hoàn toàn.
+
+---
+
+## 5. Tránh Deadlock: Thuật toán Banker của Dijkstra (Banker's Algorithm)
+
+Khác với Prevention (hạn chế cách viết mã), **Deadlock Avoidance** cho phép các luồng xin tài nguyên tùy ý, nhưng Kernel sẽ kiểm tra trạng thái an toàn trước khi trao tài nguyên.
+
+### Khái niệm Trạng thái An toàn (Safe State):
+Một trạng thái được gọi là **An toàn (Safe)** nếu tồn tại ít nhất một **Chuỗi An toàn (Safe Sequence)** $\langle P_0, P_1, \dots, P_n \rangle$ sao cho với mọi $P_i$, số tài nguyên mà $P_i$ còn cần tối đa có thể được đáp ứng bởi lượng tài nguyên khả dụng hiện tại cộng với lượng tài nguyên mà các tiến trình phía trước $P_j (j < i)$ sẽ giải phóng sau khi chạy xong.
+
+```text
+               +---------------------------------------+
+               |        HỆ THỐNG CÁC TRẠNG THÁI        |
+               |                                       |
+               |   +-------------------------------+   |
+               |   |      TRẠNG THÁI KHÔNG AN TOÀN |   |
+               |   |      (UNSAFE STATE)           |   |
+               |   |   +-----------------------+   |   |
+               |   |   |  DEADLOCK             |   |   |
+               |   |   +-----------------------+   |   |
+               |   +-------------------------------+   |
+               |                                       |
+               |   +-------------------------------+   |
+               |   |      TRẠNG THÁI AN TOÀN       |   |
+               |   |      (SAFE STATE)             |   |
+               |   +-------------------------------+   |
+               +---------------------------------------+
+```
+
+### Cấu trúc dữ liệu của Thuật toán Banker:
+Cho $n$ tiến trình và $m$ loại tài nguyên:
+1. `Available[m]`: Vector kích thước $m$, `Available[j] = k` nghĩa là có $k$ cá thể của tài nguyên $R_j$ đang sẵn sàng cấp phát.
+2. `Max[n][m]`: Ma trận nhu cầu tối đa của mỗi tiến trình.
+3. `Allocation[n][m]`: Ma trận số tài nguyên hiện đang được giữ bởi mỗi tiến trình.
+4. `Need[n][m]`: Ma trận số tài nguyên còn cần thêm để hoàn tất:
+   $$\text{Need}[i][j] = \text{Max}[i][j] - \text{Allocation}[i][j]$$
+
+---
+
+### Bài toán Thực tế Lần vết Thuật toán Banker Từng bước:
+Xét hệ thống gồm 5 tiến trình ($P_0, P_1, P_2, P_3, P_4$) và 3 loại tài nguyên $A$ (10 cá thể), $B$ (5 cá thể), $C$ (7 cá thể).
+
+Tại thời điểm $T_0$, ảnh chụp dữ liệu hệ thống như sau:
+
+| Tiến trình | Allocation (A B C) | Max (A B C) | Need = Max - Allocation (A B C) |
+|---|---|---|---|
+| **P0** | 0 1 0 | 7 5 3 | **7 4 3** |
+| **P1** | 2 0 0 | 3 2 2 | **1 2 2** |
+| **P2** | 3 0 2 | 9 0 2 | **6 0 0** |
+| **P3** | 2 1 1 | 2 2 2 | **0 1 1** |
+| **P4** | 0 0 2 | 4 3 3 | **4 3 1** |
+
+Tổng tài nguyên đang được cấp phát:
+$\sum \text{Allocation} = (0+2+3+2+0, 1+0+0+1+0, 0+0+2+1+2) = (7, 2, 5)$.
+Vector tài nguyên khả dụng còn lại:
+$$\text{Available} = (10, 5, 7) - (7, 2, 5) = \mathbf{(3, 3, 2)}$$
+
+### Lần vết Tìm Chuỗi An Toàn (Safety Algorithm):
+Khởi tạo: `Work = Available = (3, 3, 2)`, `Finish = [false, false, false, false, false]`.
+
+1. **Xét P0:** $\text{Need}_0 = (7, 4, 3) \le \text{Work}(3, 3, 2)$ ? $\implies$ **Sai** ($7 > 3$). Bỏ qua $P_0$.
+2. **Xét P1:** $\text{Need}_1 = (1, 2, 2) \le \text{Work}(3, 3, 2)$ ? $\implies$ **Đúng**!
+   - Cấp phát giả định cho $P_1$ chạy xong, thu hồi lại tài nguyên:
+     $$\text{Work} = \text{Work} + \text{Allocation}_1 = (3, 3, 2) + (2, 0, 0) = \mathbf{(5, 3, 2)}$$
+   - Đánh dấu `Finish[1] = true`.
+3. **Xét P2:** $\text{Need}_2 = (6, 0, 0) \le \text{Work}(5, 3, 2)$ ? $\implies$ **Sai** ($6 > 5$). Bỏ qua $P_2$.
+4. **Xét P3:** $\text{Need}_3 = (0, 1, 1) \le \text{Work}(5, 3, 2)$ ? $\implies$ **Đúng**!
+   - $P_3$ chạy xong, thu hồi tài nguyên:
+     $$\text{Work} = \text{Work} + \text{Allocation}_3 = (5, 3, 2) + (2, 1, 1) = \mathbf{(7, 4, 3)}$$
+   - Đánh dấu `Finish[3] = true`.
+5. **Xét P4:** $\text{Need}_4 = (4, 3, 1) \le \text{Work}(7, 4, 3)$ ? $\implies$ **Đúng**!
+   - $P_4$ chạy xong, thu hồi tài nguyên:
+     $$\text{Work} = \text{Work} + \text{Allocation}_4 = (7, 4, 3) + (0, 0, 2) = \mathbf{(7, 4, 5)}$$
+   - Đánh dấu `Finish[4] = true`.
+6. **Quay lại xét P0:** $\text{Need}_0 = (7, 4, 3) \le \text{Work}(7, 4, 5)$ ? $\implies$ **Đúng**!
+   - $P_0$ chạy xong, thu hồi tài nguyên:
+     $$\text{Work} = \text{Work} + \text{Allocation}_0 = (7, 4, 5) + (0, 1, 0) = \mathbf{(7, 5, 5)}$$
+   - Đánh dấu `Finish[0] = true`.
+7. **Quay lại xét P2:** $\text{Need}_2 = (6, 0, 0) \le \text{Work}(7, 5, 5)$ ? $\implies$ **Đúng**!
+   - $P_2$ chạy xong, thu hồi tài nguyên:
+     $$\text{Work} = \text{Work} + \text{Allocation}_2 = (7, 5, 5) + (3, 0, 2) = \mathbf{(10, 5, 7)}$$
+   - Đánh dấu `Finish[2] = true`.
+
+**KẾT LUẬN:** Toàn bộ mảng `Finish` đều là `true`. Hệ thống đang ở **Trạng thái An toàn (Safe State)** với Chuỗi an toàn tìm được là:
+$$\mathbf{\langle P_1, P_3, P_4, P_0, P_2 \rangle}$$
+
+---
+
+### Xử lý Yêu cầu Cấp phát Mới (Resource-Request Algorithm):
+Bây giờ giả sử tiến trình $P_1$ gửi thêm một yêu cầu xin cấp tài nguyên:
+$$\text{Request}_1 = (1, 0, 2)$$
+
+- **Bước 1:** Kiểm tra $\text{Request}_1(1, 0, 2) \le \text{Need}_1(1, 2, 2)$ ? $\implies$ **Thỏa mãn** (Không vượt quá nhu cầu đã khai báo).
+- **Bước 2:** Kiểm tra $\text{Request}_1(1, 0, 2) \le \text{Available}(3, 3, 2)$ ? $\implies$ **Thỏa mãn** (Kho tài nguyên đủ cấp).
+- **Bước 3:** Hệ điều hành thực hiện cấp phát giả định:
+  $$\text{Available} = (3, 3, 2) - (1, 0, 2) = \mathbf{(2, 3, 0)}$$
+  $$\text{Allocation}_1 = (2, 0, 0) + (1, 0, 2) = \mathbf{(3, 0, 2)}$$
+  $$\text{Need}_1 = (1, 2, 2) - (1, 0, 2) = \mathbf{(0, 2, 0)}$$
+- **Bước 4:** Chạy lại thuật toán kiểm tra Safe State với dữ liệu giả định:
+  - Với $\text{Available} = (2, 3, 0)$, tiến trình $P_1$ có $\text{Need}_1 = (0, 2, 0) \le (2, 3, 0) \to P_1$ chạy xong, trả về $\text{Work} = (2, 3, 0) + (3, 0, 2) = (5, 3, 2)$.
+  - Tiếp theo $P_3$ có $\text{Need}_3 = (0, 1, 1) \le (5, 3, 2) \to$ chạy xong.
+  - Tương tự, ta tiếp tục tìm được chuỗi an toàn $\langle P_1, P_3, P_4, P_0, P_2 \rangle$!
+  $\implies$ Yêu cầu của $P_1$ được hệ thống **chấp thuận ngay lập tức**.
+
+---
+
+## 6. Phát Hiện & Phục Hồi Deadlock (Detection & Recovery)
+
+Nếu hệ thống không dùng Prevention cũng không dùng Avoidance, nó cần cơ chế định kỳ chạy thuật toán dò tìm Deadlock:
+- Với hệ thống đơn cá thể tài nguyên: Dựng đồ thị **Wait-For Graph (WFG)** bằng cách gộp các node tài nguyên lại, chỉ giữ các cạnh $P_i \to P_j$. Dùng thuật toán DFS / Tarjan với độ phức tạp $O(V^2)$ để tìm chu trình.
+- Khi phát hiện Deadlock, Kernel tiến hành **Phục hồi (Recovery)** qua 2 hướng:
+  1. **Hủy tiến trình (Process Termination):**
+     - Hủy toàn bộ các tiến trình trong chu trình Deadlock (cách làm tốn kém nhất).
+     - Hủy lần lượt từng tiến trình cho đến khi chu trình Deadlock bị phá vỡ. Tiêu chí chọn tiến trình "nạn nhân" (**Victim Selection**): ưu tiên hủy tiến trình có mức độ ưu tiên thấp nhất, chạy được ít thời gian nhất, tiêu tốn ít tài nguyên nhất.
+  2. **Trưng dụng tài nguyên & Rollback (Resource Preemption):**
+     - Buộc tiến trình giải phóng tài nguyên và quay lui (**Rollback**) về một điểm kiểm tra an toàn (**Checkpoint**) trước đó. Cần cơ chế chống Starvation: nếu một tiến trình liên tục bị chọn làm nạn nhân rollback, phải tăng mức ưu tiên của nó lên.
+
+---
+
+## 7. Deadlock trong Cơ Sở Dữ Liệu & Hệ Thống Backend Thực Tế
+
+### 1. Phân tích Deadlock trong RDBMS (PostgreSQL / MySQL InnoDB):
+```sql
+-- Giao dịch 1 (Transaction 1):
+BEGIN;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1; -- Giữ khóa Row 1
+UPDATE accounts SET balance = balance + 100 WHERE id = 2; -- Chờ khóa Row 2!
+
+-- Giao dịch 2 (Transaction 2):
+BEGIN;
+UPDATE accounts SET balance = balance - 50 WHERE id = 2;  -- Giữ khóa Row 2
+UPDATE accounts SET balance = balance + 50 WHERE id = 1;  -- Chờ khóa Row 1!
+```
+- Khi xảy ra chu trình chờ đợi, engine MySQL InnoDB tự động phát hiện và ngắt một transaction với thông báo:
+  `ERROR 1213 (40001): Deadlock found when trying to get lock; try restarting transaction`.
+  InnoDB sẽ tự động **ROLLBACK transaction nào có khối lượng ghi ít hơn** để giải phóng khóa cho transaction còn lại.
+
+### 2. Nguyên tắc phòng chống Deadlock cho Kỹ sư Backend:
+1. **Truy cập dữ liệu theo cùng một thứ tự sắp xếp duy nhất:** Nếu cần sửa đổi nhiều dòng dữ liệu, luôn sắp xếp danh sách ID tăng dần trước khi thực hiện câu lệnh Update:
+   ```csharp
+   var accountIds = new[] { idA, idB }.OrderBy(x => x).ToList();
+   foreach (var id in accountIds) {
+       await db.UpdateAccountAsync(id);
+   }
+   ```
+2. **Cấu hình Lock Timeout:** Không bao giờ chờ khóa vô hạn. Luôn đặt `CommandTimeout` hoặc `SET lock_timeout = '5s'`. Nếu quá 5 giây không lấy được khóa, chủ động hủy thao tác và thử lại với độ trễ ngẫu nhiên (Exponential Backoff with Jitter).
+
+---
+
+## 8. Câu hỏi Tự kiểm tra Học thuật (Self-Check Questions)
+
+### Câu 1: Tại sao việc tồn tại một chu trình trong Đồ thị Cấp phát Tài nguyên (RAG) chưa chắc chắn dẫn tới Deadlock đối với tài nguyên có nhiều cá thể?
+> **Đáp án:** Vì một tài nguyên trong chu trình có thể đang được chia sẻ cho một tiến trình thứ ba $P_k$ không nằm trong chu trình đó. Khi tiến trình $P_k$ hoàn thành công việc và giải phóng cá thể tài nguyên của nó, cá thể này có thể được cấp phát cho một tiến trình trong chu trình, từ đó phá vỡ thế bế tắc và chu trình tự tiêu biến.
+
+### Câu 2: Trong thuật toán Banker, trạng thái "Không an toàn" (Unsafe State) có đồng nghĩa với trạng thái "Deadlock" hay không?
+> **Đáp án:** **Không!** Unsafe State không phải là Deadlock. Unsafe State chỉ có nghĩa là hệ thống không thể đảm bảo chắc chắn rằng mọi tiến trình sẽ hoàn thành nếu tất cả chúng đột ngột yêu cầu tối đa số tài nguyên đã khai báo. Tuy nhiên, nếu trong thực tế các tiến trình nhả tài nguyên sớm trước khi xin mức tối đa, hệ thống vẫn có thể hoàn thành mà không hề xảy ra Deadlock. Deadlock chỉ là một tập con nằm bên trong Unsafe State.
+
+### Câu 3: Kỹ thuật Lock Ordering phá vỡ điều kiện nào trong 4 điều kiện Coffman?
+> **Đáp án:** Kỹ thuật Lock Ordering phá vỡ điều kiện **Circular Wait (Chờ đợi vòng tròn)**. Bằng cách bắt buộc mọi luồng phải lấy các khóa tài nguyên theo thứ tự chỉ số tăng dần ($F(R_a) < F(R_b)$), chu trình phụ thuộc có hướng không thể hình thành trên đồ thị tài nguyên.
+
+### Câu 4: Khi hệ điều hành chọn giải pháp hủy tiến trình để phục hồi sau Deadlock, tiêu chuẩn nào thường được dùng để chọn tiến trình nạn nhân (Victim)?
+> **Đáp án:** Các tiêu chí chọn nạn nhân nhằm giảm thiểu tổn thất công sức tính toán của hệ thống:
+> 1. Mức độ ưu tiên của tiến trình (ưu tiên tiến trình thấp hơn).
+> 2. Thời gian tiến trình đã chạy và thời gian còn lại để hoàn tất (chọn tiến trình mới bắt đầu chạy).
+> 3. Số lượng tài nguyên mà tiến trình đang chiếm giữ (chọn tiến trình giữ nhiều tài nguyên bị tranh chấp).
+> 4. Số lần tiến trình đã từng bị chọn làm nạn nhân trước đó (để tránh Starvation).
+
+<!-- studxy-os-v4 -->
+"""";
+
+    private static string GetLesson32Markdown() => """"
+# Bài 3.2: Bộ nhớ ảo, TLB và Bảng trang đa cấp
+
+> [!NOTE]
+> **Khái niệm then chốt:** **Bộ nhớ ảo (Virtual Memory)** là một trong những phát minh vĩ đại nhất của khoa học máy tính, cung cấp cho mỗi tiến trình một không gian địa chỉ tuyến tính liên tục, độc lập và an toàn, giải phóng lập trình viên khỏi gánh nặng của giới hạn phần cứng RAM vật lý thông qua sự phối hợp nhịp nhàng giữa Nhân hệ điều hành (Kernel) và Đơn vị Quản lý Bộ nhớ phần cứng (**MMU**).
+
+> [!TIP]
+> **Hình ảnh trực quan:** Hãy hình dung Bộ nhớ Ảo giống như dịch vụ cho thuê hộp thư bưu điện:
+> - Mỗi công ty (Tiến trình) được cấp một mã số hòm thư ảo từ số `1` đến số `10,000`. Họ nghĩ rằng hòm thư của họ nằm liền nhau trên một dãy tủ riêng biệt.
+> - Trên thực tế, nhân viên bưu điện (MMU + Bảng trang) gom các lá thư lại và cất rải rác vào bất kỳ ngăn kéo trống nào còn thừa trong kho lưu trữ lớn (RAM vật lý). Công ty không cần quan tâm lá thư thực sự nằm ở ngăn kéo nào, họ chỉ cần nhớ mã số hòm thư ảo của mình.
+
+---
+
+## 1. Động lực học & Bản chất của Bộ nhớ Ảo (Virtual Memory)
+
+Trước khi cơ chế Phân trang (Paging) ra đời, các máy tính sử dụng kỹ thuật phân bổ bộ nhớ liên tục (Base and Bounds) hoặc Phân đoạn (Segmentation). Kỹ thuật này bộc lộ những điểm yếu chí tử:
+- **Phân mảnh ngoại vi (External Fragmentation):** Bộ nhớ RAM bị chia cắt thành hàng trăm mẩu nhỏ không sử dụng được vì không có mẩu nào đủ lớn để nạp một tiến trình mới.
+- **Giới hạn dung lượng vật lý:** Chương trình không thể có kích thước lớn hơn tổng dung lượng thanh RAM cắm trên bo mạch chủ.
+- **Thiếu cơ chế bảo vệ:** Một con trỏ lỗi trong tiến trình A có thể vô tình ghi đè lên bộ nhớ của tiến trình B hoặc làm sập nhân Kernel.
+
+```text
+KHÔNG GIAN ĐỊA CHỈ ẢO (VIRTUAL ADDRESS SPACE - 48 bit)
+0x0000000000000000 +------------------------------------+
+                   | Trang Ảo 0 (VPN 0)                 | --------+
+0x0000000000001000 +------------------------------------+         |
+                   | Trang Ảo 1 (VPN 1)                 | ---+    |
+0x0000000000002000 +------------------------------------+    |    |
+                   | Trang Ảo 2 (VPN 2) [Chưa nạp RAM]  |    |    |
+                   +------------------------------------+    |    |
+                                                             |    | Tra cứu MMU
+RAM VẬT LÝ (PHYSICAL FRAMES - 4 KB mỗi Frame)                |    | (Bảng trang)
+Frame 0 [0x0000]   +------------------------------------+    |    |
+                   | Frame trống                        |    |    |
+Frame 1 [0x1000]   +------------------------------------+    |    |
+                   | Dữ liệu của Trang Ảo 1             |<---+    |
+Frame 2 [0x2000]   +------------------------------------+         |
+                   | Dữ liệu của Trang Ảo 0             |<--------+
+Frame 3 [0x3000]   +------------------------------------+
+                   | Dữ liệu của Kernel / Process khác  |
+```
+
+### Ba mục tiêu tối thượng của Bộ nhớ Ảo:
+1. **Phân lập & Bảo vệ (Protection & Isolation):** Mỗi tiến trình nằm trong một không gian địa chỉ riêng biệt. MMU kiểm tra quyền truy cập (*Read, Write, Execute*) trên từng trang; bất kỳ hành vi truy cập trái phép nào đều bị bẫy phần cứng chặn đứng ngay lập tức.
+2. **Ảo giác Không gian Nhớ Khổng lồ (Contiguous Memory Illusion):** Trên kiến trúc x86-64, mỗi tiến trình nhìn thấy một không gian nhớ ảo người dùng lên tới **128 Terabytes** ($2^{47}$ bytes), dù máy tính vật lý có thể chỉ lắp thanh RAM 8 GB.
+3. **Tối ưu hóa Tài nguyên Vật lý:**
+   - **Nạp theo nhu cầu (Demand Paging):** Chỉ những trang dữ liệu thực sự được CPU chạm vào mới được nạp vào RAM.
+   - **Sao chép khi ghi (Copy-On-Write - COW):** Khi tiến trình gọi lệnh `fork()`, hệ điều hành không sao chép toàn bộ bộ nhớ của tiến trình cha. Nó chỉ tạo bảng trang mới trỏ chung vào các Frame vật lý cũ và đánh dấu quyền **Chỉ đọc (Read-Only)**. Chỉ khi một trong hai tiến trình thực sự ghi dữ liệu vào một trang, MMU mới kích hoạt ngắt để Kernel nhân bản riêng trang đó trong $O(1)$.
+
+---
+
+## 2. Cơ Chế Phân Trang Cơ Bản (Basic Paging Mechanism)
+
+- **Trang ảo (Page):** Không gian địa chỉ ảo được chia thành các khối cố định bằng nhau, kích thước phổ biến nhất là **4 KB** ($4096\text{ bytes} = 2^{12}\text{ bytes}$).
+- **Khung trang vật lý (Frame):** Bộ nhớ RAM vật lý cũng được chia thành các khối có kích thước đúng bằng kích thước của trang ảo (4 KB).
+
+```text
+CẤU TRÚC ĐỊA CHỈ ẢO 32-BIT (VỚI TRANG 4 KB = 2^12 BYTES):
+ 31                                   12 11                     0
++---------------------------------------+------------------------+
+|      Virtual Page Number (VPN)        |      Offset in Page    |
+|               20 bits                 |         12 bits        |
++---------------------------------------+------------------------+
+                   |                                   |
+                   v                                   |
+           [ BẢNG TRANG MMU ]                          |
+            VPN -> Tra ra PFN                          |
+                   |                                   |
+                   v                                   v
+ 31                                   12 11                     0
++---------------------------------------+------------------------+
+|      Physical Frame Number (PFN)      |      Offset in Frame   |
+|               20 bits                 |         12 bits        |
++---------------------------------------+------------------------+
+               ĐỊA CHỈ VẬT LÝ TRUY XUẤT TRÊN RAM
+```
+
+### Các cờ trạng thái quan trọng trong một Mục nhập Bảng Trang (Page Table Entry - PTE):
+Mỗi mục nhập PTE (64-bit trên kiến trúc x86-64) chứa địa chỉ khung trang PFN cùng các bit điều khiển phần cứng:
+- **Bit 0 - Present ($P$):** Bằng `1` nếu trang hiện đang nằm trong RAM vật lý; bằng `0` nếu trang chưa được nạp hoặc đang bị đẩy ra Swap Space (kích hoạt **Page Fault Exception**).
+- **Bit 1 - Read/Write ($R/W$):** `0` = Chỉ cho phép đọc; `1` = Cho phép cả đọc và ghi.
+- **Bit 2 - User/Supervisor ($U/S$):** `0` = Chỉ mã nhân Kernel (Ring 0) mới được truy cập; `1` = Mã người dùng (Ring 3) được phép truy cập.
+- **Bit 5 - Accessed ($A$):** Phần cứng tự động bật lên `1` mỗi khi trang được đọc hoặc ghi (phục vụ thuật toán thay thế trang).
+- **Bit 6 - Dirty ($D$):** Phần cứng tự động bật lên `1` khi có lệnh ghi làm thay đổi dữ liệu của trang (báo hiệu cần ghi ra đĩa khi tráo đổi).
+- **Bit 63 - No-Execute ($NX$ bit):** Ngăn chặn việc nạp mã lệnh từ trang này vào CPU Pipeline để thực thi, vũ khí chống lại các cuộc tấn công tràn bộ đệm mã độc (Buffer Overflow Shellcode).
+
+---
+
+## 3. Tăng Tốc Phần Cứng với TLB & Công Thức EAT
+
+Điểm nghẽn chí tử của cơ chế Phân trang: Mỗi khi chương trình đọc một biến trong bộ nhớ, CPU phải thực hiện **ít nhất 2 lần truy cập RAM**:
+1. Lần 1: Đọc bảng trang trong RAM để lấy PFN.
+2. Lần 2: Đọc dữ liệu thực tế tại ô nhớ vật lý $\text{PFN} + \text{Offset}$.
+Tốc độ của toàn bộ máy tính sẽ bị giảm đi một nửa!
+
+Để giải quyết thảm họa này, các nhà thiết kế vi xử lý đã tích hợp **TLB (Translation Lookaside Buffer)** ngay trên chip CPU.
+
+```text
+               +-----------------------------+
+               |     Địa chỉ ảo từ CPU       |
+               +--------------+--------------+
+                              |
+                     [ Tra cứu TLB Cache ]
+                     /                   \
+        (TLB Hit: 1 chu kỳ)          (TLB Miss: Chậm)
+               /                           \
+              v                             v
+       Lấy ngay PFN                   Duyệt Bảng Trang trong RAM
+              |                             |
+              |                             +---> Nạp ánh xạ vào TLB
+              +--------------+--------------+
+                             |
+                             v
+               +-----------------------------+
+               |      Truy cập RAM Vật lý    |
+               +-----------------------------+
+```
+
+### Công thức tính Thời gian Truy cập Hiệu dụng (Effective Access Time - EAT):
+Gọi $\alpha$ là tỷ lệ trúng bộ đệm TLB (**TLB Hit Ratio**), $t_{\text{TLB}}$ là thời gian tra cứu TLB, và $t_{\text{MEM}}$ là thời gian một lần truy xuất bộ nhớ RAM.
 
 $$\text{EAT} = \alpha \times (t_{\text{TLB}} + t_{\text{MEM}}) + (1 - \alpha) \times (t_{\text{TLB}} + 2 \times t_{\text{MEM}})$$
 
-Trong đó $\alpha$ là tỷ lệ **TLB Hit Ratio**. Khi $\alpha = 98\%$, tốc độ truy cập bộ nhớ ảo gần như tương đương RAM trực tiếp!
+Với hệ thống bảng trang đa cấp $n$ tầng, khi TLB Miss, CPU phải duyệt qua $n$ tầng bảng trang trong RAM:
+$$\text{EAT} = \alpha \times (t_{\text{TLB}} + t_{\text{MEM}}) + (1 - \alpha) \times (t_{\text{TLB}} + (n + 1) \times t_{\text{MEM}})$$
+
+### Ví dụ Tính toán Học thuật Chi tiết:
+Giả sử hệ thống sử dụng bảng trang 4 cấp ($n = 4$), $t_{\text{TLB}} = 2\text{ ns}$, thời gian truy cập RAM $t_{\text{MEM}} = 80\text{ ns}$.
+
+1. **Trường hợp TLB Hit Ratio đạt $\alpha = 98\%$ ($0.98$):**
+   $$\text{EAT} = 0.98 \times (2 + 80) + 0.02 \times (2 + (4 + 1) \times 80)$$
+   $$\text{EAT} = 0.98 \times 82 + 0.02 \times (2 + 400) = 80.36 + 0.02 \times 402 = 80.36 + 8.04 = \mathbf{88.4\text{ ns}}$$
+   (Độ trễ chỉ tăng nhẹ từ $80\text{ ns}$ lên $88.4\text{ ns}$, hệ thống hoạt động với $91\%$ tốc độ RAM tối đa).
+
+2. **Trường hợp TLB Hit Ratio tụt xuống $\alpha = 70\%$ ($0.70$):**
+   $$\text{EAT} = 0.70 \times 82 + 0.30 \times 402 = 57.4 + 120.6 = \mathbf{178.0\text{ ns}}$$
+   (Tốc độ máy tính bị chậm đi **hơn gấp đôi** chỉ vì tỷ lệ trượt TLB tăng lên!).
+
+> [!IMPORTANT]
+> **TLB Invalidation & Công nghệ PCID:**
+> Khi chuyển ngữ cảnh giữa 2 tiến trình, địa chỉ ảo của tiến trình cũ không còn ý nghĩa. Trước đây, Kernel buộc phải xả sạch toàn bộ TLB (*TLB Flush*), khiến tiến trình mới vào chạy bị sụt giảm hiệu năng nghiêm trọng do liên tục gặp TLB Miss.
+> Ngày nay, CPU x86 hỗ trợ tính năng **PCID (Process-Context Identifiers)**, gắn thẻ mã định danh tiến trình (12 bit) vào từng dòng cache TLB. Nhờ đó, các ánh xạ của nhiều tiến trình có thể cùng nằm chung trong TLB mà không bị lẫn lộn, triệt tiêu chi phí TLB Flush khi Context Switch!
 
 ---
 
-## 3. Bảng trang đa cấp (Multi-level Page Tables)
-Trên kiến trúc 64-bit, một bảng trang phẳng sẽ tiêu tốn hàng Terabyte RAM chỉ để lưu chỉ mục. Vì vậy Linux x86-64 dùng **bảng trang đa cấp 4 tầng** (`PGD → PUD → PMD → PTE`) kết hợp **cấp phát thưa (Sparse Allocation)**: chỉ tạo nhánh bảng trang cho những vùng nhớ thực sự được dùng.
+## 4. Kiến Trúc Bảng Trang Đa Cấp (Multi-Level Paging trên Linux x86-64)
 
-<!-- studxy-os-v3 -->";
+### Vì sao Bảng trang phẳng (Flat Page Table) hoàn toàn phá sản trên 64-bit?
+Trên kiến trúc 64-bit, nếu dùng 1 bảng phẳng duy nhất cho không gian địa chỉ $2^{48}$ bytes với trang 4 KB, ta có $2^{36}$ trang ảo. Mỗi mục PTE tốn 8 bytes:
+$$\text{Dung lượng bảng trang} = 2^{36} \times 8\text{ bytes} = 2^{39}\text{ bytes} = \mathbf{512\text{ Gigabytes RAM}}$$
+Chỉ để lưu một bảng tra cứu cho một tiến trình đơn lẻ, ta đã cần tới 512 GB RAM!
 
-    private static string GetLesson33Markdown() => @"# Bài 3.3: Thuật toán Thay thế Trang (FIFO, Optimal, LRU, Clock & Working Set)
+### Giải pháp Bảng trang 4 cấp của Linux x86-64:
+Không gian địa chỉ ảo 48-bit được chia thành 5 phần bằng nhau:
+
+```text
+ 47        39 38        30 29        21 20        12 11                     0
++------------+------------+------------+------------+------------------------+
+| PGD (9 bit)| PUD (9 bit)| PMD (9 bit)| PTE (9 bit)|     Offset (12 bit)    |
++------------+------------+------------+------------+------------------------+
+      |            |            |            |                  |
+      v            v            v            v                  v
+    CR3 ---> [PGD] ---> [PUD] ---> [PMD] ---> [PTE] ---------> [RAM FRAME] + Offset
+```
+- **PGD (Page Global Directory):** 9 bits $\to 2^9 = 512$ mục nhập (kích thước đúng 4 KB).
+- **PUD (Page Upper Directory):** 9 bits $\to 512$ mục nhập (kích thước 4 KB).
+- **PMD (Page Middle Directory):** 9 bits $\to 512$ mục nhập (kích thước 4 KB).
+- **PTE (Page Table Entry):** 9 bits $\to 512$ mục nhập (kích thước 4 KB).
+- **Offset:** 12 bits $\to 4096$ bytes định vị byte chính xác trong trang vật lý.
+
+### Sức mạnh của Cấp phát Thưa (Sparse Allocation):
+Một tiến trình thông thường chỉ sử dụng một vài đoạn nhớ nhỏ (Code, Stack, Heap). Những dải địa chỉ ảo khổng lồ nằm giữa chưa được cấp phát sẽ có con trỏ ở cấp PGD/PUD mang giá trị `NULL`.
+Nhờ đó, Kernel **không cần tạo ra bất kỳ bảng con nào** cho các vùng trống này! Một tiến trình nhỏ chỉ tiêu tốn vài chục Kilobytes bộ nhớ để lưu cấu trúc cây bảng trang, tiết kiệm tới **$99.999\%$ dung lượng RAM**.
+
+### HugePages (Trang Khổng Lồ 2 MB và 1 GB):
+Khi ứng dụng quản lý các tập dữ liệu khổng lồ trong RAM (như Database Buffer Pool của PostgreSQL, Redis, Oracle hoặc JVM Heap 64 GB):
+- Nếu dùng trang 4 KB, CPU cần hàng triệu mục TLB $\to$ liên tục bị **TLB Thrashing**.
+- Bằng cách bật bit $PS$ (*Page Size*) ở cấp PMD, địa chỉ ảo bỏ qua cấp PTE và trỏ thẳng vào một khung trang vật lý khổng lồ **2 MB** ($2^{21}\text{ bytes}$).
+- Bật bit $PS$ ở cấp PUD tạo ra trang khổng lồ **1 GB** ($2^{30}\text{ bytes}$).
+- **Lợi ích:** Một dòng TLB duy nhất có thể bao phủ dung lượng RAM lớn gấp 512 lần, triệt tiêu độ trễ TLB Miss và tăng tốc các hệ thống cơ sở dữ liệu lên tới $20\% - 40\%$.
+
+---
+
+## 5. Giám Sát & Phân Tích Bộ Nhớ Ảo trên Linux Thực Tế
+
+### 1. Giải mã thông số bộ nhớ qua `/proc/[pid]/smaps`:
+```bash
+$ cat /proc/1234/smaps | head -n 20
+00400000-00452000 r-xp 00000000 08:01 123456   /usr/bin/my_app
+Size:                328 kB     # Tổng kích thước không gian ảo được cấp (VSZ)
+Rss:                 216 kB     # Dung lượng thực tế đang nằm trên RAM vật lý
+Pss:                 108 kB     # Proportional Set Size (tính cả tỷ lệ chia sẻ)
+Shared_Clean:        216 kB     # Bộ nhớ thư viện dùng chung chưa bị sửa đổi
+Private_Dirty:         0 kB     # Bộ nhớ riêng tư đã bị sửa đổi
+Anonymous:             0 kB     # Bộ nhớ Heap/Stack không liên kết với file
+```
+- **VSZ (Virtual Memory Size):** Tổng dung lượng ảo mà tiến trình đã yêu cầu (kể cả chưa dùng).
+- **RSS (Resident Set Size):** Lượng RAM vật lý thực tế mà tiến trình đang chiếm dụng.
+- **PSS (Proportional Set Size):** Chỉ số chính xác nhất để tính mức RAM thực tế của tiến trình khi có nhiều tiến trình cùng dùng chung thư viện động.
+
+### 2. Kỹ thuật Phân bổ Lười (Lazy Allocation / Overcommit):
+Khi bạn gọi lệnh cấp phát bộ nhớ trong ngôn ngữ C:
+```c
+char *buffer = malloc(1024 * 1024 * 1024); // Xin cấp 1 GB RAM
+```
+Nhân Linux thực chất **chưa cấp bất kỳ một byte RAM vật lý nào**! Linux chỉ ghi nhận dải địa chỉ ảo 1 GB này vào cấu trúc `vm_area_struct` (làm chỉ số VSZ tăng 1 GB, trong khi RSS không đổi).
+Chỉ khi chương trình chạy câu lệnh ghi đầu tiên:
+```c
+buffer[0] = 'A';
+```
+Phần cứng MMU phát hiện trang này chưa có trong bảng trang (PTE có $P = 0$), kích hoạt ngắt **Minor Page Fault**. Lúc này Kernel mới âm thầm tìm 1 Frame RAM vật lý trống, gán vào bảng trang và quay lại cho lệnh ghi hoàn thành. Đây là nghệ thuật tối ưu hóa tài nguyên đỉnh cao của Hệ điều hành.
+
+---
+
+## 6. Câu hỏi Tự kiểm tra Học thuật (Self-Check Questions)
+
+### Câu 1: Tại sao địa chỉ ảo trên kiến trúc x86-64 hiện nay chỉ sử dụng 48 bits (hoặc 57 bits trong chuẩn mới) thay vì sử dụng toàn bộ 64 bits?
+> **Đáp án:** Vì $2^{48}$ bytes tương đương với 256 Terabytes không gian địa chỉ, quá thừa thãi cho nhu cầu của hầu hết các siêu máy tính hiện nay. Việc giới hạn ở 48 bits giúp giảm số tầng của cây bảng trang xuống 4 cấp (thay vì 6 hoặc 7 cấp nếu dùng đủ 64 bits), giúp tiết kiệm dung lượng RAM quản lý và giảm đáng kể số lần truy xuất RAM khi xảy ra TLB Miss.
+
+### Câu 2: Sự khác biệt cơ bản giữa Minor Page Fault và Major Page Fault là gì?
+> **Đáp án:**
+> - **Minor Page Fault (Lỗi thiếu trang nhẹ):** Xảy ra khi trang dữ liệu thực chất đã nằm sẵn trong RAM vật lý (ví dụ: trang của thư viện chia sẻ đã được nạp bởi tiến trình khác, hoặc trang vừa được cấp phát lười qua `malloc()`). Kernel chỉ cần cập nhật mục PTE mà không tốn bất kỳ chi phí đọc đĩa I/O nào.
+> - **Major Page Fault (Lỗi thiếu trang nặng):** Xảy ra khi trang dữ liệu bắt buộc phải được đọc từ ổ đĩa SSD/HDD hoặc Swap Space vào RAM. Tiến trình bị đình chỉ để chờ đợi thao tác I/O đĩa chậm hơn hàng nghìn lần.
+
+### Câu 3: Làm thế nào mà tính năng HugePages lại giúp tăng hiệu năng cho các hệ quản trị cơ sở dữ liệu như PostgreSQL hay Redis?
+> **Đáp án:** Vì cơ sở dữ liệu thường duy trì vùng đệm dữ liệu (Shared Buffers) khổng lồ hàng chục GB trong RAM. Nếu dùng trang chuẩn 4 KB, số lượng trang quá lớn khiến bộ đệm TLB phần cứng bị tràn (TLB Miss liên tục). Khi chuyển sang HugePages (2 MB hoặc 1 GB), một mục TLB duy nhất quản lý được khối lượng bộ nhớ gấp 512 đến 262,144 lần, giúp tỷ lệ TLB Hit đạt xấp xỉ 100%, loại bỏ gần như hoàn toàn thời gian duyệt bảng trang trong RAM.
+
+### Câu 4: Nếu một hệ thống có thời gian truy cập TLB là $1\text{ ns}$, truy cập RAM là $50\text{ ns}$, sử dụng bảng trang 3 cấp. Hỏi tỷ lệ TLB Hit Ratio $\alpha$ tối thiểu phải là bao nhiêu để thời gian truy cập hiệu dụng EAT không vượt quá $60\text{ ns}$?
+> **Đáp án:**
+> Ta có công thức EAT cho bảng trang 3 cấp ($n = 3$):
+> $$\text{EAT} = \alpha \times (1 + 50) + (1 - \alpha) \times (1 + (3 + 1) \times 50) = 51\alpha + 201(1 - \alpha) = 201 - 150\alpha$$
+> Để $\text{EAT} \le 60\text{ ns}$:
+> $$201 - 150\alpha \le 60 \iff 150\alpha \ge 141 \iff \alpha \ge \frac{141}{150} = \mathbf{0.94} \text{ (tức } 94\%)$$
+
+<!-- studxy-os-v4 -->
+"""";
+
+    private static string GetLesson33Markdown() => """"
+# Bài 3.3: Thuật toán Thay thế Trang (FIFO, Optimal, LRU, Clock & Working Set)
+
+> [!NOTE]
+> **Khái niệm then chốt:** Trong cơ chế Phân trang theo Nhu cầu (**Demand Paging**), khi một tiến trình yêu cầu một trang bộ nhớ mà trang đó chưa nằm trong RAM, ngắt **Page Fault** sẽ xảy ra. Nếu toàn bộ các khung trang RAM vật lý đều đã bị lấp đầy, hệ điều hành buộc phải đưa ra quyết định sống còn: Chọn trang nào đang nằm trong RAM làm "nạn nhân" (**Victim Page**) để đẩy ra đĩa giải phóng chỗ trống? Quyết định này được chi phối bởi **Thuật toán Thay thế Trang (Page Replacement Algorithm)**.
 
 > [!TIP]
-> Khi xảy ra **Page Fault** mà RAM đã đầy, hệ điều hành buộc phải chọn một trang đang nằm trong RAM làm ""nạn nhân"" (victim frame) để đẩy ra đĩa. Chọn đúng trang ít dùng nhất sẽ giảm Page Fault xuống hàng chục lần!
+> **Hình ảnh trực quan:** Bàn làm việc của một kỹ sư nghiên cứu:
+> - Mặt bàn chỉ vừa đủ chỗ để mở 4 cuốn sách cùng lúc (Khung RAM vật lý).
+> - Tủ sách lớn ở góc phòng chứa 10,000 cuốn sách (Ổ đĩa SSD / Swap Space).
+> - Mỗi khi cần tra cứu một cuốn sách mới chưa có trên bàn, kỹ sư buộc phải cất bớt một cuốn sách trên bàn về lại tủ. Nếu cất nhầm cuốn sách mà 5 phút nữa lại cần dùng tiếp, kỹ sư sẽ phải đứng lên đi lại tủ sách liên tục, khiến toàn bộ công việc bị đình trệ hoàn toàn (**Thrashing**)!
 
 ---
 
-## 🌱 Phần 0 — Chi phí khổng lồ của Page Fault
-Truy cập RAM mất khoảng `100 ns`, trong khi đọc trang từ SSD/HDD mất từ `100,000 ns` đến `10,000,000 ns` (chậm hơn từ **1,000 đến 100,000 lần**). Chỉ cần tỷ lệ Page Fault vượt quá 1% là máy tính sẽ rơi vào trạng thái **Thrashing** (đơ toàn tập vì CPU chỉ bận hoán đổi trang).
+## 1. Vòng Đời Xử Lý Ngắt Thiếu Trang (Page Fault Lifecycle) & Chi Phí
+
+Một chu kỳ xử lý Page Fault của Kernel đòi hỏi sự phối hợp chặt chẽ giữa phần cứng CPU và nhân hệ điều hành qua 9 bước tuần tự:
+
+```text
+TIẾN TRÌNH                    PHẦN CỨNG MMU                  NHÂN KERNEL & Ổ ĐĨA
+    |                               |                                |
+1. Truy cập địa chỉ ảo              |                                |
+    +------------------------------>|                                |
+                                2. Tra cứu PTE                       |
+                                (Present = 0)                        |
+                                    |                                |
+                                3. BẪY NGẮT (#PF Vector 14)          |
+                                    +------------------------------->|
+                                                             4. Kiểm tra tính hợp lệ
+                                                                (Địa chỉ trong vm_area?)
+                                                                     |
+                                                             5. Tìm Frame RAM trống
+                                                                (Nếu RAM đầy -> Thuật toán chọn Victim)
+                                                                     |
+                                                             6. Ghi Victim ra Swap (nếu Dirty=1)
+                                                                     |
+                                                             7. Đọc trang mới từ Đĩa vào Frame
+                                                                     |
+                                                             8. Cập nhật PTE (Present=1, PFN)
+                                                                     |
+                                9. Khôi phục ngữ cảnh CPU <----------+
+                                   Chạy lại đúng câu lệnh cũ
+```
+
+### Chín bước thực thi vi mô:
+1. **Truy cập bộ nhớ:** Lệnh CPU cố gắng tham chiếu tới một địa chỉ ảo.
+2. **MMU kiểm tra:** Đơn vị MMU tra cứu mục PTE thấy bit **`Present = 0`**.
+3. **Bẫy ngoại lệ phần cứng:** CPU kích hoạt ngắt **Page Fault Exception (Vector 14 / `#PF`)**, lưu trạng thái thanh ghi và chuyển quyền điều khiển cho Page Fault Handler của Kernel trong Ring 0.
+4. **Kiểm tra tính hợp lệ:** Kernel kiểm tra xem địa chỉ ảo này có nằm trong không gian hợp lệ được cấp phép của tiến trình (`struct vm_area_struct`) hay không. Nếu địa chỉ không hợp lệ $\to$ Kernel gửi ngay tín hiệu **`SIGSEGV` (Segmentation Fault)** để tiêu diệt tiến trình.
+5. **Tìm khung trang trống (Free Frame):** Kernel duyệt danh sách `free_list`. Nếu RAM đã hết chỗ trống, Kernel kích hoạt **Thuật toán Thay thế Trang** để chọn một trang làm nạn nhân (*Victim Frame*).
+6. **Xử lý trang bẩn (Write-back nếu Dirty):** Nếu trang nạn nhân có bit **`Dirty = 1`** (dữ liệu đã bị ghi sửa đổi trong RAM), Kernel bắt buộc phải phát lệnh I/O ghi nội dung trang đó ra Swap Space trên ổ đĩa. Nếu `Dirty = 0`, trang có thể bị ghi đè trực tiếp mà không tốn công ghi đĩa.
+7. **Đọc dữ liệu từ đĩa:** Kernel kích hoạt lệnh DMA đọc nội dung trang cần truy cập từ ổ đĩa vào khung trang vừa được giải phóng. Trong lúc chờ đọc đĩa, tiến trình bị chuyển sang trạng thái **Blocked/Waiting**, nhường CPU cho tiến trình khác.
+8. **Cập nhật Bảng trang:** Khi I/O hoàn tất, Kernel cập nhật lại mục PTE: gán địa chỉ vật lý PFN mới, bật bit `Present = 1`, đặt `Dirty = 0` và `Accessed = 0`.
+9. **Khởi động lại lệnh:** Kernel chuyển tiến trình về trạng thái Ready, khôi phục lại tập thanh ghi và cho CPU thực thi lại đúng câu lệnh vừa gây ra Page Fault.
+
+### Công thức tính toán Hiệu năng Suy giảm do Page Fault:
+Thời gian truy cập bộ nhớ hiệu dụng khi có phân trang theo nhu cầu được tính theo công thức:
+$$\text{EAT} = (1 - p) \times t_{\text{MEM}} + p \times t_{\text{Fault}}$$
+Trong đó:
+- $t_{\text{MEM}}$: Thời gian truy xuất RAM thông thường ($\approx 100\text{ ns} = 10^{-7}\text{ s}$).
+- $t_{\text{Fault}}$: Tổng thời gian xử lý một lần Page Fault nặng qua đĩa SSD/HDD ($\approx 8\text{ ms} = 8,000,000\text{ ns}$).
+- $p$: Tỷ lệ xảy ra Page Fault ($0 \le p \le 1$).
+
+> [!IMPORTANT]
+> **Hệ quả Toán học Khủng khiếp:**
+> Giả sử chỉ có **$0.1\%$ số lần truy cập bộ nhớ bị thiếu trang** ($p = 0.001$):
+> $$\text{EAT} = (1 - 0.001) \times 100 + 0.001 \times 8,000,000 \approx 100 + 8,000 = \mathbf{8,100\text{ ns}} = 8.1\,\mu\text{s}$$
+> Tốc độ máy tính bị **chậm đi tới 81 lần**!
+> Để hiệu năng toàn hệ thống không bị suy giảm quá $10\%$ ($\text{EAT} \le 110\text{ ns}$):
+> $$100 + p \times 8,000,000 \le 110 \iff p \le \frac{10}{8,000,000} = \mathbf{0.00000125} = 1.25 \times 10^{-6}$$
+> Tỷ lệ Page Fault bắt buộc phải được giữ ở mức **ít hơn 1 lần lỗi trên mỗi 800,000 lần truy cập bộ nhớ**! Đó là lý do tại sao thuật toán thay thế trang là bài toán sống còn.
 
 ---
 
-## 1. So sánh các Thuật toán Thay thế Trang
+## 2. Bốn Thuật Toán Thay Thế Trang Kinh Điển
 
-| Thuật toán | Nguyên lý chọn trang nạn nhân | Đánh đổi (Trade-off) |
-|---|---|---|
-| **Optimal (OPT / Belady)** | Đẩy trang lâu nhất trong tương lai mới được dùng lại | Lý thuyết tối ưu nhất (ít Page Fault nhất), không cài được thật vì không biết tương lai |
-| **FIFO** | Đẩy trang vào RAM sớm nhất (Queue) | Dễ cài đặt nhưng dính **Nghịch lý Belady** (tăng số khung RAM lại tăng Page Fault!) |
-| **LRU (Least Recently Used)** | Đẩy trang lâu nhất chưa được truy cập trong quá khứ | Rất sát Optimal, không dính nghịch lý Belady; chi phí theo dõi dấu thời gian cao |
-| **Clock (Second-Chance)** | Duyệt vòng tròn kiểm tra **Reference Bit (R)**: `R=1` thì xóa thành `0` cho cơ hội thứ 2, `R=0` thì thay | Xấp xỉ LRU siêu nhẹ, được dùng thực tế trong nhân Linux & Windows |
+| Thuật toán | Nguyên lý chọn trang Nạn nhân | Miễn nhiễm Belady? | Độ phức tạp cài đặt |
+|---|---|---|---|
+| **Optimal (OPT / Belady MIN)** | Chọn trang mà trong tương lai **lâu nhất mới được dùng lại** | **Có** (Thuộc nhóm Stack Algorithm) | **Không khả thi** trong thực tế (không biết tương lai); dùng làm Benchmark chuẩn |
+| **FIFO (First-In, First-Out)** | Chọn trang được nạp vào RAM **sớm nhất** theo hàng đợi Queue | **KHÔNG** (Dính Nghịch lý Belady) | Rất đơn giản ($O(1)$) |
+| **LRU (Least Recently Used)** | Chọn trang đã **lâu nhất trong quá khứ chưa được truy cập** | **Có** (Thuộc nhóm Stack Algorithm) | Rất cao nếu làm chuẩn phần cứng (cần cập nhật con trỏ mỗi lệnh CPU) |
+| **Clock (Second-Chance)** | Duyệt vòng tròn kim đồng hồ, kiểm tra **Reference Bit ($R$)** | Gần như miễn nhiễm | Cực kỳ nhẹ nhàng, chuẩn công nghiệp của Linux/Windows |
 
 ---
 
-## 2. Mô hình Working Set & Chống Thrashing
-**Working Set $W(t, \Delta)$** là tập các trang mà tiến trình thực sự truy cập trong cửa sổ $\Delta$ tham chiếu gần nhất. Nếu tổng kích thước Working Set của các tiến trình đang chạy lớn hơn tổng RAM vật lý ($\sum |W_i| > \text{TotalFrames}$), hệ điều hành phải tạm đình chỉ (Swap out) một số tiến trình để cứu hiệu năng toàn hệ thống.
+### 1. Thuật toán Tối ưu (Optimal Algorithm - OPT):
+Thuật toán thay thế trang mà trong tương lai xa nhất mới được tham chiếu lại (hoặc không bao giờ được tham chiếu nữa).
+Đã được chứng minh toán học là đạt **số lần Page Fault tối thiểu tuyệt đối** trên bất kỳ chuỗi tham chiếu nào. Vì Kernel không thể nhìn thấu tương lai của người dùng, OPT chỉ được dùng trong nghiên cứu lý thuyết để làm thang đo đánh giá xem các thuật toán thực tế đạt được bao nhiêu phần trăm hiệu năng tối ưu.
 
-<!-- studxy-os-v3 -->";
+---
+
+### 2. Thuật toán FIFO & Nghịch lý Belady (Belady's Anomaly):
+Thông thường, trực giác cho ta thấy: Nếu cấp thêm bộ nhớ RAM cho một chương trình (tăng số khung trang vật lý), số lần bị lỗi thiếu trang phải giảm đi hoặc giữ nguyên.
+Tuy nhiên, vào năm 1969, László Bélády đã phát hiện ra một hiện tượng kỳ dị: Với thuật toán FIFO, **tăng số khung trang RAM lại làm TĂNG số lần Page Fault**!
+
+### Chứng minh Nghịch lý Belady bằng Số học:
+Xét chuỗi tham chiếu trang kinh điển: **`1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5`**
+
+#### Kịch bản A: Cấp 3 khung trang RAM (3 Frames):
+- Tham chiếu: `1, 2, 3` $\to 3$ Faults (Khung chứa: `[1, 2, 3]`)
+- Tham chiếu `4` $\to$ Fault! FIFO đẩy `1` ra đĩa (Khung chứa: `[4, 2, 3]`)
+- Tham chiếu `1` $\to$ Fault! FIFO đẩy `2` ra đĩa (Khung chứa: `[4, 1, 3]`)
+- Tham chiếu `2` $\to$ Fault! FIFO đẩy `3` ra đĩa (Khung chứa: `[4, 1, 2]`)
+- Tham chiếu `5` $\to$ Fault! FIFO đẩy `4` ra đĩa (Khung chứa: `[5, 1, 2]`)
+- Tham chiếu `1` $\to$ Trúng (Hit)
+- Tham chiếu `2` $\to$ Trúng (Hit)
+- Tham chiếu `3` $\to$ Fault! FIFO đẩy `1` ra đĩa (Khung chứa: `[5, 3, 2]`)
+- Tham chiếu `4` $\to$ Fault! FIFO đẩy `2` ra đĩa (Khung chứa: `[5, 3, 4]`)
+- Tham chiếu `5` $\to$ Trúng (Hit)
+$\implies$ **Tổng cộng với 3 Frames: 9 lần Page Fault.**
+
+#### Kịch bản B: Tăng RAM lên 4 khung trang (4 Frames):
+- Tham chiếu: `1, 2, 3, 4` $\to 4$ Faults (Khung chứa: `[1, 2, 3, 4]`)
+- Tham chiếu `1` $\to$ Trúng (Hit)
+- Tham chiếu `2` $\to$ Trúng (Hit)
+- Tham chiếu `5` $\to$ Fault! FIFO đẩy `1` ra (Khung: `[5, 2, 3, 4]`)
+- Tham chiếu `1` $\to$ Fault! FIFO đẩy `2` ra (Khung: `[5, 1, 3, 4]`)
+- Tham chiếu `2` $\to$ Fault! FIFO đẩy `3` ra (Khung: `[5, 1, 2, 4]`)
+- Tham chiếu `3` $\to$ Fault! FIFO đẩy `4` ra (Khung: `[5, 1, 2, 3]`)
+- Tham chiếu `4` $\to$ Fault! FIFO đẩy `5` ra (Khung: `[4, 1, 2, 3]`)
+- Tham chiếu `5` $\to$ Fault! FIFO đẩy `1` ra (Khung: `[4, 5, 2, 3]`)
+$\implies$ **Tổng cộng với 4 Frames: 10 lần Page Fault!**
+Cấp thêm RAM nhưng hiệu năng lại tệ hơn! Đó chính là Nghịch lý Belady.
+
+---
+
+### 3. Thuật toán LRU (Least Recently Used) & Tính chất Stack Algorithm:
+LRU dựa trên nguyên lý Tính cục bộ thời gian (*Temporal Locality*): Trang nào lâu nhất chưa được đụng tới trong quá khứ thì khả năng cao sẽ không được dùng tới trong tương lai gần.
+- **Tính chất Stack Algorithm:** Một thuật toán được gọi là Stack Algorithm nếu tập hợp các trang nằm trong bộ nhớ với $N$ khung luôn là một tập con của tập hợp các trang nằm trong bộ nhớ với $N+1$ khung:
+  $$M(N, t) \subseteq M(N+1, t)$$
+- **Định lý:** Mọi thuật toán thuộc nhóm Stack Algorithm (bao gồm cả OPT và LRU) **được chứng minh toán học là miễn nhiễm 100% với Nghịch lý Belady**.
+
+---
+
+### 4. Thuật toán Đồng Hồ (Clock / Second-Chance Algorithm):
+Cài đặt LRU thuần túy bằng phần cứng đòi hỏi cập nhật danh sách liên kết đôi trên mỗi lệnh CPU đọc bộ nhớ, điều này làm chậm vi xử lý. Do đó, các hệ điều hành hiện đại dùng thuật toán **Clock** để xấp xỉ LRU với chi phí cực thấp nhờ cờ **Reference Bit ($R$)** sẵn có trên phần cứng PTE:
+
+```text
+CON TRỎ KIM ĐỒNG HỒ (CLOCK POINTER)
+                      [ Trang 0 (R=1) ]
+                        ^           \
+                       /             v
+          [ Trang 3 (R=0) ]        [ Trang 1 (R=1) ]
+                 ^                   /
+                  \                 v
+                    [ Trang 2 (R=0) ]  <--- KIM ĐỒNG HỒ TRỎ VÀO ĐÂY!
+```
+
+### Cơ chế hoạt động:
+- Khi một trang được CPU đọc hoặc ghi, phần cứng MMU tự động bật cờ **$R = 1$**.
+- Khi cần tìm trang nạn nhân, kim đồng hồ duyệt vòng tròn qua từng khung trang:
+  - Nếu thấy **$R == 1$**: Xóa cờ thành **$R = 0$** (cho trang một "cơ hội thứ hai") và xoay kim sang trang kế tiếp.
+  - Nếu thấy **$R == 0$**: Chọn ngay trang này làm **Nạn nhân (Victim)** để thay thế, và dịch kim sang vị trí tiếp theo!
+
+### Thuật toán Đồng hồ Cải tiến (Enhanced Second-Chance):
+Kết hợp cặp 2 bit: $(R, M)$ với $R$ là Reference bit và $M$ là Modified (Dirty) bit:
+1. **Lớp (0, 0):** Không truy cập gần đây, không bị sửa đổi $\implies$ **Nạn nhân hoàn hảo nhất** (không tốn chi phí I/O ghi ra đĩa).
+2. **Lớp (0, 1):** Không truy cập gần đây, nhưng đã bị sửa đổi $\implies$ Cần ghi ra đĩa trước khi thay thế.
+3. **Lớp (1, 0):** Vừa được truy cập, chưa bị sửa đổi $\implies$ Xóa $R=0$ và bỏ qua trong lượt quét đầu.
+4. **Lớp (1, 1):** Vừa được truy cập và đã bị sửa đổi.
+
+---
+
+## 3. Lần Vết So Sánh Thực Tế Từng Bước (Comparative Trace)
+
+Cho chuỗi tham chiếu gồm 13 truy cập: **`7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2`** với hệ thống có **3 khung trang RAM vật lý**.
+
+| Tham chiếu | 7 | 0 | 1 | 2 | 0 | 3 | 0 | 4 | 2 | 3 | 0 | 3 | 2 | Tổng Page Faults |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **OPT** | **7** | **0** | **1** | **2** (thế 7) | 0 (Hit) | **3** (thế 1) | 0 (Hit) | **4** (thế 2) | **2** (thế 4) | 3 (Hit) | 0 (Hit) | 3 (Hit) | 2 (Hit) | **7 Faults** (Tối ưu) |
+| **LRU** | **7** | **0** | **1** | **2** (thế 7) | 0 (Hit) | **3** (thế 1) | 0 (Hit) | **4** (thế 2) | **2** (thế 3) | **3** (thế 0) | **0** (thế 4) | 3 (Hit) | 2 (Hit) | **8 Faults** |
+| **Clock** | **7** | **0** | **1** | **2** (thế 7) | 0 (Hit) | **3** (thế 1) | 0 (Hit) | **4** (thế 2) | **2** (thế 3) | **3** (thế 0) | **0** (thế 4) | 3 (Hit) | 2 (Hit) | **9 Faults** |
+| **FIFO** | **7** | **0** | **1** | **2** (thế 7) | **0** (thế 0) | **3** (thế 1) | 0 (Hit) | **4** (thế 2) | **2** (thế 3) | **3** (thế 0) | **0** (thế 4) | 3 (Hit) | 2 (Hit) | **10 Faults** |
+
+---
+
+## 4. Hiện Tượng Nghẽn Hoán Đổi (Thrashing) & Mô Hình Working Set
+
+### Hiểm họa Thrashing (Trì trệ hệ thống):
+**Thrashing** là trạng thái bệnh lý nghiêm trọng mà hệ thống dành phần lớn thời gian để hoán đổi trang ra vào ổ đĩa (*Paging I/O*) thay vì thực thi các dòng lệnh hữu ích.
+
+```text
+PHẢN ỨNG DÂY CHUYỀN DẪN TỚI SỤP ĐỔ HỆ THỐNG:
+1. Mức độ đa chương (Degree of Multiprogramming) tăng quá cao
+   |
+   v
+2. Tổng nhu cầu bộ nhớ vượt quá dung lượng RAM thực tế
+   |
+   v
+3. Các tiến trình liên tục bị Page Fault -> Phải ngủ chờ nạp đĩa
+   |
+   v
+4. CPU Scheduler thấy CPU rảnh rỗi (CPU Utilization tụt dốc)
+   |
+   v
+5. Scheduler lầm tưởng hệ thống còn rảnh rỗi -> Nạp THÊM tiến trình mới vào RAM!
+   |
+   v
+6. RAM cạn kiệt hoàn toàn -> Toàn bộ tiến trình đứng im đợi đĩa -> SẬP ĐỘ TRỄ!
+```
+
+```text
+ĐỒ THỊ HIỆU SUẤT CPU THEO MỨC ĐỘ ĐA CHƯƠNG:
+CPU Utilization
+   ^
+100%|              /-------\
+    |             /         \
+    |            /           \
+    |           /             \  <--- BẮT ĐẦU THRASHING!
+    |          /               \
+    |         /                 \
+  0% +--------+------------------+---------> Degree of Multiprogramming
+              Điểm tối ưu         Hệ thống sụp đổ
+```
+
+---
+
+### Mô hình Tập làm việc (Working Set Model của Peter Denning):
+Để ngăn chặn Thrashing, Peter Denning đề xuất mô hình **Working Set**:
+- **Cửa sổ tham chiếu $\Delta$:** Một số lượng cố định các lệnh tham chiếu bộ nhớ gần nhất.
+- **Tập làm việc $W(t, \Delta)$:** Tập hợp các trang duy nhất được tiến trình tham chiếu trong cửa sổ thời gian $[t - \Delta, t]$.
+- **Kích thước tập làm việc $WSS_i = |W_i(t, \Delta)|$:** Lượng khung trang tối thiểu mà tiến trình $P_i$ cần để chạy mượt mà mà không bị Page Fault liên tục.
+- **Tổng nhu cầu bộ nhớ toàn hệ thống:**
+  $$D = \sum_{i=1}^n WSS_i$$
+- **Chiến lược điều phối của Kernel:**
+  - Nếu $D \le \text{Total RAM Frames}$: Hệ thống an toàn, có thể chấp nhận thêm tiến trình mới.
+  - Nếu $D > \text{Total RAM Frames}$: **Nguy cơ Thrashing bùng nổ!** Kernel phải chủ động đình chỉ (**Suspend / Swap out**) toàn bộ một tiến trình ra đĩa để giải phóng đủ khung trang cho các tiến trình còn lại đạt được Working Set của chúng.
+
+---
+
+## 5. Giám Sát & Xử Lý Bộ Nhớ trên Linux Sản Xuất
+
+### 1. Nhận diện Thrashing qua `vmstat 1`:
+```bash
+$ vmstat 1
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 2  8 450210  12450   1200  45100 15200 18400 16000 19000 4500 8500  2  8  0 90  0
+```
+- **Cột `si` (Swap-In) và `so` (Swap-Out):** Đang nhảy vọt lên hàng chục Megabytes/giây liên tục!
+- **Cột `wa` (I/O Wait):** Vọt lên **$90\%$**! CPU hầu như không xử lý lệnh của người dùng (`us = 2%`) mà đang bị "đóng băng" chờ đợi ổ đĩa quay. Hệ thống đang bị **Thrashing cấp độ báo động đỏ**.
+
+### 2. Cơ chế OOM Killer (Out-Of-Memory Killer):
+Khi RAM vật lý và Swap Space hoàn toàn cạn kiệt, Kernel Linux buộc phải kích hoạt cơ chế sinh tồn cuối cùng: **OOM Killer** để bắn hạ một tiến trình nhằm cứu sống máy chủ.
+Kernel tính toán điểm số **`oom_score`** (từ 0 đến 1000) dựa trên tỷ lệ phần trăm RAM mà tiến trình đó đang nuốt trọn:
+```bash
+# Kiểm tra điểm nguy cơ bị giết của tiến trình
+$ cat /proc/$(pgrep java)/oom_score
+850
+
+# Bảo vệ tiến trình trọng yếu (như Database, Nginx) không bao giờ bị OOM Killer bắn hạ:
+$ sudo echo -1000 > /proc/$(pgrep postgres)/oom_score_adj
+```
+
+---
+
+## 6. Câu hỏi Tự kiểm tra Học thuật (Self-Check Questions)
+
+### Câu 1: Tại sao thuật toán thay thế trang LRU được chứng minh là không bao giờ gặp phải Nghịch lý Belady?
+> **Đáp án:** Vì LRU thuộc nhóm **Thuật toán Ngăn xếp (Stack Algorithm)**. Trong thuật toán ngăn xếp, tập hợp $N$ trang được lưu trong bộ nhớ luôn luôn là tập con của tập hợp $N+1$ trang nếu ta cấp thêm một khung trang ($M(N) \subset M(N+1)$). Do đó, việc bổ sung thêm khung trang chỉ có thể làm tăng số lần tìm thấy trang hoặc giữ nguyên, chứ không bao giờ làm tăng số lần Page Fault.
+
+### Câu 2: Trong thuật toán Đồng hồ (Clock), nếu tất cả các trang trong bộ nhớ đều có cờ $R = 1$ khi xảy ra Page Fault, thuật toán sẽ xử lý như thế nào?
+> **Đáp án:** Kim đồng hồ sẽ duyệt qua toàn bộ các trang trong vòng tròn một lượt, xóa toàn bộ cờ $R = 1$ thành $R = 0$. Khi kim quay trở lại vị trí trang ban đầu, trang này lúc này đã có $R = 0$, do đó nó sẽ lập tức bị chọn làm nạn nhân (Victim). Trong trường hợp này, thuật toán Clock thoái hóa thành thuật toán FIFO thuần túy.
+
+### Câu 3: Kích thước cửa sổ tham chiếu $\Delta$ trong mô hình Working Set ảnh hưởng như thế nào đến khả năng chống Thrashing của hệ thống?
+> **Đáp án:**
+> - Nếu chọn $\Delta$ quá nhỏ: Tập làm việc $W(t, \Delta)$ sẽ không bao phủ đủ toàn bộ các trang mà tiến trình thực sự cần trong vòng lặp hiện tại, dẫn tới hệ thống vẫn bị Page Fault và Thrashing.
+> - Nếu chọn $\Delta$ quá lớn: Tập làm việc sẽ chứa cả những trang cũ không còn dùng nữa, làm lãng phí dung lượng RAM và hạn chế mức độ đa chương (Degree of Multiprogramming) của máy chủ.
+
+### Câu 4: Một hệ thống có thời gian truy cập RAM là $100\text{ ns}$ và thời gian xử lý Page Fault qua đĩa là $10\text{ ms}$. Hỏi tỷ lệ lỗi trang $p$ tối đa là bao nhiêu để thời gian truy cập hiệu dụng không bị chậm đi quá 2 lần so với truy cập RAM thông thường?
+> **Đáp án:**
+> Chậm đi không quá 2 lần nghĩa là $\text{EAT} \le 2 \times 100\text{ ns} = 200\text{ ns}$.
+> Ta có công thức:
+> $$\text{EAT} = (1 - p) \times 100 + p \times 10,000,000 \approx 100 + 10,000,000p$$
+> Đặt bất đẳng thức:
+> $$100 + 10,000,000p \le 200 \iff 10,000,000p \le 100 \iff p \le \frac{100}{10,000,000} = \mathbf{0.00001} = 10^{-5}$$
+> Tỷ lệ Page Fault phải nhỏ hơn **1 lần lỗi trên mỗi 100,000 lần truy cập bộ nhớ** ($p \le 0.001\%$).
+
+<!-- studxy-os-v4 -->
+"""";
 
     private static async Task EnsureOsActivitiesAsync(SwmsDbContext db, Guid courseId, DateTimeOffset now)
     {

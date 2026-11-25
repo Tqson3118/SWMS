@@ -370,6 +370,7 @@ export interface PredictOutputItem {
   timeLimitMs?: number;
   sourceActivityId?: string;
   passingScore?: number;
+  language?: string;
 }
 
 export interface BugFixWriteInItem {
@@ -470,6 +471,163 @@ function normalizeDifficultyVi(raw: unknown): "Dễ" | "Trung bình" | "Nâng ca
   return "Trung bình";
 }
 
+export type CodingTopicCategory = "dotnet" | "react" | "sql" | "os";
+
+export function isAsciiOrNonCodeBlock(rawLang = "", code = ""): boolean {
+  const normLang = (rawLang || "").trim().toLowerCase();
+  if (
+    normLang === "text" ||
+    normLang === "txt" ||
+    normLang === "plain" ||
+    normLang === "plaintext" ||
+    normLang === "mermaid" ||
+    normLang === "ascii" ||
+    normLang === "diagram"
+  ) {
+    return true;
+  }
+  if (!code) return false;
+  if (code.includes("+---+") || code.includes("|---|")) {
+    return true;
+  }
+  if (/[┌─┐│└┘├┤┬┴┼]/.test(code)) {
+    return true;
+  }
+  return false;
+}
+
+export function extractCodeBlocksFromMarkdown(
+  markdown: string
+): Array<{ language: string; code: string }> {
+  if (!markdown) return [];
+  const codeBlockRegex = /```([a-zA-Z0-9_-]*)\r?\n([\s\S]*?)```/g;
+  const blocks: Array<{ language: string; code: string }> = [];
+  let match: RegExpExecArray | null;
+  while ((match = codeBlockRegex.exec(markdown)) !== null) {
+    const rawLang = (match[1] || "").trim();
+    const code = match[2].trim();
+    if (!isAsciiOrNonCodeBlock(rawLang, code)) {
+      blocks.push({ language: rawLang, code });
+    }
+  }
+  return blocks;
+}
+
+export function detectCodingCategory(params: {
+  fillCodeCategory?: string;
+  language?: string;
+  courseTitle?: string;
+  lessonTitle?: string;
+  lessonMarkdown?: string;
+}): CodingTopicCategory {
+  // 1. Explicit valid category from DB
+  const rawCat = (params.fillCodeCategory || "").trim().toLowerCase();
+  if (rawCat === "sql" || rawCat === "os" || rawCat === "react" || rawCat === "dotnet") {
+    return rawCat;
+  }
+
+  // 2. Explicit language from DB or code block
+  const rawLang = (params.language || "").trim().toLowerCase();
+  if (rawLang) {
+    if (
+      rawLang === "sql" ||
+      rawLang === "postgres" ||
+      rawLang === "postgresql" ||
+      rawLang === "mysql" ||
+      rawLang === "tsql" ||
+      rawLang === "sqlite"
+    ) {
+      return "sql";
+    }
+    if (
+      rawLang === "python" ||
+      rawLang === "py" ||
+      rawLang === "bash" ||
+      rawLang === "sh" ||
+      rawLang === "shell" ||
+      rawLang === "dockerfile" ||
+      rawLang === "docker" ||
+      rawLang === "linux"
+    ) {
+      return "os";
+    }
+    if (
+      rawLang === "javascript" ||
+      rawLang === "js" ||
+      rawLang === "typescript" ||
+      rawLang === "ts" ||
+      rawLang === "jsx" ||
+      rawLang === "tsx" ||
+      rawLang === "html" ||
+      rawLang === "css"
+    ) {
+      return "react";
+    }
+    if (
+      rawLang === "csharp" ||
+      rawLang === "cs" ||
+      rawLang === "c#" ||
+      rawLang === "dotnet" ||
+      rawLang === ".net"
+    ) {
+      return "dotnet";
+    }
+  }
+
+  // 3. Text analysis of courseTitle + lessonTitle + lessonMarkdown in strict priority
+  const combined = `${params.courseTitle || ""} ${params.lessonTitle || ""} ${params.lessonMarkdown || ""}`.toLowerCase();
+
+  // (a) SQL: sql, database, postgres, t-sql, join, index, transaction, ef core migration/db
+  if (
+    /\b(sql|database|postgres|postgresql|t-sql|tsql|mysql|sqlite|nosql)\b/.test(combined) ||
+    combined.includes("truy vấn") ||
+    combined.includes("cơ sở dữ liệu") ||
+    combined.includes("sql injection") ||
+    combined.includes("inner join") ||
+    combined.includes("left join") ||
+    combined.includes("migration db") ||
+    combined.includes("ef core migration")
+  ) {
+    return "sql";
+  }
+
+  // (b) OS: linux, bash, docker, container, hệ điều hành, bộ nhớ, python, fastapi, rag, llm, aiops, git, setup, cli, terminal, algorithm
+  const hasOsContainer =
+    /\b(docker|lxc|cgroups|namespaces|containerization|container hóa)\b/.test(combined) ||
+    (/\bcontainer\b/.test(combined) && !/\b(flexbox|grid|css|html|layout|ui)\b/.test(combined));
+
+  if (
+    /\b(linux|bash|shell|python|fastapi|rag|llm|aiops|git|cli|terminal|algorithm|tlb|deadlock)\b/.test(combined) ||
+    hasOsContainer ||
+    combined.includes("hệ điều hành") ||
+    combined.includes("bộ nhớ ảo") ||
+    combined.includes("phân trang") ||
+    combined.includes("bộ nhớ") ||
+    combined.includes("thuật toán")
+  ) {
+    return "os";
+  }
+
+  // (c) React / Web: html, css, flexbox, grid, javascript, typescript, dom, react, next, hook, useeffect, closure, frontend, trello
+  if (
+    /\b(html|css|flexbox|grid|javascript|typescript|js|ts|dom|react|next|nextjs|hook|useeffect|usestate|closure|frontend|trello)\b/.test(combined) ||
+    combined.includes("lập trình web")
+  ) {
+    return "react";
+  }
+
+  // (d) Dotnet: .net, c#, csharp, asp.net, web api, linq, entity framework, ef core
+  if (
+    /\b(c#|csharp|dotnet|asp\.net|web api|linq|entity framework|ef core)\b/.test(combined) ||
+    combined.includes(".net")
+  ) {
+    return "dotnet";
+  }
+
+  // Mặc định: "react" cho lập trình web phổ thông thay vì gán nhầm sang dotnet
+  return "react";
+}
+
 export function normalizeCodingActivities(
   activities: RawDbPracticeActivity[]
 ): NormalizedCodingBank {
@@ -539,6 +697,7 @@ export function normalizeCodingActivities(
           timeLimitMs: Number(raw.timeLimitMs) || 2000,
           sourceActivityId: act.id,
           passingScore: act.passingScore ?? 70,
+          language: raw.language ? String(raw.language).trim().toLowerCase() : undefined,
         });
       });
     } else if (type === "bug_fix" || type === "bug-fix" || type === "bug_hunt" || type === "bug-hunter") {
@@ -609,9 +768,14 @@ export function normalizeCodingActivities(
           explanation: String(b.explanation || ""),
         }));
 
-        const rawCat = String(raw.category || "react").toLowerCase();
-        const category: "dotnet" | "react" | "sql" | "os" =
-          rawCat === "dotnet" || rawCat === "sql" || rawCat === "os" ? rawCat : "react";
+        const rawCat = String(raw.category || "").toLowerCase();
+        const rawLang = String(raw.language || "").toLowerCase();
+        let category: "dotnet" | "react" | "sql" | "os";
+        if (rawCat === "dotnet" || rawCat === "sql" || rawCat === "os" || rawCat === "react") {
+          category = rawCat;
+        } else {
+          category = detectCodingCategory({ fillCodeCategory: rawCat, language: rawLang });
+        }
 
         bank.fillCode.push({
           id: String(raw.id || `${act.id || "db-fill"}-${idx}`),

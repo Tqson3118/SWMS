@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   AlertCircle,
   ArrowDown,
@@ -11,17 +11,24 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
+  Copy,
   Download,
   Eye,
   FileText,
   Globe,
   GripVertical,
+  Info,
+  Loader2,
   Lock,
   Pencil,
   Play,
   Plus,
   Save,
+  Shield,
+  Sparkles,
   Trash2,
+  Wand2,
+  X,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { LessonMarkdownView } from "@/components/reader/LessonMarkdownView";
@@ -51,14 +58,21 @@ interface CourseDetail {
   id?: string;
   courseId?: string;
   title: string;
-  category?: string;
+  description?: string | null;
+  category?: string | null;
+  level?: string | null;
+  learningOutcomes?: string[];
+  prerequisites?: string[];
   visibility?: string;
   isPublished?: boolean;
+  isSystemCourse?: boolean;
+  canDelete?: boolean;
   chapters: Chapter[];
 }
 
 export default function CourseEditPage() {
   const params = useParams();
+  const router = useRouter();
   const courseId = params.id as string;
   const { activeUserHeaderId } = useWorkspaceStore();
 
@@ -67,6 +81,7 @@ export default function CourseEditPage() {
   const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set());
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
 
+  // Lesson Editor states
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [editVideoUrl, setEditVideoUrl] = useState("");
@@ -77,11 +92,23 @@ export default function CourseEditPage() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
 
+  // Course Title & Top Actions
   const [isEditingCourseTitle, setIsEditingCourseTitle] = useState(false);
   const [tempCourseTitle, setTempCourseTitle] = useState("");
   const [isTogglingPublish, setIsTogglingPublish] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
+  // Course Metadata Panel states
+  const [showMetaPanel, setShowMetaPanel] = useState(false);
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+  const [metaCategory, setMetaCategory] = useState("");
+  const [metaLevel, setMetaLevel] = useState<"foundation" | "intermediate" | "advanced">("foundation");
+  const [metaOutcomes, setMetaOutcomes] = useState<string[]>([]);
+  const [metaPrerequisites, setMetaPrerequisites] = useState<string[]>([]);
+  const [isSavingMeta, setIsSavingMeta] = useState(false);
+
+  // Chapter & Lesson Management
   const [showNewChapterInput, setShowNewChapterInput] = useState(false);
   const [newChapterTitle, setNewChapterTitle] = useState("");
   const [creatingChapter, setCreatingChapter] = useState(false);
@@ -93,12 +120,31 @@ export default function CourseEditPage() {
   const [confirmDeleteChapterId, setConfirmDeleteChapterId] = useState<string | null>(null);
   const [confirmDeleteLessonId, setConfirmDeleteLessonId] = useState<string | null>(null);
 
+  // Reordering
   const [hasUnsavedOrder, setHasUnsavedOrder] = useState(false);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [draggedLessonInfo, setDraggedLessonInfo] = useState<{
     chapterId: string;
     lessonIndex: number;
   } | null>(null);
+
+  // AI Lesson Assistant states
+  const [showAiAssistant, setShowAiAssistant] = useState(false);
+  const [aiAction, setAiAction] = useState<"expand" | "summarize" | "examples" | "exercise">("expand");
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isAiEnhancing, setIsAiEnhancing] = useState(false);
+  const [aiResult, setAiResult] = useState<{
+    content: string;
+    usedLiveAi?: boolean;
+    model?: string;
+  } | null>(null);
+  const [aiResultTab, setAiResultTab] = useState<"preview" | "markdown">("preview");
+  const [aiCopied, setAiCopied] = useState(false);
+
+  // Delete Course (2-Step Confirm)
+  const [showDeleteCourseModal, setShowDeleteCourseModal] = useState(false);
+  const [deleteConfirmStep, setDeleteConfirmStep] = useState<1 | 2>(1);
+  const [isDeletingCourse, setIsDeletingCourse] = useState(false);
 
   const getAuthHeaders = useCallback(
     (extra?: Record<string, string>) => {
@@ -124,6 +170,9 @@ export default function CourseEditPage() {
       setEditMinutes(lesson.estimatedMinutes ?? 10);
       setSaveMessage(null);
       setErrorBanner(null);
+      setAiResult(null);
+      setAiResultTab("preview");
+      setAiCopied(false);
 
       if (!initialContent && lId) {
         try {
@@ -134,6 +183,20 @@ export default function CourseEditPage() {
             if (fetchedMd) setEditContent(fetchedMd);
             if (typeof detail.videoUrl === "string") setEditVideoUrl(detail.videoUrl);
             if (typeof detail.estimatedMinutes === "number") setEditMinutes(detail.estimatedMinutes);
+            setSelectedLesson((prev) =>
+              prev && (prev.lessonId || prev.id) === lId
+                ? {
+                    ...prev,
+                    contentMarkdown: detail.contentMarkdown ?? prev.contentMarkdown,
+                    plainText: detail.plainText ?? prev.plainText,
+                    videoUrl: typeof detail.videoUrl === "string" ? detail.videoUrl : prev.videoUrl,
+                    estimatedMinutes:
+                      typeof detail.estimatedMinutes === "number"
+                        ? detail.estimatedMinutes
+                        : prev.estimatedMinutes,
+                  }
+                : prev
+            );
           }
         } catch {
           // Keep selected lesson state cleanly
@@ -161,6 +224,14 @@ export default function CourseEditPage() {
       const data: CourseDetail = await resp.json();
       setCourse(data);
       setTempCourseTitle(data.title ?? "");
+
+      // Hydrate metadata state
+      setMetaTitle(data.title || "");
+      setMetaDescription(data.description || "");
+      setMetaCategory(data.category || "");
+      setMetaLevel((data.level as "foundation" | "intermediate" | "advanced") || "foundation");
+      setMetaOutcomes(data.learningOutcomes || []);
+      setMetaPrerequisites(data.prerequisites || []);
 
       const ids = new Set<string>();
       (data.chapters ?? []).forEach((ch: Chapter) => ids.add(ch.chapterId || ch.id));
@@ -208,11 +279,62 @@ export default function CourseEditPage() {
         return;
       }
       setCourse((prev) => (prev ? { ...prev, title: trimmed } : prev));
+      setMetaTitle(trimmed);
       setIsEditingCourseTitle(false);
       setSaveMessage("Đã cập nhật tên khóa học.");
       window.dispatchEvent(new CustomEvent("swms:data-mutated"));
     } catch (err) {
       setErrorBanner(err instanceof Error ? err.message : "Lỗi kết nối khi đổi tên khóa học.");
+    }
+  };
+
+  const handleSaveMetadata = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!course) return;
+    setIsSavingMeta(true);
+    setErrorBanner(null);
+    try {
+      const payload = {
+        title: metaTitle.trim() || course.title,
+        description: metaDescription.trim() || undefined,
+        category: metaCategory.trim() || undefined,
+        level: metaLevel,
+        learningOutcomes: metaOutcomes.map((o) => o.trim()).filter(Boolean),
+        prerequisites: metaPrerequisites.map((p) => p.trim()).filter(Boolean),
+      };
+
+      const resp = await fetch(`/api/v1/courses/${courseId}`, {
+        method: "PUT",
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text().catch(() => "");
+        setErrorBanner(`Không thể lưu metadata khóa học (${resp.status})${errText ? `: ${errText}` : ""}`);
+        return;
+      }
+
+      setCourse((prev) =>
+        prev
+          ? {
+              ...prev,
+              title: payload.title,
+              description: payload.description,
+              category: payload.category,
+              level: payload.level,
+              learningOutcomes: payload.learningOutcomes,
+              prerequisites: payload.prerequisites,
+            }
+          : prev
+      );
+      setSaveMessage("Đã lưu thông tin & metadata khóa học thành công.");
+      setShowMetaPanel(false);
+      window.dispatchEvent(new CustomEvent("swms:data-mutated"));
+    } catch (err) {
+      setErrorBanner(err instanceof Error ? err.message : "Lỗi khi lưu metadata.");
+    } finally {
+      setIsSavingMeta(false);
     }
   };
 
@@ -346,6 +468,86 @@ export default function CourseEditPage() {
       setErrorBanner(err instanceof Error ? err.message : "Lỗi kết nối khi lưu bài học.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // AI Lesson Assistant Trigger
+  const handleRunAiEnhance = async (actionToRun?: "expand" | "summarize" | "examples" | "exercise") => {
+    if (!selectedLesson) return;
+    const act = actionToRun || aiAction;
+    setIsAiEnhancing(true);
+    setErrorBanner(null);
+    setSaveMessage(null);
+
+    const lId = selectedLesson.lessonId || selectedLesson.id;
+
+    try {
+      const resp = await fetch(`/api/v1/lessons/${lId}/ai-enhance`, {
+        method: "POST",
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({
+          action: act,
+          prompt: aiPrompt.trim() || undefined,
+          currentMarkdown: editContent,
+        }),
+      });
+
+      if (!resp.ok) {
+        const errJson = await resp.json().catch(() => ({}));
+        throw new Error(errJson.error || `Trợ lý AI thất bại (Mã lỗi ${resp.status})`);
+      }
+
+      const data = await resp.json();
+      setAiResult({
+        content: data.content || "",
+        usedLiveAi: Boolean(data.usedLiveAi),
+        model: data.model || "Gemini 3.8",
+      });
+      setAiResultTab("preview");
+      setAiCopied(false);
+      setSaveMessage("AI đã tạo nội dung gợi ý bên dưới. Bạn có thể chèn hoặc thay thế vào bài!");
+    } catch (err) {
+      setErrorBanner(err instanceof Error ? err.message : "Lỗi khi gọi Trợ lý AI.");
+    } finally {
+      setIsAiEnhancing(false);
+    }
+  };
+
+  const handleCopyAiResult = async () => {
+    if (!aiResult?.content) return;
+    try {
+      await navigator.clipboard.writeText(aiResult.content);
+      setAiCopied(true);
+      setTimeout(() => setAiCopied(false), 2000);
+    } catch {
+      setErrorBanner("Không thể sao chép nội dung vào clipboard.");
+    }
+  };
+
+  // Delete Course
+  const handleDeleteCourse = async () => {
+    if (!course || isDeletingCourse) return;
+    setIsDeletingCourse(true);
+    setErrorBanner(null);
+    try {
+      const resp = await fetch(`/api/v1/courses/${courseId}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text().catch(() => "");
+        throw new Error(`Xóa khóa học thất bại (${resp.status})${errText ? `: ${errText}` : ""}`);
+      }
+
+      window.dispatchEvent(new CustomEvent("swms:data-mutated"));
+      router.push("/app/courses");
+    } catch (err) {
+      setErrorBanner(err instanceof Error ? err.message : "Lỗi khi xóa khóa học.");
+      setShowDeleteCourseModal(false);
+      setDeleteConfirmStep(1);
+    } finally {
+      setIsDeletingCourse(false);
     }
   };
 
@@ -607,10 +809,69 @@ export default function CourseEditPage() {
     }
   };
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        if (selectedLesson && !isSaving) {
+          e.preventDefault();
+          void handleSave();
+        }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="h-full flex flex-col bg-bg-primary animate-pulse">
+        {/* Top Bar Skeleton */}
+        <div className="px-4 sm:px-6 py-3 border-b border-border bg-bg-secondary/40 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-16 rounded bg-bg-secondary" />
+            <div className="h-4 w-32 rounded bg-bg-secondary" />
+            <div className="h-4 w-24 rounded bg-bg-secondary" />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-28 rounded-md bg-bg-secondary" />
+            <div className="h-8 w-24 rounded-md bg-bg-secondary" />
+            <div className="h-8 w-24 rounded-md bg-bg-secondary" />
+          </div>
+        </div>
+
+        {/* 2-Column Studio Skeleton */}
+        <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
+          <aside className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-border bg-bg-secondary/30 p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="h-4 w-32 rounded bg-bg-secondary" />
+              <div className="h-6 w-20 rounded bg-bg-secondary" />
+            </div>
+            {[1, 2, 3].map((item) => (
+              <div key={item} className="rounded-md border border-border-subtle bg-bg-primary p-2.5 space-y-2">
+                <div className="h-4 w-3/4 rounded bg-bg-secondary" />
+                <div className="pl-4 space-y-1.5">
+                  <div className="h-3.5 w-5/6 rounded bg-bg-secondary" />
+                  <div className="h-3.5 w-2/3 rounded bg-bg-secondary" />
+                </div>
+              </div>
+            ))}
+          </aside>
+          <section className="flex-1 min-w-0 p-4 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2">
+                <div className="h-7 w-28 rounded bg-bg-secondary" />
+                <div className="h-7 w-24 rounded bg-bg-secondary" />
+              </div>
+              <div className="h-8 w-28 rounded-md bg-bg-secondary" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <div className="sm:col-span-3 h-9 rounded-md bg-bg-secondary" />
+              <div className="h-9 rounded-md bg-bg-secondary" />
+            </div>
+            <div className="h-9 w-full rounded-md bg-bg-secondary" />
+            <div className="h-72 w-full rounded-md bg-bg-secondary" />
+          </section>
+        </div>
       </div>
     );
   }
@@ -630,6 +891,23 @@ export default function CourseEditPage() {
   }
 
   const isPublic = Boolean(course.isPublished || course.visibility === "public");
+  const isProtectedSystemCourse = Boolean(course.isSystemCourse);
+  const totalChaptersCount = course.chapters?.length ?? 0;
+  const totalLessonsCount = (course.chapters ?? []).reduce(
+    (sum, ch) => sum + (ch.lessons?.length ?? 0),
+    0
+  );
+  const hasUnsavedLessonChanges = Boolean(
+    selectedLesson &&
+      (editTitle !== (selectedLesson.title ?? "") ||
+        editContent !==
+          (selectedLesson.contentMarkdown ??
+            selectedLesson.plainText ??
+            selectedLesson.content ??
+            "") ||
+        editVideoUrl !== (selectedLesson.videoUrl ?? "") ||
+        editMinutes !== (selectedLesson.estimatedMinutes ?? 10))
+  );
 
   return (
     <div className="h-full flex flex-col bg-bg-primary">
@@ -646,12 +924,12 @@ export default function CourseEditPage() {
             <ChevronRight className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
             <Link
               href={`/app/courses/${courseId}`}
-              className="text-text-secondary hover:text-text-primary transition truncate max-w-[180px] sm:max-w-[260px]"
+              className="text-text-secondary hover:text-text-primary transition truncate max-w-[180px] sm:max-w-[240px]"
             >
               {course.title}
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
-            <span className="text-text-primary font-medium shrink-0">Biên tập</span>
+            <span className="text-text-primary font-medium shrink-0">Studio Biên tập</span>
           </nav>
 
           {isEditingCourseTitle ? (
@@ -688,9 +966,31 @@ export default function CourseEditPage() {
               <Pencil className="w-3.5 h-3.5" />
             </button>
           )}
+
+          {isProtectedSystemCourse && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-[10px] font-semibold">
+              <Shield className="w-3 h-3" />
+              <span>Khóa học Hệ thống</span>
+            </span>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {/* Metadata Button */}
+          <button
+            type="button"
+            onClick={() => setShowMetaPanel((v) => !v)}
+            data-testid="toggle-course-metadata-btn"
+            className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-md border text-xs font-medium transition cursor-pointer ${
+              showMetaPanel
+                ? "border-accent bg-accent text-white"
+                : "border-border bg-bg-primary text-text-secondary hover:text-text-primary"
+            }`}
+          >
+            <Info className="w-3.5 h-3.5" />
+            <span>Thông tin &amp; Metadata</span>
+          </button>
+
           <button
             type="button"
             disabled={isTogglingPublish}
@@ -712,7 +1012,7 @@ export default function CourseEditPage() {
             className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-border bg-bg-primary text-xs font-medium text-text-primary hover:bg-bg-tertiary transition cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>{isExporting ? "Đang xuất..." : "Xuất gói ZIP"}</span>
+            <span>{isExporting ? "Đang xuất..." : "Xuất ZIP"}</span>
           </button>
 
           <Link
@@ -722,21 +1022,233 @@ export default function CourseEditPage() {
             <Play className="w-3.5 h-3.5" />
             <span>Vào học thử</span>
           </Link>
+
+          {/* Delete Course Button */}
+          {!isProtectedSystemCourse && (
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteConfirmStep(1);
+                setShowDeleteCourseModal(true);
+              }}
+              data-testid="open-delete-course-modal-btn"
+              className="inline-flex items-center gap-1 h-8 px-2.5 rounded-md border border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-500/10 text-xs font-medium transition cursor-pointer"
+              title="Xóa khóa học cá nhân"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Xóa khóa</span>
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Metadata Collapsible Drawer Panel */}
+      {showMetaPanel && (
+        <div className="border-b border-border bg-bg-secondary/70 p-4 sm:p-6 animate-in slide-in-from-top-2 duration-150">
+          <form onSubmit={handleSaveMetadata} className="max-w-4xl mx-auto space-y-4">
+            <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
+              <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
+                <Info className="w-4 h-4 text-accent" />
+                <span>Thông tin &amp; Cài đặt khóa học</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowMetaPanel(false)}
+                className="p-1 rounded text-text-tertiary hover:text-text-primary cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-2 space-y-1">
+                <label className="text-xs font-medium text-text-secondary">Tiêu đề khóa học</label>
+                <input
+                  type="text"
+                  value={metaTitle}
+                  onChange={(e) => setMetaTitle(e.target.value)}
+                  className="w-full h-8 px-3 rounded-md border border-border bg-bg-primary text-xs text-text-primary focus:outline-none focus:border-accent"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-text-secondary">Lĩnh vực (Category)</label>
+                <input
+                  type="text"
+                  value={metaCategory}
+                  onChange={(e) => setMetaCategory(e.target.value)}
+                  placeholder="Công nghệ, Kinh tế, v.v."
+                  className="w-full h-8 px-3 rounded-md border border-border bg-bg-primary text-xs text-text-primary focus:outline-none focus:border-accent"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-2 space-y-1">
+                <label className="text-xs font-medium text-text-secondary">Mô tả tổng quan</label>
+                <textarea
+                  value={metaDescription}
+                  onChange={(e) => setMetaDescription(e.target.value)}
+                  rows={2}
+                  className="w-full p-2 rounded-md border border-border bg-bg-primary text-xs text-text-primary focus:outline-none focus:border-accent resize-none"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-text-secondary">Cấp độ (Level)</label>
+                <select
+                  value={metaLevel}
+                  onChange={(e) =>
+                    setMetaLevel(e.target.value as "foundation" | "intermediate" | "advanced")
+                  }
+                  className="w-full h-8 px-2 rounded-md border border-border bg-bg-primary text-xs text-text-primary focus:outline-none focus:border-accent"
+                >
+                  <option value="foundation">Cơ bản (Foundation)</option>
+                  <option value="intermediate">Trung cấp (Intermediate)</option>
+                  <option value="advanced">Nâng cao (Advanced)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              {/* Learning outcomes */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-text-secondary">
+                    Mục tiêu đầu ra (Learning Outcomes)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setMetaOutcomes([...metaOutcomes, ""])}
+                    className="text-[11px] text-accent font-medium hover:underline cursor-pointer"
+                  >
+                    + Thêm mục tiêu
+                  </button>
+                </div>
+                <div className="space-y-1 max-h-32 overflow-y-auto swms-thin-scrollbar pr-1">
+                  {metaOutcomes.map((outc, oIdx) => (
+                    <div key={oIdx} className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        value={outc}
+                        onChange={(e) => {
+                          const next = [...metaOutcomes];
+                          next[oIdx] = e.target.value;
+                          setMetaOutcomes(next);
+                        }}
+                        placeholder={`Mục tiêu ${oIdx + 1}...`}
+                        className="flex-1 h-7 px-2 rounded border border-border bg-bg-primary text-xs text-text-primary focus:outline-none focus:border-accent"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setMetaOutcomes(metaOutcomes.filter((_, idx) => idx !== oIdx))
+                        }
+                        className="p-1 text-text-tertiary hover:text-red-500 cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                  {metaOutcomes.length === 0 && (
+                    <p className="text-[11px] text-text-tertiary italic">Chưa có mục tiêu đầu ra.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Prerequisites */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-text-secondary">
+                    Điều kiện tiên quyết (Prerequisites)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setMetaPrerequisites([...metaPrerequisites, ""])}
+                    className="text-[11px] text-accent font-medium hover:underline cursor-pointer"
+                  >
+                    + Thêm điều kiện
+                  </button>
+                </div>
+                <div className="space-y-1 max-h-32 overflow-y-auto swms-thin-scrollbar pr-1">
+                  {metaPrerequisites.map((prereq, pIdx) => (
+                    <div key={pIdx} className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        value={prereq}
+                        onChange={(e) => {
+                          const next = [...metaPrerequisites];
+                          next[pIdx] = e.target.value;
+                          setMetaPrerequisites(next);
+                        }}
+                        placeholder={`Điều kiện ${pIdx + 1}...`}
+                        className="flex-1 h-7 px-2 rounded border border-border bg-bg-primary text-xs text-text-primary focus:outline-none focus:border-accent"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setMetaPrerequisites(metaPrerequisites.filter((_, idx) => idx !== pIdx))
+                        }
+                        className="p-1 text-text-tertiary hover:text-red-500 cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                  {metaPrerequisites.length === 0 && (
+                    <p className="text-[11px] text-text-tertiary italic">Chưa có điều kiện tiên quyết.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+              <button
+                type="button"
+                onClick={() => setShowMetaPanel(false)}
+                className="px-3 py-1.5 rounded-md text-xs font-medium text-text-secondary hover:text-text-primary border border-border bg-bg-primary cursor-pointer"
+              >
+                Đóng
+              </button>
+              <button
+                type="submit"
+                disabled={isSavingMeta}
+                className="px-4 py-1.5 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover transition cursor-pointer flex items-center gap-1.5"
+              >
+                {isSavingMeta ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                <span>Lưu thay đổi metadata</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Banners */}
       {(errorBanner || saveMessage) && (
         <div className="px-4 sm:px-6 pt-3">
           {errorBanner && (
-            <div className="rounded-md border border-red-500/30 bg-red-500/5 px-3 py-2 text-xs text-red-600 dark:text-red-400 flex items-center gap-2">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              <span>{errorBanner}</span>
+            <div className="rounded-md border border-red-500/30 bg-red-500/5 px-3 py-2 text-xs text-red-600 dark:text-red-400 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{errorBanner}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setErrorBanner(null)}
+                className="p-0.5 text-red-600 dark:text-red-400 hover:opacity-80"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
             </div>
           )}
           {saveMessage && !errorBanner && (
-            <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-300">
-              {saveMessage}
+            <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-300 flex items-center justify-between">
+              <span>{saveMessage}</span>
+              <button
+                type="button"
+                onClick={() => setSaveMessage(null)}
+                className="p-0.5 text-emerald-700 dark:text-emerald-300 hover:opacity-80"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
             </div>
           )}
         </div>
@@ -988,47 +1500,249 @@ export default function CourseEditPage() {
           </div>
         </aside>
 
-        {/* Right: Selected Lesson Editor */}
+        {/* Right: Selected Lesson Editor & AI Lesson Assistant */}
         <section className="flex-1 min-w-0 flex flex-col min-h-0">
           {selectedLesson ? (
             <>
-              <div className="px-4 sm:px-6 py-3 border-b border-border flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-1 rounded-md bg-bg-secondary p-0.5 border border-border">
+              {/* Editor Sub-header */}
+              <div className="px-4 sm:px-6 py-2.5 border-b border-border flex flex-wrap items-center justify-between gap-3 bg-bg-secondary/20">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 rounded-md bg-bg-secondary p-0.5 border border-border">
+                    <button
+                      type="button"
+                      onClick={() => setEditorTab("write")}
+                      className={`h-7 px-3 rounded text-xs font-medium transition cursor-pointer ${
+                        editorTab === "write"
+                          ? "bg-bg-primary text-text-primary shadow-sm"
+                          : "text-text-secondary hover:text-text-primary"
+                      }`}
+                    >
+                      Soạn nội dung
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditorTab("preview")}
+                      className={`inline-flex items-center gap-1 h-7 px-3 rounded text-xs font-medium transition cursor-pointer ${
+                        editorTab === "preview"
+                          ? "bg-bg-primary text-text-primary shadow-sm"
+                          : "text-text-secondary hover:text-text-primary"
+                      }`}
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      Xem trước
+                    </button>
+                  </div>
+
+                  {/* AI Assistant Toggle Button */}
                   <button
                     type="button"
-                    onClick={() => setEditorTab("write")}
-                    className={`h-7 px-3 rounded text-xs font-medium transition cursor-pointer ${
-                      editorTab === "write"
-                        ? "bg-bg-primary text-text-primary shadow-sm"
-                        : "text-text-secondary hover:text-text-primary"
+                    onClick={() => setShowAiAssistant((v) => !v)}
+                    data-testid="toggle-ai-lesson-assistant-btn"
+                    className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border text-xs font-medium transition cursor-pointer ${
+                      showAiAssistant
+                        ? "border-accent bg-accent text-white shadow-xs"
+                        : "border-border bg-bg-primary text-accent hover:border-accent/40"
                     }`}
                   >
-                    Soạn nội dung
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditorTab("preview")}
-                    className={`inline-flex items-center gap-1 h-7 px-3 rounded text-xs font-medium transition cursor-pointer ${
-                      editorTab === "preview"
-                        ? "bg-bg-primary text-text-primary shadow-sm"
-                        : "text-text-secondary hover:text-text-primary"
-                    }`}
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    Xem trước
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Trợ lý AI bài giảng</span>
                   </button>
                 </div>
 
-                <button
-                  type="button"
-                  disabled={isSaving}
-                  onClick={handleSave}
-                  className="inline-flex items-center gap-1.5 h-8 px-4 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover disabled:opacity-50 transition cursor-pointer"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>{isSaving ? "Đang lưu..." : "Lưu bài học"}</span>
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  {hasUnsavedLessonChanges && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-[11px] font-medium">
+                      Chưa lưu thay đổi
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    disabled={isSaving}
+                    onClick={handleSave}
+                    className="inline-flex items-center gap-1.5 h-8 px-4 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover disabled:opacity-50 transition cursor-pointer"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    <span>{isSaving ? "Đang lưu..." : "Lưu bài học"}</span>
+                  </button>
+                </div>
               </div>
+
+              {/* AI Lesson Assistant Panel */}
+              {showAiAssistant && (
+                <div className="border-b border-accent/30 bg-accent-subtle/25 p-3.5 sm:p-4 space-y-3 animate-in slide-in-from-top-1 duration-150">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-accent">
+                      <Sparkles className="w-4 h-4" />
+                      <span>Trợ lý AI bài giảng (Nâng cao nội dung 1-click)</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAiAssistant(false)}
+                      className="p-1 rounded text-text-tertiary hover:text-text-primary cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* 4 Actions */}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {[
+                      { key: "expand", label: "Mở rộng bài học" },
+                      { key: "summarize", label: "Tóm tắt trọng tâm" },
+                      { key: "examples", label: "Thêm ví dụ thực tế" },
+                      { key: "exercise", label: "Tạo bài tập tự luyện" },
+                    ].map((item) => (
+                      <button
+                        key={item.key}
+                        type="button"
+                        onClick={() => {
+                          const action = item.key as typeof aiAction;
+                          setAiAction(action);
+                          void handleRunAiEnhance(action);
+                        }}
+                        disabled={isAiEnhancing}
+                        className={`h-7 px-2.5 rounded-md text-xs font-medium border transition cursor-pointer flex items-center gap-1 ${
+                          aiAction === item.key
+                            ? "bg-accent text-white border-accent shadow-xs"
+                            : "bg-bg-primary text-text-secondary border-border hover:border-accent/40"
+                        }`}
+                      >
+                        <Wand2 className="w-3 h-3" />
+                        <span>{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Custom Prompt & Trigger */}
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={aiPrompt}
+                      onChange={(e) => setAiPrompt(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !isAiEnhancing) void handleRunAiEnhance();
+                      }}
+                      placeholder="Yêu cầu tùy chỉnh (ví dụ: 'thêm case study thực tế tại Việt Nam', 'viết ngắn gọn 3 gạch đầu dòng')..."
+                      disabled={isAiEnhancing}
+                      className="flex-1 h-8 px-3 rounded-md border border-border bg-bg-primary text-xs text-text-primary focus:outline-none focus:border-accent"
+                    />
+                    <button
+                      type="button"
+                      disabled={isAiEnhancing}
+                      onClick={() => void handleRunAiEnhance()}
+                      className="h-8 px-3 rounded-md bg-accent text-white text-xs font-semibold hover:bg-accent-hover disabled:opacity-50 transition cursor-pointer flex items-center gap-1 shrink-0"
+                    >
+                      {isAiEnhancing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                      <span>{isAiEnhancing ? "Đang xử lý..." : "Thực hiện"}</span>
+                    </button>
+                  </div>
+
+                  {/* AI Result Preview Box */}
+                  {aiResult && (
+                    <div className="mt-2 p-3 rounded-lg border border-accent/40 bg-bg-primary space-y-2.5 animate-in fade-in duration-150">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-text-primary">Kết quả gợi ý từ AI:</span>
+                          <div className="inline-flex items-center rounded-md bg-bg-secondary p-0.5 border border-border">
+                            <button
+                              type="button"
+                              onClick={() => setAiResultTab("preview")}
+                              className={`px-2 py-0.5 rounded text-[11px] font-medium transition cursor-pointer ${
+                                aiResultTab === "preview"
+                                  ? "bg-bg-primary text-text-primary shadow-2xs"
+                                  : "text-text-secondary hover:text-text-primary"
+                              }`}
+                            >
+                              Xem trước
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setAiResultTab("markdown")}
+                              className={`px-2 py-0.5 rounded text-[11px] font-medium transition cursor-pointer ${
+                                aiResultTab === "markdown"
+                                  ? "bg-bg-primary text-text-primary shadow-2xs"
+                                  : "text-text-secondary hover:text-text-primary"
+                              }`}
+                            >
+                              Mã Markdown
+                            </button>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {aiResult.model && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-bg-secondary text-text-tertiary">
+                              {aiResult.model}
+                            </span>
+                          )}
+                          {aiResult.usedLiveAi && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 font-semibold">
+                              Live AI
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {aiResultTab === "preview" ? (
+                        <div className="max-h-60 overflow-y-auto swms-thin-scrollbar p-3 rounded bg-bg-secondary/30 border border-border/60">
+                          <LessonMarkdownView
+                            markdown={aiResult.content}
+                            lessonTitle={editTitle}
+                            anchoredAnnotations={[]}
+                            onSelectBlockText={() => {}}
+                            onHighlightClick={() => {}}
+                            onInsertCitation={() => {}}
+                            hideInlineCitationBadges={true}
+                          />
+                        </div>
+                      ) : (
+                        <div className="max-h-60 overflow-y-auto swms-thin-scrollbar p-2.5 rounded bg-bg-secondary/40 font-mono text-xs text-text-primary whitespace-pre-wrap leading-relaxed border border-border/60">
+                          {aiResult.content}
+                        </div>
+                      )}
+
+                      <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setAiResult(null)}
+                          className="px-2.5 py-1 rounded text-xs text-text-tertiary hover:text-text-primary cursor-pointer"
+                        >
+                          Bỏ qua
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleCopyAiResult()}
+                          className="inline-flex items-center gap-1 px-3 py-1 rounded-md border border-border bg-bg-secondary text-text-primary text-xs font-medium hover:bg-bg-tertiary transition cursor-pointer"
+                        >
+                          {aiCopied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                          <span>{aiCopied ? "Đã sao chép" : "Sao chép"}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditContent((prev) => `${prev.trimEnd()}\n\n${aiResult.content}`);
+                            setAiResult(null);
+                            setSaveMessage("Đã chèn nội dung AI vào cuối bài. Bấm 'Lưu bài học' để cập nhật!");
+                          }}
+                          className="px-3 py-1 rounded-md border border-accent/40 bg-accent-subtle text-accent text-xs font-medium hover:bg-accent hover:text-white transition cursor-pointer"
+                        >
+                          Chèn vào cuối bài
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditContent(aiResult.content);
+                            setAiResult(null);
+                            setSaveMessage("Đã thay thế toàn bộ nội dung bài bằng gợi ý AI. Bấm 'Lưu bài học' để commit!");
+                          }}
+                          className="px-3 py-1 rounded-md bg-accent text-white text-xs font-semibold hover:bg-accent-hover transition cursor-pointer"
+                        >
+                          Thay thế nội dung bài
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
@@ -1142,12 +1856,119 @@ export default function CourseEditPage() {
                 Chọn một bài học bên trái để bắt đầu chỉnh sửa
               </p>
               <p className="text-xs text-text-tertiary">
-                Bạn có thể thêm chương, thêm bài mới và xem trước nội dung trực tiếp.
+                Bạn có thể thêm chương, thêm bài mới, sử dụng Trợ lý AI và xem trước nội dung trực tiếp.
               </p>
             </div>
           )}
         </section>
       </div>
+
+      {/* Delete Course 2-Step Confirmation Modal */}
+      {showDeleteCourseModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150"
+        >
+          <div className="w-full max-w-md bg-bg-primary rounded-xl border border-red-500/40 p-5 space-y-4 shadow-2xl">
+            {deleteConfirmStep === 1 ? (
+              <>
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+                    <AlertCircle className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-base font-semibold text-text-primary">
+                        Xóa khóa học? (Bước 1/2)
+                      </h3>
+                    </div>
+                    <p className="text-xs text-text-secondary mt-1 leading-relaxed">
+                      Bạn sắp xóa khóa học{" "}
+                      <strong className="text-text-primary font-semibold">"{course.title}"</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg bg-bg-secondary/60 border border-border text-xs text-text-secondary space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span>Số chương sẽ bị xóa:</span>
+                    <span className="font-semibold text-text-primary">{totalChaptersCount} chương</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Số bài học sẽ bị xóa:</span>
+                    <span className="font-semibold text-text-primary">{totalLessonsCount} bài học</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-end gap-2.5 pt-1">
+                  <button
+                    type="button"
+                    disabled={isDeletingCourse}
+                    onClick={() => {
+                      setShowDeleteCourseModal(false);
+                      setDeleteConfirmStep(1);
+                    }}
+                    className="px-3.5 py-1.5 rounded-md border border-border bg-bg-secondary text-xs font-medium text-text-primary hover:bg-bg-tertiary transition cursor-pointer"
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirmStep(2)}
+                    className="px-4 py-1.5 rounded-md bg-amber-600 text-white text-xs font-semibold hover:bg-amber-700 transition cursor-pointer"
+                  >
+                    Tôi hiểu rủi ro, tiếp tục
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-red-500/15 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+                    <Trash2 className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base font-semibold text-text-primary">
+                      Xác nhận xóa vĩnh viễn? (Bước 2/2)
+                    </h3>
+                    <p className="text-xs text-text-secondary mt-1 leading-relaxed">
+                      Khóa học{" "}
+                      <strong className="text-text-primary font-semibold">"{course.title}"</strong> cùng{" "}
+                      {totalChaptersCount} chương và {totalLessonsCount} bài học sẽ bị xóa hoàn toàn.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-600 dark:text-red-400 font-semibold">
+                  Hành động này không thể hoàn tác!
+                </div>
+
+                <div className="flex flex-wrap items-center justify-end gap-2.5 pt-1">
+                  <button
+                    type="button"
+                    disabled={isDeletingCourse}
+                    onClick={() => setDeleteConfirmStep(1)}
+                    className="px-3.5 py-1.5 rounded-md border border-border bg-bg-secondary text-xs font-medium text-text-primary hover:bg-bg-tertiary transition cursor-pointer"
+                  >
+                    Quay lại
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isDeletingCourse}
+                    onClick={handleDeleteCourse}
+                    data-testid="confirm-delete-course-btn"
+                    className="px-4 py-1.5 rounded-md bg-red-600 text-white text-xs font-semibold hover:bg-red-700 disabled:opacity-50 transition cursor-pointer flex items-center gap-1.5"
+                  >
+                    {isDeletingCourse ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                    <span>{isDeletingCourse ? "Đang xóa..." : "Xác nhận xóa vĩnh viễn"}</span>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

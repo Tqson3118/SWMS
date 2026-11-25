@@ -1,4 +1,10 @@
-import { normalizeVi, getCourseProgress, getCourseId, type CourseLike } from "./course-helpers";
+import {
+  normalizeVi,
+  getCourseProgress,
+  getCourseId,
+  isRetiredCourse,
+  type CourseLike,
+} from "./course-helpers";
 
 export interface RoadmapMilestone {
   id: string;
@@ -61,7 +67,7 @@ export const LEARNING_ROADMAPS: LearningRoadmap[] = [
         summary: "Nắm chắc LINQ, Async/Await, Dependency Injection và thiết kế CSDL quan hệ chuẩn hóa.",
         skills: ["C# .NET 10", "Async/Await", "SQL & Indexing"],
         deliverable: "API CRUD quản lý dữ liệu với EF Core AsNoTracking",
-        matchKeywords: ["c#", "dotnet", ".net", "fullstack", "full-stack", "web api"],
+        matchKeywords: ["c#", "dotnet", ".net", "fullstack", "full-stack", "web api", "studxy full-stack developer bootcamp", "bootcamp", "studxy full-stack"],
         aiTopicPrompt: "Lộ trình C# .NET 10, EF Core tối ưu truy vấn và SQL Server thực chiến",
       },
       {
@@ -72,7 +78,7 @@ export const LEARNING_ROADMAPS: LearningRoadmap[] = [
         summary: "Xây dựng UI đáp ứng nhanh, Next.js App Router, Zustand và xử lý Form/API an toàn.",
         skills: ["React 19", "TypeScript", "Next.js 15"],
         deliverable: "Dashboard học tập tương tác đa màn hình không tràn ngang",
-        matchKeywords: ["fullstack", "react", "typescript", "web"],
+        matchKeywords: ["fullstack", "react", "typescript", "web", "studxy full-stack developer bootcamp", "bootcamp", "studxy full-stack"],
         aiTopicPrompt: "React 19, Next.js App Router và TypeScript nâng cao qua dự án thực tế",
       },
       {
@@ -83,7 +89,7 @@ export const LEARNING_ROADMAPS: LearningRoadmap[] = [
         summary: "Hiểu sâu MMU/TLB, khóa đồng bộ SemaphoreSlim, Optimistic Concurrency Control.",
         skills: ["Hệ điều hành", "TLB / Paging", "Concurrency Locks"],
         deliverable: "Xử lý xung đột đồng thời HTTP 409 Keep-Both & Benchmark 30 VU",
-        matchKeywords: ["he dieu hanh", "bo nho ao", "phan trang", "kien truc may tinh"],
+        matchKeywords: ["he dieu hanh", "bo nho ao", "phan trang", "kien truc may tinh", "studxy full-stack developer bootcamp", "bootcamp", "studxy full-stack"],
         aiTopicPrompt: "Hệ điều hành: Bộ nhớ ảo, TLB, Đa luồng và Đồng bộ hóa tiến trình",
       },
       {
@@ -94,7 +100,7 @@ export const LEARNING_ROADMAPS: LearningRoadmap[] = [
         summary: "Kiến trúc miền DDD, Outbox Pattern, Redis/PostgreSQL và kiểm thử E2E Playwright.",
         skills: ["Microservices", "DDD & Outbox", "Docker & E2E"],
         deliverable: "Hệ thống phân tán hoàn chỉnh có CI/CD và tài liệu kiến trúc",
-        matchKeywords: ["microservices", "ddd", "event sourcing", "lộ trình mẫu"],
+        matchKeywords: ["microservices", "ddd", "event sourcing", "lộ trình mẫu", "studxy full-stack developer bootcamp", "bootcamp", "studxy full-stack"],
         aiTopicPrompt: "Kiến trúc Microservices, Domain-Driven Design (DDD) và Event Sourcing",
       },
     ],
@@ -394,150 +400,6 @@ export const LEARNING_ROADMAPS: LearningRoadmap[] = [
       },
     ],
   },
-  {
-    id: "roadmap-investing-portfolio-sim",
-    title: "Lộ trình Thực Chiến Đầu Tư & Quản Trị Danh Mục Đa Tài Sản",
-    subtitle: "Lãi kép, tích lũy DCA, mô phỏng phân bổ danh mục mẫu và làm chủ tâm lý thị trường",
-    category: "Tài chính & Đầu tư",
-    badge: "18 Tuần · Portfolio Sim",
-    accentGradient: "from-emerald-600 via-teal-600 to-cyan-500",
-    badgeClasses:
-      "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800",
-    totalDuration: "18 tuần (3 chặng thực hành)",
-    targetAudience: "Nhà đầu tư cá nhân, người đi làm xây dựng quỹ tự do tài chính FIRE",
-    outcome: "Làm chủ máy tính DCA, phân bổ 5 lớp tài sản, stress-test danh mục và kiểm soát thiên kiến tâm lý",
-    milestones: [
-      {
-        id: "inv-1",
-        phaseLabel: "Chặng 1",
-        title: "Lãi Kép, Dòng Tiền & Tích Lũy DCA Thực Chiến",
-        duration: "6 tuần",
-        summary: "Sức mạnh toán học của lãi kép, quy tắc 4% FIRE và kỷ luật tích lũy định kỳ bảo vệ sức mua.",
-        skills: ["Lãi kép & DCA", "Quy tắc 4% FIRE", "Quản lý dòng tiền"],
-        deliverable: "Bản kế hoạch tài chính cá nhân với số liệu mô phỏng DCA",
-        matchKeywords: ["dau tu", "investing", "tai chinh", "lai kep", "dca", "personalfinance"],
-        aiTopicPrompt: "Lộ trình Đầu tư & Quản trị Danh mục Thực chiến: Lãi kép và kỷ luật DCA",
-      },
-      {
-        id: "inv-2",
-        phaseLabel: "Chặng 2",
-        title: "Xây Dựng & Tối Ưu Hóa Danh Mục Đa Tài Sản",
-        duration: "6 tuần",
-        summary: "Phân bổ 5 lớp tài sản (Cổ phiếu tăng trưởng, Cổ tức, Trái phiếu, Vàng, Tiền mặt) và kiểm thử Max Drawdown.",
-        skills: ["Phân bổ Đa tài sản", "Max Drawdown", "Tái cân bằng"],
-        deliverable: "Mô phỏng danh mục chịu đựng kịch bản suy thoái và lạm phát",
-        matchKeywords: ["danh muc", "portfolio", "tai san", "dau tu"],
-        aiTopicPrompt: "Xây dựng danh mục đầu tư đa tài sản và quản trị mức sụt giảm tối đa",
-      },
-      {
-        id: "inv-3",
-        phaseLabel: "Chặng 3",
-        title: "Biên An Toàn, Định Giá & Tâm Lý Học Hành Vi",
-        duration: "6 tuần",
-        summary: "Phân tích P/E, P/B, dòng tiền tự do và khắc phục 5 thiên kiến hành vi kinh điển (FOMO, Loss Aversion).",
-        skills: ["Biên an toàn", "Định giá cơ bản", "Khắc phục FOMO"],
-        deliverable: "Checklist ra quyết định đầu tư và bộ thẻ FSRS thiên kiến tâm lý",
-        matchKeywords: ["bien an toan", "dinh gia", "fomo", "contrarian"],
-        aiTopicPrompt: "Tâm lý học hành vi nhà đầu tư và phân tích biên an toàn cổ phiếu",
-      },
-    ],
-  },
-  {
-    id: "roadmap-js-problem-solving",
-    title: "Lộ trình Lập Trình JavaScript & Tư Duy Giải Thuật Thực Chiến",
-    subtitle: "Thực thi code trong Web Worker Sandbox, giải quyết bài toán Parsons và xử lý bất đồng bộ",
-    category: "Công nghệ & Lập trình",
-    badge: "16 Tuần · Web Worker",
-    accentGradient: "from-amber-500 via-yellow-500 to-orange-500",
-    badgeClasses:
-      "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800",
-    totalDuration: "16 tuần (3 chặng chuyên sâu)",
-    targetAudience: "Lập trình viên Frontend/Fullstack muốn rèn luyện thuật toán và tư duy code sạch",
-    outcome: "Viết hàm JS thuần khiết, làm chủ Web Worker sandbox, vượt qua các thử thách Parsons Problem",
-    milestones: [
-      {
-        id: "js-1",
-        phaseLabel: "Chặng 1",
-        title: "Xử Lý Dữ Liệu Mảng & Tư Duy Thuật Toán",
-        duration: "5 tuần",
-        summary: "Biến đổi mảng với Map/Filter/Reduce, tìm kiếm nhị phân O(log n) và kỹ thuật Two Pointers.",
-        skills: ["Map, Filter, Reduce", "Binary Search", "Two Pointers"],
-        deliverable: "Vượt qua bài kiểm tra code JS sandbox với 100% test cases xanh",
-        matchKeywords: ["javascript", "js", "mang", "two sum", "thuat toan"],
-        aiTopicPrompt: "Lập trình JavaScript chuyên sâu: Xử lý mảng và thuật toán tìm kiếm",
-      },
-      {
-        id: "js-2",
-        phaseLabel: "Chặng 2",
-        title: "Lập Trình Hàm, Closure & Tối Ưu Hiệu Năng",
-        duration: "5 tuần",
-        summary: "Cài đặt hàm Debounce, Throttle và Memoization, tìm và sửa bug rò rỉ bộ nhớ thực tế.",
-        skills: ["Debounce & Throttle", "Memoization Cache", "Săn Bug JS"],
-        deliverable: "Bộ thư viện tiện ích tối ưu hóa sự kiện UI tần suất cao",
-        matchKeywords: ["debounce", "memoize", "throttle", "closure", "bug"],
-        aiTopicPrompt: "Kỹ thuật tối ưu hiệu năng JavaScript với Debounce, Throttle và Memoize",
-      },
-      {
-        id: "js-3",
-        phaseLabel: "Chặng 3",
-        title: "Bất Đồng Bộ, Pipeline & Xử Lý Lỗi Toàn Diện",
-        duration: "6 tuần",
-        summary: "Async/await, Promise pipeline tuần tự, cơ chế Retry exponential backoff và Deep Clone an toàn.",
-        skills: ["Async Pipeline", "Promise Retry", "Deep Clone Immutability"],
-        deliverable: "Pipeline xử lý dữ liệu bất đồng bộ có cơ chế tự phục hồi lỗi mạng",
-        matchKeywords: ["async", "promise", "deep clone", "pipeline"],
-        aiTopicPrompt: "Xử lý bất đồng bộ nâng cao trong JavaScript và cơ chế phục hồi lỗi",
-      },
-    ],
-  },
-  {
-    id: "roadmap-psychology-memory-science",
-    title: "Lộ trình Tâm Lý Học Nhận Thức & Khoa Học Trí Nhớ",
-    subtitle: "Mini lab Stroop Test, đo Memory Span, Chunking và liệu pháp nhận thức hành vi CBT",
-    category: "Tâm lý & Kỹ năng sống",
-    badge: "16 Tuần · Cognitive Lab",
-    accentGradient: "from-purple-600 via-pink-600 to-rose-500",
-    badgeClasses:
-      "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800",
-    totalDuration: "16 tuần (3 chặng trải nghiệm)",
-    targetAudience: "Người tự học nâng cao muốn tối ưu hóa bộ não, EQ và khả năng ghi nhớ dài hạn",
-    outcome: "Đo lường thời gian phản xạ não bộ, áp dụng kỹ thuật Chunking và mô hình CBT ABC vào cuộc sống",
-    milestones: [
-      {
-        id: "cog-1",
-        phaseLabel: "Chặng 1",
-        title: "Nhận Thức, Chú Ý & Can Thiệp Não Bộ",
-        duration: "5 tuần",
-        summary: "Mô hình Hệ thống 1 & 2 của Kahneman, trải nghiệm đo hiệu ứng Stroop ms thật và giao tiếp NVC.",
-        skills: ["Hệ thống 1 & 2", "Thí nghiệm Stroop", "Giao tiếp NVC"],
-        deliverable: "Báo cáo độ trễ phản xạ Stroop và bài thực hành NVC 4 bước",
-        matchKeywords: ["stroop", "he thong 1", "nhan thuc", "nvc", "tam ly"],
-        aiTopicPrompt: "Tâm lý học nhận thức: Hệ thống 1 và 2, hiệu ứng Stroop và giao tiếp NVC",
-      },
-      {
-        id: "cog-2",
-        phaseLabel: "Chặng 2",
-        title: "Khoa Học Trí Nhớ, Chunking & Lặp Lại Ngắt Quãng",
-        duration: "5 tuần",
-        summary: "Đo dung lượng trí nhớ ngắn hạn (Memory Span 7±2), mở rộng bằng Chunking và Spaced Repetition.",
-        skills: ["Memory Span Test", "Kỹ thuật Chunking", "Đường cong Ebbinghaus"],
-        deliverable: "Thực nghiệm tăng gấp đôi dung lượng nhớ qua kỹ thuật nhóm cụm",
-        matchKeywords: ["memory span", "chunking", "ebbinghaus", "tri nho"],
-        aiTopicPrompt: "Khoa học trí nhớ: Kỹ thuật Chunking và thuật toán lặp lại ngắt quãng FSRS",
-      },
-      {
-        id: "cog-3",
-        phaseLabel: "Chặng 3",
-        title: "Liệu Pháp CBT & Trí Tuệ Cảm Xúc Ứng Dụng",
-        duration: "6 tuần",
-        summary: "Tái cấu trúc nhận thức theo mô hình CBT ABC, thiết lập ranh giới cá nhân lành mạnh và tự trắc ẩn.",
-        skills: ["Mô hình CBT ABC", "Thiết lập ranh giới", "Tự trắc ẩn (Self-Compassion)"],
-        deliverable: "Nhật ký phản tư CBT chuyển đổi suy nghĩ tiêu cực thành hành động",
-        matchKeywords: ["cbt", "ranh gioi", "tu trac an", "cam xuc"],
-        aiTopicPrompt: "Liệu pháp nhận thức hành vi CBT và kỹ năng tự trắc ẩn trong đời sống",
-      },
-    ],
-  },
 ];
 
 export const STUDY_USE_CASES: StudyUseCase[] = [
@@ -682,24 +544,24 @@ export const STUDY_USE_CASES: StudyUseCase[] = [
     recommendedFeatures: ["Shadowing đa tốc độ", "Dictation nghe chép", "Sơ đồ Word Map", "Lưu FSRS 1-click"],
     accentColor: "sky",
     aiTemplateTopic: "Tiếng Anh giao tiếp công sở: Phản xạ Shadowing, Dictation và Mind Map từ vựng",
-    targetRoute: "/app/courses/22222222-2222-4222-8222-222222222223/learn",
+    targetRoute: "/app/courses",
     ctaLabel: "Luyện Shadowing",
   },
   {
     id: "uc-coding-worker-parsons",
-    title: "Học Code JS Thực Chiến Với Web Worker Sandbox & Parsons Problem",
+    title: "Học Code Lập Trình Thực Chiến & Giải Thuật Tư Duy",
     persona: "Lập trình viên / Sinh viên CNTT rèn tư duy giải thuật",
     painPoint: "Môi trường học trực tuyến chỉ chạy eval nguy hiểm hoặc chấm giả lập, không có test case thật.",
     workflowSteps: [
-      "Mở khóa Lập trình JavaScript & Tư duy Giải quyết Vấn đề.",
-      "Viết hàm và bấm 'Chạy kiểm thử' để Web Worker độc lập chấm điểm qua các test case thật với thời gian ms thật.",
+      "Mở Bootcamp Full-Stack Developer hoặc khóa Hệ điều hành & Bộ nhớ ảo.",
+      "Viết hàm và chạy kiểm thử với Web Worker độc lập chấm điểm qua các test case thật.",
       "Sắp xếp logic code trong bài tập Parsons Problem để rèn cấu trúc tư duy trước khi tự viết.",
     ],
-    recommendedFeatures: ["Web Worker Sandbox", "Test Case Thực tế", "Parsons Problem Reorder", "Săn Bug JS"],
+    recommendedFeatures: ["Web Worker Sandbox", "Test Case Thực tế", "Parsons Problem Reorder", "Săn Bug"],
     accentColor: "violet",
-    aiTemplateTopic: "Luyện tư duy thuật toán JavaScript, Web Worker Sandbox và giải bài tập Parsons",
-    targetRoute: "/app/courses/22222222-2222-4222-8222-222222222225/learn",
-    ctaLabel: "Mở Worker Sandbox",
+    aiTemplateTopic: "Luyện tư duy thuật toán lập trình, Web Worker Sandbox và giải bài tập Parsons",
+    targetRoute: "/app/courses",
+    ctaLabel: "Mở Sandbox Code",
   },
   {
     id: "uc-investing-portfolio-sim",
@@ -708,29 +570,29 @@ export const STUDY_USE_CASES: StudyUseCase[] = [
     painPoint: "Dễ bị FOMO khi thị trường tăng nóng hoặc hoảng loạn bán tháo ở đáy do thiếu kế hoạch phân bổ.",
     workflowSteps: [
       "Dùng Máy tính Lãi kép & DCA tương tác để so sánh sức mạnh tích lũy so với gửi tiết kiệm ngân hàng.",
-      "Phân bổ tỷ trọng 5 lớp tài sản trong Mô phỏng Danh mục (Dữ liệu mẫu) và stress-test qua 3 kịch bản kinh tế.",
+      "Phân bổ tỷ trọng các lớp tài sản trong Mô phỏng Danh mục và stress-test qua các kịch bản kinh tế.",
       "Trả lời Quiz Thiên kiến Hành vi (FOMO, Loss Aversion) và lưu nguyên lý vào Flashcard FSRS để ghi nhớ lâu dài.",
     ],
-    recommendedFeatures: ["Máy tính DCA & Lãi kép", "Portfolio Simulator (Dữ liệu mẫu)", "Quiz Thiên kiến Hành vi", "Lưu FSRS"],
+    recommendedFeatures: ["Máy tính DCA & Lãi kép", "Portfolio Simulator", "Quiz Thiên kiến Hành vi", "Lưu FSRS"],
     accentColor: "emerald",
     aiTemplateTopic: "Mô phỏng phân bổ danh mục đầu tư đa tài sản và khắc phục thiên kiến tâm lý",
-    targetRoute: "/app/courses/22222222-2222-4222-8222-222222222224/learn",
+    targetRoute: "/app/courses",
     ctaLabel: "Mô phỏng Danh mục",
   },
   {
     id: "uc-psychology-cognitive-labs",
-    title: "Thí Nghiệm Nhận Thức Stroop & Đo Dung Lượng Trí Nhớ (Chunking)",
+    title: "Thí Nghiệm Nhận Thức & Đo Dung Lượng Trí Nhớ (Chunking)",
     persona: "Người tự học nâng cao / Người muốn rèn luyện não bộ & EQ",
-    painPoint: "Đọc lý thuyết tâm lý học cảm giác trừu tượng, khó hình dung sự can thiệp của Hệ thống 1 và giới hạn trí nhớ.",
+    painPoint: "Đọc lý thuyết tâm lý học cảm giác trừu tượng, khó hình dung sự can thiệp của nhận thức và giới hạn trí nhớ.",
     workflowSteps: [
-      "Tham gia Mini Lab Stroop Test: đo chính xác độ lệch mili-giây giữa chữ và màu để cảm nhận Hệ thống 1 vs Hệ thống 2.",
+      "Mở khóa Tâm Lý Học Ứng Dụng để trải nghiệm các bài tập phản xạ và nhận diện thiên kiến.",
       "Kiểm tra Memory Span cá nhân và thực nghiệm cách nhóm cụm (Chunking) để nhân đôi khả năng nhớ.",
       "Viết nhật ký phản tư theo mô hình CBT ABC và lưu vào Sổ tay học tập cá nhân.",
     ],
-    recommendedFeatures: ["Stroop Test ms thật", "Memory Span & Chunking", "Nhật ký CBT ABC", "Giao tiếp NVC"],
+    recommendedFeatures: ["Mini Lab Nhận Thức", "Memory Span & Chunking", "Nhật ký CBT ABC", "Giao tiếp NVC"],
     accentColor: "rose",
-    aiTemplateTopic: "Thực nghiệm tâm lý học nhận thức: Thí nghiệm Stroop, dung lượng trí nhớ và mô hình CBT",
-    targetRoute: "/app/courses/22222222-2222-4222-8222-222222222226/learn",
+    aiTemplateTopic: "Thực nghiệm tâm lý học nhận thức: Dung lượng trí nhớ, kỹ thuật Chunking và mô hình CBT",
+    targetRoute: "/app/courses",
     ctaLabel: "Khám phá Mini Lab",
   },
 ];
@@ -752,11 +614,14 @@ export function resolveRoadmapProgress(
   courses: CourseLike[]
 ): ResolvedRoadmapProgress {
   const matchedCourseIds = new Set<string>();
+  // Filter out retired courses to never match them in roadmaps
+  const validCourses = courses.filter((c) => !isRetiredCourse(c));
+
   const milestones = roadmap.milestones.map((milestone) => {
     let bestCourse: CourseLike | null = null;
     let bestScore = 0;
 
-    for (const course of courses) {
+    for (const course of validCourses) {
       const hay = normalizeVi(`${course.title || ""} ${course.description || ""} ${course.category || ""}`);
       let hits = 0;
       for (const kw of milestone.matchKeywords) {

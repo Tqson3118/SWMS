@@ -179,6 +179,12 @@ export default function WorkspacePage() {
   }, [authReady, fetchDashboardData]);
 
   useEffect(() => {
+    if (activeMode === "dashboard" && authReady) {
+      fetchDashboardData(true);
+    }
+  }, [activeMode, authReady, fetchDashboardData]);
+
+  useEffect(() => {
     const handleMutated = () => {
       fetchDashboardData(true);
     };
@@ -346,7 +352,7 @@ export default function WorkspacePage() {
           {activeMode === "dashboard" && (
             <PersonalWorkspaceDashboard
               data={dashboard}
-              onRefreshDashboard={fetchDashboardData}
+              onRefreshDashboard={() => fetchDashboardData(true)}
               isLoadingDashboard={isLoadingDashboard}
               dashboardError={dashboardError}
             />
@@ -355,7 +361,7 @@ export default function WorkspacePage() {
           {(activeMode === "reading" || activeMode === "split") && (
             <ReaderAndSplitViews
               mode={activeMode}
-              onDataMutated={fetchDashboardData}
+              onDataMutated={() => fetchDashboardData(true)}
               documents={dashboard.documents}
               lessons={dashboard.lessons}
               {...({

@@ -1,218 +1,166 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   AlertCircle,
+  Archive,
+  ArrowRight,
   Award,
   BookOpen,
   Brain,
   Check,
   CheckCircle2,
-  ChevronDown,
-  ChevronRight,
-  ChevronsDownUp,
-  ChevronsUpDown,
   ClipboardCheck,
   Clock,
+  Compass,
   Download,
+  Edit3,
+  ExternalLink,
   FlaskConical,
+  FolderArchive,
   Layers,
-  Lock,
   MessageSquare,
-  Pencil,
+  Pin,
   Play,
   RefreshCw,
   Search,
-  Send,
+  Settings,
   Sparkles,
   Star,
   Target,
-  Unlock,
   X,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
-import { fetchDashboardCached } from "@/lib/api-client";
-import { Button, Card, Badge, EmptyState } from "@/components/ui";
+import { fetchDashboardCached, invalidateDashboardCache } from "@/lib/api-client";
+import { Button, Card, Badge } from "@/components/ui";
 import {
   classifyCourseDomain,
   extractCourseSkillTags,
   getCourseTotalMinutes,
   getCourseVisualTheme,
-  normalizeVi,
-  stripChapterPrefix,
 } from "@/lib/course-helpers";
 
-interface CourseLesson {
-  id: string;
-  title: string;
-  durationMinutes?: number;
-  estimatedMinutes?: number;
-  isCompleted?: boolean;
-  sortOrder?: number;
-  courseId?: string;
-  practiceActivityCount?: number;
-  practicePassedCount?: number;
+import type {
+  CourseChapter,
+  CourseDetail,
+  CourseLesson,
+  CourseResumeState,
+  CourseReviewItem,
+  WeakChapterItem,
+} from "@/components/courses/types";
+import { CourseSyllabusTab } from "@/components/courses/CourseSyllabusTab";
+import { CoursePracticeTab } from "@/components/courses/CoursePracticeTab";
+import { CourseAssetsTab } from "@/components/courses/CourseAssetsTab";
+import { CourseSettingsTab } from "@/components/courses/CourseSettingsTab";
+import { CourseInSearchModal } from "@/components/learn/CourseInSearchModal";
+
+type TabKey = "syllabus" | "practice" | "assets" | "settings";
+const VALID_TABS: TabKey[] = ["syllabus", "practice", "assets", "settings"];
+
+interface ToastState {
+  message: string;
+  type: "success" | "error";
 }
 
-interface CourseChapter {
-  id: string;
-  chapterId?: string;
-  title: string;
-  sortOrder?: number;
-  lessons: CourseLesson[];
+interface RetiredCourseInfo {
+  error: string;
+  redirectSlug: string;
+  redirectCourseId?: string | null;
 }
 
-interface WeakChapterItem {
-  chapterId: string;
-  title: string;
-  completionPercent: number;
-  reason?: string;
-  nextLessonId?: string;
-}
-
-interface CourseResumeState {
-  lastLessonId?: string | null;
-  lastLessonTitle?: string | null;
-  readPercent?: number;
-  totalStudiedMinutes?: number;
-  lastAccessedAt?: string | null;
-}
-
-interface CourseReviewItem {
-  id: string;
-  userName: string;
-  rating: number;
-  comment: string;
-  createdAt?: string | null;
-}
-
-interface CourseDetail {
-  id: string;
-  title: string;
-  description?: string;
-  category?: string;
-  visibility?: string;
-  isPublished?: boolean;
-  progressPercent: number;
-  totalLessons: number;
-  completedLessons: number;
-  completedLessonIds?: string[];
-  totalEstimatedMinutes?: number;
-  flashcardCount?: number;
-  dueFlashcardCount?: number;
-  masteredFlashcardCount?: number;
-  practiceTotalActivities?: number;
-  practicePassedActivities?: number;
-  practiceAverageScore?: number;
-  quizCount?: number;
-  quizId?: string | null;
-  weakChapters?: WeakChapterItem[];
-  chapters: CourseChapter[];
-}
-
-type LessonFilter = "all" | "pending" | "completed";
-
-function getLessonPracticeChips(domainId: string, lessonTitle: string): string[] {
-  const norm = normalizeVi(lessonTitle);
-  if (domainId === "language") {
-    if (/nghe|listening|audio|wav|hoi thoai/.test(norm)) return ["Nghe & Chép", "Phát âm IPA", "Quiz"];
-    if (/doc|reading|passage/.test(norm)) return ["Đọc hiểu", "Từ vựng FSRS", "Quiz"];
-    if (/viet|writing|essay/.test(norm)) return ["Luyện viết", "Ngữ pháp"];
-    return ["Luyện nghe nói", "Flashcard FSRS", "Quiz"];
-  }
-  if (domainId === "technology") {
-    if (/database|sql|du lieu/.test(norm)) return ["SQL Lab", "Query Test", "Quiz"];
-    if (/thuat toan|cau truc/.test(norm)) return ["Code Lab", "Benchmark"];
-    if (/api|service|microservice/.test(norm)) return ["API Drill", "Code Lab", "Quiz"];
-    return ["Code Lab", "Debug Test", "Quiz"];
-  }
-  if (domainId === "business") {
-    if (/ngan sach|dong tien|tai chinh/.test(norm)) return ["Bảng tính FCF", "Case Study", "Quiz"];
-    if (/dau tu|co phieu|tai san/.test(norm)) return ["Mô hình đầu tư", "Thực hành"];
-    return ["Case Study", "Thẻ nhớ FSRS", "Quiz"];
-  }
-  if (domainId === "law") {
-    return ["Tình huống án lệ", "Văn bản luật", "Quiz"];
-  }
-  if (domainId === "science") {
-    return ["Giải bài tập", "Công thức", "Quiz"];
-  }
-  return ["Tình huống thực tế", "Thẻ nhớ FSRS", "Quiz"];
-}
-
-function getCourseLearningOutcomes(domainId: string): string[] {
-  if (domainId === "language") {
-    return [
-      "Làm chủ 4 kỹ năng Nghe, Nói, Đọc, Viết theo lộ trình bài bản.",
-      "Luyện phản xạ Nghe & Chép chính tả và phát âm chuẩn âm vị quốc tế.",
-      "Ghi nhớ từ vựng dài hạn với thuật toán ngắt quãng FSRS v5.",
-      "Đánh giá tiến bộ định kỳ qua hệ thống bài thi Quiz thực chiến.",
-    ];
-  }
-  if (domainId === "technology") {
-    return [
-      "Nắm vững kiến trúc, tư duy thiết kế và cấu trúc hệ thống chịu tải cao.",
-      "Thực hành viết mã, debug và kiểm thử trực tiếp trong Code Lab.",
-      "Áp dụng Best Practices, Design Patterns và xử lý tình huống thực tế.",
-      "Tự tin xây dựng sản phẩm hoàn chỉnh và đáp ứng tiêu chuẩn ngành.",
-    ];
-  }
-  if (domainId === "business") {
-    return [
-      "Quản lý dòng tiền cá nhân và doanh nghiệp, thiết lập quỹ dự phòng.",
-      "Thực hành phân tích báo cáo tài chính và định giá tài sản sinh lời.",
-      "Xây dựng chiến lược phân bổ vốn và quản trị rủi ro đầu tư bền vững.",
-      "Hệ thống hóa tư duy kinh tế và ra quyết định tài chính kỷ luật.",
-    ];
-  }
-  if (domainId === "law") {
-    return [
-      "Nắm vững hệ thống quy phạm pháp luật và nguyên tắc áp dụng thực tiễn.",
-      "Phân tích các tình huống tranh chấp pháp lý và án lệ điển hình.",
-      "Hệ thống hóa thuật ngữ pháp lý và quy trình tố tụng chuẩn xác.",
-      "Rèn luyện tư duy lập luận pháp lý sắc bén và tuân thủ chuẩn mực.",
-    ];
-  }
-  if (domainId === "science") {
-    return [
-      "Hiểu sâu bản chất các định lý, công thức và nguyên lý toán học / khoa học.",
-      "Rèn luyện phương pháp giải bài tập logic từ cơ bản đến phức tạp.",
-      "Áp dụng tư duy phân tích định lượng vào các bài toán thực tiễn.",
-      "Củng cố phản xạ giải đề qua ngân hàng câu hỏi trắc nghiệm & tự luận.",
-    ];
-  }
-  return [
-    "Hệ thống hóa toàn bộ kiến thức cốt lõi theo từng chặng rõ ràng.",
-    "Rèn luyện kỹ năng thực hành tương tác qua các tình huống giả lập.",
-    "Khắc sâu kiến thức dài hạn với hệ thống thẻ nhớ thông minh FSRS.",
-    "Tự tin ứng dụng kiến thức vào công việc và cuộc sống hàng ngày.",
-  ];
-}
-
-export default function CourseDetailPage() {
+function CourseDetailPageInner() {
   const params = useParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const courseId = params.id as string;
   const { activeUserHeaderId } = useWorkspaceStore();
+
+  // Tab State synced with URL query param ?tab= (fallback safely to "syllabus")
+  const rawTab = searchParams.get("tab") as TabKey | null;
+  const activeTab: TabKey = rawTab && VALID_TABS.includes(rawTab) ? rawTab : "syllabus";
+  const tabButtonRefs = useRef<Record<TabKey, HTMLButtonElement | null>>({
+    syllabus: null,
+    practice: null,
+    assets: null,
+    settings: null,
+  });
+
+  const handleTabChange = (tab: TabKey) => {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set("tab", tab);
+    router.replace(`?${nextParams.toString()}`, { scroll: false });
+  };
+
+  const handleTabListKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Home" && e.key !== "End") {
+      return;
+    }
+    e.preventDefault();
+    const currentIndex = VALID_TABS.indexOf(activeTab);
+    let nextIndex = currentIndex;
+    if (e.key === "ArrowRight") {
+      nextIndex = (currentIndex + 1) % VALID_TABS.length;
+    } else if (e.key === "ArrowLeft") {
+      nextIndex = (currentIndex - 1 + VALID_TABS.length) % VALID_TABS.length;
+    } else if (e.key === "Home") {
+      nextIndex = 0;
+    } else if (e.key === "End") {
+      nextIndex = VALID_TABS.length - 1;
+    }
+    const nextTab = VALID_TABS[nextIndex];
+    handleTabChange(nextTab);
+    tabButtonRefs.current[nextTab]?.focus();
+  };
 
   const [course, setCourse] = useState<CourseDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [retiredInfo, setRetiredInfo] = useState<RetiredCourseInfo | null>(null);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [lessonFilter, setLessonFilter] = useState<LessonFilter>("all");
   const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set());
-  const [dailyLessonsPace, setDailyLessonsPace] = useState<number>(2);
   const [sequentialUnlock, setSequentialUnlock] = useState<boolean>(false);
-
   const [resumeState, setResumeState] = useState<CourseResumeState | null>(null);
+
+  // Reviews
   const [reviews, setReviews] = useState<CourseReviewItem[]>([]);
   const [averageRating, setAverageRating] = useState<number>(0);
   const [ratingInput, setRatingInput] = useState<number>(5);
   const [commentInput, setCommentInput] = useState<string>("");
   const [submittingReview, setSubmittingReview] = useState<boolean>(false);
   const [reviewNotice, setReviewNotice] = useState<string | null>(null);
+
+  // Study Guide download
+  const [downloadingGuide, setDownloadingGuide] = useState(false);
+
+  // Quick In-Course Search Modal
+  const [showSearchModal, setShowSearchModal] = useState(false);
+
+  // Quick Pin Toggle
+  const [isTogglingPin, setIsTogglingPin] = useState(false);
+
+  // Lightweight Toast
+  const [toast, setToast] = useState<ToastState | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 3500);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  // Global keyboard shortcut Ctrl+Shift+F / Cmd+Shift+F for In-Course Search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        setShowSearchModal(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
     if (!courseId || typeof window === "undefined") return;
@@ -232,42 +180,6 @@ export default function CourseDetailPage() {
       }
       return next;
     });
-  };
-
-  const [downloadingGuide, setDownloadingGuide] = useState(false);
-
-  const handleDownloadStudyGuide = async () => {
-    if (!courseId || downloadingGuide) return;
-    setDownloadingGuide(true);
-    try {
-      const resolvedUserId =
-        activeUserHeaderId ??
-        (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
-      const headers = getClientRequestHeaders(
-        resolvedUserId ? { "X-Test-User-Id": resolvedUserId } : undefined
-      );
-      const resp = await fetch(`/api/v1/courses/${courseId}/study-guide`, { headers });
-      if (!resp.ok) {
-        setFetchError(`Không xuất được đề cương (HTTP ${resp.status}).`);
-        return;
-      }
-      const data = await resp.json();
-      const markdown = String(data.markdown || "");
-      const fileName = String(data.fileName || "studxy-de-cuong.md");
-      const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = fileName;
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      URL.revokeObjectURL(url);
-    } catch {
-      setFetchError("Lỗi kết nối khi tải đề cương ôn tập.");
-    } finally {
-      setDownloadingGuide(false);
-    }
   };
 
   const parseReviewsPayload = useCallback((rawReviews: unknown) => {
@@ -295,9 +207,7 @@ export default function CourseDetailPage() {
     }));
 
     setReviews(mapped);
-    const explicitAvg = Number(
-      (rawReviews as { averageRating?: unknown }).averageRating ?? 0
-    );
+    const explicitAvg = Number((rawReviews as { averageRating?: unknown }).averageRating ?? 0);
     if (Number.isFinite(explicitAvg) && explicitAvg > 0) {
       setAverageRating(Number(explicitAvg.toFixed(1)));
     } else if (mapped.length > 0) {
@@ -312,6 +222,7 @@ export default function CourseDetailPage() {
     if (!courseId) return;
     setIsLoading(true);
     setFetchError(null);
+    setRetiredInfo(null);
     try {
       const effectiveUserId =
         activeUserHeaderId ??
@@ -320,10 +231,28 @@ export default function CourseDetailPage() {
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
 
-      const [courseResp, resumeResp, reviewsResp] = await Promise.all([
-        fetch(`/api/v1/courses/${courseId}`, { headers }).catch(() => null),
-        fetch(`/api/v1/courses/${courseId}/resume-state`, { headers }).catch(() => null),
-        fetch(`/api/v1/courses/${courseId}/reviews`, { headers }).catch(() => null),
+      const courseResp = await fetch(`/api/v1/courses/${courseId}`, {
+        headers,
+        credentials: "include",
+      }).catch(() => null);
+
+      // Check 404 Retired Course First before fetching supplementary resources!
+      if (courseResp && courseResp.status === 404) {
+        const errorJson = await courseResp.json().catch(() => null);
+        if (errorJson?.retired === true) {
+          setRetiredInfo({
+            error: errorJson.error || "Khóa học đã được gộp vào lộ trình chuẩn mới.",
+            redirectSlug: errorJson.redirectSlug || "",
+            redirectCourseId: errorJson.redirectCourseId ?? null,
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      const [resumeResp, reviewsResp] = await Promise.all([
+        fetch(`/api/v1/courses/${courseId}/resume-state`, { headers, credentials: "include" }).catch(() => null),
+        fetch(`/api/v1/courses/${courseId}/reviews`, { headers, credentials: "include" }).catch(() => null),
       ]);
 
       let courseData: CourseDetail | null = null;
@@ -343,6 +272,7 @@ export default function CourseDetailPage() {
             : total > 0
               ? Math.round((completed * 100) / total)
               : 0;
+
         const apiWeakChapters: WeakChapterItem[] | undefined = Array.isArray(raw.weakChapters)
           ? raw.weakChapters.map((wc: Record<string, unknown>) => ({
               chapterId: String(wc.chapterId || wc.id || ""),
@@ -356,63 +286,107 @@ export default function CourseDetailPage() {
         courseData = {
           ...raw,
           id: String(raw.courseId || raw.id || courseId),
+          courseId: String(raw.courseId || raw.id || courseId),
+          title: String(raw.title || "Khóa học"),
+          slug: raw.slug ?? undefined,
+          description: raw.description ?? "",
+          visibility: raw.visibility ?? "public",
+          isPublished: Boolean(raw.isPublished ?? raw.visibility === "public"),
+          isPinned: Boolean(raw.isPinned),
+          isArchived: Boolean(raw.isArchived),
+          dailyLessonGoal: typeof raw.dailyLessonGoal === "number" && raw.dailyLessonGoal > 0 ? raw.dailyLessonGoal : 2,
+          targetCompletionDate: raw.targetCompletionDate ?? null,
+          isSystemCourse: Boolean(raw.isSystemCourse),
+          canDelete: Boolean(raw.canDelete),
+          category: raw.category ?? "",
+          level: raw.level ?? "",
+          learningOutcomes: Array.isArray(raw.learningOutcomes) ? raw.learningOutcomes : [],
+          prerequisites: Array.isArray(raw.prerequisites) ? raw.prerequisites : [],
+          targetAudience: raw.targetAudience ?? "",
+          labLabel: raw.labLabel ?? "",
+          hasAudio: Boolean(raw.hasAudio),
+          bookmarkedLessonCount: Number(raw.bookmarkedLessonCount ?? 0),
+          needsReviewLessonCount: Number(raw.needsReviewLessonCount ?? 0),
           totalLessons: total,
           completedLessons: completed,
           completedLessonIds: completedIds,
           progressPercent: progress,
+          totalEstimatedMinutes: Number(raw.totalEstimatedMinutes ?? 0),
+          flashcardCount: Number(raw.flashcardCount ?? 0),
+          dueFlashcardCount: Number(raw.dueFlashcardCount ?? 0),
+          masteredFlashcardCount: Number(raw.masteredFlashcardCount ?? 0),
+          practiceTotalActivities: Number(raw.practiceTotalActivities ?? 0),
+          practicePassedActivities: Number(raw.practicePassedActivities ?? 0),
+          practiceAverageScore: Number(raw.practiceAverageScore ?? 0),
+          quizCount: Number(raw.quizCount ?? 0),
+          quizId: (raw.quizId as string | null | undefined) ?? null,
+          firstLessonId: raw.firstLessonId ?? null,
           weakChapters: apiWeakChapters,
           chapters: chaps,
         };
       } else {
+        // Fallback to dashboard cache if courseResp had transient error
         const dashData = await fetchDashboardCached({ headers }).catch(() => null);
         if (dashData) {
           const allCourses = dashData.courses ?? [];
-        const found = allCourses.find(
-          (c: Record<string, unknown>) => (c.courseId || c.id) === courseId
-        );
-        if (found) {
-          const chaps = (found.chapters as CourseChapter[]) ?? [];
-          const total = Number(
-            found.totalLessons ??
-              found.lessonCount ??
-              chaps.reduce((s, ch) => s + (ch.lessons?.length ?? 0), 0)
+          const found = allCourses.find(
+            (c: Record<string, unknown>) => (c.courseId || c.id) === courseId
           );
-          const completedIds = Array.isArray(found.completedLessonIds)
-            ? (found.completedLessonIds as string[])
-            : [];
-          const completed = Number(found.completedLessons ?? completedIds.length);
-          courseData = {
-            id: String(found.courseId || found.id),
-            title: String(found.title || "Khóa học"),
-            description: String(found.description || ""),
-            category: String(found.category || ""),
-            visibility: String(found.visibility || "personal"),
-            isPublished: Boolean(found.isPublished ?? found.visibility === "public"),
-            progressPercent: Number(
-              found.progressPercent ??
-                found.progress ??
-                (total > 0 ? Math.round((completed * 100) / total) : 0)
-            ),
-            totalLessons: total,
-            completedLessons: completed,
-            completedLessonIds: completedIds,
-            flashcardCount: Number(found.flashcardCount ?? 0),
-            dueFlashcardCount: Number(found.dueFlashcardCount ?? 0),
-            masteredFlashcardCount: Number(found.masteredFlashcardCount ?? 0),
-            practiceTotalActivities: Number(found.practiceTotalActivities ?? 0),
-            practicePassedActivities: Number(found.practicePassedActivities ?? 0),
-            practiceAverageScore: Number(found.practiceAverageScore ?? 0),
-            quizCount: Number(found.quizCount ?? 0),
-            quizId: (found.quizId as string | null | undefined) ?? null,
-            chapters: chaps,
-          };
-        }
+          if (found) {
+            const chaps = (found.chapters as CourseChapter[]) ?? [];
+            const flatLessons = chaps.flatMap((ch) => ch.lessons ?? []);
+            const completedIds = Array.isArray(found.completedLessonIds)
+              ? (found.completedLessonIds as string[])
+              : [];
+            const total = Number(
+              found.totalLessons ?? found.lessonCount ?? flatLessons.length
+            );
+            const completed = Number(found.completedLessons ?? completedIds.length);
+            courseData = {
+              id: String(found.courseId || found.id),
+              courseId: String(found.courseId || found.id),
+              title: String(found.title || "Khóa học"),
+              description: String(found.description || ""),
+              category: String(found.category || ""),
+              visibility: String(found.visibility || "personal"),
+              isPublished: Boolean(found.isPublished ?? found.visibility === "public"),
+              isPinned: Boolean(found.isPinned),
+              isArchived: Boolean(found.isArchived),
+              dailyLessonGoal: typeof found.dailyLessonGoal === "number" ? found.dailyLessonGoal : 2,
+              targetCompletionDate: found.targetCompletionDate ?? null,
+              isSystemCourse: Boolean(found.isSystemCourse),
+              canDelete: Boolean(found.canDelete),
+              learningOutcomes: Array.isArray(found.learningOutcomes) ? found.learningOutcomes : [],
+              prerequisites: Array.isArray(found.prerequisites) ? found.prerequisites : [],
+              targetAudience: String(found.targetAudience || ""),
+              labLabel: String(found.labLabel || ""),
+              hasAudio: Boolean(found.hasAudio),
+              progressPercent: Number(
+                found.progressPercent ??
+                  found.progress ??
+                  (total > 0 ? Math.round((completed * 100) / total) : 0)
+              ),
+              totalLessons: total,
+              completedLessons: completed,
+              completedLessonIds: completedIds,
+              flashcardCount: Number(found.flashcardCount ?? 0),
+              dueFlashcardCount: Number(found.dueFlashcardCount ?? 0),
+              masteredFlashcardCount: Number(found.masteredFlashcardCount ?? 0),
+              practiceTotalActivities: Number(found.practiceTotalActivities ?? 0),
+              practicePassedActivities: Number(found.practicePassedActivities ?? 0),
+              practiceAverageScore: Number(found.practiceAverageScore ?? 0),
+              quizCount: Number(found.quizCount ?? 0),
+              quizId: (found.quizId as string | null | undefined) ?? null,
+              chapters: chaps,
+            };
+          }
         }
         if (!courseData && courseResp && !courseResp.ok) {
           setFetchError(`Không tải được thông tin khóa học (HTTP ${courseResp.status}).`);
         }
       }
 
+      // Resume State
       if (resumeResp && resumeResp.ok) {
         const rawResume = await resumeResp.json().catch(() => null);
         if (rawResume && typeof rawResume === "object") {
@@ -458,6 +432,7 @@ export default function CourseDetailPage() {
         }
       }
 
+      // Reviews
       if (reviewsResp && reviewsResp.ok) {
         const rawRev = await reviewsResp.json().catch(() => null);
         parseReviewsPayload(rawRev);
@@ -476,6 +451,54 @@ export default function CourseDetailPage() {
     }
   }, [courseId, activeUserHeaderId, parseReviewsPayload]);
 
+  useEffect(() => {
+    fetchCourse();
+  }, [fetchCourse]);
+
+  // Quick Pin Toggle from Hero
+  const handleQuickTogglePin = async () => {
+    if (!course || isTogglingPin) return;
+    setIsTogglingPin(true);
+    try {
+      const nextPin = !course.isPinned;
+      const effectiveUserId =
+        activeUserHeaderId ??
+        (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
+      const headers = getClientRequestHeaders({
+        "Content-Type": "application/json",
+        ...(effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : {}),
+      });
+
+      const resp = await fetch(`/api/v1/courses/${courseId}/preferences`, {
+        method: "PUT",
+        headers,
+        credentials: "include",
+        body: JSON.stringify({ isPinned: nextPin }),
+      });
+      if (resp.ok) {
+        setCourse((prev) => (prev ? { ...prev, isPinned: nextPin } : prev));
+        invalidateDashboardCache();
+        setToast({
+          message: nextPin ? "Đã ghim khóa học lên đầu danh sách." : "Đã bỏ ghim khóa học.",
+          type: "success",
+        });
+      } else {
+        setToast({
+          message: `Không thể cập nhật trạng thái ghim (HTTP ${resp.status}).`,
+          type: "error",
+        });
+      }
+    } catch {
+      setToast({
+        message: "Lỗi kết nối khi cập nhật trạng thái ghim.",
+        type: "error",
+      });
+    } finally {
+      setIsTogglingPin(false);
+    }
+  };
+
+  // Submit Review Form
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!courseId || submittingReview) return;
@@ -499,6 +522,7 @@ export default function CourseDetailPage() {
       const resp = await fetch(`/api/v1/courses/${courseId}/reviews`, {
         method: "POST",
         headers,
+        credentials: "include",
         body: JSON.stringify({
           rating: ratingInput,
           comment: trimmed,
@@ -513,6 +537,7 @@ export default function CourseDetailPage() {
           headers: getClientRequestHeaders(
             effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
           ),
+          credentials: "include",
         }).catch(() => null);
         if (refreshed && refreshed.ok) {
           const data = await refreshed.json().catch(() => null);
@@ -532,9 +557,7 @@ export default function CourseDetailPage() {
         }
       } else {
         const errText = await resp.text().catch(() => "");
-        setReviewNotice(
-          `Không thể gửi đánh giá (HTTP ${resp.status})${errText ? `: ${errText}` : ""}`
-        );
+        setReviewNotice(`Không thể gửi đánh giá (HTTP ${resp.status})${errText ? `: ${errText}` : ""}`);
       }
     } catch {
       setReviewNotice("Lỗi kết nối khi gửi đánh giá.");
@@ -543,9 +566,53 @@ export default function CourseDetailPage() {
     }
   };
 
-  useEffect(() => {
-    fetchCourse();
-  }, [fetchCourse]);
+  // Download Study Guide
+  const handleDownloadStudyGuide = async () => {
+    if (!courseId || downloadingGuide) return;
+    setDownloadingGuide(true);
+    try {
+      const effectiveUserId =
+        activeUserHeaderId ??
+        (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
+      const headers = getClientRequestHeaders(
+        effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
+      );
+      const resp = await fetch(`/api/v1/courses/${courseId}/study-guide`, {
+        headers,
+        credentials: "include",
+      });
+      if (!resp.ok) {
+        setToast({
+          message: `Không xuất được đề cương (HTTP ${resp.status}).`,
+          type: "error",
+        });
+        return;
+      }
+      const data = await resp.json();
+      const markdown = String(data.markdown || "");
+      const fileName = String(data.fileName || "studxy-de-cuong.md");
+      const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = fileName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+      setToast({
+        message: `Đã tải xuống Đề cương (${fileName}) thành công!`,
+        type: "success",
+      });
+    } catch {
+      setToast({
+        message: "Lỗi kết nối khi tải đề cương ôn tập.",
+        type: "error",
+      });
+    } finally {
+      setDownloadingGuide(false);
+    }
+  };
 
   const completedSet = useMemo(
     () => new Set(course?.completedLessonIds ?? []),
@@ -615,96 +682,13 @@ export default function CourseDetailPage() {
     return allowed;
   }, [allLessons, isDone]);
 
-  const weakChaptersList = useMemo<WeakChapterItem[]>(() => {
-    if (!course) return [];
-    if (Array.isArray(course.weakChapters) && course.weakChapters.length > 0) {
-      return course.weakChapters;
-    }
-    const computed: WeakChapterItem[] = [];
-    for (const ch of course.chapters) {
-      const chKey = String(ch.chapterId || ch.id);
-      const lessons = ch.lessons ?? [];
-      if (lessons.length === 0) continue;
-      const doneCount = lessons.filter((l) => isDone(l)).length;
-      const pct = Math.round((doneCount * 100) / lessons.length);
-      const firstPending = lessons.find((l) => !isDone(l));
-      if (pct > 0 && pct < 100) {
-        computed.push({
-          chapterId: chKey,
-          title: stripChapterPrefix(ch.title) || ch.title,
-          completionPercent: pct,
-          reason: `Đang hoàn thành dở dang (${doneCount}/${lessons.length} bài)`,
-          nextLessonId: firstPending?.id,
-        });
-      }
-    }
-    if (computed.length === 0 && course.chapters.length > 0) {
-      const firstIncompleteCh = course.chapters.find((ch) =>
-        (ch.lessons ?? []).some((l) => !isDone(l))
-      );
-      if (firstIncompleteCh) {
-        const lessons = firstIncompleteCh.lessons ?? [];
-        const doneCount = lessons.filter((l) => isDone(l)).length;
-        const pct = lessons.length > 0 ? Math.round((doneCount * 100) / lessons.length) : 0;
-        const firstPending = lessons.find((l) => !isDone(l));
-        computed.push({
-          chapterId: String(firstIncompleteCh.chapterId || firstIncompleteCh.id),
-          title: stripChapterPrefix(firstIncompleteCh.title) || firstIncompleteCh.title,
-          completionPercent: pct,
-          reason: "Chặng trọng tâm tiếp theo cần củng cố",
-          nextLessonId: firstPending?.id,
-        });
-      }
-    }
-    return computed.slice(0, 3);
-  }, [course, isDone]);
-
-  const filteredChapters = useMemo(() => {
-    if (!course) return [];
-    const q = normalizeVi(searchQuery);
-    return course.chapters
-      .map((ch) => {
-        const matchingLessons = (ch.lessons ?? []).filter((lesson) => {
-          const done = isDone(lesson);
-          if (lessonFilter === "completed" && !done) return false;
-          if (lessonFilter === "pending" && done) return false;
-          if (q && !normalizeVi(lesson.title).includes(q)) return false;
-          return true;
-        });
-        return { ...ch, lessons: matchingLessons };
-      })
-      .filter((ch) => ch.lessons.length > 0 || (!q && lessonFilter === "all"));
-  }, [course, searchQuery, lessonFilter, isDone]);
-
-  const allExpanded =
-    course !== null &&
-    course.chapters.length > 0 &&
-    course.chapters.every((ch) => expandedChapters.has(String(ch.chapterId || ch.id)));
-
-  const toggleAllChapters = () => {
-    if (!course) return;
-    if (allExpanded) {
-      setExpandedChapters(new Set());
-    } else {
-      setExpandedChapters(new Set(course.chapters.map((ch) => String(ch.chapterId || ch.id))));
-    }
-  };
-
-  const toggleChapter = (chId: string) => {
-    setExpandedChapters((prev) => {
-      const next = new Set(prev);
-      if (next.has(chId)) next.delete(chId);
-      else next.add(chId);
-      return next;
-    });
-  };
-
+  // Loading Skeleton
   if (isLoading) {
     return (
       <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh] space-y-6">
         <div className="h-6 w-32 rounded bg-[var(--surface-elevated)] animate-pulse" />
         <div className="h-10 w-96 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
-        <div className="h-20 w-full rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="h-28 w-full rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
           <div className="lg:col-span-8 space-y-3">
             {[0, 1, 2].map((i) => (
@@ -717,6 +701,65 @@ export default function CourseDetailPage() {
     );
   }
 
+  // Retired Course Redirect Banner Screen (Requirement 2)
+  if (retiredInfo) {
+    const destinationHref = retiredInfo.redirectCourseId
+      ? `/app/courses/${retiredInfo.redirectCourseId}`
+      : "/app/courses";
+
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-12 sm:py-16">
+        <Card className="relative overflow-hidden bg-[var(--surface-card)] border-amber-500/30 dark:border-amber-400/25 shadow-lg p-0">
+          <div className="h-1.5 w-full bg-gradient-to-r from-amber-500 via-[#5E51E8] to-indigo-500" />
+          <div className="p-6 sm:p-8 text-center space-y-6">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/25 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto shadow-sm">
+              <Compass className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-3">
+              <Badge variant="warning" size="md">
+                Lộ trình đã được tối ưu hóa
+              </Badge>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
+                Khóa học đã được nâng cấp &amp; gộp
+              </h1>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed max-w-lg mx-auto">
+                {retiredInfo.error}
+              </p>
+              {retiredInfo.redirectSlug && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-xs text-[var(--text-tertiary)] font-mono">
+                  <span>Lộ trình chuẩn mới:</span>
+                  <span className="text-[var(--text-primary)] font-semibold">
+                    {retiredInfo.redirectSlug}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <Link href={destinationHref} className="w-full sm:w-auto">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="w-full sm:w-auto bg-[#5E51E8] hover:bg-[#4F46E5] text-white"
+                  rightIcon={<ArrowRight className="w-4 h-4" />}
+                >
+                  <span>Chuyển tới Lộ trình Chuẩn Mới</span>
+                </Button>
+              </Link>
+              <Link href="/app/courses" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                  <span>Về Danh sách khóa học</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Not Found or Error
   if (!course) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-12 text-center">
@@ -748,8 +791,7 @@ export default function CourseDetailPage() {
   const theme = getCourseVisualTheme(course);
   const skillTags = extractCourseSkillTags(course);
   const remainingLessons = Math.max(0, course.totalLessons - course.completedLessons);
-  const estimatedDaysToFinish =
-    remainingLessons > 0 ? Math.ceil(remainingLessons / Math.max(1, dailyLessonsPace)) : 0;
+
   const ringRadius = 32;
   const ringCirc = 2 * Math.PI * ringRadius;
   const ringOffset = ringCirc - (Math.min(100, Math.max(0, course.progressPercent)) / 100) * ringCirc;
@@ -758,12 +800,24 @@ export default function CourseDetailPage() {
     ? `/app/courses/${courseId}/learn?lesson=${resumeLesson.id}`
     : `/app/courses/${courseId}/learn`;
 
+  const isSystemCourse = Boolean(course.isSystemCourse);
+
+  const practiceTabBadgeCount =
+    (course.practiceTotalActivities ?? 0) > 0
+      ? `${course.practicePassedActivities ?? 0}/${course.practiceTotalActivities}`
+      : (course.dueFlashcardCount ?? 0) + (course.quizCount ?? 0) > 0
+        ? String((course.dueFlashcardCount ?? 0) + (course.quizCount ?? 0))
+        : null;
+
+  const assetsTabBadgeCount =
+    (course.bookmarkedLessonCount ?? 0) + (course.needsReviewLessonCount ?? 0);
+
   return (
-    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-32 md:pb-10">
+    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-32 md:pb-10 space-y-6 overflow-x-hidden">
       {/* Breadcrumb */}
       <nav
         aria-label="Breadcrumb"
-        className="flex items-center gap-2 text-sm text-[var(--text-tertiary)] mb-5 overflow-x-auto whitespace-nowrap"
+        className="flex items-center gap-2 text-sm text-[var(--text-tertiary)] overflow-x-auto whitespace-nowrap"
       >
         <Link href="/app/courses" className="hover:text-[var(--text-primary)] transition">
           Khóa học
@@ -773,23 +827,47 @@ export default function CourseDetailPage() {
       </nav>
 
       {/* Hero Summary Card */}
-      <Card className="mb-6 bg-[var(--surface-card)] overflow-hidden p-0">
+      <Card className="bg-[var(--surface-card)] overflow-hidden p-0">
         <div className={`h-2 w-full bg-gradient-to-r ${theme.accentBarClass}`} />
-        <div className="p-5 sm:p-6">
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-5 mb-5">
+        <div className="p-5 sm:p-6 space-y-5">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
             <div className="min-w-0 flex-1">
+              {/* Badges strip */}
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md border text-xs font-semibold ${theme.badgeBgClass}`}>
-                  {theme.domainLabel}
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-md border text-xs font-semibold ${theme.badgeBgClass}`}
+                >
+                  {course.category || theme.domainLabel}
                 </span>
+
                 <Badge variant="neutral" size="sm">
-                  {theme.levelLabel}
+                  {course.level || theme.levelLabel}
                 </Badge>
-                {(course.isPublished || course.visibility === "public") && (
-                  <Badge variant="success" size="sm">
-                    Công khai
+
+                {isSystemCourse ? (
+                  <Badge variant="brand" size="sm">
+                    Chuẩn hệ thống
+                  </Badge>
+                ) : (
+                  <Badge variant="neutral" size="sm">
+                    Khóa cá nhân
                   </Badge>
                 )}
+
+                {course.isPinned && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 text-xs font-semibold">
+                    <Pin className="w-3 h-3 fill-current" />
+                    <span>Đã ghim</span>
+                  </span>
+                )}
+
+                {course.isArchived && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-xs font-semibold">
+                    <Archive className="w-3 h-3" />
+                    <span>Đã lưu trữ</span>
+                  </span>
+                )}
+
                 {averageRating > 0 && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-xs font-bold text-amber-700 dark:text-amber-300">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
@@ -802,13 +880,14 @@ export default function CourseDetailPage() {
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)] mb-2 leading-snug">
                 {course.title}
               </h1>
+
               {course.description && (
                 <p className="text-sm text-[var(--text-secondary)] mb-4 leading-relaxed max-w-3xl">
                   {course.description}
                 </p>
               )}
 
-              {/* Skill Pills & Stats */}
+              {/* Stats & Skills pills */}
               <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--text-secondary)]">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] bg-[var(--surface-elevated)] border border-[var(--border-calm)]">
                   <Layers className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
@@ -834,25 +913,9 @@ export default function CourseDetailPage() {
                   </span>
                 ))}
               </div>
-
-              {/* Core Learning Outcomes */}
-              <div className="mt-4 pt-3.5 border-t border-[var(--border-calm)]/70">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 flex items-center gap-1.5">
-                  <Target className="w-3.5 h-3.5 text-[#5E51E8] dark:text-[#A5B4FC]" />
-                  <span>Mục tiêu đầu ra cốt lõi</span>
-                </h4>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[var(--text-secondary)]">
-                  {getCourseLearningOutcomes(domain.id).map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="leading-relaxed">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
 
-            {/* Progress Ring Card */}
+            {/* Progress Ring */}
             <div className="flex items-center gap-4 p-4 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-elevated)]/60 shrink-0 self-start">
               <div className="relative w-20 h-20 flex items-center justify-center shrink-0">
                 <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
@@ -883,7 +946,7 @@ export default function CourseDetailPage() {
               </div>
               <div className="space-y-1 text-xs">
                 <p className="font-semibold text-[var(--text-primary)]">
-                  Tiến độ: {course.completedLessons}/{course.totalLessons} bài hoàn thành
+                  Tiến độ: {course.completedLessons}/{course.totalLessons} bài
                 </p>
                 <p className="text-[var(--text-secondary)] font-medium">
                   Thời gian học: {studiedTimeLabel}
@@ -893,64 +956,19 @@ export default function CourseDetailPage() {
                     ? "Đã hoàn tất toàn bộ lộ trình!"
                     : `Còn ${remainingLessons} bài để về đích`}
                 </p>
+                <div className="pt-0.5">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/70 dark:border-indigo-800/70 text-[11px] font-semibold">
+                    <Target className="w-3 h-3 shrink-0" />
+                    <span>Mục tiêu: {course.dailyLessonGoal ?? 2} bài/ngày</span>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 3-Pillar Practice Lab & FSRS Status Strip */}
-          {((course.practiceTotalActivities ?? 0) > 0 || (course.flashcardCount ?? 0) > 0) && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-4">
-              <div className="rounded-lg border border-[var(--border-calm)] bg-[var(--surface-elevated)]/60 px-3.5 py-2.5 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <FlaskConical className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[11px] text-[var(--text-tertiary)] font-medium">Practice Lab</p>
-                    <p className="text-xs font-bold text-[var(--text-primary)] truncate">
-                      {course.practicePassedActivities ?? 0}/{course.practiceTotalActivities ?? 0} bài đạt
-                    </p>
-                  </div>
-                </div>
-                {(course.practiceAverageScore ?? 0) > 0 && (
-                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 shrink-0">
-                    TB {course.practiceAverageScore}%
-                  </span>
-                )}
-              </div>
-
-              <div className="rounded-lg border border-[var(--border-calm)] bg-[var(--surface-elevated)]/60 px-3.5 py-2.5 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <Brain className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[11px] text-[var(--text-tertiary)] font-medium">Thẻ nhớ FSRS</p>
-                    <p className="text-xs font-bold text-[var(--text-primary)] truncate">
-                      {course.masteredFlashcardCount ?? 0}/{course.flashcardCount ?? 0} thẻ đã thuộc
-                    </p>
-                  </div>
-                </div>
-                {(course.dueFlashcardCount ?? 0) > 0 && (
-                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800 shrink-0">
-                    {course.dueFlashcardCount} đến hạn
-                  </span>
-                )}
-              </div>
-
-              <div className="rounded-lg border border-[var(--border-calm)] bg-[var(--surface-elevated)]/60 px-3.5 py-2.5 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <ClipboardCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[11px] text-[var(--text-tertiary)] font-medium">Ngân hàng Đề thi</p>
-                    <p className="text-xs font-bold text-[var(--text-primary)] truncate">
-                      {course.quizCount ?? 0} đề kiểm tra &amp; tổng hợp
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Next / Resume Lesson Highlight Banner */}
+          {/* Resume Banner */}
           {resumeLesson && (
-            <div className="rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="min-w-0 space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5E51E8] dark:text-[#A5B4FC]">
@@ -974,14 +992,12 @@ export default function CourseDetailPage() {
                   {resumeState?.lastLessonTitle || resumeLesson.title}
                 </p>
               </div>
-              <Link
-                href={continueLearnHref}
-                data-testid="course-continue-learn-btn"
-              >
+
+              <Link href={continueLearnHref} data-testid="course-continue-learn-btn">
                 <Button
                   variant="primary"
-                  leftIcon={<Play className="w-4 h-4" />}
-                  className="shrink-0"
+                  leftIcon={<Play className="w-4 h-4 fill-current" />}
+                  className="shrink-0 bg-[#5E51E8] hover:bg-[#4F46E5] text-white"
                 >
                   <span>
                     {course.progressPercent > 0 || Boolean(resumeState?.lastLessonId)
@@ -993,66 +1009,81 @@ export default function CourseDetailPage() {
             </div>
           )}
 
-          {/* Secondary Actions */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Hero Quick Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[var(--border-calm)]/60">
             {!resumeLesson && (
-              <Link
-                href={continueLearnHref}
-                data-testid="course-continue-learn-btn"
-              >
+              <Link href={continueLearnHref} data-testid="course-continue-learn-btn">
                 <Button
                   variant="primary"
-                  leftIcon={<Play className="w-4 h-4" />}
+                  leftIcon={<Play className="w-4 h-4 fill-current" />}
+                  className="bg-[#5E51E8] hover:bg-[#4F46E5] text-white"
                 >
                   <span>{course.progressPercent > 0 ? "Tiếp tục học" : "Bắt đầu học"}</span>
                 </Button>
               </Link>
             )}
-            {(course.quizCount ?? 0) > 0 && (
-              <Link
-                href={`/app/courses/${courseId}/quiz`}
-                data-testid="course-quiz-btn"
-              >
-                <Button
-                  variant="secondary"
-                  leftIcon={<ClipboardCheck className="w-4 h-4 text-[var(--text-secondary)]" />}
-                >
-                  <span>Làm bài kiểm tra ({course.quizCount})</span>
-                </Button>
-              </Link>
-            )}
-            <Link
-              href={`/app/review?courseId=${courseId}`}
-              data-testid="course-review-fsrs-btn"
+
+            {/* Quick In-Course Search */}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setShowSearchModal(true)}
+              title="Tìm kiếm trong khóa (Ctrl+Shift+F)"
+              leftIcon={<Search className="w-4 h-4 text-[var(--text-secondary)]" />}
             >
+              <span>Tìm kiếm trong khóa</span>
+            </Button>
+
+            {/* Quiz Link */}
+            <Link href={`/app/courses/${courseId}/quiz`} data-testid="course-quiz-btn">
               <Button
                 variant="secondary"
-                leftIcon={<Brain className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
+                leftIcon={<ClipboardCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
               >
                 <span>
-                  Ôn thẻ FSRS khóa này
-                  {(course.dueFlashcardCount ?? 0) > 0
-                    ? ` (${course.dueFlashcardCount} đến hạn)`
-                    : course.flashcardCount
-                      ? ` (${course.flashcardCount})`
-                      : ""}
+                  {(course.quizCount ?? 0) > 0
+                    ? `Làm Quiz (${course.quizCount})`
+                    : "Làm Quiz"}
                 </span>
               </Button>
             </Link>
+
+            {/* Personal Course Edit Studio Link */}
+            {!isSystemCourse && (
+              <Link href={`/app/courses/${courseId}/edit`}>
+                <Button
+                  variant="secondary"
+                  leftIcon={<Edit3 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
+                >
+                  <span>Biên tập khóa học</span>
+                </Button>
+              </Link>
+            )}
+
+            {/* Quick Pin / Unpin Button */}
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={isTogglingPin}
+              onClick={handleQuickTogglePin}
+              leftIcon={<Pin className="w-4 h-4 text-indigo-500" />}
+            >
+              <span>{course.isPinned ? "Bỏ ghim" : "Ghim khóa học"}</span>
+            </Button>
+
+            {/* Study Guide Download */}
             <Button
               type="button"
               variant="secondary"
               disabled={downloadingGuide}
               onClick={() => void handleDownloadStudyGuide()}
-              data-testid="download-study-guide-btn"
               leftIcon={<Download className="w-4 h-4 text-[var(--text-secondary)]" />}
             >
               <span>{downloadingGuide ? "Đang tạo Đề cương..." : "Tải Đề cương (.md)"}</span>
             </Button>
-            <Link
-              href={`/app/courses/${courseId}/certificate`}
-              data-testid="course-certificate-btn"
-            >
+
+            {/* Certificate */}
+            <Link href={`/app/courses/${courseId}/certificate`} data-testid="course-certificate-btn">
               <Button
                 variant="secondary"
                 leftIcon={<Award className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
@@ -1060,674 +1091,215 @@ export default function CourseDetailPage() {
                 <span>Xem Tổng kết &amp; Chứng nhận</span>
               </Button>
             </Link>
-            <Link
-              href={`/app/courses/${courseId}/edit`}
-            >
-              <Button
-                variant="secondary"
-                leftIcon={<Pencil className="w-4 h-4 text-[var(--text-secondary)]" />}
-              >
-                <span>Biên tập khóa học</span>
-              </Button>
-            </Link>
           </div>
         </div>
       </Card>
 
-      {/* Mobile Study Pace Calculator (Prominent right below Hero on mobile/tablet) */}
-      <div className="lg:hidden mb-6">
-        <Card className="p-4 bg-[var(--surface-card)] space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#5E51E8] dark:text-[#A5B4FC]">
-              <Clock className="w-3.5 h-3.5" />
-              <span>Máy tính nhịp độ hoàn thành</span>
-            </div>
-            <span className="text-xs font-bold text-[#5E51E8] dark:text-[#A5B4FC]">
-              {estimatedDaysToFinish === 0 ? "Đã hoàn thành!" : `~${estimatedDaysToFinish} ngày`}
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-[var(--text-secondary)] whitespace-nowrap">
-              {dailyLessonsPace} bài/ngày
-            </span>
-            <input
-              type="range"
-              min={1}
-              max={6}
-              step={1}
-              value={dailyLessonsPace}
-              onChange={(e) => setDailyLessonsPace(Number(e.target.value))}
-              aria-label="Số bài học mục tiêu mỗi ngày"
-              className="flex-1 accent-[#5E51E8] cursor-pointer"
-            />
-          </div>
-        </Card>
-      </div>
-
-      {/* Horizontal Compact Milestone Timeline */}
-      {course.chapters.length > 0 && (
-        <section className="mb-6">
-          <div className="flex items-center justify-between mb-2.5">
-            <h2 className="text-sm font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
-              <Target className="w-4 h-4 text-[#5E51E8] dark:text-[#A5B4FC]" />
-              <span>Timeline các chặng học tập ({course.chapters.length} chặng)</span>
-            </h2>
-            <span className="text-xs text-[var(--text-tertiary)]">Bấm để cuộn tới chặng</span>
-          </div>
-          <div className="flex overflow-x-auto gap-3 pb-2 snap-x no-scrollbar">
-            {course.chapters.map((ch, idx) => {
-              const chKey = String(ch.chapterId || ch.id);
-              const chLessons = ch.lessons ?? [];
-              const chDone = chLessons.filter((l) => isDone(l)).length;
-              const chPct = chLessons.length > 0 ? Math.round((chDone * 100) / chLessons.length) : 0;
-              const cleanTitle = stripChapterPrefix(ch.title) || ch.title;
-              return (
-                <button
-                  key={chKey}
-                  type="button"
-                  onClick={() => {
-                    setExpandedChapters((prev) => new Set(prev).add(chKey));
-                    document.getElementById(`chapter-card-${chKey}`)?.scrollIntoView({
-                      behavior: "smooth",
-                      block: "center",
-                    });
-                  }}
-                  className={`min-w-[210px] sm:min-w-[230px] max-w-[260px] shrink-0 snap-start text-left rounded-xl border p-3.5 transition cursor-pointer flex flex-col justify-between gap-2 ${
-                    chPct === 100
-                      ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20"
-                      : chDone > 0
-                        ? "border-[#5E51E8]/50 bg-[#EEF0FD]/40 dark:bg-[#1E1B4B]/40"
-                        : "border-[var(--border-calm)] bg-[var(--surface-card)] hover:border-[#5E51E8]/40"
-                  }`}
-                >
-                  <div className="flex items-center justify-between text-[11px] font-semibold">
-                    <span className="text-[#5E51E8] dark:text-[#A5B4FC]">Chặng {idx + 1}</span>
-                    <span className="text-[var(--text-tertiary)]">
-                      {chDone}/{chLessons.length} bài
-                    </span>
-                  </div>
-                  <p className="text-xs font-semibold text-[var(--text-primary)] line-clamp-2 leading-snug">
-                    {cleanTitle}
-                  </p>
-                  <div className="w-full h-1.5 rounded-full bg-[var(--surface-elevated)] overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${chPct === 100 ? "bg-emerald-500" : "bg-[#5E51E8]"}`}
-                      style={{ width: `${chPct}%` }}
-                    />
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* Main 2-Column Body: Syllabus (8 cols) + Pace & Practice Insights (4 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Interactive Syllabus Explorer */}
-        <div className="lg:col-span-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <h2 className="text-base font-semibold text-[var(--text-primary)]">Đề cương khóa học</h2>
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={handleToggleSequentialUnlock}
-                data-testid="sequential-unlock-toggle"
-                className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] border text-xs font-medium transition cursor-pointer ${
-                  sequentialUnlock
-                    ? "border-[#5E51E8]/40 bg-[#EEF0FD] dark:bg-[#1E1B4B] text-[#4F46E5] dark:text-[#A5B4FC]"
-                    : "border-[var(--border-calm)] bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                }`}
-                title="Khi bật, cần hoàn thành bài trước để mở khóa bài tiếp theo. Có thể tắt bất cứ lúc nào."
-              >
-                {sequentialUnlock ? (
-                  <Lock className="w-3.5 h-3.5" />
-                ) : (
-                  <Unlock className="w-3.5 h-3.5" />
-                )}
-                <span>Mở khóa bài học theo thứ tự: {sequentialUnlock ? "Bật" : "Tắt"}</span>
-              </button>
-
-              {course.chapters.length > 0 && (
-                <button
-                  type="button"
-                  onClick={toggleAllChapters}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition cursor-pointer"
-                >
-                  {allExpanded ? (
-                    <>
-                      <ChevronsDownUp className="w-3.5 h-3.5" />
-                      <span>Thu gọn tất cả</span>
-                    </>
-                  ) : (
-                    <>
-                      <ChevronsUpDown className="w-3.5 h-3.5" />
-                      <span>Mở rộng tất cả</span>
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Search & Lesson Status Filter */}
-          {allLessons.length > 0 && (
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 mb-4">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Tìm bài học trong đề cương..."
-                  className="w-full h-9 pl-9 pr-8 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-1.5">
-                {(
-                  [
-                    { id: "all", label: "Tất cả" },
-                    { id: "pending", label: "Chưa học" },
-                    { id: "completed", label: "Đã hoàn thành" },
-                  ] as { id: LessonFilter; label: string }[]
-                ).map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setLessonFilter(tab.id)}
-                    className={`h-8 px-3 rounded-[8px] text-xs font-medium transition cursor-pointer ${
-                      lessonFilter === tab.id
-                        ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12]"
-                        : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-calm)] hover:text-[var(--text-primary)]"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {filteredChapters.length > 0 ? (
-            <div className="space-y-3">
-              {filteredChapters.map((chapter, chIdx) => {
-                const chKey = String(chapter.chapterId || chapter.id);
-                const isOpen =
-                  searchQuery.trim().length > 0 ||
-                  lessonFilter !== "all" ||
-                  expandedChapters.has(chKey);
-                const lessons = chapter.lessons ?? [];
-                const origChapter =
-                  course.chapters.find((c) => String(c.chapterId || c.id) === chKey) ?? chapter;
-                const origLessons = origChapter.lessons ?? [];
-                const doneInChapter = origLessons.filter((l) => isDone(l)).length;
-                const cleanChapterTitle = stripChapterPrefix(chapter.title) || chapter.title;
-
-                return (
-                  <Card
-                    key={chKey}
-                    id={`chapter-card-${chKey}`}
-                    className="overflow-hidden"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => toggleChapter(chKey)}
-                      className="w-full px-4 py-3 bg-[var(--surface-elevated)] hover:bg-[var(--surface-elevated)]/80 flex items-center justify-between gap-3 text-left transition cursor-pointer"
-                    >
-                      <div className="flex items-start gap-2 min-w-0">
-                        {isOpen ? (
-                          <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] shrink-0 mt-0.5" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] shrink-0 mt-0.5" />
-                        )}
-                        <h3 className="text-sm font-semibold text-[var(--text-primary)] leading-snug">
-                          Chương {chIdx + 1}: {cleanChapterTitle}
-                        </h3>
-                      </div>
-                      <Badge variant="neutral" size="sm">
-                        {doneInChapter}/{origLessons.length} bài
-                      </Badge>
-                    </button>
-
-                    {isOpen && lessons.length > 0 && (
-                      <div className="p-4 sm:p-5 border-t border-[var(--border-calm)] bg-[var(--surface-card)]">
-                        <div className="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-800">
-                          {lessons.map((lesson, lesIdx) => {
-                            const completed = isDone(lesson);
-                            const isNext = lesson.id === nextLesson?.id && !completed;
-                            const isLocked =
-                              sequentialUnlock && !completed && !unlockedLessonIds.has(lesson.id);
-                            const mins = lesson.durationMinutes ?? lesson.estimatedMinutes ?? 15;
-                            const chips = getLessonPracticeChips(domain.id, lesson.title);
-
-                            return (
-                              <div
-                                key={lesson.id}
-                                className={`relative group flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border transition shadow-2xs ${
-                                  isLocked
-                                    ? "border-[var(--border-calm)] bg-[var(--surface-elevated)]/30 opacity-80"
-                                    : "border-[var(--border-calm)] hover:border-[#5E51E8]/50 bg-[var(--surface-elevated)]/50 hover:bg-[var(--surface-elevated)]"
-                                }`}
-                              >
-                                {/* Timeline Node Icon Connector */}
-                                <div
-                                  className={`absolute -left-6 sm:-left-8 top-4 -translate-x-1/2 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-bold shadow-xs transition ${
-                                    completed
-                                      ? "bg-emerald-500 border-emerald-500 text-white"
-                                      : isNext
-                                      ? "bg-[#5E51E8] border-[#5E51E8] text-white ring-4 ring-[#5E51E8]/20 animate-pulse"
-                                      : isLocked
-                                      ? "bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-500"
-                                      : "bg-[var(--surface-card)] border-[var(--border-calm)] text-[var(--text-tertiary)]"
-                                  }`}
-                                >
-                                  {completed ? (
-                                    <CheckCircle2 className="w-3.5 h-3.5" />
-                                  ) : isNext ? (
-                                    <Play className="w-2.5 h-2.5 fill-current ml-0.5" />
-                                  ) : isLocked ? (
-                                    <Lock className="w-3 h-3" />
-                                  ) : (
-                                    <span>{lesIdx + 1}</span>
-                                  )}
-                                </div>
-
-                                {/* Lesson Info */}
-                                <div className="min-w-0 flex-1">
-                                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                                    <span
-                                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider ${
-                                        completed
-                                          ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
-                                          : isNext
-                                          ? "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800"
-                                          : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
-                                      }`}
-                                    >
-                                      {completed
-                                        ? "Đã xong"
-                                        : isNext
-                                        ? "Tiếp theo"
-                                        : isLocked
-                                        ? "Đang khóa tuần tự"
-                                        : `Bài ${lesIdx + 1}`}
-                                    </span>
-                                    {mins && (
-                                      <span className="text-xs text-[var(--text-tertiary)] flex items-center gap-1">
-                                        <Clock className="w-3 h-3" />
-                                        {mins} phút
-                                      </span>
-                                    )}
-                                    {(lesson.practiceActivityCount ?? 0) > 0 && (
-                                      <span
-                                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border inline-flex items-center gap-1 ${
-                                          (lesson.practicePassedCount ?? 0) >= (lesson.practiceActivityCount ?? 0)
-                                            ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
-                                            : "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800"
-                                        }`}
-                                      >
-                                        <FlaskConical className="w-2.5 h-2.5" />
-                                        {lesson.practicePassedCount ?? 0}/{lesson.practiceActivityCount} Lab
-                                      </span>
-                                    )}
-                                  </div>
-
-                                  <Link
-                                    href={`/app/courses/${courseId}/learn?lesson=${lesson.id}`}
-                                    title={lesson.title}
-                                    className="block text-sm font-semibold text-[var(--text-primary)] hover:text-[#5E51E8] dark:hover:text-[#818CF8] transition line-clamp-2 leading-snug break-words"
-                                  >
-                                    {lesson.title}
-                                  </Link>
-
-                                  {isLocked && (
-                                    <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-1 flex items-center gap-1">
-                                      <Lock className="w-3 h-3 shrink-0" />
-                                      <span>
-                                        Gợi ý: Hoàn thành bài trước đó hoặc tắt chế độ tuần tự để học ngay.
-                                      </span>
-                                    </p>
-                                  )}
-
-                                  {/* Activity Chips */}
-                                  <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                                    {chips.map((chip, cIdx) => (
-                                      <span
-                                        key={cIdx}
-                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--surface-card)] border border-[var(--border-calm)] text-[var(--text-secondary)] shadow-2xs"
-                                      >
-                                        <Sparkles className="w-2.5 h-2.5 text-[#5E51E8] dark:text-[#A5B4FC]" />
-                                        <span>{chip}</span>
-                                      </span>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {/* Direct CTA button */}
-                                <div className="shrink-0 self-start sm:self-center pt-1 sm:pt-0">
-                                  {isLocked ? (
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={handleToggleSequentialUnlock}
-                                      className="whitespace-nowrap"
-                                      leftIcon={<Unlock className="w-3.5 h-3.5" />}
-                                    >
-                                      <span>Mở khóa</span>
-                                    </Button>
-                                  ) : (
-                                    <Link href={`/app/courses/${courseId}/learn?lesson=${lesson.id}`}>
-                                      <Button
-                                        variant={isNext ? "primary" : completed ? "secondary" : "outline"}
-                                        size="sm"
-                                        className="whitespace-nowrap"
-                                        leftIcon={
-                                          completed ? (
-                                            <Check className="w-3.5 h-3.5" />
-                                          ) : (
-                                            <Play className="w-3.5 h-3.5 fill-current" />
-                                          )
-                                        }
-                                      >
-                                        <span>{completed ? "Ôn lại" : isNext ? "Học ngay" : "Bắt đầu"}</span>
-                                      </Button>
-                                    </Link>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </Card>
-                );
-              })}
-            </div>
-          ) : (
-            <EmptyState
-              icon={BookOpen}
-              title={
-                allLessons.length > 0
-                  ? "Không có bài giảng nào khớp bộ lọc hiện tại."
-                  : "Khóa học chưa có nội dung bài giảng."
-              }
-            />
-          )}
-          {/* Course Reviews & Ratings Section */}
-          <Card className="mt-8 p-5 sm:p-6 bg-[var(--surface-card)] space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border-calm)] pb-4">
-              <div>
-                <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-[#5E51E8] dark:text-[#A5B4FC]" />
-                  <span>Đánh giá &amp; Nhận xét khóa học</span>
-                </h3>
-                <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                  Chia sẻ trải nghiệm học tập của bạn về lộ trình và chất lượng bài giảng.
-                </p>
-              </div>
-              <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-calm)]">
-                <div className="flex items-center gap-0.5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`w-4 h-4 ${
-                        star <= Math.round(averageRating || 5)
-                          ? "fill-amber-400 text-amber-400"
-                          : "text-slate-300 dark:text-slate-700"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm font-bold text-[var(--text-primary)]">
-                  {averageRating > 0 ? `${averageRating}/5` : "Mới"}
-                </span>
-                <span className="text-xs text-[var(--text-tertiary)]">
-                  ({reviews.length} đánh giá)
-                </span>
-              </div>
-            </div>
-
-            {/* Submit Review Form */}
-            <form onSubmit={handleSubmitReview} className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold text-[var(--text-secondary)]">
-                  Chọn mức điểm:
-                </span>
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setRatingInput(star)}
-                      aria-label={`Đánh giá ${star} sao`}
-                      className="p-1 rounded hover:bg-[var(--surface-elevated)] transition cursor-pointer"
-                    >
-                      <Star
-                        className={`w-5 h-5 ${
-                          star <= ratingInput
-                            ? "fill-amber-400 text-amber-400"
-                            : "text-slate-300 dark:text-slate-700"
-                        }`}
-                      />
-                    </button>
-                  ))}
-                </div>
-                <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                  {ratingInput} sao
-                </span>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-2.5">
-                <input
-                  type="text"
-                  value={commentInput}
-                  onChange={(e) => setCommentInput(e.target.value)}
-                  placeholder="Viết nhận xét của bạn về khóa học này..."
-                  className="flex-1 h-9 px-3 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8]"
-                />
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="sm"
-                  disabled={submittingReview}
-                  leftIcon={<Send className="w-3.5 h-3.5" />}
-                >
-                  <span>{submittingReview ? "Đang gửi..." : "Gửi đánh giá"}</span>
-                </Button>
-              </div>
-              {reviewNotice && (
-                <p className="text-xs text-[#4F46E5] dark:text-[#A5B4FC] font-medium">
-                  {reviewNotice}
-                </p>
-              )}
-            </form>
-
-            {/* Reviews List */}
-            {reviews.length > 0 ? (
-              <div className="divide-y divide-[var(--border-calm)]">
-                {reviews.map((rev) => (
-                  <div key={rev.id} className="py-3 first:pt-1 last:pb-0 space-y-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-[var(--text-primary)]">
-                        {rev.userName}
-                      </span>
-                      <div className="flex items-center gap-0.5">
-                        {[1, 2, 3, 4, 5].map((s) => (
-                          <Star
-                            key={s}
-                            className={`w-3.5 h-3.5 ${
-                              s <= rev.rating
-                                ? "fill-amber-400 text-amber-400"
-                                : "text-slate-300 dark:text-slate-700"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                      {rev.comment}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-[var(--text-tertiary)] italic">
-                Chưa có nhận xét nào. Hãy là học viên đầu tiên đánh giá khóa học này!
-              </p>
-            )}
-          </Card>
-        </div>
-
-        {/* Right Insights & Study Pace Planner Column */}
-        <aside className="lg:col-span-4 space-y-4 lg:sticky lg:top-6">
-          <Card className="p-5 bg-[var(--surface-card)] space-y-4">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#5E51E8] dark:text-[#A5B4FC]">
-              <Clock className="w-4 h-4" />
-              <span>Máy tính nhịp độ hoàn thành</span>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-[var(--text-secondary)]">Mục tiêu mỗi ngày:</span>
-                <span className="font-bold text-[var(--text-primary)]">{dailyLessonsPace} bài / ngày</span>
-              </div>
-              <input
-                type="range"
-                min={1}
-                max={6}
-                step={1}
-                value={dailyLessonsPace}
-                onChange={(e) => setDailyLessonsPace(Number(e.target.value))}
-                aria-label="Số bài học mục tiêu mỗi ngày"
-                className="w-full accent-[#5E51E8] cursor-pointer"
-              />
-              <div className="rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-calm)] p-3 text-xs space-y-1">
-                <p className="text-[var(--text-secondary)]">
-                  Dự kiến hoàn thành phần còn lại ({remainingLessons} bài):
-                </p>
-                <p className="text-base font-bold text-[#5E51E8] dark:text-[#A5B4FC]">
-                  {estimatedDaysToFinish === 0 ? "Đã hoàn thành!" : `${estimatedDaysToFinish} ngày`}
-                </p>
-              </div>
-            </div>
-          </Card>
-
-          {/* Weak Chapters Review Recommendation Card */}
-          {weakChaptersList.length > 0 && (
-            <Card className="p-5 bg-[var(--surface-card)] border-amber-500/30 space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                <Target className="w-4 h-4" />
-                <span>Chương cần ôn tập &amp; củng cố</span>
-              </div>
-              <div className="space-y-2.5">
-                {weakChaptersList.map((wc) => (
-                  <div
-                    key={wc.chapterId}
-                    className="rounded-lg border border-[var(--border-calm)] bg-[var(--surface-elevated)] p-3 space-y-2"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs font-bold text-[var(--text-primary)] line-clamp-1">
-                        {wc.title}
-                      </p>
-                      <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 shrink-0">
-                        {wc.completionPercent}%
-                      </span>
-                    </div>
-                    {wc.reason && (
-                      <p className="text-[11px] text-[var(--text-secondary)]">{wc.reason}</p>
-                    )}
-                    <div className="flex items-center gap-2 pt-0.5">
-                      <Link
-                        href={
-                          wc.nextLessonId
-                            ? `/app/courses/${courseId}/learn?lesson=${wc.nextLessonId}`
-                            : continueLearnHref
-                        }
-                        className="flex-1 inline-flex items-center justify-center gap-1 h-7 px-2.5 rounded-md bg-[#5E51E8] text-white text-[11px] font-semibold hover:bg-[#4F46E5] transition"
-                      >
-                        <Play className="w-3 h-3" />
-                        <span>Học tiếp</span>
-                      </Link>
-                      <Link
-                        href={`/app/review?courseId=${courseId}`}
-                        className="flex-1 inline-flex items-center justify-center gap-1 h-7 px-2.5 rounded-md border border-[var(--border-calm)] bg-[var(--surface-card)] text-[11px] font-semibold text-[var(--text-primary)] hover:border-[#5E51E8] transition"
-                      >
-                        <Brain className="w-3 h-3 text-[#5E51E8]" />
-                        <span>Ôn thẻ FSRS</span>
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-
-          <Card className="p-5 bg-[var(--surface-card)] space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)]">
-              <Sparkles className="w-4 h-4 text-[#5E51E8]" />
-              <span>Công cụ thực hành tích hợp</span>
-            </div>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-              Mỗi bài học đều đi kèm Phòng Thực Hành tương tác ngay bên dưới bài đọc: luyện nghe nói IPA, code/debug, biểu đồ tài chính, roleplay tâm lý, Quiz thật và Flashcards FSRS v5.
-            </p>
-            <div className="flex flex-col gap-2 pt-1">
-              <Link
-                href={continueLearnHref}
-                className="inline-flex items-center justify-center gap-2 h-9 px-3 rounded-lg bg-[#5E51E8] hover:bg-[#4F46E5] text-white text-xs font-semibold transition"
-              >
-                <Play className="w-3.5 h-3.5" />
-                <span>Mở bài học &amp; Phòng thực hành</span>
-              </Link>
-              <Link
-                href={`/app/review?courseId=${courseId}`}
-                className="inline-flex items-center justify-center gap-2 h-9 px-3 rounded-lg border border-[var(--border-calm)] bg-[var(--surface-elevated)] hover:border-[#5E51E8] text-xs font-semibold text-[var(--text-primary)] transition"
-              >
-                <Brain className="w-3.5 h-3.5 text-[#5E51E8]" />
-                <span>Ôn bộ thẻ nhớ khóa này</span>
-              </Link>
-              <Link
-                href={`/app/courses/${courseId}/certificate`}
-                className="inline-flex items-center justify-center gap-2 h-9 px-3 rounded-lg border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-semibold text-amber-700 dark:text-amber-300 transition"
-              >
-                <Award className="w-3.5 h-3.5" />
-                <span>Xem Tổng kết &amp; Chứng nhận PDF</span>
-              </Link>
-            </div>
-          </Card>
-        </aside>
-      </div>
-
-      {/* Mobile Sticky Bottom CTA Bar */}
-      <div className="fixed bottom-16 inset-x-0 z-30 md:hidden bg-[var(--surface-card)]/95 backdrop-blur-md border-t border-[var(--border-calm)] px-4 py-2.5 shadow-lg flex items-center justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-[#5E51E8] dark:text-[#A5B4FC]">
-            Tiến độ {course.progressPercent}% ({course.completedLessons}/{course.totalLessons} bài)
-          </p>
-          <p className="text-xs font-semibold text-[var(--text-primary)] truncate">
-            {resumeState?.lastLessonTitle || resumeLesson?.title || course.title}
-          </p>
-        </div>
-        <Link href={continueLearnHref} className="shrink-0">
-          <Button
-            variant="primary"
-            size="sm"
-            leftIcon={<Play className="w-3.5 h-3.5 fill-current" />}
+      {/* 4 Tabs Synchronized with URL ?tab=syllabus|practice|assets|settings */}
+      <div className="border-b border-[var(--border-calm)]">
+        <nav
+          role="tablist"
+          aria-label="Course Hub Tabs"
+          onKeyDown={handleTabListKeyDown}
+          className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar -mb-px"
+        >
+          {/* Tab 1: Syllabus */}
+          <button
+            ref={(el) => {
+              tabButtonRefs.current.syllabus = el;
+            }}
+            type="button"
+            role="tab"
+            data-testid="course-tab-syllabus"
+            aria-selected={activeTab === "syllabus"}
+            tabIndex={activeTab === "syllabus" ? 0 : -1}
+            onClick={() => handleTabChange("syllabus")}
+            className={`inline-flex items-center gap-2 py-3 px-3.5 sm:px-4 border-b-2 text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer ${
+              activeTab === "syllabus"
+                ? "border-[#5E51E8] text-[#5E51E8] dark:text-[#A5B4FC] dark:border-[#A5B4FC]"
+                : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-calm)]"
+            }`}
           >
-            <span>{course.progressPercent > 0 ? "Tiếp tục học" : "Bắt đầu học"}</span>
-          </Button>
-        </Link>
+            <BookOpen className="w-4 h-4" />
+            <span>Đề cương &amp; Bài học</span>
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[var(--surface-elevated)] border border-[var(--border-calm)]">
+              {course.totalLessons}
+            </span>
+          </button>
+
+          {/* Tab 2: Practice */}
+          <button
+            ref={(el) => {
+              tabButtonRefs.current.practice = el;
+            }}
+            type="button"
+            role="tab"
+            data-testid="course-tab-practice"
+            aria-selected={activeTab === "practice"}
+            tabIndex={activeTab === "practice" ? 0 : -1}
+            onClick={() => handleTabChange("practice")}
+            className={`inline-flex items-center gap-2 py-3 px-3.5 sm:px-4 border-b-2 text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer ${
+              activeTab === "practice"
+                ? "border-[#5E51E8] text-[#5E51E8] dark:text-[#A5B4FC] dark:border-[#A5B4FC]"
+                : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-calm)]"
+            }`}
+          >
+            <FlaskConical className="w-4 h-4" />
+            <span>Thực hành &amp; Ôn tập</span>
+            {practiceTabBadgeCount && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                {practiceTabBadgeCount}
+              </span>
+            )}
+          </button>
+
+          {/* Tab 3: Assets */}
+          <button
+            ref={(el) => {
+              tabButtonRefs.current.assets = el;
+            }}
+            type="button"
+            role="tab"
+            data-testid="course-tab-assets"
+            aria-selected={activeTab === "assets"}
+            tabIndex={activeTab === "assets" ? 0 : -1}
+            onClick={() => handleTabChange("assets")}
+            className={`inline-flex items-center gap-2 py-3 px-3.5 sm:px-4 border-b-2 text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer ${
+              activeTab === "assets"
+                ? "border-[#5E51E8] text-[#5E51E8] dark:text-[#A5B4FC] dark:border-[#A5B4FC]"
+                : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-calm)]"
+            }`}
+          >
+            <FolderArchive className="w-4 h-4" />
+            <span>Tài nguyên &amp; Ghi chú</span>
+            {assetsTabBadgeCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                {assetsTabBadgeCount}
+              </span>
+            )}
+          </button>
+
+          {/* Tab 4: Settings */}
+          <button
+            ref={(el) => {
+              tabButtonRefs.current.settings = el;
+            }}
+            type="button"
+            role="tab"
+            data-testid="course-tab-settings"
+            aria-selected={activeTab === "settings"}
+            tabIndex={activeTab === "settings" ? 0 : -1}
+            onClick={() => handleTabChange("settings")}
+            className={`inline-flex items-center gap-2 py-3 px-3.5 sm:px-4 border-b-2 text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer ${
+              activeTab === "settings"
+                ? "border-[#5E51E8] text-[#5E51E8] dark:text-[#A5B4FC] dark:border-[#A5B4FC]"
+                : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-calm)]"
+            }`}
+          >
+            <Settings className="w-4 h-4" />
+            <span>Cài đặt khóa học</span>
+          </button>
+        </nav>
       </div>
+
+      {/* Tab Panels */}
+      <div>
+        {activeTab === "syllabus" && (
+          <CourseSyllabusTab
+            course={course}
+            courseId={courseId}
+            isDone={isDone}
+            sequentialUnlock={sequentialUnlock}
+            handleToggleSequentialUnlock={handleToggleSequentialUnlock}
+            unlockedLessonIds={unlockedLessonIds}
+            nextLesson={nextLesson}
+            expandedChapters={expandedChapters}
+            setExpandedChapters={setExpandedChapters}
+            reviews={reviews}
+            averageRating={averageRating}
+            handleSubmitReview={handleSubmitReview}
+            ratingInput={ratingInput}
+            setRatingInput={setRatingInput}
+            commentInput={commentInput}
+            setCommentInput={setCommentInput}
+            submittingReview={submittingReview}
+            reviewNotice={reviewNotice}
+          />
+        )}
+
+        {activeTab === "practice" && (
+          <CoursePracticeTab course={course} courseId={courseId} />
+        )}
+
+        {activeTab === "assets" && (
+          <CourseAssetsTab course={course} courseId={courseId} />
+        )}
+
+        {activeTab === "settings" && (
+          <CourseSettingsTab
+            course={course}
+            courseId={courseId}
+            onCourseUpdated={(updated) => {
+              setCourse((prev) => (prev ? { ...prev, ...updated } : prev));
+            }}
+            onProgressReset={(resetCount) => {
+              fetchCourse();
+            }}
+          />
+        )}
+      </div>
+
+      {/* Reusable In-Course Search Modal */}
+      <CourseInSearchModal
+        courseId={courseId}
+        isOpen={showSearchModal}
+        onClose={() => setShowSearchModal(false)}
+        onSelectLesson={(lessonId) => router.push(`/app/courses/${courseId}/learn?lessonId=${lessonId}`)}
+      />
+
+      {/* Lightweight Toast Notification */}
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-50 max-w-sm flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-lg text-xs font-medium transition-all ${
+            toast.type === "error"
+              ? "bg-rose-50 dark:bg-rose-950/95 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-200"
+              : "bg-[var(--surface-card)] border-[#5E51E8]/30 text-[var(--text-primary)]"
+          }`}
+        >
+          {toast.type === "error" ? (
+            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          )}
+          <span className="leading-snug">{toast.message}</span>
+          <button
+            type="button"
+            onClick={() => setToast(null)}
+            aria-label="Đóng thông báo"
+            className="ml-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer shrink-0"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
+export default function CourseDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 min-h-[80vh] space-y-6">
+          <div className="h-6 w-32 rounded bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="h-10 w-96 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="h-28 w-full rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+        </div>
+      }
+    >
+      <CourseDetailPageInner />
+    </Suspense>
+  );
+}

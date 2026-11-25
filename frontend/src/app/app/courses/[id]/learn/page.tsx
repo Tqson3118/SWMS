@@ -8,7 +8,7 @@ function LearnPageInner() {
   const params = useParams();
   const searchParams = useSearchParams();
   const courseId = String(params.id || "standalone");
-  const lessonParam = searchParams.get("lesson");
+  const lessonParam = searchParams.get("lesson") || searchParams.get("lessonId");
   const docParam = searchParams.get("doc");
   const notebookParam = searchParams.get("notebook");
   const openNotesInitially =

@@ -43,6 +43,7 @@ import {
   getClientRequestHeaders,
   type SemanticHighlightConfig
 } from "@/stores/useWorkspaceStore";
+import { invalidateDashboardCache } from "@/lib/api-client";
 import { useSynchronizedScroll } from "@/hooks/useSynchronizedScroll";
 import { useNotebookAutoSave } from "@/hooks/useNotebookAutoSave";
 import { scrollToAndPulseHighlight, waitForElementAndPulse } from "@/lib/animations.ts";
@@ -596,7 +597,8 @@ export function ReaderAndSplitViews({
   };
 
   useEffect(() => {
-    if (activeCourseCid) {
+    const isValidGuid = Boolean(activeCourseCid && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(activeCourseCid));
+    if (activeCourseCid && isValidGuid) {
       fetchCourseProgress(activeCourseCid);
     } else {
       setCourseProgress(null);
@@ -654,6 +656,10 @@ export function ReaderAndSplitViews({
         completedLessonIds: updatedIds
       };
       setCourseProgress(updatedProgress);
+      invalidateDashboardCache();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("swms:data-mutated"));
+      }
       onDataMutated();
 
       // 3. Find next lesson in the chapter or next chapter
@@ -2856,7 +2862,7 @@ export function ReaderAndSplitViews({
             </div>
             <LessonPracticeLab
               isEmbedded={true}
-              courseId={activeCourseCid || activeCourse?.id || ""}
+              courseId={activeCourseCid || activeCourse?.id || lesson?.courseId || ""}
               courseTitle={activeCourse?.title || "Khóa học"}
               lessonId={activeLessonId}
               lessonTitle={localLessonTitles[activeLessonId] || lesson?.title || "Bài học"}

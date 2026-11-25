@@ -203,16 +203,19 @@ export default function SettingsPage() {
   if (isLoading) {
     return (
       <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-8 min-h-[80vh] space-y-6">
-        <div className="h-10 w-40 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="space-y-2">
+          <div className="h-8 w-36 rounded-lg swms-skeleton" />
+          <div className="h-4 w-80 rounded-md swms-skeleton" />
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-7 space-y-4">
-            {[0, 1].map((i) => (
-              <div key={i} className="h-44 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="lg:col-span-7 space-y-6">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-48 rounded-xl swms-skeleton" />
             ))}
           </div>
-          <div className="lg:col-span-5 space-y-4">
-            {[0, 1].map((i) => (
-              <div key={i} className="h-44 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="lg:col-span-5 space-y-6">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-44 rounded-xl swms-skeleton" />
             ))}
           </div>
         </div>
@@ -223,43 +226,52 @@ export default function SettingsPage() {
   return (
     <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-8 min-h-[80vh]">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text-primary">Cài đặt</h1>
-        <p className="text-sm text-text-secondary mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">Cài đặt</h1>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">
           Quản lý tài khoản, mô hình AI cá nhân, giới hạn ôn tập FSRS và tùy biến giao diện đọc.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-7 space-y-6">
-      {/* Section 1: Tài khoản */}
-      <Card className="p-6 bg-[var(--surface-card)]">
-        <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
-          <User className="w-4 h-4" />
-          Tài khoản
-        </h2>
+      {/* Section 1: Tài khoản & Bảo mật */}
+      <Card className="p-6 bg-[var(--surface-card)] border-[var(--border-calm)]">
+        <div className="flex items-start gap-3 mb-5">
+          <div className="w-8 h-8 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+            <User className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-[var(--text-primary)]">
+              Tài khoản &amp; Bảo mật
+            </h2>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+              Thông tin định danh, phương thức đăng nhập và mật khẩu cá nhân.
+            </p>
+          </div>
+        </div>
         <div className="flex flex-wrap items-center gap-4">
           {user.avatarUrl ? (
             <img
               src={user.avatarUrl}
               alt={user.fullName || "Avatar"}
               referrerPolicy="no-referrer"
-              className="w-12 h-12 rounded-full object-cover border border-border shrink-0"
+              className="w-12 h-12 rounded-full object-cover border border-[var(--border-calm)] shrink-0"
             />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-semibold text-sm shrink-0">
+            <div className="w-12 h-12 rounded-full bg-[#5E51E8] dark:bg-[#818CF8] flex items-center justify-center text-white dark:text-[#0F0F12] font-semibold text-sm shrink-0">
               {initials}
             </div>
           )}
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm font-medium text-text-primary truncate">
+              <p className="text-sm font-medium text-[var(--text-primary)] truncate">
                 {user.fullName || "Chưa có tên"}
               </p>
               <span
                 data-testid="settings-auth-provider-badge"
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-bg-tertiary border border-border text-text-secondary"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[var(--text-secondary)]"
               >
-                <ShieldCheck className="w-3 h-3 text-accent" />
+                <ShieldCheck className="w-3 h-3 text-[#5E51E8] dark:text-[#818CF8]" />
                 {user.authProvider === "local+google"
                   ? "Google + Email"
                   : user.authProvider === "google"
@@ -267,7 +279,7 @@ export default function SettingsPage() {
                   : "Email & Mật khẩu"}
               </span>
             </div>
-            <p className="text-sm text-text-secondary truncate">
+            <p className="text-sm text-[var(--text-secondary)] truncate">
               {user.email || "Chưa có email"}
             </p>
           </div>
@@ -279,7 +291,7 @@ export default function SettingsPage() {
                 setShowPasswordForm((v) => !v);
                 setPasswordFeedback(null);
               }}
-              className="flex items-center gap-1.5 h-9 px-3 rounded-md border border-border bg-bg-primary text-text-primary text-xs font-medium hover:bg-bg-tertiary transition cursor-pointer"
+              className="flex items-center gap-1.5 h-9 px-3 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-[var(--text-primary)] text-xs font-medium hover:border-[#5E51E8]/50 transition cursor-pointer"
             >
               <Key className="w-3.5 h-3.5" />
               <span>{user.hasLocalPassword === false ? "Đặt mật khẩu" : "Đổi mật khẩu"}</span>
@@ -289,7 +301,7 @@ export default function SettingsPage() {
               data-testid="settings-logout-btn"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="flex items-center gap-2 h-9 px-4 rounded-md border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-2 h-9 px-4 rounded-[8px] border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition disabled:opacity-50 cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
               <span>{isLoggingOut ? "Đang xuất..." : "Đăng xuất"}</span>
@@ -412,15 +424,24 @@ export default function SettingsPage() {
       </Card>
 
       {/* Section 2: Cấu hình AI */}
-      <Card className="p-6 bg-[var(--surface-card)]">
-        <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
-          <Bot className="w-4 h-4" />
-          Cấu hình AI
-        </h2>
+      <Card className="p-6 bg-[var(--surface-card)] border-[var(--border-calm)]">
+        <div className="flex items-start gap-3 mb-5">
+          <div className="w-8 h-8 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+            <Bot className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-[var(--text-primary)]">
+              Cấu hình AI
+            </h2>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+              Tùy chỉnh khóa API và mô hình AI cá nhân (lưu cục bộ trên trình duyệt).
+            </p>
+          </div>
+        </div>
         <div className="space-y-4">
           {/* API Key */}
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-medium text-text-secondary mb-1.5">
+            <label className="flex items-center gap-1.5 text-sm font-medium text-[var(--text-secondary)] mb-1.5">
               <Key className="w-3.5 h-3.5" />
               API Key
             </label>
@@ -429,13 +450,13 @@ export default function SettingsPage() {
               value={aiConfig.apiKey}
               onChange={(e) => setAiConfig((c) => ({ ...c, apiKey: e.target.value }))}
               placeholder="Nhập API key..."
-              className="w-full h-9 px-3 rounded-md border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent transition"
+              className="w-full h-9 px-3 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[#5E51E8]/40 focus:border-[#5E51E8] transition"
             />
           </div>
 
           {/* Base URL */}
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-medium text-text-secondary mb-1.5">
+            <label className="flex items-center gap-1.5 text-sm font-medium text-[var(--text-secondary)] mb-1.5">
               <Globe className="w-3.5 h-3.5" />
               Base URL
             </label>
@@ -444,13 +465,13 @@ export default function SettingsPage() {
               value={aiConfig.baseUrl}
               onChange={(e) => setAiConfig((c) => ({ ...c, baseUrl: e.target.value }))}
               placeholder={DEFAULT_AI_CONFIG.baseUrl}
-              className="w-full h-9 px-3 rounded-md border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent transition"
+              className="w-full h-9 px-3 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[#5E51E8]/40 focus:border-[#5E51E8] transition"
             />
           </div>
 
           {/* Model */}
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-medium text-text-secondary mb-1.5">
+            <label className="flex items-center gap-1.5 text-sm font-medium text-[var(--text-secondary)] mb-1.5">
               <Cpu className="w-3.5 h-3.5" />
               Model
             </label>
@@ -459,40 +480,52 @@ export default function SettingsPage() {
               value={aiConfig.model}
               onChange={(e) => setAiConfig((c) => ({ ...c, model: e.target.value }))}
               placeholder={DEFAULT_AI_CONFIG.model}
-              className="w-full h-9 px-3 rounded-md border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent transition"
+              className="w-full h-9 px-3 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[#5E51E8]/40 focus:border-[#5E51E8] transition"
             />
           </div>
 
           {/* Save button + toast */}
-          <div className="flex items-center gap-3 pt-1">
+          <div className="flex flex-wrap items-center gap-3 pt-1">
             <button
               type="button"
               onClick={handleSaveAiConfig}
-              className="flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition cursor-pointer"
+              className="flex items-center gap-2 h-9 px-4 rounded-[8px] bg-[#5E51E8] hover:bg-[#4F46E5] dark:bg-[#818CF8] dark:hover:bg-[#6366F1] text-white dark:text-[#0F0F12] text-sm font-medium transition cursor-pointer"
             >
               <Save className="w-4 h-4" />
               Lưu cấu hình
             </button>
             {showSavedToast && (
-              <span className="flex items-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400 font-medium animate-in fade-in">
-                <Check className="w-4 h-4" />
-                Đã lưu ✓
+              <span
+                role="status"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-700 dark:text-emerald-300 font-semibold shadow-xs"
+              >
+                <Check className="w-3.5 h-3.5" />
+                Đã lưu cấu hình AI
               </span>
             )}
           </div>
         </div>
       </Card>
 
-      {/* Section 2b: Giới hạn ôn tập hàng ngày (Daily Review Cap) */}
-      <Card className="p-6 bg-[var(--surface-card)]">
-        <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
-          <Brain className="w-4 h-4 text-accent" />
-          Giới hạn ôn tập hàng ngày (Daily Review Cap)
-        </h2>
+      {/* Section 2b: Mục tiêu Ôn tập FSRS */}
+      <Card className="p-6 bg-[var(--surface-card)] border-[var(--border-calm)]">
+        <div className="flex items-start gap-3 mb-5">
+          <div className="w-8 h-8 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+            <Brain className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-[var(--text-primary)]">
+              Mục tiêu Ôn tập FSRS
+            </h2>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+              Giới hạn số thẻ mỗi ngày để duy trì nhịp độ ghi nhớ bền vững, tránh quá tải.
+            </p>
+          </div>
+        </div>
         <form onSubmit={handleSaveReviewCaps} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="flex items-center gap-1.5 text-sm font-medium text-text-secondary mb-1.5">
+              <label className="flex items-center gap-1.5 text-sm font-medium text-[var(--text-secondary)] mb-1.5">
                 Số thẻ ôn tập tối đa / ngày
               </label>
               <input
@@ -507,15 +540,15 @@ export default function SettingsPage() {
                     maxReviewsPerDay: Number(e.target.value) || 100,
                   }))
                 }
-                className="w-full h-9 px-3 rounded-md border border-border bg-bg-primary text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                className="w-full h-9 px-3 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[#5E51E8]/40 focus:border-[#5E51E8]"
               />
-              <p className="text-[11px] text-text-tertiary mt-1">
+              <p className="text-[11px] text-[var(--text-tertiary)] mt-1">
                 Mặc định: 100 thẻ. Giúp chống quá tải nhận thức khi ôn thi.
               </p>
             </div>
 
             <div>
-              <label className="flex items-center gap-1.5 text-sm font-medium text-text-secondary mb-1.5">
+              <label className="flex items-center gap-1.5 text-sm font-medium text-[var(--text-secondary)] mb-1.5">
                 Số thẻ mới tối đa / ngày
               </label>
               <input
@@ -530,27 +563,30 @@ export default function SettingsPage() {
                     maxNewPerDay: Number(e.target.value) || 20,
                   }))
                 }
-                className="w-full h-9 px-3 rounded-md border border-border bg-bg-primary text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                className="w-full h-9 px-3 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[#5E51E8]/40 focus:border-[#5E51E8]"
               />
-              <p className="text-[11px] text-text-tertiary mt-1">
+              <p className="text-[11px] text-[var(--text-tertiary)] mt-1">
                 Mặc định: 20 thẻ mới. Điều phối nhịp độ tiếp thu kiến thức mới.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 pt-1">
+          <div className="flex flex-wrap items-center gap-3 pt-1">
             <button
               type="submit"
               data-testid="settings-save-review-caps-btn"
-              className="flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition cursor-pointer"
+              className="flex items-center gap-2 h-9 px-4 rounded-[8px] bg-[#5E51E8] hover:bg-[#4F46E5] dark:bg-[#818CF8] dark:hover:bg-[#6366F1] text-white dark:text-[#0F0F12] text-sm font-medium transition cursor-pointer"
             >
               <Save className="w-4 h-4" />
               Lưu giới hạn ôn tập
             </button>
             {showCapSavedToast && (
-              <span className="flex items-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400 font-medium animate-in fade-in">
-                <Check className="w-4 h-4" />
-                Đã lưu ✓
+              <span
+                role="status"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-700 dark:text-emerald-300 font-semibold shadow-xs"
+              >
+                <Check className="w-3.5 h-3.5" />
+                Đã lưu mục tiêu FSRS
               </span>
             )}
           </div>
@@ -559,20 +595,29 @@ export default function SettingsPage() {
         </div>
 
         <div className="lg:col-span-5 space-y-6">
-      {/* Section 3: Giao diện */}
-      <Card className="p-6 bg-[var(--surface-card)]">
-        <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
-          <Sun className="w-4 h-4" />
-          Giao diện
-        </h2>
+      {/* Section 3: Giao diện & Phông chữ đọc */}
+      <Card className="p-6 bg-[var(--surface-card)] border-[var(--border-calm)]">
+        <div className="flex items-start gap-3 mb-5">
+          <div className="w-8 h-8 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+            <Sun className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-[var(--text-primary)]">
+              Giao diện &amp; Phông chữ đọc
+            </h2>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+              Tối ưu hóa trải nghiệm đọc giáo trình và giảm mỏi mắt.
+            </p>
+          </div>
+        </div>
         <div className="space-y-5">
           {/* Dark mode toggle */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {darkMode ? <Moon className="w-4 h-4 text-text-secondary" /> : <Sun className="w-4 h-4 text-text-secondary" />}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              {darkMode ? <Moon className="w-4 h-4 text-[var(--text-secondary)] shrink-0" /> : <Sun className="w-4 h-4 text-[var(--text-secondary)] shrink-0" />}
               <div>
-                <p className="text-sm font-medium text-text-primary">Chế độ tối</p>
-                <p className="text-xs text-text-tertiary">
+                <p className="text-sm font-medium text-[var(--text-primary)]">Chế độ tối</p>
+                <p className="text-xs text-[var(--text-tertiary)]">
                   {darkMode ? "Đang bật" : "Đang tắt"}
                 </p>
               </div>
@@ -583,8 +628,8 @@ export default function SettingsPage() {
               aria-checked={darkMode}
               aria-label="Bật hoặc tắt chế độ tối"
               onClick={toggleDarkMode}
-              className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer ${
-                darkMode ? "bg-accent" : "bg-bg-tertiary border border-border"
+              className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 ${
+                darkMode ? "bg-[#5E51E8] dark:bg-[#818CF8]" : "bg-[var(--surface-elevated)] border border-[var(--border-calm)]"
               }`}
             >
               <span
@@ -596,12 +641,12 @@ export default function SettingsPage() {
           </div>
 
           {/* Serif / Sans toggle */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Type className="w-4 h-4 text-text-secondary" />
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <Type className="w-4 h-4 text-[var(--text-secondary)] shrink-0" />
               <div>
-                <p className="text-sm font-medium text-text-primary">Phông chữ Serif</p>
-                <p className="text-xs text-text-tertiary">
+                <p className="text-sm font-medium text-[var(--text-primary)]">Phông chữ Serif</p>
+                <p className="text-xs text-[var(--text-tertiary)]">
                   {serifFont ? "Serif (có chân)" : "Sans-serif (không chân)"}
                 </p>
               </div>
@@ -612,8 +657,8 @@ export default function SettingsPage() {
               aria-checked={serifFont}
               aria-label="Bật hoặc tắt phông chữ Serif"
               onClick={toggleSerifFont}
-              className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer ${
-                serifFont ? "bg-accent" : "bg-bg-tertiary border border-border"
+              className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer shrink-0 ${
+                serifFont ? "bg-[#5E51E8] dark:bg-[#818CF8]" : "bg-[var(--surface-elevated)] border border-[var(--border-calm)]"
               }`}
             >
               <span
@@ -625,16 +670,16 @@ export default function SettingsPage() {
           </div>
 
           {/* Font size slider */}
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <ALargeSmall className="w-4 h-4 text-text-secondary" />
-              <div>
-                <p className="text-sm font-medium text-text-primary">Cỡ chữ</p>
-                <p className="text-xs text-text-tertiary">{fontSizePx}px</p>
+          <div className="pt-1 border-t border-[var(--border-calm)]">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-3">
+                <ALargeSmall className="w-4 h-4 text-[var(--text-secondary)]" />
+                <p className="text-sm font-medium text-[var(--text-primary)]">Cỡ chữ đọc</p>
               </div>
+              <Badge variant="neutral" size="sm">{fontSizePx}px</Badge>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-text-tertiary w-7 text-right">12</span>
+              <span className="text-xs text-[var(--text-tertiary)] w-7 text-right">12</span>
               <input
                 type="range"
                 min={12}
@@ -642,41 +687,50 @@ export default function SettingsPage() {
                 step={1}
                 value={fontSizePx}
                 onChange={(e) => setFontSizePx(Number(e.target.value))}
-                className="flex-1 h-1.5 accent-accent cursor-pointer"
+                className="flex-1 h-1.5 accent-[#5E51E8] cursor-pointer"
               />
-              <span className="text-xs text-text-tertiary w-7">20</span>
+              <span className="text-xs text-[var(--text-tertiary)] w-7">20</span>
             </div>
           </div>
         </div>
       </Card>
 
-      {/* Section 4: Phím tắt */}
-      <Card className="p-6 bg-[var(--surface-card)]">
-        <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
-          <Keyboard className="w-4 h-4" />
-          Phím tắt
-        </h2>
+      {/* Section 4: Phím tắt & Tiện ích */}
+      <Card className="p-6 bg-[var(--surface-card)] border-[var(--border-calm)]">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="w-8 h-8 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+            <Keyboard className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-[var(--text-primary)]">
+              Phím tắt &amp; Tiện ích
+            </h2>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+              Thao tác nhanh bằng bàn phím trong toàn bộ không gian học.
+            </p>
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-2 pr-4 font-medium text-text-secondary">
+              <tr className="border-b border-[var(--border-calm)]">
+                <th className="text-left py-2 pr-4 font-medium text-[var(--text-secondary)]">
                   Phím tắt
                 </th>
-                <th className="text-left py-2 font-medium text-text-secondary">
+                <th className="text-left py-2 font-medium text-[var(--text-secondary)]">
                   Chức năng
                 </th>
               </tr>
             </thead>
             <tbody>
               {SHORTCUTS.map((s) => (
-                <tr key={s.keys} className="border-b border-border-subtle last:border-0">
+                <tr key={s.keys} className="border-b border-[var(--border-calm)]/60 last:border-0">
                   <td className="py-2.5 pr-4">
-                    <kbd className="inline-block text-xs font-mono px-2 py-1 rounded-md bg-bg-tertiary border border-border text-text-primary">
+                    <kbd className="inline-block text-xs font-mono px-2 py-1 rounded-md bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[var(--text-primary)]">
                       {s.keys}
                     </kbd>
                   </td>
-                  <td className="py-2.5 text-text-secondary">{s.description}</td>
+                  <td className="py-2.5 text-[var(--text-secondary)]">{s.description}</td>
                 </tr>
               ))}
             </tbody>
@@ -685,46 +739,46 @@ export default function SettingsPage() {
       </Card>
 
       {/* Section 5: Thông tin ứng dụng */}
-      <Card className="p-6 bg-[var(--surface-card)]">
-        <h2 className="text-base font-semibold text-text-primary flex items-center gap-2 mb-4">
-          <Info className="w-4 h-4" />
+      <Card className="p-6 bg-[var(--surface-card)] border-[var(--border-calm)]">
+        <h2 className="text-base font-semibold text-[var(--text-primary)] flex items-center gap-2 mb-4">
+          <Info className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
           Thông tin ứng dụng
         </h2>
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-text-secondary">Ứng dụng</span>
-            <span className="text-sm font-medium text-text-primary">Studxy</span>
+            <span className="text-sm text-[var(--text-secondary)]">Ứng dụng</span>
+            <span className="text-sm font-medium text-[var(--text-primary)]">Studxy</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-text-secondary">Phiên bản</span>
-            <span className="text-sm font-medium text-text-primary">2.0 — UI Redesign</span>
+            <span className="text-sm text-[var(--text-secondary)]">Phiên bản</span>
+            <span className="text-sm font-medium text-[var(--text-primary)]">2.0 — UI Redesign</span>
           </div>
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-sm text-text-secondary">Không gian làm việc khác</span>
+          <div className="flex items-center justify-between pt-2 border-t border-[var(--border-calm)]">
+            <span className="text-sm text-[var(--text-secondary)]">Không gian làm việc khác</span>
             <Link
               href="/workspace"
               data-testid="settings-workspace-classic-link"
-              className="flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
+              className="flex items-center gap-1.5 text-sm font-medium text-[#5E51E8] dark:text-[#818CF8] hover:underline"
             >
               Mở Workspace Classic
               <ExternalLink className="w-3.5 h-3.5" />
             </Link>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-text-secondary">Tài khoản &amp; Phiên đăng nhập</span>
+            <span className="text-sm text-[var(--text-secondary)]">Tài khoản &amp; Phiên đăng nhập</span>
             <Link
               href="/auth"
-              className="flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
+              className="flex items-center gap-1.5 text-sm font-medium text-[#5E51E8] dark:text-[#818CF8] hover:underline"
             >
               Quản lý tài khoản
               <ExternalLink className="w-3.5 h-3.5" />
             </Link>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-text-secondary">Xuất bản &amp; Quản trị khóa học</span>
+            <span className="text-sm text-[var(--text-secondary)]">Xuất bản &amp; Quản trị khóa học</span>
             <Link
               href="/app/studio"
-              className="flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
+              className="flex items-center gap-1.5 text-sm font-medium text-[#5E51E8] dark:text-[#818CF8] hover:underline"
             >
               Mở Course Studio
               <ExternalLink className="w-3.5 h-3.5" />

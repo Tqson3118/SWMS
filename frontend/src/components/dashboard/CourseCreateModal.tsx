@@ -436,6 +436,10 @@ export function CourseCreateModal({ isOpen, onClose, onSuccess }: CourseCreateMo
         quizCount: data.quizCount ?? 1
       });
 
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("swms:data-mutated"));
+      }
+
       setTimeout(() => {
         if (typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("swms:data-mutated"));

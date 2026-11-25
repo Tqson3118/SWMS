@@ -9,12 +9,8 @@ const SCRATCH_DIR =
 
 const EXPECTED_DOCUMENT_COURSES = [
   {
-    slug: "document-course-dotnet-react-roadmap",
-    title: ".NET & React Full-Stack Roadmap"
-  },
-  {
-    slug: "document-course-fullstack-csharp-react-refresh",
-    title: "FullStack C# & React Refresh (28 Tuần)"
+    slug: "doc-course-studxy-fullstack-bootcamp",
+    title: "Studxy Full-Stack"
   },
   {
     slug: "document-course-ielts",
@@ -36,6 +32,11 @@ const EXPECTED_DOCUMENT_COURSES = [
     slug: "document-course-psychology",
     title: "Tự Học Tâm Lý Học 48 Tuần"
   }
+];
+
+const RETIRED_SLUGS = [
+  "document-course-dotnet-react-roadmap",
+  "document-course-fullstack-csharp-react-refresh"
 ];
 
 function ensureScratchDir() {
@@ -80,7 +81,7 @@ function attachNetworkFailureMonitor(page: Page): string[] {
 test.describe("Document Courses Full-Stack Real E2E (No Mocks)", () => {
   test.setTimeout(90000);
 
-  test("1. Landing -> /workspace Catalog shows all 7 courses, search/category filters, sync, dark mode & tablet layout", async ({
+  test("1. Landing -> /workspace Catalog shows all curated courses, search/category filters, sync, dark mode & tablet layout", async ({
     page
   }) => {
     ensureScratchDir();
@@ -94,11 +95,14 @@ test.describe("Document Courses Full-Stack Real E2E (No Mocks)", () => {
     await expect(heroCta).toBeVisible();
     await heroCta.click();
 
-    await page.waitForURL("**/workspace");
+    await page.waitForURL("**/auth?tab=register");
+    await provisionIsolatedLearner(page);
+    await page.goto("/workspace");
+    await page.waitForLoadState("domcontentloaded");
     const catalog = page.getByTestId("course-catalog-section");
     await expect(catalog).toBeVisible({ timeout: 20000 });
 
-    // Wait for all 7 synced document courses to render in the catalog
+    // Wait for all 6 curated document courses to render in the catalog
     for (const expected of EXPECTED_DOCUMENT_COURSES) {
       const card = catalog.locator(`[data-course-slug="${expected.slug}"]`);
       await expect(card, `Course ${expected.slug} must be visible`).toBeVisible({
@@ -106,6 +110,20 @@ test.describe("Document Courses Full-Stack Real E2E (No Mocks)", () => {
       });
       await expect(card.getByTestId("course-card-title")).toContainText(expected.title);
     }
+
+    // Assert that the 2 retired courses do NOT appear in /workspace
+    for (const slug of RETIRED_SLUGS) {
+      await expect(catalog.locator(`[data-course-slug="${slug}"]`)).toHaveCount(0);
+    }
+
+    // Assert that the 2 retired courses do NOT appear in /app/courses
+    await page.goto("/app/courses");
+    await page.waitForLoadState("domcontentloaded");
+    for (const slug of RETIRED_SLUGS) {
+      await expect(page.locator(`[data-course-slug="${slug}"]`)).toHaveCount(0);
+    }
+    await page.goto("/workspace");
+    await page.waitForLoadState("domcontentloaded");
 
     // Check zero horizontal overflow on 1440x900 light mode
     await assertZeroHorizontalOverflow(page);
@@ -146,11 +164,14 @@ test.describe("Document Courses Full-Stack Real E2E (No Mocks)", () => {
     // Category filter pills
     await page.getByTestId("category-pill-programming").click();
     await expect(
-      catalog.locator('[data-course-slug="document-course-dotnet-react-roadmap"]')
+      catalog.locator('[data-course-slug="doc-course-studxy-fullstack-bootcamp"]')
     ).toBeVisible();
     await expect(
+      catalog.locator('[data-course-slug="document-course-dotnet-react-roadmap"]')
+    ).toHaveCount(0);
+    await expect(
       catalog.locator('[data-course-slug="document-course-fullstack-csharp-react-refresh"]')
-    ).toBeVisible();
+    ).toHaveCount(0);
     await expect(catalog.locator('[data-course-slug="document-course-ielts"]')).toBeHidden();
 
     await page.getByTestId("category-pill-language").click();
@@ -214,38 +235,36 @@ test.describe("Document Courses Full-Stack Real E2E (No Mocks)", () => {
     await page.goto("/workspace");
 
     const catalog = page.getByTestId("course-catalog-section");
-    const fullstackCard = catalog.locator(
-      '[data-course-slug="document-course-fullstack-csharp-react-refresh"]'
+    const bootcampCard = catalog.locator(
+      '[data-course-slug="doc-course-studxy-fullstack-bootcamp"]'
     );
-    await expect(fullstackCard).toBeVisible({ timeout: 20000 });
-    await fullstackCard.getByTestId("course-start-learning-btn").click();
+    await expect(bootcampCard).toBeVisible({ timeout: 20000 });
+    await bootcampCard.getByTestId("course-start-learning-btn").click();
 
     await expect(page.getByTestId("mode-1-reading-container")).toBeVisible({ timeout: 15000 });
     const sidebar = page.getByTestId("course-roadmap-sidebar");
     await expect(sidebar).toBeVisible();
 
-    // TopNav breadcrumb reflects active course title (not hardcoded "Hệ điều hành")
+    // TopNav breadcrumb reflects active course title
     await expect(page.getByTestId("header-breadcrumb-root")).toContainText(
-      "FullStack C# & React Refresh"
+      "Full-Stack"
     );
 
-    // Search & click Week 01 inside the Chapter->Lesson accordion sidebar
+    // Search & click Lesson 01 inside the Chapter->Lesson accordion sidebar
     const lessonSearch = page.getByTestId("roadmap-lesson-search-input");
-    await lessonSearch.fill("Tuần 01");
-    const week1Btn = sidebar
+    await lessonSearch.fill("Bài 01");
+    const lesson1Btn = sidebar
       .getByTestId("course-syllabus-lesson-btn")
-      .filter({ hasText: "Tuần 01" })
+      .filter({ hasText: /Bài 01|Nhập Môn/i })
       .first();
-    await expect(week1Btn).toBeVisible();
-    await week1Btn.click();
+    await expect(lesson1Btn).toBeVisible();
+    await lesson1Btn.click();
     await lessonSearch.fill("");
 
-    // Verify Markdown view renders fenced code blocks and GFM tables
+    // Verify Markdown view renders fenced code blocks and content
     const mdView = page.getByTestId("lesson-markdown-view");
     await expect(mdView).toBeVisible({ timeout: 15000 });
     await expect(mdView.locator("pre code").first()).toBeVisible();
-    await expect(mdView.locator("table thead th").first()).toBeVisible();
-    await expect(mdView.locator("table tbody tr").first()).toBeVisible();
 
     await assertZeroHorizontalOverflow(page);
     await page.screenshot({
@@ -282,7 +301,7 @@ test.describe("Document Courses Full-Stack Real E2E (No Mocks)", () => {
     await page.waitForLoadState("domcontentloaded");
     const reloadedCard = page
       .getByTestId("course-catalog-section")
-      .locator('[data-course-slug="document-course-fullstack-csharp-react-refresh"]');
+      .locator('[data-course-slug="doc-course-studxy-fullstack-bootcamp"]');
     await expect(reloadedCard).toBeVisible({ timeout: 20000 });
     await expect(reloadedCard.getByTestId("course-progress-percent")).not.toContainText("(0%)", {
       timeout: 15000
@@ -293,8 +312,7 @@ test.describe("Document Courses Full-Stack Real E2E (No Mocks)", () => {
       timeout: 15000
     });
     const reloadedSidebar = page.getByTestId("course-roadmap-sidebar");
-    await expect(reloadedSidebar.getByText("Phase 1 Week 01")).toBeVisible();
-    await page.getByTestId("roadmap-lesson-search-input").fill("Tuần 01");
+    await page.getByTestId("roadmap-lesson-search-input").fill("Bài 01");
     await expect(reloadedSidebar.getByTestId("lesson-completed-icon").first()).toBeVisible();
     await page.getByTestId("roadmap-lesson-search-input").fill("");
 
@@ -425,20 +443,20 @@ test.describe("Document Courses Full-Stack Real E2E (No Mocks)", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/workspace");
 
-    // Launch FullStack course -> Week 01 -> Quiz button
+    // Launch Investing course -> Tuần 01 -> Quiz button
     const catalog = page.getByTestId("course-catalog-section");
-    const fullstackCard = catalog.locator(
-      '[data-course-slug="document-course-fullstack-csharp-react-refresh"]'
+    const investingCard = catalog.locator(
+      '[data-course-slug="document-course-investing"]'
     );
-    await expect(fullstackCard).toBeVisible({ timeout: 20000 });
-    await fullstackCard.getByTestId("course-start-learning-btn").click();
+    await expect(investingCard).toBeVisible({ timeout: 20000 });
+    await investingCard.getByTestId("course-start-learning-btn").click();
 
     await expect(page.getByTestId("mode-1-reading-container")).toBeVisible({ timeout: 15000 });
     const sidebar = page.getByTestId("course-roadmap-sidebar");
-    await page.getByTestId("roadmap-lesson-search-input").fill("Tuần 01");
+    await page.getByTestId("roadmap-lesson-search-input").fill("W01");
     await sidebar
       .getByTestId("course-syllabus-lesson-btn")
-      .filter({ hasText: "Tuần 01" })
+      .filter({ hasText: "W01" })
       .first()
       .click();
 

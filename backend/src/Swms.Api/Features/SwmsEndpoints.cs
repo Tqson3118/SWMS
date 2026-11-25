@@ -96,7 +96,8 @@ public record SubmitQuizItemRequest(
 public record AiInSituRequest(
     string Excerpt,
     string? ContextTitle,
-    string? ActionType // explain | generate_qa | counter_example | translate
+    string? ActionType, // explain | generate_qa | counter_example | translate
+    string? Language = null
 );
 
 public record AiTutorChatTurn(
@@ -150,7 +151,40 @@ public record UploadDocumentRequest(
 
 public record WizardClarifyRequest(string Topic);
 public record WizardPreviewRequest(string Topic, Dictionary<string, string>? Answers);
-public record UpdateCourseRequest(string? Title, string? Description, string? Visibility, bool? IsPublished);
+public record UpdateCourseRequest(
+    string? Title = null,
+    string? Description = null,
+    string? Visibility = null,
+    bool? IsPublished = null,
+    string? Category = null,
+    string? Level = null,
+    List<string>? LearningOutcomes = null,
+    List<string>? Prerequisites = null,
+    bool? IsArchived = null
+);
+public record UpdateCoursePreferencesRequest(
+    bool? IsPinned = null,
+    bool? IsArchived = null,
+    int? DailyLessonGoal = null,
+    DateTimeOffset? TargetCompletionDate = null,
+    bool? ClearTargetDate = null
+);
+public record UpdateLessonFlagsRequest(
+    bool? IsBookmarked = null,
+    bool? NeedsReview = null
+);
+public record CheckCourseDuplicatesRequest(
+    string? Title = null,
+    string? Topic = null
+);
+public record CleanupDuplicateCoursesRequest(
+    List<Guid> CourseIds
+);
+public record LessonAiEnhanceRequest(
+    string Action,
+    string? Prompt = null,
+    string? CurrentMarkdown = null
+);
 public record PublishCourseRequest(string? Visibility = null, bool? IsPublished = null);
 public record CreateChapterRequest(string Title, int? SortOrder = null);
 public record UpdateChapterRequest(string? Title, int? SortOrder);
@@ -259,6 +293,17 @@ public static class SwmsEndpoints
                     ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(500);
                     CREATE UNIQUE INDEX IF NOT EXISTS ix_users_google_sub ON users (google_sub) WHERE google_sub IS NOT NULL;
 
+                    ALTER TABLE courses ADD COLUMN IF NOT EXISTS category VARCHAR(100);
+                    ALTER TABLE courses ADD COLUMN IF NOT EXISTS level VARCHAR(60);
+                    ALTER TABLE courses ADD COLUMN IF NOT EXISTS learning_outcomes JSONB;
+                    ALTER TABLE courses ADD COLUMN IF NOT EXISTS prerequisites JSONB;
+                    ALTER TABLE courses ADD COLUMN IF NOT EXISTS is_archived BOOLEAN NOT NULL DEFAULT FALSE;
+
+                    ALTER TABLE course_enrollments ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN NOT NULL DEFAULT FALSE;
+                    ALTER TABLE course_enrollments ADD COLUMN IF NOT EXISTS is_archived BOOLEAN NOT NULL DEFAULT FALSE;
+                    ALTER TABLE course_enrollments ADD COLUMN IF NOT EXISTS daily_lesson_goal INT NOT NULL DEFAULT 2;
+                    ALTER TABLE course_enrollments ADD COLUMN IF NOT EXISTS target_completion_date TIMESTAMPTZ;
+
                     ALTER TABLE lessons ADD COLUMN IF NOT EXISTS content_markdown TEXT;
                     ALTER TABLE lessons ADD COLUMN IF NOT EXISTS video_url TEXT;
                     ALTER TABLE lessons ADD COLUMN IF NOT EXISTS estimated_minutes INT NOT NULL DEFAULT 5;
@@ -276,6 +321,8 @@ public static class SwmsEndpoints
                         time_spent_seconds INT NOT NULL DEFAULT 0,
                         scroll_percent INT NOT NULL DEFAULT 0,
                         last_scroll_offset INT NOT NULL DEFAULT 0,
+                        is_bookmarked BOOLEAN NOT NULL DEFAULT FALSE,
+                        needs_review BOOLEAN NOT NULL DEFAULT FALSE,
                         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
                     );
@@ -285,6 +332,8 @@ public static class SwmsEndpoints
                     ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS time_spent_seconds INT NOT NULL DEFAULT 0;
                     ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS scroll_percent INT NOT NULL DEFAULT 0;
                     ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS last_scroll_offset INT NOT NULL DEFAULT 0;
+                    ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS is_bookmarked BOOLEAN NOT NULL DEFAULT FALSE;
+                    ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS needs_review BOOLEAN NOT NULL DEFAULT FALSE;
 
                     CREATE TABLE IF NOT EXISTS course_reviews (
                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -342,6 +391,28 @@ public static class SwmsEndpoints
         if (!db.Database.IsSqlite()) return;
         try { await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA temp_store=MEMORY; PRAGMA busy_timeout=5000;"); } catch { }
 
+        var courseCols = await GetSqliteTableColumnsAsync(db, "courses");
+        if (!courseCols.Contains("category"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE courses ADD COLUMN category TEXT;"); } catch { }
+        if (!courseCols.Contains("level"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE courses ADD COLUMN level TEXT;"); } catch { }
+        if (!courseCols.Contains("learning_outcomes"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE courses ADD COLUMN learning_outcomes TEXT;"); } catch { }
+        if (!courseCols.Contains("prerequisites"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE courses ADD COLUMN prerequisites TEXT;"); } catch { }
+        if (!courseCols.Contains("is_archived"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE courses ADD COLUMN is_archived INTEGER NOT NULL DEFAULT 0;"); } catch { }
+
+        var enrollmentCols = await GetSqliteTableColumnsAsync(db, "course_enrollments");
+        if (!enrollmentCols.Contains("is_pinned"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE course_enrollments ADD COLUMN is_pinned INTEGER NOT NULL DEFAULT 0;"); } catch { }
+        if (!enrollmentCols.Contains("is_archived"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE course_enrollments ADD COLUMN is_archived INTEGER NOT NULL DEFAULT 0;"); } catch { }
+        if (!enrollmentCols.Contains("daily_lesson_goal"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE course_enrollments ADD COLUMN daily_lesson_goal INTEGER NOT NULL DEFAULT 2;"); } catch { }
+        if (!enrollmentCols.Contains("target_completion_date"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE course_enrollments ADD COLUMN target_completion_date TEXT;"); } catch { }
+
         var lessonCols = await GetSqliteTableColumnsAsync(db, "lessons");
         if (!lessonCols.Contains("content_markdown"))
             try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE lessons ADD COLUMN content_markdown TEXT;"); } catch { }
@@ -372,6 +443,8 @@ public static class SwmsEndpoints
                     time_spent_seconds INTEGER NOT NULL DEFAULT 0,
                     scroll_percent INTEGER NOT NULL DEFAULT 0,
                     last_scroll_offset INTEGER NOT NULL DEFAULT 0,
+                    is_bookmarked INTEGER NOT NULL DEFAULT 0,
+                    needs_review INTEGER NOT NULL DEFAULT 0,
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL
                 );
@@ -391,6 +464,10 @@ public static class SwmsEndpoints
             try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE user_lesson_progress ADD COLUMN scroll_percent INTEGER NOT NULL DEFAULT 0;"); } catch { }
         if (!progressCols.Contains("last_scroll_offset"))
             try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE user_lesson_progress ADD COLUMN last_scroll_offset INTEGER NOT NULL DEFAULT 0;"); } catch { }
+        if (!progressCols.Contains("is_bookmarked"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE user_lesson_progress ADD COLUMN is_bookmarked INTEGER NOT NULL DEFAULT 0;"); } catch { }
+        if (!progressCols.Contains("needs_review"))
+            try { await db.Database.ExecuteSqlRawAsync("ALTER TABLE user_lesson_progress ADD COLUMN needs_review INTEGER NOT NULL DEFAULT 0;"); } catch { }
 
         try
         {
@@ -704,13 +781,14 @@ public static class SwmsEndpoints
         return false;
     }
 
-    private static void SetCachedEndpointPayload(string endpointName, Guid userId, object payload)
+    private static void SetCachedEndpointPayload(string endpointName, Guid userId, object payload, long expectedCacheVersion)
     {
         if (_isRunningUnderTests) return;
+        if (CourseGenerationService.CurrentCacheVersion != expectedCacheVersion) return;
         var now = DateTimeOffset.UtcNow;
         if (EndpointResponseCache.Count > 512)
         {
-            var currentVerSuffix = $":{CourseGenerationService.CurrentCacheVersion}";
+            var currentVerSuffix = $":{expectedCacheVersion}";
             foreach (var kvp in EndpointResponseCache)
             {
                 if (kvp.Value.ExpiresAt <= now || !kvp.Key.EndsWith(currentVerSuffix, StringComparison.Ordinal))
@@ -723,7 +801,7 @@ public static class SwmsEndpoints
                 EndpointResponseCache.Clear();
             }
         }
-        var key = $"{endpointName}:{userId:N}:{CourseGenerationService.CurrentCacheVersion}";
+        var key = $"{endpointName}:{userId:N}:{expectedCacheVersion}";
         EndpointResponseCache[key] = (payload, now.Add(EndpointResponseCacheTtl));
     }
 
@@ -1455,6 +1533,7 @@ public static class SwmsEndpoints
         ws.MapGet("/dashboard", async (HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
+            var startCacheVersion = CourseGenerationService.CurrentCacheVersion;
             if (TryGetCachedEndpointPayload("dashboard", userId, out var cachedDashboard))
             {
                 return Results.Ok(cachedDashboard);
@@ -1485,9 +1564,10 @@ public static class SwmsEndpoints
 
             var rawOwnedCourses = await db.Courses
                 .AsNoTracking()
-                .Where(c => c.InstructorId == user.Id ||
-                            (c.Visibility == "public" && c.IsPublished) ||
-                            (enrolledCourseIds.Contains(c.Id) && c.IsPublished && c.Visibility != "personal" && c.Visibility != "private"))
+                .Where(c => (c.InstructorId == user.Id ||
+                             (c.Visibility == "public" && c.IsPublished) ||
+                             (enrolledCourseIds.Contains(c.Id) && c.IsPublished && c.Visibility != "personal" && c.Visibility != "private"))
+                            && !DocumentCourseSyncService.RetiredCourseSlugs.Contains(c.Slug))
                 .ToListAsync();
             var ownedCourses = rawOwnedCourses.OrderByDescending(c => c.UpdatedAt).ToList();
             var ownedCourseIds = ownedCourses.Select(c => c.Id).ToHashSet();
@@ -1618,6 +1698,15 @@ public static class SwmsEndpoints
                 .Where(d => d.CourseId != Guid.Empty)
                 .ToDictionary(d => d.Id, d => d.CourseId);
 
+            var retiredCourseLessonIds = await (
+                from l in db.Lessons.AsNoTracking()
+                join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
+                join c in db.Courses.AsNoTracking() on ch.CourseId equals c.Id
+                where DocumentCourseSyncService.RetiredCourseSlugs.Contains(c.Slug)
+                select l.Id
+            ).ToListAsync();
+            var retiredCourseLessonIdSet = retiredCourseLessonIds.ToHashSet();
+
             var rawQuizzes = await db.PracticeQuizzes
                 .AsNoTracking()
                 .Where(q => q.UserId == user.Id || q.UserId == SeedDataInitializer.DefaultUserId)
@@ -1640,18 +1729,24 @@ public static class SwmsEndpoints
                 {
                     Guid? qCourseId = null;
                     bool isPublicDocumentQuiz = false;
+                    bool isRetiredQuiz = q.LessonId.HasValue && retiredCourseLessonIdSet.Contains(q.LessonId.Value);
+
                     if (q.LessonId.HasValue && lessonCourseMeta.TryGetValue(q.LessonId.Value, out var lc) && lc != null)
                     {
                         qCourseId = lc.Id;
-                        isPublicDocumentQuiz = lc.Slug.StartsWith("document-course-", StringComparison.OrdinalIgnoreCase) &&
+                        isPublicDocumentQuiz = DocumentCourseSyncService.IsPublicCurriculumSlug(lc.Slug) &&
                                                lc.Visibility == "public" && lc.IsPublished;
+                        if (DocumentCourseSyncService.IsRetiredCourseSlug(lc.Slug))
+                        {
+                            isRetiredQuiz = true;
+                        }
                     }
                     else if (q.DocumentId.HasValue && docCourseMeta.TryGetValue(q.DocumentId.Value, out var dc))
                     {
                         qCourseId = dc;
                     }
 
-                    bool accessible = q.UserId == user.Id || isPublicDocumentQuiz;
+                    bool accessible = (q.UserId == user.Id || isPublicDocumentQuiz) && !isRetiredQuiz;
                     return new { Quiz = q, CourseId = qCourseId, Accessible = accessible };
                 })
                 .Where(x => x.Accessible)
@@ -1722,7 +1817,7 @@ public static class SwmsEndpoints
                 }),
                 quota
             };
-            SetCachedEndpointPayload("dashboard", userId, dashboardPayload);
+            SetCachedEndpointPayload("dashboard", userId, dashboardPayload, startCacheVersion);
             return Results.Ok(dashboardPayload);
         });
 
@@ -1769,10 +1864,25 @@ public static class SwmsEndpoints
                 .Select(e => e.CourseId)
                 .ToHashSetAsync();
 
+            var retiredCourseIds = await db.Courses.AsNoTracking()
+                .Where(c => DocumentCourseSyncService.RetiredCourseSlugs.Contains(c.Slug))
+                .Select(c => c.Id)
+                .ToListAsync();
+            var retiredCourseIdSet = retiredCourseIds.ToHashSet();
+
+            var retiredLessonIds = await (
+                from l in db.Lessons.AsNoTracking()
+                join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
+                where retiredCourseIdSet.Contains(ch.CourseId)
+                select l.Id
+            ).ToListAsync();
+            var retiredLessonIdSet = retiredLessonIds.ToHashSet();
+
             var lessonRows = await (
                 from l in db.Lessons
                 join ch in db.Chapters on l.ChapterId equals ch.Id
                 join c in db.Courses on ch.CourseId equals c.Id
+                where !DocumentCourseSyncService.RetiredCourseSlugs.Contains(c.Slug)
                 select new
                 {
                     Lesson = l,
@@ -1802,10 +1912,15 @@ public static class SwmsEndpoints
                 .ToList();
 
             var lessonToCourse = lessonRows.ToDictionary(r => r.Lesson.Id, r => r.CourseId);
-            var docs = await db.Documents.Where(d => d.UploaderId == userId).ToListAsync();
+            var rawDocs = await db.Documents.Where(d => d.UploaderId == userId).ToListAsync();
+            var docs = rawDocs.Where(d => d.CourseId == Guid.Empty || !retiredCourseIdSet.Contains(d.CourseId)).ToList();
             var docToCourse = docs.Where(d => d.CourseId != Guid.Empty).ToDictionary(d => d.Id, d => d.CourseId);
-            var notes = await db.Notebooks.Where(n => n.UserId == userId).ToListAsync();
-            var cards = await db.Flashcards.Where(f => f.UserId == userId && !f.IsArchived).ToListAsync();
+            var rawNotes = await db.Notebooks.Where(n => n.UserId == userId).ToListAsync();
+            var notes = rawNotes.Where(n => (!n.PrimarySourceLessonId.HasValue || !retiredLessonIdSet.Contains(n.PrimarySourceLessonId.Value)) &&
+                                            (!n.PrimarySourceDocumentId.HasValue || !docToCourse.TryGetValue(n.PrimarySourceDocumentId.Value, out var cId) || !retiredCourseIdSet.Contains(cId))).ToList();
+            var rawCards = await db.Flashcards.Where(f => f.UserId == userId && !f.IsArchived).ToListAsync();
+            var cards = rawCards.Where(f => (!f.LessonId.HasValue || !retiredLessonIdSet.Contains(f.LessonId.Value)) &&
+                                            (!f.DocumentId.HasValue || !docToCourse.TryGetValue(f.DocumentId.Value, out var cId) || !retiredCourseIdSet.Contains(cId))).ToList();
             var tags = await db.Tags.Where(t => t.UserId == userId).ToListAsync();
 
             bool Matches(string? text)
@@ -1817,9 +1932,26 @@ public static class SwmsEndpoints
                 return tokens.Length > 0 && tokens.All(tok => norm.Contains(tok, StringComparison.OrdinalIgnoreCase));
             }
 
+            int MatchRank(string? title, string? body)
+            {
+                if (string.IsNullOrWhiteSpace(query)) return 0;
+                var normTitle = VietnameseTextNormalizer.Unaccent(title);
+                if (normTitle.Contains(query, StringComparison.OrdinalIgnoreCase)) return 3;
+                var tokens = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (tokens.Length > 0 && tokens.All(tok => normTitle.Contains(tok, StringComparison.OrdinalIgnoreCase))) return 2;
+                var normBody = VietnameseTextNormalizer.Unaccent(body);
+                if (normBody.Contains(query, StringComparison.OrdinalIgnoreCase)) return 1;
+                return 0;
+            }
+
             var results = new List<object>();
 
-            foreach (var r in accessibleLessons.Where(r => Matches(r.Lesson.Title) || Matches(r.Lesson.PlainText)))
+            var matchedLessons = accessibleLessons
+                .Where(r => Matches(r.Lesson.Title) || Matches(r.Lesson.PlainText))
+                .OrderByDescending(r => MatchRank(r.Lesson.Title, r.Lesson.PlainText))
+                .ThenByDescending(r => r.Lesson.UpdatedAt);
+
+            foreach (var r in matchedLessons)
             {
                 var l = r.Lesson;
                 results.Add(new
@@ -1951,6 +2083,7 @@ public static class SwmsEndpoints
         api.MapGet("/courses", async (HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
+            var startCacheVersion = CourseGenerationService.CurrentCacheVersion;
             if (TryGetCachedEndpointPayload("courses", userId, out var cachedCourses))
             {
                 return Results.Ok(cachedCourses);
@@ -1967,7 +2100,8 @@ public static class SwmsEndpoints
                 .Where(c => (c.InstructorId == userId ||
                              (c.Visibility == "public" && c.IsPublished) ||
                              (enrolledIds.Contains(c.Id) && c.IsPublished && c.Visibility != "personal" && c.Visibility != "private"))
-                            && !c.Slug.StartsWith("personal-workspace-"))
+                            && !c.Slug.StartsWith("personal-workspace-")
+                            && !DocumentCourseSyncService.RetiredCourseSlugs.Contains(c.Slug))
                 .ToListAsync();
 
             var userCourses = OrderCoursesForUser(rawUserCourses, userId);
@@ -1976,7 +2110,7 @@ public static class SwmsEndpoints
                 userCourses,
                 includeLessonMarkdown: false,
                 userId: userId);
-            SetCachedEndpointPayload("courses", userId, result);
+            SetCachedEndpointPayload("courses", userId, result, startCacheVersion);
             return Results.Ok(result);
         });
 
@@ -1986,7 +2120,42 @@ public static class SwmsEndpoints
             var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == id);
             if (course == null)
             {
+                var retiredSlug = DocumentCourseSyncService.GetRetiredRedirectSlugById(id);
+                if (!string.IsNullOrWhiteSpace(retiredSlug))
+                {
+                    var redirectCourseId = await db.Courses.AsNoTracking()
+                        .Where(c => c.Slug == retiredSlug)
+                        .Select(c => (Guid?)c.Id)
+                        .FirstOrDefaultAsync();
+
+                    return Results.Json(new
+                    {
+                        error = "Khóa học đã được gộp vào lộ trình chuẩn mới.",
+                        retired = true,
+                        redirectSlug = retiredSlug,
+                        redirectCourseId
+                    }, statusCode: StatusCodes.Status404NotFound);
+                }
                 return Results.NotFound(new { error = "Không tìm thấy khóa học." });
+            }
+            if (DocumentCourseSyncService.IsRetiredCourseSlug(course.Slug))
+            {
+                var redirectSlug = DocumentCourseSyncService.GetRetiredRedirectSlug(course.Slug);
+                Guid? redirectCourseId = null;
+                if (!string.IsNullOrWhiteSpace(redirectSlug))
+                {
+                    redirectCourseId = await db.Courses.AsNoTracking()
+                        .Where(c => c.Slug == redirectSlug)
+                        .Select(c => (Guid?)c.Id)
+                        .FirstOrDefaultAsync();
+                }
+                return Results.Json(new
+                {
+                    error = "Khóa học đã được gộp vào lộ trình chuẩn mới.",
+                    retired = true,
+                    redirectSlug,
+                    redirectCourseId
+                }, statusCode: StatusCodes.Status404NotFound);
             }
             if (!await CanReadCourseAsync(db, course, userId))
             {
@@ -2090,7 +2259,9 @@ public static class SwmsEndpoints
                 return Results.StatusCode(StatusCodes.Status403Forbidden);
             }
 
-            var rootPath = DocumentCourseSyncService.ResolveDocumentRootPath(config);
+            var rootPath = courseFolder.Equals(DocumentCourseSyncService.StudxyBootcampSourceFolder, StringComparison.OrdinalIgnoreCase)
+                ? DocumentCourseSyncService.ResolveBootcampRootPath(config)
+                : DocumentCourseSyncService.ResolveDocumentRootPath(config);
             if (!DocumentCourseSyncService.TryResolveSafeAssetFile(
                     rootPath,
                     courseFolder,
@@ -2229,11 +2400,16 @@ public static class SwmsEndpoints
             if (req.Description != null) course.Description = req.Description.Trim();
             if (!string.IsNullOrWhiteSpace(req.Visibility)) course.Visibility = req.Visibility;
             if (req.IsPublished.HasValue) course.IsPublished = req.IsPublished.Value;
+            if (!string.IsNullOrWhiteSpace(req.Category)) course.Category = req.Category.Trim();
+            if (!string.IsNullOrWhiteSpace(req.Level)) course.Level = req.Level.Trim().ToLowerInvariant();
+            if (req.LearningOutcomes != null) course.LearningOutcomesJson = JsonSerializer.Serialize(req.LearningOutcomes);
+            if (req.Prerequisites != null) course.PrerequisitesJson = JsonSerializer.Serialize(req.Prerequisites);
+            if (req.IsArchived.HasValue) course.IsArchived = req.IsArchived.Value;
             course.UpdatedAt = DateTimeOffset.UtcNow;
 
             await db.SaveChangesAsync();
             CourseGenerationService.InvalidateCourseSummaryCache();
-            var summary = await CourseGenerationService.BuildCourseSummaryAsync(db, course);
+            var summary = await CourseGenerationService.BuildCourseSummaryAsync(db, course, userId: userId);
             return Results.Ok(summary);
         });
 
@@ -2242,6 +2418,10 @@ public static class SwmsEndpoints
             var userId = ResolveUserId(http);
             var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == id);
             if (course == null) return Results.NotFound(new { error = "Không tìm thấy khóa học." });
+            if (DocumentCourseSyncService.IsProtectedSystemCourse(course))
+            {
+                return Results.Json(new { error = "Không thể xóa giáo trình chuẩn hệ thống. Hãy dùng tính năng Lưu trữ (Archive) để ẩn khỏi danh sách chính." }, statusCode: StatusCodes.Status403Forbidden);
+            }
             if (!IsOwnerOrDefaultSeededAccess(course.InstructorId, userId)) return Results.StatusCode(StatusCodes.Status403Forbidden);
 
             var chapters = await db.Chapters.Where(ch => ch.CourseId == id).ToListAsync();
@@ -2251,7 +2431,28 @@ public static class SwmsEndpoints
             var versions = await db.LessonVersions.Where(lv => lesIds.Contains(lv.LessonId)).ToListAsync();
             var progresses = await db.UserLessonProgresses.Where(p => lesIds.Contains(p.LessonId)).ToListAsync();
             var reviews = await db.CourseReviews.Where(r => r.CourseId == id).ToListAsync();
+            var enrollments = await db.CourseEnrollments.Where(ce => ce.CourseId == id).ToListAsync();
 
+            var activities = await db.PracticeActivities.Where(pa => pa.CourseId == id || (pa.LessonId.HasValue && lesIds.Contains(pa.LessonId.Value))).ToListAsync();
+            var attempts = await db.PracticeAttempts.Where(pa => pa.CourseId == id || (pa.LessonId.HasValue && lesIds.Contains(pa.LessonId.Value))).ToListAsync();
+
+            var quizzes = await db.PracticeQuizzes.Where(q => q.LessonId.HasValue && lesIds.Contains(q.LessonId.Value)).ToListAsync();
+            var quizIds = quizzes.Select(q => q.Id).ToHashSet();
+            var quizItems = quizIds.Count > 0
+                ? await db.PracticeQuizItems.Where(qi => quizIds.Contains(qi.QuizId)).ToListAsync()
+                : [];
+
+            var flashcards = await db.Flashcards.Where(f => f.LessonId.HasValue && lesIds.Contains(f.LessonId.Value)).ToListAsync();
+            foreach (var fc in flashcards) fc.LessonId = null;
+
+            var notebooks = await db.Notebooks.Where(nb => nb.PrimarySourceLessonId.HasValue && lesIds.Contains(nb.PrimarySourceLessonId.Value)).ToListAsync();
+            foreach (var nb in notebooks) nb.PrimarySourceLessonId = null;
+
+            db.PracticeAttempts.RemoveRange(attempts);
+            db.PracticeActivities.RemoveRange(activities);
+            db.PracticeQuizItems.RemoveRange(quizItems);
+            db.PracticeQuizzes.RemoveRange(quizzes);
+            db.CourseEnrollments.RemoveRange(enrollments);
             db.CourseReviews.RemoveRange(reviews);
             db.UserLessonProgresses.RemoveRange(progresses);
             db.LessonVersions.RemoveRange(versions);
@@ -2262,6 +2463,659 @@ public static class SwmsEndpoints
             CourseGenerationService.InvalidateCourseSummaryCache();
 
             return Results.Ok(new { message = "Đã xóa khóa học thành công." });
+        });
+
+        api.MapPut("/courses/{id:guid}/preferences", async (
+            Guid id,
+            UpdateCoursePreferencesRequest req,
+            HttpContext http,
+            SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == id);
+            if (course == null) return Results.NotFound(new { error = "Không tìm thấy khóa học." });
+            if (!await CanReadCourseAsync(db, course, userId)) return Results.StatusCode(StatusCodes.Status403Forbidden);
+
+            var enrollment = await db.CourseEnrollments.FirstOrDefaultAsync(ce => ce.UserId == userId && ce.CourseId == id);
+            if (enrollment == null)
+            {
+                enrollment = new CourseEnrollment
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    CourseId = id,
+                    Role = "student",
+                    EnrolledAt = DateTimeOffset.UtcNow
+                };
+                db.CourseEnrollments.Add(enrollment);
+            }
+
+            if (req.IsPinned.HasValue) enrollment.IsPinned = req.IsPinned.Value;
+            if (req.IsArchived.HasValue) enrollment.IsArchived = req.IsArchived.Value;
+            if (req.DailyLessonGoal.HasValue) enrollment.DailyLessonGoal = Math.Clamp(req.DailyLessonGoal.Value, 1, 20);
+            if (req.ClearTargetDate == true)
+            {
+                enrollment.TargetCompletionDate = null;
+            }
+            else if (req.TargetCompletionDate.HasValue)
+            {
+                enrollment.TargetCompletionDate = req.TargetCompletionDate.Value;
+            }
+
+            await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
+
+            return Results.Ok(new
+            {
+                courseId = id,
+                isPinned = enrollment.IsPinned,
+                isArchived = enrollment.IsArchived,
+                dailyLessonGoal = enrollment.DailyLessonGoal,
+                targetCompletionDate = enrollment.TargetCompletionDate
+            });
+        });
+
+        api.MapPost("/courses/{id:guid}/clone", async (
+            Guid id,
+            HttpContext http,
+            SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == id);
+            if (course == null) return Results.NotFound(new { error = "Không tìm thấy khóa học." });
+            if (DocumentCourseSyncService.IsRetiredCourseSlug(course.Slug))
+            {
+                return Results.BadRequest(new { error = "Không thể sao chép khóa học đã ngừng hoạt động." });
+            }
+            if (!await CanReadCourseAsync(db, course, userId)) return Results.StatusCode(StatusCodes.Status403Forbidden);
+
+            var meta = CuratedCourseMetadataCatalog.ResolveMetadata(course);
+            var category = !string.IsNullOrWhiteSpace(course.Category) ? course.Category : meta.Category;
+            var level = !string.IsNullOrWhiteSpace(course.Level) ? course.Level : meta.Level;
+            var learningOutcomesJson = !string.IsNullOrWhiteSpace(course.LearningOutcomesJson)
+                ? course.LearningOutcomesJson
+                : JsonSerializer.Serialize(meta.LearningOutcomes);
+            var prerequisitesJson = !string.IsNullOrWhiteSpace(course.PrerequisitesJson)
+                ? course.PrerequisitesJson
+                : JsonSerializer.Serialize(meta.Prerequisites);
+
+            var now = DateTimeOffset.UtcNow;
+            var baseTitle = $"{course.Title} (Bản sao)";
+            var clonedTitle = baseTitle.Length > 250 ? baseTitle[..250] : baseTitle;
+            var clonedCourse = new Course
+            {
+                Id = Guid.NewGuid(),
+                InstructorId = userId,
+                Title = clonedTitle,
+                Slug = $"clone-{Guid.NewGuid():N}",
+                Description = course.Description,
+                Visibility = "personal",
+                IsPublished = false,
+                Category = category,
+                Level = level,
+                LearningOutcomesJson = learningOutcomesJson,
+                PrerequisitesJson = prerequisitesJson,
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            db.Courses.Add(clonedCourse);
+
+            var sourceChapters = await db.Chapters
+                .AsNoTracking()
+                .Where(ch => ch.CourseId == id)
+                .OrderBy(ch => ch.SortOrder)
+                .ToListAsync();
+
+            var sourceLessons = await (
+                from l in db.Lessons.AsNoTracking()
+                join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
+                where ch.CourseId == id
+                orderby l.SortOrder
+                select l
+            ).ToListAsync();
+
+            var lessonsBySourceChapter = sourceLessons.ToLookup(l => l.ChapterId);
+
+            foreach (var srcCh in sourceChapters)
+            {
+                var clonedChapter = new Chapter
+                {
+                    Id = Guid.NewGuid(),
+                    CourseId = clonedCourse.Id,
+                    Title = srcCh.Title,
+                    SortOrder = srcCh.SortOrder,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                };
+                db.Chapters.Add(clonedChapter);
+
+                foreach (var srcLes in lessonsBySourceChapter[srcCh.Id])
+                {
+                    var clonedLesson = new Lesson
+                    {
+                        Id = Guid.NewGuid(),
+                        ChapterId = clonedChapter.Id,
+                        Title = srcLes.Title,
+                        Slug = $"clone-les-{Guid.NewGuid():N}",
+                        SortOrder = srcLes.SortOrder,
+                        CurrentVersion = 1,
+                        ContentAstJson = srcLes.ContentAstJson,
+                        PlainText = srcLes.PlainText,
+                        ContentMarkdown = srcLes.ContentMarkdown,
+                        VideoUrl = srcLes.VideoUrl,
+                        EstimatedMinutes = srcLes.EstimatedMinutes,
+                        IsPublished = true,
+                        CreatedAt = now,
+                        UpdatedAt = now
+                    };
+                    db.Lessons.Add(clonedLesson);
+
+                    db.LessonVersions.Add(new LessonVersion
+                    {
+                        Id = Guid.NewGuid(),
+                        LessonId = clonedLesson.Id,
+                        VersionNumber = 1,
+                        ContentAstJson = srcLes.ContentAstJson,
+                        PlainText = srcLes.PlainText,
+                        PublishedBy = userId,
+                        PublishedAt = now,
+                        ChangeSummary = "Khởi tạo từ bản sao khóa học"
+                    });
+                }
+            }
+
+            db.CourseEnrollments.Add(new CourseEnrollment
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                CourseId = clonedCourse.Id,
+                Role = "instructor",
+                EnrolledAt = now
+            });
+
+            await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
+
+            var summary = await CourseGenerationService.BuildCourseSummaryAsync(db, clonedCourse, userId: userId);
+            return Results.Ok(summary);
+        });
+
+        api.MapPost("/courses/{id:guid}/reset-progress", async (
+            Guid id,
+            HttpContext http,
+            SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == id);
+            if (course == null) return Results.NotFound(new { error = "Không tìm thấy khóa học." });
+            if (!await CanReadCourseAsync(db, course, userId)) return Results.StatusCode(StatusCodes.Status403Forbidden);
+
+            var lessonIds = await (
+                from l in db.Lessons
+                join ch in db.Chapters on l.ChapterId equals ch.Id
+                where ch.CourseId == id
+                select l.Id
+            ).ToListAsync();
+
+            int resetCount = 0;
+            if (lessonIds.Count > 0)
+            {
+                var progresses = await db.UserLessonProgresses
+                    .Where(p => p.UserId == userId && lessonIds.Contains(p.LessonId))
+                    .ToListAsync();
+                resetCount = progresses.Count;
+                db.UserLessonProgresses.RemoveRange(progresses);
+                await db.SaveChangesAsync();
+            }
+
+            CourseGenerationService.InvalidateCourseSummaryCache();
+            return Results.Ok(new { courseId = id, resetLessonsCount = resetCount });
+        });
+
+        api.MapGet("/courses/{id:guid}/search", async (
+            Guid id,
+            string? q,
+            HttpContext http,
+            SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == id);
+            if (course == null) return Results.NotFound(new { error = "Không tìm thấy khóa học." });
+            if (!await CanReadCourseAsync(db, course, userId)) return Results.StatusCode(StatusCodes.Status403Forbidden);
+
+            var rawQ = q ?? string.Empty;
+            var query = VietnameseTextNormalizer.Unaccent(rawQ.Trim());
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return Results.Ok(new { query = rawQ, totalMatches = 0, results = Array.Empty<object>() });
+            }
+
+            var tokens = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            var lessons = await (
+                from l in db.Lessons.AsNoTracking()
+                join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
+                where ch.CourseId == id
+                orderby l.SortOrder
+                select new
+                {
+                    LessonId = l.Id,
+                    ChapterId = ch.Id,
+                    ChapterTitle = ch.Title,
+                    LessonTitle = l.Title,
+                    l.PlainText,
+                    l.ContentMarkdown
+                }
+            ).ToListAsync();
+
+            var matchedList = new List<object>();
+
+            foreach (var l in lessons)
+            {
+                var unaccentCh = VietnameseTextNormalizer.Unaccent(l.ChapterTitle);
+                var unaccentLes = VietnameseTextNormalizer.Unaccent(l.LessonTitle);
+                var textContent = !string.IsNullOrWhiteSpace(l.ContentMarkdown) ? l.ContentMarkdown : l.PlainText;
+                var unaccentBody = VietnameseTextNormalizer.Unaccent(textContent);
+
+                int matchCount = 0;
+                string? snippet = null;
+
+                bool titleMatches = unaccentLes.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                                    (tokens.Length > 0 && tokens.All(t => unaccentLes.Contains(t, StringComparison.OrdinalIgnoreCase)));
+                bool chapterMatches = unaccentCh.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                                      (tokens.Length > 0 && tokens.All(t => unaccentCh.Contains(t, StringComparison.OrdinalIgnoreCase)));
+                bool bodyMatches = unaccentBody.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                                   (tokens.Length > 0 && tokens.All(t => unaccentBody.Contains(t, StringComparison.OrdinalIgnoreCase)));
+
+                if (!titleMatches && !chapterMatches && !bodyMatches) continue;
+
+                if (titleMatches) matchCount += 3;
+                if (chapterMatches) matchCount += 2;
+
+                if (bodyMatches)
+                {
+                    int idx = unaccentBody.IndexOf(query, StringComparison.OrdinalIgnoreCase);
+                    if (idx >= 0)
+                    {
+                        matchCount += 1;
+                        int start = Math.Max(0, idx - 40);
+                        int length = Math.Min(textContent.Length - start, 140);
+                        snippet = textContent.Substring(start, length).Trim() + "...";
+                    }
+                }
+
+                snippet ??= textContent.Length > 120 ? textContent[..120] + "..." : textContent;
+
+                matchedList.Add(new
+                {
+                    lessonId = l.LessonId,
+                    chapterId = l.ChapterId,
+                    chapterTitle = l.ChapterTitle,
+                    lessonTitle = l.LessonTitle,
+                    snippet,
+                    matchCount = Math.Max(1, matchCount)
+                });
+            }
+
+            return Results.Ok(new
+            {
+                query = rawQ,
+                totalMatches = matchedList.Count,
+                results = matchedList.Take(50).ToList()
+            });
+        });
+
+        api.MapGet("/courses/{id:guid}/workspace-assets", async (
+            Guid id,
+            HttpContext http,
+            SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == id);
+            if (course == null) return Results.NotFound(new { error = "Không tìm thấy khóa học." });
+            if (!await CanReadCourseAsync(db, course, userId)) return Results.StatusCode(StatusCodes.Status403Forbidden);
+
+            var courseLessonIds = await (
+                from l in db.Lessons.AsNoTracking()
+                join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
+                where ch.CourseId == id
+                select l.Id
+            ).ToListAsync();
+            var courseLessonIdSet = courseLessonIds.ToHashSet();
+
+            var courseDocIds = await db.Documents.AsNoTracking()
+                .Where(d => d.CourseId == id)
+                .Select(d => d.Id)
+                .ToListAsync();
+            var courseDocIdSet = courseDocIds.ToHashSet();
+
+            var notebooks = (await db.Notebooks.AsNoTracking()
+                .Where(n => n.UserId == userId &&
+                            ((n.PrimarySourceLessonId.HasValue && courseLessonIdSet.Contains(n.PrimarySourceLessonId.Value)) ||
+                             (n.PrimarySourceDocumentId.HasValue && courseDocIdSet.Contains(n.PrimarySourceDocumentId.Value))))
+                .Select(n => new
+                {
+                    n.Id,
+                    n.Title,
+                    n.Version,
+                    n.PrimarySourceLessonId,
+                    n.PrimarySourceDocumentId,
+                    n.UpdatedAt
+                })
+                .ToListAsync())
+                .OrderByDescending(n => n.UpdatedAt)
+                .ToList();
+
+            var annotations = (await db.Annotations.AsNoTracking()
+                .Where(a => a.UserId == userId &&
+                            ((a.LessonId.HasValue && courseLessonIdSet.Contains(a.LessonId.Value)) ||
+                             (a.DocumentId.HasValue && courseDocIdSet.Contains(a.DocumentId.Value))))
+                .Select(a => new
+                {
+                    a.Id,
+                    a.LessonId,
+                    a.DocumentId,
+                    a.PageNumber,
+                    a.ExactQuote,
+                    a.ColorKey,
+                    a.SemanticLabel,
+                    a.NoteComment,
+                    a.UpdatedAt
+                })
+                .ToListAsync())
+                .OrderByDescending(a => a.UpdatedAt)
+                .ToList();
+
+            var now = DateTimeOffset.UtcNow;
+            var allCards = (await db.Flashcards.AsNoTracking()
+                .Where(f => f.UserId == userId && !f.IsArchived &&
+                            ((f.LessonId.HasValue && courseLessonIdSet.Contains(f.LessonId.Value)) ||
+                             (f.DocumentId.HasValue && courseDocIdSet.Contains(f.DocumentId.Value))))
+                .ToListAsync())
+                .OrderBy(f => f.DueAt)
+                .ToList();
+
+            var flashcardsObj = new
+            {
+                total = allCards.Count,
+                due = allCards.Count(c => c.DueAt <= now),
+                mastered = allCards.Count(c => c.Reps > 0 && c.State >= 2),
+                items = allCards.Take(30).Select(f => new
+                {
+                    f.Id,
+                    f.LessonId,
+                    f.DocumentId,
+                    f.CardType,
+                    f.SourceTitleSnapshot,
+                    frontText = ExtractTextFromAstOrJson(f.FrontAstJson),
+                    backText = ExtractTextFromAstOrJson(f.BackAstJson),
+                    f.State,
+                    f.Reps,
+                    f.DueAt
+                }).ToList()
+            };
+
+            var userProgresses = courseLessonIds.Count > 0
+                ? await db.UserLessonProgresses.AsNoTracking()
+                    .Where(p => p.UserId == userId && courseLessonIdSet.Contains(p.LessonId))
+                    .ToListAsync()
+                : [];
+
+            var bookmarkedLessonIds = userProgresses.Where(p => p.IsBookmarked).Select(p => p.LessonId).ToHashSet();
+            var needsReviewLessonIds = userProgresses.Where(p => p.NeedsReview).Select(p => p.LessonId).ToHashSet();
+
+            var bookmarkedLessons = await db.Lessons.AsNoTracking()
+                .Where(l => bookmarkedLessonIds.Contains(l.Id))
+                .Select(l => new { l.Id, l.Title, l.Slug, l.ChapterId, l.SortOrder })
+                .ToListAsync();
+
+            var needsReviewLessons = await db.Lessons.AsNoTracking()
+                .Where(l => needsReviewLessonIds.Contains(l.Id))
+                .Select(l => new { l.Id, l.Title, l.Slug, l.ChapterId, l.SortOrder })
+                .ToListAsync();
+
+            var quizzes = (await db.PracticeQuizzes.AsNoTracking()
+                .Where(q => (q.UserId == userId || q.UserId == SeedDataInitializer.DefaultUserId) &&
+                            ((q.LessonId.HasValue && courseLessonIdSet.Contains(q.LessonId.Value)) ||
+                             (q.DocumentId.HasValue && courseDocIdSet.Contains(q.DocumentId.Value))))
+                .Select(q => new
+                {
+                    q.Id,
+                    q.Title,
+                    q.LessonId,
+                    q.DocumentId,
+                    q.TotalItems,
+                    q.CorrectItems,
+                    q.Status,
+                    q.StartedAt,
+                    q.CompletedAt
+                })
+                .ToListAsync())
+                .OrderByDescending(q => q.StartedAt)
+                .ToList();
+
+            var courseActivities = await db.PracticeActivities.AsNoTracking()
+                .Where(a => a.CourseId == id)
+                .Select(a => new { a.Id, a.PassingScore })
+                .ToListAsync();
+
+            int totalActivities = courseActivities.Count;
+            int passedActivities = 0;
+            double averageScore = 0.0;
+
+            if (totalActivities > 0)
+            {
+                var actIds = courseActivities.Select(a => a.Id).ToList();
+                var userAttempts = await db.PracticeAttempts.AsNoTracking()
+                    .Where(pa => pa.UserId == userId && pa.ActivityId.HasValue && actIds.Contains(pa.ActivityId.Value))
+                    .Select(pa => new { ActivityId = pa.ActivityId!.Value, pa.IsPassed, pa.Score })
+                    .ToListAsync();
+
+                var attemptsByAct = userAttempts.GroupBy(pa => pa.ActivityId).ToList();
+                passedActivities = attemptsByAct.Count(g => g.Any(x => x.IsPassed));
+                var scores = attemptsByAct.Select(g => g.Max(x => x.Score)).ToList();
+                if (scores.Count > 0)
+                {
+                    averageScore = Math.Round(scores.Average(), 1);
+                }
+            }
+
+            return Results.Ok(new
+            {
+                courseId = id,
+                notebooks,
+                annotations,
+                flashcards = flashcardsObj,
+                bookmarkedLessons,
+                needsReviewLessons,
+                quizzes,
+                practiceSummary = new
+                {
+                    totalActivities,
+                    passedActivities,
+                    averageScore
+                }
+            });
+        });
+
+        api.MapPost("/courses/check-duplicates", async (
+            CheckCourseDuplicatesRequest req,
+            HttpContext http,
+            SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            var queryText = $"{req.Title} {req.Topic}".Trim();
+            if (string.IsNullOrWhiteSpace(queryText))
+            {
+                return Results.Ok(new { duplicates = Array.Empty<object>() });
+            }
+
+            var normQuery = VietnameseTextNormalizer.Unaccent(queryText);
+            var queryTokens = normQuery.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Where(t => t.Length > 1)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var enrolledIds = await db.CourseEnrollments
+                .AsNoTracking()
+                .Where(e => e.UserId == userId)
+                .Select(e => e.CourseId)
+                .ToListAsync();
+
+            var candidates = await db.Courses
+                .AsNoTracking()
+                .Where(c => (c.InstructorId == userId ||
+                             (c.Visibility == "public" && c.IsPublished) ||
+                             (enrolledIds.Contains(c.Id) && c.IsPublished && c.Visibility != "personal" && c.Visibility != "private"))
+                            && !c.Slug.StartsWith("personal-workspace-"))
+                .ToListAsync();
+
+            candidates = candidates.Where(c => !DocumentCourseSyncService.IsRetiredCourseSlug(c.Slug)).ToList();
+            var candIds = candidates.Select(c => c.Id).ToHashSet();
+
+            var lessonCounts = candIds.Count > 0
+                ? await (
+                    from l in db.Lessons.AsNoTracking()
+                    join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
+                    where candIds.Contains(ch.CourseId)
+                    group l by ch.CourseId into g
+                    select new { CourseId = g.Key, Count = g.Count() }
+                ).ToDictionaryAsync(x => x.CourseId, x => x.Count)
+                : new Dictionary<Guid, int>();
+
+            var scoredList = new List<object>();
+
+            foreach (var c in candidates)
+            {
+                var normTitle = VietnameseTextNormalizer.Unaccent(c.Title);
+                var normDesc = VietnameseTextNormalizer.Unaccent(c.Description ?? string.Empty);
+                var titleTokens = normTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Where(t => t.Length > 1)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                double score = 0.0;
+                if (normTitle.Equals(normQuery, StringComparison.OrdinalIgnoreCase))
+                {
+                    score = 1.0;
+                }
+                else if (normTitle.Contains(normQuery, StringComparison.OrdinalIgnoreCase) ||
+                         normQuery.Contains(normTitle, StringComparison.OrdinalIgnoreCase))
+                {
+                    score = 0.85;
+                }
+                else if (queryTokens.Count > 0 && titleTokens.Count > 0)
+                {
+                    int overlap = queryTokens.Count(qt => titleTokens.Contains(qt));
+                    double jaccard = (double)overlap / (queryTokens.Count + titleTokens.Count - overlap);
+                    double tokenOverlapRatio = (double)overlap / Math.Min(queryTokens.Count, titleTokens.Count);
+                    score = Math.Max(jaccard, tokenOverlapRatio * 0.75);
+
+                    if (normDesc.Contains(normQuery, StringComparison.OrdinalIgnoreCase))
+                    {
+                        score = Math.Max(score, 0.6);
+                    }
+                }
+
+                score = Math.Round(Math.Clamp(score, 0.0, 1.0), 2);
+                if (score >= 0.25)
+                {
+                    scoredList.Add(new
+                    {
+                        id = c.Id,
+                        title = c.Title,
+                        slug = c.Slug,
+                        lessonCount = lessonCounts.GetValueOrDefault(c.Id, 0),
+                        visibility = c.Visibility,
+                        isSystemCourse = DocumentCourseSyncService.IsProtectedSystemCourse(c),
+                        matchScore = score
+                    });
+                }
+            }
+
+            var sorted = scoredList
+                .OrderByDescending(x => ((dynamic)x).matchScore)
+                .Take(5)
+                .ToList();
+
+            return Results.Ok(new { duplicates = sorted });
+        });
+
+        api.MapPost("/courses/cleanup-duplicates", async (
+            CleanupDuplicateCoursesRequest req,
+            HttpContext http,
+            SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            if (req.CourseIds == null || req.CourseIds.Count == 0)
+            {
+                return Results.Ok(new { deletedCount = 0, deletedIds = Array.Empty<Guid>(), skippedIds = Array.Empty<Guid>() });
+            }
+
+            var deletedIds = new List<Guid>();
+            var skippedIds = new List<Guid>();
+
+            foreach (var cId in req.CourseIds)
+            {
+                var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == cId);
+                if (course == null ||
+                    DocumentCourseSyncService.IsProtectedSystemCourse(course) ||
+                    !IsOwnerOrDefaultSeededAccess(course.InstructorId, userId))
+                {
+                    skippedIds.Add(cId);
+                    continue;
+                }
+
+                var chapters = await db.Chapters.Where(ch => ch.CourseId == cId).ToListAsync();
+                var chIds = chapters.Select(ch => ch.Id).ToHashSet();
+                var lessons = await db.Lessons.Where(l => chIds.Contains(l.ChapterId)).ToListAsync();
+                var lesIds = lessons.Select(l => l.Id).ToHashSet();
+                var versions = await db.LessonVersions.Where(lv => lesIds.Contains(lv.LessonId)).ToListAsync();
+                var progresses = await db.UserLessonProgresses.Where(p => lesIds.Contains(p.LessonId)).ToListAsync();
+                var reviews = await db.CourseReviews.Where(r => r.CourseId == cId).ToListAsync();
+                var enrollments = await db.CourseEnrollments.Where(ce => ce.CourseId == cId).ToListAsync();
+
+                var activities = await db.PracticeActivities.Where(pa => pa.CourseId == cId || (pa.LessonId.HasValue && lesIds.Contains(pa.LessonId.Value))).ToListAsync();
+                var attempts = await db.PracticeAttempts.Where(pa => pa.CourseId == cId || (pa.LessonId.HasValue && lesIds.Contains(pa.LessonId.Value))).ToListAsync();
+
+                var quizzes = await db.PracticeQuizzes.Where(q => q.LessonId.HasValue && lesIds.Contains(q.LessonId.Value)).ToListAsync();
+                var quizIds = quizzes.Select(q => q.Id).ToHashSet();
+                var quizItems = quizIds.Count > 0
+                    ? await db.PracticeQuizItems.Where(qi => quizIds.Contains(qi.QuizId)).ToListAsync()
+                    : [];
+
+                var flashcards = await db.Flashcards.Where(f => f.LessonId.HasValue && lesIds.Contains(f.LessonId.Value)).ToListAsync();
+                foreach (var fc in flashcards) fc.LessonId = null;
+
+                var notebooks = await db.Notebooks.Where(nb => nb.PrimarySourceLessonId.HasValue && lesIds.Contains(nb.PrimarySourceLessonId.Value)).ToListAsync();
+                foreach (var nb in notebooks) nb.PrimarySourceLessonId = null;
+
+                db.PracticeAttempts.RemoveRange(attempts);
+                db.PracticeActivities.RemoveRange(activities);
+                db.PracticeQuizItems.RemoveRange(quizItems);
+                db.PracticeQuizzes.RemoveRange(quizzes);
+                db.CourseEnrollments.RemoveRange(enrollments);
+                db.CourseReviews.RemoveRange(reviews);
+                db.UserLessonProgresses.RemoveRange(progresses);
+                db.LessonVersions.RemoveRange(versions);
+                db.Lessons.RemoveRange(lessons);
+                db.Chapters.RemoveRange(chapters);
+                db.Courses.Remove(course);
+
+                deletedIds.Add(cId);
+            }
+
+            if (deletedIds.Count > 0)
+            {
+                await db.SaveChangesAsync();
+                CourseGenerationService.InvalidateCourseSummaryCache();
+            }
+
+            return Results.Ok(new
+            {
+                deletedCount = deletedIds.Count,
+                deletedIds,
+                skippedIds
+            });
         });
 
         api.MapPost("/courses/{id:guid}/chapters", async (
@@ -2641,9 +3495,18 @@ public static class SwmsEndpoints
             }
 
             var now = DateTimeOffset.UtcNow;
-            var quizTitle = !string.IsNullOrWhiteSpace(req.Title)
-                ? req.Title.Trim()
-                : $"[Đề Tự Tạo] {course.Title} ({selectedSpecs.Count} câu - {now:dd/MM HH:mm})";
+            string quizTitle;
+            if (!string.IsNullOrWhiteSpace(req.Title))
+            {
+                var trimmedTitle = req.Title.Trim();
+                quizTitle = trimmedTitle.StartsWith("[Đề Tự Tạo]", StringComparison.OrdinalIgnoreCase)
+                    ? trimmedTitle
+                    : $"[Đề Tự Tạo] {trimmedTitle}";
+            }
+            else
+            {
+                quizTitle = $"[Đề Tự Tạo] {course.Title} ({selectedSpecs.Count} câu - {now:dd/MM HH:mm})";
+            }
 
             var newQuiz = new PracticeQuiz
             {
@@ -3235,6 +4098,168 @@ public static class SwmsEndpoints
             return Results.Ok(new { message = "Đã xóa bài học thành công." });
         });
 
+        api.MapPut("/lessons/{id:guid}/flags", async (
+            Guid id,
+            UpdateLessonFlagsRequest req,
+            HttpContext http,
+            SwmsDbContext db) =>
+        {
+            var userId = ResolveUserId(http);
+            var lessonRow = await (
+                from l in db.Lessons
+                join ch in db.Chapters on l.ChapterId equals ch.Id
+                join c in db.Courses on ch.CourseId equals c.Id
+                where l.Id == id
+                select new { Lesson = l, Course = c }
+            ).FirstOrDefaultAsync();
+
+            if (lessonRow == null) return Results.NotFound(new { error = "Không tìm thấy bài học." });
+            if (!await CanReadCourseAsync(db, lessonRow.Course, userId)) return Results.StatusCode(StatusCodes.Status403Forbidden);
+
+            var progress = await db.UserLessonProgresses.FirstOrDefaultAsync(p => p.UserId == userId && p.LessonId == id);
+            var now = DateTimeOffset.UtcNow;
+            if (progress == null)
+            {
+                progress = new UserLessonProgress
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    LessonId = id,
+                    IsCompleted = false,
+                    CompletedAt = null,
+                    IsBookmarked = req.IsBookmarked ?? false,
+                    NeedsReview = req.NeedsReview ?? false,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                };
+                db.UserLessonProgresses.Add(progress);
+            }
+            else
+            {
+                if (req.IsBookmarked.HasValue) progress.IsBookmarked = req.IsBookmarked.Value;
+                if (req.NeedsReview.HasValue) progress.NeedsReview = req.NeedsReview.Value;
+                progress.UpdatedAt = now;
+            }
+
+            await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
+
+            return Results.Ok(new
+            {
+                lessonId = id,
+                isBookmarked = progress.IsBookmarked,
+                needsReview = progress.NeedsReview,
+                isCompleted = progress.IsCompleted
+            });
+        });
+
+        api.MapPost("/lessons/{id:guid}/ai-enhance", async (
+            Guid id,
+            LessonAiEnhanceRequest req,
+            HttpContext http,
+            SwmsDbContext db,
+            GeminiProxyClient gemini) =>
+        {
+            var userId = ResolveUserId(http);
+            var lessonRow = await (
+                from l in db.Lessons
+                join ch in db.Chapters on l.ChapterId equals ch.Id
+                join c in db.Courses on ch.CourseId equals c.Id
+                where l.Id == id
+                select new { Lesson = l, Course = c }
+            ).FirstOrDefaultAsync();
+
+            if (lessonRow == null) return Results.NotFound(new { error = "Không tìm thấy bài học." });
+            if (!IsOwnerOrDefaultSeededAccess(lessonRow.Course.InstructorId, userId))
+            {
+                return Results.StatusCode(StatusCodes.Status403Forbidden);
+            }
+
+            AiUsageLedger ledgerEntry;
+            using (await AiQuotaLocks.AcquireAsync(userId.ToString("N")))
+            {
+                if (!await CheckAiQuotaAvailableAsync(db, userId))
+                {
+                    return Results.Json(new { error = "Đã đạt giới hạn AI Credits trong ngày của gói hiện tại." }, statusCode: StatusCodes.Status429TooManyRequests);
+                }
+
+                ledgerEntry = new AiUsageLedger
+                {
+                    UserId = userId,
+                    Feature = "explain_concept",
+                    CreditsCharged = 1,
+                    Model = "gemini-3.8-flash",
+                    PromptTokens = 120,
+                    CompletionTokens = 200,
+                    TotalTokens = 320,
+                    CostUsd = Math.Round(320 * 0.0000005m, 6),
+                    CreatedAt = DateTimeOffset.UtcNow
+                };
+                db.AiUsageLedgers.Add(ledgerEntry);
+                await db.SaveChangesAsync();
+            }
+
+            var baseMarkdown = !string.IsNullOrWhiteSpace(req.CurrentMarkdown)
+                ? req.CurrentMarkdown
+                : (!string.IsNullOrWhiteSpace(lessonRow.Lesson.ContentMarkdown) ? lessonRow.Lesson.ContentMarkdown : lessonRow.Lesson.PlainText);
+
+            var action = (req.Action ?? "expand").ToLowerInvariant();
+            var actionPrompt = action switch
+            {
+                "expand" => "Hãy mở rộng và làm sâu sắc nội dung bài giảng sau với ví dụ minh họa thực tiễn, phân tích trường hợp cụ thể và giải thích rõ cơ chế vận hành.",
+                "summarize" => "Hãy tóm tắt ngắn gọn các luận điểm cốt lõi, công thức then chốt và các bước thực hành của bài giảng sau thành danh sách gạch đầu dòng dễ ghi nhớ.",
+                "generate_quiz_draft" => "Dựa trên bài giảng sau, hãy biên soạn bộ 3 câu hỏi trắc nghiệm kiểm tra hiểu biết (4 đáp án A/B/C/D kèm giải thích chi tiết đáp án đúng).",
+                "generate_flashcards" => "Dựa trên bài giảng sau, hãy trích xuất 4 cặp thẻ ghi nhớ (mặt trước là câu hỏi/khái niệm, mặt sau là câu trả lời cô đọng và ngữ cảnh áp dụng).",
+                _ => "Hãy nâng cấp và tối ưu bài giảng học tập sau."
+            };
+
+            if (!string.IsNullOrWhiteSpace(req.Prompt))
+            {
+                actionPrompt += $"\nYêu cầu bổ sung của giảng viên: {req.Prompt.Trim()}";
+            }
+
+            var aiOverrides = CourseGenerationService.ExtractAiOverrides(http);
+            var sysPrompt = "Bạn là chuyên gia sư phạm và trợ lý học thuật cao cấp của hệ thống giáo dục Studxy. Hãy trả lời chuẩn Markdown tiếng Việt chuyên sâu, khoa học và thực tiễn.";
+            var userPrompt = $"{actionPrompt}\n\n--- NỘI DUNG BÀI HỌC ({lessonRow.Lesson.Title}) ---\n{baseMarkdown}";
+
+            var res = await gemini.CompleteChatAsync(sysPrompt, userPrompt, CancellationToken.None, aiOverrides);
+            bool usedLive = res.UsedLiveEndpoint;
+
+            string finalContent;
+            if (usedLive && !string.IsNullOrWhiteSpace(res.Content))
+            {
+                finalContent = res.Content;
+            }
+            else
+            {
+                finalContent = BuildDeterministicAiEnhanceFallback(lessonRow.Lesson.Title, baseMarkdown, action, req.Prompt);
+            }
+
+            bool isCustomOverride = aiOverrides != null && (!string.IsNullOrWhiteSpace(aiOverrides.BaseUrl) || !string.IsNullOrWhiteSpace(aiOverrides.ApiKey));
+            bool refundCredit = isCustomOverride && !usedLive;
+            int creditsCharged = refundCredit ? 0 : 1;
+
+            ledgerEntry.Model = res.Model;
+            ledgerEntry.PromptTokens = refundCredit ? 0 : res.PromptTokens;
+            ledgerEntry.CompletionTokens = refundCredit ? 0 : res.CompletionTokens;
+            ledgerEntry.TotalTokens = refundCredit ? 0 : res.TotalTokens;
+            ledgerEntry.CreditsCharged = creditsCharged;
+            ledgerEntry.CostUsd = refundCredit ? 0 : Math.Round(res.TotalTokens * 0.0000005m, 6);
+            await db.SaveChangesAsync();
+
+            CourseGenerationService.InvalidateCourseSummaryCache();
+
+            return Results.Ok(new
+            {
+                lessonId = id,
+                action,
+                content = finalContent,
+                usedLiveAi = usedLive,
+                model = res.Model,
+                creditsCharged
+            });
+        });
+
         api.MapPost("/lessons/{id:guid}/complete", async (Guid id, HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
@@ -3263,17 +4288,33 @@ public static class SwmsEndpoints
                 }, statusCode: StatusCodes.Status429TooManyRequests);
             }
 
-            // Check enrollment for public courses
+            // Auto-enroll for published public courses on first lesson completion; keep 403 for unpublished/private courses
             if (course != null && course.Visibility == "public" && course.InstructorId != userId && userId != SeedDataInitializer.DefaultUserId)
             {
+                if (!course.IsPublished)
+                {
+                    return Results.StatusCode(StatusCodes.Status403Forbidden);
+                }
+
                 var isEnrolled = await db.CourseEnrollments.AnyAsync(e => e.CourseId == course.Id && e.UserId == userId);
                 if (!isEnrolled)
                 {
-                    return Results.Json(new
+                    db.CourseEnrollments.Add(new CourseEnrollment
                     {
-                        error = "COURSE_NOT_ENROLLED",
-                        message = "Vui lòng ghi danh khóa học trước khi đánh dấu hoàn thành bài học."
-                    }, statusCode: StatusCodes.Status403Forbidden);
+                        Id = Guid.NewGuid(),
+                        UserId = userId,
+                        CourseId = course.Id,
+                        Role = "student",
+                        EnrolledAt = now
+                    });
+                    try
+                    {
+                        await db.SaveChangesAsync();
+                    }
+                    catch (DbUpdateException)
+                    {
+                        // Concurrent request already enrolled the learner
+                    }
                 }
             }
 
@@ -3681,21 +4722,68 @@ public static class SwmsEndpoints
                 : new List<Lesson>();
 
             string? resolvedCourseFolder = lessonSourceFolder ?? DocumentCourseSyncService.ResolveCourseMetadata(course.Slug, course.Title).SourceFolder;
-            Lesson? matchedLesson = null;
-            string? mdAlternativePath = normalizedRelPath.EndsWith(".html", StringComparison.OrdinalIgnoreCase)
-                ? Path.ChangeExtension(normalizedRelPath, ".md")
-                : null;
-
-            foreach (var l in courseLessons)
+            if (course.Slug.Equals(DocumentCourseSyncService.StudxyBootcampSlug, StringComparison.OrdinalIgnoreCase))
             {
-                var (sf, sr) = CourseGenerationService.ExtractLessonSourceMetadata(l.ContentAstJson);
-                resolvedCourseFolder ??= sf;
-                if (string.IsNullOrWhiteSpace(sr)) continue;
-
-                if (sr.Equals(normalizedRelPath, StringComparison.OrdinalIgnoreCase) ||
-                    (mdAlternativePath != null && sr.Equals(mdAlternativePath, StringComparison.OrdinalIgnoreCase)))
+                resolvedCourseFolder = DocumentCourseSyncService.StudxyBootcampSourceFolder;
+            }
+            var candidatePaths = new List<string> { normalizedRelPath };
+            if (!string.IsNullOrWhiteSpace(currentLessonRelPath))
+            {
+                var normCurrent = currentLessonRelPath.Replace('\\', '/');
+                var lastSlash = normCurrent.LastIndexOf('/');
+                if (lastSlash > 0)
                 {
-                    matchedLesson = l;
+                    var currentDir = normCurrent[..lastSlash];
+                    var tail = normalizedRelPath.StartsWith(currentDir + "/", StringComparison.OrdinalIgnoreCase)
+                        ? normalizedRelPath[(currentDir.Length + 1)..]
+                        : normalizedRelPath;
+                    var walkDir = currentDir;
+                    while (true)
+                    {
+                        var parentSlash = walkDir.LastIndexOf('/');
+                        walkDir = parentSlash > 0 ? walkDir[..parentSlash] : string.Empty;
+                        var candidate = string.IsNullOrEmpty(walkDir) ? tail : $"{walkDir}/{tail}";
+                        if (!candidatePaths.Contains(candidate, StringComparer.OrdinalIgnoreCase))
+                        {
+                            candidatePaths.Add(candidate);
+                        }
+                        if (string.IsNullOrEmpty(walkDir)) break;
+                    }
+                }
+            }
+
+            Lesson? FindLessonByRelativePath(string candidateRel)
+            {
+                var mdAlt = candidateRel.EndsWith(".html", StringComparison.OrdinalIgnoreCase)
+                    ? Path.ChangeExtension(candidateRel, ".md")
+                    : null;
+                var trimmedCandidate = candidateRel.TrimEnd('/');
+                foreach (var l in courseLessons)
+                {
+                    var (sf, sr) = CourseGenerationService.ExtractLessonSourceMetadata(l.ContentAstJson);
+                    resolvedCourseFolder ??= sf;
+                    if (string.IsNullOrWhiteSpace(sr)) continue;
+
+                    var trimmedSr = sr.TrimEnd('/');
+                    if (sr.Equals(candidateRel, StringComparison.OrdinalIgnoreCase) ||
+                        (mdAlt != null && sr.Equals(mdAlt, StringComparison.OrdinalIgnoreCase)) ||
+                        sr.Equals($"{trimmedCandidate}/README.md", StringComparison.OrdinalIgnoreCase) ||
+                        trimmedSr.Equals(trimmedCandidate, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return l;
+                    }
+                }
+                return null;
+            }
+
+            Lesson? matchedLesson = null;
+            string matchedCandidatePath = normalizedRelPath;
+            foreach (var cand in candidatePaths)
+            {
+                matchedLesson = FindLessonByRelativePath(cand);
+                if (matchedLesson != null)
+                {
+                    matchedCandidatePath = cand;
                     break;
                 }
             }
@@ -3711,40 +4799,45 @@ public static class SwmsEndpoints
                     courseId,
                     title = matchedLesson.Title,
                     sourceFolder = sf ?? resolvedCourseFolder,
-                    sourceRelativePath = sr ?? normalizedRelPath,
+                    sourceRelativePath = sr ?? matchedCandidatePath,
                     anchor = string.IsNullOrWhiteSpace(fragmentAnchor) ? null : fragmentAnchor
                 });
             }
 
             if (!string.IsNullOrWhiteSpace(resolvedCourseFolder))
             {
-                var rootPath = DocumentCourseSyncService.ResolveDocumentRootPath(config);
-                if (DocumentCourseSyncService.TryResolveSafeAssetFile(
-                        rootPath,
-                        resolvedCourseFolder,
-                        normalizedRelPath,
-                        out var fullPath,
-                        out _,
-                        out var canonicalRel,
-                        out _,
-                        out _))
+                var rootPath = resolvedCourseFolder.Equals(DocumentCourseSyncService.StudxyBootcampSourceFolder, StringComparison.OrdinalIgnoreCase)
+                    ? DocumentCourseSyncService.ResolveBootcampRootPath(config)
+                    : DocumentCourseSyncService.ResolveDocumentRootPath(config);
+                foreach (var cand in candidatePaths)
                 {
-                    var ext = Path.GetExtension(fullPath);
-                    if (ext.Equals(".md", StringComparison.OrdinalIgnoreCase) || ext.Equals(".txt", StringComparison.OrdinalIgnoreCase))
+                    if (DocumentCourseSyncService.TryResolveSafeAssetFile(
+                            rootPath,
+                            resolvedCourseFolder,
+                            cand,
+                            out var fullPath,
+                            out _,
+                            out var canonicalRel,
+                            out _,
+                            out _))
                     {
-                        var contentMarkdown = await File.ReadAllTextAsync(fullPath, Encoding.UTF8);
-                        return Results.Ok(new
+                        var ext = Path.GetExtension(fullPath);
+                        if (ext.Equals(".md", StringComparison.OrdinalIgnoreCase) || ext.Equals(".txt", StringComparison.OrdinalIgnoreCase))
                         {
-                            found = false,
-                            isAssetMarkdown = true,
-                            lessonId = (Guid?)null,
-                            courseId,
-                            title = Path.GetFileNameWithoutExtension(canonicalRel),
-                            sourceFolder = resolvedCourseFolder,
-                            sourceRelativePath = canonicalRel,
-                            anchor = string.IsNullOrWhiteSpace(fragmentAnchor) ? null : fragmentAnchor,
-                            contentMarkdown
-                        });
+                            var contentMarkdown = await File.ReadAllTextAsync(fullPath, Encoding.UTF8);
+                            return Results.Ok(new
+                            {
+                                found = false,
+                                isAssetMarkdown = true,
+                                lessonId = (Guid?)null,
+                                courseId,
+                                title = Path.GetFileNameWithoutExtension(canonicalRel),
+                                sourceFolder = resolvedCourseFolder,
+                                sourceRelativePath = canonicalRel,
+                                anchor = string.IsNullOrWhiteSpace(fragmentAnchor) ? null : fragmentAnchor,
+                                contentMarkdown
+                            });
+                        }
                     }
                 }
             }
@@ -5176,14 +6269,21 @@ public static class SwmsEndpoints
         var fcGroup = api.MapGroup("/flashcards");
 
         fcGroup.MapGet("/due", async (
-            Guid? tagId,
-            Guid? lessonId,
-            Guid? documentId,
-            Guid? courseId,
-            bool? includeAll,
             HttpContext http,
             SwmsDbContext db) =>
         {
+            var rawTagId = http.Request.Query["tagId"].ToString();
+            var rawLessonId = http.Request.Query["lessonId"].ToString();
+            var rawDocumentId = http.Request.Query["documentId"].ToString();
+            var rawCourseId = http.Request.Query["courseId"].ToString();
+            var rawIncludeAll = http.Request.Query["includeAll"].ToString();
+
+            Guid? tagId = Guid.TryParse(rawTagId, out var tid) ? tid : null;
+            Guid? lessonId = Guid.TryParse(rawLessonId, out var lid) ? lid : null;
+            Guid? documentId = Guid.TryParse(rawDocumentId, out var did) ? did : null;
+            Guid? courseId = Guid.TryParse(rawCourseId, out var cid) ? cid : null;
+            bool? includeAll = bool.TryParse(rawIncludeAll, out var inc) ? inc : null;
+
             var userId = ResolveUserId(http);
             var now = DateTimeOffset.UtcNow;
 
@@ -5192,6 +6292,22 @@ public static class SwmsEndpoints
             var query = db.Flashcards.Where(f => f.UserId == userId && !f.IsArchived);
             if (lessonId.HasValue) query = query.Where(f => f.LessonId == lessonId);
             if (documentId.HasValue) query = query.Where(f => f.DocumentId == documentId);
+
+            if (!courseId.HasValue)
+            {
+                var retiredLessonIds = await (
+                    from l in db.Lessons.AsNoTracking()
+                    join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
+                    join c in db.Courses.AsNoTracking() on ch.CourseId equals c.Id
+                    where DocumentCourseSyncService.RetiredCourseSlugs.Contains(c.Slug)
+                    select l.Id
+                ).ToListAsync();
+                if (retiredLessonIds.Count > 0)
+                {
+                    var retiredLessonIdSet = retiredLessonIds.ToHashSet();
+                    query = query.Where(f => !f.LessonId.HasValue || !retiredLessonIdSet.Contains(f.LessonId.Value));
+                }
+            }
 
             if (courseId.HasValue)
             {
@@ -5358,6 +6474,8 @@ public static class SwmsEndpoints
                     foreach (var rawTag in req.TagNames.Where(t => !string.IsNullOrWhiteSpace(t)))
                     {
                         var cleanName = rawTag.Trim().TrimStart('#');
+                        if (cleanName.Length > 50) cleanName = cleanName[..50];
+                        if (string.IsNullOrWhiteSpace(cleanName)) continue;
                         var tag = await db.Tags.FirstOrDefaultAsync(t => t.UserId == userId && t.Name == cleanName);
                         if (tag == null)
                         {
@@ -5749,53 +6867,165 @@ public static class SwmsEndpoints
     {
         var pqGroup = api.MapGroup("/practice-quizzes");
 
-        pqGroup.MapGet("/", async (Guid? courseId, HttpContext http, SwmsDbContext db) =>
+        pqGroup.MapGet("/", async (HttpContext http, SwmsDbContext db) =>
         {
+            var rawCourseId = http.Request.Query["courseId"].ToString();
+            Guid? courseId = Guid.TryParse(rawCourseId, out var parsedCid) ? parsedCid : null;
             var userId = ResolveUserId(http);
             await EnsureUserPublicDocumentQuizzesAsync(db, userId, courseId);
 
+            var retiredCourseLessonIds = await (
+                from l in db.Lessons.AsNoTracking()
+                join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
+                join c in db.Courses.AsNoTracking() on ch.CourseId equals c.Id
+                where DocumentCourseSyncService.RetiredCourseSlugs.Contains(c.Slug)
+                select l.Id
+            ).ToListAsync();
+            var retiredCourseLessonIdSet = retiredCourseLessonIds.ToHashSet();
+
             var lessonToCourse = await (
-                from l in db.Lessons
-                join ch in db.Chapters on l.ChapterId equals ch.Id
-                join c in db.Courses on ch.CourseId equals c.Id
-                select new { l.Id, ch.CourseId, CourseSlug = c.Slug, c.Visibility, c.IsPublished }
+                from l in db.Lessons.AsNoTracking()
+                join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
+                join c in db.Courses.AsNoTracking() on ch.CourseId equals c.Id
+                where !DocumentCourseSyncService.RetiredCourseSlugs.Contains(c.Slug)
+                select new
+                {
+                    l.Id,
+                    LessonTitle = l.Title,
+                    LessonSortOrder = l.SortOrder,
+                    ChapterId = ch.Id,
+                    ChapterTitle = ch.Title,
+                    ChapterSortOrder = ch.SortOrder,
+                    ch.CourseId,
+                    CourseTitle = c.Title,
+                    CourseSlug = c.Slug,
+                    c.Visibility,
+                    c.IsPublished
+                }
             ).ToDictionaryAsync(x => x.Id);
 
-            var docToCourse = await db.Documents
-                .Where(d => d.CourseId != Guid.Empty)
-                .Select(d => new { d.Id, d.CourseId })
-                .ToDictionaryAsync(x => x.Id, x => x.CourseId);
+            var docToCourse = await (
+                from d in db.Documents.AsNoTracking()
+                join c in db.Courses.AsNoTracking() on d.CourseId equals c.Id
+                where d.CourseId != Guid.Empty && !DocumentCourseSyncService.RetiredCourseSlugs.Contains(c.Slug)
+                select new
+                {
+                    d.Id,
+                    d.CourseId,
+                    CourseTitle = c.Title,
+                    CourseSlug = c.Slug,
+                    c.Visibility,
+                    c.IsPublished
+                }
+            ).ToDictionaryAsync(x => x.Id);
 
             var rawQuizzes = await db.PracticeQuizzes
+                .AsNoTracking()
                 .Where(q => q.UserId == userId ||
                             q.UserId == SeedDataInitializer.DefaultUserId ||
                             courseId.HasValue)
                 .ToListAsync();
 
-            var quizzes = rawQuizzes
+            static string ResolveQuizCategory(string? title)
+            {
+                if (string.IsNullOrWhiteSpace(title)) return "lesson";
+                if (title.Contains("[Đề Tự Tạo]", StringComparison.OrdinalIgnoreCase)) return "custom";
+                if (title.Contains("[Đề Tổng Hợp", StringComparison.OrdinalIgnoreCase)) return "final";
+                if (title.Contains("[Đề Chương", StringComparison.OrdinalIgnoreCase)) return "chapter";
+                return "lesson";
+            }
+
+            var candidateRows = rawQuizzes
                 .Select(q =>
                 {
                     Guid? qCourseId = null;
+                    string? courseTitle = null;
+                    Guid? chapterId = null;
+                    string? chapterTitle = null;
+                    int? chapterSortOrder = null;
+                    string? lessonTitle = null;
+                    int? lessonSortOrder = null;
                     bool isPublicDocumentQuiz = false;
+                    bool isRetiredQuiz = q.LessonId.HasValue && retiredCourseLessonIdSet.Contains(q.LessonId.Value);
+
                     if (q.LessonId.HasValue && lessonToCourse.TryGetValue(q.LessonId.Value, out var lc))
                     {
                         qCourseId = lc.CourseId;
-                        isPublicDocumentQuiz = lc.CourseSlug.StartsWith("document-course-", StringComparison.OrdinalIgnoreCase) &&
+                        courseTitle = lc.CourseTitle;
+                        chapterId = lc.ChapterId;
+                        chapterTitle = lc.ChapterTitle;
+                        chapterSortOrder = lc.ChapterSortOrder;
+                        lessonTitle = lc.LessonTitle;
+                        lessonSortOrder = lc.LessonSortOrder;
+                        isPublicDocumentQuiz = DocumentCourseSyncService.IsPublicCurriculumSlug(lc.CourseSlug) &&
                                                lc.Visibility == "public" && lc.IsPublished;
+                        if (DocumentCourseSyncService.IsRetiredCourseSlug(lc.CourseSlug))
+                        {
+                            isRetiredQuiz = true;
+                        }
                     }
                     else if (q.DocumentId.HasValue && docToCourse.TryGetValue(q.DocumentId.Value, out var dc))
                     {
-                        qCourseId = dc;
+                        qCourseId = dc.CourseId;
+                        courseTitle = dc.CourseTitle;
+                        isPublicDocumentQuiz = DocumentCourseSyncService.IsPublicCurriculumSlug(dc.CourseSlug) &&
+                                               dc.Visibility == "public" && dc.IsPublished;
+                        if (DocumentCourseSyncService.IsRetiredCourseSlug(dc.CourseSlug))
+                        {
+                            isRetiredQuiz = true;
+                        }
                     }
 
-                    bool accessible = q.UserId == userId ||
-                                      (userId == SeedDataInitializer.DefaultUserId && q.Id == SeedDataInitializer.DefaultQuizId) ||
-                                      isPublicDocumentQuiz;
+                    bool accessible = (q.UserId == userId ||
+                                       (userId == SeedDataInitializer.DefaultUserId && q.Id == SeedDataInitializer.DefaultQuizId) ||
+                                       isPublicDocumentQuiz) && !isRetiredQuiz;
 
-                    return new { Quiz = q, CourseId = qCourseId, Accessible = accessible };
+                    var category = ResolveQuizCategory(q.Title);
+
+                    return new
+                    {
+                        Quiz = q,
+                        CourseId = qCourseId,
+                        CourseTitle = courseTitle,
+                        ChapterId = chapterId,
+                        ChapterTitle = chapterTitle,
+                        ChapterSortOrder = chapterSortOrder,
+                        LessonTitle = lessonTitle,
+                        LessonSortOrder = lessonSortOrder,
+                        Category = category,
+                        Accessible = accessible
+                    };
                 })
                 .Where(x => x.Accessible && (!courseId.HasValue || x.CourseId == courseId.Value))
-                .OrderByDescending(x => x.Quiz.StartedAt)
+                .OrderBy(x => x.Quiz.UserId == userId ? 0 : 1)
+                .ThenByDescending(x => x.Quiz.StartedAt)
+                .ToList();
+
+            var seenQuizKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var deduped = candidateRows
+                .Where(x =>
+                {
+                    var normTitle = (x.Quiz.Title ?? string.Empty).Trim();
+                    string key = x.Quiz.LessonId.HasValue
+                        ? $"L:{x.Quiz.LessonId.Value:N}|{normTitle}"
+                        : x.Quiz.DocumentId.HasValue
+                            ? $"D:{x.Quiz.DocumentId.Value:N}|{normTitle}"
+                            : $"I:{x.Quiz.Id:N}";
+                    return seenQuizKeys.Add(key);
+                })
+                .OrderBy(x => x.Category switch
+                {
+                    "custom" => 0,
+                    "lesson" or "chapter" => 1,
+                    "final" => 2,
+                    _ => 1
+                })
+                .ThenByDescending(x => x.Category == "custom" ? x.Quiz.StartedAt.UtcTicks : 0L)
+                .ThenBy(x => x.ChapterSortOrder ?? int.MaxValue)
+                .ThenBy(x => x.Category == "chapter" ? 1 : 0)
+                .ThenBy(x => x.LessonSortOrder ?? int.MaxValue)
+                .ThenByDescending(x => x.Category == "final" ? x.Quiz.StartedAt.UtcTicks : 0L)
+                .ThenBy(x => x.Quiz.Title, StringComparer.OrdinalIgnoreCase)
                 .Select(x => new
                 {
                     x.Quiz.Id,
@@ -5803,6 +7033,13 @@ public static class SwmsEndpoints
                     x.Quiz.DocumentId,
                     x.Quiz.LessonId,
                     courseId = x.CourseId,
+                    courseTitle = x.CourseTitle,
+                    chapterId = x.ChapterId,
+                    chapterTitle = x.ChapterTitle,
+                    chapterSortOrder = x.ChapterSortOrder,
+                    lessonTitle = x.LessonTitle,
+                    lessonSortOrder = x.LessonSortOrder,
+                    category = x.Category,
                     x.Quiz.TotalItems,
                     x.Quiz.CorrectItems,
                     x.Quiz.Status,
@@ -5810,7 +7047,7 @@ public static class SwmsEndpoints
                     x.Quiz.CompletedAt
                 })
                 .ToList();
-            return Results.Ok(quizzes);
+            return Results.Ok(deduped);
         });
 
         pqGroup.MapGet("/{id:guid}", async (Guid id, HttpContext http, SwmsDbContext db) =>
@@ -5833,7 +7070,7 @@ public static class SwmsEndpoints
                 if (courseMeta != null)
                 {
                     quizCourseId = courseMeta.Id;
-                    isPublicDocQuiz = courseMeta.Slug.StartsWith("document-course-", StringComparison.OrdinalIgnoreCase) &&
+                    isPublicDocQuiz = DocumentCourseSyncService.IsPublicCurriculumSlug(courseMeta.Slug) &&
                                       courseMeta.Visibility == "public" && courseMeta.IsPublished;
                 }
             }
@@ -5855,6 +7092,26 @@ public static class SwmsEndpoints
                 .ToListAsync();
             var items = rawItems.OrderBy(i => i.CreatedAt).ToList();
 
+            var quizKey = id.ToString();
+            var rawAttempts = await db.PracticeAttempts
+                .AsNoTracking()
+                .Where(pa => pa.UserId == userId && pa.ActivityType == "quiz_exam" && pa.ActivityKey == quizKey)
+                .ToListAsync();
+            var attemptHistory = rawAttempts
+                .OrderByDescending(pa => pa.CreatedAt)
+                .Take(10)
+                .Select(pa => new
+                {
+                    pa.Id,
+                    pa.Score,
+                    pa.MaxScore,
+                    pa.IsPassed,
+                    pa.DurationSeconds,
+                    pa.DetailJson,
+                    pa.CreatedAt
+                })
+                .ToList();
+
             return Results.Ok(new
             {
                 quiz.Id,
@@ -5868,6 +7125,7 @@ public static class SwmsEndpoints
                 quiz.StartedAt,
                 quiz.CompletedAt,
                 quiz.AiSummaryFeedback,
+                attemptHistory,
                 items = items.Select(i => new
                 {
                     i.Id,
@@ -5876,6 +7134,7 @@ public static class SwmsEndpoints
                     prompt = JsonSerializer.Deserialize<object>(i.PromptAstJson),
                     choices = string.IsNullOrWhiteSpace(i.ChoicesJson) ? null : JsonSerializer.Deserialize<object>(i.ChoicesJson),
                     clozeSolution = (i.EvaluatedAt.HasValue || quiz.Status == "completed") ? i.ClozeSolution : null,
+                    explanation = (i.EvaluatedAt.HasValue || quiz.Status == "completed") ? ExtractExplanationFromPrompt(i.PromptAstJson) : null,
                     userAnswer = string.IsNullOrWhiteSpace(i.UserAnswerJson) ? null : JsonSerializer.Deserialize<object>(i.UserAnswerJson),
                     i.IsCorrect,
                     aiRubricFeedback = string.IsNullOrWhiteSpace(i.AiRubricFeedbackJson) ? null : JsonSerializer.Deserialize<object>(i.AiRubricFeedbackJson),
@@ -5940,6 +7199,7 @@ public static class SwmsEndpoints
                         item.ItemType,
                         item.IsCorrect,
                         expectedSolution = item.ClozeSolution,
+                        explanation = ExtractExplanationFromPrompt(item.PromptAstJson),
                         item.EvaluatedAt,
                         quizStatus = quiz.Status,
                         correctItems = quiz.CorrectItems
@@ -6180,15 +7440,78 @@ public static class SwmsEndpoints
             quiz.CorrectItems = allItems.Count(i => i.IsCorrect == true);
             quiz.Status = "completed";
             quiz.CompletedAt = now;
-            await db.SaveChangesAsync();
-            CourseGenerationService.InvalidateCourseSummaryCache();
+
+            Guid quizCourseId = Guid.Empty;
+            if (quiz.LessonId.HasValue)
+            {
+                quizCourseId = await (
+                    from l in db.Lessons.AsNoTracking()
+                    join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
+                    where l.Id == quiz.LessonId.Value
+                    select ch.CourseId
+                ).FirstOrDefaultAsync();
+            }
+            else if (quiz.DocumentId.HasValue)
+            {
+                quizCourseId = await db.Documents.AsNoTracking()
+                    .Where(d => d.Id == quiz.DocumentId.Value)
+                    .Select(d => d.CourseId)
+                    .FirstOrDefaultAsync();
+            }
 
             var answeredCount = allItems.Count(i => !string.IsNullOrWhiteSpace(i.UserAnswerJson));
             var scorePercent = allItems.Count > 0 ? Math.Round(quiz.CorrectItems * 100.0 / allItems.Count, 1) : 0.0;
 
+            var attempt = new PracticeAttempt
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                ActivityId = null,
+                CourseId = quizCourseId,
+                LessonId = quiz.LessonId,
+                ActivityType = "quiz_exam",
+                ActivityKey = quiz.Id.ToString(),
+                ActivityTitle = quiz.Title.Length > 255 ? quiz.Title[..255] : quiz.Title,
+                Score = scorePercent,
+                MaxScore = 100,
+                IsPassed = scorePercent >= 70,
+                DetailJson = JsonSerializer.Serialize(new
+                {
+                    correctItems = quiz.CorrectItems,
+                    totalItems = allItems.Count,
+                    answeredCount
+                }),
+                DurationSeconds = req.DurationSeconds,
+                CreatedAt = now
+            };
+            db.PracticeAttempts.Add(attempt);
+            await db.SaveChangesAsync();
+            CourseGenerationService.InvalidateCourseSummaryCache();
+
+            var quizKey = quiz.Id.ToString();
+            var rawAttempts = await db.PracticeAttempts
+                .AsNoTracking()
+                .Where(pa => pa.UserId == userId && pa.ActivityType == "quiz_exam" && pa.ActivityKey == quizKey)
+                .ToListAsync();
+            var attemptHistory = rawAttempts
+                .OrderByDescending(pa => pa.CreatedAt)
+                .Take(10)
+                .Select(pa => new
+                {
+                    pa.Id,
+                    pa.Score,
+                    pa.MaxScore,
+                    pa.IsPassed,
+                    pa.DurationSeconds,
+                    pa.DetailJson,
+                    pa.CreatedAt
+                })
+                .ToList();
+
             return Results.Ok(new
             {
                 quizId = quiz.Id,
+                savedAttemptId = attempt.Id,
                 totalItems = allItems.Count,
                 answeredCount,
                 correctItems = quiz.CorrectItems,
@@ -6197,12 +7520,14 @@ public static class SwmsEndpoints
                 durationSeconds = req.DurationSeconds ?? 0,
                 status = quiz.Status,
                 submittedAt = now,
+                attemptHistory,
                 items = allItems.Select(i => new
                 {
                     id = i.Id,
                     itemType = i.ItemType,
                     isCorrect = i.IsCorrect,
                     expectedSolution = i.ClozeSolution,
+                    explanation = ExtractExplanationFromPrompt(i.PromptAstJson),
                     evaluatedAt = i.EvaluatedAt,
                     aiRubricFeedback = string.IsNullOrWhiteSpace(i.AiRubricFeedbackJson)
                         ? null
@@ -6279,7 +7604,7 @@ public static class SwmsEndpoints
             var res = await gemini.CompleteChatAsync(sysPrompt, userPrompt, CancellationToken.None, aiOverrides);
             var explanation = !string.IsNullOrWhiteSpace(res.Content)
                 ? res.Content
-                : $"• **Khái niệm trọng tâm ({ctxLabel})**: `{shortExcerpt}` là điểm neo lý thuyết quan trọng giúp hiểu rõ bản chất cơ chế đang xét.\n• **Cách hiểu nhanh**: Hãy đặt đoạn trích này trong bối cảnh mục tiêu của bài *{ctxLabel}* để trả lời *Vì sao xuất hiện?* và *Khi nào áp dụng thực tế?*.\n• **Bước ghi nhớ chủ động**: Tự diễn giải lại `{shortExcerpt}` bằng 1–2 câu đơn giản hoặc lưu ngay vào thẻ nhớ FSRS để ôn lại sau 24 giờ.";
+                : BuildLanguageAwareOfflineExplanation(req.Language, ctxLabel, cleanExcerpt, shortExcerpt);
 
             bool isCustomOverride = aiOverrides != null && (!string.IsNullOrWhiteSpace(aiOverrides.BaseUrl) || !string.IsNullOrWhiteSpace(aiOverrides.ApiKey));
             bool refundCredit = isCustomOverride && !res.UsedLiveEndpoint;
@@ -7076,13 +8401,158 @@ public static class SwmsEndpoints
         return json;
     }
 
+    private static string? ExtractExplanationFromPrompt(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return null;
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("explanation", out var exp) &&
+                exp.ValueKind == JsonValueKind.String)
+            {
+                var text = exp.GetString()?.Trim();
+                return string.IsNullOrWhiteSpace(text) ? null : text;
+            }
+        }
+        catch
+        {
+            // Ignore
+        }
+        return null;
+    }
+
+    private static string BuildDeterministicAiEnhanceFallback(string lessonTitle, string content, string action, string? customPrompt)
+    {
+        var sampleParagraph = content.Length > 300 ? content[..300] + "..." : content;
+        return action switch
+        {
+            "summarize" =>
+                $"### Tóm tắt cốt lõi: {lessonTitle}\n\n" +
+                $"• **Trọng tâm kiến thức**: Nội dung chủ đạo tập trung vào lý thuyết và phương pháp ứng dụng của *{lessonTitle}*.\n" +
+                $"• **Điểm cần lưu ý**: Cần phân biệt rõ cơ chế nền tảng và các điều kiện biên khi triển khai thực tế.\n" +
+                $"• **Hành động ôn tập**: Tự diễn đạt lại các định nghĩa và chuyển đổi thành thẻ ghi nhớ FSRS để củng cố phản xạ.",
+
+            "generate_quiz_draft" =>
+                $"### Đề trắc nghiệm kiểm tra kiến thức: {lessonTitle}\n\n" +
+                $"**Câu 1: Mục tiêu cốt lõi của bài học \"{lessonTitle}\" là gì?**\n" +
+                $"- A. Cung cấp nền tảng lý thuyết và ứng dụng thực hành có hệ thống\n" +
+                $"- B. Chỉ ghi nhớ thuật ngữ mà không cần hiểu bản chất\n" +
+                $"- C. Bỏ qua các bước kiểm tra và thực nghiệm\n" +
+                $"- D. Thay thế hoàn toàn quy trình phân tích logic\n" +
+                $"*Đáp án đúng: A. Giải thích: Bài học hướng đến sự kết hợp giữa hiểu sâu bản chất và thực hành chuẩn mực.*\n\n" +
+                $"**Câu 2: Nguyên lý nào đóng vai trò then chốt trong chủ đề này?**\n" +
+                $"- A. Lặp lại thụ động không kiểm tra lại\n" +
+                $"- B. Tái hiện chủ động (Active Recall) kết hợp thực hành có chủ đích\n" +
+                $"- C. Tránh đối chiếu với tài liệu gốc\n" +
+                $"- D. Tùy ý thay đổi các nguyên tắc cơ bản\n" +
+                $"*Đáp án đúng: B.*",
+
+            "generate_flashcards" =>
+                $"### Bộ thẻ ghi nhớ FSRS nháp: {lessonTitle}\n\n" +
+                $"**Thẻ 1**:\n" +
+                $"- Mặt trước: Khái niệm trung tâm của \"{lessonTitle}\" được định nghĩa như thế nào?\n" +
+                $"- Mặt sau: Là hệ thống các nguyên lý và kỹ thuật cốt lõi giúp giải quyết bài toán nghiệp vụ một cách hiệu quả và tin cậy.\n\n" +
+                $"**Thẻ 2**:\n" +
+                $"- Mặt trước: Khi nào cần áp dụng kiến thức từ bài \"{lessonTitle}\"?\n" +
+                $"- Mặt sau: Trong các tình huống đòi hỏi phân tích chuyên sâu, tối ưu hóa quy trình và giảm thiểu sai sót thực thi.",
+
+            _ => // "expand"
+                $"### Mở rộng chuyên sâu: {lessonTitle}\n\n" +
+                $"#### 1. Phân tích bối cảnh & Ý nghĩa thực tiễn\n" +
+                $"Trong lộ trình học tập của môn học, *{lessonTitle}* đóng vai trò mắt xích quan trọng giúp người học kết nối lý thuyết nền tảng với tình huống giải quyết vấn đề thực tế.\n\n" +
+                $"#### 2. Chi tiết phân tích & Minh họa\n" +
+                $"{sampleParagraph}\n\n" +
+                $"*(Lưu ý chuyên môn: Hãy kết hợp ghi chú PKM và thực hành dự án mẫu để chuyển hóa kiến thức thành kỹ năng phản xạ tự nhiên.)*"
+        };
+    }
+
+    private static string BuildLanguageAwareOfflineExplanation(
+        string? explicitLanguage,
+        string ctxLabel,
+        string cleanExcerpt,
+        string shortExcerpt)
+    {
+        var combined = $"{explicitLanguage}\n{ctxLabel}\n{cleanExcerpt}";
+        var langHint = (explicitLanguage ?? string.Empty).Trim().ToLowerInvariant();
+
+        bool isSql = langHint is "sql" or "postgres" or "postgresql" or "tsql" ||
+                     System.Text.RegularExpressions.Regex.IsMatch(combined, @"\b(SELECT|FROM|WHERE|JOIN|GROUP\s+BY|HAVING|ORDER\s+BY|INSERT\s+INTO|CREATE\s+INDEX|EXPLAIN|ROW_NUMBER|PARTITION\s+BY)\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        bool isHtmlCss = !isSql && (langHint is "html" or "css" ||
+                     System.Text.RegularExpressions.Regex.IsMatch(combined, @"(<[a-z][a-z0-9-]*\b[^>]*>|display\s*:\s*(flex|grid)|box-sizing|justify-content|align-items|grid-template|@media|aria-label|border-box)", System.Text.RegularExpressions.RegexOptions.IgnoreCase));
+        bool isPython = !isSql && !isHtmlCss && (langHint is "python" or "py" ||
+                     System.Text.RegularExpressions.Regex.IsMatch(combined, @"\b(async\s+def|def\s+\w+\(|FastAPI|BaseModel|httpx|pytest|pgvector|__init__)\b"));
+        bool isDockerBash = !isSql && !isHtmlCss && !isPython && (langHint is "bash" or "sh" or "dockerfile" or "docker" ||
+                     System.Text.RegularExpressions.Regex.IsMatch(combined, @"\b(docker\s+compose|Dockerfile|WORKDIR|ENTRYPOINT|chmod|systemctl|ss\s+-tulpn|git\s+(init|checkout|commit|rebase)|nginx)\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase));
+        bool isJsTs = !isSql && !isHtmlCss && !isPython && !isDockerBash && (langHint is "javascript" or "js" or "typescript" or "ts" or "react" ||
+                     System.Text.RegularExpressions.Regex.IsMatch(combined, @"\b(const|let|function|useEffect|useState|useMemo|Promise|console\.log|querySelector|addEventListener|interface\s+\w+)\b") ||
+                     cleanExcerpt.Contains("=>", StringComparison.Ordinal));
+        bool isCSharp = !isSql && !isHtmlCss && !isPython && !isDockerBash && !isJsTs && (langHint is "csharp" or "c#" or "dotnet" or "cs" ||
+                     System.Text.RegularExpressions.Regex.IsMatch(combined, @"\b(async\s+Task|DbContext|IActionResult|AsNoTracking|Include\(|AddScoped|AddSingleton|CancellationToken|Results\.Ok|IFormFile|decimal|namespace)\b"));
+
+        if (isSql)
+        {
+            return $"• **Phân tích SQL ({ctxLabel})**: Đoạn truy vấn `{shortExcerpt}` thao tác trực tiếp trên tập hợp bản ghi quan hệ theo thứ tự logic `FROM → JOIN/ON → WHERE → GROUP BY → HAVING → SELECT → ORDER BY`.\n" +
+                   "• **Điểm cần lưu ý hiệu năng & an toàn**: Luôn tham số hóa đầu vào (`@param` / `$1`) để chống SQL Injection, giữ điều kiện lọc của `LEFT JOIN` trên mệnh đề `ON`, và tránh bọc cột đánh Index trong hàm (`YEAR(col)`).\n" +
+                   "• **Thực hành kiểm chứng**: Chạy thử kèm `EXPLAIN ANALYZE` để kiểm tra Query Plan có sử dụng Index Scan thay vì Sequential Scan hay không.";
+        }
+
+        if (isHtmlCss)
+        {
+            return $"• **Phân tích HTML/CSS ({ctxLabel})**: `{shortExcerpt}` xác định cấu trúc ngữ nghĩa (Semantic DOM) hoặc quy tắc bố cục hiển thị trên Viewport.\n" +
+                   "• **Chuẩn mực giao diện & a11y**: Ưu tiên `box-sizing: border-box`, thẻ ngữ nghĩa (`<main>`, `<nav>`, `<button>`), `label[for]` và Flexbox/Grid responsive thay vì chỉnh kích thước cứng.\n" +
+                   "• **Kiểm tra nhanh**: Dùng DevTools Inspector xem Box Model và kiểm thử điều hướng bằng phím `Tab` / `Enter` để đảm bảo khả năng truy cập.";
+        }
+
+        if (isPython)
+        {
+            return $"• **Phân tích Python / AI ({ctxLabel})**: `{shortExcerpt}` vận hành theo mô hình gõ kiểu động kèm type hints/Pydantic và vòng lặp sự kiện bất đồng bộ (`asyncio`).\n" +
+                   "• **Điểm dễ sai cần tránh**: Trong `async def`, tuyệt đối không gọi I/O đồng bộ như `requests.post` mà hãy dùng `httpx.AsyncClient` kèm `await` và kiểm tra biên dữ liệu bằng `.strip()`.\n" +
+                   "• **Ghi nhớ nhanh**: Đóng gói payload bằng `BaseModel` để bắt lỗi kiểu dữ liệu ngay ở biên API.";
+        }
+
+        if (isDockerBash)
+        {
+            return $"• **Phân tích Linux / Docker ({ctxLabel})**: `{shortExcerpt}` điều khiển tiến trình hệ thống, phân quyền tệp tin hoặc vòng đời đóng gói Container.\n" +
+                   "• **Nguyên tắc vận hành an toàn**: Áp dụng quyền tối thiểu (`chmod 600` cho secret, `USER` non-root trong Dockerfile), tách Multi-stage build để thu gọn image và cô lập DB trong mạng nội bộ (`internal: true`).\n" +
+                   "• **Kiểm tra thực tế**: Luôn xác minh exit code (`0`) và log khởi động qua `docker compose logs` hoặc endpoint `/health`.";
+        }
+
+        if (isJsTs)
+        {
+            return $"• **Phân tích JavaScript / TypeScript ({ctxLabel})**: `{shortExcerpt}` liên quan đến phạm vi biến (`const`/`let`), tính bất biến dữ liệu, Event Loop hoặc vòng đời render của React.\n" +
+                   "• **Điểm dễ vướng lỗi**: Luôn dùng so sánh nghiêm ngặt (`===`), không đột biến trực tiếp mảng/object state (dùng `[...arr]` / `{...obj}`), và dọn dẹp timer/listener trong hàm cleanup của `useEffect`.\n" +
+                   "• **Kiểm tra nhanh**: Đặt `console.log` hoặc kiểm tra kiểu TypeScript để theo dõi tham chiếu và thứ tự thực thi Call Stack → Microtask → Macrotask.";
+        }
+
+        if (isCSharp)
+        {
+            return $"• **Phân tích C# / .NET ({ctxLabel})**: `{shortExcerpt}` thuộc kiến trúc backend ASP.NET Core / EF Core với kiểm soát kiểu tĩnh chặt chẽ và xử lý bất đồng bộ qua `Task`.\n" +
+                   "• **Quy tắc thiết kế sạch**: Truyền `CancellationToken`, dùng `decimal` cho tiền tệ, chọn đúng DI lifetime (`Scoped` cho `DbContext`, không tiêm vào `Singleton`), và dùng `.AsNoTracking()` cho truy vấn chỉ đọc.\n" +
+                   "• **Kiểm chứng nhanh**: Xác nhận build sạch và kiểm tra status code REST (`200`/`201`/`400`/`403`) bằng integration test.";
+        }
+
+        return $"• **Khái niệm trọng tâm ({ctxLabel})**: `{shortExcerpt}` là điểm neo lý thuyết quan trọng giúp hiểu rõ bản chất cơ chế đang xét.\n" +
+               $"• **Cách hiểu nhanh**: Hãy đặt đoạn trích này trong bối cảnh mục tiêu của bài *{ctxLabel}* để trả lời *Vì sao xuất hiện?* và *Khi nào áp dụng thực tế?*.\n" +
+               $"• **Bước ghi nhớ chủ động**: Tự diễn giải lại `{shortExcerpt}` bằng 1–2 câu đơn giản hoặc lưu ngay vào thẻ nhớ FSRS để ôn lại sau 24 giờ.";
+    }
+
     private static List<Course> OrderCoursesForUser(IEnumerable<Course> courses, Guid userId)
     {
-        return courses
-            .OrderBy(c => userId != SeedDataInitializer.DefaultUserId
-                ? (c.InstructorId == userId ? 0 : 1)
-                : 0)
-            .ThenByDescending(c => c.Slug.StartsWith("document-course-", StringComparison.OrdinalIgnoreCase))
+        var nonRetired = courses.Where(c => !DocumentCourseSyncService.IsRetiredCourseSlug(c.Slug));
+        if (userId == SeedDataInitializer.DefaultUserId)
+        {
+            return nonRetired
+                .OrderByDescending(c => DocumentCourseSyncService.IsPublicCurriculumSlug(c.Slug))
+                .ThenBy(c => DocumentCourseSyncService.GetSortPriority(c.Slug))
+                .ThenByDescending(c => c.Slug.StartsWith("doc-course-", StringComparison.OrdinalIgnoreCase))
+                .ThenByDescending(c => c.UpdatedAt)
+                .ToList();
+        }
+
+        return nonRetired
+            .OrderBy(c => c.InstructorId == userId ? 0 : 1)
+            .ThenByDescending(c => c.InstructorId == userId ? c.UpdatedAt : DateTimeOffset.MinValue)
+            .ThenByDescending(c => DocumentCourseSyncService.IsPublicCurriculumSlug(c.Slug))
             .ThenBy(c => DocumentCourseSyncService.GetSortPriority(c.Slug))
             .ThenByDescending(c => c.Slug.StartsWith("doc-course-", StringComparison.OrdinalIgnoreCase))
             .ThenByDescending(c => c.UpdatedAt)
@@ -7519,7 +8989,7 @@ public static class SwmsEndpoints
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == courseId.Value);
             if (targetCourse == null ||
-                !targetCourse.Slug.StartsWith("document-course-", StringComparison.OrdinalIgnoreCase) ||
+                !DocumentCourseSyncService.IsPublicCurriculumSlug(targetCourse.Slug) ||
                 targetCourse.Visibility != "public" ||
                 !targetCourse.IsPublished)
             {
@@ -7537,7 +9007,7 @@ public static class SwmsEndpoints
                 select c
             ).AsNoTracking().FirstOrDefaultAsync();
             if (targetCourse == null ||
-                !targetCourse.Slug.StartsWith("document-course-", StringComparison.OrdinalIgnoreCase) ||
+                !DocumentCourseSyncService.IsPublicCurriculumSlug(targetCourse.Slug) ||
                 targetCourse.Visibility != "public" ||
                 !targetCourse.IsPublished)
             {
@@ -7568,7 +9038,7 @@ public static class SwmsEndpoints
                       !f.IsArchived &&
                       c.Visibility == "public" &&
                       c.IsPublished &&
-                      c.Slug.StartsWith("document-course-")
+                      (c.Slug.StartsWith("document-course-") || c.Slug == DocumentCourseSyncService.StudxyBootcampSlug)
                 select c.Id
             ).Distinct().ToListAsync();
 
@@ -7585,7 +9055,7 @@ public static class SwmsEndpoints
                     .AsNoTracking()
                     .Where(c => c.Visibility == "public" &&
                                 c.IsPublished &&
-                                c.Slug.StartsWith("document-course-"))
+                                (c.Slug.StartsWith("document-course-") || c.Slug == DocumentCourseSyncService.StudxyBootcampSlug))
                     .Select(c => c.Id)
                     .ToListAsync();
             }
@@ -7658,17 +9128,19 @@ public static class SwmsEndpoints
 
                         Tag EnsureUserTag(Tag srcTag)
                         {
-                            if (userTagsByName.TryGetValue(srcTag.Name, out var existingTag))
+                            var safeName = srcTag.Name.Length > 50 ? srcTag.Name[..50] : srcTag.Name;
+                            if (userTagsByName.TryGetValue(safeName, out var existingTag))
                             {
                                 return existingTag;
                             }
 
+                            var safeColor = srcTag.ColorKey.Length > 20 ? srcTag.ColorKey[..20] : srcTag.ColorKey;
                             var created = new Tag
                             {
                                 Id = Guid.NewGuid(),
                                 UserId = userId,
-                                Name = srcTag.Name,
-                                ColorKey = srcTag.ColorKey
+                                Name = safeName,
+                                ColorKey = safeColor
                             };
                             db.Tags.Add(created);
                             userTagsByName[created.Name] = created;
@@ -7760,16 +9232,55 @@ public static class SwmsEndpoints
 
         // 1. GET /api/v1/practice/activities?courseId=...&lessonId=...
         practiceGroup.MapGet("/activities", async (
-            Guid courseId,
-            Guid? lessonId,
             HttpContext http,
             SwmsDbContext db) =>
         {
+            var rawCourseId = http.Request.Query["courseId"].ToString();
+            var rawLessonId = http.Request.Query["lessonId"].ToString();
+            Guid? courseId = Guid.TryParse(rawCourseId, out var cid) && cid != Guid.Empty ? cid : null;
+            Guid? lessonId = Guid.TryParse(rawLessonId, out var lid) && lid != Guid.Empty ? lid : null;
+
             var userId = ResolveUserId(http);
-            var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+
+            // If courseId not provided but lessonId is provided, resolve courseId from lesson
+            if (!courseId.HasValue && lessonId.HasValue)
+            {
+                courseId = await (
+                    from l in db.Lessons
+                    join ch in db.Chapters on l.ChapterId equals ch.Id
+                    where l.Id == lessonId.Value
+                    select (Guid?)ch.CourseId
+                ).FirstOrDefaultAsync();
+            }
+
+            if (!courseId.HasValue)
+            {
+                return Results.Ok(Array.Empty<object>());
+            }
+
+            var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == courseId.Value);
             if (course == null)
             {
                 return Results.NotFound(new { error = "Không tìm thấy khóa học." });
+            }
+            if (DocumentCourseSyncService.IsRetiredCourseSlug(course.Slug))
+            {
+                var redirectSlug = DocumentCourseSyncService.GetRetiredRedirectSlug(course.Slug);
+                Guid? redirectCourseId = null;
+                if (!string.IsNullOrWhiteSpace(redirectSlug))
+                {
+                    redirectCourseId = await db.Courses.AsNoTracking()
+                        .Where(c => c.Slug == redirectSlug)
+                        .Select(c => (Guid?)c.Id)
+                        .FirstOrDefaultAsync();
+                }
+                return Results.Json(new
+                {
+                    error = "Khóa học đã được gộp vào lộ trình chuẩn mới.",
+                    retired = true,
+                    redirectSlug,
+                    redirectCourseId
+                }, statusCode: StatusCodes.Status404NotFound);
             }
 
             if (!await CanReadCourseAsync(db, course, userId))
@@ -7777,7 +9288,7 @@ public static class SwmsEndpoints
                 return Results.StatusCode(StatusCodes.Status403Forbidden);
             }
 
-            var q = db.PracticeActivities.Where(pa => pa.CourseId == courseId);
+            var q = db.PracticeActivities.Where(pa => pa.CourseId == courseId.Value);
             if (lessonId.HasValue && lessonId.Value != Guid.Empty)
             {
                 q = q.Where(pa => pa.LessonId == lessonId.Value);
@@ -7792,7 +9303,7 @@ public static class SwmsEndpoints
 
             var actIds = activities.Select(a => a.Id).ToHashSet();
             var userAttempts = await db.PracticeAttempts
-                .Where(pa => pa.UserId == userId && pa.CourseId == courseId)
+                .Where(pa => pa.UserId == userId && pa.CourseId == courseId.Value)
                 .ToListAsync();
 
             var attemptsByActId = userAttempts
@@ -7917,13 +9428,16 @@ public static class SwmsEndpoints
 
         // 3. GET /api/v1/practice/attempts?courseId=...&lessonId=...&type=...&limit=...
         practiceGroup.MapGet("/attempts", async (
-            Guid? courseId,
-            Guid? lessonId,
-            string? type,
-            int? limit,
             HttpContext http,
             SwmsDbContext db) =>
         {
+            var rawCourseId = http.Request.Query["courseId"].ToString();
+            var rawLessonId = http.Request.Query["lessonId"].ToString();
+            Guid? courseId = Guid.TryParse(rawCourseId, out var cid) ? cid : null;
+            Guid? lessonId = Guid.TryParse(rawLessonId, out var lid) ? lid : null;
+            var type = http.Request.Query["type"].ToString();
+            var rawLimit = http.Request.Query["limit"].ToString();
+            int? limit = int.TryParse(rawLimit, out var lim) ? lim : null;
             var userId = ResolveUserId(http);
             if (courseId.HasValue && courseId.Value != Guid.Empty)
             {
@@ -7964,6 +9478,7 @@ public static class SwmsEndpoints
             SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
+            var startCacheVersion = CourseGenerationService.CurrentCacheVersion;
             if (TryGetCachedEndpointPayload("practice_stats", userId, out var cachedStats))
             {
                 return Results.Ok(cachedStats);
@@ -7971,9 +9486,16 @@ public static class SwmsEndpoints
 
             var now = DateTimeOffset.UtcNow;
 
+            var retiredCourseIds = await db.Courses
+                .AsNoTracking()
+                .Where(c => DocumentCourseSyncService.RetiredCourseSlugs.Contains(c.Slug))
+                .Select(c => c.Id)
+                .ToListAsync();
+            var retiredCourseIdSet = retiredCourseIds.ToHashSet();
+
             var userAttempts = (await db.PracticeAttempts
                 .AsNoTracking()
-                .Where(pa => pa.UserId == userId)
+                .Where(pa => pa.UserId == userId && !retiredCourseIdSet.Contains(pa.CourseId))
                 .Select(pa => new PracticeAttemptStatsRow(
                     pa.Id,
                     pa.CourseId,
@@ -8036,14 +9558,15 @@ public static class SwmsEndpoints
                 .Where(c => (c.InstructorId == userId ||
                              (c.Visibility == "public" && c.IsPublished) ||
                              (enrolledIds.Contains(c.Id) && c.IsPublished && c.Visibility != "personal" && c.Visibility != "private"))
-                            && !c.Slug.StartsWith("personal-workspace-"))
+                            && !c.Slug.StartsWith("personal-workspace-")
+                            && !DocumentCourseSyncService.RetiredCourseSlugs.Contains(c.Slug))
                 .ToListAsync();
 
             var readableCourses = OrderCoursesForUser(rawUserCourses, userId);
             var readableCourseIds = readableCourses.Select(c => c.Id).ToHashSet();
 
             var attemptCourseIds = userAttempts.Select(a => a.CourseId).Distinct().ToHashSet();
-            var missingAttemptCourseIds = attemptCourseIds.Where(id => !readableCourseIds.Contains(id)).ToList();
+            var missingAttemptCourseIds = attemptCourseIds.Where(id => !readableCourseIds.Contains(id) && !retiredCourseIdSet.Contains(id)).ToList();
             var extraAttemptCourses = missingAttemptCourseIds.Count > 0
                 ? await db.Courses.AsNoTracking()
                     .Where(c => missingAttemptCourseIds.Contains(c.Id))
@@ -8199,6 +9722,64 @@ public static class SwmsEndpoints
             var lessonsByChapter = readableLessons.ToLookup(l => l.ChapterId);
             var attemptsByCourse = userAttempts.ToLookup(a => a.CourseId);
 
+            var courseById = readableCourses.ToDictionary(c => c.Id);
+            var lessonToCourseId = readableLessons
+                .Where(l => chapterById.ContainsKey(l.ChapterId))
+                .ToDictionary(l => l.Id, l => chapterById[l.ChapterId].CourseId);
+
+            var allCourseLessonIds = readableLessons.Select(l => l.Id).ToList();
+            var rawCourseQuizzes = allCourseLessonIds.Count > 0
+                ? await db.PracticeQuizzes
+                    .AsNoTracking()
+                    .Where(q => q.LessonId.HasValue &&
+                                allCourseLessonIds.Contains(q.LessonId.Value) &&
+                                (q.UserId == userId || q.UserId == SeedDataInitializer.DefaultUserId))
+                    .Select(q => new
+                    {
+                        q.Id,
+                        q.LessonId,
+                        q.UserId,
+                        q.Title,
+                        q.StartedAt
+                    })
+                    .ToListAsync()
+                : [];
+
+            var accessibleQuizzes = rawCourseQuizzes
+                .Where(q =>
+                {
+                    if (!q.LessonId.HasValue || !lessonToCourseId.TryGetValue(q.LessonId.Value, out var cId))
+                    {
+                        return false;
+                    }
+                    if (!courseById.TryGetValue(cId, out var course))
+                    {
+                        return false;
+                    }
+
+                    if (userId != SeedDataInitializer.DefaultUserId && q.Id == SeedDataInitializer.DefaultQuizId)
+                    {
+                        return false;
+                    }
+
+                    return q.UserId == userId ||
+                           (q.UserId == SeedDataInitializer.DefaultUserId &&
+                            course.Visibility == "public" &&
+                            course.IsPublished &&
+                            (DocumentCourseSyncService.IsPublicCurriculumSlug(course.Slug) ||
+                             course.InstructorId == SeedDataInitializer.DefaultUserId));
+                })
+                .OrderBy(q => q.UserId == userId ? 0 : 1)
+                .ThenByDescending(q => q.StartedAt)
+                .GroupBy(q => (q.LessonId, Title: (q.Title ?? string.Empty).Trim().ToUpperInvariant()))
+                .Select(g => g.First())
+                .ToList();
+
+            var quizzesByCourse = accessibleQuizzes
+                .ToLookup(q => lessonToCourseId[q.LessonId!.Value]);
+            var quizzesByLesson = accessibleQuizzes
+                .ToLookup(q => q.LessonId!.Value);
+
             static bool IsActivityPassedByUser(PracticeActivityStatsRow act, IReadOnlyList<PracticeAttemptStatsRow> courseAttempts)
             {
                 var actIdStr = act.Id.ToString();
@@ -8220,6 +9801,8 @@ public static class SwmsEndpoints
 
                 var courseActivities = activitiesByCourse[course.Id].ToList();
                 var courseAttempts = attemptsByCourse[course.Id].ToList();
+                var courseQuizzes = quizzesByCourse[course.Id].ToList();
+                var quizCount = courseQuizzes.Count;
 
                 int totalActivities;
                 int passedActivities;
@@ -8263,6 +9846,20 @@ public static class SwmsEndpoints
                         lessonPassedCount = lGroups.Count(g => g.Any(a => a.IsPassed));
                     }
 
+                    var lessonQuizzes = quizzesByLesson[lesson.Id]
+                        .OrderBy(q => q.UserId == userId ? 0 : 1)
+                        .ThenBy(q => q.StartedAt)
+                        .ToList();
+
+                    var primaryQuiz = lessonQuizzes.FirstOrDefault(q =>
+                        !string.IsNullOrWhiteSpace(q.Title) &&
+                        !(q.Title.StartsWith("[Đề Chương ", StringComparison.OrdinalIgnoreCase) ||
+                          q.Title.StartsWith("[Đề Tổng Hợp", StringComparison.OrdinalIgnoreCase)))
+                        ?? lessonQuizzes.FirstOrDefault();
+
+                    var hasQuiz = primaryQuiz != null;
+                    var quizId = primaryQuiz?.Id;
+
                     return new
                     {
                         lessonId = lesson.Id,
@@ -8270,7 +9867,9 @@ public static class SwmsEndpoints
                         chapterTitle = item.ChapterTitle,
                         activityCount,
                         passedCount = lessonPassedCount,
-                        attemptCount = lessonAttempts.Count
+                        attemptCount = lessonAttempts.Count,
+                        hasQuiz,
+                        quizId
                     };
                 }).ToList();
 
@@ -8284,6 +9883,7 @@ public static class SwmsEndpoints
                     averageScore = courseAvgScore,
                     attemptCount = courseAttempts.Count,
                     lastAttemptAt,
+                    quizCount,
                     lessons = lessonSummaries
                 };
             }).ToList();
@@ -8301,7 +9901,7 @@ public static class SwmsEndpoints
                 chartData = last7Days,
                 courseSummaries
             };
-            SetCachedEndpointPayload("practice_stats", userId, statsPayload);
+            SetCachedEndpointPayload("practice_stats", userId, statsPayload, startCacheVersion);
             return Results.Ok(statsPayload);
         });
     }

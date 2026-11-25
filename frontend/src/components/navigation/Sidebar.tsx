@@ -19,6 +19,7 @@ import {
   Flame,
   LayoutGrid,
   Target,
+  ClipboardCheck,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { setAccessToken, fetchDashboardCached, fetchPracticeStatsCached } from "@/lib/api-client";
@@ -40,6 +41,8 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   badge?: number | string;
   matchPrefix?: boolean;
+  testId?: string;
+  isActive?: (pathname: string) => boolean;
 }
 
 interface RecentCourse {
@@ -62,9 +65,19 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     href: "/app/practice",
-    label: "Luyện tập",
+    label: "Thực hành Lab",
     icon: Target,
     matchPrefix: true,
+    testId: "sidebar-nav-practice",
+    isActive: (p) => p.startsWith("/app/practice"),
+  },
+  {
+    href: "/app/exams",
+    label: "Giải đề & Thi thử",
+    icon: ClipboardCheck,
+    matchPrefix: true,
+    testId: "sidebar-nav-exams",
+    isActive: (p) => p.startsWith("/app/exams") || p.includes("/quiz"),
   },
   {
     href: "/app/documents",
@@ -164,6 +177,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
   }, [fetchSidebarData]);
 
   const isActive = (item: NavItem) => {
+    if (item.isActive) return item.isActive(pathname);
     if (item.matchPrefix) return pathname.startsWith(item.href);
     return pathname === item.href;
   };
@@ -271,22 +285,28 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              data-testid={`sidebar-nav-${item.href.split("/").pop()}`}
+              data-testid={item.testId ?? `sidebar-nav-${item.href.split("/").pop()}`}
               className={`relative flex items-center gap-2.5 h-8.5 rounded-[8px] text-sm font-medium transition ${
                 collapsed ? "justify-center px-0" : "px-2.5"
               } ${
                 active
-                  ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] font-semibold"
+                  ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] font-semibold ring-1 ring-[#5E51E8]/20 dark:ring-[#818CF8]/30"
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
               }`}
               title={collapsed ? item.label : undefined}
             >
+              {active && !collapsed && (
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[#5E51E8] dark:bg-[#818CF8]"
+                />
+              )}
               <Icon className="w-4 h-4 shrink-0" />
               {!collapsed && (
                 <>
                   <span className="flex-1 truncate">{item.label}</span>
                   {item.badge && (
-                    <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full text-[10px] font-bold bg-[#5E51E8] text-white px-1 shadow-xs">
+                    <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full text-[10px] font-bold bg-[#5E51E8] dark:bg-[#818CF8] text-white dark:text-[#0F0F12] px-1 shadow-xs">
                       {typeof item.badge === "number" && item.badge > 99
                         ? "99+"
                         : item.badge}
@@ -295,7 +315,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 </>
               )}
               {collapsed && item.badge && (
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#5E51E8]" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#5E51E8] dark:bg-[#818CF8]" />
               )}
             </Link>
           );
@@ -312,27 +332,48 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
             {loadingCourses ? (
               <div className="space-y-1.5 px-2.5 py-1">
                 {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className="h-7 w-full rounded-[6px] bg-[var(--surface-elevated)] animate-pulse" />
+                  <div key={i} className="h-8 w-full rounded-[6px] swms-skeleton" />
                 ))}
               </div>
             ) : recentCourses.length > 0 ? (
-              recentCourses.map((course) => (
-                <Link
-                  key={course.id}
-                  href={`/app/courses/${course.id}`}
-                  title={course.title}
-                  className={`flex items-start gap-2.5 min-h-[34px] py-1.5 px-2.5 rounded-[8px] text-sm transition ${
-                    pathname === `/app/courses/${course.id}`
-                      ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] font-medium"
-                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
-                  }`}
-                >
-                  <BookOpen className="w-3.5 h-3.5 shrink-0 opacity-60 mt-0.5" />
-                  <span className="flex-1 line-clamp-2 leading-snug text-[12px]">
-                    {course.title}
-                  </span>
-                </Link>
-              ))
+              recentCourses.map((course) => {
+                const isCourseActive = pathname === `/app/courses/${course.id}`;
+                const clampedProgress = Math.max(0, Math.min(100, Math.round(course.progress || 0)));
+                return (
+                  <Link
+                    key={course.id}
+                    href={`/app/courses/${course.id}`}
+                    title={`${course.title} (${clampedProgress}%)`}
+                    className={`relative flex items-start gap-2.5 min-h-[38px] py-1.5 px-2.5 rounded-[8px] text-sm transition ${
+                      isCourseActive
+                        ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] font-medium ring-1 ring-[#5E51E8]/20 dark:ring-[#818CF8]/30"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
+                    }`}
+                  >
+                    <BookOpen className="w-3.5 h-3.5 shrink-0 opacity-60 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-1.5">
+                        <span className="line-clamp-2 leading-snug text-[12px]">
+                          {course.title}
+                        </span>
+                        <span className="text-[10px] font-medium text-[var(--text-tertiary)] shrink-0 tabular-nums mt-0.5">
+                          {clampedProgress}%
+                        </span>
+                      </div>
+                      <div className="mt-1 h-1 w-full rounded-full bg-[var(--surface-elevated)] overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            clampedProgress === 100
+                              ? "bg-emerald-500"
+                              : "bg-[#5E51E8] dark:bg-[#818CF8]"
+                          }`}
+                          style={{ width: `${clampedProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })
             ) : null}
           </div>
         )}
@@ -382,11 +423,21 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         {/* Settings */}
         <Link
           href="/app/settings"
-          className={`flex items-center gap-2.5 h-8 rounded-[8px] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition ${
+          className={`relative flex items-center gap-2.5 h-8 rounded-[8px] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition ${
             collapsed ? "justify-center px-0" : "px-2.5"
-          } ${pathname === "/app/settings" ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC]" : ""}`}
+          } ${
+            pathname === "/app/settings"
+              ? "bg-[#EEF0FD] text-[#4F46E5] dark:bg-[#1E1B4B] dark:text-[#A5B4FC] font-semibold ring-1 ring-[#5E51E8]/20 dark:ring-[#818CF8]/30"
+              : ""
+          }`}
           title={collapsed ? "Cài đặt" : undefined}
         >
+          {pathname === "/app/settings" && !collapsed && (
+            <span
+              aria-hidden="true"
+              className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[#5E51E8] dark:bg-[#818CF8]"
+            />
+          )}
           <Settings className="w-4 h-4 shrink-0" />
           {!collapsed && <span>Cài đặt</span>}
         </Link>
@@ -419,14 +470,24 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           </button>
 
           {/* Profile popover */}
-          {profileOpen && !collapsed && (
+          {profileOpen && (
             <div
-              className="absolute bottom-full left-0 mb-1 w-full rounded-[12px] border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-2 p-2 z-50"
+              className={`absolute rounded-[12px] border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-2 p-2 z-50 swms-animate-scale-in ${
+                collapsed
+                  ? "left-full bottom-0 ml-2 w-56"
+                  : "bottom-full left-0 mb-1 w-full"
+              }`}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="px-2 py-1.5 mb-1">
-                <div className="text-sm font-medium text-[var(--text-primary)]">{userName}</div>
-                <div className="text-xs text-[var(--text-tertiary)]">{userEmail}</div>
+                <div className="text-sm font-medium text-[var(--text-primary)] truncate">
+                  {userName}
+                </div>
+                {userEmail && (
+                  <div className="text-xs text-[var(--text-tertiary)] truncate">
+                    {userEmail}
+                  </div>
+                )}
               </div>
               <div className="border-t border-[var(--border-calm)] pt-1">
                 <button
@@ -450,7 +511,7 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                   }}
                   className="flex items-center gap-2 w-full px-2 py-1.5 rounded-[8px] text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition cursor-pointer"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
+                  <LogOut className="w-3.5 h-3.5 shrink-0" />
                   <span>Đăng xuất</span>
                 </button>
               </div>

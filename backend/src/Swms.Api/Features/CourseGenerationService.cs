@@ -392,7 +392,7 @@ public static class CourseGenerationService
         string? ContentMarkdown,
         DateTimeOffset UpdatedAt,
         bool IsPublished);
-    private sealed record QuizSummaryRow(Guid Id, Guid? DocumentId, Guid? LessonId, DateTimeOffset StartedAt);
+    private sealed record QuizSummaryRow(Guid Id, Guid UserId, string Title, Guid? DocumentId, Guid? LessonId, DateTimeOffset StartedAt);
     private sealed record FlashcardRefRow(Guid Id, Guid UserId, Guid? DocumentId, Guid? LessonId);
     private sealed record NotebookRefRow(Guid Id, Guid? PrimarySourceDocumentId, Guid? PrimarySourceLessonId, DateTimeOffset UpdatedAt);
 
@@ -429,9 +429,10 @@ public static class CourseGenerationService
         }
 
         string? summaryCacheKey = null;
+        long cacheVer = 0;
         if (!IsRunningUnderTests && !includeLessonMarkdown && singleCourseDocOverride == null)
         {
-            var cacheVer = Interlocked.Read(ref _cacheVersion);
+            cacheVer = Interlocked.Read(ref _cacheVersion);
             var courseKeyPart = string.Join(',', courses.Select(c => $"{c.Id:N}:{c.UpdatedAt.UtcTicks}"));
             summaryCacheKey = $"{userId?.ToString("N") ?? "anon"}:{cacheVer}:{courseKeyPart}";
             if (CourseSummaryCache.TryGetValue(summaryCacheKey, out var cachedEntry) &&
@@ -617,15 +618,39 @@ public static class CourseGenerationService
             ? new HashSet<Guid> { userId.Value }
             : instructorIds;
 
-        var completedPairs = progressUserIds.Count > 0
-            ? (await db.UserLessonProgresses
+        var userProgressRows = progressUserIds.Count > 0
+            ? await db.UserLessonProgresses
                 .AsNoTracking()
-                .Where(p => p.IsCompleted && progressUserIds.Contains(p.UserId))
-                .Select(p => new { p.UserId, p.LessonId })
-                .ToListAsync())
-                .Select(x => (x.UserId, x.LessonId))
-                .ToHashSet()
-            : new HashSet<(Guid, Guid)>();
+                .Where(p => progressUserIds.Contains(p.UserId))
+                .Select(p => new { p.UserId, p.LessonId, p.IsCompleted, p.IsBookmarked, p.NeedsReview })
+                .ToListAsync()
+            : [];
+
+        var completedPairs = userProgressRows
+            .Where(p => p.IsCompleted)
+            .Select(x => (x.UserId, x.LessonId))
+            .ToHashSet();
+
+        var bookmarkedLessonSet = userId.HasValue
+            ? userProgressRows.Where(p => p.UserId == userId.Value && p.IsBookmarked).Select(p => p.LessonId).ToHashSet()
+            : new HashSet<Guid>();
+
+        var needsReviewLessonSet = userId.HasValue
+            ? userProgressRows.Where(p => p.UserId == userId.Value && p.NeedsReview).Select(p => p.LessonId).ToHashSet()
+            : new HashSet<Guid>();
+
+        var enrollmentByCourseId = new Dictionary<Guid, CourseEnrollment>();
+        if (userId.HasValue)
+        {
+            var userEnrollments = await db.CourseEnrollments
+                .AsNoTracking()
+                .Where(e => e.UserId == userId.Value && courseIds.Contains(e.CourseId))
+                .ToListAsync();
+            foreach (var ue in userEnrollments)
+            {
+                enrollmentByCourseId.TryAdd(ue.CourseId, ue);
+            }
+        }
 
         var quizById = new Dictionary<Guid, QuizSummaryRow>();
         var hasResolvedDocIds = resolvedDocIds.Count > 0;
@@ -634,9 +659,13 @@ public static class CourseGenerationService
         {
             var quizRows = await db.PracticeQuizzes
                 .AsNoTracking()
-                .Where(q => (hasResolvedDocIds && q.DocumentId.HasValue && resolvedDocIds.Contains(q.DocumentId.Value)) ||
-                            (hasCourseLessonIds && q.LessonId.HasValue && allCourseLessonIds.Contains(q.LessonId.Value)))
-                .Select(q => new QuizSummaryRow(q.Id, q.DocumentId, q.LessonId, q.StartedAt))
+                .Where(q =>
+                    ((hasResolvedDocIds && q.DocumentId.HasValue && resolvedDocIds.Contains(q.DocumentId.Value)) ||
+                     (hasCourseLessonIds && q.LessonId.HasValue && allCourseLessonIds.Contains(q.LessonId.Value))) &&
+                    (userId.HasValue
+                        ? (q.UserId == userId.Value || q.UserId == SeedDataInitializer.DefaultUserId)
+                        : (instructorIds.Contains(q.UserId) || q.UserId == SeedDataInitializer.DefaultUserId)))
+                .Select(q => new QuizSummaryRow(q.Id, q.UserId, q.Title, q.DocumentId, q.LessonId, q.StartedAt))
                 .ToListAsync();
             foreach (var q in quizRows) quizById.TryAdd(q.Id, q);
         }
@@ -903,11 +932,44 @@ public static class CourseGenerationService
             {
                 foreach (var q in quizzesByLesson[l.Id]) matchedQuizMap.TryAdd(q.Id, q);
             }
-            var matchingQuizzes = matchedQuizMap.Values.OrderByDescending(q => q.StartedAt).ToList();
-            var quiz = matchingQuizzes.FirstOrDefault();
+
+            static bool IsSyntheticQuizTitle(string? t) =>
+                !string.IsNullOrWhiteSpace(t) &&
+                (t.StartsWith("[Đề Chương ", StringComparison.OrdinalIgnoreCase) ||
+                 t.StartsWith("[Đề Tổng Hợp", StringComparison.OrdinalIgnoreCase) ||
+                 t.StartsWith("[Đề Tự Tạo]", StringComparison.OrdinalIgnoreCase));
+
+            var orderedCandidateQuizzes = matchedQuizMap.Values
+                .Where(q => !userId.HasValue || userId.Value == SeedDataInitializer.DefaultUserId || q.Id != SeedDataInitializer.DefaultQuizId)
+                .OrderBy(q => userId.HasValue && q.UserId == userId.Value ? 0 : 1)
+                .ThenByDescending(q => q.StartedAt)
+                .ToList();
+
+            var seenQuizKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var matchingQuizzes = new List<QuizSummaryRow>();
+            foreach (var q in orderedCandidateQuizzes)
+            {
+                var normTitle = (q.Title ?? string.Empty).Trim();
+                string dedupKey = q.LessonId.HasValue
+                    ? $"L:{q.LessonId.Value:N}|{normTitle}"
+                    : q.DocumentId.HasValue
+                        ? $"D:{q.DocumentId.Value:N}|{normTitle}"
+                        : $"I:{q.Id:N}";
+                if (seenQuizKeys.Add(dedupKey))
+                {
+                    matchingQuizzes.Add(q);
+                }
+            }
+
+            var quiz = matchingQuizzes
+                .OrderByDescending(q => q.StartedAt)
+                .FirstOrDefault();
 
             var lessonQuizMap = new Dictionary<Guid, Guid>();
-            foreach (var q in matchingQuizzes)
+            foreach (var q in matchingQuizzes
+                .OrderBy(q => IsSyntheticQuizTitle(q.Title) ? 1 : 0)
+                .ThenBy(q => userId.HasValue && q.UserId == userId.Value ? 0 : 1)
+                .ThenByDescending(q => q.StartedAt))
             {
                 if (q.LessonId.HasValue)
                 {
@@ -950,6 +1012,8 @@ public static class CourseGenerationService
                         videoUrl = l.VideoUrl,
                         estimatedMinutes = l.EstimatedMinutes,
                         isCompleted = completedLessonSet.Contains(l.Id),
+                        isBookmarked = bookmarkedLessonSet.Contains(l.Id),
+                        needsReview = needsReviewLessonSet.Contains(l.Id),
                         practiceActivityCount = lessonActs.Count,
                         practicePassedCount = lessonPassedActs,
                         contentMarkdown = includeLessonMarkdown ? l.ContentMarkdown : null,
@@ -1046,6 +1110,18 @@ public static class CourseGenerationService
                 ? 0
                 : userCourseCardMap.Values.Count(c => c.Reps > 0 && c.State >= 2);
 
+            var curatedMeta = CuratedCourseMetadataCatalog.ResolveMetadata(course);
+            enrollmentByCourseId.TryGetValue(course.Id, out var enrollment);
+            var isSystemCourse = DocumentCourseSyncService.IsProtectedSystemCourse(course);
+            var isOwnerOrSeeded = userId.HasValue && (course.InstructorId == userId.Value || (userId.Value == SeedDataInitializer.DefaultUserId && course.InstructorId == SeedDataInitializer.DefaultUserId));
+            var canDelete = !isSystemCourse && isOwnerOrSeeded;
+            var isPinned = enrollment?.IsPinned ?? false;
+            var isArchived = enrollment?.IsArchived ?? course.IsArchived;
+            var dailyLessonGoal = enrollment?.DailyLessonGoal > 0 ? enrollment.DailyLessonGoal : 2;
+            var targetCompletionDate = enrollment?.TargetCompletionDate;
+            var bookmarkedLessonCount = lessons.Count(l => bookmarkedLessonSet.Contains(l.Id));
+            var needsReviewLessonCount = lessons.Count(l => needsReviewLessonSet.Contains(l.Id));
+
             results.Add(new
             {
                 id = course.Id,
@@ -1055,8 +1131,22 @@ public static class CourseGenerationService
                 description = course.Description,
                 visibility = course.Visibility,
                 isPublished = course.IsPublished,
+                isPinned,
+                isArchived,
+                dailyLessonGoal,
+                targetCompletionDate,
+                isSystemCourse,
+                canDelete,
                 sourceFolder = resolvedSourceFolder,
-                category = resolvedCategory,
+                category = curatedMeta.Category,
+                level = curatedMeta.Level,
+                learningOutcomes = curatedMeta.LearningOutcomes,
+                prerequisites = curatedMeta.Prerequisites,
+                targetAudience = curatedMeta.TargetAudience,
+                labLabel = curatedMeta.LabLabel,
+                hasAudio = curatedMeta.HasAudio,
+                bookmarkedLessonCount,
+                needsReviewLessonCount,
                 sourceDocumentId = sourceDocId,
                 totalPages = doc?.TotalPages ?? 1,
                 chapterCount = chapters.Count,
@@ -1093,7 +1183,7 @@ public static class CourseGenerationService
             });
         }
 
-        if (summaryCacheKey != null)
+        if (summaryCacheKey != null && Interlocked.Read(ref _cacheVersion) == cacheVer)
         {
             if (CourseSummaryCache.Count > 512)
             {
@@ -1588,7 +1678,7 @@ public static class CourseGenerationService
         };
     }
 
-    private static string BuildCourseTagName(string cleanTitle, Guid docId)
+    public static string BuildCourseTagName(string cleanTitle, Guid docId)
     {
         var normalized = VietnameseTextNormalizer.Unaccent(cleanTitle);
         var words = Regex.Replace(normalized, @"[^a-zA-Z0-9\s]", " ")
@@ -1597,7 +1687,8 @@ public static class CourseGenerationService
         var slugPart = string.Join("-", words);
         if (string.IsNullOrWhiteSpace(slugPart)) slugPart = "tai-lieu";
         if (slugPart.Length > 28) slugPart = slugPart[..28].TrimEnd('-');
-        return $"KH-{slugPart}-{docId.ToString("N")[..4]}";
+        var tagName = $"KH-{slugPart}-{docId.ToString("N")[..4]}";
+        return tagName.Length > 50 ? tagName[..50] : tagName;
     }
 
     private static string CleanDocumentTitle(string? rawTitle)

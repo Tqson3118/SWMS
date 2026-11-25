@@ -258,9 +258,11 @@ export function ReviewAndPracticeView({
       const targetCourseId =
         courseIdOverride !== undefined ? courseIdOverride : selectedCourseFilterId;
       const headers = getClientRequestHeaders();
+      const isValidGuid = (val?: string | null): boolean =>
+        Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
       const [allResp, courseResp] = await Promise.all([
         fetch("/api/v1/practice-quizzes", { headers }),
-        targetCourseId && targetCourseId !== "all"
+        targetCourseId && targetCourseId !== "all" && isValidGuid(targetCourseId)
           ? fetch(
               `/api/v1/practice-quizzes?courseId=${encodeURIComponent(targetCourseId)}`,
               { headers }
@@ -423,12 +425,14 @@ export function ReviewAndPracticeView({
     const controller = new AbortController();
     dueQueueAbortRef.current = controller;
     const reqSeq = ++dueQueueReqSeqRef.current;
+    const isValidGuid = (val?: string | null): boolean =>
+      Boolean(val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val));
     const params = new URLSearchParams({ includeAll: "true" });
-    if (tagId) params.set("tagId", tagId);
-    if (courseFilterId && courseFilterId !== "all") {
+    if (tagId && isValidGuid(tagId)) params.set("tagId", tagId);
+    if (courseFilterId && courseFilterId !== "all" && isValidGuid(courseFilterId)) {
       params.set("courseId", courseFilterId);
     }
-    if (lessonOnly && activeLessonId) {
+    if (lessonOnly && activeLessonId && isValidGuid(activeLessonId)) {
       params.set("lessonId", activeLessonId);
     }
 

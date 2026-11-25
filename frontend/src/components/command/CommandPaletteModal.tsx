@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { deduplicateCourses, type CourseLike } from "@/lib/course-helpers";
@@ -96,6 +96,7 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
   const [quickCaptureText, setQuickCaptureText] = useState("");
   const [captureSavedMsg, setCaptureSavedMsg] = useState<string | null>(null);
   const [captureErrorMsg, setCaptureErrorMsg] = useState<string | null>(null);
+  const resultRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -197,6 +198,14 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
       active = false;
     };
   }, [query, commandPaletteOpen]);
+
+  useEffect(() => {
+    if (!commandPaletteOpen) return;
+    const el = resultRefs.current[selectedIndex];
+    if (el && typeof el.scrollIntoView === "function") {
+      el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }, [selectedIndex, commandPaletteOpen, results.length]);
 
   if (!commandPaletteOpen) return null;
 
@@ -311,11 +320,11 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
       onClick={() => setCommandPaletteOpen(false)}
     >
       <div
-        className="w-full max-w-2xl rounded-xl bg-bg-primary border border-border shadow-xl overflow-hidden"
+        className="w-full max-w-2xl rounded-xl bg-[var(--surface-card)] border border-[var(--border-calm)] shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-3.5 border-b border-border flex items-center gap-3">
-          <Search className="w-4 h-4 text-text-tertiary shrink-0" />
+        <div className="p-3.5 border-b border-[var(--border-calm)] flex items-center gap-3">
+          <Search className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" />
           <input
             data-testid="command-palette-input"
             type="text"
@@ -324,20 +333,20 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleInputKeyDown}
             placeholder="Tìm nhanh khóa học, bài giảng, tài liệu PDF, sổ tay hoặc thẻ ghi nhớ..."
-            className="w-full bg-transparent text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none"
+            className="w-full bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none"
           />
           <button
             type="button"
             onClick={() => setCommandPaletteOpen(false)}
-            className="px-2 py-0.5 text-xs rounded border border-border bg-bg-secondary text-text-tertiary hover:text-text-primary cursor-pointer"
+            className="px-2 py-0.5 text-xs rounded border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer transition"
           >
             Esc
           </button>
         </div>
 
         {/* Quick Capture Bar */}
-        <div className="px-4 py-2.5 bg-accent-subtle/60 border-b border-border flex items-center gap-2">
-          <span className="text-xs font-semibold text-accent shrink-0 flex items-center gap-1">
+        <div className="px-4 py-2.5 bg-[var(--surface-elevated)]/80 border-b border-[var(--border-calm)] flex items-center gap-2">
+          <span className="text-xs font-semibold text-[#5E51E8] dark:text-[#818CF8] shrink-0 flex items-center gap-1">
             <Zap className="w-3.5 h-3.5" />
             <span>Tạo thẻ nhanh:</span>
           </span>
@@ -353,13 +362,13 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
               }
             }}
             placeholder="Nhập ý cần nhớ để đưa ngay vào mục Ôn tập..."
-            className="flex-1 text-xs bg-bg-primary text-text-primary placeholder:text-text-tertiary px-2.5 py-1.5 rounded-md border border-border focus:outline-none focus:border-accent"
+            className="flex-1 text-xs bg-[var(--surface-card)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] px-2.5 py-1.5 rounded-md border border-[var(--border-calm)] focus:outline-none focus:border-[#5E51E8] dark:focus:border-[#818CF8]"
           />
           <button
             type="button"
             data-testid="quick-capture-save-btn"
             onClick={() => void handleQuickCaptureFlashcard()}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-accent hover:bg-accent-hover text-white text-xs font-medium shrink-0 cursor-pointer transition"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-[#5E51E8] hover:bg-[#4F46E5] dark:bg-[#818CF8] dark:hover:bg-[#6366F1] text-white dark:text-[#0F0F12] text-xs font-medium shrink-0 cursor-pointer transition"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Lưu thẻ</span>
@@ -383,11 +392,11 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
           </div>
         )}
 
-        <div className="max-h-80 overflow-y-auto divide-y divide-border-subtle">
+        <div className="max-h-80 overflow-y-auto divide-y divide-[var(--border-calm)]/60">
           {loading ? (
-            <div className="p-6 text-center text-xs text-text-tertiary">Đang tìm kiếm...</div>
+            <div className="p-6 text-center text-xs text-[var(--text-tertiary)]">Đang tìm kiếm...</div>
           ) : results.length === 0 ? (
-            <div className="p-6 text-center text-xs text-text-tertiary">
+            <div className="p-6 text-center text-xs text-[var(--text-tertiary)]">
               Không tìm thấy kết quả phù hợp cho &ldquo;{query}&rdquo;.
             </div>
           ) : (
@@ -396,12 +405,17 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
               return (
                 <button
                   key={`${item.type}-${item.id}`}
+                  ref={(el) => {
+                    resultRefs.current[idx] = el;
+                  }}
                   type="button"
                   data-testid={`cmd-result-${item.type}`}
                   onMouseEnter={() => setSelectedIndex(idx)}
                   onClick={() => handleSelectItem(item)}
                   className={`w-full text-left px-4 py-3 transition flex items-center justify-between gap-3 cursor-pointer ${
-                    active ? "bg-accent-subtle/60" : "hover:bg-bg-secondary/70"
+                    active
+                      ? "bg-[#EEF0FD]/80 dark:bg-[#1E1B4B]/70"
+                      : "hover:bg-[var(--surface-elevated)]/70"
                   }`}
                 >
                   <div className="flex items-start gap-2.5 min-w-0">
@@ -409,20 +423,20 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
                       <TypeIcon type={item.type} />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs font-semibold text-text-primary truncate">
+                      <div className="text-xs font-semibold text-[var(--text-primary)] truncate">
                         {item.title}
                       </div>
-                      <div className="text-[11px] text-accent font-medium truncate">
+                      <div className="text-[11px] text-[#5E51E8] dark:text-[#818CF8] font-medium truncate">
                         {item.subtitle}
                       </div>
                       {item.snippet && (
-                        <div className="text-[11px] text-text-tertiary truncate mt-0.5">
+                        <div className="text-[11px] text-[var(--text-tertiary)] truncate mt-0.5">
                           {item.snippet}
                         </div>
                       )}
                     </div>
                   </div>
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-md border border-border bg-bg-secondary text-text-secondary shrink-0">
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-md border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-[var(--text-secondary)] shrink-0">
                     {TYPE_LABELS[item.type] ?? item.type}
                   </span>
                 </button>
@@ -431,9 +445,9 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
           )}
         </div>
 
-        <div className="px-4 py-2 bg-bg-secondary border-t border-border flex flex-wrap items-center justify-between gap-2 text-[11px] text-text-tertiary">
+        <div className="px-4 py-2 bg-[var(--surface-elevated)] border-t border-[var(--border-calm)] flex flex-wrap items-center justify-between gap-2 text-[11px] text-[var(--text-tertiary)]">
           <span>Hỗ trợ tìm tiếng Việt có dấu &amp; không dấu (VD: &ldquo;tai chinh&rdquo;, &ldquo;ielts&rdquo;)</span>
-          <span>↑↓ Chọn · ↵ Mở · Esc Đóng</span>
+          <span className="font-medium text-[var(--text-secondary)]">↑↓ Di chuyển · Enter Mở · Esc Đóng</span>
         </div>
       </div>
     </div>

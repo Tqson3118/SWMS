@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Swms.Api.Domain.Entities;
 using Swms.Api.Infrastructure.Database;
+using Swms.Api.Infrastructure.Database.Seed;
 using Swms.Api.Infrastructure.Security;
 
 namespace Swms.Api.Features;
@@ -32,6 +34,79 @@ public sealed record DocumentCourseSyncReport(
 public static class DocumentCourseSyncService
 {
     public const string DefaultDocumentRootPath = @"D:\03_Study\Studxy\document";
+    public const string DefaultStudxyBootcampRootPath = @"D:\03_Study\Studxy\course";
+    public const string StudxyBootcampSlug = "doc-course-studxy-fullstack-bootcamp";
+    public const string StudxyBootcampSourceFolder = "studxy-bootcamp";
+
+    public static readonly HashSet<string> RetiredCourseSlugs = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "document-course-dotnet-react-roadmap",
+        "document-course-fullstack-csharp-react-refresh",
+        "lap-trinh-javascript-tu-duy-giai-quyet-van-de",
+        "dau-tu-quan-tri-danh-muc-thuc-chien",
+        "tam-ly-hoc-ung-dung-khoa-hoc-tri-nho"
+    };
+
+    public static readonly Dictionary<string, string> RetiredCourseRedirectMap = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["document-course-dotnet-react-roadmap"] = "doc-course-studxy-fullstack-bootcamp",
+        ["document-course-fullstack-csharp-react-refresh"] = "doc-course-studxy-fullstack-bootcamp",
+        ["lap-trinh-javascript-tu-duy-giai-quyet-van-de"] = "doc-course-studxy-fullstack-bootcamp",
+        ["dau-tu-quan-tri-danh-muc-thuc-chien"] = "document-course-investing",
+        ["tam-ly-hoc-ung-dung-khoa-hoc-tri-nho"] = "document-course-psychology"
+    };
+
+    public static Guid CreateDeterministicGuid(string key)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(key));
+        Span<byte> guidBytes = stackalloc byte[16];
+        hash.AsSpan(0, 16).CopyTo(guidBytes);
+        return new Guid(guidBytes);
+    }
+
+    public static Guid CreateDeterministicGuid(string type, string name) =>
+        CreateDeterministicGuid($"{type}:{name}".ToLowerInvariant());
+
+    public static readonly Dictionary<Guid, string> RetiredCourseIdRedirectMap = new()
+    {
+        [SeedDataInitializer.CodingCourseId] = "doc-course-studxy-fullstack-bootcamp",
+        [SeedDataInitializer.InvestingCourseId] = "document-course-investing",
+        [SeedDataInitializer.PsychologyCourseId] = "document-course-psychology",
+        [CreateDeterministicGuid("course", "document-course-dotnet-react-roadmap")] = "doc-course-studxy-fullstack-bootcamp",
+        [CreateDeterministicGuid("course", "document-course-fullstack-csharp-react-refresh")] = "doc-course-studxy-fullstack-bootcamp",
+        [CreateDeterministicGuid("swms:course:document-course-dotnet-react-roadmap")] = "doc-course-studxy-fullstack-bootcamp",
+        [CreateDeterministicGuid("swms:course:document-course-fullstack-csharp-react-refresh")] = "doc-course-studxy-fullstack-bootcamp"
+    };
+
+    public static bool IsRetiredCourseSlug(string? slug) =>
+        !string.IsNullOrWhiteSpace(slug) && RetiredCourseSlugs.Contains(slug);
+
+    public static string? GetRetiredRedirectSlug(string? slug) =>
+        !string.IsNullOrWhiteSpace(slug) && RetiredCourseRedirectMap.TryGetValue(slug, out var redirect) ? redirect : null;
+
+    public static string? GetRetiredRedirectSlugById(Guid courseId) =>
+        RetiredCourseIdRedirectMap.TryGetValue(courseId, out var redirect) ? redirect : null;
+
+    public static bool IsProtectedSystemCourse(Course course)
+    {
+        if (course == null) return false;
+        if (IsRetiredCourseSlug(course.Slug)) return false;
+        if (IsPublicCurriculumSlug(course.Slug)) return true;
+        return course.Id == SeedDataInitializer.AcademicCourseId ||
+               course.Id == SeedDataInitializer.EnglishCourseId ||
+               course.Id == SeedDataInitializer.JapaneseCourseId ||
+               course.Id == SeedDataInitializer.ChineseCourseId ||
+               string.Equals(course.Slug, "he-dieu-hanh-bo-nho-ao", StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(course.Slug, "tieng-anh-giao-tiep-thuc-chien-a2-b1", StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(course.Slug, "tieng-nhat-so-cap-n5", StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(course.Slug, "tieng-trung-so-cap-hsk1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsPublicCurriculumSlug(string? slug) =>
+        !string.IsNullOrWhiteSpace(slug) &&
+        !IsRetiredCourseSlug(slug) &&
+        (slug.StartsWith("document-course-", StringComparison.OrdinalIgnoreCase) ||
+         slug.Equals(StudxyBootcampSlug, StringComparison.OrdinalIgnoreCase));
     private const int DefaultChunkLimit = 300;
 
     private static readonly SemaphoreSlim SyncLock = new(1, 1);
@@ -46,20 +121,6 @@ public static class DocumentCourseSyncService
 
     public static readonly IReadOnlyList<CourseDefinition> CatalogDefinitions =
     [
-        new(
-            "DotNet-React-Roadmap",
-            "document-course-dotnet-react-roadmap",
-            ".NET & React Full-Stack Roadmap",
-            "Lộ trình 14 chặng từ C# nền tảng, SQL Server, ASP.NET Core Web API, React TypeScript đến kiến trúc, bảo mật, kiểm thử và triển khai.",
-            "Lập trình Full-Stack",
-            1),
-        new(
-            "FullStack-CSharp-React-Refresh",
-            "document-course-fullstack-csharp-react-refresh",
-            "FullStack C# & React Refresh (28 Tuần)",
-            "Hệ thống 28 tuần ôn tập chuyên sâu HTML/CSS/JS, C#, EF Core, ASP.NET Core và React kèm quiz kiểm tra và flashcard ghi nhớ.",
-            "Lập trình Full-Stack",
-            2),
         new(
             "IELTS",
             "document-course-ielts",
@@ -125,6 +186,12 @@ public static class DocumentCourseSyncService
     private static readonly HashSet<string> AllowedAssetExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".wav", ".mp3", ".ogg", ".png", ".jpg", ".jpeg", ".svg", ".webp", ".html", ".md", ".txt"
+    };
+
+    public static readonly HashSet<string> AllowedLegacyAssetFolders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "DotNet-React-Roadmap",
+        "FullStack-CSharp-React-Refresh"
     };
 
     private static readonly Dictionary<string, string> ModuleTitleOverrides = new(StringComparer.OrdinalIgnoreCase)
@@ -197,8 +264,22 @@ public static class DocumentCourseSyncService
         return DefaultDocumentRootPath;
     }
 
+    public static string ResolveBootcampRootPath(IConfiguration? config = null)
+    {
+        var configured = config?["DocumentLibrary:BootcampRootPath"];
+        if (!string.IsNullOrWhiteSpace(configured))
+        {
+            return configured.Trim();
+        }
+        return DefaultStudxyBootcampRootPath;
+    }
+
     public static int GetSortPriority(string? courseSlug)
     {
+        if (!string.IsNullOrWhiteSpace(courseSlug) && courseSlug.Equals(StudxyBootcampSlug, StringComparison.OrdinalIgnoreCase))
+        {
+            return 0;
+        }
         if (!string.IsNullOrWhiteSpace(courseSlug) && DefinitionBySlug.TryGetValue(courseSlug, out var def))
         {
             return def.SortPriority;
@@ -210,6 +291,10 @@ public static class DocumentCourseSyncService
     {
         if (!string.IsNullOrWhiteSpace(courseSlug))
         {
+            if (courseSlug.Equals(StudxyBootcampSlug, StringComparison.OrdinalIgnoreCase))
+            {
+                return (StudxyBootcampSourceFolder, "Lập trình Full-Stack");
+            }
             if (DefinitionBySlug.TryGetValue(courseSlug, out var def))
             {
                 return (def.SourceFolder, def.Category);
@@ -299,11 +384,12 @@ public static class DocumentCourseSyncService
         failureStatusCode = StatusCodes.Status400BadRequest;
         failureMessage = null;
 
+        bool isBootcampFolder = courseFolder.Equals(StudxyBootcampSourceFolder, StringComparison.OrdinalIgnoreCase);
         if (string.IsNullOrWhiteSpace(courseFolder) ||
             courseFolder.Contains("..", StringComparison.Ordinal) ||
             courseFolder.Contains('/') ||
             courseFolder.Contains('\\') ||
-            !DefinitionByFolder.ContainsKey(courseFolder))
+            (!isBootcampFolder && !DefinitionByFolder.ContainsKey(courseFolder) && !AllowedLegacyAssetFolders.Contains(courseFolder)))
         {
             failureStatusCode = StatusCodes.Status403Forbidden;
             failureMessage = "Thư mục khóa học không hợp lệ hoặc không được phép truy cập.";
@@ -327,7 +413,28 @@ public static class DocumentCourseSyncService
         }
 
         var fullRoot = Path.GetFullPath(rootPath);
-        var courseRoot = Path.GetFullPath(Path.Combine(fullRoot, courseFolder));
+        string courseRoot;
+        if (isBootcampFolder)
+        {
+            var subBootcamp = Path.GetFullPath(Path.Combine(fullRoot, courseFolder));
+            if (Directory.Exists(subBootcamp))
+            {
+                courseRoot = subBootcamp;
+            }
+            else if (Directory.Exists(Path.Combine(fullRoot, "phase-0-orientation")) ||
+                     File.Exists(Path.Combine(fullRoot, normalizedRelativePath.Replace('/', Path.DirectorySeparatorChar))))
+            {
+                courseRoot = fullRoot;
+            }
+            else
+            {
+                courseRoot = Path.GetFullPath(DefaultStudxyBootcampRootPath);
+            }
+        }
+        else
+        {
+            courseRoot = Path.GetFullPath(Path.Combine(fullRoot, courseFolder));
+        }
         var candidate = Path.GetFullPath(Path.Combine(courseRoot, normalizedRelativePath.Replace('/', Path.DirectorySeparatorChar)));
         var courseRootPrefix = courseRoot.EndsWith(Path.DirectorySeparatorChar)
             ? courseRoot
@@ -382,13 +489,25 @@ public static class DocumentCourseSyncService
         }
 
         raw = Uri.UnescapeDataString(raw).Trim().Replace('\\', '/');
+        bool extractedFromCourseFileUri = false;
+        if (raw.Contains("file:/", StringComparison.OrdinalIgnoreCase))
+        {
+            var courseMarkerIdx = raw.IndexOf("/course/", StringComparison.OrdinalIgnoreCase);
+            if (courseMarkerIdx >= 0)
+            {
+                raw = raw[(courseMarkerIdx + "/course/".Length)..];
+                extractedFromCourseFileUri = true;
+            }
+        }
+
         if (string.IsNullOrWhiteSpace(raw) || raw.Contains('\0') || raw.Contains(':'))
         {
             return false;
         }
 
         var segments = new List<string>();
-        bool isRelativeToCurrent = raw.StartsWith("./", StringComparison.Ordinal) || raw.StartsWith("../", StringComparison.Ordinal);
+        bool isRelativeToCurrent = !extractedFromCourseFileUri &&
+            (raw.StartsWith("./", StringComparison.Ordinal) || raw.StartsWith("../", StringComparison.Ordinal));
         if (isRelativeToCurrent && !string.IsNullOrWhiteSpace(currentLessonRelativePath))
         {
             var baseDir = currentLessonRelativePath.Replace('\\', '/');
@@ -502,12 +621,13 @@ public static class DocumentCourseSyncService
 
                 foreach (var chBp in bp.Chapters)
                 {
-                    if (!chapterMapByTitle.TryGetValue(chBp.Title, out var chapter))
+                    var chTitle = Truncate(chBp.Title, 250);
+                    if (!chapterMapByTitle.TryGetValue(chTitle, out var chapter) && !chapterMapByTitle.TryGetValue(chBp.Title, out chapter))
                     {
                         if (chapterMapByOrder.TryGetValue(chBp.SortOrder, out var byOrder))
                         {
                             chapter = byOrder;
-                            chapter.Title = chBp.Title;
+                            chapter.Title = chTitle;
                             chapter.UpdatedAt = now;
                         }
                         else
@@ -516,7 +636,7 @@ public static class DocumentCourseSyncService
                             {
                                 Id = Guid.NewGuid(),
                                 CourseId = course.Id,
-                                Title = chBp.Title,
+                                Title = chTitle,
                                 SortOrder = chBp.SortOrder,
                                 CreatedAt = now,
                                 UpdatedAt = now
@@ -526,6 +646,17 @@ public static class DocumentCourseSyncService
                         }
                         chapterMapByTitle[chapter.Title] = chapter;
                         chapterMapByOrder[chapter.SortOrder] = chapter;
+                    }
+                    else if (chapter != null && (!string.Equals(chapter.Title, chTitle, StringComparison.Ordinal) || chapter.SortOrder != chBp.SortOrder))
+                    {
+                        chapter.Title = chTitle;
+                        chapter.SortOrder = chBp.SortOrder;
+                        chapter.UpdatedAt = now;
+                    }
+
+                    if (chapter == null)
+                    {
+                        continue;
                     }
 
                     foreach (var lBp in chBp.Lessons)
@@ -910,6 +1041,11 @@ public static class DocumentCourseSyncService
 
             await db.SaveChangesAsync(ct);
 
+            // WP-C2: Seed migrated write-in labs, foreign language flashcards & curated metadata defaults
+            await WriteInPracticeContent.EnsureMigratedWriteInLabsSeededAsync(db, DateTimeOffset.UtcNow);
+            await LanguageFlashcardsSeed.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
+            await CuratedCourseMetadataCatalog.ApplyDefaultsToCoursesAsync(db, ct);
+
             return new DocumentCourseSyncReport(
                 snapshot.Courses.Count,
                 createdCourses,
@@ -927,6 +1063,1010 @@ public static class DocumentCourseSyncService
         {
             SyncLock.Release();
         }
+    }
+
+    /// <summary>
+    /// Idempotently synchronizes the 148-lesson Studxy Full-Stack Developer Bootcamp (10 Phases + Final Capstone + Resources)
+    /// from D:\03_Study\Studxy\course into Studxy's Course/Chapter/Lesson/PracticeQuiz/PracticeActivity tables.
+    /// </summary>
+    public static async Task<DocumentCourseSyncReport> SyncStudxyBootcampCourseAsync(
+        SwmsDbContext db,
+        string? courseRootPath = null,
+        CancellationToken ct = default)
+    {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var effectiveRoot = string.IsNullOrWhiteSpace(courseRootPath) ? DefaultStudxyBootcampRootPath : courseRootPath.Trim();
+
+        if (!Directory.Exists(effectiveRoot))
+        {
+            return new DocumentCourseSyncReport(0, 0, 0, 0, 0, 0, 0, 0, 0, effectiveRoot, sw.Elapsed.TotalMilliseconds);
+        }
+
+        await SyncLock.WaitAsync(ct);
+        try
+        {
+            if (db.Database.IsRelational())
+            {
+                db.Database.SetCommandTimeout(180);
+            }
+
+            var chapterBlueprints = BuildStudxyBootcampChapterBlueprints(effectiveRoot);
+            if (chapterBlueprints.Count == 0)
+            {
+                return new DocumentCourseSyncReport(0, 0, 0, 0, 0, 0, 0, 0, 0, effectiveRoot, sw.Elapsed.TotalMilliseconds);
+            }
+
+            var instructorId = await EnsureDefaultInstructorExistsAsync(db, ct);
+            var now = DateTimeOffset.UtcNow;
+
+            const string title = "Studxy Full-Stack Developer Bootcamp (Zero to Production, AI & DevOps)";
+            const string description = "Khóa học Full-Stack toàn diện 148 bài (30% Lý thuyết - 70% Thực hành): CS Foundations, HTML/CSS, JS/TS, React, C# .NET, SQL/EF Core, Testing, CI/CD, Docker & Cầu nối AI Engineer / DevOps.";
+
+            int createdCourses = 0;
+            int updatedCourses = 0;
+            int createdChapters = 0;
+            int createdLessons = 0;
+            int updatedLessons = 0;
+            int createdQuizzes = 0;
+            int updatedQuizzes = 0;
+
+            var course = await db.Courses.FirstOrDefaultAsync(c => c.Slug == StudxyBootcampSlug, ct);
+            if (course == null)
+            {
+                course = new Course
+                {
+                    Id = Guid.NewGuid(),
+                    InstructorId = instructorId,
+                    Title = title,
+                    Slug = StudxyBootcampSlug,
+                    Description = description,
+                    Visibility = "public",
+                    IsPublished = true,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                };
+                db.Courses.Add(course);
+                db.CourseEnrollments.Add(new CourseEnrollment
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = instructorId,
+                    CourseId = course.Id,
+                    Role = "instructor",
+                    EnrolledAt = now
+                });
+                await db.SaveChangesAsync(ct);
+                createdCourses = 1;
+            }
+            else
+            {
+                bool metaChanged =
+                    !string.Equals(course.Title, title, StringComparison.Ordinal) ||
+                    !string.Equals(course.Description, description, StringComparison.Ordinal) ||
+                    course.Visibility != "public" ||
+                    !course.IsPublished;
+                if (metaChanged)
+                {
+                    course.Title = title;
+                    course.Description = description;
+                    course.Visibility = "public";
+                    course.IsPublished = true;
+                    course.UpdatedAt = now;
+                    updatedCourses = 1;
+                }
+                if (!await db.CourseEnrollments.AnyAsync(e => e.UserId == instructorId && e.CourseId == course.Id, ct))
+                {
+                    db.CourseEnrollments.Add(new CourseEnrollment
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = instructorId,
+                        CourseId = course.Id,
+                        Role = "instructor",
+                        EnrolledAt = now
+                    });
+                }
+                await db.SaveChangesAsync(ct);
+            }
+
+            var existingChapters = await db.Chapters
+                .Where(ch => ch.CourseId == course.Id)
+                .ToListAsync(ct);
+            var existingChapterIds = existingChapters.Select(ch => ch.Id).ToList();
+
+            var existingLessons = existingChapterIds.Count > 0
+                ? await db.Lessons.Where(l => existingChapterIds.Contains(l.ChapterId)).ToListAsync(ct)
+                : new List<Lesson>();
+
+            var chapterByOrder = existingChapters.ToDictionary(ch => ch.SortOrder);
+            var chapterByTitle = existingChapters.ToDictionary(ch => ch.Title, StringComparer.OrdinalIgnoreCase);
+
+            var lessonByRelPath = new Dictionary<string, Lesson>(StringComparer.OrdinalIgnoreCase);
+            var lessonByChapterAndSlug = new Dictionary<string, Lesson>(StringComparer.OrdinalIgnoreCase);
+            foreach (var exLesson in existingLessons)
+            {
+                lessonByChapterAndSlug.TryAdd($"{exLesson.ChapterId:N}|{exLesson.Slug}", exLesson);
+                var (_, relPath) = CourseGenerationService.ExtractLessonSourceMetadata(exLesson.ContentAstJson);
+                if (!string.IsNullOrWhiteSpace(relPath))
+                {
+                    lessonByRelPath.TryAdd(relPath, exLesson);
+                }
+            }
+
+            // 1. Ensure all 12 Chapters exist
+            var resolvedChapters = new List<(ChapterBlueprint Blueprint, Chapter Entity)>();
+            foreach (var chBp in chapterBlueprints)
+            {
+                var chTitle = Truncate(chBp.Title, 250);
+                if (!chapterByOrder.TryGetValue(chBp.SortOrder, out var ch))
+                {
+                    if (!chapterByTitle.TryGetValue(chTitle, out ch))
+                    {
+                        chapterByTitle.TryGetValue(chBp.Title, out ch);
+                    }
+                }
+                if (ch == null)
+                {
+                    ch = new Chapter
+                    {
+                        Id = Guid.NewGuid(),
+                        CourseId = course.Id,
+                        Title = chTitle,
+                        SortOrder = chBp.SortOrder,
+                        CreatedAt = now,
+                        UpdatedAt = now
+                    };
+                    db.Chapters.Add(ch);
+                    createdChapters++;
+                    chapterByOrder[ch.SortOrder] = ch;
+                    chapterByTitle[ch.Title] = ch;
+                }
+                else if (!string.Equals(ch.Title, chTitle, StringComparison.Ordinal) || ch.SortOrder != chBp.SortOrder)
+                {
+                    ch.Title = chTitle;
+                    ch.SortOrder = chBp.SortOrder;
+                    ch.UpdatedAt = now;
+                }
+                resolvedChapters.Add((chBp, ch));
+            }
+            await db.SaveChangesAsync(ct);
+
+            // 2. Sync all Lessons in batches of 20 (safe for WAN PostgreSQL)
+            const string compatSourceFolder = StudxyBootcampSourceFolder;
+            var syncedFull = new List<(ChapterBlueprint Chapter, Chapter ChapterEntity, LessonBlueprint Blueprint, Lesson Entity)>();
+            var syncedLessons = new List<(LessonBlueprint Blueprint, Lesson Entity)>();
+            int pendingLessonWrites = 0;
+
+            foreach (var (chBp, chapter) in resolvedChapters)
+            {
+                foreach (var lBp in chBp.Lessons)
+                {
+                    Lesson? target = null;
+                    if (!lessonByRelPath.TryGetValue(lBp.RelativePath, out target))
+                    {
+                        lessonByChapterAndSlug.TryGetValue($"{chapter.Id:N}|{lBp.Slug}", out target);
+                    }
+
+                    var (astJson, plainText) = CourseWizardAndImportService.BuildMarkdownAstAndPlainText(
+                        course.Id,
+                        lBp.Title,
+                        lBp.Markdown,
+                        compatSourceFolder,
+                        lBp.RelativePath);
+
+                    if (target == null)
+                    {
+                        target = new Lesson
+                        {
+                            Id = Guid.NewGuid(),
+                            ChapterId = chapter.Id,
+                            Title = Truncate(lBp.Title, 240),
+                            Slug = Truncate(lBp.Slug, 240),
+                            SortOrder = lBp.SortOrder,
+                            CurrentVersion = 1,
+                            ContentAstJson = astJson,
+                            PlainText = plainText,
+                            ContentMarkdown = lBp.Markdown,
+                            EstimatedMinutes = lBp.EstimatedMinutes,
+                            IsPublished = true,
+                            CreatedAt = now,
+                            UpdatedAt = now
+                        };
+                        db.Lessons.Add(target);
+                        createdLessons++;
+                        pendingLessonWrites++;
+                    }
+                    else
+                    {
+                        bool changed =
+                            target.ChapterId != chapter.Id ||
+                            !string.Equals(target.Title, Truncate(lBp.Title, 240), StringComparison.Ordinal) ||
+                            !string.Equals(target.Slug, Truncate(lBp.Slug, 240), StringComparison.Ordinal) ||
+                            target.SortOrder != lBp.SortOrder ||
+                            !string.Equals(target.ContentMarkdown, lBp.Markdown, StringComparison.Ordinal);
+
+                        if (changed)
+                        {
+                            target.ChapterId = chapter.Id;
+                            target.Title = Truncate(lBp.Title, 240);
+                            target.Slug = Truncate(lBp.Slug, 240);
+                            target.SortOrder = lBp.SortOrder;
+                            target.ContentMarkdown = lBp.Markdown;
+                            target.PlainText = plainText;
+                            target.ContentAstJson = astJson;
+                            target.EstimatedMinutes = lBp.EstimatedMinutes;
+                            target.IsPublished = true;
+                            target.UpdatedAt = now;
+                            updatedLessons++;
+                            pendingLessonWrites++;
+                        }
+                    }
+
+                    syncedFull.Add((chBp, chapter, lBp, target));
+                    syncedLessons.Add((lBp, target));
+
+                    if (pendingLessonWrites >= 20)
+                    {
+                        await db.SaveChangesAsync(ct);
+                        pendingLessonWrites = 0;
+                    }
+                }
+            }
+
+            if (pendingLessonWrites > 0)
+            {
+                await db.SaveChangesAsync(ct);
+            }
+
+            // 3. Sync Quizzes extracted from ## 🧪 Quiz sections & PracticeActivities (batched)
+            var allLessonIds = syncedLessons.Select(x => x.Entity.Id).ToHashSet();
+            var existingQuizzes = allLessonIds.Count > 0
+                ? await db.PracticeQuizzes
+                    .Where(q => q.UserId == instructorId && q.LessonId.HasValue && allLessonIds.Contains(q.LessonId.Value))
+                    .ToListAsync(ct)
+                : new List<PracticeQuiz>();
+
+            var existingQuizIds = existingQuizzes.Select(q => q.Id).ToList();
+            var existingQuizItemsList = existingQuizIds.Count > 0
+                ? await db.PracticeQuizItems
+                    .Where(i => existingQuizIds.Contains(i.QuizId))
+                    .ToListAsync(ct)
+                : new List<PracticeQuizItem>();
+            var existingItemsByQuizId = existingQuizItemsList.ToLookup(i => i.QuizId);
+
+            var quizByLesson = new Dictionary<Guid, PracticeQuiz>();
+            var syntheticQuizByTitle = new Dictionary<string, PracticeQuiz>(StringComparer.OrdinalIgnoreCase);
+            foreach (var q in existingQuizzes)
+            {
+                if (q.Title.StartsWith("[Đề Chương ", StringComparison.OrdinalIgnoreCase) ||
+                    q.Title.StartsWith("[Đề Tổng Hợp", StringComparison.OrdinalIgnoreCase))
+                {
+                    syntheticQuizByTitle.TryAdd(q.Title, q);
+                }
+                else if (q.LessonId.HasValue)
+                {
+                    quizByLesson.TryAdd(q.LessonId.Value, q);
+                }
+            }
+
+            var existingActs = await db.PracticeActivities
+                .Where(pa => pa.CourseId == course.Id)
+                .ToListAsync(ct);
+            var existingActIds = existingActs.Select(pa => pa.Id).ToHashSet();
+            var existingActById = new Dictionary<Guid, PracticeActivity>();
+            var existingActByComposite = new Dictionary<(Guid? LessonId, string Type, int OrderIndex), PracticeActivity>();
+            foreach (var act in existingActs)
+            {
+                existingActById.TryAdd(act.Id, act);
+                var key = (act.LessonId, (act.Type ?? string.Empty).Trim().ToLowerInvariant(), act.OrderIndex);
+                existingActByComposite.TryAdd(key, act);
+            }
+
+            var attemptedActIds = existingActIds.Count > 0
+                ? (await db.PracticeAttempts.AsNoTracking()
+                    .Where(pa => pa.ActivityId.HasValue && existingActIds.Contains(pa.ActivityId.Value))
+                    .Select(pa => pa.ActivityId!.Value)
+                    .Distinct()
+                    .ToListAsync(ct))
+                    .ToHashSet()
+                : new HashSet<Guid>();
+
+            var chapterMcqPool = new Dictionary<int, List<PracticeQuizItem>>();
+            int pendingSecondaryWrites = 0;
+
+            foreach (var (chBp, chapterEntity, lBp, lessonEntity) in syncedFull)
+            {
+                List<PracticeQuizItem>? mcqItemsForLesson = null;
+
+                if (TryExtractBootcampQuizMarkdown(lBp.Markdown, out var quizMd, out var answerKeyMd))
+                {
+                    var quizTitle = Truncate($"Quiz: {lessonEntity.Title}", 240);
+                    if (!quizByLesson.TryGetValue(lessonEntity.Id, out var existingQuiz))
+                    {
+                        var quizId = Guid.NewGuid();
+                        var parsedItems = CourseWizardAndImportService.ParseQuizMarkdown(quizId, quizMd, answerKeyMd, now);
+                        if (parsedItems.Count > 0)
+                        {
+                            var newQuiz = new PracticeQuiz
+                            {
+                                Id = quizId,
+                                UserId = instructorId,
+                                LessonId = lessonEntity.Id,
+                                Title = quizTitle,
+                                TotalItems = parsedItems.Count,
+                                CorrectItems = 0,
+                                Status = "not_started",
+                                StartedAt = now
+                            };
+                            db.PracticeQuizzes.Add(newQuiz);
+                            db.PracticeQuizItems.AddRange(parsedItems);
+                            quizByLesson[lessonEntity.Id] = newQuiz;
+                            createdQuizzes++;
+                            pendingSecondaryWrites += parsedItems.Count + 1;
+                            mcqItemsForLesson = parsedItems.Where(i => i.ItemType == "multiple_choice").ToList();
+                        }
+                    }
+                    else
+                    {
+                        var oldItems = existingItemsByQuizId[existingQuiz.Id].ToList();
+                        if (!oldItems.Any(i => i.EvaluatedAt != null))
+                        {
+                            var parsedItems = CourseWizardAndImportService.ParseQuizMarkdown(existingQuiz.Id, quizMd, answerKeyMd, now);
+                            bool needReplace = oldItems.Count == 0
+                                || oldItems.Count != parsedItems.Count
+                                || (oldItems.Count > 1 && oldItems.All(i => string.Equals(i.ClozeSolution, "A", StringComparison.OrdinalIgnoreCase)) && parsedItems.Any(i => !string.Equals(i.ClozeSolution, "A", StringComparison.OrdinalIgnoreCase)))
+                                || parsedItems.Count(i => i.ItemType == "multiple_choice") > oldItems.Count(i => i.ItemType == "multiple_choice")
+                                || (oldItems.Any(i => !HasPromptExplanation(i.PromptAstJson)) && parsedItems.Any(i => HasPromptExplanation(i.PromptAstJson)));
+
+                            if (needReplace && parsedItems.Count > 0)
+                            {
+                                if (oldItems.Count > 0)
+                                {
+                                    db.PracticeQuizItems.RemoveRange(oldItems);
+                                }
+                                db.PracticeQuizItems.AddRange(parsedItems);
+                                existingQuiz.TotalItems = parsedItems.Count;
+                                existingQuiz.Title = quizTitle;
+                                updatedQuizzes++;
+                                pendingSecondaryWrites += parsedItems.Count;
+                                mcqItemsForLesson = parsedItems.Where(i => i.ItemType == "multiple_choice").ToList();
+                            }
+                            else
+                            {
+                                mcqItemsForLesson = oldItems.Where(i => i.ItemType == "multiple_choice").ToList();
+                            }
+                        }
+                        else
+                        {
+                            mcqItemsForLesson = oldItems.Where(i => i.ItemType == "multiple_choice").ToList();
+                        }
+                    }
+                }
+                else if (quizByLesson.TryGetValue(lessonEntity.Id, out var existingQuiz))
+                {
+                    var oldItems = existingItemsByQuizId[existingQuiz.Id].ToList();
+                    mcqItemsForLesson = oldItems.Where(i => i.ItemType == "multiple_choice").ToList();
+                }
+
+                if (mcqItemsForLesson != null && mcqItemsForLesson.Count > 0)
+                {
+                    if (!chapterMcqPool.TryGetValue(chBp.SortOrder, out var pool))
+                    {
+                        pool = new List<PracticeQuizItem>();
+                        chapterMcqPool[chBp.SortOrder] = pool;
+                    }
+                    pool.AddRange(mcqItemsForLesson);
+                }
+
+                foreach (var genAct in BootcampPracticeActivityCatalog.BuildForLesson(lBp.RelativePath, course.Id, lessonEntity, lBp.Markdown, now))
+                {
+                    (Guid? LessonId, string Type, int OrderIndex) compKey = (genAct.LessonId, (genAct.Type ?? string.Empty).Trim().ToLowerInvariant(), genAct.OrderIndex);
+                    if (existingActById.TryGetValue(genAct.Id, out var exAct) || existingActByComposite.TryGetValue(compKey, out exAct))
+                    {
+                        if (!attemptedActIds.Contains(exAct.Id) &&
+                            (exAct.Title != genAct.Title || exAct.Description != genAct.Description || exAct.ConfigJson != genAct.ConfigJson))
+                        {
+                            exAct.Title = genAct.Title;
+                            exAct.Description = genAct.Description;
+                            exAct.ConfigJson = genAct.ConfigJson;
+                            exAct.UpdatedAt = now;
+                            pendingSecondaryWrites++;
+                        }
+                    }
+                    else
+                    {
+                        db.PracticeActivities.Add(genAct);
+                        existingActById[genAct.Id] = genAct;
+                        existingActByComposite[compKey] = genAct;
+                        existingActIds.Add(genAct.Id);
+                        pendingSecondaryWrites++;
+                    }
+                }
+
+                if (pendingSecondaryWrites >= 120)
+                {
+                    await db.SaveChangesAsync(ct);
+                    pendingSecondaryWrites = 0;
+                }
+            }
+
+            static PracticeQuizItem CloneQuizItem(Guid targetQuizId, PracticeQuizItem src, DateTimeOffset ts) =>
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    QuizId = targetQuizId,
+                    ItemType = "multiple_choice",
+                    PromptAstJson = src.PromptAstJson,
+                    ChoicesJson = src.ChoicesJson,
+                    ClozeSolution = src.ClozeSolution,
+                    CreatedAt = ts
+                };
+
+            // 4. Generate/Update 11 Chapter Synthetic Quizzes (Chapters 2..12)
+            for (int chOrder = 2; chOrder <= 12; chOrder++)
+            {
+                var chTuple = syncedFull.FirstOrDefault(x => x.Chapter.SortOrder == chOrder);
+                if (chTuple.Chapter == null || chTuple.Entity == null) continue;
+
+                var chBp = chTuple.Chapter;
+                var chapterFirstLessonId = chTuple.Entity.Id;
+
+                if (!chapterMcqPool.TryGetValue(chOrder, out var pool) || pool.Count == 0)
+                {
+                    continue;
+                }
+
+                var chosen = new List<PracticeQuizItem>();
+                if (pool.Count <= 12)
+                {
+                    chosen.AddRange(pool);
+                }
+                else
+                {
+                    double step = (double)pool.Count / 12.0;
+                    for (int i = 0; i < 12; i++)
+                    {
+                        int idx = (int)Math.Floor(i * step);
+                        if (idx >= pool.Count) idx = pool.Count - 1;
+                        chosen.Add(pool[idx]);
+                    }
+                }
+
+                var synthTitle = Truncate($"[Đề Chương {chBp.SortOrder}] Kiểm tra tổng hợp: {chBp.Title}", 240);
+                if (!syntheticQuizByTitle.TryGetValue(synthTitle, out var existingSynthQuiz))
+                {
+                    var synthQuizId = Guid.NewGuid();
+                    var synthItems = chosen.Select((item, idx) => CloneQuizItem(synthQuizId, item, now.AddMilliseconds(idx))).ToList();
+                    var newSynthQuiz = new PracticeQuiz
+                    {
+                        Id = synthQuizId,
+                        UserId = instructorId,
+                        LessonId = chapterFirstLessonId,
+                        Title = synthTitle,
+                        TotalItems = synthItems.Count,
+                        CorrectItems = 0,
+                        Status = "not_started",
+                        StartedAt = now
+                    };
+                    db.PracticeQuizzes.Add(newSynthQuiz);
+                    db.PracticeQuizItems.AddRange(synthItems);
+                    syntheticQuizByTitle[synthTitle] = newSynthQuiz;
+                    createdQuizzes++;
+                    pendingSecondaryWrites += synthItems.Count + 1;
+                }
+                else
+                {
+                    var oldSynthItems = existingItemsByQuizId[existingSynthQuiz.Id].ToList();
+                    if (!oldSynthItems.Any(i => i.EvaluatedAt != null))
+                    {
+                        bool needReplace = oldSynthItems.Count != chosen.Count
+                            || (oldSynthItems.All(i => string.Equals(i.ClozeSolution, "A", StringComparison.OrdinalIgnoreCase)) && chosen.Any(i => !string.Equals(i.ClozeSolution, "A", StringComparison.OrdinalIgnoreCase)))
+                            || (oldSynthItems.Any(i => !HasPromptExplanation(i.PromptAstJson)) && chosen.Any(i => HasPromptExplanation(i.PromptAstJson)));
+
+                        if (needReplace)
+                        {
+                            if (oldSynthItems.Count > 0)
+                            {
+                                db.PracticeQuizItems.RemoveRange(oldSynthItems);
+                            }
+                            var synthItems = chosen.Select((item, idx) => CloneQuizItem(existingSynthQuiz.Id, item, now.AddMilliseconds(idx))).ToList();
+                            db.PracticeQuizItems.AddRange(synthItems);
+                            existingSynthQuiz.LessonId = chapterFirstLessonId;
+                            existingSynthQuiz.TotalItems = synthItems.Count;
+                            existingSynthQuiz.Title = synthTitle;
+                            updatedQuizzes++;
+                            pendingSecondaryWrites += synthItems.Count;
+                        }
+                    }
+                }
+            }
+
+            // 5. Generate/Update Final Capstone Comprehensive Exam (30 questions across Chapters 2..12)
+            if (syncedFull.Count > 0)
+            {
+                var finalPool = new List<PracticeQuizItem>();
+                for (int chOrder = 2; chOrder <= 12; chOrder++)
+                {
+                    if (chapterMcqPool.TryGetValue(chOrder, out var pool) && pool.Count > 0)
+                    {
+                        int countToTake = Math.Min(3, pool.Count);
+                        double chStep = (double)pool.Count / countToTake;
+                        for (int k = 0; k < countToTake && finalPool.Count < 30; k++)
+                        {
+                            int idx = (int)Math.Floor(k * chStep);
+                            if (idx >= pool.Count) idx = pool.Count - 1;
+                            finalPool.Add(pool[idx]);
+                        }
+                    }
+                }
+
+                if (finalPool.Count < 30)
+                {
+                    var usedPromptAsts = finalPool.Select(x => x.PromptAstJson).ToHashSet();
+                    for (int chOrder = 2; chOrder <= 12 && finalPool.Count < 30; chOrder++)
+                    {
+                        if (chapterMcqPool.TryGetValue(chOrder, out var pool))
+                        {
+                            foreach (var item in pool)
+                            {
+                                if (finalPool.Count >= 30) break;
+                                if (!usedPromptAsts.Contains(item.PromptAstJson))
+                                {
+                                    usedPromptAsts.Add(item.PromptAstJson);
+                                    finalPool.Add(item);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (finalPool.Count > 0)
+                {
+                    const string finalQuizTitle = "[Đề Tổng Hợp Cuối Khóa] Thi Thử Toàn Diện Full-Stack Developer Bootcamp (30 Câu)";
+                    var firstLessonId = syncedFull[0].Entity.Id;
+
+                    if (!syntheticQuizByTitle.TryGetValue(finalQuizTitle, out var existingFinalQuiz))
+                    {
+                        var finalQuizId = Guid.NewGuid();
+                        var finalItems = finalPool.Select((item, idx) => CloneQuizItem(finalQuizId, item, now.AddMilliseconds(idx))).ToList();
+                        var newFinalQuiz = new PracticeQuiz
+                        {
+                            Id = finalQuizId,
+                            UserId = instructorId,
+                            LessonId = firstLessonId,
+                            Title = finalQuizTitle,
+                            TotalItems = finalItems.Count,
+                            CorrectItems = 0,
+                            Status = "not_started",
+                            StartedAt = now
+                        };
+                        db.PracticeQuizzes.Add(newFinalQuiz);
+                        db.PracticeQuizItems.AddRange(finalItems);
+                        syntheticQuizByTitle[finalQuizTitle] = newFinalQuiz;
+                        createdQuizzes++;
+                        pendingSecondaryWrites += finalItems.Count + 1;
+                    }
+                    else
+                    {
+                        var oldFinalItems = existingItemsByQuizId[existingFinalQuiz.Id].ToList();
+                        if (!oldFinalItems.Any(i => i.EvaluatedAt != null))
+                        {
+                            bool needReplace = oldFinalItems.Count != finalPool.Count
+                                || (oldFinalItems.All(i => string.Equals(i.ClozeSolution, "A", StringComparison.OrdinalIgnoreCase)) && finalPool.Any(i => !string.Equals(i.ClozeSolution, "A", StringComparison.OrdinalIgnoreCase)))
+                                || (oldFinalItems.Any(i => !HasPromptExplanation(i.PromptAstJson)) && finalPool.Any(i => HasPromptExplanation(i.PromptAstJson)));
+
+                            if (needReplace)
+                            {
+                                if (oldFinalItems.Count > 0)
+                                {
+                                    db.PracticeQuizItems.RemoveRange(oldFinalItems);
+                                }
+                                var finalItems = finalPool.Select((item, idx) => CloneQuizItem(existingFinalQuiz.Id, item, now.AddMilliseconds(idx))).ToList();
+                                db.PracticeQuizItems.AddRange(finalItems);
+                                existingFinalQuiz.LessonId = firstLessonId;
+                                existingFinalQuiz.TotalItems = finalItems.Count;
+                                existingFinalQuiz.Title = finalQuizTitle;
+                                updatedQuizzes++;
+                                pendingSecondaryWrites += finalItems.Count;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 6. Sync Flashcards FSRS
+            int createdFlashcards = 0;
+            var courseTag = await EnsureCourseTagAsync(db, instructorId, title, now, ct);
+            var bootcampCards = BuildBootcampFlashcards(syncedFull, effectiveRoot);
+            if (bootcampCards.Count > 0 && syncedFull.Count > 0)
+            {
+                var bootcampLessonIds = syncedFull.Select(x => x.Entity.Id).ToHashSet();
+                var existingCards = await db.Flashcards
+                    .Where(f => f.UserId == instructorId && !f.IsArchived && f.LessonId.HasValue && bootcampLessonIds.Contains(f.LessonId.Value))
+                    .ToListAsync(ct);
+
+                var existingCardIds = existingCards.Select(c => c.Id).ToHashSet();
+                var existingTagLinks = existingCardIds.Count > 0
+                    ? await db.FlashcardTags
+                        .Where(ft => ft.TagId == courseTag.Id && existingCardIds.Contains(ft.FlashcardId))
+                        .Select(ft => ft.FlashcardId)
+                        .ToHashSetAsync(ct)
+                    : new HashSet<Guid>();
+
+                var cardsByFront = new Dictionary<string, Flashcard>(StringComparer.OrdinalIgnoreCase);
+                foreach (var exCard in existingCards)
+                {
+                    var fText = ExtractTextFromFrontAst(exCard.FrontAstJson);
+                    if (!string.IsNullOrEmpty(fText))
+                    {
+                        cardsByFront.TryAdd(fText, exCard);
+                    }
+                    if (!existingTagLinks.Contains(exCard.Id))
+                    {
+                        db.FlashcardTags.Add(new FlashcardTag { FlashcardId = exCard.Id, TagId = courseTag.Id });
+                        existingTagLinks.Add(exCard.Id);
+                    }
+                }
+
+                var firstLesson = syncedFull[0].Entity;
+                foreach (var (matchedLesson, front, back, concept) in bootcampCards)
+                {
+                    if (cardsByFront.TryGetValue(front, out var existing))
+                    {
+                        if (existing.LessonId != matchedLesson.Id && firstLesson != null && existing.LessonId == firstLesson.Id)
+                        {
+                            existing.LessonId = matchedLesson.Id;
+                            existing.UpdatedAt = now;
+                        }
+                        continue;
+                    }
+
+                    var cardId = Guid.NewGuid();
+                    var newCard = new Flashcard
+                    {
+                        Id = cardId,
+                        UserId = instructorId,
+                        LessonId = matchedLesson.Id,
+                        CardType = "standard",
+                        SourceTitleSnapshot = Truncate(matchedLesson.Title, 250),
+                        SourceQuoteSnapshot = string.IsNullOrWhiteSpace(concept) ? null : Truncate(concept, 500),
+                        FrontAstJson = JsonSerializer.Serialize(new { text = front }),
+                        BackAstJson = JsonSerializer.Serialize(new { text = back }),
+                        Stability = 0,
+                        Difficulty = 0,
+                        Reps = 0,
+                        Lapses = 0,
+                        State = 0,
+                        DueAt = now,
+                        CreatedAt = now,
+                        UpdatedAt = now
+                    };
+
+                    db.Flashcards.Add(newCard);
+                    db.FlashcardTags.Add(new FlashcardTag { FlashcardId = cardId, TagId = courseTag.Id });
+                    cardsByFront[front] = newCard;
+                    createdFlashcards++;
+                }
+            }
+
+            await db.SaveChangesAsync(ct);
+
+            // WP-C2: Seed migrated write-in labs, foreign language flashcards & curated metadata defaults
+            await WriteInPracticeContent.EnsureMigratedWriteInLabsSeededAsync(db, DateTimeOffset.UtcNow);
+            await LanguageFlashcardsSeed.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
+            await CuratedCourseMetadataCatalog.ApplyDefaultsToCoursesAsync(db, ct);
+
+            return new DocumentCourseSyncReport(
+                1,
+                createdCourses,
+                updatedCourses,
+                createdChapters,
+                createdLessons,
+                updatedLessons,
+                createdQuizzes,
+                updatedQuizzes,
+                createdFlashcards,
+                effectiveRoot,
+                Math.Round(sw.Elapsed.TotalMilliseconds, 1));
+        }
+        finally
+        {
+            SyncLock.Release();
+        }
+    }
+
+    private static List<ChapterBlueprint> BuildStudxyBootcampChapterBlueprints(string courseRoot)
+    {
+        var chapters = new List<ChapterBlueprint>();
+        int chOrder = 1;
+
+        void AddChapterFromFiles(string chapterTitle, IEnumerable<string> relPaths)
+        {
+            var lessons = new List<LessonBlueprint>();
+            int sort = 1;
+            foreach (var rawRel in relPaths)
+            {
+                var normRel = rawRel.Replace('\\', '/').TrimStart('/');
+                var fullPath = Path.Combine(courseRoot, normRel.Replace('/', Path.DirectorySeparatorChar));
+                if (!File.Exists(fullPath)) continue;
+
+                var md = File.ReadAllText(fullPath, Encoding.UTF8);
+                if (string.IsNullOrWhiteSpace(md)) continue;
+
+                var fallbackTitle = Path.GetFileName(normRel).Equals("README.md", StringComparison.OrdinalIgnoreCase)
+                    ? Path.GetFileName(Path.GetDirectoryName(fullPath) ?? "Bài học")
+                    : Path.GetFileNameWithoutExtension(normRel);
+                var title = ExtractMarkdownTitle(md, fallbackTitle);
+                lessons.Add(CreateLessonBlueprint(normRel, normRel, title, sort++, md, null));
+            }
+            if (lessons.Count > 0)
+            {
+                chapters.Add(new ChapterBlueprint(chapterTitle, chOrder++, lessons));
+            }
+        }
+
+        List<string> CollectPhaseFiles(string phaseFolder)
+        {
+            var list = new List<string>();
+            var phaseDir = Path.Combine(courseRoot, phaseFolder);
+            if (!Directory.Exists(phaseDir)) return list;
+
+            if (File.Exists(Path.Combine(phaseDir, "README.md")))
+            {
+                list.Add($"{phaseFolder}/README.md");
+            }
+
+            var subDirs = Directory.GetDirectories(phaseDir)
+                .Select(Path.GetFileName)
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .Cast<string>()
+                .OrderBy(n => n.StartsWith("lesson-", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                .ThenBy(n => NaturalSortKey(n), StringComparer.OrdinalIgnoreCase);
+
+            foreach (var sub in subDirs)
+            {
+                var subDirPath = Path.Combine(phaseDir, sub);
+                if (File.Exists(Path.Combine(subDirPath, "README.md")))
+                {
+                    list.Add($"{phaseFolder}/{sub}/README.md");
+                }
+                else
+                {
+                    var fallbackMd = Directory.GetFiles(subDirPath, "*.md", SearchOption.TopDirectoryOnly)
+                        .Select(Path.GetFileName)
+                        .Where(n => !string.IsNullOrWhiteSpace(n))
+                        .Cast<string>()
+                        .OrderBy(n => NaturalSortKey(n), StringComparer.OrdinalIgnoreCase)
+                        .FirstOrDefault();
+                    if (fallbackMd != null)
+                    {
+                        list.Add($"{phaseFolder}/{sub}/{fallbackMd}");
+                    }
+                }
+            }
+
+            var directMdFiles = Directory.GetFiles(phaseDir, "*.md", SearchOption.TopDirectoryOnly)
+                .Select(Path.GetFileName)
+                .Where(n => !string.IsNullOrWhiteSpace(n) && !n.Equals("README.md", StringComparison.OrdinalIgnoreCase))
+                .Cast<string>()
+                .OrderBy(n => n.StartsWith("lesson-", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                .ThenBy(n => NaturalSortKey(n), StringComparer.OrdinalIgnoreCase);
+
+            foreach (var mdFile in directMdFiles)
+            {
+                list.Add($"{phaseFolder}/{mdFile}");
+            }
+            return list;
+        }
+
+        // Chapter 1: Root orientation docs
+        AddChapterFromFiles(
+            "Chương 1: Tổng quan, Giáo trình & Lộ trình học tập",
+            ["README.md", "SYLLABUS.md", "LEARNING_PATH.md"]);
+
+        // Chapters 2..11: Phase 0 .. Phase 9
+        var phaseSpecs = new (string Folder, string Title)[]
+        {
+            ("phase-0-orientation", "Chương 2: Phase 0 — Orientation & Thiết lập Môi trường"),
+            ("phase-1-cs-foundations", "Chương 3: Phase 1 — Computer Science Foundations (DSA & Big-O)"),
+            ("phase-2-web-foundations", "Chương 4: Phase 2 — Web Foundations (HTML5, CSS3, Flexbox, Grid, a11y)"),
+            ("phase-3-javascript-mastery", "Chương 5: Phase 3 — JavaScript Mastery & TypeScript Intro"),
+            ("phase-4-frontend-react", "Chương 6: Phase 4 — Frontend Hiện đại với React, TypeScript & Tailwind"),
+            ("phase-5-backend-dotnet", "Chương 7: Phase 5 — Backend Engineering với C# & ASP.NET Core"),
+            ("phase-6-database-sql", "Chương 8: Phase 6 — Cơ sở Dữ liệu, SQL Chuyên sâu & EF Core"),
+            ("phase-7-fullstack-integration", "Chương 9: Phase 7 — Full-Stack Integration (JWT, SignalR, TanStack Query, Zod)"),
+            ("phase-8-testing-quality", "Chương 10: Phase 8 — Testing Pyramid (xUnit, Vitest, Playwright) & CI/CD"),
+            ("phase-9-deployment-production", "Chương 11: Phase 9 — Linux, Docker, Cloud Deployment, Security & Observability")
+        };
+
+        foreach (var (folder, chTitle) in phaseSpecs)
+        {
+            AddChapterFromFiles(chTitle, CollectPhaseFiles(folder));
+        }
+
+        // Chapter 12: Final Capstone + Engineering Resources
+        AddChapterFromFiles(
+            "Chương 12: Đồ án Tốt nghiệp (Final Capstone) & Tài nguyên Chuyển tiếp AI / DevOps",
+            [
+                "capstone-project/README.md",
+                "capstone-project/requirements/README.md",
+                "capstone-project/sprint-1-core/README.md",
+                "capstone-project/sprint-2-polish/README.md",
+                "capstone-project/deployment-presentation/README.md",
+                "resources/cheatsheets/README.md",
+                "resources/glossary.md",
+                "resources/recommended-tools.md",
+                "resources/next-steps.md"
+            ]);
+
+        return chapters;
+    }
+
+    private static bool TryExtractBootcampQuizMarkdown(string markdown, out string quizMarkdown, out string? answerKeyMarkdown)
+    {
+        quizMarkdown = string.Empty;
+        answerKeyMarkdown = null;
+        if (string.IsNullOrWhiteSpace(markdown)) return false;
+
+        var quizHeaderMatch = Regex.Match(markdown, @"(?m)^##\s+(?:🧪\s*)?Quiz\b.*$");
+        if (!quizHeaderMatch.Success) return false;
+
+        var afterHeaderIdx = quizHeaderMatch.Index;
+        var nextSectionMatch = Regex.Match(markdown[(afterHeaderIdx + quizHeaderMatch.Length)..], @"(?m)^##\s+");
+        var rawSection = nextSectionMatch.Success
+            ? markdown.Substring(afterHeaderIdx, quizHeaderMatch.Length + nextSectionMatch.Index)
+            : markdown[afterHeaderIdx..];
+
+        // If the section has a single consolidated <details> block at the end with numbered answers (Style 2),
+        // split it out as answerKeyMarkdown; if each question has its own <details> (Style 1), pass whole section.
+        var detailsMatches = Regex.Matches(rawSection, @"(?m)^\s*<details(?:\s+[^>]*)?>[\s\S]*?</details>", RegexOptions.IgnoreCase);
+        if (detailsMatches.Count == 1)
+        {
+            var block = detailsMatches[0].Value;
+            if (Regex.IsMatch(block, @"(?m)(?:^\s*(?:[-*]\s*)?(?:\*\*)?(?:Câu\s+)?1[\.\):]|^\s*\|\s*(?:\*\*)?(?:Câu\s*)?1\b)"))
+            {
+                answerKeyMarkdown = block;
+                quizMarkdown = rawSection[..detailsMatches[0].Index].Trim();
+                return !string.IsNullOrWhiteSpace(quizMarkdown);
+            }
+        }
+
+        quizMarkdown = rawSection.Trim();
+        return !string.IsNullOrWhiteSpace(quizMarkdown);
+    }
+
+    private static bool HasPromptExplanation(string? promptAstJson)
+    {
+        if (string.IsNullOrWhiteSpace(promptAstJson)) return false;
+        try
+        {
+            using var doc = JsonDocument.Parse(promptAstJson);
+            return doc.RootElement.TryGetProperty("explanation", out var exp) &&
+                   exp.ValueKind == JsonValueKind.String &&
+                   !string.IsNullOrWhiteSpace(exp.GetString());
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static List<(Lesson Entity, string Front, string Back, string? Concept)> BuildBootcampFlashcards(
+        List<(ChapterBlueprint Chapter, Chapter ChapterEntity, LessonBlueprint Blueprint, Lesson Entity)> syncedFull,
+        string courseRoot)
+    {
+        var result = new List<(Lesson Entity, string Front, string Back, string? Concept)>();
+        var seenFronts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        static bool IsBoilerplateTerm(string term, string def)
+        {
+            if (term.Contains("Câu", StringComparison.OrdinalIgnoreCase) ||
+                term.Contains("Đáp án", StringComparison.OrdinalIgnoreCase) ||
+                term.Contains("Bước", StringComparison.OrdinalIgnoreCase) ||
+                def.Contains("Câu", StringComparison.OrdinalIgnoreCase) ||
+                def.Contains("Đáp án", StringComparison.OrdinalIgnoreCase) ||
+                def.Contains("Bước", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var norm = term.Trim().TrimEnd(':', '-', '–', '—').ToLowerInvariant();
+            return norm is "khái niệm" or "ví dụ" or "ví dụ đời thường" or "ví dụ sản xuất" or
+                "trong lập trình" or "thực tế" or "lưu ý" or "lưu ý sản xuất" or "gợi ý" or
+                "đề bài" or "input" or "output" or "edge cases" or "phòng chống" or
+                "ưu điểm" or "nhược điểm" or "mục tiêu" or "đọc thêm" or "bài học tiếp theo" or
+                "mô tả" or "giải thích" or "cú pháp" or "kết quả";
+        }
+
+        // Matches both `- **Term**: Def` and `- **Term:** Def`
+        var bulletPattern = new Regex(@"(?m)^\s*[-*]\s+\*\*(?:(?<termIn>[^*\r\n:]+?)\s*[:\-–—]\*\*|(?<termOut>[^*\r\n]+?)\*\*\s*[:\-–—])\s*(?<def>[^\r\n]+)");
+
+        // 1. Extract up to 3 flashcards per lesson from bullets
+        foreach (var (chBp, chapterEntity, lBp, lessonEntity) in syncedFull)
+        {
+            if (result.Count >= 380) break;
+            if (string.IsNullOrWhiteSpace(lBp.Markdown)) continue;
+
+            int cardsForLesson = 0;
+            var matches = bulletPattern.Matches(lBp.Markdown);
+            foreach (Match m in matches)
+            {
+                if (cardsForLesson >= 3 || result.Count >= 380) break;
+
+                var term = (m.Groups["termIn"].Success ? m.Groups["termIn"].Value : m.Groups["termOut"].Value).Trim().TrimEnd(':', '-', '–', '—').Trim();
+                var def = m.Groups["def"].Value.Trim();
+
+                if (IsBoilerplateTerm(term, def)) continue;
+                if (term.Length < 3 || term.Length > 120 || def.Length < 12) continue;
+
+                if (seenFronts.Add(term))
+                {
+                    result.Add((lessonEntity, term, def, Truncate($"{chBp.Title} › {lessonEntity.Title}", 500)));
+                    cardsForLesson++;
+                }
+            }
+        }
+
+        // 2. Read resources/glossary.md if present (headings ### X.Y. **Term** + paragraph, table rows, and bullets)
+        var glossaryPath = Path.Combine(courseRoot, "resources", "glossary.md");
+        if (File.Exists(glossaryPath) && result.Count < 380)
+        {
+            var glossaryLesson = syncedFull.FirstOrDefault(x =>
+                x.Blueprint.RelativePath.Replace('\\', '/').Equals("resources/glossary.md", StringComparison.OrdinalIgnoreCase)).Entity
+                ?? (syncedFull.Count > 0 ? syncedFull[0].Entity : null);
+
+            if (glossaryLesson != null)
+            {
+                var glossaryText = File.ReadAllText(glossaryPath, Encoding.UTF8);
+
+                // 2a. Heading pattern: ### 1.1. **Term** followed by definition line(s)
+                var headingDefPattern = new Regex(@"(?m)^###\s+\d+\.\d+\.\s+\*\*(?<term>[^*\r\n]+)\*\*\s*\r?\n(?<def>[^\r\n#*|`>][^\r\n]+)");
+                foreach (Match m in headingDefPattern.Matches(glossaryText))
+                {
+                    if (result.Count >= 380) break;
+                    var term = m.Groups["term"].Value.Trim().TrimEnd(':', '-', '–', '—').Trim();
+                    var def = m.Groups["def"].Value.Trim();
+                    if (IsBoilerplateTerm(term, def)) continue;
+                    if (term.Length < 3 || term.Length > 120 || def.Length < 12) continue;
+                    if (seenFronts.Add(term))
+                    {
+                        result.Add((glossaryLesson, term, def, "Bootcamp Engineering Glossary"));
+                    }
+                }
+
+                // 2b. Table rows: | **Term** | Meaning |
+                var tableRowPattern = new Regex(@"(?m)^\s*\|\s*\*\*(?<term>[^*\r\n]+)\*\*\s*\|\s*(?<meaning>[^|\r\n]+)");
+                foreach (Match m in tableRowPattern.Matches(glossaryText))
+                {
+                    if (result.Count >= 380) break;
+                    var term = m.Groups["term"].Value.Trim().TrimEnd(':', '-', '–', '—').Trim();
+                    var meaning = m.Groups["meaning"].Value.Trim();
+                    if (IsBoilerplateTerm(term, meaning)) continue;
+                    if (term.Length < 3 || term.Length > 120 || meaning.Length < 12) continue;
+                    if (seenFronts.Add(term))
+                    {
+                        result.Add((glossaryLesson, term, meaning, "Bootcamp Engineering Glossary"));
+                    }
+                }
+
+                // 2c. Bullet format: * **Term:** Meaning or - **Term**: Meaning
+                if (result.Count < 380)
+                {
+                    foreach (Match m in bulletPattern.Matches(glossaryText))
+                    {
+                        if (result.Count >= 380) break;
+                        var term = (m.Groups["termIn"].Success ? m.Groups["termIn"].Value : m.Groups["termOut"].Value).Trim().TrimEnd(':', '-', '–', '—').Trim();
+                        var def = m.Groups["def"].Value.Trim();
+                        if (IsBoilerplateTerm(term, def)) continue;
+                        if (term.Length < 3 || term.Length > 120 || def.Length < 12) continue;
+                        if (seenFronts.Add(term))
+                        {
+                            result.Add((glossaryLesson, term, def, "Bootcamp Engineering Glossary"));
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     private static async Task ReconcileDuplicateLegacyLessonsAsync(
@@ -1133,14 +2273,17 @@ public static class DocumentCourseSyncService
             }
         }
 
+        var courseTitle = Truncate(def.Title, 250);
+        var courseSlug = Truncate(def.Slug, 250);
+
         if (course == null)
         {
             course = new Course
             {
                 Id = Guid.NewGuid(),
                 InstructorId = instructorId,
-                Title = def.Title,
-                Slug = def.Slug,
+                Title = courseTitle,
+                Slug = courseSlug,
                 Description = def.Description,
                 Visibility = "public",
                 IsPublished = true,
@@ -1162,14 +2305,16 @@ public static class DocumentCourseSyncService
         }
 
         bool metadataChanged =
-            !string.Equals(course.Title, def.Title, StringComparison.Ordinal) ||
+            !string.Equals(course.Title, courseTitle, StringComparison.Ordinal) ||
+            !string.Equals(course.Slug, courseSlug, StringComparison.Ordinal) ||
             !string.Equals(course.Description, def.Description, StringComparison.Ordinal) ||
             course.Visibility != "public" ||
             !course.IsPublished;
 
         if (metadataChanged)
         {
-            course.Title = def.Title;
+            course.Title = courseTitle;
+            course.Slug = courseSlug;
             course.Description = def.Description;
             course.Visibility = "public";
             course.IsPublished = true;
@@ -1200,7 +2345,7 @@ public static class DocumentCourseSyncService
         DateTimeOffset now,
         CancellationToken ct)
     {
-        var tagName = Truncate(courseTitle, 100);
+        var tagName = Truncate(courseTitle, 50);
         var existing = await db.Tags.FirstOrDefaultAsync(t => t.UserId == userId && t.Name == tagName, ct);
         if (existing != null) return existing;
 
@@ -3032,7 +4177,7 @@ public static class DocumentCourseSyncService
         DateTimeOffset now)
     {
         var folder = (sourceFolder ?? string.Empty).Trim();
-        var titleClean = string.IsNullOrWhiteSpace(lesson.Title) ? "Bài học thực hành" : lesson.Title.Trim();
+        var titleClean = Truncate(string.IsNullOrWhiteSpace(lesson.Title) ? "Bài học thực hành" : lesson.Title.Trim(), 180);
         var shortTag = $"doc-{Math.Abs(lesson.Id.GetHashCode()):x}";
         var rawPlain = (lesson.PlainText ?? string.Empty).Replace("\r", " ").Replace("\n", " ").Trim();
         var summaryHint = !string.IsNullOrWhiteSpace(rawPlain)
@@ -3051,7 +4196,7 @@ public static class DocumentCourseSyncService
                 LessonId = lesson.Id,
                 OrderIndex = 101,
                 Type = "fill_code",
-                Title = $"Điền Code: Tổng hợp Pattern Async & Xử lý Dữ liệu ({titleClean})",
+                Title = Truncate($"Điền Code: Tổng hợp Pattern Async & Xử lý Dữ liệu ({titleClean})", 250),
                 Description = $"Hoàn thiện pipeline xử lý danh sách và kiểm tra điều kiện an toàn cho chủ đề: {titleClean}.",
                 ConfigJson = JsonSerializer.Serialize(new
                 {
@@ -3099,7 +4244,7 @@ public static class DocumentCourseSyncService
                 LessonId = lesson.Id,
                 OrderIndex = 102,
                 Type = "predict_output",
-                Title = $"Đoán Output: Reference vs Immutability ({titleClean})",
+                Title = Truncate($"Đoán Output: Reference vs Immutability ({titleClean})", 250),
                 Description = "Dự đoán chính xác kết quả in ra Console khi sao chép trạng thái bất biến trong .NET/React.",
                 ConfigJson = JsonSerializer.Serialize(new
                 {
@@ -3131,7 +4276,7 @@ public static class DocumentCourseSyncService
                 LessonId = lesson.Id,
                 OrderIndex = 103,
                 Type = "bug_fix",
-                Title = $"Sửa Bug: Bảo vệ Null & Bất biến Dữ liệu ({titleClean})",
+                Title = Truncate($"Sửa Bug: Bảo vệ Null & Bất biến Dữ liệu ({titleClean})", 250),
                 Description = "Khắc phục lỗi truy cập thuộc tính khi đầu vào có thể rỗng hoặc bị đột biến trực tiếp.",
                 ConfigJson = JsonSerializer.Serialize(new
                 {
@@ -3187,7 +4332,7 @@ public static class DocumentCourseSyncService
                 LessonId = lesson.Id,
                 OrderIndex = 101,
                 Type = "shadowing",
-                Title = $"IELTS Shadowing: Ngữ điệu học thuật ({titleClean})",
+                Title = Truncate($"IELTS Shadowing: Ngữ điệu học thuật ({titleClean})", 250),
                 Description = $"Nghe và nhại theo nhịp điệu, nối âm câu học thuật trọng tâm của {titleClean}.",
                 ConfigJson = JsonSerializer.Serialize(new
                 {
@@ -3224,7 +4369,7 @@ public static class DocumentCourseSyncService
                 LessonId = lesson.Id,
                 OrderIndex = 102,
                 Type = "dictation",
-                Title = $"IELTS Dictation: Nghe chép chính tả phản xạ ({titleClean})",
+                Title = Truncate($"IELTS Dictation: Nghe chép chính tả phản xạ ({titleClean})", 250),
                 Description = "Luyện nhận diện từ khóa, chính tả số ít/số nhiều và liên từ trong ngữ cảnh IELTS.",
                 ConfigJson = JsonSerializer.Serialize(new
                 {
@@ -3255,7 +4400,7 @@ public static class DocumentCourseSyncService
                 LessonId = lesson.Id,
                 OrderIndex = 103,
                 Type = "cloze",
-                Title = $"IELTS Cloze: Collocation & Linking Words ({titleClean})",
+                Title = Truncate($"IELTS Cloze: Collocation & Linking Words ({titleClean})", 250),
                 Description = "Điền collocation học thuật chuẩn xác vào ngữ cảnh IELTS Writing/Speaking.",
                 ConfigJson = JsonSerializer.Serialize(new
                 {
@@ -3298,7 +4443,7 @@ public static class DocumentCourseSyncService
                 LessonId = lesson.Id,
                 OrderIndex = 101,
                 Type = "hand_calc",
-                Title = $"Lab Tính Tay Tài Chính: Lãi kép, DCA & Biên an toàn ({titleClean})",
+                Title = Truncate($"Lab Tính Tay Tài Chính: Lãi kép, DCA & Biên an toàn ({titleClean})", 250),
                 Description = $"Thực hành tính toán định lượng các chỉ số tài chính cốt lõi gắn với bài: {titleClean}.",
                 ConfigJson = JsonSerializer.Serialize(new
                 {
@@ -3318,7 +4463,7 @@ public static class DocumentCourseSyncService
                 LessonId = lesson.Id,
                 OrderIndex = 102,
                 Type = "investment_case",
-                Title = $"Phân Tích Tình Huống Tài Chính: Quản Trị Rủi Ro ({titleClean})",
+                Title = Truncate($"Phân Tích Tình Huống Tài Chính: Quản Trị Rủi Ro ({titleClean})", 250),
                 Description = "Lựa chọn phương án kỷ luật và giải thích nguyên lý phân bổ vốn dài hạn.",
                 ConfigJson = JsonSerializer.Serialize(new
                 {
@@ -3357,7 +4502,7 @@ public static class DocumentCourseSyncService
                 LessonId = lesson.Id,
                 OrderIndex = 103,
                 Type = "decision_journal",
-                Title = $"Nhật Ký Quyết Định: Kế Hoạch Hành Động ({titleClean})",
+                Title = Truncate($"Nhật Ký Quyết Định: Kế Hoạch Hành Động ({titleClean})", 250),
                 Description = "Viết 4 trụ cột kiểm chứng (Luận điểm, Định giá/Ngân sách, Kịch bản sai, Kỷ luật) cho bài học này.",
                 ConfigJson = JsonSerializer.Serialize(new
                 {
@@ -3390,7 +4535,7 @@ public static class DocumentCourseSyncService
             LessonId = lesson.Id,
             OrderIndex = 101,
             Type = "feynman",
-            Title = $"Feynman Tự Diễn Giải: Nguyên Lý Cốt Lõi ({titleClean})",
+            Title = Truncate($"Feynman Tự Diễn Giải: Nguyên Lý Cốt Lõi ({titleClean})", 250),
             Description = "Diễn giải lại kiến thức trọng tâm của bài học bằng ngôn ngữ đời thường cho người mới.",
             ConfigJson = JsonSerializer.Serialize(new
             {
@@ -3421,7 +4566,7 @@ public static class DocumentCourseSyncService
             LessonId = lesson.Id,
             OrderIndex = 102,
             Type = "cbt_exercise",
-            Title = $"Tái Cấu Trúc Nhận Thức (CBT): Vượt Qua Suy Nghĩ Cực Đoan ({titleClean})",
+            Title = Truncate($"Tái Cấu Trúc Nhận Thức (CBT): Vượt Qua Suy Nghĩ Cực Đoan ({titleClean})", 250),
             Description = "Nhận diện bẫy suy nghĩ tự động và viết lại góc nhìn cân bằng, dựa trên bằng chứng.",
             ConfigJson = JsonSerializer.Serialize(new
             {
@@ -3456,7 +4601,7 @@ public static class DocumentCourseSyncService
             LessonId = lesson.Id,
             OrderIndex = 103,
             Type = "apply_journal",
-            Title = $"Nhật Ký Áp Dụng Thực Tế 48 Giờ ({titleClean})",
+            Title = Truncate($"Nhật Ký Áp Dụng Thực Tế 48 Giờ ({titleClean})", 250),
             Description = "Thiết kế một thử nghiệm hành vi nhỏ thực hiện trong 48 giờ tới để kiểm chứng kiến thức bài học.",
             ConfigJson = JsonSerializer.Serialize(new
             {

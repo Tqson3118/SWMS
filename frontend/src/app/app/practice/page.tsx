@@ -10,9 +10,12 @@ import {
   Brain,
   CheckCircle2,
   ChevronDown,
+  ChevronRight,
   ChevronUp,
+  ClipboardCheck,
   Clock,
   Flame,
+  Layers,
   Play,
   RefreshCw,
   Search,
@@ -61,6 +64,8 @@ interface PracticeLessonSummary {
   activityCount: number;
   passedCount: number;
   attemptCount?: number;
+  hasQuiz?: boolean;
+  quizId?: string | null;
 }
 
 interface PracticeCourseSummary {
@@ -72,6 +77,7 @@ interface PracticeCourseSummary {
   averageScore: number;
   attemptCount?: number;
   lastAttemptAt?: string | null;
+  quizCount?: number;
   lessons: PracticeLessonSummary[];
 }
 
@@ -110,6 +116,7 @@ export default function PracticeHubPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [courseFilter, setCourseFilter] = useState<CoursePracticeFilter>("all");
   const [expandedCourseIds, setExpandedCourseIds] = useState<Set<string>>(new Set());
+  const [expandedChapterKeys, setExpandedChapterKeys] = useState<Set<string>>(new Set());
 
   const fetchHubStats = useCallback(async () => {
     setIsLoading(true);
@@ -210,17 +217,54 @@ export default function PracticeHubPage() {
     });
   };
 
+  const toggleChapterExpanded = (key: string, defaultOpen: boolean) => {
+    setExpandedChapterKeys((prev) => {
+      const next = new Set(prev);
+      const isOpenNow = prev.has(key) ? true : defaultOpen && !prev.has(`closed:${key}`);
+      if (isOpenNow) {
+        next.delete(key);
+        next.add(`closed:${key}`);
+      } else {
+        next.delete(`closed:${key}`);
+        next.add(key);
+      }
+      return next;
+    });
+  };
+
+  const isChapterExpanded = (key: string, defaultOpen: boolean) => {
+    if (searchQuery.trim().length > 0) return true;
+    if (expandedChapterKeys.has(key)) return true;
+    if (expandedChapterKeys.has(`closed:${key}`)) return false;
+    return defaultOpen;
+  };
+
   if (isLoading) {
     return (
       <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 space-y-6">
-        <div className="h-10 w-72 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-4 w-48 rounded-md swms-skeleton" />
+            <div className="h-8 w-56 rounded-lg swms-skeleton" />
+            <div className="h-4 w-80 max-w-full rounded-md swms-skeleton" />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-9 w-36 rounded-[10px] swms-skeleton" />
+            <div className="h-9 w-24 rounded-[10px] swms-skeleton" />
+            <div className="h-9 w-32 rounded-[10px] swms-skeleton" />
+          </div>
+        </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-28 rounded-[14px] bg-[var(--surface-elevated)] animate-pulse" />
+            <div key={i} className="h-28 rounded-[14px] border border-[var(--border-calm)] swms-skeleton" />
           ))}
         </div>
-        <div className="h-52 rounded-[14px] bg-[var(--surface-elevated)] animate-pulse" />
-        <div className="h-64 rounded-[14px] bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="h-52 rounded-[14px] border border-[var(--border-calm)] swms-skeleton" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div className="lg:col-span-8 h-60 rounded-[14px] border border-[var(--border-calm)] swms-skeleton" />
+          <div className="lg:col-span-4 h-60 rounded-[14px] border border-[var(--border-calm)] swms-skeleton" />
+        </div>
+        <div className="h-64 rounded-[14px] border border-[var(--border-calm)] swms-skeleton" />
       </div>
     );
   }
@@ -237,17 +281,24 @@ export default function PracticeHubPage() {
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)]">
             <Target className="w-4 h-4" />
-            <span>Trung tâm Thực hành &amp; Phản xạ Chủ động</span>
+            <span>Trung tâm Thực hành Code Lab &amp; Phản xạ Chủ động</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Hub Luyện tập
           </h1>
           <p className="text-sm text-[var(--text-secondary)]">
-            Theo dõi tiến độ thực hành, ôn lại các bài chưa đạt và luyện tập toàn màn hình theo từng bài học.
+            Thực hành Code Lab theo bài học, ôn lại các câu chưa đạt và luyện thẻ FSRS hằng ngày.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/app/exams"
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 text-xs font-semibold transition shadow-xs"
+          >
+            <ClipboardCheck className="w-4 h-4" />
+            <span>Ngân hàng Đề &amp; Thi thử</span>
+          </Link>
           <button
             type="button"
             onClick={() => void fetchHubStats()}
@@ -325,11 +376,11 @@ export default function PracticeHubPage() {
             />
           </div>
 
-          <Card className="p-5">
+          <Card className="p-4 sm:p-5 bg-[var(--surface-card)] border-[var(--border-calm)] shadow-elevation-1">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-              <div className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-[var(--accent)]" />
-                <h2 className="text-sm font-semibold text-[var(--text-primary)]">
+              <div className="flex items-center gap-2 min-w-0">
+                <BarChart3 className="w-4 h-4 text-[var(--accent)] shrink-0" />
+                <h2 className="text-sm font-semibold text-[var(--text-primary)] truncate">
                   Biểu đồ tiến độ 7 ngày gần nhất
                 </h2>
               </div>
@@ -339,7 +390,7 @@ export default function PracticeHubPage() {
             </div>
 
             {totalAttempts === 0 ? (
-              <div className="py-6 text-center rounded-[10px] border border-dashed border-[var(--border-calm)] bg-[var(--canvas-bg)]">
+              <div className="py-6 px-4 text-center rounded-[12px] border border-dashed border-[var(--border-calm)] bg-[var(--surface-elevated)]/40">
                 <p className="text-sm font-medium text-[var(--text-primary)]">
                   Chưa có dữ liệu luyện tập trong 7 ngày qua
                 </p>
@@ -348,8 +399,14 @@ export default function PracticeHubPage() {
                 </p>
               </div>
             ) : (
-              <div className="w-full h-40">
-                <svg viewBox="0 0 490 130" className="w-full h-full" role="img" aria-label="Biểu đồ điểm luyện tập 7 ngày gần nhất">
+              <div className="w-full h-40 overflow-hidden">
+                <svg
+                  viewBox="0 0 490 130"
+                  preserveAspectRatio="xMidYMid meet"
+                  className="w-full h-full max-w-full"
+                  role="img"
+                  aria-label="Biểu đồ điểm luyện tập 7 ngày gần nhất"
+                >
                   <line x1="34" y1="18" x2="474" y2="18" stroke="currentColor" strokeOpacity="0.12" strokeDasharray="3 3" />
                   <line x1="34" y1="58" x2="474" y2="58" stroke="currentColor" strokeOpacity="0.12" strokeDasharray="3 3" />
                   <line x1="34" y1="98" x2="474" y2="98" stroke="currentColor" strokeOpacity="0.16" />
@@ -409,6 +466,28 @@ export default function PracticeHubPage() {
         </section>
       )}
 
+      {/* Compact Banner -> /app/exams */}
+      {!fetchError && stats && (
+        <div className="rounded-[14px] border border-purple-500/25 bg-purple-500/5 dark:bg-purple-950/20 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-[10px] bg-purple-500/15 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0">
+              <ClipboardCheck className="w-5 h-5" />
+            </div>
+            <p className="text-xs sm:text-sm font-medium text-[var(--text-primary)]">
+              Cần luyện trắc nghiệm theo chương hoặc thi thử tổng hợp cuối khóa?
+            </p>
+          </div>
+          <Link
+            href="/app/exams"
+            data-testid="practice-go-exams-banner-link"
+            className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-[10px] bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold shrink-0 transition shadow-xs"
+          >
+            <span>Mở Ngân hàng Đề &amp; Thi Thử</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      )}
+
       {/* 2. What to Review Today: Active Recall Queue + FSRS */}
       {!fetchError && stats && (
         <section data-testid="practice-hub-review-queue" className="space-y-3">
@@ -423,11 +502,11 @@ export default function PracticeHubPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Active Recall Queue */}
-            <Card className="lg:col-span-8 p-5 flex flex-col justify-between gap-4">
-              <div className="flex items-center justify-between gap-2 pb-3 border-b border-[var(--border-calm)]">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-amber-500" />
-                  <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+            <Card className="lg:col-span-8 p-4 sm:p-5 bg-[var(--surface-card)] border-[var(--border-calm)] shadow-elevation-1 flex flex-col justify-between gap-4 min-w-0">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--border-calm)]">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+                  <h3 className="text-sm font-semibold text-[var(--text-primary)] truncate">
                     Hàng ôn câu sai &amp; bài chưa đạt (Active Recall)
                   </h3>
                 </div>
@@ -437,7 +516,7 @@ export default function PracticeHubPage() {
               </div>
 
               {needsReview.length === 0 ? (
-                <div className="py-8 px-4 text-center rounded-[12px] border border-dashed border-[var(--border-calm)] bg-[var(--canvas-bg)] space-y-2">
+                <div className="py-8 px-4 text-center rounded-[12px] border border-dashed border-[var(--border-calm)] bg-[var(--surface-elevated)]/40 space-y-2">
                   <CheckCircle2 className="w-7 h-7 text-emerald-500 mx-auto" />
                   <p className="text-sm font-semibold text-[var(--text-primary)]">
                     Chưa có bài sai nào đang chờ ôn lại
@@ -463,7 +542,7 @@ export default function PracticeHubPage() {
                     return (
                       <div
                         key={`${item.courseId}-${item.activityKey}`}
-                        className="p-3.5 rounded-[12px] border border-amber-200/80 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                        className="p-3.5 rounded-[12px] border border-amber-500/25 dark:border-amber-500/20 bg-amber-50/50 dark:bg-amber-950/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                       >
                         <div className="min-w-0 space-y-1">
                           <div className="flex flex-wrap items-center gap-1.5">
@@ -471,7 +550,7 @@ export default function PracticeHubPage() {
                               {getPracticeActivityTypeLabel(item.activityType)}
                             </Badge>
                             {item.courseTitle && (
-                              <span className="text-[11px] font-medium text-[var(--text-secondary)] truncate max-w-[260px]">
+                              <span className="text-[11px] font-medium text-[var(--text-secondary)] truncate max-w-full sm:max-w-[260px]">
                                 {item.courseTitle}
                               </span>
                             )}
@@ -481,7 +560,7 @@ export default function PracticeHubPage() {
                           </p>
                           <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--text-tertiary)]">
                             {item.lessonTitle && (
-                              <span className="truncate max-w-[260px]">{item.lessonTitle}</span>
+                              <span className="truncate max-w-full sm:max-w-[260px]">{item.lessonTitle}</span>
                             )}
                             <span>·</span>
                             <span className="font-mono font-semibold text-amber-700 dark:text-amber-300">
@@ -498,7 +577,7 @@ export default function PracticeHubPage() {
 
                         <Link
                           href={retryHref}
-                          className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-[10px] bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shrink-0 transition"
+                          className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-[10px] bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shrink-0 transition shadow-xs"
                         >
                           <span>Ôn lại ngay</span>
                           <ArrowRight className="w-3.5 h-3.5" />
@@ -511,7 +590,7 @@ export default function PracticeHubPage() {
             </Card>
 
             {/* FSRS Review Card */}
-            <Card className="lg:col-span-4 p-5 flex flex-col justify-between gap-5">
+            <Card className="lg:col-span-4 p-4 sm:p-5 bg-[var(--surface-card)] border-[var(--border-calm)] shadow-elevation-1 flex flex-col justify-between gap-5 min-w-0">
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
@@ -553,14 +632,14 @@ export default function PracticeHubPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                Chọn khóa học &amp; bài học để luyện tập
+                Chọn khóa học &amp; bài học để luyện tập &amp; giải đề
               </h2>
               <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                Bấm trực tiếp vào bài học bất kỳ để mở phòng thực hành toàn màn hình.
+                Bấm trực tiếp vào bài học để mở Code Lab, hoặc chọn Giải đề &amp; Thi thử để vào phòng thi.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto min-w-0">
               <div className="relative w-full sm:w-64">
                 <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -583,7 +662,7 @@ export default function PracticeHubPage() {
                 )}
               </div>
 
-              <div className="inline-flex rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] p-0.5 text-xs">
+              <div className="inline-flex max-w-full overflow-x-auto no-scrollbar rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] p-0.5 text-xs">
                 {(
                   [
                     { id: "all", label: "Tất cả" },
@@ -595,10 +674,10 @@ export default function PracticeHubPage() {
                     key={tab.id}
                     type="button"
                     onClick={() => setCourseFilter(tab.id)}
-                    className={`h-8 px-2.5 rounded-[8px] font-medium transition cursor-pointer ${
+                    className={`h-8 px-2.5 rounded-[8px] font-medium whitespace-nowrap transition cursor-pointer ${
                       courseFilter === tab.id
-                        ? "bg-[var(--accent)] text-white"
-                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                        ? "bg-[var(--accent)] text-white shadow-xs"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]/60"
                     }`}
                   >
                     {tab.label}
@@ -608,15 +687,62 @@ export default function PracticeHubPage() {
             </div>
           </div>
 
+          {/* Quick Quiz Shortcut Suggestion */}
+          {courseSummaries.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 p-3 rounded-[12px] border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 text-xs">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--text-secondary)]">
+                <ClipboardCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <span>Vào nhanh phòng Giải đề:</span>
+              </span>
+              <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                {courseSummaries.map((c) => (
+                  <Link
+                    key={`hub-quiz-link-${c.courseId}`}
+                    href={`/app/courses/${c.courseId}/quiz`}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] border border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/15 text-purple-700 dark:text-purple-300 font-medium transition max-w-full"
+                  >
+                    <span className="truncate max-w-[160px]">{c.title}</span>
+                    {(c.quizCount ?? 0) > 0 && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-purple-500/20 shrink-0">
+                        {c.quizCount} đề
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           {filteredCourses.length === 0 ? (
-            <Card className="p-8 text-center">
-              <BookOpen className="w-8 h-8 text-[var(--text-tertiary)] mx-auto mb-2" />
-              <p className="text-sm font-semibold text-[var(--text-primary)]">
-                Không tìm thấy khóa học phù hợp
-              </p>
-              <p className="text-xs text-[var(--text-secondary)] mt-1">
-                Thử xóa bộ lọc hoặc tạo khóa học mới trong mục Khóa học.
-              </p>
+            <Card className="p-8 text-center bg-[var(--surface-card)] border-[var(--border-calm)] shadow-elevation-1 space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-[var(--surface-elevated)] text-[var(--text-tertiary)] flex items-center justify-center mx-auto">
+                <BookOpen className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-[var(--text-primary)]">
+                  Không tìm thấy khóa học phù hợp
+                </p>
+                <p className="text-xs text-[var(--text-secondary)] max-w-md mx-auto">
+                  {searchQuery.trim() || courseFilter !== "all"
+                    ? "Thử xóa bộ lọc hoặc thay đổi từ khóa tìm kiếm để xem lại danh sách khóa học."
+                    : "Chưa có khóa học nào trong hệ thống. Hãy tạo khóa học mới trong mục Khóa học."}
+                </p>
+              </div>
+              {(searchQuery.trim() || courseFilter !== "all") && (
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setCourseFilter("all");
+                    }}
+                    className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] hover:bg-[var(--surface-card)] text-xs font-semibold text-[var(--text-primary)] transition cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Xóa bộ lọc</span>
+                  </button>
+                </div>
+              )}
             </Card>
           ) : (
             <div className="space-y-3.5">
@@ -634,7 +760,10 @@ export default function PracticeHubPage() {
                     : 0;
 
                 return (
-                  <Card key={course.courseId} className="overflow-hidden">
+                  <Card
+                    key={course.courseId}
+                    className="overflow-hidden border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 hover:shadow-elevation-2 transition-shadow"
+                  >
                     <div className={`h-1 w-full bg-gradient-to-r ${theme.accentBarClass}`} />
                     <div className="p-4 sm:p-5 space-y-4">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -645,8 +774,12 @@ export default function PracticeHubPage() {
                             >
                               {theme.domainLabel}
                             </span>
-                            <span className="text-xs text-[var(--text-tertiary)]">
+                            <span className="text-xs text-[var(--text-tertiary)] whitespace-nowrap">
                               {lessons.length} bài học
+                            </span>
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold border border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-md px-2 py-0.5 whitespace-nowrap">
+                              <ClipboardCheck className="w-3 h-3" />
+                              <span>{course.quizCount ?? 0} đề thi</span>
                             </span>
                             {(course.attemptCount ?? 0) > 0 && (
                               <span className="text-xs text-[var(--text-secondary)] font-medium">
@@ -690,6 +823,16 @@ export default function PracticeHubPage() {
                             </Link>
                           )}
 
+                          <Link
+                            href={`/app/courses/${course.courseId}/quiz`}
+                            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 text-xs font-semibold transition"
+                          >
+                            <ClipboardCheck className="w-3.5 h-3.5" />
+                            <span>
+                              Phòng thi &amp; Đề{(course.quizCount ?? 0) > 0 ? ` (${course.quizCount})` : ""}
+                            </span>
+                          </Link>
+
                           {lessons.length > 0 && (
                             <button
                               type="button"
@@ -707,43 +850,84 @@ export default function PracticeHubPage() {
                         </div>
                       </div>
 
-                      {/* Expandable Lessons Grid */}
-                      {isExpanded && lessons.length > 0 && (
-                        <div className="pt-3 border-t border-[var(--border-calm)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                          {lessons.map((lesson) => {
-                            const matchesSearch =
-                              !searchQuery.trim() ||
-                              normalizeVi(course.title).includes(normalizeVi(searchQuery)) ||
-                              normalizeVi(lesson.title).includes(normalizeVi(searchQuery)) ||
-                              normalizeVi(lesson.chapterTitle).includes(normalizeVi(searchQuery));
-                            if (!matchesSearch) return null;
+                      {/* Expandable Lessons (grouped by chapter when multi-chapter or >15 lessons) */}
+                      {isExpanded && lessons.length > 0 && (() => {
+                        const visibleLessons = lessons.filter(
+                          (lesson) =>
+                            !searchQuery.trim() ||
+                            normalizeVi(course.title).includes(normalizeVi(searchQuery)) ||
+                            normalizeVi(lesson.title).includes(normalizeVi(searchQuery)) ||
+                            normalizeVi(lesson.chapterTitle).includes(normalizeVi(searchQuery))
+                        );
 
-                            const doneAll =
-                              lesson.activityCount > 0 && lesson.passedCount >= lesson.activityCount;
+                        const chapterGroupsMap = new Map<string, PracticeLessonSummary[]>();
+                        for (const lesson of visibleLessons) {
+                          const chName = (lesson.chapterTitle || "").trim() || "Bài học";
+                          const list = chapterGroupsMap.get(chName);
+                          if (list) list.push(lesson);
+                          else chapterGroupsMap.set(chName, [lesson]);
+                        }
+                        const chapterGroups = Array.from(chapterGroupsMap.entries());
+                        const useChapterAccordions =
+                          chapterGroups.length > 1 || lessons.length > 15;
 
-                            return (
+                        const renderLessonCard = (lesson: PracticeLessonSummary) => {
+                          const doneAll =
+                            lesson.activityCount > 0 && lesson.passedCount >= lesson.activityCount;
+                          const lessonPct =
+                            lesson.activityCount > 0
+                              ? Math.round((lesson.passedCount / lesson.activityCount) * 100)
+                              : 0;
+
+                          return (
+                            <div
+                              key={lesson.lessonId}
+                              className="group p-3.5 rounded-[12px] border border-[var(--border-calm)] bg-[var(--surface-elevated)]/35 hover:border-[var(--accent)]/60 hover:bg-[var(--surface-elevated)]/70 transition flex flex-col justify-between gap-2.5 shadow-xs"
+                            >
                               <Link
-                                key={lesson.lessonId}
                                 href={buildPracticeLessonHref(course.courseId, lesson.lessonId)}
-                                className="group p-3 rounded-[10px] border border-[var(--border-calm)] bg-[var(--canvas-bg)] hover:border-[var(--accent)] hover:bg-[var(--surface-elevated)]/60 transition flex items-center justify-between gap-2.5"
+                                className="flex items-start justify-between gap-2 min-w-0"
+                                title={`Mở Code Lab thực hành: ${lesson.title}`}
                               >
-                                <div className="min-w-0 space-y-0.5">
-                                  <p className="text-[11px] text-[var(--text-tertiary)] truncate">
+                                <div className="min-w-0 space-y-1 flex-1">
+                                  <p className="text-[11px] font-medium text-[var(--text-tertiary)] truncate">
                                     {stripChapterPrefix(lesson.chapterTitle)}
                                   </p>
                                   <p className="text-xs font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] truncate">
                                     {lesson.title}
                                   </p>
-                                  <p className="text-[11px] text-[var(--text-secondary)]">
-                                    {lesson.activityCount > 0
-                                      ? `${lesson.passedCount}/${lesson.activityCount} đạt`
-                                      : "Thực hành tương tác"}
-                                  </p>
+                                  {lesson.activityCount > 0 ? (
+                                    <div className="space-y-1 pt-0.5">
+                                      <div className="flex items-center justify-between text-[11px]">
+                                        <span className="text-[var(--text-secondary)]">
+                                          {lesson.passedCount}/{lesson.activityCount} đạt
+                                        </span>
+                                        <span
+                                          className={`font-semibold tabular-nums ${
+                                            doneAll
+                                              ? "text-emerald-600 dark:text-emerald-400"
+                                              : "text-[var(--text-primary)]"
+                                          }`}
+                                        >
+                                          {lessonPct}%
+                                        </span>
+                                      </div>
+                                      <ProgressBar
+                                        value={lesson.passedCount}
+                                        max={lesson.activityCount}
+                                        size="sm"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <p className="text-[11px] text-[var(--text-secondary)]">
+                                      Thực hành tương tác
+                                    </p>
+                                  )}
                                 </div>
                                 <span
-                                  className={`shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full border transition ${
+                                  className={`shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full border transition mt-0.5 ${
                                     doneAll
-                                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                      ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
                                       : "border-[var(--border-calm)] bg-[var(--surface-card)] text-[var(--text-secondary)] group-hover:text-[var(--accent)] group-hover:border-[var(--accent)]"
                                   }`}
                                 >
@@ -754,10 +938,92 @@ export default function PracticeHubPage() {
                                   )}
                                 </span>
                               </Link>
-                            );
-                          })}
-                        </div>
-                      )}
+
+                              <div className="flex items-center justify-between gap-1.5 pt-2 border-t border-[var(--border-calm)]/70 text-[11px]">
+                                <Link
+                                  href={buildPracticeLessonHref(course.courseId, lesson.lessonId)}
+                                  className="inline-flex items-center gap-1 font-medium text-[var(--accent)] hover:underline"
+                                >
+                                  <Play className="w-3 h-3" />
+                                  <span>Thực hành Lab</span>
+                                </Link>
+
+                                <Link
+                                  href={`/app/courses/${course.courseId}/quiz?lessonId=${lesson.lessonId}`}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] border border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300 font-semibold hover:bg-purple-500/20 transition"
+                                  title={`Giải đề thi & trắc nghiệm cho bài: ${lesson.title}`}
+                                >
+                                  <ClipboardCheck className="w-3 h-3" />
+                                  <span>Giải đề</span>
+                                </Link>
+                              </div>
+                            </div>
+                          );
+                        };
+
+                        if (!useChapterAccordions) {
+                          return (
+                            <div className="pt-3 border-t border-[var(--border-calm)] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                              {visibleLessons.map(renderLessonCard)}
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="pt-3 border-t border-[var(--border-calm)] space-y-2.5">
+                            {chapterGroups.map(([chapterTitle, chapterLessons], chIdx) => {
+                              const chKey = `${course.courseId}::${chapterTitle}`;
+                              const defaultOpen = chIdx === 0;
+                              const open = isChapterExpanded(chKey, defaultOpen);
+                              const chTotalAct = chapterLessons.reduce((acc, l) => acc + l.activityCount, 0);
+                              const chPassedAct = chapterLessons.reduce((acc, l) => acc + l.passedCount, 0);
+                              const chPct = chTotalAct > 0 ? Math.round((chPassedAct / chTotalAct) * 100) : null;
+
+                              return (
+                                <div
+                                  key={chKey}
+                                  className="rounded-[12px] border border-[var(--border-calm)] bg-[var(--surface-card)] overflow-hidden"
+                                >
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleChapterExpanded(chKey, defaultOpen)}
+                                    className="w-full px-3.5 py-2.5 flex items-center justify-between gap-3 text-left hover:bg-[var(--surface-elevated)]/60 transition cursor-pointer"
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      {open ? (
+                                        <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" />
+                                      ) : (
+                                        <ChevronRight className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" />
+                                      )}
+                                      <Layers className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
+                                      <span className="text-xs sm:text-sm font-semibold text-[var(--text-primary)] truncate">
+                                        {stripChapterPrefix(chapterTitle) || chapterTitle}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                      {chPct !== null && (
+                                        <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold text-[var(--text-secondary)] tabular-nums">
+                                          <span>{chPassedAct}/{chTotalAct}</span>
+                                          <span className="text-[var(--accent)]">({chPct}%)</span>
+                                        </span>
+                                      )}
+                                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[var(--surface-elevated)] text-[var(--text-secondary)]">
+                                        {chapterLessons.length} bài
+                                      </span>
+                                    </div>
+                                  </button>
+
+                                  {open && (
+                                    <div className="p-3 pt-1 border-t border-[var(--border-calm)]/70 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {chapterLessons.map(renderLessonCard)}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </Card>
                 );

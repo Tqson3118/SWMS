@@ -32,10 +32,12 @@ frontend/test-results/
 
 # Local runtime databases & logs
 *.db
+*.db.bak*
 *.db-shm
 *.db-wal
 *.log
 *.log.err
+__pycache__/
 frontend/tsconfig.tsbuildinfo
 test-fixtures/oversized-51mb.pdf
 test-fixtures/zero-byte.pdf
@@ -43,3 +45,4 @@ test-fixtures/zero-byte.txt
 
 # Local personal study notes (kept on disk, excluded from public repo)
 /document/
+/course/

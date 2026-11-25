@@ -5,8 +5,10 @@ import { getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { invalidateDashboardCache } from "@/lib/api-client";
 import { resolvePracticeSelection, type CodingTabMode } from "@/lib/practice-helpers";
 import {
+  detectCodingCategory,
   evaluateFillCodeBlanks,
   evaluateParsonsOrder,
+  isAsciiOrNonCodeBlock,
   normalizeCodingActivities,
   type BugFixWriteInItem,
   type JsSandboxExerciseItem,
@@ -2257,107 +2259,6 @@ export function CodingPracticeLab({
   initialActivityType,
   initialActivityKey,
 }: PracticeModuleProps) {
-  // Tự động nhận diện chủ đề học tập
-  const detectedCategory = useMemo<TopicCategory>(() => {
-    const text = `${courseTitle} ${lessonTitle} ${lessonMarkdown}`.toLowerCase();
-    if (text.includes("hệ điều hành") || text.includes("tlb") || text.includes("bộ nhớ ảo") || text.includes("phân trang") || text.includes("deadlock")) {
-      return "os";
-    }
-    if (text.includes("sql") || text.includes("database") || text.includes("join") || text.includes("truy vấn") || text.includes("injection")) {
-      return "sql";
-    }
-    if (text.includes("react") || text.includes("useeffect") || text.includes("usestate") || text.includes("hook") || text.includes("closure")) {
-      return "react";
-    }
-    if (text.includes(".net") || text.includes("c#") || text.includes("csharp") || text.includes("ef core") || text.includes("async")) {
-      return "dotnet";
-    }
-    return "dotnet";
-  }, [courseTitle, lessonTitle, lessonMarkdown]);
-
-  // Trích xuất code block từ lessonMarkdown nếu có
-  const extractedExercises = useMemo<FillCodeExercise[]>(() => {
-    if (!lessonMarkdown) return [];
-    const codeBlockRegex = /```([a-zA-Z0-9_-]*)\r?\n([\s\S]*?)```/g;
-    const list: FillCodeExercise[] = [];
-    let match: RegExpExecArray | null;
-    let idx = 0;
-
-    while ((match = codeBlockRegex.exec(lessonMarkdown)) !== null) {
-      const rawLang = (match[1] || "csharp").toLowerCase();
-      const code = match[2].trim();
-      const lines = code.split("\n");
-      if (lines.length >= 4 && lines.length <= 25) {
-        idx++;
-        // Tìm dòng có từ khóa thích hợp để tạo chỗ trống
-        const candidateLineIndex = lines.findIndex((l) =>
-          /\b(await|return|async|const|function|public|SELECT|WHERE|JOIN)\b/.test(l)
-        );
-
-        if (candidateLineIndex !== -1) {
-          const targetLine = lines[candidateLineIndex];
-          const words = targetLine.trim().split(/\s+/);
-          const blankWord = words[0] || "return";
-          const replacedTemplate = [...lines];
-          replacedTemplate[candidateLineIndex] = targetLine.replace(blankWord, "{{BLANK_0}}");
-
-          list.push({
-            id: `extracted-${idx}`,
-            title: `Trích xuất từ bài học: Đoạn mã #${idx} (${rawLang.toUpperCase()})`,
-            category: rawLang.includes("sql") ? "sql" : rawLang.includes("ts") || rawLang.includes("js") ? "react" : "dotnet",
-            language: rawLang || "code",
-            description: `Đoạn code thực tế được trích xuất trực tiếp từ bài học '${lessonTitle}'.`,
-            practicalScenario: "Thực hành điền từ khóa điều hướng cốt lõi trong đoạn code trích xuất từ bài giảng.",
-            codeTemplate: replacedTemplate,
-            blanks: [
-              {
-                id: `eb0`,
-                blankIndex: 0,
-                expected: blankWord,
-                acceptableAnswers: [blankWord],
-                hint: `Từ khóa dòng ${candidateLineIndex + 1}`,
-                chips: Array.from(new Set([blankWord, "return", "await", "const"])),
-                explanation: `Từ khóa '${blankWord}' giữ vai trò thực thi cốt lõi tại dòng này.`,
-              },
-            ],
-            lineExplanations: [
-              {
-                lineNumber: candidateLineIndex + 1,
-                codeSnippet: targetLine.trim(),
-                purpose: "Dòng xử lý mấu chốt được trích xuất từ bài giảng.",
-                riskIfWrong: "Nếu thiếu từ khóa này, chương trình sẽ báo lỗi cú pháp hoặc sai luồng dữ liệu.",
-              },
-            ],
-            isExtractedFromMarkdown: true,
-          });
-        }
-      }
-    }
-    return list;
-  }, [lessonMarkdown, lessonTitle]);
-
-  const resolvedInitialCodingMode = useMemo(() => {
-    const resolved = resolvePracticeSelection(
-      initialActivityType,
-      initialActivityKey,
-      courseTitle,
-      lessonTitle,
-      lessonMarkdown
-    );
-    return resolved?.labMode === "code" && resolved.codingTab ? resolved.codingTab : null;
-  }, [initialActivityType, initialActivityKey, courseTitle, lessonTitle, lessonMarkdown]);
-
-  const [activeMainMode, setActiveMainMode] = useState<MainPracticeMode>(
-    resolvedInitialCodingMode ?? "fill-code"
-  );
-  useEffect(() => {
-    if (resolvedInitialCodingMode) {
-      setActiveMainMode(resolvedInitialCodingMode);
-    }
-  }, [resolvedInitialCodingMode]);
-  const [selectedTopic, setSelectedTopic] = useState<TopicCategory>("auto");
-  const currentEffectiveCategory = selectedTopic === "auto" ? detectedCategory : selectedTopic;
-
   const [dbActivities, setDbActivities] = useState<any[]>([]);
   const [practiceAttempts, setPracticeAttempts] = useState<any[]>([]);
   const [isLoadingBackend, setIsLoadingBackend] = useState(false);
@@ -2365,11 +2266,20 @@ export function CodingPracticeLab({
   useEffect(() => {
     let isMounted = true;
     async function loadBackendPractice() {
+      const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const validCourseId = courseId && UUID_REGEX.test(courseId) ? courseId : null;
+      const validLessonId = lessonId && UUID_REGEX.test(lessonId) ? lessonId : null;
+      if (!validCourseId && !validLessonId) {
+        return;
+      }
       setIsLoadingBackend(true);
       try {
         const headers = getClientRequestHeaders();
-        const actUrl = `/api/v1/practice/activities?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}`;
-        const attUrl = `/api/v1/practice/attempts?courseId=${encodeURIComponent(courseId)}${lessonId ? `&lessonId=${encodeURIComponent(lessonId)}` : ""}`;
+        const queryParams = new URLSearchParams();
+        if (validCourseId) queryParams.set("courseId", validCourseId);
+        if (validLessonId) queryParams.set("lessonId", validLessonId);
+        const actUrl = `/api/v1/practice/activities?${queryParams.toString()}`;
+        const attUrl = `/api/v1/practice/attempts?${queryParams.toString()}`;
 
         const [actRes, attRes] = await Promise.all([
           fetch(actUrl, { headers }).catch(() => null),
@@ -2404,6 +2314,117 @@ export function CodingPracticeLab({
     () => normalizeCodingActivities(dbActivities),
     [dbActivities]
   );
+
+  // Tự động nhận diện chủ đề học tập
+  const detectedCategory = useMemo<TopicCategory>(() => {
+    return detectCodingCategory({
+      fillCodeCategory: normalizedCodingBank.fillCode[0]?.category,
+      language:
+        normalizedCodingBank.fillCode[0]?.language ||
+        normalizedCodingBank.bugFix[0]?.language,
+      courseTitle,
+      lessonTitle,
+      lessonMarkdown,
+    });
+  }, [
+    normalizedCodingBank.fillCode,
+    normalizedCodingBank.bugFix,
+    courseTitle,
+    lessonTitle,
+    lessonMarkdown,
+  ]);
+
+  // Trích xuất code block từ lessonMarkdown nếu có (lọc sạch ASCII/Mermaid)
+  const extractedExercises = useMemo<FillCodeExercise[]>(() => {
+    if (!lessonMarkdown) return [];
+    const codeBlockRegex = /```([a-zA-Z0-9_-]*)\r?\n([\s\S]*?)```/g;
+    const list: FillCodeExercise[] = [];
+    let match: RegExpExecArray | null;
+    let idx = 0;
+
+    while ((match = codeBlockRegex.exec(lessonMarkdown)) !== null) {
+      const rawLang = (match[1] || "").toLowerCase();
+      const code = match[2].trim();
+      if (isAsciiOrNonCodeBlock(rawLang, code)) {
+        continue;
+      }
+      const lines = code.split("\n");
+      if (lines.length >= 4 && lines.length <= 25) {
+        idx++;
+        // Tìm dòng có từ khóa thích hợp để tạo chỗ trống
+        const candidateLineIndex = lines.findIndex((l) =>
+          /\b(await|return|async|const|function|public|SELECT|WHERE|JOIN|def|import|from)\b/i.test(l)
+        );
+
+        if (candidateLineIndex !== -1) {
+          const targetLine = lines[candidateLineIndex];
+          const words = targetLine.trim().split(/\s+/);
+          const blankWord = words[0] || "return";
+          const replacedTemplate = [...lines];
+          replacedTemplate[candidateLineIndex] = targetLine.replace(blankWord, "{{BLANK_0}}");
+
+          const inferredCategory = detectCodingCategory({
+            language: rawLang,
+            courseTitle,
+            lessonTitle,
+          });
+
+          list.push({
+            id: `extracted-${idx}`,
+            title: `Trích xuất từ bài học: Đoạn mã #${idx} (${(rawLang || "CODE").toUpperCase()})`,
+            category: inferredCategory,
+            language: rawLang || "code",
+            description: `Đoạn code thực tế được trích xuất trực tiếp từ bài học '${lessonTitle}'.`,
+            practicalScenario: "Thực hành điền từ khóa điều hướng cốt lõi trong đoạn code trích xuất từ bài giảng.",
+            codeTemplate: replacedTemplate,
+            blanks: [
+              {
+                id: `eb0`,
+                blankIndex: 0,
+                expected: blankWord,
+                acceptableAnswers: [blankWord],
+                hint: `Từ khóa dòng ${candidateLineIndex + 1}`,
+                chips: Array.from(new Set([blankWord, "return", "await", "const", "def"])),
+                explanation: `Từ khóa '${blankWord}' giữ vai trò thực thi cốt lõi tại dòng này.`,
+              },
+            ],
+            lineExplanations: [
+              {
+                lineNumber: candidateLineIndex + 1,
+                codeSnippet: targetLine.trim(),
+                purpose: "Dòng xử lý mấu chốt được trích xuất từ bài giảng.",
+                riskIfWrong: "Nếu thiếu từ khóa này, chương trình sẽ báo lỗi cú pháp hoặc sai luồng dữ liệu.",
+              },
+            ],
+            isExtractedFromMarkdown: true,
+          });
+        }
+      }
+    }
+    return list;
+  }, [lessonMarkdown, lessonTitle, courseTitle]);
+
+  const resolvedInitialCodingMode = useMemo(() => {
+    const resolved = resolvePracticeSelection(
+      initialActivityType,
+      initialActivityKey,
+      courseTitle,
+      lessonTitle,
+      lessonMarkdown
+    );
+    return resolved?.labMode === "code" && resolved.codingTab ? resolved.codingTab : null;
+  }, [initialActivityType, initialActivityKey, courseTitle, lessonTitle, lessonMarkdown]);
+
+  const [activeMainMode, setActiveMainMode] = useState<MainPracticeMode>(
+    resolvedInitialCodingMode ?? "fill-code"
+  );
+  useEffect(() => {
+    if (resolvedInitialCodingMode) {
+      setActiveMainMode(resolvedInitialCodingMode);
+    }
+  }, [resolvedInitialCodingMode]);
+  const [selectedTopic, setSelectedTopic] = useState<TopicCategory>("auto");
+  const currentEffectiveCategory = selectedTopic === "auto" ? detectedCategory : selectedTopic;
 
   const combinedBugFixItems = useMemo<BugFixWriteInItem[]>(() => {
     const builtInMapped: BugFixWriteInItem[] = BUG_HUNTER_SCENARIOS.map((sc) => ({
@@ -2502,8 +2523,8 @@ export function CodingPracticeLab({
   // ----------------------------------------------------
   // CHẾ ĐỘ 1: ĐIỀN CODE CÒN THIẾU
   // ----------------------------------------------------
-  const allFillExercises = useMemo(() => {
-    const dbMapped: FillCodeExercise[] = normalizedCodingBank.fillCode.map((item) => ({
+  const dbMappedExercises = useMemo<FillCodeExercise[]>(() => {
+    return normalizedCodingBank.fillCode.map((item) => ({
       id: item.id,
       title: item.title,
       category: item.category,
@@ -2514,19 +2535,32 @@ export function CodingPracticeLab({
       blanks: item.blanks,
       lineExplanations: item.lineExplanations,
     }));
-    return [...dbMapped, ...extractedExercises, ...DEFAULT_FILL_EXERCISES];
-  }, [normalizedCodingBank.fillCode, extractedExercises]);
+  }, [normalizedCodingBank.fillCode]);
 
-  const filteredFillExercises = useMemo(() => {
-    if (normalizedCodingBank.fillCode.length > 0 && selectedTopic === "auto") {
-      return allFillExercises;
-    }
+  const allFillExercises = useMemo<FillCodeExercise[]>(() => {
+    return [...dbMappedExercises, ...extractedExercises, ...DEFAULT_FILL_EXERCISES];
+  }, [dbMappedExercises, extractedExercises]);
+
+  const filteredFillExercises = useMemo<FillCodeExercise[]>(() => {
     if (selectedTopic === "auto") {
-      const match = allFillExercises.filter((ex) => ex.category === detectedCategory);
-      return match.length > 0 ? match : allFillExercises;
+      // Ưu tiên DB Activities (BootcampPracticeActivityCatalog)
+      // Khi normalizedCodingBank.fillCode.length > 0: CHỈ hiển thị bài từ DB (dbMapped) và các đoạn code hợp lệ
+      // trích xuất từ bài học (extractedExercises), ưu tiên dbMapped ở đầu; KHÔNG trộn DEFAULT_FILL_EXERCISES.
+      if (dbMappedExercises.length > 0) {
+        const combined = [...dbMappedExercises, ...extractedExercises];
+        return combined.length > 0 ? combined : DEFAULT_FILL_EXERCISES;
+      }
+      if (extractedExercises.length > 0) {
+        return extractedExercises;
+      }
+      const match = DEFAULT_FILL_EXERCISES.filter((ex) => ex.category === detectedCategory);
+      return match.length > 0 ? match : DEFAULT_FILL_EXERCISES;
     }
-    return allFillExercises.filter((ex) => ex.category === selectedTopic);
-  }, [normalizedCodingBank.fillCode.length, selectedTopic, detectedCategory, allFillExercises]);
+    // Khi user tự chuyển filter sang chủ đề cụ thể (dotnet | react | sql | os):
+    const customList = [...dbMappedExercises, ...extractedExercises, ...DEFAULT_FILL_EXERCISES];
+    const match = customList.filter((ex) => ex.category === selectedTopic);
+    return match.length > 0 ? match : customList;
+  }, [selectedTopic, dbMappedExercises, extractedExercises, detectedCategory]);
 
   const [currentFillExerciseIndex, setCurrentFillExerciseIndex] = useState(0);
   const activeFillExercise = filteredFillExercises[currentFillExerciseIndex] || allFillExercises[0];
@@ -2815,13 +2849,16 @@ export function CodingPracticeLab({
       }
     }
 
-    // 2. Extract Code Blocks (C#, TS, SQL, etc.)
-    const codeRegex = /```(csharp|cs|typescript|ts|tsx|javascript|js|sql|json)\s*\r?\n([\s\S]*?)```/g;
+    // 2. Extract Code Blocks (C#, TS, SQL, Python, Bash, etc. - bỏ qua sơ đồ ASCII / Mermaid)
+    const codeRegex = /```(csharp|cs|typescript|ts|tsx|javascript|js|sql|python|py|bash|sh|dockerfile|json)\s*\r?\n([\s\S]*?)```/g;
     let km: RegExpExecArray | null;
     let codeIdx = 1;
     while ((km = codeRegex.exec(lessonMarkdown)) !== null) {
       const lang = km[1];
       const code = km[2].trim();
+      if (isAsciiOrNonCodeBlock(lang, code)) {
+        continue;
+      }
       if (code.length > 20) {
         const firstLine = code.split(/\r?\n/)[0].trim().slice(0, 50);
         tasks.push({
@@ -2873,9 +2910,37 @@ export function CodingPracticeLab({
     return tasks;
   }, [lessonMarkdown]);
 
+  const initialSandboxLang = useMemo(() => {
+    if (normalizedCodingBank.fillCode.length > 0 && normalizedCodingBank.fillCode[0].language) {
+      return normalizedCodingBank.fillCode[0].language.toLowerCase();
+    }
+    if (normalizedCodingBank.bugFix.length > 0 && normalizedCodingBank.bugFix[0].language) {
+      return normalizedCodingBank.bugFix[0].language.toLowerCase();
+    }
+    if (normalizedCodingBank.jsSandbox.length > 0) {
+      return "javascript";
+    }
+    if (lessonMarkdown) {
+      const codeBlockRegex = /```([a-zA-Z0-9_-]*)\r?\n([\s\S]*?)```/g;
+      let m: RegExpExecArray | null;
+      while ((m = codeBlockRegex.exec(lessonMarkdown)) !== null) {
+        const rawLang = (m[1] || "").toLowerCase();
+        const code = m[2].trim();
+        if (!isAsciiOrNonCodeBlock(rawLang, code) && rawLang) {
+          return rawLang;
+        }
+      }
+    }
+    if (detectedCategory === "sql") return "sql";
+    if (detectedCategory === "os") return "python";
+    if (detectedCategory === "react") return "typescript";
+    if (detectedCategory === "dotnet") return "csharp";
+    return "javascript";
+  }, [normalizedCodingBank, lessonMarkdown, detectedCategory]);
+
   const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(new Set());
   const [sandboxCode, setSandboxCode] = useState<string>("");
-  const [sandboxLang, setSandboxLang] = useState<string>("csharp");
+  const [sandboxLang, setSandboxLang] = useState<string>(initialSandboxLang);
   const [aiReviewLoading, setAiReviewLoading] = useState(false);
   const [aiReviewResult, setAiReviewResult] = useState<{
     status: "success" | "warning" | "error";
@@ -2885,10 +2950,12 @@ export function CodingPracticeLab({
 
   useEffect(() => {
     if (!sandboxCode) {
-      const firstCode = extractedLessonTasks.find(t => t.snippet);
+      const firstCode = extractedLessonTasks.find(t => t.snippet && !isAsciiOrNonCodeBlock(t.language, t.snippet));
       if (firstCode && firstCode.snippet) {
         setSandboxCode(firstCode.snippet);
-        setSandboxLang(firstCode.language || "csharp");
+        if (firstCode.language) {
+          setSandboxLang(firstCode.language.toLowerCase());
+        }
       }
     }
   }, [extractedLessonTasks, sandboxCode]);
@@ -2912,12 +2979,15 @@ export function CodingPracticeLab({
     }
     setAiReviewLoading(true);
     try {
+      const headers = getClientRequestHeaders({ "Content-Type": "application/json" });
       const resp = await fetch("/api/v1/ai/explain", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
-          code: sandboxCode,
-          context: `Đánh giá mã nguồn ${sandboxLang} trong bài học: ${lessonTitle}. Kiểm tra tính đúng đắn cú pháp, phong cách code, lỗi tiềm ẩn và cách tối ưu.`,
+          excerpt: sandboxCode,
+          contextTitle: `Mã nguồn ${sandboxLang} — ${lessonTitle}`,
+          actionType: "explain",
+          language: sandboxLang,
         }),
       });
       if (resp.ok) {
@@ -2933,22 +3003,82 @@ export function CodingPracticeLab({
         });
       } else {
         const lines = sandboxCode.split("\n").length;
-        const hasTryCatch = /try\s*\{[\s\S]*catch/i.test(sandboxCode);
-        const hasAsync = /async\s+|await\s+/i.test(sandboxCode);
+        const normLang = (sandboxLang || "").toLowerCase();
+        let feedback = `Phân tích tĩnh (${lines} dòng code, ${normLang}): Cấu trúc mã nguồn hoàn chỉnh.`;
+        let suggestions: string[] = [];
+
+        if (normLang === "sql" || normLang.includes("sql")) {
+          const hasJoin = /\bjoin\b/i.test(sandboxCode);
+          const hasWhere = /\bwhere\b/i.test(sandboxCode);
+          feedback = `Phân tích tĩnh SQL (${lines} dòng): Cú pháp truy vấn chuẩn. ${hasWhere ? "Có mệnh đề WHERE lọc dữ liệu." : "Lưu ý: Thiếu điều kiện WHERE có thể gây quét toàn bảng (Full Table Scan)."} ${hasJoin ? "Sử dụng phép JOIN kết nối bảng." : ""}`;
+          suggestions = [
+            "Đảm bảo các cột trong điều kiện WHERE/JOIN đã được đánh Index phù hợp.",
+            "Sử dụng Parameterized Queries để phòng chống triệt để tấn công SQL Injection.",
+            "Kiểm tra kế hoạch thực thi (Execution Plan) để tránh tải thừa dữ liệu.",
+          ];
+        } else if (normLang === "python" || normLang === "py") {
+          const hasAsync = /async\s+def|await\s+/i.test(sandboxCode);
+          const hasTypeHints = /:\s*[A-Z][a-zA-Z0-9_]*|->/i.test(sandboxCode);
+          feedback = `Phân tích tĩnh Python (${lines} dòng): Cấu trúc hàm logic rõ ràng. ${hasAsync ? "Sử dụng async/await bất đồng bộ (httpx/FastAPI/asyncio) hiệu quả." : ""} ${hasTypeHints ? "Có Type Hints giúp tăng độ tin cậy của mã nguồn." : "Khuyến nghị: Thêm Type Hints / Pydantic schema cho tham số."}`;
+          suggestions = [
+            "Sử dụng Pydantic hoặc Data Classes để validate dữ liệu đầu vào chặt chẽ.",
+            "Khi gọi I/O mạng hoặc LLM, ưu tiên async httpx / aiohttp thay vì blocking requests.",
+            "Bắt ngoại lệ cụ thể thay vì dùng except Exception chung chung.",
+          ];
+        } else if (normLang.includes("js") || normLang.includes("ts") || normLang.includes("react")) {
+          const hasStrictEq = /===/i.test(sandboxCode);
+          const hasConst = /\bconst\b/i.test(sandboxCode);
+          feedback = `Phân tích tĩnh JavaScript/TypeScript (${lines} dòng): Cú pháp hiện đại (ES6+). ${hasStrictEq ? "Sử dụng so sánh nghiêm ngặt (===) tránh ép kiểu ngầm định." : "Khuyến nghị: Luôn dùng === thay cho ==."} ${hasConst ? "Ưu tiên const/let đảm bảo tính bất biến (Immutability)." : ""}`;
+          suggestions = [
+            "Tuân thủ nguyên tắc Immutability khi cập nhật state hoặc xử lý mảng/đối tượng.",
+            "Sử dụng toán tử so sánh nghiêm ngặt (===) để tránh lỗi ép kiểu.",
+            "Kiểm tra null/undefined bằng Optional Chaining (?.) và Nullish Coalescing (??).",
+          ];
+        } else if (normLang === "bash" || normLang === "sh" || normLang === "shell" || normLang.includes("docker")) {
+          feedback = `Phân tích tĩnh Shell/DevOps (${lines} dòng): Lệnh cấu hình hệ thống hợp lệ.`;
+          suggestions = [
+            "Đảm bảo không chạy container hoặc tiến trình dưới quyền root (chạy dưới non-root user).",
+            "Thiết lập quyền truy cập tệp hợp lý (chmod 600/700) cho các file cấu hình và private keys.",
+            "Thêm chỉ thị HEALTHCHECK trong Dockerfile để giám sát trạng thái dịch vụ tự động.",
+          ];
+        } else {
+          // C# / .NET
+          const hasTryCatch = /try\s*\{[\s\S]*catch/i.test(sandboxCode);
+          const hasAsync = /async\s+|await\s+/i.test(sandboxCode);
+          feedback = `Phân tích tĩnh C#/.NET (${lines} dòng): Cấu trúc hoàn chỉnh. ${hasTryCatch ? "Có khối xử lý ngoại lệ an toàn." : "Khuyến nghị: Thêm khối try-catch để phòng ngừa lỗi runtime."} ${hasAsync ? "Sử dụng mô hình bất đồng bộ (Async/Await) chuẩn xác." : ""}`;
+          suggestions = [
+            "Kiểm tra tính nhất quán trong đặt tên biến (PascalCase / camelCase).",
+            "Đảm bảo tài nguyên unmanaged được giải phóng đúng cách (using statement hoặc IDisposable).",
+          ];
+        }
+
         setAiReviewResult({
           status: "success",
-          feedback: `Phân tích tĩnh (${lines} dòng code): Cấu trúc hoàn chỉnh. ${hasTryCatch ? "Có khối xử lý ngoại lệ an toàn." : "Khuyến nghị: Thêm khối try-catch để phòng ngừa lỗi runtime."} ${hasAsync ? "Sử dụng mô hình bất đồng bộ (Async/Await) chuẩn xác." : ""}`,
-          suggestions: [
-            "Kiểm tra tính nhất quán trong đặt tên biến (PascalCase / camelCase).",
-            "Đảm bảo tài nguyên được giải phóng đúng cách (using statement hoặc IDisposable).",
-          ],
+          feedback,
+          suggestions,
         });
       }
     } catch {
+      const normLang = (sandboxLang || "").toLowerCase();
+      let feedback = `Đã phân tích code cục bộ (${normLang}): Không phát hiện lỗi cú pháp nghiêm trọng.`;
+      let suggestions = ["Kiểm tra kỹ đầu vào và các trường hợp biên."];
+      if (normLang === "sql" || normLang.includes("sql")) {
+        feedback = "Đã phân tích SQL cục bộ: Cú pháp câu lệnh hợp lệ.";
+        suggestions = ["Kiểm tra Index và dùng Parameterized Query để phòng chống SQL Injection."];
+      } else if (normLang === "python" || normLang === "py") {
+        feedback = "Đã phân tích Python cục bộ: Không phát hiện lỗi cú pháp.";
+        suggestions = ["Kiểm tra type hints và xử lý async/await hoặc Pydantic validation."];
+      } else if (normLang.includes("js") || normLang.includes("ts")) {
+        feedback = "Đã phân tích JS/TS cục bộ: Cú pháp chuẩn.";
+        suggestions = ["Tuân thủ tính bất biến (Immutability) và dùng === thay vì ==."];
+      } else if (normLang === "bash" || normLang.includes("docker")) {
+        feedback = "Đã phân tích script DevOps cục bộ: Cú pháp lệnh hợp lệ.";
+        suggestions = ["Đảm bảo cấu hình chạy với user non-root và thêm HEALTHCHECK."];
+      }
       setAiReviewResult({
         status: "warning",
-        feedback: "Đã phân tích code cục bộ: Không phát hiện lỗi cú pháp nghiêm trọng.",
-        suggestions: ["Kiểm tra kỹ đầu vào và các trường hợp biên."],
+        feedback,
+        suggestions,
       });
     } finally {
       setAiReviewLoading(false);
@@ -3172,11 +3302,21 @@ export function CodingPracticeLab({
               onChange={(e) => setSelectedTopic(e.target.value as TopicCategory)}
               className="min-h-[44px] px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
             >
-              <option value="auto">Tự động nhận diện ({detectedCategory.toUpperCase()})</option>
+              <option value="auto">
+                Tự động nhận diện (
+                {detectedCategory === "dotnet"
+                  ? ".NET 10 / C# & EF Core"
+                  : detectedCategory === "react"
+                  ? "Web / JS / TypeScript / React"
+                  : detectedCategory === "sql"
+                  ? "SQL & Database"
+                  : "Hệ thống / Python / DevOps"}
+                )
+              </option>
               <option value="dotnet">.NET 10 / C# & EF Core</option>
-              <option value="react">React 19 / TypeScript</option>
-              <option value="sql">SQL & Security Injection</option>
-              <option value="os">Hệ Điều Hành & Bộ Nhớ</option>
+              <option value="react">Web / JS / TypeScript / React</option>
+              <option value="sql">SQL & Database</option>
+              <option value="os">Hệ thống / Python / DevOps</option>
             </select>
           </div>
         </div>
@@ -3200,12 +3340,12 @@ export function CodingPracticeLab({
                 )}
                 <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">
                   {activeFillExercise.category === "dotnet"
-                    ? "ASP.NET Core / EF Core"
+                    ? ".NET 10 / C# & EF Core"
                     : activeFillExercise.category === "react"
-                    ? "React Lifecycle"
+                    ? "Web / JS / TypeScript / React"
                     : activeFillExercise.category === "sql"
-                    ? "Database Security"
-                    : "Operating Systems"}
+                    ? "SQL & Database"
+                    : "Hệ thống / Python / DevOps"}
                 </span>
               </div>
               <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 mt-1">

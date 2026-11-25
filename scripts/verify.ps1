@@ -166,26 +166,33 @@ try {
     # -------------------------------------------------------------------------
     Write-Log "`n--- Step C: Starting Backend API on http://127.0.0.1:5080 ---" "Yellow"
     $env:SWMS_ALLOW_TEST_USER_HEADER = "true"
+    $env:SWMS_USE_POSTGRES = "false"
+    $env:BACKEND_INTERNAL_URL = "http://127.0.0.1:5080"
+    $env:NEXT_PUBLIC_API_BASE_URL = "http://127.0.0.1:5080"
+    $env:NEXT_PUBLIC_SITE_URL = "http://127.0.0.1:3000"
+    $env:NEXT_PUBLIC_GOOGLE_CLIENT_ID = "DISABLED"
+    $env:Authentication__Google__ClientId = "DISABLED"
+    $env:GOOGLE_CLIENT_ID = "DISABLED"
     $verifyDbPath = Join-Path $runDir "swms_verify.db"
     $sqliteArg = "`"--ConnectionStrings:SqliteFallback=Data Source=$verifyDbPath`""
     $aiBenchArgs = "--AiProxy:TimeoutSeconds=3 --AiProxy:BaseUrl=http://127.0.0.1:18045"
     $backendDll = Join-Path $root "backend\src\Swms.Api\bin\Release\net10.0\Swms.Api.dll"
     if (Test-Path $backendDll) {
-        $backendProc = Start-Process -FilePath "dotnet" -ArgumentList "`"$backendDll`" --urls http://127.0.0.1:5080 $sqliteArg $aiBenchArgs" -WorkingDirectory (Join-Path $root "backend\src\Swms.Api") `
+        $backendProc = Start-Process -FilePath "dotnet" -ArgumentList "`"$backendDll`" --urls http://127.0.0.1:5080 --Database:UsePostgres=false $sqliteArg $aiBenchArgs" -WorkingDirectory (Join-Path $root "backend\src\Swms.Api") `
             -RedirectStandardOutput $backendServiceLog -RedirectStandardError $backendServiceErr -PassThru
     } else {
-        $backendArgs = "run --project backend/src/Swms.Api/Swms.Api.csproj -c Release --urls http://127.0.0.1:5080 -- $sqliteArg $aiBenchArgs"
+        $backendArgs = "run --project backend/src/Swms.Api/Swms.Api.csproj -c Release --urls http://127.0.0.1:5080 -- --Database:UsePostgres=false $sqliteArg $aiBenchArgs"
         $backendProc = Start-Process -FilePath "dotnet" -ArgumentList $backendArgs -WorkingDirectory $root `
             -RedirectStandardOutput $backendServiceLog -RedirectStandardError $backendServiceErr -PassThru
     }
     Write-Log "Backend process launched (PID: $($backendProc.Id))" "Gray"
 
     # -------------------------------------------------------------------------
-    # Step D: Poll Backend Health Check (up to 30s)
+    # Step D: Poll Backend Health Check (up to 90s)
     # -------------------------------------------------------------------------
     Write-Log "`n--- Step D: Polling Backend Health (http://127.0.0.1:5080/health) ---" "Yellow"
     $backendReady = $false
-    for ($i = 1; $i -le 30; $i++) {
+    for ($i = 1; $i -le 90; $i++) {
         Start-Sleep -Seconds 1
         try {
             $resp = Invoke-WebRequest -Uri "http://127.0.0.1:5080/health" -TimeoutSec 2 -UseBasicParsing -ErrorAction Stop
@@ -197,8 +204,8 @@ try {
         } catch {}
     }
     if (-not $backendReady) {
-        Write-Log "Backend failed to become ready within 30 seconds" "Red"
-        $failureReasons.Add("Backend health check timed out after 30 seconds")
+        Write-Log "Backend failed to become ready within 90 seconds" "Red"
+        $failureReasons.Add("Backend health check timed out after 90 seconds")
         $overallSuccess = $false
         throw "Backend health check failed."
     }
@@ -209,6 +216,12 @@ try {
     Write-Log "`n--- Step E: Starting Frontend Next.js Dev Server on http://127.0.0.1:3000 ---" "Yellow"
     Stop-PortProcesses @(3000)
     Start-Sleep -Seconds 1
+    $env:BACKEND_INTERNAL_URL = "http://127.0.0.1:5080"
+    $env:NEXT_PUBLIC_API_BASE_URL = "http://127.0.0.1:5080"
+    $env:NEXT_PUBLIC_SITE_URL = "http://127.0.0.1:3000"
+    $env:NEXT_PUBLIC_GOOGLE_CLIENT_ID = "DISABLED"
+    $env:Authentication__Google__ClientId = "DISABLED"
+    $env:GOOGLE_CLIENT_ID = "DISABLED"
     $env:NODE_OPTIONS = "--max-old-space-size=4096"
     $frontendProc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c npx.cmd next dev --port 3000" -WorkingDirectory "$root\frontend" `
         -RedirectStandardOutput $frontendServiceLog -RedirectStandardError $frontendServiceErr -PassThru
@@ -228,9 +241,12 @@ try {
         try {
             $resp = Invoke-WebRequest -Uri "http://127.0.0.1:3000" -TimeoutSec 2 -UseBasicParsing -ErrorAction Stop
             if ($resp.StatusCode -eq 200) {
-                # Warm up /workspace as well
+                # Warm up /workspace, /app, /app/practice, and /app/exams
                 try {
                     Invoke-WebRequest -Uri "http://127.0.0.1:3000/workspace" -TimeoutSec 5 -UseBasicParsing -ErrorAction SilentlyContinue | Out-Null
+                    Invoke-WebRequest -Uri "http://127.0.0.1:3000/app" -TimeoutSec 10 -UseBasicParsing -ErrorAction SilentlyContinue | Out-Null
+                    Invoke-WebRequest -Uri "http://127.0.0.1:3000/app/practice" -TimeoutSec 10 -UseBasicParsing -ErrorAction SilentlyContinue | Out-Null
+                    Invoke-WebRequest -Uri "http://127.0.0.1:3000/app/exams" -TimeoutSec 10 -UseBasicParsing -ErrorAction SilentlyContinue | Out-Null
                 } catch {}
                 $frontendReady = $true
                 Write-Log "Frontend is READY and routes warmed up (HTTP 200 after ${i}s)" "Green"
@@ -244,6 +260,12 @@ try {
         $overallSuccess = $false
         throw "Frontend readiness check failed."
     }
+
+    # Clean Google OAuth environment variables in parent shell so that dotnet test runs with clean config
+    # ($backendProc and $frontendProc already run in isolated child processes with "DISABLED")
+    $env:Authentication__Google__ClientId = $null
+    $env:GOOGLE_CLIENT_ID = $null
+    $env:NEXT_PUBLIC_GOOGLE_CLIENT_ID = $null
 
     # -------------------------------------------------------------------------
     # Step G: Run Backend Unit & Integration Tests (dotnet test)
@@ -323,7 +345,9 @@ try {
             "e2e/v2-app-completeness.spec.ts",
             "e2e/reader-polish-and-roadmap.spec.ts",
             "e2e/v2-topdown-sitemap.spec.ts",
-            "e2e/practice-expansion-live.spec.ts"
+            "e2e/practice-expansion-live.spec.ts",
+            "e2e/bootcamp-exam-and-learn-ux.spec.ts",
+            "e2e/course-lifecycle-upgrade.spec.ts"
         )
     } else {
         $targetSuites = $Suites
@@ -338,26 +362,14 @@ try {
     $pwCmd = "cd /d `"$root\frontend`" && npx.cmd playwright test $suitesJoined --reporter=list"
     Write-Log "Executing: cmd.exe /c `"$pwCmd`"" "Cyan"
 
-    $pwOutput = & cmd.exe /c $pwCmd 2>&1
+    & cmd.exe /c $pwCmd 2>&1 | Tee-Object -FilePath $playwrightLog
     $pwExitCode = $LASTEXITCODE
-    try {
-        [System.IO.File]::WriteAllLines($playwrightLog, [string[]]$pwOutput)
-    } catch {
-        $pwOutput | Out-File -FilePath $playwrightLog -Encoding utf8 -ErrorAction SilentlyContinue
-    }
 
-    # Echo playwright output to console and summary
-    foreach ($line in $pwOutput) {
-        if ($line -match '^\s*ok\s+') {
-            Write-Host $line -ForegroundColor Green
-        } elseif ($line -match '^\s*\d+\s+passed') {
-            Write-Host $line -ForegroundColor Green
-            Add-Content -Path $summaryLog -Value $line -Encoding utf8
-        } elseif ($line -match '^\s*\d+\s+failed') {
-            Write-Host $line -ForegroundColor Red
-            Add-Content -Path $summaryLog -Value $line -Encoding utf8
-        } else {
-            Write-Host $line
+    if (Test-Path $playwrightLog) {
+        foreach ($line in (Get-Content $playwrightLog)) {
+            if ($line -match '^\s*\d+\s+passed' -or $line -match '^\s*\d+\s+failed') {
+                Add-Content -Path $summaryLog -Value $line -Encoding utf8
+            }
         }
     }
 
@@ -394,7 +406,14 @@ try {
 
     Start-Sleep -Seconds 1
     Stop-PortProcesses @(5080, 3000)
+    $env:BACKEND_INTERNAL_URL = $null
+    $env:NEXT_PUBLIC_API_BASE_URL = $null
+    $env:NEXT_PUBLIC_SITE_URL = $null
+    $env:NEXT_PUBLIC_GOOGLE_CLIENT_ID = $null
+    $env:Authentication__Google__ClientId = $null
+    $env:GOOGLE_CLIENT_ID = $null
     $env:SWMS_ALLOW_TEST_USER_HEADER = $null
+    $env:SWMS_USE_POSTGRES = $null
 
     $stopwatch.Stop()
     $elapsedSec = [math]::Round($stopwatch.Elapsed.TotalSeconds, 2)

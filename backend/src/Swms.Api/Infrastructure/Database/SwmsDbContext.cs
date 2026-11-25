@@ -132,6 +132,8 @@ public class SwmsDbContext : DbContext
         modelBuilder.Entity<Annotation>().HasOne<Lesson>().WithMany().HasForeignKey(a => a.LessonId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<Annotation>().HasOne<Document>().WithMany().HasForeignKey(a => a.DocumentId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<Notebook>().HasOne<User>().WithMany().HasForeignKey(n => n.UserId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Notebook>().HasOne<Document>().WithMany().HasForeignKey(n => n.PrimarySourceDocumentId).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<Notebook>().HasOne<Lesson>().WithMany().HasForeignKey(n => n.PrimarySourceLessonId).OnDelete(DeleteBehavior.SetNull);
         modelBuilder.Entity<NotebookLink>().HasOne<Notebook>().WithMany().HasForeignKey(nl => nl.NotebookId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<Tag>().HasOne<User>().WithMany().HasForeignKey(t => t.UserId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<Flashcard>().HasOne<User>().WithMany().HasForeignKey(f => f.UserId).OnDelete(DeleteBehavior.Cascade);
@@ -143,6 +145,7 @@ public class SwmsDbContext : DbContext
         modelBuilder.Entity<FlashcardReview>().HasOne<User>().WithMany().HasForeignKey(fr => fr.UserId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<PracticeQuiz>().HasOne<User>().WithMany().HasForeignKey(pq => pq.UserId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<PracticeQuiz>().HasOne<Lesson>().WithMany().HasForeignKey(pq => pq.LessonId).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<PracticeQuiz>().HasOne<Document>().WithMany().HasForeignKey(pq => pq.DocumentId).OnDelete(DeleteBehavior.SetNull);
         modelBuilder.Entity<PracticeQuizItem>().HasOne<PracticeQuiz>().WithMany().HasForeignKey(pqi => pqi.QuizId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<PracticeActivity>().HasOne<Course>().WithMany().HasForeignKey(pa => pa.CourseId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<PracticeActivity>().HasOne<Lesson>().WithMany().HasForeignKey(pa => pa.LessonId).OnDelete(DeleteBehavior.Cascade);

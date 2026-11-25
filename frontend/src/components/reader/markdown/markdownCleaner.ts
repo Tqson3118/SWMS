@@ -64,8 +64,20 @@ export function resolveRelativeCoursePath(
   sourceRelativePath: string | null | undefined,
   href: string
 ): string {
-  const cleanHref = href.split("#")[0].split("?")[0].replace(/\\/g, "/").trim();
+  let cleanHref = href
+    .split("#")[0]
+    .split("?")[0]
+    .replace(/\\/g, "/")
+    .trim()
+    .replace(/\/+$/, "");
   if (!cleanHref) return "";
+
+  // Automatically extract relative path if absolute file URI or contains /course/
+  const courseMatch = cleanHref.match(/(?:^file:\/{1,3}.*?\/course\/|(?:\/|^)course\/)(.*)$/i);
+  if (courseMatch && courseMatch[1]) {
+    cleanHref = courseMatch[1].replace(/^\/+/, "");
+  }
+
   if (cleanHref.startsWith("/")) {
     return cleanHref.replace(/^\/+/, "");
   }
@@ -123,9 +135,37 @@ export function isAudioPath(href: string): boolean {
   return /\.(wav|mp3|ogg|m4a)$/.test(clean);
 }
 
+const STATIC_ASSET_EXTENSIONS =
+  /\.(wav|mp3|ogg|m4a|png|jpg|jpeg|svg|webp|gif|pdf|zip|html|htm|css|js|ts|json|yaml|yml|txt|csv|docx)$/i;
+
 export function isMarkdownPath(href: string): boolean {
-  const clean = href.split("#")[0].split("?")[0].replace(/[`"'()]/g, "").trim().toLowerCase();
-  return /\.md$/.test(clean);
+  if (!href) return false;
+  const raw = href.trim();
+  if (isExternalUrl(raw) || raw.startsWith("#")) return false;
+
+  let clean = raw.split("#")[0].split("?")[0].replace(/[`"'()]/g, "").replace(/\\/g, "/").trim().toLowerCase();
+  if (!clean) return false;
+
+  // Automatically extract relative path if absolute file URI or contains /course/
+  const courseMatch = clean.match(/(?:^file:\/{1,3}.*?\/course\/|(?:\/|^)course\/)(.*)$/i);
+  if (courseMatch && courseMatch[1]) {
+    clean = courseMatch[1].replace(/^\/+/, "");
+  }
+
+  if (clean.endsWith(".md")) return true;
+
+  if (STATIC_ASSET_EXTENSIONS.test(clean)) return false;
+
+  // Relative links or recognized course directory targets
+  const isRelative = clean.startsWith("./") || clean.startsWith("../");
+  const isCourseTarget =
+    /(?:lesson-|phase-|capstone-|sprint-|project-|resources\/)/i.test(clean);
+
+  if (isRelative || isCourseTarget) {
+    return true;
+  }
+
+  return false;
 }
 
 export function isExternalUrl(href: string): boolean {

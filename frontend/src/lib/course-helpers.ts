@@ -21,23 +21,108 @@ export const COURSE_DOMAINS: CourseDomainMeta[] = [
   { id: "other", label: "Chủ đề khác" },
 ];
 
+/**
+ * 10 chuẩn curated courses giữ lại trong hệ thống Studxy (WP-C1, C2, C3).
+ */
+export const CURATED_COURSE_SLUGS = [
+  "doc-course-studxy-fullstack-bootcamp",
+  "document-course-ielts",
+  "document-course-investing",
+  "document-course-personalfinance",
+  "document-course-lifeskills",
+  "document-course-psychology",
+  "tieng-anh-giao-tiep-thuc-chien-a2-b1",
+  "tieng-nhat-so-cap-n5",
+  "tieng-trung-so-cap-hsk1",
+  "he-dieu-hanh-bo-nho-ao",
+] as const;
+
+/**
+ * 5 slugs đã retired / gỡ bỏ khỏi thứ tự ưu tiên (Backend & Frontend Pillar 1).
+ */
+export const RETIRED_COURSE_SLUGS = [
+  "document-course-dotnet-react-roadmap",
+  "document-course-fullstack-csharp-react-refresh",
+  "lap-trinh-javascript-tu-duy-giai-quyet-van-de",
+  "dau-tu-quan-tri-danh-muc-thuc-chien",
+  "tam-ly-hoc-ung-dung-khoa-hoc-tri-nho",
+] as const;
+
+export interface CourseSummaryChapterLesson {
+  id: string;
+  title: string;
+  slug?: string | null;
+  estimatedMinutes?: number | null;
+  durationMinutes?: number | null;
+  isCompleted?: boolean;
+  isBookmarked?: boolean;
+  needsReview?: boolean;
+  practiceActivityCount?: number;
+  practicePassedCount?: number;
+}
+
+export interface CourseSummaryChapter {
+  id: string;
+  title: string;
+  sortOrder?: number;
+  lessons?: CourseSummaryChapterLesson[];
+}
+
 export interface CourseLike {
   id?: string;
   courseId?: string;
   slug?: string | null;
   title?: string;
   description?: string | null;
+  visibility?: string | null;
+  isPublished?: boolean;
+  isPinned?: boolean;
+  isArchived?: boolean;
+  dailyLessonGoal?: number;
+  targetCompletionDate?: string | null;
+  isSystemCourse?: boolean;
+  canDelete?: boolean;
   category?: string | null;
-  progressPercent?: number;
-  progress?: number;
+  level?: string | null; // "foundation" | "intermediate" | "advanced" | ...
+  learningOutcomes?: string[];
+  prerequisites?: string[];
+  targetAudience?: string | null;
+  labLabel?: string | null;
+  hasAudio?: boolean;
+  bookmarkedLessonCount?: number;
+  needsReviewLessonCount?: number;
+  chapterCount?: number;
+  lessonCount?: number;
   totalLessons?: number;
   completedLessons?: number;
-  chapterCount?: number;
+  progressPercent?: number;
+  progress?: number;
   totalEstimatedMinutes?: number;
-  chapters?: { lessons?: unknown[] }[];
+  flashcardCount?: number;
+  dueFlashcardCount?: number;
+  masteredFlashcardCount?: number;
+  practiceTotalActivities?: number;
+  practicePassedActivities?: number;
+  practiceAverageScore?: number;
+  quizCount?: number;
+  firstLessonId?: string | null;
+  chapters?: Array<{
+    id?: string;
+    title?: string;
+    sortOrder?: number;
+    lessons?: unknown[];
+  }>;
   createdAt?: string | null;
   updatedAt?: string | null;
-  visibility?: string | null;
+  sourceFolder?: string | null;
+  sourceDocumentId?: string | null;
+  totalPages?: number | null;
+}
+
+export interface CourseSummary extends CourseLike {
+  id: string;
+  title: string;
+  chapters?: CourseSummaryChapter[];
 }
 
 export function normalizeVi(text: string): string {
@@ -65,6 +150,9 @@ export function getCourseProgress(course: CourseLike): number {
 export function getCourseLessonCount(course: CourseLike): number {
   if (typeof course.totalLessons === "number" && Number.isFinite(course.totalLessons)) {
     return course.totalLessons;
+  }
+  if (typeof course.lessonCount === "number" && Number.isFinite(course.lessonCount)) {
+    return course.lessonCount;
   }
   if (Array.isArray(course.chapters)) {
     return course.chapters.reduce(
@@ -117,7 +205,6 @@ export function classifyCourseDomain(course: CourseLike): CourseDomainMeta {
   }
 
   // 4. Science & Math - ensure \b word boundaries so "khoa hoc" (course) doesn't match "hoa hoc" (chemistry) or "khoa hoc" (science)
-  // Ensure psychology and communication courses are excluded from matching "khoa hoc"
   const isScience =
     !/(tam ly|ky nang song|giao tiep)/.test(combined) &&
     (/(\btoan hoc\b|\btoan cao cap\b|\btoan roi rac\b|\bgiai tich\b|\bdai so\b|\bmath\b|\bvat ly\b|\bphysics\b|\bhoa hoc\b|\bchemistry\b|\bsinh hoc\b|\bbiology\b|\bxac suat\b|\bthong ke\b|\bstatistics\b|\bkhoa hoc tu nhien\b)/.test(
@@ -148,8 +235,25 @@ export function isTestOrJunkCourse(course: CourseLike): boolean {
   );
 }
 
+export function isRetiredCourse(course: CourseLike): boolean {
+  const slug = (course as { slug?: string | null }).slug;
+  if (slug && RETIRED_COURSE_SLUGS.includes(slug as any)) return true;
+  const rawCombined = `${course.title || ""} ${course.courseId || course.id || ""}`;
+  const norm = normalizeVi(rawCombined);
+  return (
+    norm.includes("lap trinh javascript tu duy giai quyet van de") ||
+    norm.includes("dau tu quan tri danh muc thuc chien") ||
+    norm.includes("tam ly hoc ung dung khoa hoc tri nho") ||
+    norm.includes("dotnet react roadmap") ||
+    norm.includes("fullstack csharp react refresh")
+  );
+}
+
 export function isCurriculumStandardCourse(course: CourseLike): boolean {
-  const rawCombined = `${course.title || ""} ${(course as { slug?: string }).slug || ""} ${course.description || ""}`;
+  if (isRetiredCourse(course)) return false;
+  const slug = (course as { slug?: string | null }).slug;
+  if (slug && CURATED_COURSE_SLUGS.includes(slug as any)) return true;
+  const rawCombined = `${course.title || ""} ${slug || ""} ${course.description || ""}`;
   const norm = normalizeVi(rawCombined);
   return (
     /document-course-/.test(rawCombined) ||
@@ -159,26 +263,198 @@ export function isCurriculumStandardCourse(course: CourseLike): boolean {
   );
 }
 
+/**
+ * Helper chuẩn hóa CourseSummary từ CourseLike với đầy đủ fallback defaults.
+ */
+export function normalizeCourseSummary(raw: CourseLike): CourseSummary {
+  const id = getCourseId(raw);
+  const domain = classifyCourseDomain(raw);
+  const lessonCount = getCourseLessonCount(raw);
+  const chapterCount = getCourseChapterCount(raw);
+  const progress = getCourseProgress(raw);
+  const totalMinutes = getCourseTotalMinutes(raw);
+  const practiceCount = Number(raw.practiceTotalActivities ?? 0);
+
+  return {
+    id,
+    courseId: id,
+    title: raw.title || "Khóa học",
+    slug: raw.slug ?? null,
+    description: raw.description ?? "",
+    visibility: raw.visibility ?? "public",
+    isPublished: raw.isPublished ?? true,
+    isPinned: Boolean(raw.isPinned),
+    isArchived: Boolean(raw.isArchived),
+    dailyLessonGoal: typeof raw.dailyLessonGoal === "number" && raw.dailyLessonGoal > 0 ? raw.dailyLessonGoal : 3,
+    targetCompletionDate: raw.targetCompletionDate ?? null,
+    isSystemCourse: Boolean(raw.isSystemCourse),
+    canDelete: Boolean(raw.canDelete),
+    category: raw.category || domain.label,
+    level: raw.level || "foundation",
+    learningOutcomes: Array.isArray(raw.learningOutcomes) ? raw.learningOutcomes : [],
+    prerequisites: Array.isArray(raw.prerequisites) ? raw.prerequisites : [],
+    targetAudience: raw.targetAudience ?? "",
+    labLabel: raw.labLabel || (practiceCount > 0 ? "Phòng Lab" : ""),
+    hasAudio: Boolean(raw.hasAudio),
+    bookmarkedLessonCount: Number(raw.bookmarkedLessonCount ?? 0),
+    needsReviewLessonCount: Number(raw.needsReviewLessonCount ?? 0),
+    chapterCount,
+    lessonCount,
+    totalLessons: lessonCount,
+    completedLessons: Number(raw.completedLessons ?? 0),
+    progressPercent: progress,
+    progress,
+    totalEstimatedMinutes: totalMinutes,
+    flashcardCount: Number(raw.flashcardCount ?? 0),
+    dueFlashcardCount: Number(raw.dueFlashcardCount ?? 0),
+    masteredFlashcardCount: Number(raw.masteredFlashcardCount ?? 0),
+    practiceTotalActivities: practiceCount,
+    practicePassedActivities: Number(raw.practicePassedActivities ?? 0),
+    practiceAverageScore: typeof raw.practiceAverageScore === "number" ? raw.practiceAverageScore : 0,
+    quizCount: Number(raw.quizCount ?? 0),
+    firstLessonId: raw.firstLessonId ?? null,
+    chapters: Array.isArray(raw.chapters) ? (raw.chapters as CourseSummaryChapter[]) : [],
+    createdAt: raw.createdAt ?? null,
+    updatedAt: raw.updatedAt ?? null,
+    sourceFolder: raw.sourceFolder ?? null,
+    sourceDocumentId: raw.sourceDocumentId ?? null,
+    totalPages: typeof raw.totalPages === "number" ? raw.totalPages : null,
+  };
+}
+
+export interface CourseDuplicateGroup {
+  normalizedTitle: string;
+  title: string;
+  courses: CourseSummary[];
+  suggestedKeepId: string;
+  duplicateIds: string[];
+}
+
+export interface DuplicateDetectionResult {
+  titleDuplicateGroups: CourseDuplicateGroup[];
+  emptyCourses: CourseSummary[];
+  allRemovableCourseIds: string[];
+  totalRemovableCount: number;
+}
+
+/**
+ * Detects & groups personal duplicate courses and empty personal drafts.
+ * Strictly operates ONLY on personal courses that user can delete: !c.isSystemCourse && c.canDelete.
+ */
+export function detectPersonalDuplicates(courses: CourseLike[]): DuplicateDetectionResult {
+  const normalizedList = courses.map(normalizeCourseSummary);
+  // ONLY personal deletable courses
+  const personalDeletable = normalizedList.filter((c) => !c.isSystemCourse && c.canDelete);
+
+  // 1. Empty courses: 0 lessons / old drafts
+  const emptyCourses = personalDeletable.filter((c) => getCourseLessonCount(c) === 0);
+
+  // 2. Group personal courses with duplicate normalized titles
+  const titleGroupsMap = new Map<string, CourseSummary[]>();
+  for (const c of personalDeletable) {
+    const norm = normalizeVi(c.title || "");
+    if (!norm) continue;
+    const existing = titleGroupsMap.get(norm) ?? [];
+    existing.push(c);
+    titleGroupsMap.set(norm, existing);
+  }
+
+  const titleDuplicateGroups: CourseDuplicateGroup[] = [];
+  const duplicateIdsSet = new Set<string>();
+
+  for (const [normTitle, group] of titleGroupsMap.entries()) {
+    if (group.length > 1) {
+      // Suggest keeping best candidate: highest progress, most lessons, newest updatedAt
+      const sorted = [...group].sort((a, b) => {
+        const progA = getCourseProgress(a);
+        const progB = getCourseProgress(b);
+        if (progB !== progA) return progB - progA;
+
+        const lesA = getCourseLessonCount(a);
+        const lesB = getCourseLessonCount(b);
+        if (lesB !== lesA) return lesB - lesA;
+
+        const tsA = Date.parse(a.updatedAt || a.createdAt || "") || 0;
+        const tsB = Date.parse(b.updatedAt || b.createdAt || "") || 0;
+        return tsB - tsA;
+      });
+
+      const keep = sorted[0];
+      const dupes = sorted.slice(1);
+      const dupIds = dupes.map((d) => d.id);
+      dupIds.forEach((id) => duplicateIdsSet.add(id));
+
+      titleDuplicateGroups.push({
+        normalizedTitle: normTitle,
+        title: keep.title || normTitle,
+        courses: sorted,
+        suggestedKeepId: keep.id,
+        duplicateIds: dupIds,
+      });
+    }
+  }
+
+  const allRemovable = new Set<string>();
+  duplicateIdsSet.forEach((id) => allRemovable.add(id));
+  emptyCourses.forEach((c) => allRemovable.add(c.id));
+
+  return {
+    titleDuplicateGroups,
+    emptyCourses,
+    allRemovableCourseIds: Array.from(allRemovable),
+    totalRemovableCount: allRemovable.size,
+  };
+}
+
 export function sortCoursesSmartly<T extends CourseLike>(courses: T[]): T[] {
   return [...courses].sort((a, b) => {
+    // 1. Junk courses to bottom
     const aJunk = isTestOrJunkCourse(a);
     const bJunk = isTestOrJunkCourse(b);
     if (aJunk !== bJunk) return aJunk ? 1 : -1;
 
+    // 2. Retired courses to bottom
+    const aRetired = isRetiredCourse(a);
+    const bRetired = isRetiredCourse(b);
+    if (aRetired !== bRetired) return aRetired ? 1 : -1;
+
+    // 3. Archived courses go after active courses
+    const aArchived = Boolean(a.isArchived);
+    const bArchived = Boolean(b.isArchived);
+    if (aArchived !== bArchived) return aArchived ? 1 : -1;
+
+    // 4. Pinned non-archived courses go first
+    const aPinned = Boolean(a.isPinned && !aArchived);
+    const bPinned = Boolean(b.isPinned && !bArchived);
+    if (aPinned !== bPinned) return aPinned ? -1 : 1;
+
+    // 5. Standard curriculum priority
     const aStd = isCurriculumStandardCourse(a);
     const bStd = isCurriculumStandardCourse(b);
     if (aStd !== bStd) return aStd ? -1 : 1;
 
+    // 6. In-progress courses
     const aProg = getCourseProgress(a);
     const bProg = getCourseProgress(b);
     const aInProg = aProg > 0 && aProg < 100;
     const bInProg = bProg > 0 && bProg < 100;
     if (aInProg !== bInProg) return aInProg ? -1 : 1;
 
+    // 7. Curated priority ordering if both in curated list
+    const aSlug = (a as { slug?: string }).slug || "";
+    const bSlug = (b as { slug?: string }).slug || "";
+    const aCuratedIdx = CURATED_COURSE_SLUGS.indexOf(aSlug as any);
+    const bCuratedIdx = CURATED_COURSE_SLUGS.indexOf(bSlug as any);
+    if (aCuratedIdx !== -1 && bCuratedIdx !== -1 && aCuratedIdx !== bCuratedIdx) {
+      return aCuratedIdx - bCuratedIdx;
+    }
+
+    // 8. Lesson count
     const aLessons = getCourseLessonCount(a);
     const bLessons = getCourseLessonCount(b);
     if (aLessons !== bLessons) return bLessons - aLessons;
 
+    // 9. Progress
     if (aProg !== bProg) return bProg - aProg;
 
     return 0;
@@ -260,10 +536,12 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
   const norm = normalizeVi(`${course.title || ""} ${course.description || ""}`);
 
   let levelLabel = "Lộ trình thực chiến";
-  if (/(co ban|nhap mon|nen tang|phase 0|tu con so 0|dai cuong|basics|so cap|\bn5\b|\bhsk1\b)/.test(norm)) {
+  if (course.level === "foundation" || /(co ban|nhap mon|nen tang|phase 0|tu con so 0|dai cuong|basics|so cap|\bn5\b|\bhsk1\b)/.test(norm)) {
     levelLabel = "Nền tảng → Vững chắc";
-  } else if (/(mastery|chuyen sau|nang cao|microservices|ddd|48 tuan|28 tuan|fullstack|full-stack)/.test(norm)) {
+  } else if (course.level === "advanced" || /(mastery|chuyen sau|nang cao|microservices|ddd|48 tuan|28 tuan|fullstack|full-stack)/.test(norm)) {
     levelLabel = "Chuyên sâu toàn diện";
+  } else if (course.level === "intermediate") {
+    levelLabel = "Trung cấp thực chiến";
   }
 
   switch (domain.id) {
@@ -328,22 +606,9 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
         estimatedHoursLabel,
       };
     default:
-      if (/(tam ly|ky nang song|giao tiep)/.test(norm)) {
-        return {
-          domainId: "other",
-          domainLabel: "Tâm lý & Kỹ năng sống",
-          accentBarClass: "from-rose-500 via-pink-500 to-amber-500",
-          badgeBgClass: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800",
-          iconBgClass: "bg-rose-500/10 border-rose-500/20",
-          iconTextClass: "text-rose-600 dark:text-rose-400",
-          ringColor: "#F43F5E",
-          levelLabel,
-          estimatedHoursLabel,
-        };
-      }
       return {
         domainId: "other",
-        domainLabel: domain.label,
+        domainLabel: /(tam ly|ky nang song|giao tiep)/.test(norm) ? "Tâm lý & Kỹ năng sống" : domain.label,
         accentBarClass: "from-rose-500 via-pink-500 to-amber-500",
         badgeBgClass: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800",
         iconBgClass: "bg-rose-500/10 border-rose-500/20",

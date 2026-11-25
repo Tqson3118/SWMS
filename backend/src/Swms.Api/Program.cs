@@ -301,7 +301,7 @@ using (var scope = app.Services.CreateScope())
             var hasAnyUser = await db.Users.AsNoTracking().AnyAsync();
             var existingCourseCount = hasAnyUser ? await db.Courses.AsNoTracking().CountAsync() : 0;
 
-            if (forceStartupSeed || !hasAnyUser || existingCourseCount < 14)
+            if (forceStartupSeed || !hasAnyUser || existingCourseCount < 10)
             {
                 await SwmsEndpoints.EnsureSqliteSchemaUpdatedAsync(db);
                 await SeedDataInitializer.SeedAsync(db, builder.Configuration["DocumentLibrary:RootPath"]);
@@ -447,6 +447,15 @@ public partial class Program
                  csb.SslMode == SslMode.Prefer)
         {
             csb.SslMode = SslMode.Require;
+        }
+
+        if (!string.IsNullOrWhiteSpace(csb.Host) &&
+            csb.Host.Contains("pooler.supabase.com", StringComparison.OrdinalIgnoreCase) &&
+            csb.Port == 5432 &&
+            !trimmed.Contains("MaxPoolSize", StringComparison.OrdinalIgnoreCase) &&
+            !trimmed.Contains("Maximum Pool Size", StringComparison.OrdinalIgnoreCase))
+        {
+            csb.MaxPoolSize = 10;
         }
 
         return csb.ConnectionString;

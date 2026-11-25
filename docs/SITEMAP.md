@@ -22,6 +22,8 @@ flowchart TD
     subgraph Level2["LEVEL 2: KHÔNG GIAN THEO TÀI NGUYÊN"]
         Courses["📚 Khóa học (/app/courses)"]
         CourseNew["➕ Tạo khóa học (/app/courses/new)"]
+        Practice["🎯 Thực hành Lab (/app/practice)"]
+        Exams["📝 Ngân hàng Đề & Thi thử (/app/exams)"]
         Docs["📄 Tài liệu PDF (/app/documents)"]
         Notes["📝 Sổ tay (/app/notes)"]
         Review["🧠 Ôn tập (/app/review)"]
@@ -29,11 +31,15 @@ flowchart TD
     end
 
     Today --> Courses
+    Today --> Practice
+    Today --> Exams
     Today --> Docs
     Today --> Notes
     Today --> Review
     Today --> Settings
     Courses --> CourseNew
+    Practice -.->|Liên kết luyện từng bài| Learn
+    Exams -->|Vào phòng thi chi tiết| CourseQuiz
 
     subgraph Level3["LEVEL 3: TRANG TRUNG TÂM KHÓA HỌC"]
         CourseHub["🎯 Chi tiết & Đề cương (/app/courses/[id])"]
@@ -72,16 +78,19 @@ Level 1: Hôm nay (/app)
      ├── 3. Khóa học gần đây (tối đa 4 khóa học đã khử trùng lặp) -> /app/courses/[id]
      └── 4. Lối tắt 4 khu vực: Khóa học, Tài liệu, Sổ tay, Ôn tập
 
-Level 2: Không gian làm việc theo loại tài nguyên (Sidebar 5 mục chính)
+Level 2: Không gian làm việc theo loại tài nguyên (Sidebar chính)
 ├── /app/courses               Danh mục Khóa học (Tìm kiếm, Lọc lĩnh vực & trạng thái, Ẩn bản sao trùng lặp)
 │    └── /app/courses/new      Tạo khóa học mới (Tải tài liệu, AI Wizard 3 bước, Nhập SWM ZIP)
+├── /app/practice              Thực hành Lab (Hub Luyện tập: thống kê 7 ngày, hàng ôn câu sai Active Recall, mở Code Lab từng bài)
+│    └── /app/practice/[courseId]/[lessonId]   Phòng thực hành chuyên sâu theo bài học (Code Lab / Nghe-Nói / Tài chính)
+├── /app/exams                 Ngân hàng Đề & Thi thử (Tổng hợp toàn bộ đề cuối khóa, đề chương, quiz bài học & đề tự tạo; lọc theo khóa/chương, tạo đề nhanh và điều hướng vào /app/courses/[id]/quiz)
 ├── /app/documents             Thư viện Tài liệu PDF (Danh sách tài liệu, Tải PDF lên, Mở trình đọc)
 ├── /app/notes                 Kho Sổ tay Ghi chú (Danh sách sổ tay, Mở đúng bối cảnh bài học)
 └── /app/review                Phòng Ôn tập Thẻ ghi nhớ (Tách rời không gian đọc)
 
 Level 3: Chi tiết Khóa học (Course Hub)
 └── /app/courses/[id]          Tổng quan, thống kê, tiến độ, bài học kế tiếp, Đề cương chương/bài (tìm & lọc)
-     ├── /app/courses/[id]/quiz   Bài kiểm tra trắc nghiệm & tự luận
+     ├── /app/courses/[id]/quiz   Phòng Thi & Giải Đề chi tiết của khóa học (bổ trợ trực tiếp cho /app/exams: làm từng câu hoặc thi thử có đồng hồ, tạo đề theo chương, xem giải thích & lịch sử làm đề)
      └── /app/courses/[id]/edit   Trình biên tập khóa học (Cây chương/bài, Markdown Live Preview, Video URL, Xuất bản, Xuất SWM ZIP)
 
 Level 4: Không gian Học tập Tập trung (Immersive Learning Workspace)

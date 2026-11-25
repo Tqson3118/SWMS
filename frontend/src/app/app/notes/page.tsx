@@ -177,11 +177,14 @@ export default function NotesPage() {
   if (isLoading) {
     return (
       <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh] space-y-6">
-        <div className="h-10 w-48 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
-        <div className="h-11 w-full rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="space-y-2">
+          <div className="h-8 w-36 rounded-lg swms-skeleton" />
+          <div className="h-4 w-72 rounded-md swms-skeleton" />
+        </div>
+        <div className="h-10 w-full rounded-[10px] swms-skeleton" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[0, 1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-36 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+            <div key={i} className="h-40 rounded-xl swms-skeleton" />
           ))}
         </div>
       </div>
@@ -216,25 +219,35 @@ export default function NotesPage() {
         </div>
       )}
 
-      {/* Search bar */}
-      <div className="relative mb-6">
-        <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Tìm sổ tay theo tiêu đề, bài giảng hoặc khóa học..."
-          className="w-full h-9 pl-9 pr-8 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition"
-        />
-        {searchQuery && (
-          <button
-            type="button"
-            onClick={() => setSearchQuery("")}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        )}
+      {/* Search bar & count */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Tìm sổ tay theo tiêu đề, bài giảng hoặc khóa học..."
+            className="w-full h-9 pl-9 pr-8 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              aria-label="Xóa lọc"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <Badge variant="neutral" size="sm">
+            {searchQuery
+              ? `${filteredNotebooks.length} / ${notebooks.length} sổ tay`
+              : `${notebooks.length} sổ tay`}
+          </Badge>
+        </div>
       </div>
 
       {/* Notebooks Grid */}
@@ -248,15 +261,15 @@ export default function NotesPage() {
               <Card
                 key={nb.id}
                 hoverable
-                className="p-5 flex flex-col justify-between"
+                className="group p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-[#5E51E8]/40 dark:hover:border-[#818CF8]/40 hover:shadow-md"
               >
                 <div>
                   <div className="flex items-start gap-3 mb-3">
-                    <div className="w-9 h-9 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105">
                       <NotebookPen className="w-4 h-4 text-[#5E51E8] dark:text-[#818CF8]" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h2 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2">
+                      <h2 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 group-hover:text-[#5E51E8] dark:group-hover:text-[#818CF8] transition-colors">
                         {nb.title || "Sổ tay ghi chú"}
                       </h2>
                       {nb.version != null && (
@@ -299,17 +312,17 @@ export default function NotesPage() {
           title={searchQuery ? "Không tìm thấy sổ tay phù hợp" : "Chưa có sổ tay ghi chú nào"}
           description={
             searchQuery
-              ? "Thử đổi từ khóa tìm kiếm."
-              : "Sổ tay sẽ tự động được tạo khi bạn ghi chú trong lúc học bài hoặc đọc tài liệu."
+              ? `Không có sổ tay nào khớp với "${searchQuery}". Thử từ khóa khác hoặc xóa bộ lọc.`
+              : "Sổ tay sẽ tự động được tạo và đồng bộ khi bạn ghi chú song song trong lúc học bài giảng hoặc đọc tài liệu PDF."
           }
           action={
             searchQuery
               ? {
-                  label: "Xóa tìm kiếm",
+                  label: "Xóa lọc",
                   onClick: () => setSearchQuery(""),
                 }
               : {
-                  label: "Khám phá khóa học để ghi chú",
+                  label: "Mở bài học để ghi chú",
                   href: "/app/courses",
                   icon: <BookOpen className="w-4 h-4" />,
                 }

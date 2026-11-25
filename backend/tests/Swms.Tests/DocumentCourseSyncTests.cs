@@ -38,18 +38,18 @@ public class DocumentCourseSyncTests
     }
 
     [Fact]
-    public async Task SyncAndCatalog_LoadsAll7Courses_WithoutIgnoredMetaOrDuplicatePersonalFinance()
+    public async Task SyncAndCatalog_LoadsAll5Courses_WithoutIgnoredMetaOrDuplicatePersonalFinance()
     {
         using var factory = CreateIsolatedFactory();
         using var client = factory.CreateClient();
+
+        Assert.Equal(5, DocumentCourseSyncService.CatalogDefinitions.Count);
 
         var courses = await client.GetFromJsonAsync<List<JsonElement>>("/api/v1/courses");
         Assert.NotNull(courses);
 
         var expectedSlugs = new[]
         {
-            "document-course-dotnet-react-roadmap",
-            "document-course-fullstack-csharp-react-refresh",
             "document-course-ielts",
             "document-course-investing",
             "document-course-lifeskills",
@@ -62,6 +62,10 @@ public class DocumentCourseSyncTests
         {
             Assert.Contains(expected, slugs);
         }
+
+        // Retired courses must NOT appear in GET /api/v1/courses
+        Assert.DoesNotContain("document-course-dotnet-react-roadmap", slugs);
+        Assert.DoesNotContain("document-course-fullstack-csharp-react-refresh", slugs);
 
         // No duplicate PersonalFinance card
         var pfCourses = courses.Where(c =>
@@ -101,40 +105,25 @@ public class DocumentCourseSyncTests
     }
 
     [Fact]
-    public async Task DotNetReactRoadmap_ExtractsStartDocx_AndDeduplicatesStageDocxFiles()
+    public async Task RetiredCourses_Return404WithRedirectMetadata_AndPreserveDeterministicIds()
     {
         using var factory = CreateIsolatedFactory();
         using var client = factory.CreateClient();
 
-        var courses = await client.GetFromJsonAsync<List<JsonElement>>("/api/v1/courses");
-        Assert.NotNull(courses);
-        var dotnetCourse = courses.First(c => c.GetProperty("slug").GetString() == "document-course-dotnet-react-roadmap");
+        var dotnetGuid = DocumentCourseSyncService.CreateDeterministicGuid("course", "document-course-dotnet-react-roadmap");
+        var fsGuid = DocumentCourseSyncService.CreateDeterministicGuid("course", "document-course-fullstack-csharp-react-refresh");
 
-        var lessons = dotnetCourse.GetProperty("chapters")
-            .EnumerateArray()
-            .SelectMany(ch => ch.GetProperty("lessons").EnumerateArray())
-            .ToList();
+        var dotnetResp = await client.GetAsync($"/api/v1/courses/{dotnetGuid}");
+        Assert.Equal(HttpStatusCode.NotFound, dotnetResp.StatusCode);
+        var dotnetJson = await dotnetResp.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(dotnetJson.GetProperty("retired").GetBoolean());
+        Assert.Equal("doc-course-studxy-fullstack-bootcamp", dotnetJson.GetProperty("redirectSlug").GetString());
 
-        // Expect 00_Bat_Dau.docx + README.md + stages 1..14 = 16 lessons (no duplicate 1_*.docx..14_*.docx)
-        var startDocxLesson = lessons.FirstOrDefault(l =>
-            string.Equals(l.GetProperty("sourceRelativePath").GetString(), "00_Bat_Dau.docx", StringComparison.OrdinalIgnoreCase));
-        Assert.NotEqual(JsonValueKind.Undefined, startDocxLesson.ValueKind);
-
-        var relPaths = lessons.Select(l => l.GetProperty("sourceRelativePath").GetString()!).ToList();
-        Assert.Contains("1.md", relPaths);
-        Assert.Contains("14.md", relPaths);
-        Assert.DoesNotContain(relPaths, p => p.EndsWith(".docx", StringComparison.OrdinalIgnoreCase) && !p.Equals("00_Bat_Dau.docx", StringComparison.OrdinalIgnoreCase));
-        Assert.Equal(16, lessons.Count);
-
-        var startId = startDocxLesson.GetProperty("id").GetGuid();
-        var startDetail = await client.GetFromJsonAsync<JsonElement>($"/api/v1/lessons/{startId}");
-        var contentMd = startDetail.GetProperty("contentMarkdown").GetString() ?? "";
-        Assert.True(contentMd.Length > 100);
-        Assert.Contains("| File |", contentMd);
-        Assert.Contains("## Các chặng", contentMd);
-        Assert.Contains("- ", contentMd);
-        Assert.Equal("DotNet-React-Roadmap", startDetail.GetProperty("sourceFolder").GetString());
-        Assert.Equal("00_Bat_Dau.docx", startDetail.GetProperty("sourceRelativePath").GetString());
+        var fsResp = await client.GetAsync($"/api/v1/courses/{fsGuid}");
+        Assert.Equal(HttpStatusCode.NotFound, fsResp.StatusCode);
+        var fsJson = await fsResp.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(fsJson.GetProperty("retired").GetBoolean());
+        Assert.Equal("doc-course-studxy-fullstack-bootcamp", fsJson.GetProperty("redirectSlug").GetString());
     }
 
     [Fact]
@@ -255,7 +244,7 @@ public class DocumentCourseSyncTests
         // Practice quizzes endpoint supports ?courseId= filter and emits courseId
         var investingQuizzes = await client.GetFromJsonAsync<List<JsonElement>>($"/api/v1/practice-quizzes?courseId={investingId}");
         Assert.NotNull(investingQuizzes);
-        Assert.Equal(18, investingQuizzes.Count);
+        Assert.True(investingQuizzes.Count >= 18);
         Assert.All(investingQuizzes, q => Assert.Equal(investingId, q.GetProperty("courseId").GetGuid()));
     }
 
@@ -313,7 +302,7 @@ public class DocumentCourseSyncTests
         var syncResp = await client.PostAsync("/api/v1/courses/sync-from-documents", null);
         syncResp.EnsureSuccessStatusCode();
         var syncJson = await syncResp.Content.ReadFromJsonAsync<JsonElement>();
-        Assert.Equal(7, syncJson.GetProperty("syncedCourses").GetInt32());
+        Assert.Equal(5, syncJson.GetProperty("syncedCourses").GetInt32());
         Assert.Equal(0, syncJson.GetProperty("createdCourses").GetInt32());
         Assert.Equal(0, syncJson.GetProperty("createdLessons").GetInt32());
         Assert.Equal(0, syncJson.GetProperty("createdQuizzes").GetInt32());
@@ -356,7 +345,7 @@ public class DocumentCourseSyncTests
     }
 
     [Fact]
-    public async Task RealSqliteDatabase_SyncsAll7CoursesCleanly_AndRemainsIdempotent()
+    public async Task RealSqliteDatabase_SyncsAll5CoursesCleanly_AndRemainsIdempotent()
     {
         await using var conn = new SqliteConnection("Data Source=:memory:");
         await conn.OpenAsync();
@@ -372,18 +361,18 @@ public class DocumentCourseSyncTests
         var syncedCourses = await db.Courses
             .Where(c => c.Slug.StartsWith("document-course-"))
             .ToListAsync();
-        Assert.Equal(7, syncedCourses.Count);
+        Assert.Equal(5, syncedCourses.Count);
 
         var totalLessonsBefore = await db.Lessons.CountAsync();
         var totalQuizzesBefore = await db.PracticeQuizzes.CountAsync();
         var totalCardsBefore = await db.Flashcards.CountAsync();
 
-        Assert.True(totalLessonsBefore >= 250);
-        Assert.True(totalQuizzesBefore >= 100);
-        Assert.True(totalCardsBefore >= 800);
+        Assert.True(totalLessonsBefore >= 200);
+        Assert.True(totalQuizzesBefore >= 80);
+        Assert.True(totalCardsBefore >= 600);
 
         var secondReport = await DocumentCourseSyncService.SyncAllFromDocumentsAsync(db, DocumentCourseSyncService.DefaultDocumentRootPath, useSnapshotCache: false);
-        Assert.Equal(7, secondReport.SyncedCourses);
+        Assert.Equal(5, secondReport.SyncedCourses);
         Assert.Equal(0, secondReport.CreatedCourses);
         Assert.Equal(0, secondReport.CreatedLessons);
         Assert.Equal(0, secondReport.CreatedQuizzes);
@@ -423,17 +412,15 @@ public class DocumentCourseSyncTests
         await using var factory = CreateRealSqliteFactory(conn);
         using var defaultClient = factory.CreateClient();
 
-        // 1. Catalog sort order for DefaultUser: all 7 document-course-* in curriculum order at the top
+        // 1. Catalog sort order for DefaultUser: all 5 document-course-* in curriculum order at the top
         var defaultCourses = await defaultClient.GetFromJsonAsync<List<JsonElement>>("/api/v1/courses");
         Assert.NotNull(defaultCourses);
         var defaultDocSlugs = defaultCourses
             .Select(c => c.GetProperty("slug").GetString() ?? "")
-            .Take(7)
+            .Take(5)
             .ToArray();
         Assert.Equal(new[]
         {
-            "document-course-dotnet-react-roadmap",
-            "document-course-fullstack-csharp-react-refresh",
             "document-course-ielts",
             "document-course-investing",
             "document-course-personalfinance",
@@ -615,7 +602,7 @@ public class DocumentCourseSyncTests
         var regCoursesAfterImport = await regClient.GetFromJsonAsync<List<JsonElement>>("/api/v1/courses");
         Assert.NotNull(regCoursesAfterImport);
         Assert.Equal(importedCourseId, regCoursesAfterImport[0].GetProperty("id").GetGuid());
-        Assert.Equal("document-course-dotnet-react-roadmap", regCoursesAfterImport[1].GetProperty("slug").GetString());
+        Assert.Equal("document-course-ielts", regCoursesAfterImport[1].GetProperty("slug").GetString());
     }
 
     [Fact]

@@ -119,7 +119,7 @@ test.describe("UI/UX Polish, Clean Mode, DOCX Tables, Sticky & Sample Roadmap E2
     expect(scrollAfterNext).toBeLessThanOrEqual(20);
   });
 
-  test("Verifies 00_Bat_Dau.docx renders GFM table and /app/courses/[id]/learn is scrollable", async ({
+  test("Verifies LEARNING_PATH.md renders GFM table on Studxy Full-Stack Bootcamp and /app/courses/[id]/learn is scrollable", async ({
     page
   }) => {
     await provisionIsolatedUser(page);
@@ -127,24 +127,38 @@ test.describe("UI/UX Polish, Clean Mode, DOCX Tables, Sticky & Sample Roadmap E2
 
     const coursesRes = await page.request.get("http://127.0.0.1:5080/api/v1/courses");
     expect(coursesRes.ok()).toBeTruthy();
-    const courses: Array<{ id: string; title: string }> = await coursesRes.json();
-    const dotnetCourse = courses.find((c) => /DotNet|\.NET|React/i.test(c.title));
-    expect(dotnetCourse).toBeTruthy();
+    const courses: Array<{ id: string; title: string; slug?: string }> = await coursesRes.json();
+    const bootcampCourse = courses.find(
+      (c) => c.slug === "doc-course-studxy-fullstack-bootcamp" || /Studxy Full-Stack/i.test(c.title)
+    );
+    expect(bootcampCourse).toBeTruthy();
 
-    await page.goto(`/app/courses/${dotnetCourse!.id}/learn`);
+    const detailRes = await page.request.get(`http://127.0.0.1:5080/api/v1/courses/${bootcampCourse!.id}`);
+    expect(detailRes.ok()).toBeTruthy();
+    const detail = await detailRes.json();
+    const allLessons: Array<{ id: string; title: string }> =
+      detail.chapters?.flatMap((ch: { lessons?: Array<{ id: string; title: string }> }) => ch.lessons ?? []) ??
+      detail.lessons ??
+      [];
+    const learningPathLesson = allLessons.find((l) =>
+      /Hướng Dẫn Lộ Trình|Lộ Trình & Phương Pháp|LEARNING_PATH/i.test(l.title)
+    );
+    expect(learningPathLesson).toBeTruthy();
+
+    await page.goto(`/app/courses/${bootcampCourse!.id}/learn`);
     const prose = page.getByTestId("reading-prose-column");
-    await expect(prose).toBeVisible();
+    await expect(prose).toBeVisible({ timeout: 15000 });
 
-    // First lesson in DotNet-React-Roadmap is 00_Bat_Dau.docx or click 00_Bat_Dau in sidebar
-    const batDauBtn = page.getByTestId("course-roadmap-sidebar").getByRole("button", { name: /Bắt đầu|00_Bat_Dau/i }).first();
-    if (await batDauBtn.isVisible()) {
-      await batDauBtn.click();
-    }
+    const sidebar = page.getByTestId("course-roadmap-sidebar");
+    await expect(sidebar).toBeVisible({ timeout: 10000 });
+    const learningPathBtn = sidebar.getByRole("button", { name: learningPathLesson!.title }).first();
+    await expect(learningPathBtn).toBeVisible({ timeout: 10000 });
+    await learningPathBtn.click();
 
     const table = prose.locator("table").first();
     await expect(table).toBeVisible({ timeout: 10000 });
-    await expect(table).toContainText("Trọng tâm");
-    await expect(table).toContainText("1.md");
+    await expect(table).toContainText("Tiêu Chí So Sánh");
+    await expect(table).toContainText("Full-time Track");
 
     // Verify /app/courses/[id]/learn container actually scrolls (no overflow-hidden lock)
     const scrollContainer = page.locator('[data-swms-scroll-container="learn-page"]');

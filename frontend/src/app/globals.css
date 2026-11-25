@@ -339,3 +339,122 @@
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* KaTeX math formulas styling & dark mode support */
+.dark .katex {
+  color: inherit;
+}
+.katex-display {
+  margin: 0.75em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25em 0;
+}
+.katex-display > .katex {
+  white-space: normal;
+}
+
+/* ==================== SCROLLBAR HIDE & CONTRAST HELPERS ==================== */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.text-accent-contrast {
+  color: #FFFFFF;
+}
+.dark .text-accent-contrast {
+  color: #0F0F12;
+}
+
+/* ==================== SKELETON SHIMMER ==================== */
+@keyframes swms-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.swms-skeleton {
+  background-color: var(--surface-elevated);
+  background-image: linear-gradient(
+    90deg,
+    var(--surface-elevated) 0%,
+    color-mix(in srgb, var(--border-calm) 60%, var(--surface-elevated)) 50%,
+    var(--surface-elevated) 100%
+  );
+  background-size: 200% 100%;
+  animation: swms-shimmer 1.6s ease-in-out infinite;
+}
+
+.dark .swms-skeleton {
+  background-image: linear-gradient(
+    90deg,
+    var(--surface-elevated) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    var(--surface-elevated) 100%
+  );
+}
+
+/* ==================== SMOOTH ENTRANCE ANIMATIONS ==================== */
+@keyframes swms-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes swms-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes swms-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.swms-animate-fade-in {
+  animation: swms-fade-in 180ms var(--ease-smooth) both;
+}
+
+.swms-animate-slide-in-right {
+  animation: swms-slide-in-right 220ms var(--ease-smooth) both;
+}
+
+.swms-animate-scale-in {
+  animation: swms-scale-in 200ms var(--ease-spring) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swms-skeleton {
+    animation: none !important;
+    background-image: none;
+  }
+  .swms-animate-fade-in,
+  .swms-animate-slide-in-right,
+  .swms-animate-scale-in {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

@@ -439,8 +439,1326 @@ public static class WriteInPracticeContent
         return list;
     }
 
+    /// <summary>
+    /// Legacy OrderIndex 1..2 starter practice activities (12 Investing + 12 Coding + 12 Psychology = 36 total).
+    /// Formerly seeded directly into retired courses; now migrated to the 3 standard curated courses.
+    /// </summary>
+    public static List<PracticeActivity> GetLegacyExpansionStarterActivities(DateTimeOffset now)
+    {
+        var list = new List<PracticeActivity>();
+
+        // 1. Investing Legacy 1..2 (12 activities)
+        {
+            // 1.1
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson11Id, "compound_calculator", 1),
+                CourseId = SeedDataInitializer.InvestingCourseId,
+                LessonId = SeedDataInitializer.InvestingLesson11Id,
+                OrderIndex = 1,
+                Type = "compound_calculator",
+                Title = "Máy tính Lãi kép & DCA tương tác: Tự do tài chính",
+                Description = "Nhập vốn ban đầu, đóng góp hàng tháng (DCA), lãi suất kỳ vọng và lạm phát để kiểm tra sức mạnh lãi kép qua thời gian.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    initialPrincipal = 50000000,
+                    monthlyDca = 5000000,
+                    expectedReturn = 12.0,
+                    inflationRate = 4.0,
+                    targetYears = 15,
+                    freedomTarget = 2000000000L
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson11Id, "behavioral_quiz", 2),
+                CourseId = SeedDataInitializer.InvestingCourseId,
+                LessonId = SeedDataInitializer.InvestingLesson11Id,
+                OrderIndex = 2,
+                Type = "behavioral_quiz",
+                Title = "Thiên kiến Hành vi: FOMO & Tâm lý Đám đông",
+                Description = "Phân tích và khắc phục tâm lý sợ bỏ lỡ cơ hội khi thị trường tăng nóng.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    quizKey = "fomo-herd",
+                    biasName = "FOMO & Tâm lý bầy đàn",
+                    question = "Khi thấy một mã cổ phiếu tăng trần 5 phiên liên tiếp và các diễn đàn đều hưng phấn, phản ứng kỷ luật nhất là gì?",
+                    options = new[]
+                    {
+                        "Mua đuổi ngay lập tức với đòn bẩy tối đa",
+                        "Bỏ qua định giá vì sóng thị trường đang quá mạnh",
+                        "Kiểm tra biên an toàn và kế hoạch phân bổ vốn trước khi ra quyết định",
+                        "Rút hết tiền tiết kiệm mua gom một lần"
+                    },
+                    correctIndex = 2,
+                    explanation = "FOMO khiến nhà đầu tư mua ở đỉnh vì cảm xúc hưng phấn thay vì định giá khách quan. Kỷ luật phân bổ vốn là chiếc khiên bảo vệ tài sản."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 1.2
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson12Id, "compound_calculator", 1),
+                CourseId = SeedDataInitializer.InvestingCourseId,
+                LessonId = SeedDataInitializer.InvestingLesson12Id,
+                OrderIndex = 1,
+                Type = "compound_calculator",
+                Title = "Mục tiêu Độc lập Tài chính FIRE & Quy tắc 4%",
+                Description = "Tính toán số vốn cần thiết để sống dựa trên 4% rút ra hàng năm mà không suy giảm vốn gốc.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    annualExpense = 180000000L,
+                    safeWithdrawalRate = 4.0,
+                    targetFund = 4500000000L,
+                    monthlyDca = 10000000L,
+                    expectedReturn = 10.0,
+                    inflationRate = 3.5,
+                    targetYears = 15
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson12Id, "investment_case", 2),
+                CourseId = SeedDataInitializer.InvestingCourseId,
+                LessonId = SeedDataInitializer.InvestingLesson12Id,
+                OrderIndex = 2,
+                Type = "investment_case",
+                Title = "Tình huống: Tối ưu hóa dòng tiền thặng dư hàng tháng",
+                Description = "Lựa chọn phương án tối ưu giữa trả bớt nợ lãi cao hay dồn tiền vào cổ phiếu biến động.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    scenario = "Bạn có khoản nợ thẻ tín dụng lãi suất 28%/năm và 20 triệu tiền nhàn rỗi. Một người bạn khuyên nên mua cổ phiếu lướt sóng.",
+                    options = new[]
+                    {
+                        "Dồn hết 20 triệu mua cổ phiếu với hy vọng lãi 50% trả nợ sau",
+                        "Ưu tiên thanh toán dứt điểm nợ thẻ tín dụng lãi suất cao trước",
+                        "Chia đôi: 10 triệu mua cổ phiếu, 10 triệu để đi du lịch xả stress",
+                        "Vay thêm từ thẻ khác để đầu tư kép"
+                    },
+                    correctIndex = 1,
+                    explanation = "Lãi suất 28%/năm của nợ thẻ tín dụng là khoản 'lỗ chắc chắn'. Trả nợ tương đương với việc đạt tỷ suất sinh lời phi rủi ro 28%."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 2.1
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson21Id, "portfolio_sim", 1),
+                CourseId = SeedDataInitializer.InvestingCourseId,
+                LessonId = SeedDataInitializer.InvestingLesson21Id,
+                OrderIndex = 1,
+                Type = "portfolio_sim",
+                Title = "Mô phỏng Phân bổ Danh mục Đa tài sản (Dữ liệu MẪU)",
+                Description = "Mô phỏng tỷ trọng 5 lớp tài sản (Cổ phiếu tăng trưởng, Cổ tức, Trái phiếu, Vàng, Tiền mặt) và kiểm tra hiệu suất qua các chu kỳ.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    isSampleData = true,
+                    sampleDataNotice = "Dữ liệu mẫu lịch sử mô phỏng phục vụ thực hành — không phải khuyến nghị đầu tư",
+                    defaultAllocations = new
+                    {
+                        growthStocks = 40,
+                        dividendStocks = 25,
+                        bonds = 20,
+                        gold = 10,
+                        cash = 5
+                    },
+                    scenarios = new[] { "bull", "inflation", "recession" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson21Id, "investment_case", 2),
+                CourseId = SeedDataInitializer.InvestingCourseId,
+                LessonId = SeedDataInitializer.InvestingLesson21Id,
+                OrderIndex = 2,
+                Type = "investment_case",
+                Title = "Tình huống: Tái cân bằng danh mục khi cổ phiếu tăng vượt tỷ trọng",
+                Description = "Khi nhóm cổ phiếu tăng vọt chiếm 75% danh mục (mục tiêu ban đầu 50%), quyết định đúng đắn là gì?",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    scenario = "Cổ phiếu tăng mạnh khiến tỷ trọng tăng từ 50% lên 75% danh mục. Thị trường đang hưng phấn tột độ.",
+                    options = new[]
+                    {
+                        "Giữ nguyên và mua thêm để tối đa hóa lợi nhuận",
+                        "Chốt lời một phần cổ phiếu, chuyển sang trái phiếu/tiền mặt để đưa về tỷ trọng mục tiêu 50%",
+                        "Bán sạch toàn bộ danh mục chuyển sang gửi tiết kiệm",
+                        "Vay margin để gồng lãi tiếp"
+                    },
+                    correctIndex = 1,
+                    explanation = "Tái cân bằng giúp hiện thực hóa lợi nhuận khi tài sản tăng nóng và duy trì hồ sơ rủi ro ban đầu của bạn."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 2.2
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson22Id, "portfolio_sim", 1),
+                CourseId = SeedDataInitializer.InvestingCourseId,
+                LessonId = SeedDataInitializer.InvestingLesson22Id,
+                OrderIndex = 1,
+                Type = "portfolio_sim",
+                Title = "Stress Testing: Kiểm thử Max Drawdown trong Khủng hoảng (Dữ liệu MẪU)",
+                Description = "Kiểm tra danh mục chịu đựng ra sao khi thị trường sụt giảm 35% trong kịch bản suy thoái.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    isSampleData = true,
+                    sampleDataNotice = "Dữ liệu mẫu lịch sử mô phỏng phục vụ thực hành — không phải khuyến nghị đầu tư",
+                    stressScenario = "recession",
+                    marketDrop = -35.0,
+                    targetMaxDrawdown = -20.0
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson22Id, "behavioral_quiz", 2),
+                CourseId = SeedDataInitializer.InvestingCourseId,
+                LessonId = SeedDataInitializer.InvestingLesson22Id,
+                OrderIndex = 2,
+                Type = "behavioral_quiz",
+                Title = "Thiên kiến Sợ thua lỗ (Loss Aversion) & Kỷ luật Cắt lỗ",
+                Description = "Tâm lý sợ thua lỗ khiến nhà đầu tư chối bỏ thực tế và gồng lỗ phi lý trí.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    quizKey = "loss-aversion",
+                    biasName = "Loss Aversion (Sợ thua lỗ)",
+                    question = "Một khoản đầu tư đã chạm ngưỡng cắt lỗ 8% nhưng bạn không bán vì 'chưa bán là chưa lỗ'. Đây là biểu hiện của:",
+                    options = new[]
+                    {
+                        "Chiến lược đầu tư giá trị kiên định",
+                        "Thiên kiến sợ thua lỗ (Loss Aversion) và gồng lỗ phi lý trí",
+                        "Tư duy độc lập tài chính",
+                        "Tối ưu hóa thuế thu nhập"
+                    },
+                    correctIndex = 1,
+                    explanation = "Nỗi đau mất tiền lớn gấp 2-2.5 lần niềm vui kiếm được cùng số tiền, khiến nhà đầu tư ôm giữ tài sản xấu thay vì cắt lỗ bảo toàn vốn."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 3.1
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson31Id, "investment_case", 1),
+                CourseId = SeedDataInitializer.InvestingCourseId,
+                LessonId = SeedDataInitializer.InvestingLesson31Id,
+                OrderIndex = 1,
+                Type = "investment_case",
+                Title = "Tình huống: Đánh giá Biên an toàn khi thị trường điều chỉnh 25%",
+                Description = "Định giá một công ty đầu ngành có P/E giảm về mức hấp dẫn nhưng tin tức vĩ mô ảm đạm.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    scenario = "Một doanh nghiệp bán lẻ đầu ngành có tăng trưởng lợi nhuận 15%/năm, không nợ vay, nhưng giá cổ phiếu giảm 25% theo thị trường chung khiến P/E giảm từ 18x về 10x.",
+                    options = new[]
+                    {
+                        "Bán tháo theo thị trường vì sợ giá còn giảm nữa",
+                        "Phân tích lại dòng tiền tự do, xác nhận biên an toàn và bắt đầu giải ngân từng phần (DCA)",
+                        "Vay ký quỹ tối đa all-in một lệnh duy nhất",
+                        "Bỏ qua không theo dõi nữa"
+                    },
+                    correctIndex = 1,
+                    explanation = "Biên an toàn được tạo ra khi giá thị trường chiết khấu sâu so với giá trị nội tại của doanh nghiệp chất lượng cao."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson31Id, "behavioral_quiz", 2),
+                CourseId = SeedDataInitializer.InvestingCourseId,
+                LessonId = SeedDataInitializer.InvestingLesson31Id,
+                OrderIndex = 2,
+                Type = "behavioral_quiz",
+                Title = "Thiên kiến Mỏ neo (Anchoring) & Chi phí Chìm (Sunk Cost)",
+                Description = "Tránh đưa ra quyết định dựa trên mức giá mua quá khứ.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    quizKey = "anchoring-sunk-cost",
+                    biasName = "Anchoring & Sunk Cost Fallacy",
+                    question = "Bạn mua cổ phiếu giá 100.000đ, hiện giảm về 60.000đ do doanh nghiệp mất khách hàng lớn. Bạn quyết tâm đợi hòa vốn 100.000đ mới bán. Đây là sai lầm gì?",
+                    options = new[]
+                    {
+                        "Kỷ luật đầu tư dài hạn mẫu mực",
+                        "Bị neo vào giá mua cũ (Anchoring) và tiếc chi phí chìm (Sunk Cost)",
+                        "Quản trị danh mục theo trường phái hiện đại",
+                        "Phân bổ tài sản chiến lược"
+                    },
+                    correctIndex = 1,
+                    explanation = "Thị trường không hề biết bạn mua giá nào. Quyết định bán hay giữ phải phụ thuộc vào triển vọng tương lai chứ không phải giá vốn quá khứ."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 3.2
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson32Id, "investment_case", 1),
+                CourseId = SeedDataInitializer.InvestingCourseId,
+                LessonId = SeedDataInitializer.InvestingLesson32Id,
+                OrderIndex = 1,
+                Type = "investment_case",
+                Title = "Tình huống: Ra quyết định khi thị trường hoảng loạn tột độ",
+                Description = "Chỉ số nỗi sợ chạm đỉnh, truyền thông dự báo suy thoái kéo dài. Bạn xử lý ra sao?",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    scenario = "Thị trường giảm liên tiếp 4 tuần, nhà đầu tư bán tháo ồ ạt. Bạn còn 35% tiền mặt và danh mục là các cổ phiếu phòng thủ trả cổ tức đều.",
+                    options = new[]
+                    {
+                        "Bán tháo theo đám đông để bớt căng thẳng",
+                        "Giữ vững kế hoạch, nhận cổ tức tái đầu tư và tiếp tục giải ngân DCA theo các mốc định trước",
+                        "Xóa app đầu tư và không bao giờ quay lại",
+                        "Tham gia hội nhóm đánh bạc phái sinh để gỡ gạc"
+                    },
+                    correctIndex = 1,
+                    explanation = "Lợi nhuận vượt trội trong đầu tư dài hạn được sinh ra từ việc giữ vững kỷ luật khi người khác hoảng loạn."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.InvestingCourseId, SeedDataInitializer.InvestingLesson32Id, "behavioral_quiz", 2),
+                CourseId = SeedDataInitializer.InvestingCourseId,
+                LessonId = SeedDataInitializer.InvestingLesson32Id,
+                OrderIndex = 2,
+                Type = "behavioral_quiz",
+                Title = "Tư duy Ngược dòng (Contrarian) & Tự chủ Cảm xúc",
+                Description = "Luyện tập tư duy độc lập khi đám đông tham lam hoặc sợ hãi.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    quizKey = "contrarian-mindset",
+                    biasName = "Tư duy Ngược dòng & Tự chủ Cảm xúc",
+                    question = "Yếu tố quyết định giúp nhà đầu tư ngược dòng thành công trong khủng hoảng là gì?",
+                    options = new[]
+                    {
+                        "Khả năng đoán chính xác đáy thị trường",
+                        "Nguồn vốn dài hạn, hiểu sâu giá trị tài sản và kiểm soát tâm lý cá nhân",
+                        "Tin đồn nội bộ từ các diễn đàn kín",
+                        "Lướt sóng mua bán hàng ngày"
+                    },
+                    correctIndex = 1,
+                    explanation = "Vốn dài hạn nhàn rỗi cùng sự hiểu biết giá trị nội tại giúp nhà đầu tư bình thản vượt qua các đợt sụt giảm tạm thời."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        // 2. Coding Legacy 1..2 (12 activities)
+        {
+            // 1.1
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson11Id, "js_sandbox", 1),
+                CourseId = SeedDataInitializer.CodingCourseId,
+                LessonId = SeedDataInitializer.CodingLesson11Id,
+                OrderIndex = 1,
+                Type = "js_sandbox",
+                Title = "Thực hành JS Sandbox: Lọc & Tính Tổng Giao Dịch Hợp Lệ",
+                Description = "Viết hàm `calculateNetIncome(transactions)` lọc các giao dịch có status 'completed' và tính tổng doanh thu ròng.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    functionName = "calculateNetIncome",
+                    starterCode = @"function calculateNetIncome(transactions) {
+  // transactions: [{ id, type: 'income' | 'expense', amount, status: 'completed' | 'pending' }]
+  // Trả về tổng tiền ròng (income - expense) của các giao dịch 'completed'
+  return transactions
+    .filter(t => t.status === 'completed')
+    .reduce((sum, t) => t.type === 'income' ? sum + t.amount : sum - t.amount, 0);
+}",
+                    testCases = new object[]
+                    {
+                        new { input = new object[] { new object[] { new { id = 1, type = "income", amount = 1000, status = "completed" }, new { id = 2, type = "expense", amount = 300, status = "completed" }, new { id = 3, type = "income", amount = 500, status = "pending" } } }, expected = 700, description = "Tính đúng tổng ròng bỏ qua giao dịch pending" },
+                        new { input = new object[] { new object[] { new { id = 1, type = "expense", amount = 500, status = "completed" } } }, expected = -500, description = "Tính đúng khi chỉ có khoản chi" },
+                        new { input = new object[] { Array.Empty<object>() }, expected = 0, description = "Trả về 0 khi mảng rỗng" }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson11Id, "parsons", 2),
+                CourseId = SeedDataInitializer.CodingCourseId,
+                LessonId = SeedDataInitializer.CodingLesson11Id,
+                OrderIndex = 2,
+                Type = "parsons",
+                Title = "Parsons Problem: Lắp ráp thuật toán Two-Sum",
+                Description = "Sắp xếp các dòng code giải thuật tìm cặp chỉ số có tổng bằng target.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    title = "Thuật toán Two-Sum O(n) với Map",
+                    lines = new[]
+                    {
+                        new { id = "l1", text = "function twoSum(nums, target) {", correctOrder = 1, indent = 0 },
+                        new { id = "l2", text = "  const map = new Map();", correctOrder = 2, indent = 1 },
+                        new { id = "l3", text = "  for (let i = 0; i < nums.length; i++) {", correctOrder = 3, indent = 1 },
+                        new { id = "l4", text = "    const complement = target - nums[i];", correctOrder = 4, indent = 2 },
+                        new { id = "l5", text = "    if (map.has(complement)) {", correctOrder = 5, indent = 2 },
+                        new { id = "l6", text = "      return [map.get(complement), i];", correctOrder = 6, indent = 3 },
+                        new { id = "l7", text = "    }", correctOrder = 7, indent = 2 },
+                        new { id = "l8", text = "    map.set(nums[i], i);", correctOrder = 8, indent = 2 },
+                        new { id = "l9", text = "  }", correctOrder = 9, indent = 1 },
+                        new { id = "l10", text = "  return [];", correctOrder = 10, indent = 1 },
+                        new { id = "l11", text = "}", correctOrder = 11, indent = 0 }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 1.2
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson12Id, "js_sandbox", 1),
+                CourseId = SeedDataInitializer.CodingCourseId,
+                LessonId = SeedDataInitializer.CodingLesson12Id,
+                OrderIndex = 1,
+                Type = "js_sandbox",
+                Title = "Thực hành JS Sandbox: Cài đặt Binary Search O(log n)",
+                Description = "Viết hàm `binarySearch(arr, target)` tìm vị trí target trong mảng đã sắp xếp, trả về -1 nếu không tìm thấy.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    functionName = "binarySearch",
+                    starterCode = @"function binarySearch(arr, target) {
+  let left = 0;
+  let right = arr.length - 1;
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    if (arr[mid] === target) return mid;
+    if (arr[mid] < target) left = mid + 1;
+    else right = mid - 1;
+  }
+  return -1;
+}",
+                    testCases = new object[]
+                    {
+                        new { input = new object[] { new[] { 1, 3, 5, 7, 9, 11 }, 7 }, expected = 3, description = "Tìm thấy phần tử ở giữa mảng" },
+                        new { input = new object[] { new[] { 2, 4, 6, 8, 10 }, 2 }, expected = 0, description = "Tìm thấy phần tử đầu mảng" },
+                        new { input = new object[] { new[] { 10, 20, 30 }, 25 }, expected = -1, description = "Trả về -1 khi phần tử không có trong mảng" }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson12Id, "parsons", 2),
+                CourseId = SeedDataInitializer.CodingCourseId,
+                LessonId = SeedDataInitializer.CodingLesson12Id,
+                OrderIndex = 2,
+                Type = "parsons",
+                Title = "Parsons Problem: Đảo ngược mảng bằng Two Pointers",
+                Description = "Sắp xếp thuật toán hoán đổi hai đầu mảng không dùng hàm có sẵn.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    title = "Đảo ngược mảng in-place với Two Pointers",
+                    lines = new[]
+                    {
+                        new { id = "p1", text = "function reverseArray(arr) {", correctOrder = 1, indent = 0 },
+                        new { id = "p2", text = "  let left = 0, right = arr.length - 1;", correctOrder = 2, indent = 1 },
+                        new { id = "p3", text = "  while (left < right) {", correctOrder = 3, indent = 1 },
+                        new { id = "p4", text = "    const temp = arr[left];", correctOrder = 4, indent = 2 },
+                        new { id = "p5", text = "    arr[left] = arr[right];", correctOrder = 5, indent = 2 },
+                        new { id = "p6", text = "    arr[right] = temp;", correctOrder = 6, indent = 2 },
+                        new { id = "p7", text = "    left++; right--;", correctOrder = 7, indent = 2 },
+                        new { id = "p8", text = "  }", correctOrder = 8, indent = 1 },
+                        new { id = "p9", text = "  return arr;", correctOrder = 9, indent = 1 },
+                        new { id = "p10", text = "}", correctOrder = 10, indent = 0 }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 2.1
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson21Id, "js_sandbox", 1),
+                CourseId = SeedDataInitializer.CodingCourseId,
+                LessonId = SeedDataInitializer.CodingLesson21Id,
+                OrderIndex = 1,
+                Type = "js_sandbox",
+                Title = "Thực hành JS Sandbox: Viết hàm Debounce với Timeout Bảo Vệ",
+                Description = "Viết hàm `debounce(fn, delay)` chuẩn xác giúp trì hoãn thực thi.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    functionName = "debounce",
+                    starterCode = @"function debounce(fn, delay) {
+  let timerId = null;
+  return function(...args) {
+    if (timerId !== null) clearTimeout(timerId);
+    timerId = setTimeout(() => {
+      fn.apply(this, args);
+    }, delay);
+  };
+}",
+                    testCases = new object[]
+                    {
+                        new { input = new object[] { "test-function", 50 }, expected = "function", description = "Trả về hàm bọc debounce hợp lệ" }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson21Id, "bug_hunt", 2),
+                CourseId = SeedDataInitializer.CodingCourseId,
+                LessonId = SeedDataInitializer.CodingLesson21Id,
+                OrderIndex = 2,
+                Type = "bug_hunt",
+                Title = "Săn Bug: Sửa lỗi rò rỉ Timer trong Debounce",
+                Description = "Tìm và chỉ ra dòng code quên gọi clearTimeout khiến sự kiện bị kích hoạt nhiều lần.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    bugKey = "debounce-missing-clear",
+                    codeSnippet = @"function badDebounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    // BUG: Thiếu clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}",
+                    bugLine = 5,
+                    explanation = "Nếu không gọi clearTimeout(timer) trước khi đặt timer mới, mỗi lần gõ phím sẽ kích hoạt một bộ hẹn giờ riêng, phá hỏng mục đích gom nhóm của debounce."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 2.2
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson22Id, "js_sandbox", 1),
+                CourseId = SeedDataInitializer.CodingCourseId,
+                LessonId = SeedDataInitializer.CodingLesson22Id,
+                OrderIndex = 1,
+                Type = "js_sandbox",
+                Title = "Thực hành JS Sandbox: Viết hàm Memoize Cho Phép Đa Tham Số",
+                Description = "Viết hàm `memoize(fn)` lưu trữ kết quả dựa trên serialized JSON key.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    functionName = "memoize",
+                    starterCode = @"function memoize(fn) {
+  const cache = new Map();
+  return function(...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}",
+                    testCases = new object[]
+                    {
+                        new { input = new object[] { "memoize-test" }, expected = "function", description = "Tạo hàm memoized thành công" }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson22Id, "bug_hunt", 2),
+                CourseId = SeedDataInitializer.CodingCourseId,
+                LessonId = SeedDataInitializer.CodingLesson22Id,
+                OrderIndex = 2,
+                Type = "bug_hunt",
+                Title = "Săn Bug: Lỗi biến đổi key đối tượng trong Cache Map",
+                Description = "Phát hiện lỗi ép kiểu `String(obj)` thành `[object Object]` làm trùng lặp key cache.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    bugKey = "memoize-object-key-collision",
+                    codeSnippet = @"function brokenMemoize(fn) {
+  const cache = {};
+  return function(arg) {
+    // BUG: arg là object sẽ biến thành '[object Object]' cho mọi object khác nhau
+    const key = arg.toString();
+    if (cache[key]) return cache[key];
+    return cache[key] = fn(arg);
+  };
+}",
+                    bugLine = 5,
+                    explanation = "Dùng arg.toString() khiến mọi đối tượng khác nhau đều có key là '[object Object]', dẫn đến trả về kết quả sai của đối tượng trước đó."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 3.1
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson31Id, "js_sandbox", 1),
+                CourseId = SeedDataInitializer.CodingCourseId,
+                LessonId = SeedDataInitializer.CodingLesson31Id,
+                OrderIndex = 1,
+                Type = "js_sandbox",
+                Title = "Thực hành JS Sandbox: Viết hàm Clamp & Giới Hạn Giá Trị",
+                Description = "Viết hàm `clamp(val, min, max)` giữ giá trị trong khoảng hợp lệ.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    functionName = "clamp",
+                    starterCode = @"function clamp(val, min, max) {
+  if (val < min) return min;
+  if (val > max) return max;
+  return val;
+}",
+                    testCases = new object[]
+                    {
+                        new { input = new object[] { 15, 0, 10 }, expected = 10, description = "Giá trị vượt max được gán về max" },
+                        new { input = new object[] { -5, 0, 100 }, expected = 0, description = "Giá trị dưới min được gán về min" },
+                        new { input = new object[] { 42, 0, 100 }, expected = 42, description = "Giá trị nằm trong khoảng được giữ nguyên" }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson31Id, "parsons", 2),
+                CourseId = SeedDataInitializer.CodingCourseId,
+                LessonId = SeedDataInitializer.CodingLesson31Id,
+                OrderIndex = 2,
+                Type = "parsons",
+                Title = "Parsons Problem: Pipeline thực thi Promise tuần tự",
+                Description = "Sắp xếp logic thực thi danh sách async task theo chuỗi.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    title = "Thực thi tuần tự Promise Pipeline",
+                    lines = new[]
+                    {
+                        new { id = "pl1", text = "async function runSequential(tasks) {", correctOrder = 1, indent = 0 },
+                        new { id = "pl2", text = "  const results = [];", correctOrder = 2, indent = 1 },
+                        new { id = "pl3", text = "  for (const task of tasks) {", correctOrder = 3, indent = 1 },
+                        new { id = "pl4", text = "    const res = await task();", correctOrder = 4, indent = 2 },
+                        new { id = "pl5", text = "    results.push(res);", correctOrder = 5, indent = 2 },
+                        new { id = "pl6", text = "  }", correctOrder = 6, indent = 1 },
+                        new { id = "pl7", text = "  return results;", correctOrder = 7, indent = 1 },
+                        new { id = "pl8", text = "}", correctOrder = 8, indent = 0 }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 3.2
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson32Id, "js_sandbox", 1),
+                CourseId = SeedDataInitializer.CodingCourseId,
+                LessonId = SeedDataInitializer.CodingLesson32Id,
+                OrderIndex = 1,
+                Type = "js_sandbox",
+                Title = "Thực hành JS Sandbox: Deep Clone An Toàn",
+                Description = "Viết hàm `safeDeepClone(obj)` sao chép sâu cấu trúc mảng và object lồng nhau.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    functionName = "safeDeepClone",
+                    starterCode = @"function safeDeepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(safeDeepClone);
+  const copy = {};
+  for (const key of Object.keys(obj)) {
+    copy[key] = safeDeepClone(obj[key]);
+  }
+  return copy;
+}",
+                    testCases = new object[]
+                    {
+                        new { input = new object[] { new { a = 1, b = new { c = 2 } } }, expected = new { a = 1, b = new { c = 2 } }, description = "Sao chép thành công object lồng nhau" },
+                        new { input = new object[] { new object[] { 1, new object[] { 2, 3 } } }, expected = new object[] { 1, new object[] { 2, 3 } }, description = "Sao chép thành công mảng lồng nhau" }
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.CodingCourseId, SeedDataInitializer.CodingLesson32Id, "bug_hunt", 2),
+                CourseId = SeedDataInitializer.CodingCourseId,
+                LessonId = SeedDataInitializer.CodingLesson32Id,
+                OrderIndex = 2,
+                Type = "bug_hunt",
+                Title = "Săn Bug: Shallow Copy gây đột biến mảng lồng nhau",
+                Description = "Phát hiện lỗi dùng cú pháp spread `[...arr]` làm đột biến các phần tử con.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    bugKey = "shallow-copy-nested-mutation",
+                    codeSnippet = @"function duplicateMatrix(matrix) {
+  // BUG: Chỉ sao chép mảng ngoài, các mảng con vẫn giữ nguyên tham chiếu!
+  const copy = [...matrix];
+  copy[0][0] = 999; // Gây đột biến matrix gốc!
+  return copy;
+}",
+                    bugLine = 3,
+                    explanation = "Toán tử spread chỉ tạo nông (shallow copy). Các mảng con bên trong vẫn tham chiếu tới bộ nhớ gốc, dẫn đến lỗi side-effect khó truy vết."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        // 3. Psychology Legacy 1..2 (12 activities)
+        {
+            // 1.1
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson11Id, "stroop_test", 1),
+                CourseId = SeedDataInitializer.PsychologyCourseId,
+                LessonId = SeedDataInitializer.PsychologyLesson11Id,
+                OrderIndex = 1,
+                Type = "stroop_test",
+                Title = "Mini Lab Nhận thức: Thí nghiệm Hiệu ứng Stroop",
+                Description = "Đo thời gian phản xạ (ms) khi xử lý từ ngữ trùng khớp (Congruent) vs xung đột (Incongruent) giữa chữ và màu mực.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    trialsCount = 10,
+                    words = new[] { "ĐỎ", "XANH DƯƠNG", "XANH LÁ", "VÀNG" },
+                    colors = new[] { "#ef4444", "#3b82f6", "#10b981", "#eab308" }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson11Id, "psych_scenario", 2),
+                CourseId = SeedDataInitializer.PsychologyCourseId,
+                LessonId = SeedDataInitializer.PsychologyLesson11Id,
+                OrderIndex = 2,
+                Type = "psych_scenario",
+                Title = "Tình huống NVC: Tách Quan Sát Khỏi Phán Xét Khi Đồng Đội Trễ Hẹn",
+                Description = "Lựa chọn phản hồi theo 4 bước Giao tiếp Phi bạo lực (Observation - Feeling - Need - Request).",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    scenario = "Đồng nghiệp gửi trễ slide thuyết trình lần thứ hai trong tuần khiến bạn phải đợi đến nửa đêm.",
+                    options = new[]
+                    {
+                        "Công kích: 'Sao lúc nào bạn cũng vô trách nhiệm và làm chậm tiến độ cả nhóm thế?'",
+                        "NVC: 'Tôi thấy slide được gửi lúc 23h30 thay vì 17h như đã hẹn. Tôi thấy lo lắng vì 8h sáng mai chúng ta phải trình bày, và tôi cần sự phối hợp đúng hạn để duyệt lại bài. Lần tới bạn có thể gửi trước 17h được không?'",
+                        "Thụ động né tránh: Không nói gì nhưng trong lòng ấm ức và nói xấu sau lưng",
+                        "Phán xét: 'Người như bạn không bao giờ làm việc nhóm chuyên nghiệp được'"
+                    },
+                    correctIndex = 1,
+                    explanation = "NVC bắt đầu bằng việc nêu sự kiện khách quan có thể kiểm chứng (gửi lúc 23h30), nói cảm xúc của bản thân (lo lắng), nhu cầu (đúng hạn) và đưa ra đề nghị cụ thể."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 1.2
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson12Id, "psych_scenario", 1),
+                CourseId = SeedDataInitializer.PsychologyCourseId,
+                LessonId = SeedDataInitializer.PsychologyLesson12Id,
+                OrderIndex = 1,
+                Type = "psych_scenario",
+                Title = "Tình huống: Vượt qua Thiên kiến Xác nhận trong tranh luận",
+                Description = "Nhận biết xu hướng chỉ tìm kiếm thông tin củng cố quan điểm cá nhân.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    scenario = "Trong một cuộc họp thảo luận về phương án kiến trúc mới, bạn rất thích giải pháp A và có xu hướng bỏ qua mọi rủi ro mà đồng đội cảnh báo.",
+                    options = new[]
+                    {
+                        "Tìm mọi lý lẽ để phản bác đồng đội và bảo vệ giải pháp A bằng mọi giá",
+                        "Chủ động hỏi: 'Những bằng chứng hoặc kịch bản nào có thể chứng minh giải pháp A sẽ thất bại?'",
+                        "Ủy thác cho sếp quyết định để tránh chịu trách nhiệm",
+                        "Bỏ họp giữa chừng vì bất đồng quan điểm"
+                    },
+                    correctIndex = 1,
+                    explanation = "Kỹ thuật phản biện tích cực (Falsification) giúp phá vỡ Thiên kiến xác nhận bằng cách chủ động tìm kiếm các bằng chứng bác bỏ giả định ban đầu."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson12Id, "reflection_journal", 2),
+                CourseId = SeedDataInitializer.PsychologyCourseId,
+                LessonId = SeedDataInitializer.PsychologyLesson12Id,
+                OrderIndex = 2,
+                Type = "reflection_journal",
+                Title = "Nhật ký Phản tư: Nhận diện 3 Phán xét Tự động trong ngày",
+                Description = "Ghi lại 3 khoảnh khắc Hệ thống 1 phản ứng tự động và chuyển hóa sang góc nhìn thấu cảm.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    prompts = new[]
+                    {
+                        "Khoảnh khắc bạn vừa phán xét ai đó hoặc chính mình trong ngày hôm nay là gì?",
+                        "Sự kiện khách quan thực tế xảy ra là gì (không chứa từ ngữ định kiến)?",
+                        "Góc nhìn đa chiều hoặc giải thích thay thế nào có thể hợp lý hơn?"
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 2.1
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson21Id, "memory_span", 1),
+                CourseId = SeedDataInitializer.PsychologyCourseId,
+                LessonId = SeedDataInitializer.PsychologyLesson21Id,
+                OrderIndex = 1,
+                Type = "memory_span",
+                Title = "Mini Lab Nhận thức: Thí nghiệm Đo Memory Span & Chunking",
+                Description = "Đo lường dung lượng trí nhớ ngắn hạn cá nhân (3 đến 8 đơn vị) và kiểm chứng hiệu quả khi nhóm cụm (Chunking).",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    minSpan = 3,
+                    maxSpan = 8,
+                    displayDurationMs = 2500
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson21Id, "reflection_journal", 2),
+                CourseId = SeedDataInitializer.PsychologyCourseId,
+                LessonId = SeedDataInitializer.PsychologyLesson21Id,
+                OrderIndex = 2,
+                Type = "reflection_journal",
+                Title = "Nhật ký: Lên Kế Hoạch Ứng Dụng FSRS v5 & Spaced Repetition",
+                Description = "Thiết kế kế hoạch ôn tập ngắt quãng cho môn học khó nhất trong học kỳ.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    prompts = new[]
+                    {
+                        "Môn học hoặc chủ đề nào bạn thường xuyên quên nhanh nhất sau khi học?",
+                        "Làm thế nào bạn có thể chia nhỏ kiến thức đó thành các đơn vị Chunking rõ ràng?",
+                        "Mục tiêu duy trì ôn tập FSRS ít nhất 5 phút mỗi ngày tại Studxy của bạn là gì?"
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 2.2
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson22Id, "memory_span", 1),
+                CourseId = SeedDataInitializer.PsychologyCourseId,
+                LessonId = SeedDataInitializer.PsychologyLesson22Id,
+                OrderIndex = 1,
+                Type = "memory_span",
+                Title = "Thực nghiệm: Kiểm tra Khả năng Phục hồi Ký ức (Retrieval)",
+                Description = "Thử thách nhớ lại chuỗi thông tin sau một khoảng thời gian gián đoạn ngắn.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    minSpan = 4,
+                    maxSpan = 7,
+                    distractionIntervalSeconds = 5
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson22Id, "psych_scenario", 2),
+                CourseId = SeedDataInitializer.PsychologyCourseId,
+                LessonId = SeedDataInitializer.PsychologyLesson22Id,
+                OrderIndex = 2,
+                Type = "psych_scenario",
+                Title = "Tình huống: Vượt qua Burnout khi học tập và làm việc dồn dập",
+                Description = "Lựa chọn phương pháp quản lý năng lượng và khoảng nghỉ Pomodoro khoa học.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    scenario = "Bạn đã ngồi liên tục 5 tiếng trước màn hình, mắt mỏi nhừ và đọc một câu văn 3 lần vẫn không hiểu nghĩa.",
+                    options = new[]
+                    {
+                        "Uống thêm lon nước tăng lực và ép bản thân ngồi tiếp 3 tiếng nữa",
+                        "Đứng dậy rời màn hình, đi dạo 15 phút, uống nước và thực hiện một chu kỳ Pomodoro ngắn sau đó",
+                        "Bỏ cuộc hoàn toàn và tự trách bản thân yếu kém",
+                        "Lướt mạng xã hội trên điện thoại ngay tại bàn làm việc"
+                    },
+                    correctIndex = 1,
+                    explanation = "Khoảng nghỉ tách biệt hoàn toàn khỏi kích thích kỹ thuật số giúp não bộ chuyển sang chế độ Default Mode Network để củng cố ký ức và phục hồi dopamine."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 3.1
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson31Id, "reflection_journal", 1),
+                CourseId = SeedDataInitializer.PsychologyCourseId,
+                LessonId = SeedDataInitializer.PsychologyLesson31Id,
+                OrderIndex = 1,
+                Type = "reflection_journal",
+                Title = "Nhật ký CBT: Tái Cấu Trúc Nhận Thức theo Mô Hình ABC",
+                Description = "Thực hành ghi lại Sự kiện kích hoạt (A), Niềm tin tự động (B) và chuyển hóa Hệ quả (C).",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    model = "CBT_ABC",
+                    prompts = new[]
+                    {
+                        "A - Activating Event (Sự kiện gì vừa xảy ra? Chỉ ghi sự thật khách quan):",
+                        "B - Belief (Suy nghĩ tự động hiện lên trong đầu bạn là gì?):",
+                        "C - Consequence (Cảm xúc và phản ứng cơ thể của bạn lúc đó ra sao?):",
+                        "D - Dispute & Reframe (Bằng chứng nào phản bác suy nghĩ B? Góc nhìn cân bằng hơn là gì?):"
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson31Id, "psych_scenario", 2),
+                CourseId = SeedDataInitializer.PsychologyCourseId,
+                LessonId = SeedDataInitializer.PsychologyLesson31Id,
+                OrderIndex = 2,
+                Type = "psych_scenario",
+                Title = "Tình huống: Thiết lập Ranh Giới Cá Nhân và Nói Lời Từ Chối",
+                Description = "Từ chối lời nhờ vả vượt quá khả năng một cách lịch thiệp, tôn trọng và dứt khoát.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    scenario = "Một người quen nhờ bạn làm miễn phí một website phức tạp vào cuối tuần khi bạn đang cần hoàn thành đồ án tốt nghiệp.",
+                    options = new[]
+                    {
+                        "Miễn cưỡng đồng ý vì sợ họ giận, rồi thức trắng đêm làm trong bức bối",
+                        "Từ chối dứt khoát và lịch thiệp: 'Cảm ơn bạn đã tin tưởng. Hiện tại mình đang tập trung toàn bộ thời gian cho đồ án tốt nghiệp nên không thể nhận hỗ trợ được. Chúc dự án của bạn thuận lợi!'",
+                        "Im lặng không trả lời tin nhắn để họ tự hiểu",
+                        "Chửi mắng người nhờ vì đã làm phiền"
+                    },
+                    correctIndex = 1,
+                    explanation = "Nói 'Không' với điều vượt quá năng lượng của bạn chính là nói 'Có' với ưu tiên và sức khỏe tinh thần của chính bạn. Một lời từ chối rõ ràng luôn tốt hơn một sự đồng ý miễn cưỡng."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            // 3.2
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson32Id, "psych_scenario", 1),
+                CourseId = SeedDataInitializer.PsychologyCourseId,
+                LessonId = SeedDataInitializer.PsychologyLesson32Id,
+                OrderIndex = 1,
+                Type = "psych_scenario",
+                Title = "Tình huống: Đối thoại Nội tâm Tự Trắc Ẩn khi Thất Bại",
+                Description = "Thay thế tiếng nói tự chỉ trích (Inner Critic) bằng sự tử tế và thấu cảm với bản thân.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    scenario = "Bạn vừa nhận kết quả một bài kiểm tra quan trọng với điểm số không như ý.",
+                    options = new[]
+                    {
+                        "Tự sỉ nhục: 'Mình thật ngu ngốc và vô dụng, sẽ chẳng bao giờ làm được trò trống gì'",
+                        "Tự trắc ẩn: 'Điểm số này thật sự đáng thất vọng và mình cảm thấy buồn. Nhưng thất bại là một phần tất yếu của quá trình học hỏi của con người. Mình sẽ xem lại bài để biết phần nào cần cải thiện.'",
+                        "Đổ lỗi hoàn toàn cho đề thi bất công và thầy cô chấm khó",
+                        "Giả vờ như không quan tâm và không nhìn lại bài thi"
+                    },
+                    correctIndex = 1,
+                    explanation = "Tự trắc ẩn kết hợp Chánh niệm (thừa nhận nỗi buồn không phóng đại), Nhân tính chung (ai cũng có lúc thất bại) và Sự tử tế (đối xử với bản thân như một người bạn thân thiết)."
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            list.Add(new PracticeActivity
+            {
+                Id = SeedDataInitializer.CreateDeterministicActivityId(SeedDataInitializer.PsychologyCourseId, SeedDataInitializer.PsychologyLesson32Id, "reflection_journal", 2),
+                CourseId = SeedDataInitializer.PsychologyCourseId,
+                LessonId = SeedDataInitializer.PsychologyLesson32Id,
+                OrderIndex = 2,
+                Type = "reflection_journal",
+                Title = "Nhật ký Tự Trắc Ẩn: 3 Bước Xoa Dịu Căng Thẳng & Lo Âu",
+                Description = "Ghi lại bài thực hành tự trắc ẩn của Kristin Neff để vượt qua thời điểm căng thẳng.",
+                ConfigJson = JsonSerializer.Serialize(new
+                {
+                    model = "Self_Compassion_Break",
+                    prompts = new[]
+                    {
+                        "1. Chánh niệm: Đây là một khoảnh khắc đau buồn / căng thẳng (thừa nhận cảm giác hiện tại).",
+                        "2. Nhân tính chung: Nỗi đau và thử thách là một phần của trải nghiệm làm người (mình không đơn độc).",
+                        "3. Tử tế với bản thân: Cầu chúc cho bản thân được bình an, bao dung và có đủ sức mạnh để vượt qua."
+                    }
+                }),
+                PassingScore = 70,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        return list;
+    }
+
+    /// <summary>
+    /// Migrates all 191 write-in labs (59 JS + 66 Finance + 66 Psychology) into the 3 standardized curated courses:
+    /// 1. doc-course-studxy-fullstack-bootcamp (59 JS Write-In Labs)
+    /// 2. document-course-investing (66 Finance Write-In Labs)
+    /// 3. document-course-psychology (66 Psychology Write-In Labs)
+    /// Strictly respects OrderIndex anti-collision (OrderIndex = 200 + originalOrderIndex, unique (LessonId, Type, OrderIndex))
+    /// and uses deterministic GUIDs for 100% idempotent execution.
+    /// Also migrates lesson quizzes to target lessons avoiding SQLite FK errors.
+    /// </summary>
+    public static async Task EnsureMigratedWriteInLabsSeededAsync(SwmsDbContext db, DateTimeOffset now)
+    {
+        var legacyStarters = GetLegacyExpansionStarterActivities(now);
+        var midStarters = GetStarterWriteInActivities(now);
+
+        // Group raw activities by domain
+        var jsActivities = new List<PracticeActivity>();
+        jsActivities.AddRange(legacyStarters.Where(a => a.CourseId == SeedDataInitializer.CodingCourseId));
+        jsActivities.AddRange(midStarters.Where(a => a.CourseId == SeedDataInitializer.CodingCourseId));
+
+        var finActivities = new List<PracticeActivity>();
+        finActivities.AddRange(legacyStarters.Where(a => a.CourseId == SeedDataInitializer.InvestingCourseId));
+        finActivities.AddRange(midStarters.Where(a => a.CourseId == SeedDataInitializer.InvestingCourseId));
+
+        var psyActivities = new List<PracticeActivity>();
+        psyActivities.AddRange(legacyStarters.Where(a => a.CourseId == SeedDataInitializer.PsychologyCourseId));
+        psyActivities.AddRange(midStarters.Where(a => a.CourseId == SeedDataInitializer.PsychologyCourseId));
+
+        var jsLessonSlugMap = new Dictionary<Guid, string>
+        {
+            [SeedDataInitializer.CodingLesson11Id] = "phase-3-javascript-mastery-lesson-05-array-methods-readme",
+            [SeedDataInitializer.CodingLesson12Id] = "phase-3-javascript-mastery-lesson-04-es6-essentials-readme",
+            [SeedDataInitializer.CodingLesson21Id] = "phase-3-javascript-mastery-lesson-07-closures-scope-readme",
+            [SeedDataInitializer.CodingLesson22Id] = "phase-3-javascript-mastery-lesson-13-functional-programming-readme",
+            [SeedDataInitializer.CodingLesson31Id] = "phase-3-javascript-mastery-lesson-09-async-await-readme",
+            [SeedDataInitializer.CodingLesson32Id] = "phase-3-javascript-mastery-lesson-14-debugging-readme"
+        };
+
+        var finLessonSlugMap = new Dictionary<Guid, string>
+        {
+            [SeedDataInitializer.InvestingLesson11Id] = "notes-module-2-week-10-growth-index-etf-dca",
+            [SeedDataInitializer.InvestingLesson12Id] = "notes-module-1-week-01-tien-te-lam-phat-lai-suat-tvm",
+            [SeedDataInitializer.InvestingLesson21Id] = "notes-module-2-week-08-danh-muc-phan-bo-tai-san-mpt",
+            [SeedDataInitializer.InvestingLesson22Id] = "notes-module-2-week-07-quan-tri-rui-ro-position-sizing-stop-loss",
+            [SeedDataInitializer.InvestingLesson31Id] = "notes-module-2-week-09-dau-tu-gia-tri",
+            [SeedDataInitializer.InvestingLesson32Id] = "notes-module-4-week-15-behavioral-finance-herd-fomo-loss-aversion-anchoring"
+        };
+
+        var psyLessonSlugMap = new Dictionary<Guid, string>
+        {
+            [SeedDataInitializer.PsychologyLesson11Id] = "notes-02-understanding-self-week-15-bias-blind-spots",
+            [SeedDataInitializer.PsychologyLesson12Id] = "notes-01-scientific-foundations-week-05-sensation-perception",
+            [SeedDataInitializer.PsychologyLesson21Id] = "notes-01-scientific-foundations-week-08-memory-stage-review",
+            [SeedDataInitializer.PsychologyLesson22Id] = "notes-06-integration-week-44-psychology-work-learning",
+            [SeedDataInitializer.PsychologyLesson31Id] = "notes-05-development-mental-health-week-42-evidence-based-therapies",
+            [SeedDataInitializer.PsychologyLesson32Id] = "notes-04-love-relationships-week-30-boundaries-consent"
+        };
+
+        await MigrateDomainActivitiesAsync(db, "doc-course-studxy-fullstack-bootcamp", jsActivities, jsLessonSlugMap, now);
+        await MigrateDomainActivitiesAsync(db, "document-course-investing", finActivities, finLessonSlugMap, now);
+        await MigrateDomainActivitiesAsync(db, "document-course-psychology", psyActivities, psyLessonSlugMap, now);
+
+        await EnsureMigratedCourseQuizzesSeededAsync(db, jsLessonSlugMap, finLessonSlugMap, psyLessonSlugMap, now);
+    }
+
+    private static async Task MigrateDomainActivitiesAsync(
+        SwmsDbContext db,
+        string targetCourseSlug,
+        List<PracticeActivity> sourceActivities,
+        Dictionary<Guid, string> lessonSlugMap,
+        DateTimeOffset now)
+    {
+        var targetCourse = await db.Courses.FirstOrDefaultAsync(c => c.Slug == targetCourseSlug);
+        if (targetCourse == null) return;
+
+        var targetLessons = await db.Lessons
+            .Where(l => db.Chapters.Any(ch => ch.Id == l.ChapterId && ch.CourseId == targetCourse.Id))
+            .ToListAsync();
+
+        if (targetLessons.Count == 0) return;
+
+        var defaultFallbackLesson = targetLessons.OrderBy(l => l.SortOrder).First();
+        var lessonBySlug = targetLessons.ToDictionary(l => l.Slug, StringComparer.OrdinalIgnoreCase);
+
+        var existingInTarget = await db.PracticeActivities
+            .Where(pa => pa.CourseId == targetCourse.Id)
+            .ToListAsync();
+
+        var existingIds = existingInTarget.Select(a => a.Id).ToHashSet();
+        var existingCompositeKeys = existingInTarget
+            .Where(a => a.LessonId.HasValue)
+            .Select(a => (a.LessonId!.Value, Type: (a.Type ?? string.Empty).Trim().ToLowerInvariant(), a.OrderIndex))
+            .ToHashSet();
+
+        var usedOrderIndices = existingInTarget
+            .Where(a => a.LessonId.HasValue)
+            .GroupBy(a => a.LessonId!.Value)
+            .ToDictionary(g => g.Key, g => g.Select(x => x.OrderIndex).ToHashSet());
+
+        var toAdd = new List<PracticeActivity>();
+
+        foreach (var src in sourceActivities.OrderBy(a => a.LessonId).ThenBy(a => a.OrderIndex))
+        {
+            Lesson targetLesson = defaultFallbackLesson;
+            if (src.LessonId.HasValue && lessonSlugMap.TryGetValue(src.LessonId.Value, out var slug))
+            {
+                if (lessonBySlug.TryGetValue(slug, out var matchedLesson))
+                {
+                    targetLesson = matchedLesson;
+                }
+            }
+
+            var defaultMigratedId = SeedDataInitializer.CreateDeterministicGuid($"migrated-writein:{targetCourse.Id:N}:{src.Id:N}");
+            var legacyFormulaId = SeedDataInitializer.CreateDeterministicGuid(
+                $"migrated-writein:{targetCourse.Id:N}:{targetLesson.Id:N}:{(src.Type ?? "practice").Trim().ToLowerInvariant()}:{200 + src.OrderIndex}");
+
+            if (existingIds.Contains(defaultMigratedId) || existingIds.Contains(legacyFormulaId))
+            {
+                continue;
+            }
+
+            if (!usedOrderIndices.TryGetValue(targetLesson.Id, out var usedOrders))
+            {
+                usedOrders = new HashSet<int>();
+                usedOrderIndices[targetLesson.Id] = usedOrders;
+            }
+
+            var candidateOrder = 200 + src.OrderIndex;
+            var actType = (src.Type ?? "practice").Trim().ToLowerInvariant();
+
+            while (usedOrders.Contains(candidateOrder) ||
+                   existingCompositeKeys.Contains((targetLesson.Id, actType, candidateOrder)))
+            {
+                candidateOrder++;
+            }
+
+            var newOrderIndex = candidateOrder;
+            var newId = defaultMigratedId;
+
+            usedOrders.Add(newOrderIndex);
+            existingIds.Add(newId);
+            existingCompositeKeys.Add((targetLesson.Id, actType, newOrderIndex));
+
+            toAdd.Add(new PracticeActivity
+            {
+                Id = newId,
+                CourseId = targetCourse.Id,
+                LessonId = targetLesson.Id,
+                OrderIndex = newOrderIndex,
+                Type = src.Type,
+                Title = src.Title,
+                Description = src.Description,
+                ConfigJson = src.ConfigJson,
+                PassingScore = src.PassingScore,
+                IsSeeded = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        if (toAdd.Count > 0)
+        {
+            db.PracticeActivities.AddRange(toAdd);
+            await db.SaveChangesAsync();
+        }
+    }
+
+    private static async Task EnsureMigratedCourseQuizzesSeededAsync(
+        SwmsDbContext db,
+        Dictionary<Guid, string> jsLessonSlugMap,
+        Dictionary<Guid, string> finLessonSlugMap,
+        Dictionary<Guid, string> psyLessonSlugMap,
+        DateTimeOffset now)
+    {
+        var rawQuizPacks = new List<(PracticeQuiz Quiz, List<PracticeQuizItem> Items)>();
+        rawQuizPacks.AddRange(CodingWriteInContent.GetCourseQuizzes(now));
+        rawQuizPacks.AddRange(InvestingWriteInContent.GetCourseQuizzes(now));
+        rawQuizPacks.AddRange(PsychologyWriteInContent.GetCourseQuizzes(now));
+
+        var combinedMap = new Dictionary<Guid, string>(jsLessonSlugMap);
+        foreach (var (k, v) in finLessonSlugMap) combinedMap[k] = v;
+        foreach (var (k, v) in psyLessonSlugMap) combinedMap[k] = v;
+
+        var targetSlugs = combinedMap.Values.Distinct().ToList();
+        var targetLessons = await db.Lessons.Where(l => targetSlugs.Contains(l.Slug)).ToListAsync();
+        var lessonBySlug = targetLessons.ToDictionary(l => l.Slug, StringComparer.OrdinalIgnoreCase);
+
+        var existingQuizzes = await db.PracticeQuizzes
+            .Where(q => q.UserId == SeedDataInitializer.DefaultUserId)
+            .ToListAsync();
+        var existingQuizIds = existingQuizzes.Select(q => q.Id).ToHashSet();
+        var existingQuizKeys = existingQuizzes
+            .Where(q => q.LessonId.HasValue)
+            .Select(q => (q.LessonId!.Value, Title: q.Title.Trim()))
+            .ToHashSet();
+
+        var existingItemIds = (await db.PracticeQuizItems.Select(qi => qi.Id).ToListAsync()).ToHashSet();
+
+        var quizzesToAdd = new List<PracticeQuiz>();
+        var itemsToAdd = new List<PracticeQuizItem>();
+
+        foreach (var (rawQuiz, rawItems) in rawQuizPacks)
+        {
+            if (!rawQuiz.LessonId.HasValue) continue;
+            if (!combinedMap.TryGetValue(rawQuiz.LessonId.Value, out var targetSlug)) continue;
+            if (!lessonBySlug.TryGetValue(targetSlug, out var targetLesson)) continue;
+
+            var targetLessonId = targetLesson.Id;
+            var migratedQuizId = SeedDataInitializer.CreateDeterministicGuid($"migrated-quiz:{targetLessonId:N}:{rawQuiz.Title.Trim()}");
+
+            var key = (targetLessonId, Title: rawQuiz.Title.Trim());
+            bool exists = existingQuizIds.Contains(migratedQuizId) || existingQuizKeys.Contains(key);
+
+            Guid actualQuizId = migratedQuizId;
+            if (!exists)
+            {
+                var newQuiz = new PracticeQuiz
+                {
+                    Id = migratedQuizId,
+                    UserId = SeedDataInitializer.DefaultUserId,
+                    Title = rawQuiz.Title,
+                    LessonId = targetLessonId,
+                    TotalItems = rawQuiz.TotalItems,
+                    CorrectItems = 0,
+                    Status = "in_progress",
+                    StartedAt = rawQuiz.StartedAt
+                };
+                quizzesToAdd.Add(newQuiz);
+                existingQuizIds.Add(migratedQuizId);
+                existingQuizKeys.Add(key);
+            }
+            else
+            {
+                var matched = existingQuizzes.FirstOrDefault(q => q.Id == migratedQuizId)
+                    ?? existingQuizzes.FirstOrDefault(q => q.LessonId == targetLessonId && q.Title.Trim() == rawQuiz.Title.Trim());
+                actualQuizId = matched?.Id ?? migratedQuizId;
+            }
+
+            for (int i = 0; i < rawItems.Count; i++)
+            {
+                var rawItem = rawItems[i];
+                var itemId = SeedDataInitializer.CreateDeterministicGuid($"migrated-quiz-item:{actualQuizId:N}:{i + 1}");
+                if (!existingItemIds.Contains(itemId))
+                {
+                    itemsToAdd.Add(new PracticeQuizItem
+                    {
+                        Id = itemId,
+                        QuizId = actualQuizId,
+                        ItemType = rawItem.ItemType,
+                        PromptAstJson = rawItem.PromptAstJson,
+                        ChoicesJson = rawItem.ChoicesJson,
+                        ClozeSolution = rawItem.ClozeSolution,
+                        AiRubricFeedbackJson = rawItem.AiRubricFeedbackJson,
+                        CreatedAt = now.AddSeconds(i)
+                    });
+                    existingItemIds.Add(itemId);
+                }
+            }
+        }
+
+        if (quizzesToAdd.Count > 0) db.PracticeQuizzes.AddRange(quizzesToAdd);
+        if (itemsToAdd.Count > 0) db.PracticeQuizItems.AddRange(itemsToAdd);
+        if (quizzesToAdd.Count > 0 || itemsToAdd.Count > 0)
+        {
+            await db.SaveChangesAsync();
+        }
+    }
+
     public static async Task EnsureWriteInActivitiesSeededAsync(SwmsDbContext db, DateTimeOffset now)
     {
+        await EnsureMigratedWriteInLabsSeededAsync(db, now);
+
         // First upgrade lesson theory content safely (idempotent, only if CurrentVersion == 1 and no v2 marker)
         await WriteInTheoryExpansion.EnsureLessonsUpgradedAsync(db, now);
 

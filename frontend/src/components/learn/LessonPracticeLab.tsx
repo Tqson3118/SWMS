@@ -30,6 +30,7 @@ import { invalidateDashboardCache } from "@/lib/api-client";
 import { formatCleanQuizPrompt } from "@/lib/course-helpers";
 import { detectCourseLanguageFromText } from "@/lib/language-practice";
 import { resolvePracticeSelection } from "@/lib/practice-helpers";
+import { RichInlineMarkdown } from "@/lib/math-markdown";
 
 export interface LessonPracticeLabProps {
   courseId: string;
@@ -69,6 +70,7 @@ interface QuizQuestionItem {
   prompt: { question?: string; rubricCriteria?: string[] } | string;
   choices?: QuizChoiceItem[] | null;
   clozeSolution?: string | null;
+  explanation?: string | null;
   userAnswer?: { text?: string } | null;
   isCorrect?: boolean | null;
   aiRubricFeedback?: {
@@ -705,6 +707,44 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
     }
     setRecallAiLoading(true);
     try {
+      const combinedLower = `${courseTitle} ${lessonTitle} ${lessonMarkdown}`.toLowerCase();
+      let inferredCodeLang: string | undefined;
+      if (
+        combinedLower.includes("sql") ||
+        combinedLower.includes("database") ||
+        combinedLower.includes("postgres") ||
+        combinedLower.includes("truy vấn")
+      ) {
+        inferredCodeLang = "sql";
+      } else if (
+        combinedLower.includes("python") ||
+        combinedLower.includes("fastapi") ||
+        combinedLower.includes("django")
+      ) {
+        inferredCodeLang = "python";
+      } else if (
+        combinedLower.includes("c#") ||
+        combinedLower.includes("csharp") ||
+        combinedLower.includes(".net") ||
+        combinedLower.includes("dotnet") ||
+        combinedLower.includes("ef core")
+      ) {
+        inferredCodeLang = "csharp";
+      } else if (
+        combinedLower.includes("bash") ||
+        combinedLower.includes("linux") ||
+        combinedLower.includes("docker") ||
+        combinedLower.includes("shell")
+      ) {
+        inferredCodeLang = "bash";
+      } else if (
+        combinedLower.includes("typescript") ||
+        combinedLower.includes("react") ||
+        combinedLower.includes("javascript")
+      ) {
+        inferredCodeLang = "javascript";
+      }
+
       const resp = await fetch("/api/v1/ai/explain", {
         method: "POST",
         headers: buildAuthHeaders({ "Content-Type": "application/json" }),
@@ -712,6 +752,7 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
           excerpt: `Tự diễn đạt bài "${lessonTitle}": ${recallText.trim().slice(0, 600)}`,
           contextTitle: lessonTitle,
           actionType: "explain",
+          ...(inferredCodeLang ? { language: inferredCodeLang } : {}),
         }),
       });
       if (resp.ok) {
@@ -941,9 +982,9 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
                             <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded bg-accent-subtle text-accent">
                               Câu {idx + 1} · {QUIZ_TYPE_LABELS[item.itemType] ?? item.itemType}
                             </span>
-                            <p className="text-sm font-medium text-text-primary leading-relaxed">
-                              {cleanQ}
-                            </p>
+                            <div className="text-sm font-medium text-text-primary leading-relaxed">
+                              <RichInlineMarkdown text={cleanQ} />
+                            </div>
                           </div>
                           {evaluated && item.isCorrect !== null && (
                             <span
@@ -997,7 +1038,9 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
                                   <span className="font-mono font-bold text-[11px] px-1.5 py-0.5 rounded bg-bg-primary border border-border shrink-0">
                                     {ch.key}
                                   </span>
-                                  <span className="text-text-primary leading-snug">{ch.text}</span>
+                                  <span className="text-text-primary leading-snug">
+                                    <RichInlineMarkdown text={ch.text} />
+                                  </span>
                                 </label>
                               );
                             })}
@@ -1030,7 +1073,7 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
                             <span className="text-xs text-text-secondary">
                               Đáp án chuẩn:{" "}
                               <strong className="text-emerald-600 dark:text-emerald-400">
-                                {item.clozeSolution}
+                                <RichInlineMarkdown text={item.clozeSolution} />
                               </strong>
                             </span>
                           ) : (
@@ -1056,6 +1099,13 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
                             </span>
                           </button>
                         </div>
+
+                        {evaluated && item.explanation && (
+                          <div className="rounded-lg border border-border bg-bg-secondary/70 p-3 text-xs text-text-primary">
+                            <span className="font-semibold text-accent">Giải thích: </span>
+                            <RichInlineMarkdown text={item.explanation} />
+                          </div>
+                        )}
 
                         {item.aiRubricFeedback?.summary && (
                           <div className="rounded-lg border border-accent/25 bg-accent-subtle/60 p-3 text-xs text-text-primary">

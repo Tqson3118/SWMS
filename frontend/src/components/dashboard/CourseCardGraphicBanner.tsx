@@ -224,11 +224,22 @@ export function CourseCardGraphicBanner({
 
   return (
     <div
-      className={`relative h-24 w-full overflow-hidden bg-gradient-to-br ${config.gradientClass} text-white p-3.5 flex flex-col justify-between ${className}`}
+      className={`group/banner relative h-24 w-full overflow-hidden bg-gradient-to-br ${config.gradientClass} text-white p-3.5 flex flex-col justify-between shadow-inner ${className}`}
     >
+      {/* Subtle Gradient Depth & Contrast Scrim (Light + Dark mode) */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.22),transparent_58%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.14),transparent_58%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/30 via-transparent to-black/15 dark:from-black/45 dark:via-black/10 dark:to-black/25"
+      />
+
       {/* Course-specific SVG Pattern */}
       <svg
-        className="absolute inset-0 w-full h-full opacity-18 pointer-events-none"
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full opacity-20 group-hover/banner:opacity-30 transition-opacity duration-300 ease-out motion-reduce:transition-none pointer-events-none"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 300 100"
         preserveAspectRatio="none"
@@ -329,23 +340,23 @@ export function CourseCardGraphicBanner({
 
       {/* Banner Meta Row */}
       <div className="relative z-10 flex items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md text-white border border-white/25 shadow-2xs">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-950/35 dark:bg-slate-950/50 backdrop-blur-md text-white border border-white/30 shadow-xs whitespace-nowrap shrink-0">
           <Icon className={`w-3.5 h-3.5 shrink-0 ${config.iconTintClass}`} />
           <span>{domainLabel}</span>
         </span>
 
         {isCompleted ? (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500 text-white shadow-xs">
-            <CheckCircle2 className="w-3.5 h-3.5" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-600/95 dark:bg-emerald-500/95 text-white border border-emerald-300/40 shadow-xs whitespace-nowrap shrink-0">
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
             <span>Hoàn thành</span>
           </span>
         ) : isInProgress ? (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/25 backdrop-blur-md text-white border border-white/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-950/45 dark:bg-slate-950/65 backdrop-blur-md text-white border border-white/35 shadow-xs whitespace-nowrap shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse motion-reduce:animate-none shrink-0" />
             <span>{progressPercent}%</span>
           </span>
         ) : levelLabel ? (
-          <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-black/35 text-white border border-white/25 shadow-2xs">
+          <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-950/45 dark:bg-slate-950/65 backdrop-blur-md text-white border border-white/30 shadow-xs whitespace-nowrap shrink-0">
             {levelLabel}
           </span>
         ) : null}
@@ -354,20 +365,20 @@ export function CourseCardGraphicBanner({
       {/* Bottom Course Signature Badge & Icon */}
       <div className="relative z-10 flex items-center justify-between gap-2">
         {config.accentBadge ? (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold tracking-wide bg-black/30 text-white/95 border border-white/20 backdrop-blur-xs">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold tracking-wide bg-slate-950/40 dark:bg-slate-950/55 text-white border border-white/25 backdrop-blur-xs shadow-2xs whitespace-nowrap shrink-0">
             {config.accentBadge}
           </span>
         ) : (
           <span />
         )}
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 transition-transform duration-300 ease-out group-hover/banner:scale-105 group-hover/banner:-translate-y-0.5 motion-reduce:transition-none motion-reduce:transform-none">
           {config.heroGlyph ? (
-            <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur-xs border border-white/25 shadow-inner flex items-center justify-center text-base font-black text-white select-none">
+            <div className="w-9 h-9 rounded-xl bg-white/15 dark:bg-white/10 backdrop-blur-sm border border-white/30 shadow-sm flex items-center justify-center text-base font-black text-white select-none">
               {config.heroGlyph}
             </div>
           ) : (
-            <div className="p-2 rounded-xl bg-white/15 backdrop-blur-xs border border-white/20 shadow-inner">
+            <div className="p-2 rounded-xl bg-white/15 dark:bg-white/10 backdrop-blur-sm border border-white/25 shadow-sm">
               <Icon className={`w-5 h-5 ${config.iconTintClass}`} />
             </div>
           )}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpen,
   CheckCircle2,
@@ -23,6 +23,8 @@ export interface RoadmapLessonItem {
   startPage?: number | null;
   endPage?: number | null;
   quizId?: string | null;
+  isBookmarked?: boolean;
+  needsReview?: boolean;
 }
 
 export interface RoadmapChapterItem {
@@ -44,6 +46,7 @@ export interface CourseRoadmapSidebarProps {
   totalCount: number;
   onSelectLesson: (lessonId: string) => void;
   compact?: boolean;
+  testId?: string;
 }
 
 function normalizeForSearch(input: string): string {
@@ -67,10 +70,14 @@ export function CourseRoadmapSidebar({
   completedCount,
   totalCount,
   onSelectLesson,
-  compact = false
+  compact = false,
+  testId = "course-roadmap-sidebar"
 }: CourseRoadmapSidebarProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [flagFilter, setFlagFilter] = useState<"all" | "bookmarked" | "review">("all");
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
+  const activeLessonRef = useRef<HTMLButtonElement | null>(null);
+  const pendingScrollLessonIdRef = useRef<string | null>(null);
 
   const normalizedChapters: RoadmapChapterItem[] = useMemo(() => {
     if (chapters && chapters.length > 0) {
@@ -91,6 +98,18 @@ export function CourseRoadmapSidebar({
 
   const completedSet = useMemo(() => new Set(completedLessonIds), [completedLessonIds]);
 
+  const { bookmarkedCount, needsReviewCount } = useMemo(() => {
+    let bookmarked = 0;
+    let review = 0;
+    for (const ch of normalizedChapters) {
+      for (const les of ch.lessons || []) {
+        if (les.isBookmarked) bookmarked += 1;
+        if (les.needsReview) review += 1;
+      }
+    }
+    return { bookmarkedCount: bookmarked, needsReviewCount: review };
+  }, [normalizedChapters]);
+
   // Default expand chapter containing activeLessonId (or first non-empty chapter)
   useEffect(() => {
     if (normalizedChapters.length === 0) return;
@@ -106,24 +125,42 @@ export function CourseRoadmapSidebar({
     });
   }, [activeLessonId, normalizedChapters]);
 
+  // Mark activeLessonId for smooth scroll into view whenever it changes
+  useEffect(() => {
+    if (activeLessonId) {
+      pendingScrollLessonIdRef.current = activeLessonId;
+    }
+  }, [activeLessonId]);
+
+  // Smoothly scroll the active lesson button into view once mounted/expanded
+  useEffect(() => {
+    if (!activeLessonId || pendingScrollLessonIdRef.current !== activeLessonId) return;
+    const el = activeLessonRef.current;
+    if (!el) return;
+    pendingScrollLessonIdRef.current = null;
+    el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [activeLessonId, expandedChapters, flagFilter, normalizedChapters]);
+
   const normalizedQuery = normalizeForSearch(searchQuery);
 
   const filteredChapters = useMemo(() => {
-    if (!normalizedQuery) return normalizedChapters;
     return normalizedChapters
       .map((ch) => {
-        const chapterMatch = normalizeForSearch(ch.title).includes(normalizedQuery);
+        const chapterMatch = normalizedQuery ? normalizeForSearch(ch.title).includes(normalizedQuery) : false;
         const matchingLessons = (ch.lessons || []).filter((les) => {
+          if (flagFilter === "bookmarked" && !les.isBookmarked) return false;
+          if (flagFilter === "review" && !les.needsReview) return false;
+          if (!normalizedQuery) return true;
           const title = localLessonTitles[les.id] || les.title || "";
           return chapterMatch || normalizeForSearch(title).includes(normalizedQuery);
         });
         return {
           ...ch,
-          lessons: matchingLessons
+          lessons: matchingLessons,
         };
       })
       .filter((ch) => ch.lessons.length > 0);
-  }, [normalizedChapters, normalizedQuery, localLessonTitles]);
+  }, [normalizedChapters, normalizedQuery, flagFilter, localLessonTitles]);
 
   const totalFilteredLessons = useMemo(
     () => filteredChapters.reduce((acc, ch) => acc + ch.lessons.length, 0),
@@ -152,7 +189,7 @@ export function CourseRoadmapSidebar({
 
   return (
     <div
-      data-testid="course-roadmap-sidebar"
+      data-testid={testId}
       className="flex flex-col flex-1 h-full min-h-0 min-w-0 w-full space-y-2.5 text-xs"
     >
       {/* Course Mini Progress Summary */}
@@ -209,9 +246,61 @@ export function CourseRoadmapSidebar({
           )}
         </div>
 
+        {/* Filter Pills: Tất cả | Đánh dấu | Cần ôn lại */}
+        <div className="flex items-center gap-1 p-0.5 rounded-lg bg-bg-secondary border border-border text-[10px]">
+          <button
+            type="button"
+            onClick={() => setFlagFilter("all")}
+            data-testid="roadmap-filter-all"
+            className={`flex-1 py-1 px-1 rounded text-center transition cursor-pointer font-medium ${
+              flagFilter === "all"
+                ? "bg-bg-primary text-text-primary shadow-xs font-semibold"
+                : "text-text-tertiary hover:text-text-primary"
+            }`}
+          >
+            Tất cả
+          </button>
+          <button
+            type="button"
+            onClick={() => setFlagFilter("bookmarked")}
+            data-testid="roadmap-filter-bookmarked"
+            className={`flex-1 py-1 px-1 rounded text-center transition cursor-pointer font-medium flex items-center justify-center gap-1 min-w-0 whitespace-nowrap ${
+              flagFilter === "bookmarked"
+                ? "bg-bg-primary text-amber-600 dark:text-amber-400 font-semibold shadow-xs"
+                : "text-text-tertiary hover:text-text-primary"
+            }`}
+          >
+            <span>🔖</span>
+            <span>Đánh dấu</span>
+            {bookmarkedCount > 0 && (
+              <span className="px-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 text-[9px] font-bold leading-tight">
+                {bookmarkedCount}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setFlagFilter("review")}
+            data-testid="roadmap-filter-review"
+            className={`flex-1 py-1 px-1 rounded text-center transition cursor-pointer font-medium flex items-center justify-center gap-1 min-w-0 whitespace-nowrap ${
+              flagFilter === "review"
+                ? "bg-bg-primary text-rose-600 dark:text-rose-400 font-semibold shadow-xs"
+                : "text-text-tertiary hover:text-text-primary"
+            }`}
+          >
+            <span>🔁</span>
+            <span>Cần ôn</span>
+            {needsReviewCount > 0 && (
+              <span className="px-1 rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-300 text-[9px] font-bold leading-tight">
+                {needsReviewCount}
+              </span>
+            )}
+          </button>
+        </div>
+
         <div className="flex items-center justify-between text-[11px] text-text-tertiary px-0.5">
           <span>
-            {normalizedQuery
+            {normalizedQuery || flagFilter !== "all"
               ? `Tìm thấy ${totalFilteredLessons} bài`
               : `${normalizedChapters.length} chương • ${totalCount} bài`}
           </span>
@@ -236,8 +325,18 @@ export function CourseRoadmapSidebar({
         }`}
       >
         {filteredChapters.length === 0 ? (
-          <div className="p-3 rounded-lg border border-dashed border-border text-center text-[11px] text-text-tertiary">
-            Không tìm thấy bài học phù hợp
+          <div className="p-4 rounded-lg border border-dashed border-border text-center text-[11px] text-text-tertiary space-y-2">
+            <p>Không tìm thấy bài học phù hợp</p>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setFlagFilter("all");
+              }}
+              className="inline-flex items-center justify-center px-2.5 py-1 rounded-md border border-border bg-bg-primary text-[11px] font-medium text-accent hover:bg-bg-secondary transition cursor-pointer"
+            >
+              Hiện tất cả bài
+            </button>
           </div>
         ) : (
           filteredChapters.map((chapter, chIdx) => {
@@ -302,6 +401,7 @@ export function CourseRoadmapSidebar({
                       return (
                         <button
                           key={les.id}
+                          ref={isActive ? activeLessonRef : undefined}
                           type="button"
                           data-testid="course-syllabus-lesson-btn"
                           aria-current={isActive ? "page" : undefined}
@@ -333,6 +433,22 @@ export function CourseRoadmapSidebar({
                           </div>
 
                           <div className="shrink-0 flex items-center gap-1 mt-0.5">
+                            {les.isBookmarked && (
+                              <span
+                                title="Đã đánh dấu"
+                                className={`text-[10px] ${isActive ? "text-white" : "text-amber-500"}`}
+                              >
+                                🔖
+                              </span>
+                            )}
+                            {les.needsReview && (
+                              <span
+                                title="Cần ôn lại"
+                                className={`text-[10px] ${isActive ? "text-white" : "text-rose-500"}`}
+                              >
+                                🔁
+                              </span>
+                            )}
                             {typeof les.estimatedMinutes === "number" &&
                               les.estimatedMinutes > 0 && (
                                 <span
