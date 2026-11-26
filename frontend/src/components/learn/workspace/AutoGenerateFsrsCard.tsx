@@ -66,17 +66,17 @@ export function AutoGenerateFsrsCard({
   return (
     <div
       data-testid="auto-generate-fsrs-card"
-      className="my-6 rounded-xl border border-indigo-200/80 dark:border-indigo-800/60 bg-gradient-to-br from-indigo-50/50 via-bg-primary to-purple-50/30 dark:from-indigo-950/20 dark:via-bg-primary dark:to-purple-950/10 p-4 sm:p-5 shadow-xs font-sans"
+      className="my-6 rounded-xl border border-indigo-200/80 dark:border-indigo-800/60 bg-[var(--surface-card)] bg-gradient-to-br from-indigo-50/60 via-[var(--surface-card)] to-purple-50/40 dark:from-indigo-950/35 dark:via-[var(--surface-card)] dark:to-purple-950/20 p-4 sm:p-5 shadow-xs font-sans"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="space-y-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>✨ Ôn tập chủ động (FSRS v5)</span>
+              <span>Ôn tập chủ động (FSRS v5)</span>
             </span>
             {totalCardsCount > 0 && (
-              <span className="text-[11px] font-semibold text-text-tertiary bg-bg-secondary px-2 py-0.5 rounded-full border border-border">
+              <span className="text-[11px] font-semibold text-text-secondary bg-[var(--surface-elevated)] px-2 py-0.5 rounded-full border border-[var(--border-calm)]">
                 {totalCardsCount} thẻ hiện có
               </span>
             )}
@@ -93,7 +93,7 @@ export function AutoGenerateFsrsCard({
             disabled={isGenerating}
             onClick={handleGenerate}
             data-testid="auto-generate-fsrs-btn"
-            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs disabled:opacity-60 transition cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 min-h-9 px-3.5 py-2 rounded-lg bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:hover:bg-[#A5B4FC] dark:text-[#0F0F12] text-xs font-semibold shadow-xs disabled:opacity-60 transition cursor-pointer"
           >
             {isGenerating ? (
               <>

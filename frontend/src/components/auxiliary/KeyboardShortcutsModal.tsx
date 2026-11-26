@@ -1,23 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import {
-  Keyboard,
-  Search,
-  BookOpen,
-  Highlighter,
-  Columns2,
-  Brain,
-  X,
-  ArrowRight,
-  Sparkles,
-  Zap,
-  HelpCircle,
-  Eye,
-  FileText,
-  Sliders,
-  CheckCircle2
-} from "lucide-react";
+import { Keyboard, Search, X } from "lucide-react";
 
 export interface KeyboardShortcutsModalProps {
   isOpen: boolean;
@@ -35,187 +19,114 @@ interface ShortcutItem {
   badge?: string;
 }
 
+function normalizeVietnamese(str: string): string {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase();
+}
+
 const SHORTCUTS_DATA: ShortcutItem[] = [
   // Global & Navigation
   {
     id: "g1",
     category: "global",
     keys: ["Ctrl", "K"],
-    description: "Mở Bảng lệnh Command Palette & Quick Capture (Tìm kiếm bài học, tài liệu, tag)",
+    description: "Mở bảng lệnh tìm kiếm & tạo thẻ ghi nhớ nhanh",
     badge: "Phổ biến"
   },
   {
     id: "g2",
     category: "global",
     keys: ["?"],
-    description: "Mở Bảng tra cứu phím tắt & Hướng dẫn luồng học tập này",
+    description: "Mở hoặc đóng bảng tra cứu phím tắt",
     badge: "Trợ giúp"
   },
   {
     id: "g3",
     category: "global",
     keys: ["Esc"],
-    description: "Đóng bất kỳ Modal, Drawer hoặc Popover đang mở"
+    description: "Đóng hộp thoại hoặc bảng đang mở"
   },
   {
     id: "g4",
     category: "global",
-    keys: ["0"],
-    description: "Chuyển về Không gian cá nhân (Dashboard)"
+    keys: ["Ctrl", "D"],
+    description: "Chuyển đổi giao diện sáng / tối"
   },
   {
     id: "g5",
     category: "global",
-    keys: ["1"],
-    description: "Chuyển sang Mode 1: Đọc sâu (Deep Reading 68ch)"
+    keys: ["Ctrl", "\\"],
+    description: "Thu gọn hoặc mở rộng thanh điều hướng"
   },
   {
     id: "g6",
     category: "global",
-    keys: ["2"],
-    description: "Chuyển sang Mode 2: Chia đôi không gian (Split PKM)"
-  },
-  {
-    id: "g7",
-    category: "global",
-    keys: ["3"],
-    description: "Chuyển sang Mode 3: Ôn tập FSRS & Luyện tập Thực hành"
-  },
-  {
-    id: "g8",
-    category: "global",
-    keys: ["Ctrl", "\\"],
-    description: "Thu gọn hoặc Mở rộng Sidebar mục lục / tài nguyên"
-  },
-  {
-    id: "g9",
-    category: "global",
-    keys: ["Ctrl", "D"],
-    description: "Chuyển đổi giao diện Sáng / Tối (Light / Dark mode)"
+    keys: ["/"],
+    description: "Đưa con trỏ vào ô tìm kiếm trên trang Khóa học"
   },
 
-  // Mode 1: Reading
+  // Learning & Reading
   {
     id: "r1",
     category: "reading",
-    keys: ["j", "/", "k"],
-    description: "Cuộn văn bản mượt mà xuống / lên theo nhịp đọc mắt"
+    keys: ["Ctrl", "Shift", "F"],
+    description: "Tìm kiếm toàn văn trong khóa học hiện tại",
+    badge: "Tìm kiếm"
   },
   {
     id: "r2",
     category: "reading",
-    keys: ["1-5"],
-    description: "Bôi đen và Đọc: Phím 1-5 đánh dấu 5 màu ngữ nghĩa (Khái niệm, Dẫn chứng, Nghi vấn, Tổng hợp, Lưu ý)",
-    badge: "Highlight"
+    keys: ["Alt", "← / →"],
+    description: "Chuyển nhanh sang bài học trước hoặc bài học tiếp theo"
   },
   {
     id: "r3",
     category: "reading",
-    keys: ["C"],
-    description: "Tạo thẻ Cloze điền khuyết nhanh từ đoạn bôi đen (0ms, 0 AI cost)",
-    badge: "0ms AI"
-  },
-  {
-    id: "r4",
-    category: "reading",
-    keys: ["N"],
-    description: "Trích xuất đoạn bôi đen sang Ghi chú tổng hợp và tự động mở Split Mode"
-  },
-  {
-    id: "r5",
-    category: "reading",
-    keys: ["E"],
-    description: "Gọi trợ lý AI giải thích nhanh thuật ngữ hoặc khái niệm"
-  },
-  {
-    id: "r6",
-    category: "reading",
-    keys: ["Z"],
-    description: "Bật / Tắt chế độ Zen Mode (Toàn màn hình tĩnh lặng, ẩn mọi thanh điều hướng)"
-  },
-  {
-    id: "r7",
-    category: "reading",
-    keys: ["T"],
-    description: "Chuyển đổi luân phiên phông chữ Serif (Source Serif 4) và Sans-serif"
+    keys: ["Alt", "Z"],
+    description: "Bật hoặc tắt chế độ đọc tập trung",
+    badge: "Tập trung"
   },
 
-  // Mode 2: Split PKM
+  // Studio & Editor (category id "split" kept for backwards compatibility)
   {
     id: "s1",
     category: "split",
-    keys: ["Ctrl", "\\"],
-    description: "Split Mode: Thu gọn Sidebar thành thanh icon hoặc mở rộng danh mục 288px (Ctrl\\)"
+    keys: ["Ctrl", "S"],
+    description: "Lưu thay đổi bài giảng trong trình biên tập",
+    badge: "Biên tập"
   },
   {
     id: "s2",
     category: "split",
-    keys: ["Double Click"],
-    description: "Nhấp đúp chuột vào tay cầm Splitter để khôi phục tỷ lệ chuẩn 15% / 45% / 40%"
-  },
-  {
-    id: "s3",
-    category: "split",
-    keys: ["Ctrl", "S"],
-    description: "Lưu ghi chú thủ công (Hệ thống tự động lưu liên tục)"
-  },
-  {
-    id: "s4",
-    category: "split",
-    keys: ["Click [↗ Jump]"],
-    description: "Bấm [↗ Jump to Source]: Nhảy về dòng bài đọc gốc và kích hoạt hiệu ứng phát sáng GSAP pulse"
-  },
-  {
-    id: "s5",
-    category: "split",
-    keys: ["/flashcard"],
-    description: "Gõ lệnh chèn block thẻ ghi nhớ trực tiếp trong trình soạn thảo Tiptap"
-  },
-  {
-    id: "s6",
-    category: "split",
-    keys: ["[["],
-    description: "Gõ hai ngoặc vuông để gợi ý và chèn liên kết hai chiều (Wikilinks)"
-  },
-  {
-    id: "s7",
-    category: "split",
-    keys: ["Alt", "S"],
-    description: "Bật / Tắt chế độ Cuộn Đồng bộ Mutex (Scroll-Sync 50ms trailing edge)"
+    keys: ["Ctrl", "Enter"],
+    description: "Nộp câu trả lời tự luận hoặc trả lời ngắn trong bài kiểm tra",
+    badge: "Kiểm tra"
   },
 
-  // Mode 3: Review & Practice
+  // Review & Practice
   {
     id: "v1",
     category: "review",
     keys: ["Space"],
-    description: "FSRS Ôn tập: Bấm Space để lật thẻ ghi nhớ 3D 180° xem đáp án và giải thích",
+    description: "Lật thẻ ghi nhớ FSRS để xem đáp án",
     badge: "Cốt lõi"
   },
   {
     id: "v2",
     category: "review",
-    keys: ["1-4"],
-    description: "Phím 1-4 đánh giá FSRS: 1-Again (<10m), 2-Hard (~1.2d), 3-Good (~3.5d), 4-Easy (~8.2d)",
-    badge: "FSRS v5"
+    keys: ["1 - 4"],
+    description: "Đánh giá mức độ nhớ thẻ FSRS (1: Quên, 2: Khó, 3: Tốt, 4: Dễ)",
+    badge: "FSRS"
   },
   {
     id: "v3",
     category: "review",
     keys: ["Z"],
-    description: "Hoàn tác (Undo) lượt đánh giá thẻ vừa rồi"
-  },
-  {
-    id: "v4",
-    category: "review",
-    keys: ["A", "B", "C", "D"],
-    description: "Chọn nhanh phương án trong bài kiểm tra trắc nghiệm MCQ"
-  },
-  {
-    id: "v5",
-    category: "review",
-    keys: ["Ctrl", "Enter"],
-    description: "Nộp bài tự luận Practice Quiz để nhận phản hồi từ Gemini AI Rubric"
+    description: "Hoàn tác lượt đánh giá thẻ FSRS vừa rồi"
   }
 ];
 
@@ -281,14 +192,16 @@ export function KeyboardShortcutsModal({
   }, [isOpen, onClose]);
 
   const filteredShortcuts = useMemo(() => {
+    const q = normalizeVietnamese(searchQuery.trim());
     return SHORTCUTS_DATA.filter((item) => {
       const matchCat =
         activeCategory === "all" || item.category === activeCategory;
-      if (!searchQuery.trim()) return matchCat;
-      const q = searchQuery.toLowerCase();
-      const matchDesc = item.description.toLowerCase().includes(q);
-      const matchKeys = item.keys.some((k) => k.toLowerCase().includes(q));
-      const matchBadge = item.badge?.toLowerCase().includes(q);
+      if (!q) return matchCat;
+      const matchDesc = normalizeVietnamese(item.description).includes(q);
+      const matchKeys = item.keys.some((k) => normalizeVietnamese(k).includes(q));
+      const matchBadge = item.badge
+        ? normalizeVietnamese(item.badge).includes(q)
+        : false;
       return matchCat && (matchDesc || matchKeys || matchBadge);
     });
   }, [activeCategory, searchQuery]);
@@ -301,7 +214,7 @@ export function KeyboardShortcutsModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="shortcuts-guide-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/65 backdrop-blur-xs animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/55 backdrop-blur-xs swms-animate-fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -309,27 +222,29 @@ export function KeyboardShortcutsModal({
       <div
         ref={modalRef}
         tabIndex={-1}
-        className="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100 outline-none"
+        className="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl bg-[var(--surface-card)] border border-[var(--border-calm)] shadow-elevation-3 overflow-hidden text-[var(--text-primary)] outline-none swms-animate-scale-in"
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/70">
+        <div className="flex items-start justify-between p-5 border-b border-[var(--border-calm)] bg-[var(--surface-elevated)]/60">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-200/50 dark:border-indigo-800/60">
+            <div className="w-10 h-10 rounded-xl bg-[var(--accent-subtle)] text-[var(--accent-text)] flex items-center justify-center shrink-0 border border-[var(--accent)]/20">
               <Keyboard className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/60">
-                  Tốc độ Tư duy
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-text)] bg-[var(--accent-subtle)] px-2 py-0.5 rounded-full border border-[var(--accent)]/20">
+                  Học nhanh bằng phím
                 </span>
-                <span className="text-xs text-slate-400 dark:text-slate-500">•</span>
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Bảng Tra cứu &amp; Hướng dẫn</span>
+                <span className="text-xs text-[var(--text-tertiary)]">•</span>
+                <span className="text-xs text-[var(--text-secondary)] font-medium">
+                  Bảng tra cứu &amp; hướng dẫn
+                </span>
               </div>
               <h2
                 id="shortcuts-guide-title"
-                className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mt-0.5"
+                className="text-lg sm:text-xl font-bold tracking-tight text-[var(--text-primary)] mt-0.5"
               >
-                Hướng dẫn Phím tắt &amp; Luồng Học tập Nhanh
+                Hướng dẫn phím tắt &amp; luồng học tập nhanh
               </h2>
             </div>
           </div>
@@ -338,70 +253,86 @@ export function KeyboardShortcutsModal({
             data-testid="close-shortcuts-modal"
             onClick={onClose}
             aria-label="Đóng"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+            className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* 4-Step Continuous Study Flow Banner */}
-        <div className="px-5 py-3.5 bg-indigo-50/40 dark:bg-indigo-950/20 border-b border-slate-200 dark:border-slate-800">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-            VÒNG LẶP HỌC TẬP KHÉP KÍN (CONTINUOUS FLOW)
+        <div className="px-5 py-3.5 bg-[var(--accent-subtle)]/35 border-b border-[var(--border-calm)]">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
+            VÒNG LẶP HỌC TẬP HIỆU QUẢ
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-            <div className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-              <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs shrink-0">
+            <div className="flex items-center gap-2 p-2 rounded-xl bg-[var(--surface-card)] border border-[var(--border-calm)] shadow-elevation-1">
+              <div className="w-6 h-6 rounded-lg bg-[var(--accent-subtle)] text-[var(--accent-text)] flex items-center justify-center font-bold text-xs shrink-0">
                 1
               </div>
               <div className="min-w-0">
-                <div className="text-xs font-semibold truncate text-slate-900 dark:text-slate-100">Đọc sâu 68ch</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">Công thái học</div>
+                <div className="text-xs font-semibold truncate text-[var(--text-primary)]">
+                  Đọc tập trung (Alt+Z)
+                </div>
+                <div className="text-[10px] text-[var(--text-secondary)] truncate">
+                  Khung đọc chuẩn 68 ký tự
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-              <div className="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">
+            <div className="flex items-center gap-2 p-2 rounded-xl bg-[var(--surface-card)] border border-[var(--border-calm)] shadow-elevation-1">
+              <div className="w-6 h-6 rounded-lg bg-[var(--streak-subtle)] text-[var(--streak-accent)] flex items-center justify-center font-bold text-xs shrink-0">
                 2
               </div>
               <div className="min-w-0">
-                <div className="text-xs font-semibold truncate text-slate-900 dark:text-slate-100">Bôi đen 5 màu (1-5, C)</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">W3C TextQuotes</div>
+                <div className="text-xs font-semibold truncate text-[var(--text-primary)]">
+                  Tìm &amp; Tạo thẻ (Ctrl+K)
+                </div>
+                <div className="text-[10px] text-[var(--text-secondary)] truncate">
+                  Tạo thẻ ghi nhớ tức thì
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-              <div className="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
+            <div className="flex items-center gap-2 p-2 rounded-xl bg-[var(--surface-card)] border border-[var(--border-calm)] shadow-elevation-1">
+              <div className="w-6 h-6 rounded-lg bg-[var(--success-subtle)] text-[var(--success-accent)] flex items-center justify-center font-bold text-xs shrink-0">
                 3
               </div>
               <div className="min-w-0">
-                <div className="text-xs font-semibold truncate text-slate-900 dark:text-slate-100">Split Chia đôi (Ctrl\)</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">Jump to Source</div>
+                <div className="text-xs font-semibold truncate text-[var(--text-primary)]">
+                  Ghi chú &amp; Biên tập (Ctrl+S)
+                </div>
+                <div className="text-[10px] text-[var(--text-secondary)] truncate">
+                  Lưu nhanh bài giảng
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-              <div className="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold text-xs shrink-0">
+            <div className="flex items-center gap-2 p-2 rounded-xl bg-[var(--surface-card)] border border-[var(--border-calm)] shadow-elevation-1">
+              <div className="w-6 h-6 rounded-lg bg-[var(--accent-subtle)] text-[var(--accent-text)] flex items-center justify-center font-bold text-xs shrink-0">
                 4
               </div>
               <div className="min-w-0">
-                <div className="text-xs font-semibold truncate text-slate-900 dark:text-slate-100">FSRS Ôn tập (Space, 1-4)</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">DSR 19 tham số</div>
+                <div className="text-xs font-semibold truncate text-[var(--text-primary)]">
+                  FSRS Ôn tập (Space, 1-4)
+                </div>
+                <div className="text-[10px] text-[var(--text-secondary)] truncate">
+                  Lặp lại ngắt quãng
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Filter Controls & Search */}
-        <div className="p-4 px-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900">
+        <div className="p-4 px-5 border-b border-[var(--border-calm)] flex flex-col sm:flex-row items-center justify-between gap-3 bg-[var(--surface-card)]">
           <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto no-scrollbar">
             {(
               [
                 { id: "all", label: "Tất cả" },
-                { id: "global", label: "Toàn cục / Nav" },
-                { id: "reading", label: "Mode 1: Đọc sâu" },
-                { id: "split", label: "Mode 2: Split PKM" },
-                { id: "review", label: "Mode 3: Ôn tập FSRS" }
+                { id: "global", label: "Toàn cục" },
+                { id: "reading", label: "Học & Đọc" },
+                { id: "split", label: "Ghi chú & Studio" },
+                { id: "review", label: "Ôn tập & Luyện tập" }
               ] as const
             ).map((cat) => (
               <button
@@ -410,8 +341,8 @@ export function KeyboardShortcutsModal({
                 onClick={() => setActiveCategory(cat.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer whitespace-nowrap ${
                   activeCategory === cat.id
-                    ? "bg-indigo-600 text-white shadow-xs"
-                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    ? "bg-[var(--accent)] text-white dark:text-[#0F0F12] shadow-xs font-semibold"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
                 }`}
               >
                 {cat.label}
@@ -420,35 +351,35 @@ export function KeyboardShortcutsModal({
           </div>
 
           <div className="relative w-full sm:w-64">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
             <input
               type="text"
               placeholder="Tìm phím tắt hoặc tính năng..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
             />
           </div>
         </div>
 
         {/* Shortcuts List Body */}
-        <div className="p-5 overflow-y-auto space-y-2 text-xs divide-y divide-slate-100 dark:divide-slate-800/60 max-h-[46vh]">
+        <div className="p-5 overflow-y-auto space-y-2 text-xs max-h-[46vh] swms-thin-scrollbar">
           {filteredShortcuts.length === 0 ? (
-            <div className="py-12 text-center text-slate-400">
-              Không tìm thấy phím tắt phù hợp với từ khóa "{searchQuery}"
+            <div className="py-12 text-center text-[var(--text-tertiary)]">
+              Không tìm thấy phím tắt phù hợp với từ khóa &ldquo;{searchQuery}&rdquo;
             </div>
           ) : (
             filteredShortcuts.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between p-2.5 px-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition gap-4"
+                className="flex items-center justify-between p-2.5 px-3.5 rounded-xl border border-[var(--border-calm)] hover:bg-[var(--surface-elevated)]/70 transition gap-4"
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-slate-800 dark:text-slate-200 font-medium">
+                  <span className="text-[var(--text-primary)] font-medium">
                     {item.description}
                   </span>
                   {item.badge && (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60 shrink-0">
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[var(--accent-subtle)] text-[var(--accent-text)] border border-[var(--accent)]/20 shrink-0">
                       {item.badge}
                     </span>
                   )}
@@ -461,7 +392,7 @@ export function KeyboardShortcutsModal({
                         {k}
                       </kbd>
                       {idx < item.keys.length - 1 && (
-                        <span className="text-slate-400 text-[10px] font-bold">
+                        <span className="text-[var(--text-tertiary)] text-[10px] font-bold">
                           +
                         </span>
                       )}
@@ -474,15 +405,15 @@ export function KeyboardShortcutsModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-4 px-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/70 text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex items-center justify-between p-4 px-6 border-t border-[var(--border-calm)] bg-[var(--surface-elevated)]/60 text-xs text-[var(--text-secondary)]">
           <div>
             Gợi ý: Nhấn <kbd className="swms-kbd text-[10px]">?</kbd> ở bất kỳ đâu để mở lại bảng này.
           </div>
           <button
             type="button"
-            data-testid="close-shortcuts-modal"
+            data-testid="dismiss-shortcuts-modal"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition cursor-pointer"
+            className="px-4 py-1.5 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] hover:bg-[var(--surface-elevated)] text-xs font-semibold text-[var(--text-primary)] transition cursor-pointer"
           >
             Đã hiểu
           </button>

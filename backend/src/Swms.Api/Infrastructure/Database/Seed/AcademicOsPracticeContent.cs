@@ -20,6 +20,7 @@ using Swms.Api.Domain.Entities;
 /// </summary>
 public static class AcademicOsPracticeContent
 {
+    public const string AcademicCourseDescription = "Khóa học nền tảng về Hệ điều hành: Tiến trình và Luồng, Điều phối CPU, Đồng bộ hóa (Mutex, Semaphore, Deadlock), Quản lý bộ nhớ ảo, TLB và Thuật toán thay thế trang.";
     public const string UpgradeMarker = "<!-- studxy-os-v3 -->";
     public const string UpgradeMarkerV4 = "<!-- studxy-os-v4 -->";
 
@@ -78,9 +79,10 @@ public static class AcademicOsPracticeContent
                 });
             }
 
-            if (course.Description != null && !course.Description.Contains("Tiến trình", StringComparison.Ordinal))
+            if (!string.Equals(course.Visibility, "personal", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(course.Description, AcademicCourseDescription, StringComparison.Ordinal))
             {
-                course.Description = "Khóa học cốt lõi về Hệ điều hành: Tiến trình & Luồng, Điều phối CPU, Đồng bộ hóa (Mutex/Semaphore/Deadlock), Quản lý bộ nhớ ảo, TLB và Thuật toán thay thế trang.";
+                course.Description = AcademicCourseDescription;
                 course.UpdatedAt = now;
             }
 

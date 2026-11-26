@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   AlertCircle,
   Award,
+  BookmarkPlus,
   BookOpen,
   Brain,
   CandlestickChart,
@@ -20,6 +21,7 @@ import {
   Plus,
   RotateCcw,
   Send,
+  Shield,
   Sparkles,
   Trophy,
   Users,
@@ -29,8 +31,9 @@ import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspac
 import { invalidateDashboardCache } from "@/lib/api-client";
 import { formatCleanQuizPrompt } from "@/lib/course-helpers";
 import { detectCourseLanguageFromText } from "@/lib/language-practice";
-import { resolvePracticeSelection } from "@/lib/practice-helpers";
+import { resolvePracticeSelection, type LabMode } from "@/lib/practice-helpers";
 import { RichInlineMarkdown } from "@/lib/math-markdown";
+import { saveWriteInFlashcardDeduplicated } from "./practice/WriteInFsrsHelper";
 
 export interface LessonPracticeLabProps {
   courseId: string;
@@ -45,7 +48,7 @@ export interface LessonPracticeLabProps {
   initialActivityKey?: string | null;
 }
 
-type PracticeMode = "english" | "code" | "finance" | "recall";
+type PracticeMode = LabMode;
 
 interface QuizSummaryItem {
   id: string;
@@ -129,6 +132,10 @@ const PsychologyLifeSkillsLab = dynamic(() => import("./practice/PsychologyLifeS
   loading: () => <PracticeLabLoading label="Đang tải phòng thực hành Kỹ năng & Tình huống..." />,
 });
 
+const AppliedSystemsLab = dynamic(() => import("./practice/AppliedSystemsLab"), {
+  loading: () => <PracticeLabLoading label="Đang tải phòng thực hành AI, Dữ liệu & An toàn số..." />,
+});
+
 function stripDiacritics(input: string): string {
   return (input || "")
     .normalize("NFD")
@@ -155,12 +162,25 @@ function extractUnitTokens(title: string): string[] {
 }
 
 function detectPreferredMode(courseTitle: string, lessonTitle: string, md: string): PracticeMode {
+  if (/```practice-applied\b/i.test(md)) return "applied";
   if (/```practice-finance\b/i.test(md)) return "finance";
   if (/```practice-english\b/i.test(md)) return "english";
   if (/```practice-code\b/i.test(md)) return "code";
   if (/```practice-case\b/i.test(md)) return "recall";
 
   const titleNorm = stripDiacritics(`${courseTitle} ${lessonTitle}`);
+  // 0. Applied Systems (AI Workflows, Data & SQL Reasoning, Cybersecurity Threat Spotter)
+  if (
+    /\b(ai-workflows|data-sql|cybersecurity|prompt_critique|sql_reasoning|threat_spotter|ai ung dung|tu dong hoa workflow|prompt engineering|structured outputs|workflow agent|tu duy du lieu|ra quyet dinh bang so lieu|an toan thong tin|an toan so|lua dao so|quyen rieng tu|phishing|quishing|passkeys|fido2)\b/.test(
+      titleNorm
+    )
+  ) {
+    return "applied";
+  }
+  // Deep Learning Systems & Memory Science naturally uses Recall / Feynman lab
+  if (/\b(deep-learning-systems|hoc sau|tu duy he thong|quan tri hieu suat thoi ai)\b/.test(titleNorm)) {
+    return "recall";
+  }
   // 1. Prioritize Languages (English, Japanese N5, Chinese HSK1) so language courses always open Language Practice Lab
   if (
     /\b(ielts|tieng anh|english|tieng nhat|japanese|jlpt|n5|n4|n3|hiragana|katakana|kanji|tieng trung|chinese|hsk|hsk1|hsk2|pinyin|hanzi|listening|speaking|vocabulary|grammar|phat am|shadowing|dictation|pronunciation|ipa)\b/.test(
@@ -194,6 +214,16 @@ function detectPreferredMode(courseTitle: string, lessonTitle: string, md: strin
 
   // Fallback sang xét md.slice(0, 1500)
   const mdNorm = stripDiacritics(md.slice(0, 1500));
+  if (
+    /\b(ai-workflows|data-sql|cybersecurity|prompt_critique|sql_reasoning|threat_spotter)\b/.test(
+      mdNorm
+    )
+  ) {
+    return "applied";
+  }
+  if (/\b(deep-learning-systems|hoc sau|tu duy he thong|quan tri hieu suat thoi ai)\b/.test(mdNorm)) {
+    return "recall";
+  }
   if (
     /\b(ielts|tieng anh|english|tieng nhat|japanese|jlpt|n5|hiragana|katakana|kanji|tieng trung|chinese|hsk|hsk1|pinyin|hanzi|listening|speaking|vocabulary|grammar|phat am|shadowing|dictation|pronunciation|ipa)\b/.test(
       mdNorm
@@ -411,6 +441,9 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
   const [flippedRealCards, setFlippedRealCards] = useState<Record<string, boolean>>({});
   const [loadingLessonAssets, setLoadingLessonAssets] = useState(false);
   const [activeAssetPanel, setActiveAssetPanel] = useState<"quiz" | "flashcards">("quiz");
+  const [appliedActivityCount, setAppliedActivityCount] = useState(0);
+  const [savedWrongQuizIds, setSavedWrongQuizIds] = useState<Record<string, boolean>>({});
+  const [savingWrongQuizId, setSavingWrongQuizId] = useState<string | null>(null);
 
   const loadQuizDetail = useCallback(
     async (qId: string) => {
@@ -444,6 +477,7 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
       setCourseQuizzes([]);
       setQuizDetail(null);
       setLessonFlashcards([]);
+      setAppliedActivityCount(0);
       return;
     }
 
@@ -452,16 +486,45 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
       setQuizError(null);
       try {
         const headers = buildAuthHeaders();
-        const [quizzesRes, cardsRes] = await Promise.all([
+        const actParams = new URLSearchParams({ courseId });
+        if (lessonId && UUID_REGEX.test(lessonId.trim())) {
+          actParams.set("lessonId", lessonId.trim());
+        }
+        const [quizzesRes, cardsRes, actRes] = await Promise.all([
           fetch(`/api/v1/practice-quizzes?courseId=${encodeURIComponent(courseId)}`, {
             headers,
           }).catch(() => null),
           fetch(`/api/v1/flashcards/due?courseId=${encodeURIComponent(courseId)}&includeAll=true`, {
             headers,
           }).catch(() => null),
+          fetch(`/api/v1/practice/activities?${actParams.toString()}`, {
+            headers,
+          }).catch(() => null),
         ]);
 
         if (!active) return;
+
+        if (actRes && actRes.ok) {
+          const actList = await actRes.json().catch(() => []);
+          const safeActs = Array.isArray(actList) ? actList : [];
+          const appliedCount = safeActs.filter((a: any) => {
+            const t = String(a?.type || "").trim().toLowerCase();
+            return (
+              t === "prompt_critique" ||
+              t === "prompt-critique" ||
+              t === "sql_reasoning" ||
+              t === "sql-reasoning" ||
+              t === "threat_spotter" ||
+              t === "threat-spotter"
+            );
+          }).length;
+          setAppliedActivityCount(appliedCount);
+          if (appliedCount > 0 && !resolvedTarget) {
+            setMode("applied");
+          }
+        } else {
+          setAppliedActivityCount(0);
+        }
 
         if (quizzesRes && quizzesRes.ok) {
           const list: QuizSummaryItem[] = await quizzesRes.json();
@@ -557,7 +620,7 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
           setQuizError(errBody?.error || "Câu hỏi này đã được chấm trước đó.");
           await loadQuizDetail(quizDetail.id);
         } else if (resp.status === 429) {
-          setQuizError(errBody?.error || "Hết hạn mức AI credits hôm nay.");
+          setQuizError(errBody?.error || "Bạn đã dùng hết lượt AI hôm nay.");
         } else {
           setQuizError(errBody?.error || `Không thể nộp câu trả lời (HTTP ${resp.status}).`);
         }
@@ -614,6 +677,56 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
       }
     },
     [onCreateFlashcardQuick, notify]
+  );
+
+  const handleSaveWrongQuizToFsrs = useCallback(
+    async (item: QuizQuestionItem, cleanQuestionText: string) => {
+      if (savedWrongQuizIds[item.id] || savingWrongQuizId === item.id) return;
+      setSavingWrongQuizId(item.id);
+      try {
+        const matchedChoice =
+          item.clozeSolution && Array.isArray(item.choices)
+            ? item.choices.find(
+                (c) => c.key.toLowerCase() === item.clozeSolution?.trim().toLowerCase()
+              )
+            : undefined;
+        const answerLine = item.clozeSolution
+          ? `Đáp án đúng: ${matchedChoice ? `${matchedChoice.key}. ${matchedChoice.text}` : item.clozeSolution}`
+          : "";
+        const explanationLine = item.explanation ? `Giải thích: ${item.explanation}` : "";
+        const rubricLine = item.aiRubricFeedback?.summary
+          ? `Nhận xét: ${item.aiRubricFeedback.summary}`
+          : "";
+        const backParts = [answerLine, explanationLine, rubricLine].filter(Boolean);
+        const backText =
+          backParts.length > 0
+            ? backParts.join("\n\n")
+            : `Xem lại kiến thức trọng tâm trong bài "${lessonTitle}".`;
+
+        const res = await saveWriteInFlashcardDeduplicated({
+          front: cleanQuestionText,
+          back: backText,
+          lessonId,
+          sourceTitle: lessonTitle,
+          tags: ["wrong-quiz-review", item.itemType || "quiz"],
+          onCreateFlashcardQuick: handleCreateFlashcardQuickWrapped,
+        });
+
+        if (res.ok) {
+          setSavedWrongQuizIds((prev) => ({ ...prev, [item.id]: true }));
+          notify(
+            res.deduplicated
+              ? "Câu sai này đã có sẵn trong thẻ FSRS."
+              : "Đã lưu câu sai vào FSRS để ôn tập!"
+          );
+        } else {
+          notify("Không thể lưu câu sai vào FSRS lúc này.");
+        }
+      } finally {
+        setSavingWrongQuizId((curr) => (curr === item.id ? null : curr));
+      }
+    },
+    [savedWrongQuizIds, savingWrongQuizId, lessonId, lessonTitle, handleCreateFlashcardQuickWrapped, notify]
   );
 
   const cleanMarkdown = useMemo(
@@ -759,19 +872,19 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
         const data = await resp.json();
         const usedLive = Boolean(data.usedLiveEndpoint);
         setRecallAiUsedLive(usedLive);
-        setRecallAiGradingLabel(usedLive ? "AI chấm trực tiếp" : "Chấm theo từ khóa (offline)");
+        setRecallAiGradingLabel(usedLive ? "AI đánh giá trực tiếp" : "Đánh giá theo từ khóa (trên máy)");
         setRecallAiFeedback(data.explanation || "");
       } else {
         setRecallAiUsedLive(false);
-        setRecallAiGradingLabel("Chấm theo từ khóa (offline)");
+        setRecallAiGradingLabel("Đánh giá theo từ khóa (trên máy)");
         setRecallAiFeedback(
-          "Chấm theo từ khóa (offline): Không gọi được AI lúc này. Hãy xem danh sách ý cốt lõi bên trên để bổ sung."
+          "Đánh giá theo từ khóa (trên máy): Hiện chưa kết nối được AI. Bạn hãy đối chiếu với danh sách ý cốt lõi bên trên để tự bổ sung nhé."
         );
       }
     } catch {
       setRecallAiUsedLive(false);
-      setRecallAiGradingLabel("Chấm theo từ khóa (offline)");
-      setRecallAiFeedback("Chấm theo từ khóa (offline): Lỗi kết nối khi gọi AI nhận xét.");
+      setRecallAiGradingLabel("Đánh giá theo từ khóa (trên máy)");
+      setRecallAiFeedback("Đánh giá theo từ khóa (trên máy): Gặp lỗi kết nối khi gọi AI nhận xét.");
     } finally {
       setRecallAiLoading(false);
     }
@@ -794,6 +907,12 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
     { id: "code" as const, label: "Lập trình · Code & Săn lỗi", icon: Code2 },
     { id: "finance" as const, label: "Tài chính · Tính toán & Biểu đồ", icon: CandlestickChart },
     { id: "recall" as const, label: "Kỹ năng & Tình huống", icon: Brain },
+    {
+      id: "applied" as const,
+      label: "AI, Dữ liệu & An toàn số",
+      icon: Shield,
+      badgeCount: appliedActivityCount,
+    },
   ];
 
   const hasRealAssets = Boolean(quizDetail && quizDetail.items?.length > 0) || lessonFlashcards.length > 0;
@@ -844,6 +963,15 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
                 >
                   <Icon className="w-3.5 h-3.5 shrink-0" />
                   <span>{m.label}</span>
+                  {"badgeCount" in m && typeof m.badgeCount === "number" && m.badgeCount > 0 && (
+                    <span
+                      className={`ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                        isActive ? "bg-white/20 text-white" : "bg-accent-subtle text-accent"
+                      }`}
+                    >
+                      {m.badgeCount}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -1113,6 +1241,31 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
                             {item.aiRubricFeedback.summary}
                           </div>
                         )}
+
+                        {evaluated && item.isCorrect === false && (
+                          <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+                            <button
+                              type="button"
+                              data-testid="quiz-save-wrong-fsrs-btn"
+                              disabled={Boolean(savedWrongQuizIds[item.id]) || savingWrongQuizId === item.id}
+                              onClick={() => void handleSaveWrongQuizToFsrs(item, cleanQ)}
+                              className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border text-xs font-semibold transition cursor-pointer ${
+                                savedWrongQuizIds[item.id]
+                                  ? "border-emerald-400 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 cursor-default"
+                                  : "border-rose-300 dark:border-rose-700 bg-rose-50/70 dark:bg-rose-950/30 text-rose-800 dark:text-rose-200 hover:border-rose-500"
+                              }`}
+                            >
+                              <BookmarkPlus className="w-3.5 h-3.5" />
+                              <span>
+                                {savedWrongQuizIds[item.id]
+                                  ? "Đã lưu FSRS ✓"
+                                  : savingWrongQuizId === item.id
+                                    ? "Đang lưu..."
+                                    : "Lưu câu sai vào FSRS"}
+                              </span>
+                            </button>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -1147,7 +1300,7 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
                       </div>
                       <span className="text-[11px] text-accent font-medium mt-3 inline-flex items-center gap-1">
                         <RotateCcw className="w-3 h-3" />
-                        <span>{flipped ? "Xem câu hỏi" : "Chạm để lật đáp án"}</span>
+                        <span>{flipped ? "Xem câu hỏi" : "Nhấn để xem đáp án"}</span>
                       </span>
                     </button>
                   );
@@ -1165,6 +1318,9 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
 
         {/* ==================== 3. FINANCE PRACTICE LAB ==================== */}
         {mode === "finance" && <FinancePracticeLab {...subLabProps} />}
+
+        {/* ==================== 5. APPLIED SYSTEMS LAB (AI / SQL / CYBER) ==================== */}
+        {mode === "applied" && <AppliedSystemsLab {...subLabProps} />}
 
         {/* ==================== 4. PSYCHOLOGY & LIFE SKILLS / FEYNMAN RECALL ==================== */}
         {mode === "recall" && (
@@ -1198,7 +1354,7 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
               </div>
               <span className="text-[11px] text-text-tertiary px-2 hidden sm:inline">
                 {recallSubMode === "psychology"
-                  ? "Thực hành phản hồi & nhận diện bẫy tâm lý"
+                  ? "Thực hành phản hồi & nhận diện thiên kiến tâm lý"
                   : "Kiểm tra độ hiểu sâu bằng cách tự giải thích"}
               </span>
             </div>
@@ -1305,7 +1461,7 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
                               : "bg-amber-500/15 border-amber-500/40 text-amber-800 dark:text-amber-200"
                           }`}
                         >
-                          {recallAiGradingLabel || "Chấm theo từ khóa (offline)"}
+                          {recallAiGradingLabel || "Đánh giá theo từ khóa (trên máy)"}
                         </span>
                       </div>
                       <div className="whitespace-pre-wrap">{recallAiFeedback}</div>
@@ -1393,7 +1549,7 @@ export function LessonPracticeLab(props: LessonPracticeLabProps) {
                                   {isSaved ? (
                                     <>
                                       <Check className="w-3 h-3" />
-                                      <span>✓ Đã lưu</span>
+                                      <span>Đã lưu</span>
                                     </>
                                   ) : isSaving ? (
                                     <>

@@ -383,17 +383,17 @@ export function CourseCatalogGrid({
       const details = [
         typeof syncedCount === "number" ? `${syncedCount} khóa học` : null,
         typeof lessonsSynced === "number" && lessonsSynced > 0 ? `${lessonsSynced} bài học` : null,
-        typeof quizzesSynced === "number" && quizzesSynced > 0 ? `${quizzesSynced} quiz` : null,
-        typeof flashcardsCreated === "number" ? `+${flashcardsCreated} flashcard` : null
+        typeof quizzesSynced === "number" && quizzesSynced > 0 ? `${quizzesSynced} bài kiểm tra` : null,
+        typeof flashcardsCreated === "number" ? `+${flashcardsCreated} thẻ ghi nhớ` : null
       ]
         .filter(Boolean)
-        .join(" • ");
+        .join(" · ");
 
       setSyncNotice({
         type: "success",
         text: details
-          ? `Đã đồng bộ từ thư mục document/: ${details}.`
-          : data?.message || "Đã đồng bộ thành công toàn bộ khóa học từ document/."
+          ? `Đã đồng bộ từ kho tài liệu: ${details}.`
+          : data?.message || "Đã đồng bộ thành công toàn bộ khóa học từ kho tài liệu."
       });
       setTimeout(() => {
         setSyncNotice((prev) => (prev?.type === "success" ? null : prev));
@@ -402,7 +402,7 @@ export function CourseCatalogGrid({
       const msg =
         err instanceof Error
           ? err.message
-          : "Không thể kết nối máy chủ để đồng bộ thư mục document/.";
+          : "Không thể kết nối máy chủ để đồng bộ kho tài liệu.";
       setSyncNotice({ type: "error", text: msg });
     } finally {
       setSyncing(false);
@@ -431,11 +431,7 @@ export function CourseCatalogGrid({
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-            Lộ trình học tập hợp nhất từ kho tài liệu{" "}
-            <code className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
-              document/
-            </code>{" "}
-            kèm Flashcard FSRS &amp; Quiz thực hành.
+            Lộ trình học tập hợp nhất từ kho tài liệu kèm thẻ ghi nhớ FSRS &amp; bài kiểm tra thực hành.
           </p>
         </div>
 
@@ -472,7 +468,7 @@ export function CourseCatalogGrid({
             className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60 text-slate-800 dark:text-slate-100 text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 cursor-pointer transition shrink-0"
           >
             <RefreshCw className={`w-4 h-4 text-indigo-600 dark:text-indigo-400 ${syncing ? "animate-spin" : ""}`} />
-            <span>{syncing ? "Đang đồng bộ..." : "Đồng bộ document/"}</span>
+            <span>{syncing ? "Đang đồng bộ..." : "Đồng bộ tài liệu"}</span>
           </button>
         </div>
       </div>
@@ -574,16 +570,16 @@ export function CourseCatalogGrid({
           {[0, 1, 2].map((idx) => (
             <div
               key={idx}
-              className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 p-5 space-y-4 animate-pulse"
+              className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 p-5 space-y-4"
             >
               <div className="flex items-center justify-between">
-                <div className="h-5 w-28 rounded-full bg-slate-200 dark:bg-slate-800" />
-                <div className="h-5 w-20 rounded-full bg-slate-200 dark:bg-slate-800" />
+                <div className="h-5 w-28 rounded-full swms-skeleton bg-slate-200 dark:bg-slate-800" />
+                <div className="h-5 w-20 rounded-full swms-skeleton bg-slate-200 dark:bg-slate-800" />
               </div>
-              <div className="h-6 w-3/4 rounded-lg bg-slate-200 dark:bg-slate-800" />
-              <div className="h-10 w-full rounded-lg bg-slate-200/80 dark:bg-slate-800/80" />
-              <div className="h-2.5 w-full rounded-full bg-slate-200 dark:bg-slate-800" />
-              <div className="h-11 w-full rounded-xl bg-slate-200 dark:bg-slate-800" />
+              <div className="h-6 w-3/4 rounded-lg swms-skeleton bg-slate-200 dark:bg-slate-800" />
+              <div className="h-10 w-full rounded-lg swms-skeleton bg-slate-200/80 dark:bg-slate-800/80" />
+              <div className="h-2.5 w-full rounded-full swms-skeleton bg-slate-200 dark:bg-slate-800" />
+              <div className="h-11 w-full rounded-xl swms-skeleton bg-slate-200 dark:bg-slate-800" />
             </div>
           ))}
         </div>
@@ -598,7 +594,7 @@ export function CourseCatalogGrid({
               Chưa có khóa học nào trong danh mục
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto">
-              Nhấn &ldquo;Đồng bộ document/&rdquo; để nhập toàn bộ giáo trình từ thư mục gốc hoặc tạo khóa học mới từ PDF/AI Wizard.
+              Nhấn &ldquo;Đồng bộ tài liệu&rdquo; để nhập giáo trình có sẵn hoặc tạo khóa học mới từ tài liệu PDF và trợ lý AI.
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2.5">
@@ -609,7 +605,7 @@ export function CourseCatalogGrid({
               className="min-h-[44px] px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold inline-flex items-center gap-2 cursor-pointer transition"
             >
               <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
-              <span>Đồng bộ document/ ngay</span>
+              <span>Đồng bộ tài liệu ngay</span>
             </button>
             <button
               type="button"
@@ -756,7 +752,7 @@ export function CourseCatalogGrid({
                       </span>
                       <span className="inline-flex items-center gap-1">
                         <Target className="w-3.5 h-3.5 text-emerald-500" />
-                        <span>{quizCount} quiz</span>
+                        <span>{quizCount} bài kiểm tra</span>
                       </span>
                     </div>
 
@@ -764,7 +760,7 @@ export function CourseCatalogGrid({
                     {nextLesson.title && (
                       <div className="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/70 dark:border-slate-800 text-xs">
                         <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                          {nextLesson.allCompleted ? "Đã hoàn tất • Ôn tập từ" : "Bài tiếp theo"}
+                          {nextLesson.allCompleted ? "Đã hoàn tất · Ôn tập từ" : "Bài tiếp theo"}
                         </div>
                         <div
                           className="font-semibold text-slate-800 dark:text-slate-200 truncate mt-0.5"

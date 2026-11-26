@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState, Suspense } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -33,12 +33,19 @@ import {
   Flame,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
-import { fetchDashboardCached, invalidateDashboardCache } from "@/lib/api-client";
+import {
+  fetchCoursesPage,
+  fetchDashboardCached,
+  getCachedCoursesSnapshot,
+  invalidateDashboardCache,
+  setCachedCoursesSnapshot,
+} from "@/lib/api-client";
 import {
   Button,
   Card,
   ProgressBar,
   EmptyState,
+  ShowMoreFooter,
 } from "@/components/ui";
 import {
   COURSE_DOMAINS,
@@ -68,13 +75,22 @@ type LevelFilter = "all" | "foundation" | "intermediate" | "advanced";
 type SortOption = "recommended" | "progress_desc" | "recent" | "title_asc" | "duration_asc";
 type ViewLayout = "grid" | "list";
 
+const INITIAL_GRID_COUNT = 8;
+const INITIAL_LIST_COUNT = 6;
+const LOAD_MORE_STEP = 8;
+
 function CoursesCatalogContent() {
   const searchParams = useSearchParams();
   const { activeUserHeaderId } = useWorkspaceStore();
 
   const [rawCourses, setRawCourses] = useState<CourseSummary[]>([]);
+  const [totalServerCount, setTotalServerCount] = useState<number>(0);
+  const [isHydratingRemaining, setIsHydratingRemaining] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_GRID_COUNT);
+  const remainingFetchRef = useRef<Promise<CourseSummary[]> | null>(null);
+  const ensureAllLoadedRef = useRef<(() => Promise<void>) | null>(null);
 
   // Tabs & filters
   const [activeTab, setActiveTab] = useState<CollectionTab>("all");
@@ -98,6 +114,28 @@ function CoursesCatalogContent() {
   const [courseToDelete, setCourseToDelete] = useState<CourseSummary | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [toast, setToast] = useState<{ text: string; tone: "success" | "error" } | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Focus search input on `/` shortcut when not typing in a field
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+      const activeEl = document.activeElement as HTMLElement | null;
+      const tagName = activeEl?.tagName?.toUpperCase();
+      if (
+        tagName === "INPUT" ||
+        tagName === "TEXTAREA" ||
+        tagName === "SELECT" ||
+        activeEl?.isContentEditable
+      ) {
+        return;
+      }
+      e.preventDefault();
+      searchInputRef.current?.focus();
+    };
+    document.addEventListener("keydown", handleGlobalKeyDown);
+    return () => document.removeEventListener("keydown", handleGlobalKeyDown);
+  }, []);
 
   // Read view preference from localStorage
   useEffect(() => {
@@ -115,6 +153,7 @@ function CoursesCatalogContent() {
 
   const handleToggleLayout = (layout: ViewLayout) => {
     setViewLayout(layout);
+    setVisibleCount(layout === "grid" ? INITIAL_GRID_COUNT : INITIAL_LIST_COUNT);
     if (typeof window !== "undefined") {
       try {
         window.localStorage.setItem("studxy_courses_layout", layout);
@@ -173,40 +212,142 @@ function CoursesCatalogContent() {
   }, [activeMenuCourseId]);
 
   const fetchCourses = useCallback(async () => {
-    setIsLoading(true);
     setFetchError(null);
-    try {
-      const effectiveUserId =
-        activeUserHeaderId ??
-        (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
-      const headers = getClientRequestHeaders(
-        effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
-      );
+    const effectiveUserId =
+      activeUserHeaderId ??
+      (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
+    const headers = getClientRequestHeaders(
+      effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
+    );
 
-      const resp = await fetch("/api/v1/courses", { headers });
-      if (resp.ok) {
-        const list = await resp.json();
-        const norm = Array.isArray(list) ? list.map(normalizeCourseSummary) : [];
-        setRawCourses(norm);
-      } else {
-        const data = await fetchDashboardCached({ headers }).catch(() => null);
-        if (data && data.courses) {
-          const norm = Array.isArray(data.courses) ? data.courses.map(normalizeCourseSummary) : [];
-          setRawCourses(norm);
-        } else {
-          setFetchError(`Không tải được danh sách khóa học (HTTP ${resp.status}).`);
+    const cachedSnap = getCachedCoursesSnapshot<CourseSummary>(effectiveUserId);
+    if (cachedSnap && cachedSnap.items.length > 0) {
+      setRawCourses(cachedSnap.items.map(normalizeCourseSummary));
+      setTotalServerCount(cachedSnap.totalCount);
+      setIsLoading(false);
+    } else {
+      setIsLoading(true);
+    }
+
+    try {
+      const page1 = await fetchCoursesPage<CourseSummary>({
+        limit: INITIAL_GRID_COUNT,
+        offset: 0,
+        headers,
+      });
+      const firstNorm = page1.items.map(normalizeCourseSummary);
+      setTotalServerCount(page1.totalCount);
+      setRawCourses((prev) => {
+        // Preserve already-hydrated items during SWR revalidation unless user count shrunk
+        if (!page1.hasMore || prev.length <= firstNorm.length) {
+          return firstNorm;
         }
+        const byId = new Map(firstNorm.map((c) => [c.id, c]));
+        const rest = prev.filter((c) => !byId.has(c.id));
+        return [...firstNorm, ...rest];
+      });
+      setIsLoading(false);
+
+      if (!page1.hasMore) {
+        setCachedCoursesSnapshot(firstNorm, page1.totalCount, effectiveUserId);
+        return;
+      }
+
+      const loadRemaining = () => {
+        if (remainingFetchRef.current) return remainingFetchRef.current;
+        setIsHydratingRemaining(true);
+        const p = (async () => {
+          try {
+            const restPage = await fetchCoursesPage<CourseSummary>({
+              limit: 100,
+              offset: INITIAL_GRID_COUNT,
+              headers,
+            });
+            const restNorm = restPage.items.map(normalizeCourseSummary);
+            const mergedMap = new Map<string, CourseSummary>();
+            for (const c of [...firstNorm, ...restNorm]) {
+              if (!mergedMap.has(c.id)) mergedMap.set(c.id, c);
+            }
+            const merged = Array.from(mergedMap.values());
+            setRawCourses(merged);
+            setTotalServerCount(Math.max(page1.totalCount, merged.length));
+            setCachedCoursesSnapshot(merged, Math.max(page1.totalCount, merged.length), effectiveUserId);
+            return merged;
+          } finally {
+            setIsHydratingRemaining(false);
+            remainingFetchRef.current = null;
+          }
+        })();
+        remainingFetchRef.current = p;
+        return p;
+      };
+
+      ensureAllLoadedRef.current = async () => {
+        await loadRemaining();
+      };
+
+      if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+        (window as unknown as { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback(
+          () => {
+            void loadRemaining();
+          },
+          { timeout: 300 }
+        );
+      } else {
+        setTimeout(() => {
+          void loadRemaining();
+        }, 80);
       }
     } catch {
-      setFetchError("Không thể kết nối tới máy chủ.");
-    } finally {
-      setIsLoading(false);
+      try {
+        const data = await fetchDashboardCached({ compact: true, headers });
+        if (data && Array.isArray(data.courses)) {
+          const norm = data.courses.map(normalizeCourseSummary);
+          setRawCourses(norm);
+          setTotalServerCount(norm.length);
+          setCachedCoursesSnapshot(norm, norm.length, effectiveUserId);
+        } else if (!cachedSnap) {
+          setFetchError("Không tải được danh sách khóa học.");
+        }
+      } catch {
+        if (!cachedSnap) {
+          setFetchError("Không thể kết nối tới máy chủ.");
+        }
+      } finally {
+        setIsLoading(false);
+      }
     }
   }, [activeUserHeaderId]);
 
   useEffect(() => {
     fetchCourses();
   }, [fetchCourses]);
+
+  // Reset progressive visible slice and hydrate full catalog when filters/search are active
+  useEffect(() => {
+    setVisibleCount(viewLayout === "grid" ? INITIAL_GRID_COUNT : INITIAL_LIST_COUNT);
+    const hasFilterActive =
+      activeTab !== "all" ||
+      Boolean(searchQuery.trim()) ||
+      selectedDomain !== "all" ||
+      levelFilter !== "all" ||
+      filterHasLab ||
+      filterHasAudio ||
+      filterHasFlashcards;
+    if (hasFilterActive) {
+      void ensureAllLoadedRef.current?.();
+    }
+  }, [
+    activeTab,
+    searchQuery,
+    selectedDomain,
+    levelFilter,
+    sortBy,
+    filterHasLab,
+    filterHasAudio,
+    filterHasFlashcards,
+    viewLayout,
+  ]);
 
   // Detect personal duplicates for the header cleanup trigger
   const duplicateReport = useMemo(() => detectPersonalDuplicates(rawCourses), [rawCourses]);
@@ -327,6 +468,23 @@ function CoursesCatalogContent() {
       return 0;
     });
   }, [filteredCourses, sortBy, activeTab]);
+
+  const visibleCourses = useMemo(
+    () => sortedCourses.slice(0, visibleCount),
+    [sortedCourses, visibleCount]
+  );
+
+  const isUnfilteredAllTab =
+    activeTab === "all" &&
+    !searchQuery.trim() &&
+    selectedDomain === "all" &&
+    levelFilter === "all" &&
+    !filterHasLab &&
+    !filterHasAudio &&
+    !filterHasFlashcards;
+  const effectiveTotalCount = isUnfilteredAllTab
+    ? Math.max(sortedCourses.length, totalServerCount)
+    : sortedCourses.length;
 
   // Actions
   const handleTogglePin = async (course: CourseSummary) => {
@@ -568,31 +726,31 @@ function CoursesCatalogContent() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="h-8 w-32 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
-              <div className="h-6 w-16 rounded-full bg-[var(--surface-elevated)] animate-pulse" />
+              <div className="h-8 w-32 rounded-lg bg-[var(--surface-elevated)] swms-skeleton" />
+              <div className="h-6 w-16 rounded-full bg-[var(--surface-elevated)] swms-skeleton" />
             </div>
-            <div className="h-4 w-72 max-w-full rounded bg-[var(--surface-elevated)] animate-pulse" />
+            <div className="h-4 w-72 max-w-full rounded bg-[var(--surface-elevated)] swms-skeleton" />
           </div>
-          <div className="h-9 w-36 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="h-9 w-36 rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
         </div>
 
         <div className="flex items-center gap-2 overflow-hidden pb-1 border-b border-[var(--border-calm)]">
           {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-9 w-24 rounded-t-lg bg-[var(--surface-elevated)] animate-pulse shrink-0" />
+            <div key={i} className="h-9 w-24 rounded-t-lg bg-[var(--surface-elevated)] swms-skeleton shrink-0" />
           ))}
         </div>
 
         <div className="space-y-3">
           <div className="flex flex-col sm:flex-row gap-2.5 justify-between">
-            <div className="h-9 w-full max-w-lg rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+            <div className="h-9 w-full max-w-lg rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
             <div className="flex items-center gap-2">
-              <div className="h-9 w-40 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
-              <div className="h-9 w-16 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+              <div className="h-9 w-40 rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
+              <div className="h-9 w-16 rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
             {[0, 1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-8 w-28 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+              <div key={i} className="h-8 w-28 rounded-lg bg-[var(--surface-elevated)] swms-skeleton" />
             ))}
           </div>
         </div>
@@ -603,24 +761,24 @@ function CoursesCatalogContent() {
               key={i}
               className="rounded-2xl border border-[var(--border-calm)] bg-[var(--surface-card)] overflow-hidden flex flex-col justify-between"
             >
-              <div className="h-24 w-full bg-[var(--surface-elevated)] animate-pulse" />
+              <div className="h-24 w-full bg-[var(--surface-elevated)] swms-skeleton" />
               <div className="p-5 space-y-4">
                 <div className="flex gap-1.5">
-                  <div className="h-5 w-16 rounded-md bg-[var(--surface-elevated)] animate-pulse" />
-                  <div className="h-5 w-14 rounded-md bg-[var(--surface-elevated)] animate-pulse" />
+                  <div className="h-5 w-16 rounded-md bg-[var(--surface-elevated)] swms-skeleton" />
+                  <div className="h-5 w-14 rounded-md bg-[var(--surface-elevated)] swms-skeleton" />
                 </div>
                 <div className="space-y-2">
-                  <div className="h-5 w-4/5 rounded bg-[var(--surface-elevated)] animate-pulse" />
-                  <div className="h-4 w-full rounded bg-[var(--surface-elevated)] animate-pulse" />
-                  <div className="h-4 w-2/3 rounded bg-[var(--surface-elevated)] animate-pulse" />
+                  <div className="h-5 w-4/5 rounded bg-[var(--surface-elevated)] swms-skeleton" />
+                  <div className="h-4 w-full rounded bg-[var(--surface-elevated)] swms-skeleton" />
+                  <div className="h-4 w-2/3 rounded bg-[var(--surface-elevated)] swms-skeleton" />
                 </div>
                 <div className="pt-3 border-t border-[var(--border-calm)] space-y-3">
-                  <div className="h-3.5 w-2/3 rounded bg-[var(--surface-elevated)] animate-pulse" />
-                  <div className="h-2 w-full rounded-full bg-[var(--surface-elevated)] animate-pulse" />
+                  <div className="h-3.5 w-2/3 rounded bg-[var(--surface-elevated)] swms-skeleton" />
+                  <div className="h-2 w-full rounded-full bg-[var(--surface-elevated)] swms-skeleton" />
                   <div className="flex items-center gap-2">
-                    <div className="h-8 flex-1 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
-                    <div className="h-8 w-9 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
-                    <div className="h-8 w-9 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+                    <div className="h-8 flex-1 rounded-lg bg-[var(--surface-elevated)] swms-skeleton" />
+                    <div className="h-8 w-9 rounded-lg bg-[var(--surface-elevated)] swms-skeleton" />
+                    <div className="h-8 w-9 rounded-lg bg-[var(--surface-elevated)] swms-skeleton" />
                   </div>
                 </div>
               </div>
@@ -669,22 +827,22 @@ function CoursesCatalogContent() {
               Khóa học
             </h1>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[var(--text-secondary)]">
-              {tabCounts.all} khóa
+              {Math.max(tabCounts.all, totalServerCount)} khóa
             </span>
           </div>
           <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Quản lý lộ trình học tập, phòng lab thực hành, kiểm tra và ôn tập thẻ ghi nhớ FSRS.
+            Quản lý lộ trình học tập, phòng thực hành tương tác, bài kiểm tra và ôn tập thẻ ghi nhớ FSRS.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap shrink-0">
           {duplicateReport.totalRemovableCount > 0 && (
             <button
               type="button"
               onClick={() => setIsCleanupModalOpen(true)}
-              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-amber-300 dark:border-amber-800/80 bg-amber-50/70 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 text-xs font-semibold hover:bg-amber-100 transition shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 min-h-9 py-1.5 px-3 rounded-xl border border-amber-300 dark:border-amber-800/80 bg-amber-50/70 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 text-xs font-semibold whitespace-nowrap hover:bg-amber-100 transition shadow-2xs cursor-pointer"
             >
-              <Trash2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <Trash2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
               <span>Dọn bản trùng</span>
               <span className="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center ml-0.5">
                 {duplicateReport.totalRemovableCount}
@@ -692,11 +850,12 @@ function CoursesCatalogContent() {
             </button>
           )}
 
-          <Link href="/app/courses/new">
+          <Link href="/app/courses/new" className="shrink-0">
             <Button
               variant="primary"
               leftIcon={<Plus className="w-4 h-4" />}
               aria-label="Tạo khóa học mới"
+              className="whitespace-nowrap bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
             >
               <span>Tạo khóa học</span>
             </Button>
@@ -766,14 +925,15 @@ function CoursesCatalogContent() {
           <div className="relative flex-1 min-w-0 sm:max-w-lg">
             <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
+              ref={searchInputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Tìm khóa học theo tên hoặc mô tả..."
               aria-label="Tìm khóa học theo tên hoặc mô tả (hỗ trợ không dấu)"
-              className="w-full h-9 pl-9 pr-8 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition"
+              className="w-full h-9 pl-9 pr-9 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition"
             />
-            {searchQuery && (
+            {searchQuery ? (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
@@ -782,6 +942,10 @@ function CoursesCatalogContent() {
               >
                 <X className="w-3.5 h-3.5" />
               </button>
+            ) : (
+              <kbd className="hidden sm:inline-flex swms-kbd text-[10px] pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2">
+                /
+              </kbd>
             )}
           </div>
 
@@ -807,7 +971,7 @@ function CoursesCatalogContent() {
                 onClick={() => handleToggleLayout("grid")}
                 className={`p-1.5 rounded-lg transition cursor-pointer ${
                   viewLayout === "grid"
-                    ? "bg-[#5E51E8] text-white shadow-2xs"
+                    ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] shadow-2xs"
                     : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
                 }`}
                 title="Dạng lưới"
@@ -820,7 +984,7 @@ function CoursesCatalogContent() {
                 onClick={() => handleToggleLayout("list")}
                 className={`p-1.5 rounded-lg transition cursor-pointer ${
                   viewLayout === "list"
-                    ? "bg-[#5E51E8] text-white shadow-2xs"
+                    ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] shadow-2xs"
                     : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
                 }`}
                 title="Dạng danh sách"
@@ -922,35 +1086,118 @@ function CoursesCatalogContent() {
             </button>
           )}
         </div>
+
+        {/* Removable Active Filter Summary Pills */}
+        {activeFilterCount > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            <span className="text-[11px] font-medium text-[var(--text-tertiary)] mr-1 inline-flex items-center gap-1">
+              <Filter className="w-3 h-3" />
+              <span>Đang lọc:</span>
+            </span>
+            {searchQuery.trim() && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[#5E51E8]/50 transition cursor-pointer"
+              >
+                <span>Loại bỏ: Từ khóa &ldquo;{searchQuery.trim()}&rdquo;</span>
+                <X className="w-3 h-3" />
+              </button>
+            )}
+            {filterHasLab && (
+              <button
+                type="button"
+                onClick={() => setFilterHasLab(false)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800 hover:opacity-85 transition cursor-pointer"
+              >
+                <span>Loại bỏ: Lab thực hành</span>
+                <X className="w-3 h-3" />
+              </button>
+            )}
+            {filterHasAudio && (
+              <button
+                type="button"
+                onClick={() => setFilterHasAudio(false)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-teal-50 text-teal-700 border border-teal-200 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-800 hover:opacity-85 transition cursor-pointer"
+              >
+                <span>Loại bỏ: Audio</span>
+                <X className="w-3 h-3" />
+              </button>
+            )}
+            {filterHasFlashcards && (
+              <button
+                type="button"
+                onClick={() => setFilterHasFlashcards(false)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800 hover:opacity-85 transition cursor-pointer"
+              >
+                <span>Loại bỏ: Flashcard</span>
+                <X className="w-3 h-3" />
+              </button>
+            )}
+            {levelFilter !== "all" && (
+              <button
+                type="button"
+                onClick={() => setLevelFilter("all")}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[#5E51E8]/50 transition cursor-pointer"
+              >
+                <span>
+                  Loại bỏ: Trình độ{" "}
+                  {levelFilter === "foundation"
+                    ? "Nền tảng"
+                    : levelFilter === "intermediate"
+                    ? "Trung cấp"
+                    : "Chuyên sâu"}
+                </span>
+                <X className="w-3 h-3" />
+              </button>
+            )}
+            {selectedDomain !== "all" && (
+              <button
+                type="button"
+                onClick={() => setSelectedDomain("all")}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[#5E51E8]/50 transition cursor-pointer"
+              >
+                <span>
+                  Loại bỏ:{" "}
+                  {selectedDomain === "other"
+                    ? "Tâm lý & Kỹ năng sống"
+                    : COURSE_DOMAINS.find((d) => d.id === selectedDomain)?.label ?? selectedDomain}
+                </span>
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Courses Display: Grid or List */}
       {sortedCourses.length > 0 ? (
-        viewLayout === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-            {sortedCourses.map((course) => {
-              const id = course.id;
-              const progress = course.progressPercent ?? 0;
-              const lessonCount = course.lessonCount ?? 0;
-              const completedLessons = course.completedLessons ?? 0;
-              const chapterCount = course.chapterCount ?? 0;
-              const theme = getCourseVisualTheme(course);
-              const skillTags = extractCourseSkillTags(course);
+        <>
+          {viewLayout === "grid" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+              {visibleCourses.map((course) => {
+                const id = course.id;
+                const progress = course.progressPercent ?? 0;
+                const lessonCount = course.lessonCount ?? 0;
+                const completedLessons = course.completedLessons ?? 0;
+                const chapterCount = course.chapterCount ?? 0;
+                const theme = getCourseVisualTheme(course);
+                const skillTags = extractCourseSkillTags(course);
 
-              const primaryCtaLabel =
-                progress === 100
-                  ? "Ôn lại bài"
-                  : progress > 0 || completedLessons > 0
-                  ? "Tiếp tục học"
-                  : "Bắt đầu học";
+                const primaryCtaLabel =
+                  progress === 100
+                    ? "Ôn lại bài"
+                    : progress > 0 || completedLessons > 0
+                    ? "Tiếp tục học"
+                    : "Bắt đầu học";
 
-              return (
-                <Card
-                  key={id}
-                  hoverable
-                  data-course-slug={course.slug ?? ""}
-                  className="relative overflow-hidden flex flex-col justify-between p-0 shadow-xs hover:shadow-md transition-all duration-200"
-                >
+                return (
+                  <Card
+                    key={id}
+                    hoverable
+                    data-course-slug={course.slug ?? ""}
+                    className="swms-cv-card relative overflow-hidden flex flex-col justify-between p-0 shadow-xs hover:shadow-md transition-all duration-200"
+                  >
                   {/* Banner with course theme */}
                   <CourseCardGraphicBanner
                     domainId={theme.domainId}
@@ -1074,7 +1321,10 @@ function CoursesCatalogContent() {
                           <span className="font-medium whitespace-nowrap shrink-0">
                             Chưa bắt đầu • {lessonCount} bài
                           </span>
-                          <span className="text-[11px] font-semibold text-[#5E51E8] dark:text-[#A5B4FC] whitespace-nowrap shrink-0">
+                          <span
+                            title={theme.levelLabel}
+                            className="text-[11px] font-semibold text-[#5E51E8] dark:text-[#A5B4FC] min-w-0 truncate"
+                          >
                             {theme.levelLabel}
                           </span>
                         </div>
@@ -1098,11 +1348,11 @@ function CoursesCatalogContent() {
 
                       {/* Primary Actions & 3-Dot Dropdown */}
                       <div className="flex items-center gap-2 pt-1 relative">
-                        <Link href={`/app/courses/${id}/learn`} className="flex-1">
+                        <Link href={`/app/courses/${id}/learn`} className="flex-1 min-w-0">
                           <Button
                             variant="primary"
                             size="sm"
-                            className="w-full"
+                            className="w-full whitespace-nowrap bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
                             leftIcon={<Play className="w-3 h-3 fill-current" />}
                           >
                             {primaryCtaLabel}
@@ -1129,7 +1379,7 @@ function CoursesCatalogContent() {
         ) : (
           /* List View Layout */
           <div className="space-y-3">
-            {sortedCourses.map((course) => {
+            {visibleCourses.map((course) => {
               const id = course.id;
               const progress = course.progressPercent ?? 0;
               const lessonCount = course.lessonCount ?? 0;
@@ -1140,7 +1390,7 @@ function CoursesCatalogContent() {
                 <div
                   key={id}
                   data-course-slug={course.slug ?? ""}
-                  className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] hover:border-[#5E51E8]/50 p-4 transition flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs"
+                  className="swms-cv-card rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] hover:border-[#5E51E8]/50 p-4 transition flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs"
                 >
                   <div className="min-w-0 flex-1 space-y-1.5">
                     <div className="flex flex-wrap items-center gap-1.5">
@@ -1225,7 +1475,7 @@ function CoursesCatalogContent() {
                         <Button
                           variant="primary"
                           size="sm"
-                          className="w-full sm:w-auto"
+                          className="w-full sm:w-auto bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
                           leftIcon={<Play className="w-3 h-3 fill-current" />}
                         >
                           {progress > 0 ? "Học tiếp" : "Vào học"}
@@ -1253,7 +1503,25 @@ function CoursesCatalogContent() {
               );
             })}
           </div>
-        )
+          )}
+
+          <ShowMoreFooter
+            testIdPrefix="courses"
+            shownCount={visibleCourses.length}
+            totalCount={effectiveTotalCount}
+            stepSize={LOAD_MORE_STEP}
+            itemLabel="khóa học"
+            isLoadingMore={false}
+            onShowMore={() => {
+              setVisibleCount((v) => v + LOAD_MORE_STEP);
+              void ensureAllLoadedRef.current?.();
+            }}
+            onShowAll={() => {
+              setVisibleCount((v) => Math.max(v, effectiveTotalCount, 100));
+              void ensureAllLoadedRef.current?.();
+            }}
+          />
+        </>
       ) : rawCourses.length === 0 ? (
         <EmptyState
           icon={BookOpen}

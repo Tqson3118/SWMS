@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -86,7 +86,8 @@ export default function CourseEditPage() {
   const [editContent, setEditContent] = useState("");
   const [editVideoUrl, setEditVideoUrl] = useState("");
   const [editMinutes, setEditMinutes] = useState(10);
-  const [editorTab, setEditorTab] = useState<"write" | "preview">("write");
+  const [editorTab, setEditorTab] = useState<"write" | "split" | "preview">("write");
+  const contentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
@@ -366,8 +367,8 @@ export default function CourseEditPage() {
       );
       setSaveMessage(
         data.isPublished || data.visibility === "public"
-          ? "Khóa học đã được công khai."
-          : "Đã chuyển khóa học về bản nháp cá nhân."
+          ? "Khóa học đã được xuất bản công khai."
+          : "Đã chuyển khóa học về trạng thái bản nháp."
       );
       window.dispatchEvent(new CustomEvent("swms:data-mutated"));
     } catch (err) {
@@ -471,6 +472,59 @@ export default function CourseEditPage() {
     }
   };
 
+  const applyMarkdownFormat = useCallback(
+    (options: {
+      prefix: string;
+      suffix?: string;
+      placeholder?: string;
+      wrapSelection?: boolean;
+    }) => {
+      const textarea = contentTextareaRef.current;
+      const suffix = options.suffix ?? "";
+      const placeholder = options.placeholder ?? "";
+
+      if (!textarea) {
+        setEditContent((prev) => `${prev}${options.prefix}${placeholder}${suffix}`);
+        return;
+      }
+
+      const start = textarea.selectionStart ?? editContent.length;
+      const end = textarea.selectionEnd ?? editContent.length;
+      const selectedText = editContent.slice(start, end);
+
+      let inserted: string;
+      let nextSelStart: number;
+      let nextSelEnd: number;
+
+      if (options.wrapSelection) {
+        const inner = selectedText || placeholder;
+        inserted = `${options.prefix}${inner}${suffix}`;
+        nextSelStart = start + options.prefix.length;
+        nextSelEnd = nextSelStart + inner.length;
+      } else if (selectedText && !placeholder) {
+        inserted = `${options.prefix}${selectedText}${suffix}`;
+        nextSelStart = start + options.prefix.length;
+        nextSelEnd = nextSelStart + selectedText.length;
+      } else {
+        inserted = `${options.prefix}${placeholder}${suffix}`;
+        nextSelStart = start + options.prefix.length;
+        nextSelEnd = nextSelStart + placeholder.length;
+      }
+
+      const nextValue =
+        editContent.slice(0, start) + inserted + editContent.slice(end);
+      setEditContent(nextValue);
+
+      requestAnimationFrame(() => {
+        const el = contentTextareaRef.current;
+        if (!el) return;
+        el.focus();
+        el.setSelectionRange(nextSelStart, nextSelEnd);
+      });
+    },
+    [editContent]
+  );
+
   // AI Lesson Assistant Trigger
   const handleRunAiEnhance = async (actionToRun?: "expand" | "summarize" | "examples" | "exercise") => {
     if (!selectedLesson) return;
@@ -505,7 +559,7 @@ export default function CourseEditPage() {
       });
       setAiResultTab("preview");
       setAiCopied(false);
-      setSaveMessage("AI đã tạo nội dung gợi ý bên dưới. Bạn có thể chèn hoặc thay thế vào bài!");
+      setSaveMessage("Trợ lý AI đã tạo nội dung gợi ý bên dưới. Bạn có thể chèn thêm hoặc thay thế vào bài.");
     } catch (err) {
       setErrorBanner(err instanceof Error ? err.message : "Lỗi khi gọi Trợ lý AI.");
     } finally {
@@ -824,18 +878,18 @@ export default function CourseEditPage() {
 
   if (isLoading) {
     return (
-      <div className="h-full flex flex-col bg-bg-primary animate-pulse">
+      <div className="h-full flex flex-col bg-bg-primary">
         {/* Top Bar Skeleton */}
         <div className="px-4 sm:px-6 py-3 border-b border-border bg-bg-secondary/40 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="h-4 w-16 rounded bg-bg-secondary" />
-            <div className="h-4 w-32 rounded bg-bg-secondary" />
-            <div className="h-4 w-24 rounded bg-bg-secondary" />
+            <div className="h-4 w-16 rounded bg-bg-secondary swms-skeleton" />
+            <div className="h-4 w-32 rounded bg-bg-secondary swms-skeleton" />
+            <div className="h-4 w-24 rounded bg-bg-secondary swms-skeleton" />
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-8 w-28 rounded-md bg-bg-secondary" />
-            <div className="h-8 w-24 rounded-md bg-bg-secondary" />
-            <div className="h-8 w-24 rounded-md bg-bg-secondary" />
+            <div className="h-8 w-28 rounded-md bg-bg-secondary swms-skeleton" />
+            <div className="h-8 w-24 rounded-md bg-bg-secondary swms-skeleton" />
+            <div className="h-8 w-24 rounded-md bg-bg-secondary swms-skeleton" />
           </div>
         </div>
 
@@ -843,15 +897,15 @@ export default function CourseEditPage() {
         <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
           <aside className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-border bg-bg-secondary/30 p-3 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="h-4 w-32 rounded bg-bg-secondary" />
-              <div className="h-6 w-20 rounded bg-bg-secondary" />
+              <div className="h-4 w-32 rounded bg-bg-secondary swms-skeleton" />
+              <div className="h-6 w-20 rounded bg-bg-secondary swms-skeleton" />
             </div>
             {[1, 2, 3].map((item) => (
               <div key={item} className="rounded-md border border-border-subtle bg-bg-primary p-2.5 space-y-2">
-                <div className="h-4 w-3/4 rounded bg-bg-secondary" />
+                <div className="h-4 w-3/4 rounded bg-bg-secondary swms-skeleton" />
                 <div className="pl-4 space-y-1.5">
-                  <div className="h-3.5 w-5/6 rounded bg-bg-secondary" />
-                  <div className="h-3.5 w-2/3 rounded bg-bg-secondary" />
+                  <div className="h-3.5 w-5/6 rounded bg-bg-secondary swms-skeleton" />
+                  <div className="h-3.5 w-2/3 rounded bg-bg-secondary swms-skeleton" />
                 </div>
               </div>
             ))}
@@ -859,17 +913,17 @@ export default function CourseEditPage() {
           <section className="flex-1 min-w-0 p-4 sm:p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2">
-                <div className="h-7 w-28 rounded bg-bg-secondary" />
-                <div className="h-7 w-24 rounded bg-bg-secondary" />
+                <div className="h-7 w-28 rounded bg-bg-secondary swms-skeleton" />
+                <div className="h-7 w-24 rounded bg-bg-secondary swms-skeleton" />
               </div>
-              <div className="h-8 w-28 rounded-md bg-bg-secondary" />
+              <div className="h-8 w-28 rounded-md bg-bg-secondary swms-skeleton" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-              <div className="sm:col-span-3 h-9 rounded-md bg-bg-secondary" />
-              <div className="h-9 rounded-md bg-bg-secondary" />
+              <div className="sm:col-span-3 h-9 rounded-md bg-bg-secondary swms-skeleton" />
+              <div className="h-9 rounded-md bg-bg-secondary swms-skeleton" />
             </div>
-            <div className="h-9 w-full rounded-md bg-bg-secondary" />
-            <div className="h-72 w-full rounded-md bg-bg-secondary" />
+            <div className="h-9 w-full rounded-md bg-bg-secondary swms-skeleton" />
+            <div className="h-72 w-full rounded-md bg-bg-secondary swms-skeleton" />
           </section>
         </div>
       </div>
@@ -908,6 +962,9 @@ export default function CourseEditPage() {
         editVideoUrl !== (selectedLesson.videoUrl ?? "") ||
         editMinutes !== (selectedLesson.estimatedMinutes ?? 10))
   );
+  const trimmedEditWords = editContent.trim();
+  const editWordCount = trimmedEditWords ? trimmedEditWords.split(/\s+/).length : 0;
+  const estimatedMinutesFromWords = Math.max(1, Math.round(editWordCount / 220));
 
   return (
     <div className="h-full flex flex-col bg-bg-primary">
@@ -929,7 +986,7 @@ export default function CourseEditPage() {
               {course.title}
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
-            <span className="text-text-primary font-medium shrink-0">Studio Biên tập</span>
+            <span className="text-text-primary font-medium shrink-0">Biên tập khóa học</span>
           </nav>
 
           {isEditingCourseTitle ? (
@@ -948,7 +1005,7 @@ export default function CourseEditPage() {
               <button
                 type="button"
                 onClick={handleSaveCourseTitle}
-                className="h-7 px-2 rounded bg-accent text-white text-xs font-medium cursor-pointer"
+                className="h-7 px-2 rounded bg-accent text-white hover:bg-accent-hover dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-medium cursor-pointer"
               >
                 <Check className="w-3.5 h-3.5" />
               </button>
@@ -983,26 +1040,31 @@ export default function CourseEditPage() {
             data-testid="toggle-course-metadata-btn"
             className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-md border text-xs font-medium transition cursor-pointer ${
               showMetaPanel
-                ? "border-accent bg-accent text-white"
+                ? "border-accent bg-accent text-white dark:border-[#818CF8] dark:bg-[#818CF8] dark:text-[#0F0F12]"
                 : "border-border bg-bg-primary text-text-secondary hover:text-text-primary"
             }`}
           >
             <Info className="w-3.5 h-3.5" />
-            <span>Thông tin &amp; Metadata</span>
+            <span>Thông tin khóa học</span>
           </button>
 
           <button
             type="button"
             disabled={isTogglingPublish}
             onClick={handleTogglePublish}
+            title={
+              isPublic
+                ? "Khóa học đang ở trạng thái xuất bản công khai"
+                : "Khóa học đang ở chế độ bản nháp cá nhân"
+            }
             className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-md border text-xs font-medium transition cursor-pointer ${
               isPublic
-                ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 dark:border-emerald-400/40"
                 : "border-border bg-bg-primary text-text-secondary hover:text-text-primary"
             }`}
           >
             {isPublic ? <Globe className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
-            <span>{isPublic ? "Đang công khai" : "Bản nháp"}</span>
+            <span>{isPublic ? "Đã xuất bản" : "Bản nháp"}</span>
           </button>
 
           <button
@@ -1017,7 +1079,7 @@ export default function CourseEditPage() {
 
           <Link
             href={`/app/courses/${courseId}/learn`}
-            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover transition"
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] transition"
           >
             <Play className="w-3.5 h-3.5" />
             <span>Vào học thử</span>
@@ -1071,7 +1133,7 @@ export default function CourseEditPage() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-text-secondary">Lĩnh vực (Category)</label>
+                <label className="text-xs font-medium text-text-secondary">Lĩnh vực</label>
                 <input
                   type="text"
                   value={metaCategory}
@@ -1093,7 +1155,7 @@ export default function CourseEditPage() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-text-secondary">Cấp độ (Level)</label>
+                <label className="text-xs font-medium text-text-secondary">Trình độ</label>
                 <select
                   value={metaLevel}
                   onChange={(e) =>
@@ -1101,9 +1163,9 @@ export default function CourseEditPage() {
                   }
                   className="w-full h-8 px-2 rounded-md border border-border bg-bg-primary text-xs text-text-primary focus:outline-none focus:border-accent"
                 >
-                  <option value="foundation">Cơ bản (Foundation)</option>
-                  <option value="intermediate">Trung cấp (Intermediate)</option>
-                  <option value="advanced">Nâng cao (Advanced)</option>
+                  <option value="foundation">Nền tảng</option>
+                  <option value="intermediate">Trung cấp</option>
+                  <option value="advanced">Chuyên sâu</option>
                 </select>
               </div>
             </div>
@@ -1113,7 +1175,7 @@ export default function CourseEditPage() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-medium text-text-secondary">
-                    Mục tiêu đầu ra (Learning Outcomes)
+                    Mục tiêu đầu ra
                   </label>
                   <button
                     type="button"
@@ -1158,7 +1220,7 @@ export default function CourseEditPage() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-medium text-text-secondary">
-                    Điều kiện tiên quyết (Prerequisites)
+                    Điều kiện tiên quyết
                   </label>
                   <button
                     type="button"
@@ -1211,10 +1273,11 @@ export default function CourseEditPage() {
               <button
                 type="submit"
                 disabled={isSavingMeta}
-                className="px-4 py-1.5 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover transition cursor-pointer flex items-center gap-1.5"
+                data-testid="save-course-metadata-btn"
+                className="px-4 py-1.5 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] transition cursor-pointer flex items-center gap-1.5"
               >
                 {isSavingMeta ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                <span>Lưu thay đổi metadata</span>
+                <span>Lưu thông tin khóa học</span>
               </button>
             </div>
           </form>
@@ -1270,7 +1333,7 @@ export default function CourseEditPage() {
                 data-testid="save-course-order-btn"
                 className={`inline-flex items-center gap-1 h-6 px-2 rounded text-[11px] font-semibold transition cursor-pointer ${
                   hasUnsavedOrder
-                    ? "bg-accent text-white shadow-2xs"
+                    ? "bg-accent text-white shadow-2xs dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
                     : "border border-border bg-bg-primary text-text-secondary hover:text-text-primary"
                 }`}
                 title="Lưu thứ tự chương và bài học"
@@ -1305,7 +1368,7 @@ export default function CourseEditPage() {
               <button
                 type="submit"
                 disabled={creatingChapter}
-                className="h-7 px-2.5 rounded bg-accent text-white text-xs font-medium cursor-pointer"
+                className="h-7 px-2.5 rounded bg-accent text-white hover:bg-accent-hover dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-medium cursor-pointer"
               >
                 {creatingChapter ? "..." : "Thêm"}
               </button>
@@ -1404,7 +1467,7 @@ export default function CourseEditPage() {
                       <button
                         type="submit"
                         disabled={creatingLesson}
-                        className="h-7 px-2 rounded bg-accent text-white text-xs font-medium cursor-pointer"
+                        className="h-7 px-2 rounded bg-accent text-white hover:bg-accent-hover dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-medium cursor-pointer"
                       >
                         {creatingLesson ? "..." : "Tạo"}
                       </button>
@@ -1506,7 +1569,7 @@ export default function CourseEditPage() {
             <>
               {/* Editor Sub-header */}
               <div className="px-4 sm:px-6 py-2.5 border-b border-border flex flex-wrap items-center justify-between gap-3 bg-bg-secondary/20">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-1 rounded-md bg-bg-secondary p-0.5 border border-border">
                     <button
                       type="button"
@@ -1517,7 +1580,18 @@ export default function CourseEditPage() {
                           : "text-text-secondary hover:text-text-primary"
                       }`}
                     >
-                      Soạn nội dung
+                      Soạn thảo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditorTab("split")}
+                      className={`h-7 px-3 rounded text-xs font-medium transition cursor-pointer ${
+                        editorTab === "split"
+                          ? "bg-bg-primary text-text-primary shadow-sm"
+                          : "text-text-secondary hover:text-text-primary"
+                      }`}
+                    >
+                      Song song
                     </button>
                     <button
                       type="button"
@@ -1540,8 +1614,8 @@ export default function CourseEditPage() {
                     data-testid="toggle-ai-lesson-assistant-btn"
                     className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border text-xs font-medium transition cursor-pointer ${
                       showAiAssistant
-                        ? "border-accent bg-accent text-white shadow-xs"
-                        : "border-border bg-bg-primary text-accent hover:border-accent/40"
+                        ? "border-accent bg-accent text-white shadow-xs dark:border-[#818CF8] dark:bg-[#818CF8] dark:text-[#0F0F12]"
+                        : "border-border bg-bg-primary text-accent dark:text-[#A5B4FC] hover:border-accent/40"
                     }`}
                   >
                     <Sparkles className="w-3.5 h-3.5" />
@@ -1559,7 +1633,7 @@ export default function CourseEditPage() {
                     type="button"
                     disabled={isSaving}
                     onClick={handleSave}
-                    className="inline-flex items-center gap-1.5 h-8 px-4 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover disabled:opacity-50 transition cursor-pointer"
+                    className="inline-flex items-center gap-1.5 h-8 px-4 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] disabled:opacity-50 transition cursor-pointer"
                   >
                     <Save className="w-3.5 h-3.5" />
                     <span>{isSaving ? "Đang lưu..." : "Lưu bài học"}</span>
@@ -1573,7 +1647,7 @@ export default function CourseEditPage() {
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-accent">
                       <Sparkles className="w-4 h-4" />
-                      <span>Trợ lý AI bài giảng (Nâng cao nội dung 1-click)</span>
+                      <span>Trợ lý AI bài giảng — Nâng cấp nội dung nhanh</span>
                     </div>
                     <button
                       type="button"
@@ -1603,7 +1677,7 @@ export default function CourseEditPage() {
                         disabled={isAiEnhancing}
                         className={`h-7 px-2.5 rounded-md text-xs font-medium border transition cursor-pointer flex items-center gap-1 ${
                           aiAction === item.key
-                            ? "bg-accent text-white border-accent shadow-xs"
+                            ? "bg-accent text-white border-accent shadow-xs dark:bg-[#818CF8] dark:text-[#0F0F12] dark:border-[#818CF8]"
                             : "bg-bg-primary text-text-secondary border-border hover:border-accent/40"
                         }`}
                       >
@@ -1630,7 +1704,7 @@ export default function CourseEditPage() {
                       type="button"
                       disabled={isAiEnhancing}
                       onClick={() => void handleRunAiEnhance()}
-                      className="h-8 px-3 rounded-md bg-accent text-white text-xs font-semibold hover:bg-accent-hover disabled:opacity-50 transition cursor-pointer flex items-center gap-1 shrink-0"
+                      className="h-8 px-3 rounded-md bg-accent text-white text-xs font-semibold hover:bg-accent-hover dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] disabled:opacity-50 transition cursor-pointer flex items-center gap-1 shrink-0"
                     >
                       {isAiEnhancing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                       <span>{isAiEnhancing ? "Đang xử lý..." : "Thực hiện"}</span>
@@ -1675,8 +1749,8 @@ export default function CourseEditPage() {
                             </span>
                           )}
                           {aiResult.usedLiveAi && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 font-semibold">
-                              Live AI
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 font-semibold">
+                              AI trực tiếp
                             </span>
                           )}
                         </div>
@@ -1721,9 +1795,9 @@ export default function CourseEditPage() {
                           onClick={() => {
                             setEditContent((prev) => `${prev.trimEnd()}\n\n${aiResult.content}`);
                             setAiResult(null);
-                            setSaveMessage("Đã chèn nội dung AI vào cuối bài. Bấm 'Lưu bài học' để cập nhật!");
+                            setSaveMessage('Đã chèn nội dung gợi ý vào cuối bài. Bấm "Lưu bài học" để lưu thay đổi.');
                           }}
-                          className="px-3 py-1 rounded-md border border-accent/40 bg-accent-subtle text-accent text-xs font-medium hover:bg-accent hover:text-white transition cursor-pointer"
+                          className="px-3 py-1 rounded-md border border-accent/40 bg-accent-subtle text-accent dark:text-[#A5B4FC] text-xs font-medium hover:bg-accent hover:text-white dark:hover:bg-[#818CF8] dark:hover:text-[#0F0F12] transition cursor-pointer"
                         >
                           Chèn vào cuối bài
                         </button>
@@ -1732,9 +1806,9 @@ export default function CourseEditPage() {
                           onClick={() => {
                             setEditContent(aiResult.content);
                             setAiResult(null);
-                            setSaveMessage("Đã thay thế toàn bộ nội dung bài bằng gợi ý AI. Bấm 'Lưu bài học' để commit!");
+                            setSaveMessage('Đã thay thế nội dung bài bằng gợi ý AI. Bấm "Lưu bài học" để lưu thay đổi.');
                           }}
-                          className="px-3 py-1 rounded-md bg-accent text-white text-xs font-semibold hover:bg-accent-hover transition cursor-pointer"
+                          className="px-3 py-1 rounded-md bg-accent text-white text-xs font-semibold hover:bg-accent-hover dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] transition cursor-pointer"
                         >
                           Thay thế nội dung bài
                         </button>
@@ -1769,6 +1843,20 @@ export default function CourseEditPage() {
                       onChange={(e) => setEditMinutes(Number(e.target.value) || 10)}
                       className="w-full h-9 px-3 rounded-md border border-border bg-bg-primary text-sm text-text-primary focus:outline-none focus:border-accent"
                     />
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-text-tertiary">
+                      <span>
+                        {editWordCount} từ · ~{estimatedMinutesFromWords} phút đọc
+                      </span>
+                      {editMinutes !== estimatedMinutesFromWords && (
+                        <button
+                          type="button"
+                          onClick={() => setEditMinutes(estimatedMinutesFromWords)}
+                          className="px-1.5 py-0.5 rounded border border-accent/30 bg-accent-subtle text-accent dark:text-[#A5B4FC] font-medium hover:bg-accent hover:text-white dark:hover:bg-[#818CF8] dark:hover:text-[#0F0F12] transition cursor-pointer"
+                        >
+                          Áp dụng ~{estimatedMinutesFromWords}p
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -1785,8 +1873,8 @@ export default function CourseEditPage() {
                   />
                 </div>
 
-                {editorTab === "write" ? (
-                  <div className="space-y-2">
+                {editorTab === "write" || editorTab === "split" ? (
+                  <div className="space-y-2.5">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <label className="block text-xs font-medium text-text-secondary">
                         Nội dung bài học (Markdown)
@@ -1826,13 +1914,147 @@ export default function CourseEditPage() {
                         ))}
                       </div>
                     </div>
-                    <textarea
-                      value={editContent}
-                      onChange={(e) => setEditContent(e.target.value)}
-                      rows={18}
-                      className="w-full p-3 rounded-md border border-border bg-bg-primary font-mono text-xs leading-relaxed text-text-primary focus:outline-none focus:border-accent resize-y"
-                      placeholder="# Tiêu đề bài học..."
-                    />
+
+                    <div
+                      className={
+                        editorTab === "split"
+                          ? "grid grid-cols-1 xl:grid-cols-2 gap-4 items-start"
+                          : "space-y-2"
+                      }
+                    >
+                      <div className="space-y-2 min-w-0">
+                        {/* Markdown Formatting Toolbar */}
+                        <div
+                          data-testid="studio-markdown-toolbar"
+                          role="toolbar"
+                          aria-label="Thanh công cụ định dạng Markdown"
+                          className="flex flex-wrap items-center gap-1 p-1.5 rounded-md border border-border bg-bg-secondary/60"
+                        >
+                          {(
+                            [
+                              {
+                                label: "H2",
+                                title: "Chèn tiêu đề H2",
+                                options: { prefix: "\n## " },
+                              },
+                              {
+                                label: "H3",
+                                title: "Chèn tiêu đề H3",
+                                options: { prefix: "\n### " },
+                              },
+                              {
+                                label: "Đậm",
+                                title: "In đậm (**text**)",
+                                options: {
+                                  prefix: "**",
+                                  suffix: "**",
+                                  placeholder: "từ khóa",
+                                  wrapSelection: true,
+                                },
+                              },
+                              {
+                                label: "Nghiêng",
+                                title: "In nghiêng (*text*)",
+                                options: {
+                                  prefix: "*",
+                                  suffix: "*",
+                                  placeholder: "nội dung",
+                                  wrapSelection: true,
+                                },
+                              },
+                              {
+                                label: "Code",
+                                title: "Code nội tuyến (`code`)",
+                                options: {
+                                  prefix: "`",
+                                  suffix: "`",
+                                  placeholder: "code",
+                                  wrapSelection: true,
+                                },
+                              },
+                              {
+                                label: "Khối code",
+                                title: "Chèn khối code TypeScript",
+                                options: {
+                                  prefix: "\n```ts\n",
+                                  placeholder: "// code",
+                                  suffix: "\n```\n",
+                                },
+                              },
+                              {
+                                label: "Tip [!TIP]",
+                                title: "Chèn hộp lưu ý [!TIP]",
+                                options: {
+                                  prefix: "\n> [!TIP]\n> ",
+                                  placeholder: "Nội dung lưu ý...",
+                                  suffix: "\n",
+                                },
+                              },
+                              {
+                                label: "Toán $$",
+                                title: "Chèn công thức toán học LaTeX",
+                                options: {
+                                  prefix: "\n$$\n",
+                                  placeholder: "E = mc^2",
+                                  suffix: "\n$$\n",
+                                },
+                              },
+                              {
+                                label: "Bảng",
+                                title: "Chèn bảng Markdown 2 cột",
+                                options: {
+                                  prefix: "\n| Cột 1 | Cột 2 |\n| --- | --- |\n| ",
+                                  placeholder: "Nội dung 1",
+                                  suffix: " | Nội dung 2 |\n",
+                                },
+                              },
+                            ] as const
+                          ).map((tool) => (
+                            <button
+                              key={tool.label}
+                              type="button"
+                              aria-label={tool.title}
+                              title={tool.title}
+                              onClick={() => applyMarkdownFormat(tool.options)}
+                              className="h-7 px-2 rounded border border-border/80 bg-bg-primary text-[11px] font-medium text-text-secondary hover:text-text-primary hover:border-accent/50 hover:bg-bg-tertiary transition cursor-pointer"
+                            >
+                              {tool.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        <textarea
+                          ref={contentTextareaRef}
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          rows={editorTab === "split" ? 22 : 18}
+                          className="w-full p-3 rounded-md border border-border bg-bg-primary font-mono text-xs leading-relaxed text-text-primary focus:outline-none focus:border-accent resize-y"
+                          placeholder="# Tiêu đề bài học..."
+                        />
+                      </div>
+
+                      {editorTab === "split" && (
+                        <div className="rounded-lg border border-border bg-bg-primary p-5 min-h-[460px] max-h-[680px] overflow-y-auto swms-thin-scrollbar min-w-0">
+                          <div className="mb-3 pb-2 border-b border-border flex items-center justify-between text-[11px] text-text-tertiary">
+                            <span className="font-semibold uppercase tracking-wider">
+                              Xem trước trực tiếp
+                            </span>
+                            <span>
+                              {editWordCount} từ · ~{estimatedMinutesFromWords} phút đọc
+                            </span>
+                          </div>
+                          <LessonMarkdownView
+                            markdown={editContent}
+                            lessonTitle={editTitle}
+                            anchoredAnnotations={[]}
+                            onSelectBlockText={() => {}}
+                            onHighlightClick={() => {}}
+                            onInsertCitation={() => {}}
+                            hideInlineCitationBadges={true}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div className="rounded-lg border border-border bg-bg-primary p-5">
@@ -1930,7 +2152,7 @@ export default function CourseEditPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-base font-semibold text-text-primary">
-                      Xác nhận xóa vĩnh viễn? (Bước 2/2)
+                      Xác nhận xóa vĩnh viễn khóa học (Bước 2/2)
                     </h3>
                     <p className="text-xs text-text-secondary mt-1 leading-relaxed">
                       Khóa học{" "}

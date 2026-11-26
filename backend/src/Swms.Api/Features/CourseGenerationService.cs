@@ -78,7 +78,7 @@ public static class CourseGenerationService
                 InstructorId = userId,
                 Title = Truncate($"Khóa học: {cleanTitle}", 245),
                 Slug = courseSlug,
-                Description = $"Lộ trình học tập tự động tổng hợp từ tài liệu \"{cleanTitle}\" ({totalPages} trang) gồm chương mục, bài giảng trọng tâm, bộ thẻ ghi nhớ FSRS và đề luyện tập thực hành.",
+                Description = $"Lộ trình học tập được tổng hợp từ tài liệu \"{cleanTitle}\" ({totalPages} trang), gồm chương mục, bài giảng trọng tâm, bộ thẻ ghi nhớ FSRS và đề luyện tập thực hành.",
                 Visibility = "personal",
                 IsPublished = true,
                 CreatedAt = now,
@@ -213,7 +213,7 @@ public static class CourseGenerationService
                     PlainText = plainText,
                     PublishedBy = userId,
                     PublishedAt = now,
-                    ChangeSummary = $"Khởi tạo bài giảng tự động từ tài liệu \"{cleanTitle}\" (Trang {slice.StartPage}–{slice.EndPage})"
+                    ChangeSummary = $"Khởi tạo bài giảng từ tài liệu \"{cleanTitle}\" (Trang {slice.StartPage}–{slice.EndPage})"
                 });
             }
 
@@ -421,7 +421,8 @@ public static class CourseGenerationService
         IReadOnlyList<Course> courses,
         bool includeLessonMarkdown = false,
         Guid? userId = null,
-        Document? singleCourseDocOverride = null)
+        Document? singleCourseDocOverride = null,
+        bool includeChapterLessons = true)
     {
         if (courses.Count == 0)
         {
@@ -434,7 +435,8 @@ public static class CourseGenerationService
         {
             cacheVer = Interlocked.Read(ref _cacheVersion);
             var courseKeyPart = string.Join(',', courses.Select(c => $"{c.Id:N}:{c.UpdatedAt.UtcTicks}"));
-            summaryCacheKey = $"{userId?.ToString("N") ?? "anon"}:{cacheVer}:{courseKeyPart}";
+            var shapeTag = includeChapterLessons ? "full" : "compact";
+            summaryCacheKey = $"{userId?.ToString("N") ?? "anon"}:{shapeTag}:{cacheVer}:{courseKeyPart}";
             if (CourseSummaryCache.TryGetValue(summaryCacheKey, out var cachedEntry) &&
                 cachedEntry.ExpiresAt > DateTimeOffset.UtcNow)
             {
@@ -566,11 +568,13 @@ public static class CourseGenerationService
                 }
             ).ToListAsync();
 
-            var uncachedKeys = lightweightLessons
-                .Where(l => !LessonMetaCache.ContainsKey((l.Id, l.UpdatedAt)))
-                .Select(l => l.Id)
-                .Distinct()
-                .ToList();
+            var uncachedKeys = includeChapterLessons
+                ? lightweightLessons
+                    .Where(l => !LessonMetaCache.ContainsKey((l.Id, l.UpdatedAt)))
+                    .Select(l => l.Id)
+                    .Distinct()
+                    .ToList()
+                : new List<Guid>();
 
             if (uncachedKeys.Count > 0)
             {
@@ -680,7 +684,8 @@ public static class CourseGenerationService
         // Pre-compute each course's effective sourceDocId and lessonIds so Flashcards & Notebooks can batch too
         var courseSourceDocIds = new Guid?[courses.Count];
         var courseDetectedFolders = new string?[courses.Count];
-        var courseLessonMeta = new Dictionary<Guid, (Guid? DocId, int? StartPage, int? EndPage, string? SrcFolder, string? SrcRelPath)>(allLessons.Count);
+        var courseLessonMeta = new Dictionary<Guid, (Guid? DocId, int? StartPage, int? EndPage, string? SrcFolder, string? SrcRelPath)>(
+            includeChapterLessons ? allLessons.Count : 0);
         var allSourceDocIds = new HashSet<Guid>(resolvedDocIds);
 
         for (int i = 0; i < courses.Count; i++)
@@ -690,31 +695,34 @@ public static class CourseGenerationService
             Guid? sourceDocId = doc?.Id;
             string? detectedSourceFolder = null;
 
-            foreach (var l in lessonsByCourse[c.Id])
+            if (includeChapterLessons)
             {
-                Guid? lesDocId;
-                int? startPage;
-                int? endPage;
-                string? srcFolder;
-                string? srcRelPath;
-
-                if (LessonMetaCache.TryGetValue((l.Id, l.UpdatedAt), out var cachedMeta))
+                foreach (var l in lessonsByCourse[c.Id])
                 {
-                    lesDocId = cachedMeta.DocId ?? doc?.Id;
-                    startPage = cachedMeta.StartPage;
-                    endPage = cachedMeta.EndPage;
-                    srcFolder = cachedMeta.SrcFolder;
-                    srcRelPath = cachedMeta.SrcRelPath;
-                }
-                else
-                {
-                    (lesDocId, startPage, endPage) = ExtractLessonMetadata(l.ContentAstJson, doc?.Id);
-                    (srcFolder, srcRelPath) = ExtractLessonSourceMetadata(l.ContentAstJson);
-                }
+                    Guid? lesDocId;
+                    int? startPage;
+                    int? endPage;
+                    string? srcFolder;
+                    string? srcRelPath;
 
-                sourceDocId ??= lesDocId;
-                detectedSourceFolder ??= srcFolder;
-                courseLessonMeta[l.Id] = (lesDocId, startPage, endPage, srcFolder, srcRelPath);
+                    if (LessonMetaCache.TryGetValue((l.Id, l.UpdatedAt), out var cachedMeta))
+                    {
+                        lesDocId = cachedMeta.DocId ?? doc?.Id;
+                        startPage = cachedMeta.StartPage;
+                        endPage = cachedMeta.EndPage;
+                        srcFolder = cachedMeta.SrcFolder;
+                        srcRelPath = cachedMeta.SrcRelPath;
+                    }
+                    else
+                    {
+                        (lesDocId, startPage, endPage) = ExtractLessonMetadata(l.ContentAstJson, doc?.Id);
+                        (srcFolder, srcRelPath) = ExtractLessonSourceMetadata(l.ContentAstJson);
+                    }
+
+                    sourceDocId ??= lesDocId;
+                    detectedSourceFolder ??= srcFolder;
+                    courseLessonMeta[l.Id] = (lesDocId, startPage, endPage, srcFolder, srcRelPath);
+                }
             }
 
             courseSourceDocIds[i] = sourceDocId;
@@ -770,7 +778,7 @@ public static class CourseGenerationService
             .ToLookup(f => (f.UserId, f.LessonId!.Value));
 
         var relevantFcIds = fcById.Keys.ToList();
-        var flashcardTagLookup = relevantFcIds.Count > 0
+        var flashcardTagLookup = includeChapterLessons && relevantFcIds.Count > 0
             ? (await (
                 from ft in db.FlashcardTags.AsNoTracking()
                 join t in db.Tags.AsNoTracking() on ft.TagId equals t.Id
@@ -979,46 +987,51 @@ public static class CourseGenerationService
 
             var sourceDocId = courseSourceDocIds[i];
             var detectedSourceFolder = courseDetectedFolders[i];
-            var parsedLessonsByChapter = new Dictionary<Guid, List<object>>(chapters.Count);
-            foreach (var ch in chapters)
+            var parsedLessonsByChapter = includeChapterLessons
+                ? new Dictionary<Guid, List<object>>(chapters.Count)
+                : null;
+            if (parsedLessonsByChapter != null)
             {
-                parsedLessonsByChapter[ch.Id] = new List<object>();
-            }
-
-            foreach (var l in lessons)
-            {
-                var meta = courseLessonMeta[l.Id];
-                if (parsedLessonsByChapter.TryGetValue(l.ChapterId, out var list))
+                foreach (var ch in chapters)
                 {
-                    lessonQuizMap.TryGetValue(l.Id, out var linkedQuizId);
-                    var lessonActs = activitiesByLessonLookup[l.Id].ToList();
-                    var lessonPassedActs = lessonActs.Count(a => passedActivityIdSet.Contains(a.Id));
-                    list.Add(new
+                    parsedLessonsByChapter[ch.Id] = new List<object>();
+                }
+
+                foreach (var l in lessons)
+                {
+                    var meta = courseLessonMeta[l.Id];
+                    if (parsedLessonsByChapter.TryGetValue(l.ChapterId, out var list))
                     {
-                        id = l.Id,
-                        lessonId = l.Id,
-                        chapterId = l.ChapterId,
-                        courseId = course.Id,
-                        title = l.Title,
-                        slug = l.Slug,
-                        sortOrder = l.SortOrder,
-                        currentVersion = l.CurrentVersion,
-                        sourceDocumentId = meta.DocId,
-                        startPage = meta.StartPage,
-                        endPage = meta.EndPage,
-                        sourceFolder = meta.SrcFolder,
-                        sourceRelativePath = meta.SrcRelPath,
-                        quizId = linkedQuizId != Guid.Empty ? linkedQuizId : (Guid?)null,
-                        videoUrl = l.VideoUrl,
-                        estimatedMinutes = l.EstimatedMinutes,
-                        isCompleted = completedLessonSet.Contains(l.Id),
-                        isBookmarked = bookmarkedLessonSet.Contains(l.Id),
-                        needsReview = needsReviewLessonSet.Contains(l.Id),
-                        practiceActivityCount = lessonActs.Count,
-                        practicePassedCount = lessonPassedActs,
-                        contentMarkdown = includeLessonMarkdown ? l.ContentMarkdown : null,
-                        updatedAt = l.UpdatedAt
-                    });
+                        lessonQuizMap.TryGetValue(l.Id, out var linkedQuizId);
+                        var lessonActs = activitiesByLessonLookup[l.Id].ToList();
+                        var lessonPassedActs = lessonActs.Count(a => passedActivityIdSet.Contains(a.Id));
+                        list.Add(new
+                        {
+                            id = l.Id,
+                            lessonId = l.Id,
+                            chapterId = l.ChapterId,
+                            courseId = course.Id,
+                            title = l.Title,
+                            slug = l.Slug,
+                            sortOrder = l.SortOrder,
+                            currentVersion = l.CurrentVersion,
+                            sourceDocumentId = meta.DocId,
+                            startPage = meta.StartPage,
+                            endPage = meta.EndPage,
+                            sourceFolder = meta.SrcFolder,
+                            sourceRelativePath = meta.SrcRelPath,
+                            quizId = linkedQuizId != Guid.Empty ? linkedQuizId : (Guid?)null,
+                            videoUrl = l.VideoUrl,
+                            estimatedMinutes = l.EstimatedMinutes,
+                            isCompleted = completedLessonSet.Contains(l.Id),
+                            isBookmarked = bookmarkedLessonSet.Contains(l.Id),
+                            needsReview = needsReviewLessonSet.Contains(l.Id),
+                            practiceActivityCount = lessonActs.Count,
+                            practicePassedCount = lessonPassedActs,
+                            contentMarkdown = includeLessonMarkdown ? l.ContentMarkdown : null,
+                            updatedAt = l.UpdatedAt
+                        });
+                    }
                 }
             }
 
@@ -1156,7 +1169,7 @@ public static class CourseGenerationService
                 progressPercent,
                 totalEstimatedMinutes,
                 weakChapters,
-                completedLessonIds,
+                completedLessonIds = includeChapterLessons ? completedLessonIds : new List<Guid>(),
                 flashcardCount = matchedFlashcardIds.Count,
                 dueFlashcardCount,
                 masteredFlashcardCount,
@@ -1167,19 +1180,21 @@ public static class CourseGenerationService
                 tagId = courseTag?.Id,
                 tagName = courseTag?.Name,
                 quizId = quiz?.Id,
-                lessonQuizMap,
+                lessonQuizMap = includeChapterLessons ? lessonQuizMap : new Dictionary<Guid, Guid>(),
                 notebookId = notebook?.Id,
                 firstLessonId,
                 createdAt = course.CreatedAt,
                 updatedAt = course.UpdatedAt,
-                chapters = chapters.Select(ch => new
-                {
-                    id = ch.Id,
-                    chapterId = ch.Id,
-                    title = ch.Title,
-                    sortOrder = ch.SortOrder,
-                    lessons = parsedLessonsByChapter.GetValueOrDefault(ch.Id, new List<object>())
-                }).ToList()
+                chapters = parsedLessonsByChapter != null
+                    ? (object)chapters.Select(ch => new
+                    {
+                        id = ch.Id,
+                        chapterId = ch.Id,
+                        title = ch.Title,
+                        sortOrder = ch.SortOrder,
+                        lessons = parsedLessonsByChapter.GetValueOrDefault(ch.Id, new List<object>())
+                    }).ToList()
+                    : Array.Empty<object>()
             });
         }
 
@@ -1385,7 +1400,7 @@ public static class CourseGenerationService
         {
             return new List<string>
             {
-                $"Nội dung bài học thuộc phạm vi Trang {startPage}–{endPage} của tài liệu \"{cleanDocTitle}\". Tài liệu gốc ở trang này là bản quét hình ảnh hoặc biểu đồ trực quan, học viên có thể đối chiếu trực tiếp trên khung Bản in PDF kết hợp ghi chú tổng hợp."
+                $"Nội dung bài học thuộc phạm vi Trang {startPage}–{endPage} của tài liệu \"{cleanDocTitle}\". Trang tài liệu này ở dạng bản quét hình ảnh hoặc biểu đồ trực quan; bạn có thể đối chiếu trực tiếp trên khung Bản in PDF và ghi chép vào sổ tay tổng hợp."
             };
         }
 

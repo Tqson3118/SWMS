@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { fetchDashboardCached } from "@/lib/api-client";
-import { Button, Card, Badge, EmptyState } from "@/components/ui";
+import { Button, Card, Badge, EmptyState, ShowMoreFooter } from "@/components/ui";
 import { deduplicateByTitle, getCourseId, normalizeVi, type CourseLike } from "@/lib/course-helpers";
 
 interface DocumentItem {
@@ -55,6 +55,9 @@ export default function DocumentsPage() {
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [courseTitleById, setCourseTitleById] = useState<Record<string, string>>({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"recent" | "title_asc">("recent");
+  const [visibleCount, setVisibleCount] = useState(6);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -79,7 +82,7 @@ export default function DocumentsPage() {
       const headers = getHeaders();
       const [docsResp, dashData] = await Promise.all([
         fetch("/api/v1/documents", { headers }).catch(() => null),
-        fetchDashboardCached({ headers }).catch(() => ({})),
+        fetchDashboardCached({ compact: true, headers }).catch(() => ({})),
       ]);
 
       const docsList = docsResp && docsResp.ok ? await docsResp.json().catch(() => null) : null;
@@ -108,6 +111,10 @@ export default function DocumentsPage() {
   useEffect(() => {
     fetchDocuments();
   }, [fetchDocuments]);
+
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [searchQuery, selectedCourseId, sortBy]);
 
   const uploadFile = async (file: File) => {
     const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
@@ -186,19 +193,48 @@ export default function DocumentsPage() {
     router.push(`/app/courses/${validCourseId}/learn?doc=${docId}`);
   };
 
+  const courseOptions = useMemo(
+    () =>
+      Object.entries(courseTitleById).sort((a, b) =>
+        a[1].localeCompare(b[1], "vi")
+      ),
+    [courseTitleById]
+  );
+
+  const hasActiveFilter = Boolean(searchQuery.trim()) || selectedCourseId !== "all";
+
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setSelectedCourseId("all");
+  };
+
   const uniqueDocuments = useMemo(() => deduplicateByTitle(documents), [documents]);
 
   const filteredDocuments = useMemo(() => {
     const q = normalizeVi(searchQuery);
-    const sourceList = q ? documents : uniqueDocuments;
-    if (!q) return sourceList;
-    return sourceList.filter((doc) => {
+    const sourceList = q || selectedCourseId !== "all" ? documents : uniqueDocuments;
+    const filtered = sourceList.filter((doc) => {
+      if (selectedCourseId !== "all" && doc.courseId !== selectedCourseId) {
+        return false;
+      }
+      if (!q) return true;
       const text = normalizeVi(
         `${doc.title || ""} ${doc.fileName || ""} ${doc.category || ""}`
       );
       return text.includes(q);
     });
-  }, [documents, uniqueDocuments, searchQuery]);
+
+    return [...filtered].sort((a, b) => {
+      if (sortBy === "title_asc") {
+        const titleA = a.title || a.fileName || "";
+        const titleB = b.title || b.fileName || "";
+        return titleA.localeCompare(titleB, "vi");
+      }
+      const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+      const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+      return timeB - timeA;
+    });
+  }, [documents, uniqueDocuments, searchQuery, selectedCourseId, sortBy]);
 
   if (isLoading) {
     return (
@@ -241,11 +277,11 @@ export default function DocumentsPage() {
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
             {isDraggingOver
-              ? "Thả tệp PDF vào đây để tải lên thư viện tài liệu..."
+              ? "Thả tài liệu PDF vào đây để tải lên thư viện..."
               : `${uniqueDocuments.length} tài liệu PDF dùng cho việc đọc và trích dẫn kiến thức${
                   documents.length > uniqueDocuments.length
                     ? ` (đã gom ${documents.length - uniqueDocuments.length} bản sao trùng).`
-                    : ". Kéo thả tệp PDF vào đây để tải nhanh."
+                    : ". Kéo thả tài liệu PDF vào đây để tải lên nhanh."
                 }`}
           </p>
         </div>
@@ -291,7 +327,7 @@ export default function DocumentsPage() {
         </div>
       )}
 
-      {/* Search bar + Filtered counter */}
+      {/* Search bar + Filter & Sort + Filtered counter */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -306,16 +342,50 @@ export default function DocumentsPage() {
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              aria-label="Xóa lọc"
+              aria-label="Xóa từ khóa tìm kiếm"
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {courseOptions.length >= 1 && (
+            <select
+              value={selectedCourseId}
+              onChange={(e) => setSelectedCourseId(e.target.value)}
+              aria-label="Lọc theo khóa học"
+              className="h-9 px-3 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition cursor-pointer"
+            >
+              <option value="all">Tất cả khóa học</option>
+              {courseOptions.map(([cid, title]) => (
+                <option key={cid} value={cid}>
+                  {title}
+                </option>
+              ))}
+            </select>
+          )}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as "recent" | "title_asc")}
+            aria-label="Sắp xếp tài liệu"
+            className="h-9 px-3 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition cursor-pointer"
+          >
+            <option value="recent">Mới cập nhật</option>
+            <option value="title_asc">Tên A → Z</option>
+          </select>
+          {hasActiveFilter && (
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="h-9 px-3 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[#5E51E8]/40 transition cursor-pointer inline-flex items-center gap-1"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Xóa lọc</span>
+            </button>
+          )}
           <Badge variant="neutral" size="sm">
-            {searchQuery
+            {hasActiveFilter
               ? `${filteredDocuments.length} / ${documents.length} tài liệu`
               : `${filteredDocuments.length} tài liệu`}
           </Badge>
@@ -324,8 +394,9 @@ export default function DocumentsPage() {
 
       {/* Document Grid */}
       {filteredDocuments.length > 0 ? (
+        <>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredDocuments.map((doc) => {
+          {filteredDocuments.slice(0, visibleCount).map((doc) => {
             const docId = getDocumentId(doc);
             const pages = doc.totalPages ?? doc.pageCount;
             const courseName =
@@ -336,7 +407,7 @@ export default function DocumentsPage() {
               <Card
                 key={docId}
                 hoverable
-                className="group p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-[#5E51E8]/40 dark:hover:border-[#818CF8]/40 hover:shadow-md"
+                className="swms-cv-card group p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-[#5E51E8]/40 dark:hover:border-[#818CF8]/40 hover:shadow-md"
               >
                 <div>
                   <div className="flex items-start gap-3 mb-3">
@@ -381,20 +452,33 @@ export default function DocumentsPage() {
             );
           })}
         </div>
+
+        <ShowMoreFooter
+          testIdPrefix="documents"
+          shownCount={Math.min(visibleCount, filteredDocuments.length)}
+          totalCount={filteredDocuments.length}
+          stepSize={6}
+          itemLabel="tài liệu"
+          onShowMore={() => setVisibleCount((v) => v + 6)}
+          onShowAll={() => setVisibleCount(filteredDocuments.length)}
+        />
+        </>
       ) : (
         <EmptyState
           icon={FileText}
-          title={searchQuery ? "Không tìm thấy tài liệu phù hợp" : "Chưa có tài liệu nào"}
+          title={hasActiveFilter ? "Không tìm thấy tài liệu phù hợp" : "Chưa có tài liệu nào"}
           description={
-            searchQuery
-              ? `Không có tài liệu nào khớp với "${searchQuery}". Thử từ khóa khác hoặc xóa bộ lọc.`
-              : "Kéo thả tệp PDF vào trang hoặc bấm nút bên dưới để đọc, đánh dấu ý chính và ghi chú song song."
+            hasActiveFilter
+              ? searchQuery
+                ? `Không có tài liệu nào khớp với "${searchQuery}". Thử từ khóa khác hoặc xóa bộ lọc.`
+                : "Không có tài liệu nào trong khóa học đã chọn. Thử chọn khóa học khác hoặc xóa bộ lọc."
+              : "Kéo thả tài liệu PDF vào trang hoặc bấm nút bên dưới để đọc, tô màu ý chính và ghi chú song song."
           }
           action={
-            searchQuery
+            hasActiveFilter
               ? {
                   label: "Xóa lọc",
-                  onClick: () => setSearchQuery(""),
+                  onClick: handleResetFilters,
                 }
               : {
                   label: "Tải tài liệu lên",

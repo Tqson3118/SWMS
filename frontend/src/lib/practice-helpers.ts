@@ -6,7 +6,23 @@ import {
 
 export { detectCodingCategory, isAsciiOrNonCodeBlock, type CodingTopicCategory };
 
-export type LabMode = "english" | "code" | "finance" | "recall";
+export type LabMode = "english" | "code" | "finance" | "recall" | "applied";
+
+export type AppliedTabMode = "prompt_critique" | "sql_reasoning" | "threat_spotter";
+
+export const LAB_MODE_LABELS_VI: Record<LabMode, string> = {
+  english: "Ngoại ngữ · Nghe & Nói",
+  code: "Lập trình · Code & Săn lỗi",
+  finance: "Tài chính · Tính toán & Biểu đồ",
+  recall: "Kỹ năng & Tình huống",
+  applied: "AI, Dữ liệu & An toàn số",
+};
+
+export const APPLIED_TAB_LABELS_VI: Record<AppliedTabMode, string> = {
+  prompt_critique: "Phản biện & Viết lại Prompt",
+  sql_reasoning: "Truy vấn & Chẩn đoán SQL",
+  threat_spotter: "Nhận diện Lừa đảo & An toàn số",
+};
 
 export type EnglishTabMode =
   | "shadowing"
@@ -60,6 +76,7 @@ export interface ResolvedPracticeTarget {
   psychTab?: PsychTabMode;
   psychCogSubTab?: PsychCogSubTab;
   recallSubMode?: "psychology" | "feynman";
+  appliedTab?: AppliedTabMode;
 }
 
 function stripDiacriticsLower(input: string): string {
@@ -171,6 +188,17 @@ export function resolvePracticeSelection(
   if (rawType === "budget") return { labMode: "finance", financeTab: "budget" };
   if (rawType === "debt") return { labMode: "finance", financeTab: "debt" };
   if (rawType === "trading") return { labMode: "finance", financeTab: "trading" };
+
+  // Applied Systems modes (AI Workflows, Data & SQL Reasoning, Cybersecurity Threat Spotter)
+  if (rawType === "prompt_critique" || rawType === "prompt-critique") {
+    return { labMode: "applied", appliedTab: "prompt_critique" };
+  }
+  if (rawType === "sql_reasoning" || rawType === "sql-reasoning") {
+    return { labMode: "applied", appliedTab: "sql_reasoning" };
+  }
+  if (rawType === "threat_spotter" || rawType === "threat-spotter") {
+    return { labMode: "applied", appliedTab: "threat_spotter" };
+  }
 
   // Psychology / Recall modes
   if (rawType === "bias_spotter" || rawType === "bias-spotter") {
@@ -287,6 +315,14 @@ const ACTIVITY_TYPE_LABELS_VI: Record<string, string> = {
   psych_scenario: "Tình huống tâm lý",
   biases: "Bẫy tâm lý",
   cbt: "Gỡ rối CBT",
+  prompt_critique: "Phản biện & Viết lại Prompt",
+  "prompt-critique": "Phản biện & Viết lại Prompt",
+  sql_reasoning: "Truy vấn & Chẩn đoán SQL",
+  "sql-reasoning": "Truy vấn & Chẩn đoán SQL",
+  threat_spotter: "Nhận diện Lừa đảo & An toàn số",
+  "threat-spotter": "Nhận diện Lừa đảo & An toàn số",
+  active_recall: "Tự nhắc lại chủ động",
+  scenario: "Tình huống thực tế",
 };
 
 export function getPracticeActivityTypeLabel(activityType?: string | null): string {

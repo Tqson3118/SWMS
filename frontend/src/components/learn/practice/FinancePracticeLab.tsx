@@ -225,8 +225,8 @@ ${isLowSavings ? "\n> ⚠️ **Lưu ý:** Tỷ lệ tiết kiệm dưới 10% s�
         <div className="p-3.5 rounded-xl border border-rose-300 bg-rose-50 dark:bg-rose-950/40 dark:border-rose-800 text-rose-800 dark:text-rose-200 flex items-start gap-2.5 text-xs">
           <AlertTriangle className="w-5 h-5 flex-shrink-0 text-rose-600 dark:text-rose-400 mt-0.5" />
           <div>
-            <span className="font-bold">BÁO ĐỘNG DÒNG TIỀN ÂM:</span> Bạn đang chi tiêu vượt thu nhập{" "}
-            <strong>{formatVND(Math.abs(balanceDiff))}</strong> mỗi tháng. Bạn đang phải vay nợ hoặc ăn mòn vào tiền tiết kiệm cũ!
+            <span className="font-bold">Dòng tiền đang âm:</span> Bạn đang chi tiêu vượt thu nhập{" "}
+            <strong>{formatVND(Math.abs(balanceDiff))}</strong> mỗi tháng, dễ phải vay thêm hoặc dùng vào khoản tiết kiệm cũ.
           </div>
         </div>
       )}
@@ -235,8 +235,8 @@ ${isLowSavings ? "\n> ⚠️ **Lưu ý:** Tỷ lệ tiết kiệm dưới 10% s�
         <div className="p-3.5 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-800 text-amber-900 dark:text-amber-200 flex items-start gap-2.5 text-xs">
           <ShieldAlert className="w-5 h-5 flex-shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
           <div>
-            <span className="font-bold">CẢNH BÁO CHI PHÍ CỐ ĐỊNH CAO:</span> Chi tiêu thiết yếu chiếm{" "}
-            <strong>{needsPct.toFixed(1)}%</strong> (&gt; 60% thu nhập). Áp lực tài chính rất lớn nếu gián đoạn công việc.
+            <span className="font-bold">Chi phí cố định cao:</span> Chi tiêu thiết yếu chiếm{" "}
+            <strong>{needsPct.toFixed(1)}%</strong> (&gt; 60% thu nhập), dễ tạo áp lực tài chính nếu thu nhập bị gián đoạn.
           </div>
         </div>
       )}
@@ -245,8 +245,8 @@ ${isLowSavings ? "\n> ⚠️ **Lưu ý:** Tỷ lệ tiết kiệm dưới 10% s�
         <div className="p-3.5 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-800 text-amber-900 dark:text-amber-200 flex items-start gap-2.5 text-xs">
           <Info className="w-5 h-5 flex-shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
           <div>
-            <span className="font-bold">CẢNH BÁO TÍCH LŨY MỎNG:</span> Tỷ lệ tiết kiệm & đầu tư chỉ đạt{" "}
-            <strong>{savingsPct.toFixed(1)}%</strong> (&lt; 10%). Bạn nên cắt giảm các khoản muốn mua sắm không thiết yếu.
+            <span className="font-bold">Quỹ tích lũy còn mỏng:</span> Tỷ lệ tiết kiệm & đầu tư mới đạt{" "}
+            <strong>{savingsPct.toFixed(1)}%</strong> (&lt; 10%). Bạn có thể cân nhắc giảm bớt các khoản mua sắm chưa thiết yếu.
           </div>
         </div>
       )}
@@ -257,7 +257,7 @@ ${isLowSavings ? "\n> ⚠️ **Lưu ý:** Tỷ lệ tiết kiệm dưới 10% s�
         <div className="lg:col-span-6 space-y-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/40 p-4">
           <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
             <Sliders className="w-4 h-4 text-indigo-500" />
-            Nhập Dữ Liệu Thu Chi Hàng Tháng
+            Nhập dữ liệu thu chi hàng tháng
           </h3>
 
           {/* Thu nhập ròng */}
@@ -284,7 +284,7 @@ ${isLowSavings ? "\n> ⚠️ **Lưu ý:** Tỷ lệ tiết kiệm dưới 10% s�
           <div className="space-y-1.5 pt-2 border-t border-zinc-200 dark:border-zinc-800">
             <div className="flex justify-between items-center text-xs">
               <label htmlFor="input-needs" className="font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
-                <span>🏠 Chi tiêu thiết yếu (50%)</span>
+                <span>Chi tiêu thiết yếu (50%)</span>
                 <span className="text-[11px] text-zinc-600 dark:text-zinc-400">(nhà, ăn, điện nước, xăng xe)</span>
               </label>
               <span className="font-bold text-blue-600 dark:text-blue-400">
@@ -307,7 +307,7 @@ ${isLowSavings ? "\n> ⚠️ **Lưu ý:** Tỷ lệ tiết kiệm dưới 10% s�
           <div className="space-y-1.5 pt-2 border-t border-zinc-200 dark:border-zinc-800">
             <div className="flex justify-between items-center text-xs">
               <label htmlFor="input-wants" className="font-medium text-purple-700 dark:text-purple-300 flex items-center gap-1">
-                <span>☕ Mong muốn cá nhân (30%)</span>
+                <span>Mong muốn cá nhân (30%)</span>
                 <span className="text-[11px] text-zinc-600 dark:text-zinc-400">(ăn ngoài, mua sắm, giải trí)</span>
               </label>
               <span className="font-bold text-purple-600 dark:text-purple-400">
@@ -330,7 +330,7 @@ ${isLowSavings ? "\n> ⚠️ **Lưu ý:** Tỷ lệ tiết kiệm dưới 10% s�
           <div className="space-y-1.5 pt-2 border-t border-zinc-200 dark:border-zinc-800">
             <div className="flex justify-between items-center text-xs">
               <label htmlFor="input-savings" className="font-medium text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
-                <span>📈 Tiết kiệm & Đầu tư (20%)</span>
+                <span>Tiết kiệm & Đầu tư (20%)</span>
                 <span className="text-[11px] text-zinc-600 dark:text-zinc-400">(tích lũy tương lai, trả nợ gốc)</span>
               </label>
               <span className="font-bold text-emerald-600 dark:text-emerald-400">
@@ -2480,7 +2480,7 @@ function CandlestickRiskLab({
                 </span>
               </div>
               <div className="pt-1.5 border-t border-zinc-100 dark:border-zinc-800 text-[11px] text-zinc-700 dark:text-zinc-300">
-                🛡️ <em>Nếu lệnh dính Cắt lỗ (SL {stopLoss}), số tiền lỗ đúng bằng <strong>{formatVND(riskAmount)}</strong> ({riskPercent}% vốn), tuyệt đối không cháy tài khoản!</em>
+                <em>Nếu lệnh chạm mức cắt lỗ (SL {stopLoss}), số tiền lỗ tối đa đúng bằng <strong>{formatVND(riskAmount)}</strong> ({riskPercent}% vốn), giúp bạn bảo toàn tài khoản.</em>
               </div>
             </div>
           </div>
@@ -2524,8 +2524,8 @@ function CandlestickRiskLab({
               {quizAnswers.pe !== null && (
                 <p className="text-[11px] text-zinc-700 dark:text-zinc-300">
                   {quizAnswers.pe === 1
-                    ? "✅ Đúng! P/E thấp có thể do lợi nhuận bất thường một lần bán tài sản, hoặc triển vọng tương lai rất xấu."
-                    : "❌ Sai! Đừng nhìn P/E đơn lẻ, rất dễ dính bẫy giá trị (Value Trap)."}
+                    ? "Đúng! P/E thấp có thể do lợi nhuận bất thường một lần từ bán tài sản, hoặc triển vọng doanh nghiệp đang suy giảm."
+                    : "Chưa đúng! Đừng chỉ nhìn P/E đơn lẻ vì rất dễ gặp bẫy giá trị (Value Trap)."}
                 </p>
               )}
             </div>
@@ -2562,8 +2562,8 @@ function CandlestickRiskLab({
               {quizAnswers.roe !== null && (
                 <p className="text-[11px] text-zinc-700 dark:text-zinc-300">
                   {quizAnswers.roe === 1
-                    ? "✅ Đúng! Warren Buffett luôn chọn các doanh nghiệp có ROE duy trì liên tục trên 15-20% trong 5 năm."
-                    : "❌ Chưa đúng! Quy mô tài sản tăng có thể do vay nợ vô tội vạ, chỉ có ROE mới đo lường chất lượng sinh lời."}
+                    ? "Đúng! Warren Buffett luôn ưu tiên các doanh nghiệp duy trì ROE trên 15–20% liên tục trong 5 năm."
+                    : "Chưa đúng! Quy mô tài sản tăng có thể đến từ việc vay nợ lớn, chỉ có ROE mới phản ánh hiệu quả sinh lời trên vốn chủ."}
                 </p>
               )}
             </div>
@@ -2600,8 +2600,8 @@ function CandlestickRiskLab({
               {quizAnswers.de !== null && (
                 <p className="text-[11px] text-zinc-700 dark:text-zinc-300">
                   {quizAnswers.de === 1
-                    ? "✅ Chính xác! Đòn bẩy cao là con dao hai lưỡi: phóng đại lợi nhuận lúc hưng thịnh nhưng sẽ bóp nghẹt thanh khoản khi lãi suất tăng."
-                    : "❌ Sai! Nợ doanh nghiệp hoàn toàn là rủi ro của cổ đông và trái chủ, doanh nghiệp có thể phá sản."}
+                    ? "Chính xác! Đòn bẩy cao giúp khuếch đại lợi nhuận khi thuận lợi nhưng sẽ tạo áp lực thanh khoản rất lớn khi lãi suất tăng."
+                    : "Chưa đúng! Rủi ro nợ vay thuộc về doanh nghiệp, cổ đông và trái chủ; doanh nghiệp vẫn có thể mất khả năng thanh toán."}
                 </p>
               )}
             </div>
@@ -3033,7 +3033,7 @@ export function PortfolioSimulatorLab({
       }),
     });
     setIsRecorded(true);
-    setFeedback("Đã lưu kết quả mô phỏng danh mục mẫu vào Practice Engine!");
+    setFeedback("Đã lưu kết quả mô phỏng danh mục mẫu vào hồ sơ luyện tập!");
     setTimeout(() => setFeedback(null), 3500);
   };
 
@@ -3090,7 +3090,7 @@ export function PortfolioSimulatorLab({
             className="min-h-[44px] px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition cursor-pointer flex items-center gap-1.5 shadow-xs"
           >
             <CheckCircle2 className="w-4 h-4" />
-            Ghi nhận Practice Engine
+            Lưu kết quả thực hành
           </button>
         </div>
       </div>
@@ -3726,7 +3726,7 @@ export function FinancePracticeLab({
             </span>
             <div>
               <h1 className="text-base sm:text-lg font-bold">
-                Module Thực Hành Tài Chính Cá Nhân & Đầu Tư
+                Phòng thực hành Tài chính cá nhân & Đầu tư
               </h1>
               <p className="text-xs text-zinc-600 dark:text-zinc-400">
                 Khóa học: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{courseTitle}</span> · Bài:{" "}
@@ -3814,7 +3814,7 @@ export function FinancePracticeLab({
             }`}
           >
             <SlidersHorizontal className="w-4 h-4" />
-            6. Mô Phỏng Danh Mục (MẪU)
+            6. Mô phỏng danh mục (mẫu)
           </button>
           <button
             type="button"

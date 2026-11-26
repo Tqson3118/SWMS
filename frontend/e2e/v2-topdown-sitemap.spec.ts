@@ -107,7 +107,7 @@ test.describe("Top-Down 4-Level Sitemap Real E2E (No Mocks)", () => {
     await expect(page.getByRole("heading", { name: "Tài liệu", exact: true })).toBeVisible({
       timeout: 15000,
     });
-    await expect(page.getByText("Tài liệu Kiểm thử Sitemap").first()).toBeVisible({
+    await expect(page.getByRole("heading", { name: "Tài liệu Kiểm thử Sitemap" }).first()).toBeVisible({
       timeout: 15000,
     });
 

@@ -1373,10 +1373,10 @@ ${testResults ? `**Chi tiết kết quả:**\n` + testResults.map(r => `- ${r.pa
         <div>
           <h2 className="text-sm sm:text-base font-bold flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
             <Cpu className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-            Web Worker Sandbox (JavaScript / TypeScript Execution Engine)
+            Phòng chạy thử JavaScript / TypeScript (cách ly an toàn)
           </h2>
           <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
-            Mã nguồn được cách ly an toàn trong Web Worker riêng biệt. Giới hạn 2000ms chống treo giao diện.
+            Mã nguồn chạy trong môi trường tách biệt trên trình duyệt, tự động dừng sau 2000ms để tránh treo giao diện.
           </p>
         </div>
 
@@ -1489,7 +1489,7 @@ ${testResults ? `**Chi tiết kết quả:**\n` + testResults.map(r => `- ${r.pa
             <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900 border-b border-zinc-800 text-xs">
               <div className="flex items-center gap-2">
                 <Terminal className="w-4 h-4 text-emerald-400" />
-                <span className="font-mono text-zinc-200 font-semibold">solution.js (Web Worker Isolation)</span>
+                <span className="font-mono text-zinc-200 font-semibold">solution.js (chạy tách biệt trên máy)</span>
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -1991,10 +1991,10 @@ ${activeProblem.explanation}`;
         <div>
           <h2 className="text-sm sm:text-base font-bold flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
             <ListChecks className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            Parsons Problem (Thực Hành Sắp Xếp Trật Tự Dòng Code)
+            Sắp xếp trật tự dòng lệnh (Parsons)
           </h2>
           <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
-            Ghép các dòng mã nguồn xáo trộn vào vị trí thực thi chính xác. Rèn luyện tư duy luồng điều khiển.
+            Ghép các dòng mã nguồn đang xáo trộn vào đúng thứ tự thực thi để rèn luyện tư duy luồng điều khiển.
           </p>
         </div>
 
@@ -3209,7 +3209,7 @@ export function CodingPracticeLab({
               }`}
             >
               <Bug className="w-4 h-4" />
-              <span>2. Săn Lỗi Thực Chiến (6+ Bug)</span>
+              <span>2. Săn lỗi thực chiến (6+ lỗi)</span>
             </button>
 
             <button
@@ -3225,7 +3225,7 @@ export function CodingPracticeLab({
               }`}
             >
               <Network className="w-4 h-4" />
-              <span>3. Mô Phỏng Hệ Thống</span>
+              <span>3. Mô phỏng hệ thống</span>
             </button>
 
             <button
@@ -3241,7 +3241,7 @@ export function CodingPracticeLab({
               }`}
             >
               <FileCode className="w-4 h-4" />
-              <span>4. Nhiệm vụ Code Của Bài</span>
+              <span>4. Nhiệm vụ lập trình</span>
             </button>
 
             <button
@@ -3257,7 +3257,7 @@ export function CodingPracticeLab({
               }`}
             >
               <Cpu className="w-4 h-4" />
-              <span>5. Web Worker Sandbox JS/TS</span>
+              <span>5. Chạy thử JS/TS</span>
             </button>
 
             <button
@@ -3273,7 +3273,7 @@ export function CodingPracticeLab({
               }`}
             >
               <ListChecks className="w-4 h-4" />
-              <span>6. Ghép Dòng Code (Parsons)</span>
+              <span>6. Ghép dòng lệnh (Parsons)</span>
             </button>
 
             <button
@@ -3289,7 +3289,7 @@ export function CodingPracticeLab({
               }`}
             >
               <PlayCircle className="w-4 h-4" />
-              <span>7. Đoán Output</span>
+              <span>7. Đoán kết quả (Output)</span>
             </button>
           </div>
 
@@ -4226,7 +4226,7 @@ export function CodingPracticeLab({
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-zinc-600 dark:text-zinc-400">
                   <span>
-                    ⚡ Khi TLB Hit: chỉ mất <strong>{eatCalculation.hitTime} ns</strong>. Khi Miss: mất tới <strong>{eatCalculation.missTime} ns</strong>.
+                    Khi TLB Hit: chỉ mất <strong>{eatCalculation.hitTime} ns</strong>. Khi Miss: mất tới <strong>{eatCalculation.missTime} ns</strong>.
                   </span>
                   <span className="font-semibold text-amber-600 dark:text-amber-400">
                     Tổn hao hiệu năng do Miss: +{eatCalculation.slowdownPercentage}%
@@ -4398,7 +4398,7 @@ export function CodingPracticeLab({
                 <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-950 border-b border-zinc-800 text-xs">
                   <div className="flex items-center gap-2">
                     <Terminal className="w-3.5 h-3.5 text-purple-400" />
-                    <span className="font-semibold text-zinc-200">Interactive Code Sandbox</span>
+                    <span className="font-semibold text-zinc-200">Phòng chạy mã tương tác</span>
                     <select
                       value={sandboxLang}
                       onChange={(e) => setSandboxLang(e.target.value)}
@@ -4531,7 +4531,7 @@ export function CodingPracticeLab({
       <div className="border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-2">
         <span className="flex items-center gap-1.5">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-          Module Coding Practice Lab: Tương thích WCAG 2.1 AA, Responsive 390×844 & Desktop
+          Phòng thực hành lập trình: Hỗ trợ trợ năng WCAG 2.1 AA, tương thích di động & máy tính
         </span>
         <span className="font-mono text-[11px] text-zinc-600 dark:text-zinc-400">
           Course: {courseId || "CS-CORE"} | Mode: {activeMainMode}

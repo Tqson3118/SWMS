@@ -18,6 +18,7 @@ import {
   Settings,
   LayoutGrid,
   LogOut,
+  Keyboard,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { setAccessToken } from "@/lib/api-client";
@@ -47,7 +48,7 @@ const MOBILE_NAV_ITEMS: MobileNavItem[] = [
   },
   {
     href: "/app/practice",
-    label: "Lab",
+    label: "Thực hành",
     icon: Target,
     testId: "mobile-nav-practice",
     isActive: (p) => p.startsWith("/app/practice"),
@@ -149,8 +150,8 @@ export function MobileTopBar() {
         <button
           type="button"
           onClick={toggleDarkMode}
-          aria-label={darkMode ? "Chuyển sang sáng" : "Chuyển sang tối"}
-          title={darkMode ? "Chuyển sang sáng" : "Chuyển sang tối"}
+          aria-label={darkMode ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
+          title={darkMode ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
           className="w-9 h-9 flex items-center justify-center rounded-[8px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition cursor-pointer"
         >
           {darkMode ? (
@@ -229,8 +230,20 @@ export function MobileTopBar() {
                 className="flex items-center gap-2.5 px-2.5 min-h-[40px] rounded-[8px] text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition"
               >
                 <LayoutGrid className="w-4 h-4 shrink-0 text-[var(--text-secondary)]" />
-                <span>Giao diện Classic Split</span>
+                <span>Không gian cổ điển</span>
               </Link>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setMoreOpen(false);
+                  window.dispatchEvent(new CustomEvent("studxy:open-shortcuts"));
+                }}
+                className="flex items-center gap-2.5 w-full px-2.5 min-h-[40px] rounded-[8px] text-sm text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition cursor-pointer"
+              >
+                <Keyboard className="w-4 h-4 shrink-0 text-[var(--text-secondary)]" />
+                <span>Phím tắt (?)</span>
+              </button>
             </div>
 
             <div className="my-1 border-t border-[var(--border-calm)]" />

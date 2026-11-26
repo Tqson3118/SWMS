@@ -445,6 +445,44 @@
   animation: swms-scale-in 200ms var(--ease-spring) both;
 }
 
+/* ==================== READING ERGONOMICS, BUTTON & TOAST UTILITIES ==================== */
+.reader-width-standard {
+  max-width: 68ch;
+}
+
+.reader-width-wide {
+  max-width: 84ch;
+}
+
+.swms-btn-primary {
+  background-color: var(--accent);
+  color: #FFFFFF;
+  transition: background-color var(--duration-fast) var(--ease-smooth), transform var(--duration-fast) var(--ease-smooth);
+}
+
+.swms-btn-primary:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.dark .swms-btn-primary {
+  color: #0F0F12;
+}
+
+@keyframes swms-toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.swms-toast-enter {
+  animation: swms-toast-enter 180ms var(--ease-spring) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .swms-skeleton {
     animation: none !important;
@@ -452,9 +490,16 @@
   }
   .swms-animate-fade-in,
   .swms-animate-slide-in-right,
-  .swms-animate-scale-in {
+  .swms-animate-scale-in,
+  .swms-toast-enter {
     animation: none !important;
     transform: none !important;
     opacity: 1 !important;
   }
+}
+
+/* ==================== PROGRESSIVE RENDERING (CONTENT-VISIBILITY) ==================== */
+.swms-cv-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 320px;
 }

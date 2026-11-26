@@ -55,7 +55,11 @@ CURATED_SLUGS = {
     'tieng-anh-giao-tiep-thuc-chien-a2-b1',
     'tieng-nhat-so-cap-n5',
     'tieng-trung-so-cap-hsk1',
-    'he-dieu-hanh-bo-nho-ao'
+    'he-dieu-hanh-bo-nho-ao',
+    'document-course-ai-workflows',
+    'document-course-data-sql',
+    'document-course-cybersecurity',
+    'document-course-deep-learning-systems'
 }
 
 PROTECTED_GUIDS = {
@@ -75,6 +79,13 @@ RETIRED_SLUGS = {
 
 TEST_EMAIL_PATTERNS = [
     r'@test\.local', r'@example\.com', r'@bench\.studxy\.vn',
+    r'@test\.studxy\.vn',
+    r'^burst-user-', r'^bucket-sep-', r'^dup-[0-9a-f]+@',
+    r'^course\.[ab]\.[0-9a-f]+@studxy\.vn$',
+    r'^user\.[ab]\.[0-9a-f]+@studxy\.vn$',
+    r'^finance\.student\.\d+@studxy\.vn$',
+    r'^lifecycle\.', r'^v2\.sitemap\.',
+    r'^test@student\.vn$', r'^111@11$',
     r'qa\+', r'qa\.', r'v2\.', r'polish\.', r'r5\.', r'studio\.test\.',
     r'e2e\.', r'probe\.', r'probe2\.', r'tour\.', r'test\.student\.',
     r'rtr\.concurrent\.', r'occ\.user\.', r'ai\.quota\.', r'race\.dup\.',
@@ -104,14 +115,14 @@ for row in courses:
     name_str = (full_name or '').strip().lower()
     title_str = (title or '').strip().lower()
 
-    # Absolute protected rule: 10 curated slugs and 4 system GUIDs
+    # Absolute protected rule: 14 curated slugs and 4 system GUIDs
     if slug_str in CURATED_SLUGS or cid_str in PROTECTED_GUIDS:
         protected_courses.append(row)
         continue
 
-    # Absolute protected rule: system user son.tran@studxy.vn or real user personal workspaces
+    # Absolute protected rule: all non-retired courses of real users
     is_real_user = email_str in {'son.tran@studxy.vn', 'minh.anh@studxy.vn', 'thaiquangson0311@gmail.com'}
-    if is_real_user and slug_str.startswith('personal-workspace-'):
+    if is_real_user and slug_str not in RETIRED_SLUGS:
         protected_courses.append(row)
         continue
 
@@ -120,8 +131,9 @@ for row in courses:
     is_test_email = any(re.search(pat, email_str) for pat in TEST_EMAIL_PATTERNS)
     is_test_name = any(pat in name_str for pat in TEST_NAME_PATTERNS)
     is_test_title = 'double click test' in title_str or 'kiểm thử tự động' in title_str or 'import test' in title_str
+    is_orphan_template = (inst_id is None and slug_str.startswith('swm-fullstack-template-'))
 
-    if is_retired or is_test_email or is_test_name or is_test_title:
+    if is_retired or is_test_email or is_test_name or is_test_title or is_orphan_template:
         to_clean_courses.append(row)
     else:
         # Keep non-test personal workspaces or custom courses by non-test users
@@ -135,7 +147,7 @@ print(f"Tổng số khóa học hiện tại: {total_courses}")
 print(f"Số lượng khóa học được BẢO VỆ: {len(protected_courses)}")
 
 found_curated = {r[1] for r in protected_courses if (r[1] or '').lower() in CURATED_SLUGS}
-print(f"Đã xác nhận {len(found_curated)}/10 khóa chuẩn hệ thống an toàn:")
+print(f"Đã xác nhận {len(found_curated)}/14 khóa chuẩn hệ thống an toàn:")
 for cs in sorted(CURATED_SLUGS):
     status = "OK" if cs in found_curated else "MISSING (chưa sync trong DB này)"
     print(f"  - [{status}] {cs}")
@@ -255,9 +267,19 @@ except Exception as e:
 # Verification after cleanup
 remaining_courses = c.execute("SELECT COUNT(*) FROM courses").fetchone()[0]
 son_tran_exists = c.execute("SELECT COUNT(*) FROM users WHERE email = 'son.tran@studxy.vn'").fetchone()[0]
+remaining_curated = c.execute(
+    f"SELECT COUNT(*) FROM courses WHERE LOWER(slug) IN ({','.join(['?'] * len(CURATED_SLUGS))})",
+    list(CURATED_SLUGS)
+).fetchone()[0]
+quick_check = c.execute("PRAGMA quick_check;").fetchone()[0]
 print(f"\n--- THỐNG KÊ SAU KHI DỌN DẸP ---")
 print(f"Tổng số khóa học còn lại: {remaining_courses}")
 print(f"Xác nhận người dùng hệ thống 'son.tran@studxy.vn': {'CÒN NGUYÊN VẸN' if son_tran_exists else 'LỖI'}")
+print(f"Xác nhận khóa chuẩn hệ thống còn lại: {remaining_curated}/14")
+print(f"PRAGMA quick_check: {quick_check}")
+if quick_check != 'ok':
+    print(f"LỖI: PRAGMA quick_check thất bại ({quick_check})!")
+    sys.exit(1)
 '@
 
 $dryRunArg = if ($DryRun) { "true" } else { "false" }

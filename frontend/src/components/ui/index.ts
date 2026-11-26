@@ -8,3 +8,4 @@ export * from "./StatCard";
 export * from "./ProgressBar";
 export * from "./EmptyState";
 export * from "./Tooltip";
+export * from "./ShowMoreFooter";

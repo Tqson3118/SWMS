@@ -1157,7 +1157,7 @@ export function ReaderAndSplitViews({
     setJumpPageInput(String(pageNum));
 
     const cached = pageCacheRef.current.get(pageNum);
-    if (cached) {
+    if (cached && cached.documentId === activeDocumentId) {
       setCurrentPageData(cached);
       return;
     }
@@ -2713,51 +2713,61 @@ export function ReaderAndSplitViews({
             </div>
 
             {/* Extracted Text Layer */}
-            <div
-              className={`space-y-3 font-sans ${
-                effectivePdfViewMode === "canvas" ? "hidden" : ""
-              }`}
-            >
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>Lớp văn bản trích xuất (Trang {safeCurrentPage})</span>
-                </span>
-                {currentPageData && (
-                  <span className="text-[11px] text-slate-400">
-                    {currentPageData.characterCount ?? currentPageData.charCount ?? currentPageData.plainText?.length ?? 0} ký tự • {currentPageData.wordCount ?? 0} từ
-                  </span>
-                )}
-              </div>
+            {(() => {
+              const activePageData =
+                currentPageData &&
+                currentPageData.pageNumber === safeCurrentPage &&
+                (!currentPageData.documentId || currentPageData.documentId === activeDocumentId)
+                  ? currentPageData
+                  : null;
+              return (
+                <div
+                  className={`space-y-3 font-sans ${
+                    effectivePdfViewMode === "canvas" ? "hidden" : ""
+                  }`}
+                >
+                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
+                      <span>Lớp văn bản trích xuất (Trang {safeCurrentPage})</span>
+                    </span>
+                    {activePageData && (
+                      <span className="text-[11px] text-slate-400">
+                        {activePageData.characterCount ?? activePageData.charCount ?? activePageData.plainText?.length ?? 0} ký tự • {activePageData.wordCount ?? 0} từ
+                      </span>
+                    )}
+                  </div>
 
-              {pageLoading || !currentPageData ? (
-                <div className="py-6 text-center text-xs text-indigo-600 dark:text-indigo-400 animate-pulse font-semibold">
-                  Đang nạp lớp văn bản trang {safeCurrentPage}...
+                  {pageLoading || !activePageData ? (
+                    <div className="py-6 text-center text-xs text-indigo-600 dark:text-indigo-400 animate-pulse font-semibold">
+                      Đang nạp lớp văn bản trang {safeCurrentPage}...
+                    </div>
+                  ) : activePageData.hasTextLayer === false || !activePageData.plainText?.trim() ? (
+                    <div
+                      data-testid="no-text-layer-badge"
+                      className="p-3.5 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 text-xs font-semibold flex items-center gap-2.5 animate-in fade-in"
+                    >
+                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>Không có lớp văn bản — chưa OCR</span>
+                    </div>
+                  ) : (
+                    <div
+                      data-testid="pdf-extracted-text-container"
+                      onMouseUp={() => {
+                        if (typeof window === "undefined") return;
+                        const sel = window.getSelection()?.toString().trim() ?? "";
+                        if (sel.length >= 3) {
+                          setSelectedText(sel);
+                        }
+                      }}
+                      className="leading-relaxed whitespace-pre-wrap select-text text-sm sm:text-base text-slate-800 dark:text-slate-200 bg-slate-50/50 dark:bg-slate-950/30 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800/60 font-sans"
+                    >
+                      {renderPdfTextWithHighlights(activePageData.plainText ?? "")}
+                    </div>
+                  )}
                 </div>
-              ) : currentPageData.hasTextLayer === false || !currentPageData.plainText?.trim() ? (
-                <div
-                  data-testid="no-text-layer-badge"
-                  className="p-3.5 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 text-xs font-semibold flex items-center gap-2.5 animate-in fade-in"
-                >
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>Không có lớp văn bản — chưa OCR</span>
-                </div>
-              ) : (
-                <div
-                  data-testid="pdf-extracted-text-container"
-                  onMouseUp={() => {
-                    if (typeof window === "undefined") return;
-                    const sel = window.getSelection()?.toString().trim() ?? "";
-                    if (sel.length >= 3) {
-                      setSelectedText(sel);
-                    }
-                  }}
-                  className="leading-relaxed whitespace-pre-wrap select-text text-sm sm:text-base text-slate-800 dark:text-slate-200 bg-slate-50/50 dark:bg-slate-950/30 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800/60 font-sans"
-                >
-                  {renderPdfTextWithHighlights(currentPageData?.plainText ?? "")}
-                </div>
-              )}
-            </div>
+              );
+            })()}
           </div>
         ) : shouldRenderMarkdown ? (
           <LessonMarkdownView

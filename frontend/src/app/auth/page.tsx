@@ -14,6 +14,12 @@ import {
   Eye,
   EyeOff,
   HelpCircle,
+  Sun,
+  Moon,
+  Brain,
+  Terminal,
+  FileText,
+  Check,
 } from "lucide-react";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { setAccessToken } from "@/lib/api-client";
@@ -88,7 +94,12 @@ function GoogleGlyph({ className = "w-4 h-4" }: { className?: string }) {
 function AuthPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setActiveUserHeaderId } = useWorkspaceStore();
+  const { setActiveUserHeaderId, darkMode, toggleDarkMode } = useWorkspaceStore();
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const initialTab = searchParams.get("tab") === "register" ? "register" : "login";
   const targetDestination = resolveSafeRedirect(searchParams.get("redirect"));
@@ -110,12 +121,8 @@ function AuthPageContent() {
       ? rawEnvGoogleClientId
       : null;
 
-  const [googleClientId, setGoogleClientId] = useState<string | null>(
-    initialEnvGoogleClientId
-  );
-  const [googleEnabled, setGoogleEnabled] = useState(
-    Boolean(initialEnvGoogleClientId)
-  );
+  const [googleClientId, setGoogleClientId] = useState<string | null>(null);
+  const [googleEnabled, setGoogleEnabled] = useState(false);
   const [googleProvidersLoaded, setGoogleProvidersLoaded] = useState(false);
   const [googleSdkError, setGoogleSdkError] = useState<string | null>(null);
   const [showGoogleSetupGuide, setShowGoogleSetupGuide] = useState(false);
@@ -224,7 +231,9 @@ function AuthPageContent() {
         setGoogleClientId(enabled ? clientId : null);
       })
       .catch(() => {
-        // Keep env fallback if network briefly fails
+        if (!active) return;
+        setGoogleEnabled(Boolean(initialEnvGoogleClientId));
+        setGoogleClientId(initialEnvGoogleClientId);
       })
       .finally(() => {
         if (active) setGoogleProvidersLoaded(true);
@@ -232,10 +241,10 @@ function AuthPageContent() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [initialEnvGoogleClientId]);
 
   useEffect(() => {
-    if (!googleEnabled || !googleClientId || !googleBtnRef.current) return;
+    if (!googleProvidersLoaded || !googleEnabled || !googleClientId || !googleBtnRef.current) return;
     let cancelled = false;
 
     const initGsi = () => {
@@ -262,7 +271,7 @@ function AuthPageContent() {
         });
         setGoogleSdkError(null);
       } catch {
-        setGoogleSdkError("Không thể khởi tạo nút Đăng nhập Google cho origin này.");
+        setGoogleSdkError("Không thể khởi tạo nút Đăng nhập Google cho tên miền hiện tại.");
       }
     };
 
@@ -291,7 +300,7 @@ function AuthPageContent() {
     script.onload = initGsi;
     script.onerror = () => {
       if (!cancelled) {
-        setGoogleSdkError("Không thể tải Google Identity SDK (kiểm tra kết nối Internet).");
+        setGoogleSdkError("Không thể tải dịch vụ đăng nhập Google (kiểm tra kết nối Internet).");
       }
     };
     document.head.appendChild(script);
@@ -329,7 +338,7 @@ function AuthPageContent() {
           : {
               email: trimmedEmail,
               password,
-              fullName: fullName.trim() || "Học viên SWMS",
+              fullName: fullName.trim() || "Học viên Studxy",
             };
 
       const resp = await fetch(endpoint, {
@@ -354,7 +363,7 @@ function AuthPageContent() {
       }
 
       const data = (await resp.json()) as Record<string, unknown>;
-      applyAuthResponse(data, fullName.trim() || "Học viên SWMS", trimmedEmail);
+      applyAuthResponse(data, fullName.trim() || "Học viên Studxy", trimmedEmail);
     } catch {
       setErrorMessage("Lỗi kết nối máy chủ xác thực. Vui lòng thử lại.");
     } finally {
@@ -382,6 +391,28 @@ function AuthPageContent() {
         </Link>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleDarkMode}
+            aria-label={
+              mounted
+                ? darkMode
+                  ? "Chuyển sang chế độ sáng"
+                  : "Chuyển sang chế độ tối"
+                : "Chuyển đổi giao diện sáng/tối"
+            }
+            className="inline-flex items-center justify-center w-9 h-9 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-[var(--text-secondary)] hover:text-[#5E51E8] dark:hover:text-[#818CF8] hover:border-[#5E51E8]/40 transition cursor-pointer"
+          >
+            {mounted ? (
+              darkMode ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )
+            ) : (
+              <Moon className="w-4 h-4 opacity-0" />
+            )}
+          </button>
           <Link
             href="/app"
             data-testid="auth-go-app-v2"
@@ -394,7 +425,7 @@ function AuthPageContent() {
             href="/workspace"
             className="hidden sm:inline-flex text-xs font-medium text-[var(--text-secondary)] hover:text-[#5E51E8] dark:hover:text-[#818CF8] items-center gap-1.5 px-3 py-2 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] transition"
           >
-            <span>Workspace Classic</span>
+            <span>Không gian cổ điển</span>
           </Link>
         </div>
       </header>
@@ -418,9 +449,15 @@ function AuthPageContent() {
           </div>
 
           {/* Mode Tabs */}
-          <div className="grid grid-cols-2 gap-1.5 p-1 rounded-[10px] bg-[var(--surface-elevated)] border border-[var(--border-calm)] mb-6">
+          <div
+            role="tablist"
+            aria-label="Chế độ xác thực"
+            className="grid grid-cols-2 gap-1.5 p-1 rounded-[10px] bg-[var(--surface-elevated)] border border-[var(--border-calm)] mb-6"
+          >
             <button
               type="button"
+              role="tab"
+              aria-selected={mode === "login"}
               data-testid="auth-tab-login"
               onClick={() => {
                 setMode("login");
@@ -437,6 +474,8 @@ function AuthPageContent() {
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={mode === "register"}
               data-testid="auth-tab-register"
               onClick={() => {
                 setMode("register");
@@ -496,7 +535,7 @@ function AuthPageContent() {
                 htmlFor="auth-email"
                 className="block text-xs font-semibold text-[var(--text-primary)] mb-1.5"
               >
-                Địa chỉ Email
+                Email
               </label>
               <input
                 id="auth-email"
@@ -516,7 +555,7 @@ function AuthPageContent() {
                   htmlFor="auth-password"
                   className="block text-xs font-semibold text-[var(--text-primary)]"
                 >
-                  Mật khẩu bảo mật
+                  Mật khẩu
                 </label>
                 {mode === "register" && (
                   <span className="text-[11px] text-[var(--text-tertiary)]">Tối thiểu 6 ký tự (gồm chữ và số)</span>
@@ -548,6 +587,93 @@ function AuthPageContent() {
                   )}
                 </button>
               </div>
+              {mode === "register" && (() => {
+                const hasMinLength = password.length >= 6;
+                const hasLetter = /[A-Za-z]/.test(password);
+                const hasDigit = /\d/.test(password);
+                const passedRules = [hasMinLength, hasLetter, hasDigit].filter(Boolean).length;
+                const strengthScore =
+                  password.length === 0
+                    ? 0
+                    : passedRules === 3 && password.length >= 10
+                      ? 3
+                      : passedRules >= 2
+                        ? 2
+                        : 1;
+                const strengthLabel =
+                  strengthScore === 3
+                    ? "Mạnh"
+                    : strengthScore === 2
+                      ? "Trung bình"
+                      : strengthScore === 1
+                        ? "Yếu"
+                        : "";
+                const strengthColor =
+                  strengthScore === 3
+                    ? "bg-emerald-500"
+                    : strengthScore === 2
+                      ? "bg-amber-500"
+                      : "bg-rose-500";
+                const strengthTextColor =
+                  strengthScore === 3
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : strengthScore === 2
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-rose-600 dark:text-rose-400";
+
+                const criteria = [
+                  { ok: hasMinLength, label: "Tối thiểu 6 ký tự" },
+                  { ok: hasLetter, label: "Có ít nhất 1 chữ cái" },
+                  { ok: hasDigit, label: "Có ít nhất 1 chữ số" },
+                ];
+
+                return (
+                  <div className="mt-2.5 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 grid grid-cols-3 gap-1.5">
+                        {[1, 2, 3].map((seg) => (
+                          <div
+                            key={seg}
+                            className={`h-1.5 rounded-full transition-colors ${
+                              strengthScore >= seg
+                                ? strengthColor
+                                : "bg-[var(--border-calm)]"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      {strengthLabel && (
+                        <span className={`text-[11px] font-semibold shrink-0 ${strengthTextColor}`}>
+                          {strengthLabel}
+                        </span>
+                      )}
+                    </div>
+                    <ul className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[11px]">
+                      {criteria.map((c) => (
+                        <li
+                          key={c.label}
+                          className={`flex items-center gap-1.5 transition-colors ${
+                            c.ok
+                              ? "text-emerald-600 dark:text-emerald-400 font-medium"
+                              : "text-[var(--text-tertiary)]"
+                          }`}
+                        >
+                          <span
+                            className={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border shrink-0 ${
+                              c.ok
+                                ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-600 dark:text-emerald-400"
+                                : "border-[var(--border-calm)]"
+                            }`}
+                          >
+                            {c.ok && <Check className="w-2.5 h-2.5" />}
+                          </span>
+                          <span className="truncate">{c.label}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })()}
             </div>
 
             <button
@@ -561,7 +687,7 @@ function AuthPageContent() {
                   ? "Đang xử lý..."
                   : mode === "login"
                   ? "Đăng nhập vào Studxy"
-                  : "Tạo tài khoản & Khám phá"}
+                  : "Tạo tài khoản & khám phá"}
               </span>
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -642,6 +768,47 @@ function AuthPageContent() {
             )}
           </div>
         </section>
+
+        {/* Value Proposition Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          {[
+            {
+              icon: Brain,
+              title: "Ghi nhớ dài hạn FSRS v5",
+              desc: "Lịch ôn tập thông minh theo đường cong quên lãng.",
+            },
+            {
+              icon: Terminal,
+              title: "Phòng thực hành tương tác",
+              desc: "Chạy mã và thử nghiệm trực tiếp ngay trong bài học.",
+            },
+            {
+              icon: FileText,
+              title: "Đọc PDF & ghi chú song song",
+              desc: "Trích dẫn tài liệu ngay cạnh sổ tay cá nhân.",
+            },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.title}
+                className="min-w-0 rounded-[12px] bg-[var(--surface-card)] border border-[var(--border-calm)] p-3 flex items-start gap-2.5"
+              >
+                <div className="w-7 h-7 rounded-[8px] bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center shrink-0">
+                  <Icon className="w-3.5 h-3.5 text-[#5E51E8] dark:text-[#818CF8]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-[var(--text-primary)] leading-snug">
+                    {item.title}
+                  </p>
+                  <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5 leading-snug">
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </main>
 
       {/* Footer */}

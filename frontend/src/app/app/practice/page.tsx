@@ -117,6 +117,7 @@ export default function PracticeHubPage() {
   const [courseFilter, setCourseFilter] = useState<CoursePracticeFilter>("all");
   const [expandedCourseIds, setExpandedCourseIds] = useState<Set<string>>(new Set());
   const [expandedChapterKeys, setExpandedChapterKeys] = useState<Set<string>>(new Set());
+  const [selectedDayIdx, setSelectedDayIdx] = useState<number | null>(null);
 
   const fetchHubStats = useCallback(async () => {
     setIsLoading(true);
@@ -281,13 +282,13 @@ export default function PracticeHubPage() {
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)]">
             <Target className="w-4 h-4" />
-            <span>Trung tâm Thực hành Code Lab &amp; Phản xạ Chủ động</span>
+            <span>Trung tâm thực hành &amp; phản xạ chủ động</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Hub Luyện tập
           </h1>
           <p className="text-sm text-[var(--text-secondary)]">
-            Thực hành Code Lab theo bài học, ôn lại các câu chưa đạt và luyện thẻ FSRS hằng ngày.
+            Thực hành theo từng bài học, ôn lại các câu chưa đạt và luyện thẻ FSRS hằng ngày.
           </p>
         </div>
 
@@ -309,7 +310,7 @@ export default function PracticeHubPage() {
           </button>
           <Link
             href="/app/review"
-            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold hover:opacity-95 transition shadow-xs"
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-semibold transition shadow-xs"
           >
             <Brain className="w-4 h-4" />
             <span>Ôn thẻ FSRS ({fsrsDueCount})</span>
@@ -384,18 +385,24 @@ export default function PracticeHubPage() {
                   Biểu đồ tiến độ 7 ngày gần nhất
                 </h2>
               </div>
-              <span className="text-xs text-[var(--text-tertiary)]">
-                {stats.todayAttempts} lượt hôm nay · Dữ liệu thật từ máy chủ
+              <span
+                data-testid="practice-chart-readout"
+                aria-live="polite"
+                className="text-xs text-[var(--text-tertiary)]"
+              >
+                {selectedDayIdx !== null && chartPoints[selectedDayIdx]
+                  ? `Ngày ${chartPoints[selectedDayIdx].date} · ${chartPoints[selectedDayIdx].count} lượt · Điểm TB ${Math.round(chartPoints[selectedDayIdx].avgScore)}/100`
+                  : `${stats.todayAttempts} lượt hôm nay · Cập nhật từ lịch sử học tập`}
               </span>
             </div>
 
             {totalAttempts === 0 ? (
               <div className="py-6 px-4 text-center rounded-[12px] border border-dashed border-[var(--border-calm)] bg-[var(--surface-elevated)]/40">
                 <p className="text-sm font-medium text-[var(--text-primary)]">
-                  Chưa có dữ liệu luyện tập trong 7 ngày qua
+                  Chưa có hoạt động luyện tập nào trong 7 ngày qua
                 </p>
                 <p className="text-xs text-[var(--text-tertiary)] mt-1">
-                  Hãy chọn một bài học bên dưới để bắt đầu thực hành và ghi nhận điểm số thật.
+                  Hãy chọn một bài học bên dưới để bắt đầu thực hành và theo dõi tiến độ của bạn.
                 </p>
               </div>
             ) : (
@@ -407,6 +414,12 @@ export default function PracticeHubPage() {
                   role="img"
                   aria-label="Biểu đồ điểm luyện tập 7 ngày gần nhất"
                 >
+                  <defs>
+                    <linearGradient id="practiceHubBarGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#6366F1" />
+                      <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.82" />
+                    </linearGradient>
+                  </defs>
                   <line x1="34" y1="18" x2="474" y2="18" stroke="currentColor" strokeOpacity="0.12" strokeDasharray="3 3" />
                   <line x1="34" y1="58" x2="474" y2="58" stroke="currentColor" strokeOpacity="0.12" strokeDasharray="3 3" />
                   <line x1="34" y1="98" x2="474" y2="98" stroke="currentColor" strokeOpacity="0.16" />
@@ -421,10 +434,36 @@ export default function PracticeHubPage() {
                     const barH = (clampedAvg / 100) * 80;
                     const y = 98 - barH;
                     const hasAttempts = d.count > 0;
+                    const isSelected = selectedDayIdx === idx;
+                    const isDimmed = selectedDayIdx !== null && !isSelected;
 
                     return (
-                      <g key={d.date}>
+                      <g
+                        key={d.date}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`Ngày ${d.date} · ${d.count} lượt · Điểm TB ${Math.round(d.avgScore)}/100`}
+                        className="cursor-pointer focus:outline-none"
+                        onMouseEnter={() => setSelectedDayIdx(idx)}
+                        onMouseLeave={() => setSelectedDayIdx(null)}
+                        onFocus={() => setSelectedDayIdx(idx)}
+                        onBlur={() => setSelectedDayIdx(null)}
+                        onClick={() => setSelectedDayIdx((prev) => (prev === idx ? null : idx))}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setSelectedDayIdx((prev) => (prev === idx ? null : idx));
+                          }
+                        }}
+                      >
                         <title>{`${d.date}: ${d.count} lượt, TB ${d.avgScore}/100`}</title>
+                        <rect
+                          x={x - 24}
+                          y={8}
+                          width={48}
+                          height={120}
+                          fill="transparent"
+                        />
                         {hasAttempts ? (
                           <>
                             <rect
@@ -433,8 +472,10 @@ export default function PracticeHubPage() {
                               width={28}
                               height={Math.max(4, barH)}
                               rx="5"
-                              fill="var(--accent)"
-                              fillOpacity="0.85"
+                              fill="url(#practiceHubBarGrad)"
+                              fillOpacity={isDimmed ? 0.45 : 1}
+                              stroke={isSelected ? "var(--accent)" : "none"}
+                              strokeWidth={isSelected ? 1.5 : 0}
                             />
                             <text
                               x={x}
@@ -443,14 +484,21 @@ export default function PracticeHubPage() {
                               fontSize="10"
                               fontWeight="600"
                               fill="var(--accent)"
+                              opacity={isDimmed ? 0.55 : 1}
                             >
                               {Math.round(d.avgScore)}
                             </text>
                           </>
                         ) : (
-                          <circle cx={x} cy="98" r="3" fill="currentColor" opacity="0.22" />
+                          <circle
+                            cx={x}
+                            cy="98"
+                            r={isSelected ? 4.5 : 3}
+                            fill="currentColor"
+                            opacity={isSelected ? 0.6 : 0.22}
+                          />
                         )}
-                        <text x={x} y="114" textAnchor="middle" fontSize="10" fill="currentColor" opacity="0.68">
+                        <text x={x} y="114" textAnchor="middle" fontSize="10" fill="currentColor" opacity={isSelected ? 1 : 0.68} fontWeight={isSelected ? "700" : "400"}>
                           {d.dayName}
                         </text>
                         <text x={x} y="126" textAnchor="middle" fontSize="8.5" fill="currentColor" opacity="0.45">
@@ -507,7 +555,7 @@ export default function PracticeHubPage() {
                 <div className="flex items-center gap-2 min-w-0">
                   <Clock className="w-4 h-4 text-amber-500 shrink-0" />
                   <h3 className="text-sm font-semibold text-[var(--text-primary)] truncate">
-                    Hàng ôn câu sai &amp; bài chưa đạt (Active Recall)
+                    Hàng đợi ôn câu sai &amp; bài cần củng cố (Active Recall)
                   </h3>
                 </div>
                 <Badge variant={needsReview.length > 0 ? "warning" : "success"} size="sm">
@@ -616,7 +664,7 @@ export default function PracticeHubPage() {
 
               <Link
                 href="/app/review"
-                className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold hover:opacity-95 transition shadow-xs"
+                className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-semibold transition shadow-xs"
               >
                 <span>Mở hàng ôn FSRS</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -635,7 +683,7 @@ export default function PracticeHubPage() {
                 Chọn khóa học &amp; bài học để luyện tập &amp; giải đề
               </h2>
               <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                Bấm trực tiếp vào bài học để mở Code Lab, hoặc chọn Giải đề &amp; Thi thử để vào phòng thi.
+                Chọn trực tiếp một bài học để mở phòng thực hành, hoặc chọn Giải đề &amp; Thi thử để vào phòng thi.
               </p>
             </div>
 
@@ -676,7 +724,7 @@ export default function PracticeHubPage() {
                     onClick={() => setCourseFilter(tab.id)}
                     className={`h-8 px-2.5 rounded-[8px] font-medium whitespace-nowrap transition cursor-pointer ${
                       courseFilter === tab.id
-                        ? "bg-[var(--accent)] text-white shadow-xs"
+                        ? "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] shadow-xs"
                         : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]/60"
                     }`}
                   >
@@ -816,7 +864,7 @@ export default function PracticeHubPage() {
                           {nextLesson && (
                             <Link
                               href={buildPracticeLessonHref(course.courseId, nextLesson.lessonId)}
-                              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold hover:opacity-95 transition"
+                              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-semibold transition"
                             >
                               <Play className="w-3.5 h-3.5" />
                               <span>Luyện bài tiếp</span>
@@ -887,7 +935,7 @@ export default function PracticeHubPage() {
                               <Link
                                 href={buildPracticeLessonHref(course.courseId, lesson.lessonId)}
                                 className="flex items-start justify-between gap-2 min-w-0"
-                                title={`Mở Code Lab thực hành: ${lesson.title}`}
+                                title={`Mở phòng thực hành: ${lesson.title}`}
                               >
                                 <div className="min-w-0 space-y-1 flex-1">
                                   <p className="text-[11px] font-medium text-[var(--text-tertiary)] truncate">

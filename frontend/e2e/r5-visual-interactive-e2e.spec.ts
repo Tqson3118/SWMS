@@ -1058,7 +1058,9 @@ test.describe("Tier 3: Cross-Feature Interactions", () => {
 
     let foundTargetCard = false;
     for (let i = 0; i < 15; i++) {
-      const cardFront = await page.getByTestId("flashcard-front-face").innerText();
+      const frontFace = page.getByTestId("flashcard-front-face");
+      await expect(frontFace).toBeVisible({ timeout: 10000 });
+      const cardFront = await frontFace.innerText();
       if (cardFront.includes("[Page 200 Legal Anchor]")) {
         foundTargetCard = true;
         break;
@@ -1066,9 +1068,13 @@ test.describe("Tier 3: Cross-Feature Interactions", () => {
       const flipCard = page.getByTestId("fsrs-3d-flip-card");
       await flipCard.click();
       const rateBtn = page.getByTestId("rate-btn-3");
-      if (await rateBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      const rateVisible = await rateBtn
+        .waitFor({ state: "visible", timeout: 5000 })
+        .then(() => true)
+        .catch(() => false);
+      if (rateVisible) {
         await rateBtn.click();
-        await page.waitForTimeout(300);
+        await page.waitForTimeout(350);
       }
     }
     expect(foundTargetCard).toBe(true);

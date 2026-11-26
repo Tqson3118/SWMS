@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname } from "next/navigation";
 import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspaceStore";
-import { bootstrapAuthSession, setAccessToken, fetchDashboardCached } from "@/lib/api-client";
+import { bootstrapAuthSessionDetailed, setAccessToken, fetchDashboardCached } from "@/lib/api-client";
 import { TopNavHeader, type QuotaSummary } from "@/components/layout/TopNavHeader";
 import {
   PersonalWorkspaceDashboard,
@@ -151,9 +151,9 @@ export default function WorkspacePage() {
 
   useEffect(() => {
     let mounted = true;
-    bootstrapAuthSession().then((ok) => {
-      if (!mounted) return;
-      if (ok) {
+    bootstrapAuthSessionDetailed().then((status) => {
+      if (!mounted || status === "aborted") return;
+      if (status === "authenticated") {
         setAuthReady(true);
       } else {
         try {

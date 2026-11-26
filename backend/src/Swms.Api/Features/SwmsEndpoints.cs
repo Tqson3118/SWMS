@@ -278,113 +278,140 @@ public static class SwmsEndpoints
                 "ALTER TABLE flashcards ADD CONSTRAINT flashcards_card_type_check CHECK (card_type IN ('standard', 'basic', 'cloze', 'ai_generated'));",
                 "ALTER TABLE practice_quizzes DROP CONSTRAINT IF EXISTS practice_quizzes_status_check;",
                 "ALTER TABLE practice_quizzes ADD CONSTRAINT practice_quizzes_status_check CHECK (status IN ('not_started', 'in_progress', 'completed', 'abandoned'));",
-                "ALTER TABLE tags DROP CONSTRAINT IF EXISTS tags_color_key_check;"
+                "ALTER TABLE tags DROP CONSTRAINT IF EXISTS tags_color_key_check;",
+                "ALTER TABLE course_enrollments DROP CONSTRAINT IF EXISTS course_enrollments_role_check;",
+                "ALTER TABLE course_enrollments ADD CONSTRAINT course_enrollments_role_check CHECK (role IN ('student', 'instructor', 'teaching_assistant', 'auditor', 'admin'));"
             };
             foreach (var ddl in npgsqlIsolatedUpdates)
             {
-                try { await db.Database.ExecuteSqlRawAsync(ddl); } catch { }
+                try
+                {
+                    await db.Database.ExecuteSqlRawAsync(ddl);
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"[SchemaUpdate:NpgsqlConstraint] Warning for '{ddl}': {ex.Message}");
+                }
             }
 
+            var npgsqlRequiredDdls = new[]
+            {
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(32) NOT NULL DEFAULT 'local';",
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(128);",
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(500);",
+                "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_google_sub ON users (google_sub) WHERE google_sub IS NOT NULL;",
+
+                "ALTER TABLE courses ADD COLUMN IF NOT EXISTS category VARCHAR(100);",
+                "ALTER TABLE courses ADD COLUMN IF NOT EXISTS level VARCHAR(60);",
+                "ALTER TABLE courses ADD COLUMN IF NOT EXISTS learning_outcomes JSONB;",
+                "ALTER TABLE courses ADD COLUMN IF NOT EXISTS prerequisites JSONB;",
+                "ALTER TABLE courses ADD COLUMN IF NOT EXISTS is_archived BOOLEAN NOT NULL DEFAULT FALSE;",
+
+                "ALTER TABLE course_enrollments ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN NOT NULL DEFAULT FALSE;",
+                "ALTER TABLE course_enrollments ADD COLUMN IF NOT EXISTS is_archived BOOLEAN NOT NULL DEFAULT FALSE;",
+                "ALTER TABLE course_enrollments ADD COLUMN IF NOT EXISTS daily_lesson_goal INT NOT NULL DEFAULT 2;",
+                "ALTER TABLE course_enrollments ADD COLUMN IF NOT EXISTS target_completion_date TIMESTAMPTZ;",
+
+                "ALTER TABLE lessons ADD COLUMN IF NOT EXISTS content_markdown TEXT;",
+                "ALTER TABLE lessons ADD COLUMN IF NOT EXISTS video_url TEXT;",
+                "ALTER TABLE lessons ADD COLUMN IF NOT EXISTS estimated_minutes INT NOT NULL DEFAULT 5;",
+
+                @"CREATE TABLE IF NOT EXISTS user_lesson_progress (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    lesson_id UUID NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+                    is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+                    completed_at TIMESTAMPTZ,
+                    last_viewed_at TIMESTAMPTZ,
+                    time_spent_seconds INT NOT NULL DEFAULT 0,
+                    scroll_percent INT NOT NULL DEFAULT 0,
+                    last_scroll_offset INT NOT NULL DEFAULT 0,
+                    is_bookmarked BOOLEAN NOT NULL DEFAULT FALSE,
+                    needs_review BOOLEAN NOT NULL DEFAULT FALSE,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                );",
+                "CREATE UNIQUE INDEX IF NOT EXISTS ix_user_lesson_progress_user_id_lesson_id ON user_lesson_progress(user_id, lesson_id);",
+
+                "ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS last_viewed_at TIMESTAMPTZ;",
+                "ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS time_spent_seconds INT NOT NULL DEFAULT 0;",
+                "ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS scroll_percent INT NOT NULL DEFAULT 0;",
+                "ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS last_scroll_offset INT NOT NULL DEFAULT 0;",
+                "ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS is_bookmarked BOOLEAN NOT NULL DEFAULT FALSE;",
+                "ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS needs_review BOOLEAN NOT NULL DEFAULT FALSE;",
+
+                @"CREATE TABLE IF NOT EXISTS course_reviews (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+                    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    user_full_name VARCHAR(150) NOT NULL,
+                    rating INT NOT NULL,
+                    comment VARCHAR(2000),
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                );",
+                "CREATE UNIQUE INDEX IF NOT EXISTS ix_course_reviews_course_id_user_id ON course_reviews(course_id, user_id);",
+
+                @"CREATE TABLE IF NOT EXISTS practice_activities (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+                    lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
+                    order_index INT NOT NULL DEFAULT 0,
+                    type VARCHAR(50) NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    description TEXT,
+                    config JSONB NOT NULL DEFAULT ('{}'::jsonb),
+                    passing_score INT NOT NULL DEFAULT 70,
+                    is_seeded BOOLEAN NOT NULL DEFAULT FALSE,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                );",
+                "CREATE INDEX IF NOT EXISTS idx_practice_activities_course_lesson ON practice_activities(course_id, lesson_id);",
+
+                @"CREATE TABLE IF NOT EXISTS practice_attempts (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    activity_id UUID REFERENCES practice_activities(id) ON DELETE SET NULL,
+                    course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+                    lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
+                    activity_type VARCHAR(50) NOT NULL,
+                    activity_key VARCHAR(100) NOT NULL,
+                    activity_title VARCHAR(255) NOT NULL,
+                    score DOUBLE PRECISION NOT NULL DEFAULT 0,
+                    max_score INT NOT NULL DEFAULT 100,
+                    is_passed BOOLEAN NOT NULL DEFAULT FALSE,
+                    detail JSONB NOT NULL DEFAULT ('{}'::jsonb),
+                    duration_seconds INT,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                );",
+                "CREATE INDEX IF NOT EXISTS idx_practice_attempts_user_date ON practice_attempts(user_id, created_at DESC);",
+                "CREATE INDEX IF NOT EXISTS idx_practice_attempts_user_course_lesson ON practice_attempts(user_id, course_id, lesson_id);",
+                "CREATE INDEX IF NOT EXISTS idx_practice_attempts_user_key ON practice_attempts(user_id, activity_key);"
+            };
+
+            var conn = db.Database.GetDbConnection();
+            var shouldClose = conn.State != System.Data.ConnectionState.Open;
+            if (shouldClose)
+            {
+                await conn.OpenAsync();
+            }
             try
             {
-                await db.Database.ExecuteSqlRawAsync(@"
-                    ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(32) NOT NULL DEFAULT 'local';
-                    ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(128);
-                    ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(500);
-                    CREATE UNIQUE INDEX IF NOT EXISTS ix_users_google_sub ON users (google_sub) WHERE google_sub IS NOT NULL;
-
-                    ALTER TABLE courses ADD COLUMN IF NOT EXISTS category VARCHAR(100);
-                    ALTER TABLE courses ADD COLUMN IF NOT EXISTS level VARCHAR(60);
-                    ALTER TABLE courses ADD COLUMN IF NOT EXISTS learning_outcomes JSONB;
-                    ALTER TABLE courses ADD COLUMN IF NOT EXISTS prerequisites JSONB;
-                    ALTER TABLE courses ADD COLUMN IF NOT EXISTS is_archived BOOLEAN NOT NULL DEFAULT FALSE;
-
-                    ALTER TABLE course_enrollments ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN NOT NULL DEFAULT FALSE;
-                    ALTER TABLE course_enrollments ADD COLUMN IF NOT EXISTS is_archived BOOLEAN NOT NULL DEFAULT FALSE;
-                    ALTER TABLE course_enrollments ADD COLUMN IF NOT EXISTS daily_lesson_goal INT NOT NULL DEFAULT 2;
-                    ALTER TABLE course_enrollments ADD COLUMN IF NOT EXISTS target_completion_date TIMESTAMPTZ;
-
-                    ALTER TABLE lessons ADD COLUMN IF NOT EXISTS content_markdown TEXT;
-                    ALTER TABLE lessons ADD COLUMN IF NOT EXISTS video_url TEXT;
-                    ALTER TABLE lessons ADD COLUMN IF NOT EXISTS estimated_minutes INT NOT NULL DEFAULT 5;
-
-                    ALTER TABLE course_enrollments DROP CONSTRAINT IF EXISTS course_enrollments_role_check;
-                    ALTER TABLE course_enrollments ADD CONSTRAINT course_enrollments_role_check CHECK (role IN ('student', 'instructor', 'teaching_assistant', 'auditor', 'admin'));
-
-                    CREATE TABLE IF NOT EXISTS user_lesson_progress (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                        lesson_id UUID NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
-                        is_completed BOOLEAN NOT NULL DEFAULT FALSE,
-                        completed_at TIMESTAMPTZ,
-                        last_viewed_at TIMESTAMPTZ,
-                        time_spent_seconds INT NOT NULL DEFAULT 0,
-                        scroll_percent INT NOT NULL DEFAULT 0,
-                        last_scroll_offset INT NOT NULL DEFAULT 0,
-                        is_bookmarked BOOLEAN NOT NULL DEFAULT FALSE,
-                        needs_review BOOLEAN NOT NULL DEFAULT FALSE,
-                        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-                    );
-                    CREATE UNIQUE INDEX IF NOT EXISTS ix_user_lesson_progress_user_id_lesson_id ON user_lesson_progress(user_id, lesson_id);
-
-                    ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS last_viewed_at TIMESTAMPTZ;
-                    ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS time_spent_seconds INT NOT NULL DEFAULT 0;
-                    ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS scroll_percent INT NOT NULL DEFAULT 0;
-                    ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS last_scroll_offset INT NOT NULL DEFAULT 0;
-                    ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS is_bookmarked BOOLEAN NOT NULL DEFAULT FALSE;
-                    ALTER TABLE user_lesson_progress ADD COLUMN IF NOT EXISTS needs_review BOOLEAN NOT NULL DEFAULT FALSE;
-
-                    CREATE TABLE IF NOT EXISTS course_reviews (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-                        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                        user_full_name VARCHAR(150) NOT NULL,
-                        rating INT NOT NULL,
-                        comment VARCHAR(2000),
-                        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-                    );
-                    CREATE UNIQUE INDEX IF NOT EXISTS ix_course_reviews_course_id_user_id ON course_reviews(course_id, user_id);
-
-                    CREATE TABLE IF NOT EXISTS practice_activities (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-                        lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
-                        order_index INT NOT NULL DEFAULT 0,
-                        type VARCHAR(50) NOT NULL,
-                        title VARCHAR(255) NOT NULL,
-                        description TEXT,
-                        config JSONB NOT NULL DEFAULT '{}'::jsonb,
-                        passing_score INT NOT NULL DEFAULT 70,
-                        is_seeded BOOLEAN NOT NULL DEFAULT FALSE,
-                        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-                    );
-                    CREATE INDEX IF NOT EXISTS idx_practice_activities_course_lesson ON practice_activities(course_id, lesson_id);
-
-                    CREATE TABLE IF NOT EXISTS practice_attempts (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                        activity_id UUID REFERENCES practice_activities(id) ON DELETE SET NULL,
-                        course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-                        lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
-                        activity_type VARCHAR(50) NOT NULL,
-                        activity_key VARCHAR(100) NOT NULL,
-                        activity_title VARCHAR(255) NOT NULL,
-                        score DOUBLE PRECISION NOT NULL DEFAULT 0,
-                        max_score INT NOT NULL DEFAULT 100,
-                        is_passed BOOLEAN NOT NULL DEFAULT FALSE,
-                        detail JSONB NOT NULL DEFAULT '{}'::jsonb,
-                        duration_seconds INT,
-                        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-                    );
-                    CREATE INDEX IF NOT EXISTS idx_practice_attempts_user_date ON practice_attempts(user_id, created_at DESC);
-                    CREATE INDEX IF NOT EXISTS idx_practice_attempts_user_course_lesson ON practice_attempts(user_id, course_id, lesson_id);
-                    CREATE INDEX IF NOT EXISTS idx_practice_attempts_user_key ON practice_attempts(user_id, activity_key);
-                ");
+                foreach (var ddl in npgsqlRequiredDdls)
+                {
+                    await using var cmd = conn.CreateCommand();
+                    cmd.CommandText = ddl;
+                    cmd.CommandTimeout = 60;
+                    await cmd.ExecuteNonQueryAsync();
+                }
             }
-            catch { }
+            finally
+            {
+                if (shouldClose)
+                {
+                    await conn.CloseAsync();
+                }
+            }
             return;
         }
 
@@ -905,6 +932,40 @@ public static class SwmsEndpoints
         if (IsRestrictedCourse(course)) return false;
         if (IsPublicPublishedCourse(course)) return true;
         return await db.CourseEnrollments.AnyAsync(e => e.CourseId == course.Id && e.UserId == userId);
+    }
+
+    private static async Task<bool> IsPublicCurriculumQuizAsync(SwmsDbContext db, PracticeQuiz quiz)
+    {
+        if (quiz.LessonId.HasValue)
+        {
+            var meta = await (
+                from l in db.Lessons.AsNoTracking()
+                join ch in db.Chapters.AsNoTracking() on l.ChapterId equals ch.Id
+                join c in db.Courses.AsNoTracking() on ch.CourseId equals c.Id
+                where l.Id == quiz.LessonId.Value
+                select new { c.Slug, c.Visibility, c.IsPublished }
+            ).FirstOrDefaultAsync();
+            return meta != null &&
+                   DocumentCourseSyncService.IsPublicCurriculumSlug(meta.Slug) &&
+                   meta.Visibility == "public" &&
+                   meta.IsPublished;
+        }
+
+        if (quiz.DocumentId.HasValue)
+        {
+            var meta = await (
+                from d in db.Documents.AsNoTracking()
+                join c in db.Courses.AsNoTracking() on d.CourseId equals c.Id
+                where d.Id == quiz.DocumentId.Value
+                select new { c.Slug, c.Visibility, c.IsPublished }
+            ).FirstOrDefaultAsync();
+            return meta != null &&
+                   DocumentCourseSyncService.IsPublicCurriculumSlug(meta.Slug) &&
+                   meta.Visibility == "public" &&
+                   meta.IsPublished;
+        }
+
+        return false;
     }
 
     private static async Task<int> CalculateRealUserStreakDaysAsync(SwmsDbContext db, Guid userId, DateTimeOffset now)
@@ -1530,11 +1591,13 @@ public static class SwmsEndpoints
     {
         var ws = api.MapGroup("/workspace");
 
-        ws.MapGet("/dashboard", async (HttpContext http, SwmsDbContext db) =>
+        ws.MapGet("/dashboard", async (bool? compact, HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
+            var isCompact = compact == true;
+            var cacheEndpointKey = isCompact ? "dashboard_compact" : "dashboard";
             var startCacheVersion = CourseGenerationService.CurrentCacheVersion;
-            if (TryGetCachedEndpointPayload("dashboard", userId, out var cachedDashboard))
+            if (TryGetCachedEndpointPayload(cacheEndpointKey, userId, out var cachedDashboard))
             {
                 return Results.Ok(cachedDashboard);
             }
@@ -1584,23 +1647,40 @@ public static class SwmsEndpoints
             var chapterToCourseMap = ownedChapters.ToDictionary(ch => ch.Id, ch => ch.CourseId);
             var ownedChapterIds = chapterToCourseMap.Keys.ToHashSet();
 
-            var rawLessons = (await db.Lessons
-                .AsNoTracking()
-                .Where(l => ownedChapterIds.Contains(l.ChapterId))
-                .OrderBy(l => l.SortOrder)
-                .Select(l => new
-                {
-                    l.Id,
-                    l.ChapterId,
-                    l.Title,
-                    l.Slug,
-                    l.CurrentVersion,
-                    l.IsPublished,
-                    l.UpdatedAt
-                })
-                .ToListAsync())
-                .Where(l => instructorOwnedCourseIds.Contains(chapterToCourseMap.GetValueOrDefault(l.ChapterId)) || l.IsPublished)
-                .ToList();
+            var rawLessons = isCompact
+                ? (await db.Lessons
+                    .AsNoTracking()
+                    .Where(l => ownedChapterIds.Contains(l.ChapterId))
+                    .Select(l => new
+                    {
+                        l.Id,
+                        l.ChapterId,
+                        Title = string.Empty,
+                        Slug = string.Empty,
+                        CurrentVersion = 1,
+                        l.IsPublished,
+                        UpdatedAt = DateTimeOffset.MinValue
+                    })
+                    .ToListAsync())
+                    .Where(l => instructorOwnedCourseIds.Contains(chapterToCourseMap.GetValueOrDefault(l.ChapterId)) || l.IsPublished)
+                    .ToList()
+                : (await db.Lessons
+                    .AsNoTracking()
+                    .Where(l => ownedChapterIds.Contains(l.ChapterId))
+                    .OrderBy(l => l.SortOrder)
+                    .Select(l => new
+                    {
+                        l.Id,
+                        l.ChapterId,
+                        l.Title,
+                        l.Slug,
+                        l.CurrentVersion,
+                        l.IsPublished,
+                        l.UpdatedAt
+                    })
+                    .ToListAsync())
+                    .Where(l => instructorOwnedCourseIds.Contains(chapterToCourseMap.GetValueOrDefault(l.ChapterId)) || l.IsPublished)
+                    .ToList();
 
             var syllabusCourses = OrderCoursesForUser(
                 ownedCourses.Where(c => !c.Slug.StartsWith("personal-workspace-", StringComparison.OrdinalIgnoreCase)),
@@ -1610,27 +1690,30 @@ public static class SwmsEndpoints
                 db,
                 syllabusCourses,
                 includeLessonMarkdown: false,
-                userId: user.Id);
+                userId: user.Id,
+                includeChapterLessons: !isCompact);
 
-            var lessons = rawLessons.Select(l =>
-            {
-                var cId = chapterToCourseMap.GetValueOrDefault(l.ChapterId);
-                var (srcDocId, startP, endP) = CourseGenerationService.GetCachedOrExtractLessonMetadata(l.Id, l.UpdatedAt);
-                return new
+            var lessons = isCompact
+                ? Array.Empty<object>()
+                : rawLessons.Select(l =>
                 {
-                    l.Id,
-                    l.ChapterId,
-                    courseId = cId,
-                    sourceDocumentId = srcDocId,
-                    startPage = startP,
-                    endPage = endP,
-                    l.Title,
-                    l.Slug,
-                    l.CurrentVersion,
-                    l.UpdatedAt,
-                    itemType = "lesson"
-                };
-            }).ToList();
+                    var cId = chapterToCourseMap.GetValueOrDefault(l.ChapterId);
+                    var (srcDocId, startP, endP) = CourseGenerationService.GetCachedOrExtractLessonMetadata(l.Id, l.UpdatedAt);
+                    return (object)new
+                    {
+                        l.Id,
+                        l.ChapterId,
+                        courseId = cId,
+                        sourceDocumentId = srcDocId,
+                        startPage = startP,
+                        endPage = endP,
+                        l.Title,
+                        l.Slug,
+                        l.CurrentVersion,
+                        l.UpdatedAt,
+                        itemType = "lesson"
+                    };
+                }).ToArray();
 
             var rawDocuments = await db.Documents
                 .AsNoTracking()
@@ -1783,6 +1866,9 @@ public static class SwmsEndpoints
 
             var quota = await GetQuotaSummaryAsync(db, user.Id);
 
+            var totalQuizzesCount = quizzes.Count;
+            var dashboardQuizzes = isCompact ? quizzes.Take(12).ToList() : quizzes;
+
             var dashboardPayload = new
             {
                 user = new
@@ -1804,10 +1890,13 @@ public static class SwmsEndpoints
                     estimatedMinutes = Math.Max(1, (int)Math.Ceiling(dueCards.Count * 0.5))
                 },
                 courses,
-                quizzes,
+                quizzes = dashboardQuizzes,
                 lessons,
                 documents,
                 notebooks,
+                documentsCount = documents.Count,
+                notebooksCount = notebooks.Count,
+                totalQuizzesCount,
                 tags = tags.Select(t => new
                 {
                     t.Id,
@@ -1817,7 +1906,7 @@ public static class SwmsEndpoints
                 }),
                 quota
             };
-            SetCachedEndpointPayload("dashboard", userId, dashboardPayload, startCacheVersion);
+            SetCachedEndpointPayload(cacheEndpointKey, userId, dashboardPayload, startCacheVersion);
             return Results.Ok(dashboardPayload);
         });
 
@@ -2080,11 +2169,18 @@ public static class SwmsEndpoints
     // ========================================================================
     private static void MapLessonAndDocumentEndpoints(RouteGroupBuilder api)
     {
-        api.MapGet("/courses", async (HttpContext http, SwmsDbContext db) =>
+        api.MapGet("/courses", async (int? limit, int? offset, bool? compact, HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
             var startCacheVersion = CourseGenerationService.CurrentCacheVersion;
-            if (TryGetCachedEndpointPayload("courses", userId, out var cachedCourses))
+            var isPaged = limit.HasValue || offset.HasValue;
+            var isCompact = compact == true;
+            var safeOffset = Math.Max(0, offset ?? 0);
+            var safeLimit = Math.Clamp(limit ?? 8, 1, 100);
+            var shapeTag = isCompact ? "c" : "f";
+            var cacheKey = isPaged ? $"courses_p_{safeOffset}_{safeLimit}_{shapeTag}" : $"courses_{shapeTag}";
+
+            if (TryGetCachedEndpointPayload(cacheKey, userId, out var cachedCourses))
             {
                 return Results.Ok(cachedCourses);
             }
@@ -2105,13 +2201,38 @@ public static class SwmsEndpoints
                 .ToListAsync();
 
             var userCourses = OrderCoursesForUser(rawUserCourses, userId);
-            var result = await CourseGenerationService.BuildCourseSummariesBatchAsync(
+            if (!isPaged)
+            {
+                var result = await CourseGenerationService.BuildCourseSummariesBatchAsync(
+                    db,
+                    userCourses,
+                    includeLessonMarkdown: false,
+                    userId: userId,
+                    includeChapterLessons: !isCompact);
+                SetCachedEndpointPayload(cacheKey, userId, result, startCacheVersion);
+                return Results.Ok(result);
+            }
+
+            var totalCount = userCourses.Count;
+            var pageCourses = userCourses.Skip(safeOffset).Take(safeLimit).ToList();
+            var items = await CourseGenerationService.BuildCourseSummariesBatchAsync(
                 db,
-                userCourses,
+                pageCourses,
                 includeLessonMarkdown: false,
-                userId: userId);
-            SetCachedEndpointPayload("courses", userId, result, startCacheVersion);
-            return Results.Ok(result);
+                userId: userId,
+                includeChapterLessons: !isCompact);
+
+            http.Response.Headers["X-Total-Count"] = totalCount.ToString();
+            var pagedPayload = new
+            {
+                items,
+                totalCount,
+                offset = safeOffset,
+                limit = safeLimit,
+                hasMore = (safeOffset + items.Count) < totalCount
+            };
+            SetCachedEndpointPayload(cacheKey, userId, pagedPayload, startCacheVersion);
+            return Results.Ok(pagedPayload);
         });
 
         api.MapGet("/courses/{id:guid}", async (Guid id, bool? includeMarkdown, HttpContext http, SwmsDbContext db) =>
@@ -5046,12 +5167,46 @@ public static class SwmsEndpoints
             });
         });
 
-        api.MapGet("/documents", async (HttpContext http, SwmsDbContext db) =>
+        api.MapGet("/documents", async (int? limit, int? offset, HttpContext http, SwmsDbContext db) =>
         {
             var userId = ResolveUserId(http);
-            var rawDocs = await db.Documents.Where(d => d.UploaderId == userId).ToListAsync();
-            var docs = rawDocs.OrderByDescending(d => d.CreatedAt).ToList();
-            return Results.Ok(docs);
+            if (!limit.HasValue && !offset.HasValue)
+            {
+                var rawDocs = await db.Documents.Where(d => d.UploaderId == userId).ToListAsync();
+                var docs = rawDocs.OrderByDescending(d => d.CreatedAt).ToList();
+                return Results.Ok(docs);
+            }
+
+            var safeOffset = Math.Max(0, offset ?? 0);
+            var safeLimit = Math.Clamp(limit ?? 8, 1, 100);
+            var lightDocs = (await db.Documents
+                .AsNoTracking()
+                .Where(d => d.UploaderId == userId)
+                .Select(d => new
+                {
+                    d.Id,
+                    d.CourseId,
+                    d.Title,
+                    d.TotalPages,
+                    d.FileSizeBytes,
+                    d.MimeType,
+                    d.OcrStatus,
+                    d.CreatedAt,
+                    d.UpdatedAt
+                })
+                .ToListAsync())
+                .OrderByDescending(d => d.CreatedAt)
+                .ToList();
+            var totalCount = lightDocs.Count;
+            var items = lightDocs.Skip(safeOffset).Take(safeLimit).ToList();
+            return Results.Ok(new
+            {
+                items,
+                totalCount,
+                offset = safeOffset,
+                limit = safeLimit,
+                hasMore = (safeOffset + items.Count) < totalCount
+            });
         });
 
         api.MapGet("/documents/{id:guid}", async (Guid id, HttpContext http, SwmsDbContext db) =>
@@ -5663,8 +5818,8 @@ public static class SwmsEndpoints
                 DocumentId = isDoc ? req.DocumentId : null,
                 PageNumber = isDoc ? (req.PageNumber ?? 1) : null,
                 BoundingBoxesJson = req.BoundingBoxesJson,
-                ExactQuote = req.ExactQuote,
-                OriginalExactQuote = req.ExactQuote,
+                ExactQuote = req.ExactQuote ?? string.Empty,
+                OriginalExactQuote = req.ExactQuote ?? string.Empty,
                 PrefixQuote = req.PrefixQuote,
                 SuffixQuote = req.SuffixQuote,
                 StartOffset = Math.Max(0, req.StartOffset),
@@ -5945,7 +6100,7 @@ public static class SwmsEndpoints
                     });
                 }
 
-                var cleanContentAstJson = SanitizeDangerousHtml(req.ContentAstJson) ?? req.ContentAstJson;
+                var cleanContentAstJson = SanitizeDangerousHtml(req.ContentAstJson) ?? req.ContentAstJson ?? "{}";
                 var cleanTitle = !string.IsNullOrWhiteSpace(req.Title) ? SanitizeDangerousHtml(req.Title.Trim()) : null;
 
                 // Optimistic Concurrency Control (OCC) Check (Decision B & ADR-002 & ADR-022)
@@ -6270,7 +6425,8 @@ public static class SwmsEndpoints
 
         fcGroup.MapGet("/due", async (
             HttpContext http,
-            SwmsDbContext db) =>
+            SwmsDbContext db,
+            bool? interleave = null) =>
         {
             var rawTagId = http.Request.Query["tagId"].ToString();
             var rawLessonId = http.Request.Query["lessonId"].ToString();
@@ -6344,6 +6500,30 @@ public static class SwmsEndpoints
             var cards = (includeAll == true ? rawCards : rawCards.Where(f => f.DueAt <= now.AddDays(1)))
                 .OrderBy(f => f.DueAt)
                 .ToList();
+
+            if (interleave == true && cards.Count > 1)
+            {
+                var buckets = cards
+                    .GroupBy(f => f.LessonId?.ToString("N")
+                        ?? (string.IsNullOrWhiteSpace(f.SourceTitleSnapshot) ? f.Id.ToString("N") : f.SourceTitleSnapshot.Trim()))
+                    .Select(g => g.OrderBy(f => f.DueAt).ToList())
+                    .OrderBy(b => b[0].DueAt)
+                    .ToList();
+
+                var interleaved = new List<Flashcard>(cards.Count);
+                var maxBucketCount = buckets.Max(b => b.Count);
+                for (int pass = 0; pass < maxBucketCount; pass++)
+                {
+                    foreach (var bucket in buckets)
+                    {
+                        if (pass < bucket.Count)
+                        {
+                            interleaved.Add(bucket[pass]);
+                        }
+                    }
+                }
+                cards = interleaved;
+            }
             var allTags = await db.Tags.AsNoTracking().Where(t => t.UserId == userId).ToDictionaryAsync(t => t.Id);
             var cardIds = cards.Select(c => c.Id).ToHashSet();
             var cardTagLinks = cardIds.Count > 0
@@ -7161,14 +7341,16 @@ public static class SwmsEndpoints
                 var item = await db.PracticeQuizItems.FirstOrDefaultAsync(i => i.Id == itemId && i.QuizId == quizId);
                 if (quiz == null || item == null) return Results.NotFound();
 
-                if (!IsOwnerOrDefaultSeededAccess(quiz.UserId, userId))
+                var isOwner = IsOwnerOrDefaultSeededAccess(quiz.UserId, userId);
+                var isPublicDocQuiz = !isOwner && await IsPublicCurriculumQuizAsync(db, quiz);
+                if (!isOwner && !isPublicDocQuiz)
                 {
                     return Results.StatusCode(StatusCodes.Status403Forbidden);
                 }
 
                 if (item.ItemType is "multiple_choice" or "cloze" or "short_answer")
                 {
-                    if (item.EvaluatedAt.HasValue)
+                    if (isOwner && item.EvaluatedAt.HasValue)
                     {
                         return Results.Conflict(new { error = "Câu hỏi này đã được nộp và chấm điểm trước đó." });
                     }
@@ -7178,9 +7360,27 @@ public static class SwmsEndpoints
                         return Results.BadRequest(new { error = "Lựa chọn trắc nghiệm không hợp lệ." });
                     }
 
+                    var isCorrect = EvaluateQuizItemAnswer(item, req.Answer);
+                    var evalAt = DateTimeOffset.UtcNow;
+
+                    if (isPublicDocQuiz)
+                    {
+                        return Results.Ok(new
+                        {
+                            item.Id,
+                            item.ItemType,
+                            isCorrect,
+                            expectedSolution = item.ClozeSolution,
+                            explanation = ExtractExplanationFromPrompt(item.PromptAstJson),
+                            evaluatedAt = evalAt,
+                            quizStatus = quiz.Status,
+                            correctItems = isCorrect ? 1 : 0
+                        });
+                    }
+
                     item.UserAnswerJson = JsonSerializer.Serialize(new { text = req.Answer });
-                    item.IsCorrect = EvaluateQuizItemAnswer(item, req.Answer);
-                    item.EvaluatedAt = DateTimeOffset.UtcNow;
+                    item.IsCorrect = isCorrect;
+                    item.EvaluatedAt = evalAt;
                     await db.SaveChangesAsync();
 
                     var allItems = await db.PracticeQuizItems.Where(i => i.QuizId == quizId).ToListAsync();
@@ -7207,7 +7407,7 @@ public static class SwmsEndpoints
                 }
 
                 // Essay item -> Validate non-empty answer, idempotency, active job conflict, and atomic AI quota
-                if (item.EvaluatedAt.HasValue && userId != SeedDataInitializer.DefaultUserId)
+                if (isOwner && item.EvaluatedAt.HasValue && userId != SeedDataInitializer.DefaultUserId)
                 {
                     return Results.Conflict(new { error = "Câu hỏi tự luận này đã được nộp và chấm điểm trước đó." });
                 }
@@ -7342,9 +7542,24 @@ public static class SwmsEndpoints
             var quiz = await db.PracticeQuizzes.FirstOrDefaultAsync(q => q.Id == quizId);
             if (quiz == null) return Results.NotFound(new { error = "Không tìm thấy bài kiểm tra." });
 
-            if (!IsOwnerOrDefaultSeededAccess(quiz.UserId, userId))
+            var isOwner = IsOwnerOrDefaultSeededAccess(quiz.UserId, userId);
+            var isPublicDocQuiz = !isOwner && await IsPublicCurriculumQuizAsync(db, quiz);
+            if (!isOwner && !isPublicDocQuiz)
             {
                 return Results.StatusCode(StatusCodes.Status403Forbidden);
+            }
+
+            if (isPublicDocQuiz)
+            {
+                var publicCount = await db.PracticeQuizItems.CountAsync(i => i.QuizId == quizId);
+                return Results.Ok(new
+                {
+                    quizId = quiz.Id,
+                    status = "in_progress",
+                    totalItems = publicCount,
+                    correctItems = 0,
+                    resetAt = DateTimeOffset.UtcNow
+                });
             }
 
             var items = await db.PracticeQuizItems.Where(i => i.QuizId == quizId).ToListAsync();
@@ -7387,7 +7602,9 @@ public static class SwmsEndpoints
             var quiz = await db.PracticeQuizzes.FirstOrDefaultAsync(q => q.Id == quizId);
             if (quiz == null) return Results.NotFound(new { error = "Không tìm thấy bài kiểm tra." });
 
-            if (!IsOwnerOrDefaultSeededAccess(quiz.UserId, userId))
+            var isOwner = IsOwnerOrDefaultSeededAccess(quiz.UserId, userId);
+            var isPublicDocQuiz = !isOwner && await IsPublicCurriculumQuizAsync(db, quiz);
+            if (!isOwner && !isPublicDocQuiz)
             {
                 return Results.StatusCode(StatusCodes.Status403Forbidden);
             }
@@ -7403,18 +7620,27 @@ public static class SwmsEndpoints
                 .ToDictionary(g => g.Key, g => g.Last().Answer ?? string.Empty);
 
             var now = DateTimeOffset.UtcNow;
+            var evalResults = new List<(PracticeQuizItem Item, bool? IsCorrect, string? RubricJson, DateTimeOffset? EvalAt, bool Answered)>(allItems.Count);
             foreach (var item in allItems)
             {
-                if (!answersById.TryGetValue(item.Id, out var ans)) continue;
-                var trimmed = ans.Trim();
-                if (string.IsNullOrEmpty(trimmed)) continue;
+                if (!answersById.TryGetValue(item.Id, out var ans) || string.IsNullOrWhiteSpace(ans))
+                {
+                    evalResults.Add((
+                        item,
+                        isOwner ? item.IsCorrect : null,
+                        isOwner ? item.AiRubricFeedbackJson : null,
+                        isOwner ? item.EvaluatedAt : null,
+                        isOwner && !string.IsNullOrWhiteSpace(item.UserAnswerJson)));
+                    continue;
+                }
 
-                item.UserAnswerJson = JsonSerializer.Serialize(new { text = trimmed });
-                item.EvaluatedAt = now;
+                var trimmed = ans.Trim();
+                bool? itemCorrect;
+                string? rubricJson = isOwner ? item.AiRubricFeedbackJson : null;
 
                 if (item.ItemType is "multiple_choice" or "cloze" or "short_answer")
                 {
-                    item.IsCorrect = item.ItemType == "multiple_choice" && !IsValidMultipleChoiceAnswer(item, trimmed)
+                    itemCorrect = item.ItemType == "multiple_choice" && !IsValidMultipleChoiceAnswer(item, trimmed)
                         ? false
                         : EvaluateQuizItemAnswer(item, trimmed);
                 }
@@ -7424,8 +7650,8 @@ public static class SwmsEndpoints
                     var passed = !string.IsNullOrWhiteSpace(item.ClozeSolution)
                         ? EvaluateQuizItemAnswer(item, trimmed)
                         : wordCount >= 15;
-                    item.IsCorrect = passed;
-                    item.AiRubricFeedbackJson = JsonSerializer.Serialize(new
+                    itemCorrect = passed;
+                    rubricJson = JsonSerializer.Serialize(new
                     {
                         score = passed ? 85 : 55,
                         feedback = passed
@@ -7434,12 +7660,26 @@ public static class SwmsEndpoints
                         criteria = Array.Empty<string>()
                     });
                 }
+
+                if (isOwner)
+                {
+                    item.UserAnswerJson = JsonSerializer.Serialize(new { text = trimmed });
+                    item.EvaluatedAt = now;
+                    item.IsCorrect = itemCorrect;
+                    item.AiRubricFeedbackJson = rubricJson;
+                }
+
+                evalResults.Add((item, itemCorrect, rubricJson, now, true));
             }
 
-            quiz.TotalItems = allItems.Count;
-            quiz.CorrectItems = allItems.Count(i => i.IsCorrect == true);
-            quiz.Status = "completed";
-            quiz.CompletedAt = now;
+            var correctCount = evalResults.Count(r => r.IsCorrect == true);
+            if (isOwner)
+            {
+                quiz.TotalItems = allItems.Count;
+                quiz.CorrectItems = correctCount;
+                quiz.Status = "completed";
+                quiz.CompletedAt = now;
+            }
 
             Guid quizCourseId = Guid.Empty;
             if (quiz.LessonId.HasValue)
@@ -7459,8 +7699,8 @@ public static class SwmsEndpoints
                     .FirstOrDefaultAsync();
             }
 
-            var answeredCount = allItems.Count(i => !string.IsNullOrWhiteSpace(i.UserAnswerJson));
-            var scorePercent = allItems.Count > 0 ? Math.Round(quiz.CorrectItems * 100.0 / allItems.Count, 1) : 0.0;
+            var answeredCount = evalResults.Count(r => r.Answered);
+            var scorePercent = allItems.Count > 0 ? Math.Round(correctCount * 100.0 / allItems.Count, 1) : 0.0;
 
             var attempt = new PracticeAttempt
             {
@@ -7477,7 +7717,7 @@ public static class SwmsEndpoints
                 IsPassed = scorePercent >= 70,
                 DetailJson = JsonSerializer.Serialize(new
                 {
-                    correctItems = quiz.CorrectItems,
+                    correctItems = correctCount,
                     totalItems = allItems.Count,
                     answeredCount
                 }),
@@ -7486,7 +7726,10 @@ public static class SwmsEndpoints
             };
             db.PracticeAttempts.Add(attempt);
             await db.SaveChangesAsync();
-            CourseGenerationService.InvalidateCourseSummaryCache();
+            if (isOwner)
+            {
+                CourseGenerationService.InvalidateCourseSummaryCache();
+            }
 
             var quizKey = quiz.Id.ToString();
             var rawAttempts = await db.PracticeAttempts
@@ -7514,24 +7757,24 @@ public static class SwmsEndpoints
                 savedAttemptId = attempt.Id,
                 totalItems = allItems.Count,
                 answeredCount,
-                correctItems = quiz.CorrectItems,
-                correctCount = quiz.CorrectItems,
+                correctItems = correctCount,
+                correctCount,
                 scorePercent,
                 durationSeconds = req.DurationSeconds ?? 0,
-                status = quiz.Status,
+                status = "completed",
                 submittedAt = now,
                 attemptHistory,
-                items = allItems.Select(i => new
+                items = evalResults.Select(r => new
                 {
-                    id = i.Id,
-                    itemType = i.ItemType,
-                    isCorrect = i.IsCorrect,
-                    expectedSolution = i.ClozeSolution,
-                    explanation = ExtractExplanationFromPrompt(i.PromptAstJson),
-                    evaluatedAt = i.EvaluatedAt,
-                    aiRubricFeedback = string.IsNullOrWhiteSpace(i.AiRubricFeedbackJson)
+                    id = r.Item.Id,
+                    itemType = r.Item.ItemType,
+                    isCorrect = r.IsCorrect,
+                    expectedSolution = r.Item.ClozeSolution,
+                    explanation = ExtractExplanationFromPrompt(r.Item.PromptAstJson),
+                    evaluatedAt = r.EvalAt,
+                    aiRubricFeedback = string.IsNullOrWhiteSpace(r.RubricJson)
                         ? null
-                        : JsonSerializer.Deserialize<object>(i.AiRubricFeedbackJson)
+                        : JsonSerializer.Deserialize<object>(r.RubricJson)
                 }).ToList()
             });
         });
@@ -7936,13 +8179,23 @@ public static class SwmsEndpoints
             var mode = string.IsNullOrWhiteSpace(req.Mode) ? "roleplay" : req.Mode.Trim();
             var isVietnameseDomainMode =
                 lang.StartsWith("vi", StringComparison.OrdinalIgnoreCase) ||
-                mode is "finance_case" or "decision_journal" or "bias_spotter" or "feynman" or "cbt_exercise" or "apply_journal";
+                mode is "finance_case" or "decision_journal" or "bias_spotter" or "feynman" or "cbt_exercise" or "apply_journal"
+                    or "prompt_critique" or "sql_reasoning" or "threat_spotter" or "active_recall";
+            var domainGuidance = mode switch
+            {
+                "prompt_critique" => " Tiêu chí chấm chuyên biệt (Prompt Engineering): đánh giá Prompt đã viết lại có rõ vai trò (Role), bối cảnh (Context), ràng buộc (Constraints), định dạng đầu ra (Output format/Schema) và tiêu chí kiểm chứng chưa.",
+                "sql_reasoning" => " Tiêu chí chấm chuyên biệt (SQL & Tư duy dữ liệu): đánh giá câu truy vấn SQL có sửa đúng lỗi logic (NULL, JOIN nhân bản, WHERE vs HAVING, CTE/Window Function, tránh bẫy tính trùng) và đúng yêu cầu nghiệp vụ chưa.",
+                "threat_spotter" => " Tiêu chí chấm chuyên biệt (An toàn thông tin): đánh giá phản xạ xử lý an toàn thông tin (ngừng tương tác, kiểm chứng qua kênh chính thống độc lập, khóa thẻ/VNeID/đổi passkeys, lưu chứng cứ — KHÔNG click link hay cài APK).",
+                "active_recall" => " Tiêu chí chấm chuyên biệt (Active Recall): đánh giá phần tự nhắc lại kiến thức từ trang trắng xem người học đã nắm đúng cơ chế cốt lõi, ví dụ/công thức và lưu ý ứng dụng thực tế chưa.",
+                _ => string.Empty
+            };
             var keywordsText = req.ExpectedKeywords is { Count: > 0 }
                 ? string.Join(", ", req.ExpectedKeywords.Where(k => !string.IsNullOrWhiteSpace(k)))
                 : "(không bắt buộc từ khóa cố định)";
 
             var sysPrompt = isVietnameseDomainMode
-                ? "Bạn là giảng viên chuyên môn hướng dẫn thực hành chủ động (Tài chính cá nhân & Đầu tư / Tâm lý học ứng dụng / Phương pháp Feynman / Lập trình) cho học viên Việt Nam. " +
+                ? "Bạn là giảng viên chuyên môn hướng dẫn thực hành chủ động (Tài chính cá nhân & Đầu tư / Tâm lý học ứng dụng / Phương pháp Feynman / Active Recall / AI & Prompt Engineering / Tư duy Dữ liệu SQL / An toàn thông tin / Lập trình) cho học viên Việt Nam." +
+                  domainGuidance + " " +
                   "Hãy chấm lập luận của học viên nghiêm túc, công bằng và trả về DUY NHẤT một JSON object hợp lệ (không thêm markdown fence hay giải thích bên ngoài) theo đúng schema: " +
                   "{\"score\": 0-100, \"feedbackVi\": \"Nhận xét chi tiết bằng tiếng Việt\", \"correctedVersion\": \"Gợi ý diễn đạt chuẩn mực bằng tiếng Việt\", \"strengths\": [\"...\"], \"improvements\": [\"...\"]}."
                 : "Bạn là giảng viên ngoại ngữ chuyên chấm bài thực hành giao tiếp (Roleplay / Speaking / Translation / Grammar) cho học viên Việt Nam. " +
@@ -8274,6 +8527,7 @@ public static class SwmsEndpoints
         string? customPrefixNote = null)
     {
         var lang = string.IsNullOrWhiteSpace(req.Lang) ? "en-US" : req.Lang.Trim();
+        var mode = string.IsNullOrWhiteSpace(req.Mode) ? "roleplay" : req.Mode.Trim();
         var isCjk = lang.StartsWith("ja", StringComparison.OrdinalIgnoreCase) ||
                     lang.StartsWith("zh", StringComparison.OrdinalIgnoreCase);
 
@@ -8322,13 +8576,45 @@ public static class SwmsEndpoints
         }
         else
         {
-            improvements.Add($"Nên mở rộng câu trả lời dài hơn ({unitCount}/{minUnits} {(isCjk ? "ký tự" : "từ")}) để giao tiếp tự nhiên.");
+            var lengthAdvice = mode is "prompt_critique" or "sql_reasoning" or "threat_spotter" or "active_recall"
+                ? "để lập luận đầy đủ và rõ ý hơn"
+                : "để giao tiếp tự nhiên";
+            improvements.Add($"Nên mở rộng câu trả lời dài hơn ({unitCount}/{minUnits} {(isCjk ? "ký tự" : "từ")}) {lengthAdvice}.");
         }
 
         if (missing.Count > 0)
         {
             improvements.Add($"Gợi ý bổ sung các từ khóa mục tiêu: {string.Join(", ", missing.Take(4))}.");
         }
+
+        switch (mode)
+        {
+            case "prompt_critique":
+                if (score >= 70)
+                    strengths.Add("Prompt viết lại đã thể hiện cấu trúc rõ ràng (vai trò, bối cảnh hoặc ràng buộc đầu ra).");
+                if (missing.Count > 0 || score < 80)
+                    improvements.Add("Kiểm tra đủ 5 phần của Prompt: Role (vai trò), Context (bối cảnh), Constraints (ràng buộc), Output format/Schema (định dạng đầu ra) và tiêu chí kiểm chứng.");
+                break;
+            case "sql_reasoning":
+                if (score >= 70)
+                    strengths.Add("Phân tích SQL đã bám sát lỗi logic và yêu cầu nghiệp vụ của truy vấn.");
+                if (missing.Count > 0 || score < 80)
+                    improvements.Add("Rà soát xử lý NULL (IS NULL/COALESCE), nguy cơ JOIN nhân bản, phân biệt WHERE với HAVING và cân nhắc CTE/Window Function để tránh bẫy tính trùng.");
+                break;
+            case "threat_spotter":
+                if (score >= 70)
+                    strengths.Add("Phản xạ xử lý an toàn thông tin đã ưu tiên bước ngăn chặn rủi ro kịp thời.");
+                if (missing.Count > 0 || score < 80)
+                    improvements.Add("Đảm bảo đủ quy trình an toàn: ngừng tương tác, KHÔNG click link hay cài APK, kiểm chứng qua kênh chính thống độc lập, khóa thẻ/VNeID/đổi passkeys và lưu chứng cứ.");
+                break;
+            case "active_recall":
+                if (score >= 70)
+                    strengths.Add("Phần tự nhắc lại từ trang trắng đã nêu được ý cốt lõi của kiến thức.");
+                if (missing.Count > 0 || score < 80)
+                    improvements.Add("Bổ sung rõ hơn cơ chế cốt lõi, ví dụ/công thức minh họa và lưu ý khi áp dụng thực tế.");
+                break;
+        }
+
         if (strengths.Count == 0)
         {
             strengths.Add("Đã chủ động hoàn thành phản hồi trong tình huống thực hành.");

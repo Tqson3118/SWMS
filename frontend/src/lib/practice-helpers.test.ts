@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import {
+  APPLIED_TAB_LABELS_VI,
+  LAB_MODE_LABELS_VI,
   buildPracticeLessonHref,
   detectCodingCategory,
   extractQuickCheckQuestions,
@@ -248,6 +250,41 @@ runTest("detectCodingCategory classifies SQL, Python, JS, HTML without falling i
     }),
     "react"
   );
+});
+
+runTest("resolvePracticeSelection & labels support Applied Systems modes (prompt_critique, sql_reasoning, threat_spotter)", () => {
+  assert.deepEqual(
+    resolvePracticeSelection("prompt_critique", "pc-1", "AI Ứng Dụng & Tự Động Hóa Workflow"),
+    { labMode: "applied", appliedTab: "prompt_critique" }
+  );
+  assert.deepEqual(
+    resolvePracticeSelection("prompt-critique", null, "AI Workflows"),
+    { labMode: "applied", appliedTab: "prompt_critique" }
+  );
+  assert.deepEqual(
+    resolvePracticeSelection("sql_reasoning", "sql-1", "Tư Duy Dữ Liệu, SQL"),
+    { labMode: "applied", appliedTab: "sql_reasoning" }
+  );
+  assert.deepEqual(
+    resolvePracticeSelection("sql-reasoning", null, "Data SQL"),
+    { labMode: "applied", appliedTab: "sql_reasoning" }
+  );
+  assert.deepEqual(
+    resolvePracticeSelection("threat_spotter", "ts-1", "An Toàn Thông Tin"),
+    { labMode: "applied", appliedTab: "threat_spotter" }
+  );
+  assert.deepEqual(
+    resolvePracticeSelection("threat-spotter", null, "Cybersecurity"),
+    { labMode: "applied", appliedTab: "threat_spotter" }
+  );
+
+  assert.equal(getPracticeActivityTypeLabel("prompt_critique"), "Phản biện & Viết lại Prompt");
+  assert.equal(getPracticeActivityTypeLabel("sql_reasoning"), "Truy vấn & Chẩn đoán SQL");
+  assert.equal(getPracticeActivityTypeLabel("threat_spotter"), "Nhận diện Lừa đảo & An toàn số");
+  assert.ok(LAB_MODE_LABELS_VI.applied.length > 0);
+  assert.ok(APPLIED_TAB_LABELS_VI.prompt_critique.length > 0);
+  assert.ok(APPLIED_TAB_LABELS_VI.sql_reasoning.length > 0);
+  assert.ok(APPLIED_TAB_LABELS_VI.threat_spotter.length > 0);
 });
 
 console.log(`\n✅ All ${passed} practice-helpers unit tests passed!`);

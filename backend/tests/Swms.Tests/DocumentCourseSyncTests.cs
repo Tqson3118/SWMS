@@ -38,12 +38,12 @@ public class DocumentCourseSyncTests
     }
 
     [Fact]
-    public async Task SyncAndCatalog_LoadsAll5Courses_WithoutIgnoredMetaOrDuplicatePersonalFinance()
+    public async Task SyncAndCatalog_LoadsAll9Courses_WithoutIgnoredMetaOrDuplicatePersonalFinance()
     {
         using var factory = CreateIsolatedFactory();
         using var client = factory.CreateClient();
 
-        Assert.Equal(5, DocumentCourseSyncService.CatalogDefinitions.Count);
+        Assert.Equal(9, DocumentCourseSyncService.CatalogDefinitions.Count);
 
         var courses = await client.GetFromJsonAsync<List<JsonElement>>("/api/v1/courses");
         Assert.NotNull(courses);
@@ -54,7 +54,11 @@ public class DocumentCourseSyncTests
             "document-course-investing",
             "document-course-lifeskills",
             "document-course-personalfinance",
-            "document-course-psychology"
+            "document-course-psychology",
+            "document-course-ai-workflows",
+            "document-course-data-sql",
+            "document-course-cybersecurity",
+            "document-course-deep-learning-systems"
         };
 
         var slugs = courses.Select(c => c.GetProperty("slug").GetString()!).ToList();
@@ -302,7 +306,7 @@ public class DocumentCourseSyncTests
         var syncResp = await client.PostAsync("/api/v1/courses/sync-from-documents", null);
         syncResp.EnsureSuccessStatusCode();
         var syncJson = await syncResp.Content.ReadFromJsonAsync<JsonElement>();
-        Assert.Equal(5, syncJson.GetProperty("syncedCourses").GetInt32());
+        Assert.Equal(9, syncJson.GetProperty("syncedCourses").GetInt32());
         Assert.Equal(0, syncJson.GetProperty("createdCourses").GetInt32());
         Assert.Equal(0, syncJson.GetProperty("createdLessons").GetInt32());
         Assert.Equal(0, syncJson.GetProperty("createdQuizzes").GetInt32());
@@ -345,7 +349,7 @@ public class DocumentCourseSyncTests
     }
 
     [Fact]
-    public async Task RealSqliteDatabase_SyncsAll5CoursesCleanly_AndRemainsIdempotent()
+    public async Task RealSqliteDatabase_SyncsAll9CoursesCleanly_AndRemainsIdempotent()
     {
         await using var conn = new SqliteConnection("Data Source=:memory:");
         await conn.OpenAsync();
@@ -361,7 +365,7 @@ public class DocumentCourseSyncTests
         var syncedCourses = await db.Courses
             .Where(c => c.Slug.StartsWith("document-course-"))
             .ToListAsync();
-        Assert.Equal(5, syncedCourses.Count);
+        Assert.Equal(9, syncedCourses.Count);
 
         var totalLessonsBefore = await db.Lessons.CountAsync();
         var totalQuizzesBefore = await db.PracticeQuizzes.CountAsync();
@@ -372,7 +376,7 @@ public class DocumentCourseSyncTests
         Assert.True(totalCardsBefore >= 600);
 
         var secondReport = await DocumentCourseSyncService.SyncAllFromDocumentsAsync(db, DocumentCourseSyncService.DefaultDocumentRootPath, useSnapshotCache: false);
-        Assert.Equal(5, secondReport.SyncedCourses);
+        Assert.Equal(9, secondReport.SyncedCourses);
         Assert.Equal(0, secondReport.CreatedCourses);
         Assert.Equal(0, secondReport.CreatedLessons);
         Assert.Equal(0, secondReport.CreatedQuizzes);
@@ -380,6 +384,145 @@ public class DocumentCourseSyncTests
         Assert.Equal(totalLessonsBefore, await db.Lessons.CountAsync());
         Assert.Equal(totalQuizzesBefore, await db.PracticeQuizzes.CountAsync());
         Assert.Equal(totalCardsBefore, await db.Flashcards.CountAsync());
+
+        // 100% PracticeActivity coverage (>= 3 PAs per lesson) across ALL 9 document courses
+        foreach (var docCourse in syncedCourses)
+        {
+            var chIds = await db.Chapters
+                .Where(ch => ch.CourseId == docCourse.Id)
+                .Select(ch => ch.Id)
+                .ToListAsync();
+            var lessonIds = await db.Lessons
+                .Where(l => chIds.Contains(l.ChapterId))
+                .Select(l => l.Id)
+                .ToListAsync();
+            Assert.NotEmpty(lessonIds);
+
+            var paCountsByLesson = await db.PracticeActivities
+                .Where(pa => pa.CourseId == docCourse.Id && pa.LessonId.HasValue)
+                .GroupBy(pa => pa.LessonId!.Value)
+                .Select(g => new { LessonId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.LessonId, x => x.Count);
+
+            foreach (var lessonId in lessonIds)
+            {
+                Assert.True(paCountsByLesson.TryGetValue(lessonId, out var paCount) && paCount >= 3,
+                    $"Course '{docCourse.Slug}' lesson {lessonId} has {paCount} PracticeActivities (expected >= 3)");
+            }
+        }
+
+        // Verify the 4 new curated document courses sync cleanly with >= 10 lessons, >= 3 PAs/lesson, quizzes & FSRS flashcards
+        var newCuratedSlugs = new[]
+        {
+            "document-course-ai-workflows",
+            "document-course-data-sql",
+            "document-course-cybersecurity",
+            "document-course-deep-learning-systems"
+        };
+        foreach (var slug in newCuratedSlugs)
+        {
+            var course = syncedCourses.FirstOrDefault(c => c.Slug == slug);
+            Assert.NotNull(course);
+            var chIds = await db.Chapters.Where(ch => ch.CourseId == course!.Id).Select(ch => ch.Id).ToListAsync();
+            var lessonIds = await db.Lessons.Where(l => chIds.Contains(l.ChapterId)).Select(l => l.Id).ToListAsync();
+            Assert.True(lessonIds.Count >= 10, $"Expected >= 10 lessons for {slug}, got {lessonIds.Count}");
+
+            var quizCount = await db.PracticeQuizzes
+                .CountAsync(q => q.UserId == SeedDataInitializer.DefaultUserId && q.LessonId.HasValue && lessonIds.Contains(q.LessonId.Value));
+            Assert.True(quizCount >= 1, $"Expected quizzes for {slug}, got {quizCount}");
+
+            var cardCount = await db.Flashcards
+                .CountAsync(f => f.UserId == SeedDataInitializer.DefaultUserId && f.LessonId.HasValue && lessonIds.Contains(f.LessonId.Value));
+            Assert.True(cardCount >= 1, $"Expected FSRS flashcards for {slug}, got {cardCount}");
+        }
+
+        // Verify IELTS quizzes >= 75
+        var ieltsCourse = syncedCourses.First(c => c.Slug == "document-course-ielts");
+        var ieltsChIds = await db.Chapters.Where(ch => ch.CourseId == ieltsCourse.Id).Select(ch => ch.Id).ToListAsync();
+        var ieltsLessonIds = await db.Lessons.Where(l => ieltsChIds.Contains(l.ChapterId)).Select(l => l.Id).ToListAsync();
+        var ieltsQuizCount = await db.PracticeQuizzes
+            .CountAsync(q => q.UserId == SeedDataInitializer.DefaultUserId && q.LessonId.HasValue && ieltsLessonIds.Contains(q.LessonId.Value));
+        Assert.True(ieltsQuizCount >= 75, $"Expected >= 75 IELTS quizzes, got {ieltsQuizCount}");
+
+        // Verify Bootcamp flashcards >= 750
+        var bootcampReport = await DocumentCourseSyncService.SyncStudxyBootcampCourseAsync(db);
+        Assert.Equal(1, bootcampReport.SyncedCourses);
+        var bootcampCourse = await db.Courses.FirstAsync(c => c.Slug == DocumentCourseSyncService.StudxyBootcampSlug);
+        var bcChIds = await db.Chapters.Where(ch => ch.CourseId == bootcampCourse.Id).Select(ch => ch.Id).ToListAsync();
+        var bcLessonIds = await db.Lessons.Where(l => bcChIds.Contains(l.ChapterId)).Select(l => l.Id).ToListAsync();
+        var bcCardCount = await db.Flashcards
+            .CountAsync(f => f.UserId == SeedDataInitializer.DefaultUserId && f.LessonId.HasValue && bcLessonIds.Contains(f.LessonId.Value));
+        Assert.True(bcCardCount >= 750, $"Expected >= 750 Bootcamp flashcards, got {bcCardCount}");
+    }
+
+    [Fact]
+    public async Task CatalogSync_NewCuratedCourses_PaCoverage_IeltsQuizzes_And_BootcampFlashcards_MeetTargets()
+    {
+        await using var db = CreateIsolatedDbContext();
+        await SeedDataInitializer.SeedAsync(db, DocumentCourseSyncService.DefaultDocumentRootPath);
+
+        var syncedCourses = await db.Courses
+            .Where(c => c.Slug.StartsWith("document-course-"))
+            .ToListAsync();
+        Assert.Equal(9, syncedCourses.Count);
+
+        foreach (var docCourse in syncedCourses)
+        {
+            var chIds = await db.Chapters.Where(ch => ch.CourseId == docCourse.Id).Select(ch => ch.Id).ToListAsync();
+            var lessonIds = await db.Lessons.Where(l => chIds.Contains(l.ChapterId)).Select(l => l.Id).ToListAsync();
+            Assert.NotEmpty(lessonIds);
+
+            var paCountsByLesson = await db.PracticeActivities
+                .Where(pa => pa.CourseId == docCourse.Id && pa.LessonId.HasValue)
+                .GroupBy(pa => pa.LessonId!.Value)
+                .Select(g => new { LessonId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.LessonId, x => x.Count);
+
+            foreach (var lessonId in lessonIds)
+            {
+                Assert.True(paCountsByLesson.TryGetValue(lessonId, out var paCount) && paCount >= 3,
+                    $"Course '{docCourse.Slug}' lesson {lessonId} has {paCount} PracticeActivities (expected >= 3)");
+            }
+        }
+
+        var newCuratedSlugs = new[]
+        {
+            "document-course-ai-workflows",
+            "document-course-data-sql",
+            "document-course-cybersecurity",
+            "document-course-deep-learning-systems"
+        };
+        foreach (var slug in newCuratedSlugs)
+        {
+            var course = syncedCourses.First(c => c.Slug == slug);
+            var chIds = await db.Chapters.Where(ch => ch.CourseId == course.Id).Select(ch => ch.Id).ToListAsync();
+            var lessonIds = await db.Lessons.Where(l => chIds.Contains(l.ChapterId)).Select(l => l.Id).ToListAsync();
+            Assert.True(lessonIds.Count >= 10, $"Expected >= 10 lessons for {slug}, got {lessonIds.Count}");
+
+            var quizCount = await db.PracticeQuizzes
+                .CountAsync(q => q.UserId == SeedDataInitializer.DefaultUserId && q.LessonId.HasValue && lessonIds.Contains(q.LessonId.Value));
+            Assert.True(quizCount >= 1, $"Expected quizzes for {slug}, got {quizCount}");
+
+            var cardCount = await db.Flashcards
+                .CountAsync(f => f.UserId == SeedDataInitializer.DefaultUserId && f.LessonId.HasValue && lessonIds.Contains(f.LessonId.Value));
+            Assert.True(cardCount >= 1, $"Expected FSRS flashcards for {slug}, got {cardCount}");
+        }
+
+        var ieltsCourse = syncedCourses.First(c => c.Slug == "document-course-ielts");
+        var ieltsChIds = await db.Chapters.Where(ch => ch.CourseId == ieltsCourse.Id).Select(ch => ch.Id).ToListAsync();
+        var ieltsLessonIds = await db.Lessons.Where(l => ieltsChIds.Contains(l.ChapterId)).Select(l => l.Id).ToListAsync();
+        var ieltsQuizCount = await db.PracticeQuizzes
+            .CountAsync(q => q.UserId == SeedDataInitializer.DefaultUserId && q.LessonId.HasValue && ieltsLessonIds.Contains(q.LessonId.Value));
+        Assert.True(ieltsQuizCount >= 75, $"Expected >= 75 IELTS quizzes, got {ieltsQuizCount}");
+
+        var bootcampReport = await DocumentCourseSyncService.SyncStudxyBootcampCourseAsync(db);
+        Assert.Equal(1, bootcampReport.SyncedCourses);
+        var bootcampCourse = await db.Courses.FirstAsync(c => c.Slug == DocumentCourseSyncService.StudxyBootcampSlug);
+        var bcChIds = await db.Chapters.Where(ch => ch.CourseId == bootcampCourse.Id).Select(ch => ch.Id).ToListAsync();
+        var bcLessonIds = await db.Lessons.Where(l => bcChIds.Contains(l.ChapterId)).Select(l => l.Id).ToListAsync();
+        var bcCardCount = await db.Flashcards
+            .CountAsync(f => f.UserId == SeedDataInitializer.DefaultUserId && f.LessonId.HasValue && bcLessonIds.Contains(f.LessonId.Value));
+        Assert.True(bcCardCount >= 750, $"Expected >= 750 Bootcamp flashcards, got {bcCardCount}");
     }
 
     private static WebApplicationFactory<Program> CreateRealSqliteFactory(SqliteConnection openConnection)

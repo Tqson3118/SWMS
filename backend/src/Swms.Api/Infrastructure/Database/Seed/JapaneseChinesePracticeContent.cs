@@ -11,6 +11,9 @@ using Swms.Api.Domain.Entities;
 
 public static partial class JapaneseChinesePracticeContent
 {
+    public const string JapaneseCourseDescription = "Khóa học tiếng Nhật nền tảng JLPT N5: làm chủ bảng chữ cái Hiragana và Katakana, rèn trường âm và âm ngắt chuẩn giọng Nhật (ja-JP), cùng các tình huống giao tiếp đời sống qua Shadowing, Dictation, Sơ đồ từ vựng và Nhập vai.";
+    public const string ChineseCourseDescription = "Khóa học tiếng Trung giao tiếp chuẩn HSK1: làm chủ hệ thống Pinyin, 4 thanh điệu và quy tắc biến điệu, ghi nhớ chữ Hán nền tảng và thực hành hội thoại đời sống chuẩn giọng phổ thông (zh-CN).";
+
     public const string UpgradeMarker = "<!-- studxy-cjk-v2 -->";
     public const string UpgradeMarkerV3 = "<!-- studxy-cjk-v3 -->";
 
@@ -52,7 +55,7 @@ public static partial class JapaneseChinesePracticeContent
             courseId: SeedDataInitializer.JapaneseCourseId,
             title: "Tiếng Nhật Sơ Cấp (N5)",
             slug: "tieng-nhat-so-cap-n5",
-            description: "Khóa học tiếng Nhật nền tảng JLPT N5: làm chủ Hiragana/Katakana, phát âm trường âm & âm ngắt chuẩn giọng Nhật (ja-JP), giao tiếp đời sống, mua sắm, hỏi đường với đầy đủ bài tập Shadowing, Dictation, Sơ đồ từ vựng và Nhập vai AI.",
+            description: JapaneseCourseDescription,
             chapters: new[]
             {
                 (SeedDataInitializer.JapaneseChapter1Id, "Chương 1: Bảng chữ cái Hiragana/Katakana & Chào hỏi N5", 1),
@@ -68,7 +71,7 @@ public static partial class JapaneseChinesePracticeContent
             courseId: SeedDataInitializer.ChineseCourseId,
             title: "Tiếng Trung Sơ Cấp (HSK1)",
             slug: "tieng-trung-so-cap-hsk1",
-            description: "Khóa học tiếng Trung giao tiếp chuẩn HSK1: hệ thống Pinyin & 4 thanh điệu, quy tắc biến điệu, chữ Hán nền tảng, giao tiếp gia đình, mua sắm, ăn uống và hỏi đường chuẩn giọng phổ thông (zh-CN).",
+            description: ChineseCourseDescription,
             chapters: new[]
             {
                 (SeedDataInitializer.ChineseChapter1Id, "Chương 1: Pinyin, Thanh điệu & Chữ Hán Cơ bản", 1),
@@ -329,7 +332,7 @@ public static partial class JapaneseChinesePracticeContent
 
             MakeActivity(courseId, lessonId, 3, "pronunciation",
                 $"Chấm phát âm {lessonShortName}: {pronunciation.Length} mẫu câu ({lang})",
-                $"Đọc to bằng Web Speech API ({lang}) để nhận phản hồi từng ký tự và gợi ý lỗi phát âm hay gặp của người Việt.",
+                $"Đọc to bằng giọng nói ({lang}) để nhận phản hồi chi tiết từng ký tự và gợi ý sửa lỗi phát âm thường gặp.",
                 new
                 {
                     lang,
@@ -451,7 +454,7 @@ public static partial class JapaneseChinesePracticeContent
 
             MakeActivity(courseId, lessonId, 8, "roleplay",
                 $"Nhập vai hội thoại {lessonShortName}: {roleplay.Length} tình huống thực tế",
-                $"Phản hồi trực tiếp bằng giọng nói ({lang}) hoặc gõ phím; chấm bằng AI trực tiếp hoặc chấm từ khóa CJK offline.",
+                $"Phản hồi trực tiếp bằng giọng nói ({lang}) hoặc gõ phím; hỗ trợ đánh giá bằng AI hoặc chấm theo từ khóa CJK offline.",
                 new
                 {
                     lang,
@@ -1939,7 +1942,7 @@ Giờ giải lao chiều thứ Sáu tại thư viện trường. Bạn Yuki (b�
                     new("[JLPT N5 Katakana] Từ mượn \"パソコン\" là viết tắt của cụm từ tiếng Anh nào?", "Personal Computer (Máy tính cá nhân)", "Passport (Hộ chiếu)", "Party (Bữa tiệc)", "Package (Gói hàng)", "A", "パソコン (Pasokon) là cách viết tắt độc đáo của người Nhật từ cụm Personal Computer."),
                     new("[JLPT N5 Lượng từ] Khi đếm 2 chiếc vé tàu (vật mỏng dẹt), ta dùng đơn vị đếm nào?", "にまい", "ふたつ", "にほん", "にさつ", "A", "Đồ vật mỏng, phẳng (vé tàu, giấy, áo sơ mi) đếm bằng lượng từ 〜まい (枚): にまい (2 chiếc)."),
                     new("[JLPT N5 Biến âm] Mức tiền \"8.000 yên\" có biến âm ngắt đọc là gì?", "はちせんえん", "はっせんえん", "はっぴゃくえん", "はちひゃくえん", "B", "8.000 yên có biến âm ngắt: はっせんえん (hassen en)."),
-                    new("[JLPT N5 Từ vựng] Từ chỉ thời gian mang nghĩa \"Hôm qua\" là gì?", "きょう", "きのう", "あした", "おとatoi", "B", "きのう (昨日) nghĩa là hôm qua. おととい là hôm kia."),
+                    new("[JLPT N5 Từ vựng] Từ chỉ thời gian mang nghĩa \"Hôm qua\" là gì?", "きょう", "きのう", "あした", "おととい", "B", "きのう (昨日) nghĩa là hôm qua. おととい là hôm kia."),
                     new("[JLPT N5 Ngữ pháp] Chọn cặp trợ từ đúng: \"わたしは まいにち しちじ___ おきて、がっこう___ いきます。\"", "に / へ", "で / を", "を / に", "は / で", "A", "Thời gian có số cụ thể dùng に (しちじに); hướng đích đến dùng へ (がっこうへ)."),
                     new("[JLPT N5 Ngữ pháp] Chia động từ đúng thì: \"きのう カフェで えいがを ____。\"", "みます", "みました", "みません", "みること", "B", "Có từ chỉ quá khứ きのう (hôm qua) nên động từ phải chia quá khứ khẳng định: みました."),
                     new("[JLPT N5 Đọc hiểu] \"わたしは ミンです。まいあさ ろくじはんにおきます。あさごはんを たべてから、しちじに バスで がっこうへ いきます。\" Minh đi đến trường bằng phương tiện gì và lúc mấy giờ?", "Đi tàu điện lúc 6:30", "Đi xe buýt lúc 7:00", "Đi bộ lúc 8:00", "Đi xe đạp lúc 6:30", "B", "Trong bài viết: しちじに バスで がっこうへ いきます (Lúc 7:00 đi xe buýt đến trường)."),

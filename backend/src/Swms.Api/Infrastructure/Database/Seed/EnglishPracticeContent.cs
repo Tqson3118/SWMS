@@ -2743,7 +2743,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 13,
             Type = "pronunciation",
             Title = "Chấm phát âm mở rộng (Bài 1.1): 15 câu luyện âm /θ/-/ð/, âm cuối và đuôi -s/-ed",
-            Description = "Luyện phát âm với AI chấm điểm trực tiếp, phát hiện lỗi sai âm đuôi và các âm khó phổ biến của người Việt.",
+            Description = "Đọc to câu mẫu để nhận phản hồi phát âm trực tiếp, khắc phục lỗi âm cuối và các âm khó thường gặp.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -3072,7 +3072,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 14,
             Type = "word_map",
             Title = "Sơ đồ từ vựng Mind Map mở rộng (Bài 1.1): 12 sơ đồ Dễ → Vừa → Khó",
-            Description = "Hệ thống sơ đồ tư duy từ vựng đa cấp độ kèm phiên âm IPA, collocations, phrasal verbs, synonyms và ví dụ ngữ cảnh thực chiến.",
+            Description = "Hệ thống sơ đồ tư duy từ vựng đa cấp độ kèm phiên âm IPA, kết hợp từ, cụm động từ, từ đồng nghĩa và ví dụ theo ngữ cảnh.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -4032,7 +4032,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 18,
             Type = "roleplay",
             Title = "Nhập vai hội thoại (Bài 1.1): Tình huống phản xạ thực chiến",
-            Description = "Nhập vai giao tiếp với AI trong các tình huống thực tế, hỗ trợ chấm điểm tự động theo từ khóa và cấu trúc câu.",
+            Description = "Thực hành nhập vai giao tiếp trong các tình huống thực tế, hỗ trợ chấm điểm theo từ khóa và cấu trúc câu.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -4796,7 +4796,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 13,
             Type = "pronunciation",
             Title = "Chấm phát âm mở rộng (Bài 1.2): 15 câu luyện âm /θ/-/ð/, âm cuối và đuôi -s/-ed",
-            Description = "Luyện phát âm với AI chấm điểm trực tiếp, phát hiện lỗi sai âm đuôi và các âm khó phổ biến của người Việt.",
+            Description = "Đọc to câu mẫu để nhận phản hồi phát âm trực tiếp, khắc phục lỗi âm cuối và các âm khó thường gặp.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -5101,7 +5101,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 14,
             Type = "word_map",
             Title = "Sơ đồ từ vựng Mind Map mở rộng (Bài 1.2): 12 sơ đồ Dễ → Vừa → Khó",
-            Description = "Hệ thống sơ đồ tư duy từ vựng đa cấp độ kèm phiên âm IPA, collocations, phrasal verbs, synonyms và ví dụ ngữ cảnh thực chiến.",
+            Description = "Hệ thống sơ đồ tư duy từ vựng đa cấp độ kèm phiên âm IPA, kết hợp từ, cụm động từ, từ đồng nghĩa và ví dụ theo ngữ cảnh.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -6180,7 +6180,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 18,
             Type = "roleplay",
             Title = "Nhập vai hội thoại (Bài 1.2): Tình huống phản xạ thực chiến",
-            Description = "Nhập vai giao tiếp với AI trong các tình huống thực tế, hỗ trợ chấm điểm tự động theo từ khóa và cấu trúc câu.",
+            Description = "Thực hành nhập vai giao tiếp trong các tình huống thực tế, hỗ trợ chấm điểm theo từ khóa và cấu trúc câu.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -6989,7 +6989,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 13,
             Type = "pronunciation",
             Title = "Chấm phát âm mở rộng (Bài 2.1): 15 câu luyện âm /θ/-/ð/, âm cuối và đuôi -s/-ed",
-            Description = "Luyện phát âm với AI chấm điểm trực tiếp, phát hiện lỗi sai âm đuôi và các âm khó phổ biến của người Việt.",
+            Description = "Đọc to câu mẫu để nhận phản hồi phát âm trực tiếp, khắc phục lỗi âm cuối và các âm khó thường gặp.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -7298,7 +7298,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 14,
             Type = "word_map",
             Title = "Sơ đồ từ vựng Mind Map mở rộng (Bài 2.1): 12 sơ đồ Dễ → Vừa → Khó",
-            Description = "Hệ thống sơ đồ tư duy từ vựng đa cấp độ kèm phiên âm IPA, collocations, phrasal verbs, synonyms và ví dụ ngữ cảnh thực chiến.",
+            Description = "Hệ thống sơ đồ tư duy từ vựng đa cấp độ kèm phiên âm IPA, kết hợp từ, cụm động từ, từ đồng nghĩa và ví dụ theo ngữ cảnh.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -8381,7 +8381,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 18,
             Type = "roleplay",
             Title = "Nhập vai hội thoại (Bài 2.1): Tình huống phản xạ thực chiến",
-            Description = "Nhập vai giao tiếp với AI trong các tình huống thực tế, hỗ trợ chấm điểm tự động theo từ khóa và cấu trúc câu.",
+            Description = "Thực hành nhập vai giao tiếp trong các tình huống thực tế, hỗ trợ chấm điểm theo từ khóa và cấu trúc câu.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -9187,7 +9187,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 13,
             Type = "pronunciation",
             Title = "Chấm phát âm mở rộng (Bài 2.2): 15 câu luyện âm /θ/-/ð/, âm cuối và đuôi -s/-ed",
-            Description = "Luyện phát âm với AI chấm điểm trực tiếp, phát hiện lỗi sai âm đuôi và các âm khó phổ biến của người Việt.",
+            Description = "Đọc to câu mẫu để nhận phản hồi phát âm trực tiếp, khắc phục lỗi âm cuối và các âm khó thường gặp.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -9489,7 +9489,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 14,
             Type = "word_map",
             Title = "Sơ đồ từ vựng Mind Map mở rộng (Bài 2.2): 12 sơ đồ Dễ → Vừa → Khó",
-            Description = "Hệ thống sơ đồ tư duy từ vựng đa cấp độ kèm phiên âm IPA, collocations, phrasal verbs, synonyms và ví dụ ngữ cảnh thực chiến.",
+            Description = "Hệ thống sơ đồ tư duy từ vựng đa cấp độ kèm phiên âm IPA, kết hợp từ, cụm động từ, từ đồng nghĩa và ví dụ theo ngữ cảnh.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -10567,7 +10567,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 18,
             Type = "roleplay",
             Title = "Nhập vai hội thoại (Bài 2.2): Tình huống phản xạ thực chiến",
-            Description = "Nhập vai giao tiếp với AI trong các tình huống thực tế, hỗ trợ chấm điểm tự động theo từ khóa và cấu trúc câu.",
+            Description = "Thực hành nhập vai giao tiếp trong các tình huống thực tế, hỗ trợ chấm điểm theo từ khóa và cấu trúc câu.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -11367,7 +11367,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 13,
             Type = "pronunciation",
             Title = "Chấm phát âm mở rộng (Bài 3.1): 15 câu luyện âm /θ/-/ð/, âm cuối và đuôi -s/-ed",
-            Description = "Luyện phát âm với AI chấm điểm trực tiếp, phát hiện lỗi sai âm đuôi và các âm khó phổ biến của người Việt.",
+            Description = "Đọc to câu mẫu để nhận phản hồi phát âm trực tiếp, khắc phục lỗi âm cuối và các âm khó thường gặp.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -11669,7 +11669,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 14,
             Type = "word_map",
             Title = "Sơ đồ từ vựng Mind Map mở rộng (Bài 3.1): 12 sơ đồ Dễ → Vừa → Khó",
-            Description = "Hệ thống sơ đồ tư duy từ vựng đa cấp độ kèm phiên âm IPA, collocations, phrasal verbs, synonyms và ví dụ ngữ cảnh thực chiến.",
+            Description = "Hệ thống sơ đồ tư duy từ vựng đa cấp độ kèm phiên âm IPA, kết hợp từ, cụm động từ, từ đồng nghĩa và ví dụ theo ngữ cảnh.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -12746,7 +12746,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 18,
             Type = "roleplay",
             Title = "Nhập vai hội thoại (Bài 3.1): Tình huống phản xạ thực chiến",
-            Description = "Nhập vai giao tiếp với AI trong các tình huống thực tế, hỗ trợ chấm điểm tự động theo từ khóa và cấu trúc câu.",
+            Description = "Thực hành nhập vai giao tiếp trong các tình huống thực tế, hỗ trợ chấm điểm theo từ khóa và cấu trúc câu.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -13536,7 +13536,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 13,
             Type = "pronunciation",
             Title = "Chấm phát âm mở rộng (Bài 3.2): 15 câu luyện âm /θ/-/ð/, âm cuối và đuôi -s/-ed",
-            Description = "Luyện phát âm với AI chấm điểm trực tiếp, phát hiện lỗi sai âm đuôi và các âm khó phổ biến của người Việt.",
+            Description = "Đọc to câu mẫu để nhận phản hồi phát âm trực tiếp, khắc phục lỗi âm cuối và các âm khó thường gặp.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -13841,7 +13841,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 14,
             Type = "word_map",
             Title = "Sơ đồ từ vựng Mind Map mở rộng (Bài 3.2): 12 sơ đồ Dễ → Vừa → Khó",
-            Description = "Hệ thống sơ đồ tư duy từ vựng đa cấp độ kèm phiên âm IPA, collocations, phrasal verbs, synonyms và ví dụ ngữ cảnh thực chiến.",
+            Description = "Hệ thống sơ đồ tư duy từ vựng đa cấp độ kèm phiên âm IPA, kết hợp từ, cụm động từ, từ đồng nghĩa và ví dụ theo ngữ cảnh.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",
@@ -14923,7 +14923,7 @@ Người mới thuyết trình hay sợ bị ""quên bài"" hoặc nói lan man.
             OrderIndex = 18,
             Type = "roleplay",
             Title = "Nhập vai hội thoại (Bài 3.2): Tình huống phản xạ thực chiến",
-            Description = "Nhập vai giao tiếp với AI trong các tình huống thực tế, hỗ trợ chấm điểm tự động theo từ khóa và cấu trúc câu.",
+            Description = "Thực hành nhập vai giao tiếp trong các tình huống thực tế, hỗ trợ chấm điểm theo từ khóa và cấu trúc câu.",
             ConfigJson = @"{
   ""lang"": ""en-US"",
   ""difficulty"": ""medium"",

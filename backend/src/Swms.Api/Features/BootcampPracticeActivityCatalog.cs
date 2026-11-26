@@ -321,7 +321,7 @@ public static class BootcampPracticeActivityCatalog
             "Mảng có 3 phần tử nên phases.length = 3 và phases[2] = 'phase-9'.",
             "Sửa lỗi cấu hình biến môi trường bị commit nhầm",
             "Environment Hygiene",
-            "Dev vô tình đưa chuỗi kết nối chứa mật khẩu vào appsettings.json thay vì dùng .env.",
+            "Lập trình viên vô tình đưa chuỗi kết nối chứa mật khẩu vào appsettings.json thay vì dùng .env.",
             "const conn = \"Host=prod;Password=123456\";\nconsole.log(conn);",
             1,
             "const conn = process.env.DATABASE_URL ?? \"\";\nconsole.log(Boolean(conn));",
@@ -786,7 +786,7 @@ public static class BootcampPracticeActivityCatalog
                     "}"
                 ],
                 [
-                    new("b0", 0, "head", ["head"], "Bắt đầu duyệt từ node đầu tiên", ["head", "tail", "null", "0"], "Con trỏ tạm curr khởi đầu tại head để không làm mất gốc head."),
+                    new("b0", 0, "head", ["head"], "Bắt đầu duyệt từ node đầu tiên", ["head", "tail", "null", "0"], "Con trỏ tạm curr khởi đầu tại head để không làm mất tham chiếu gốc head."),
                     new("b1", 1, "null", ["null"], "Điều kiện dừng khi hết danh sách", ["null", "0", "false", "head"], "Node cuối cùng có next === null."),
                     new("b2", 2, "next", ["next"], "Di chuyển con trỏ sang node kế tiếp", ["next", "prev", "head", "value"], "curr = curr.next dịch chuyển con trỏ qua từng node.")
                 ],

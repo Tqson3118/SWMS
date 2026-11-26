@@ -189,6 +189,22 @@ export function CourseQuickPreviewDrawer({
     }));
   };
 
+  const chapters: CourseSummaryChapter[] = Array.isArray(course.chapters) ? course.chapters : [];
+  const allChaptersExpanded =
+    chapters.length > 0 && chapters.every((ch) => Boolean(expandedChapterIds[ch.id]));
+
+  const handleToggleAllChapters = () => {
+    if (allChaptersExpanded) {
+      setExpandedChapterIds({});
+    } else {
+      const next: Record<string, boolean> = {};
+      chapters.forEach((ch) => {
+        next[ch.id] = true;
+      });
+      setExpandedChapterIds(next);
+    }
+  };
+
   const handleClone = async () => {
     if (!course.id || isCloning) return;
     setIsCloning(true);
@@ -230,8 +246,6 @@ export function CourseQuickPreviewDrawer({
   const completedLessons = Number(course.completedLessons ?? 0);
   const totalLessons = Number(course.lessonCount ?? 0);
   const hasProgress = progressPercent > 0 || completedLessons > 0;
-
-  const chapters: CourseSummaryChapter[] = Array.isArray(course.chapters) ? course.chapters : [];
 
   return (
     <div
@@ -314,7 +328,7 @@ export function CourseQuickPreviewDrawer({
           </div>
 
           {/* Drawer Body - Scrollable */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+          <div className="flex-1 overflow-y-auto swms-thin-scrollbar p-4 sm:p-6 space-y-6">
             {/* Compact Progress Bar when learner has started */}
             {hasProgress && (
               <div className="rounded-xl border border-[#5E51E8]/20 bg-[#EEF0FD]/50 dark:bg-[#1E1B4B]/30 p-3.5 space-y-2">
@@ -402,7 +416,7 @@ export function CourseQuickPreviewDrawer({
               <div className="p-3 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-elevated)]/60">
                 <div className="flex items-center gap-1.5 text-xs text-[var(--text-tertiary)] mb-1">
                   <Sparkles className="w-3.5 h-3.5 text-purple-500" />
-                  <span>Phòng Lab</span>
+                  <span>Phòng thực hành</span>
                 </div>
                 <div className="text-base font-bold text-[var(--text-primary)] truncate">
                   {course.practiceTotalActivities ?? 0} bài tập
@@ -412,7 +426,7 @@ export function CourseQuickPreviewDrawer({
               <div className="p-3 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-elevated)]/60">
                 <div className="flex items-center gap-1.5 text-xs text-[var(--text-tertiary)] mb-1">
                   <FileQuestion className="w-3.5 h-3.5 text-amber-500" />
-                  <span>Quiz test</span>
+                  <span>Bài kiểm tra</span>
                 </div>
                 <div className="text-base font-bold text-[var(--text-primary)]">
                   {course.quizCount ?? 0} bộ đề
@@ -474,17 +488,38 @@ export function CourseQuickPreviewDrawer({
 
             {/* Chapter & Lesson Accordion Preview */}
             <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] flex items-center gap-1.5">
                   <Layers className="w-3.5 h-3.5 text-[#5E51E8]" />
                   <span>Chương trình chi tiết ({chapters.length} chương)</span>
                 </h3>
-                {isLoadingDetails && (
-                  <span className="text-[11px] text-[var(--text-tertiary)] flex items-center gap-1">
-                    <RefreshCw className="w-3 h-3 animate-spin" />
-                    Đang tải...
-                  </span>
-                )}
+                <div className="flex items-center gap-2.5 shrink-0">
+                  {isLoadingDetails && (
+                    <span className="text-[11px] text-[var(--text-tertiary)] flex items-center gap-1">
+                      <RefreshCw className="w-3 h-3 animate-spin" />
+                      Đang tải...
+                    </span>
+                  )}
+                  {chapters.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleToggleAllChapters}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#5E51E8] dark:text-[#A5B4FC] hover:underline cursor-pointer"
+                    >
+                      {allChaptersExpanded ? (
+                        <>
+                          <ChevronUp className="w-3.5 h-3.5" />
+                          <span>Thu gọn tất cả</span>
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-3.5 h-3.5" />
+                          <span>Mở rộng tất cả</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
 
               {chapters.length > 0 ? (
@@ -577,7 +612,7 @@ export function CourseQuickPreviewDrawer({
             <Link
               href={`/app/courses/${course.id}/learn`}
               onClick={onClose}
-              className="w-full sm:flex-1 h-9 px-4 rounded-xl bg-[#5E51E8] hover:bg-[#4F46E5] text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5 shadow-xs transition"
+              className="w-full sm:flex-1 h-9 px-4 rounded-xl bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-semibold inline-flex items-center justify-center gap-1.5 shadow-xs transition"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
               <span>{hasProgress ? "Tiếp tục học" : "Vào học ngay"}</span>
@@ -589,7 +624,7 @@ export function CourseQuickPreviewDrawer({
               className="w-full sm:flex-1 h-9 px-4 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] hover:bg-[var(--surface-elevated)] text-xs font-semibold text-[var(--text-primary)] inline-flex items-center justify-center gap-1.5 transition"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>Mở Course Hub</span>
+              <span>Xem chi tiết khóa học</span>
             </Link>
 
             <button
@@ -597,7 +632,7 @@ export function CourseQuickPreviewDrawer({
               onClick={handleClone}
               disabled={isCloning}
               className="w-full sm:w-auto h-9 px-3 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] hover:bg-[var(--surface-elevated)] text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] inline-flex items-center justify-center gap-1.5 transition disabled:opacity-50 cursor-pointer shrink-0"
-              title="Nhân bản khóa học về kho cá nhân để chỉnh sửa"
+              title="Tạo bản sao vào thư viện cá nhân để tự chỉnh sửa"
             >
               {isCloning ? (
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />

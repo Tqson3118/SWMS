@@ -1462,7 +1462,7 @@ export function EnglishPracticeLab({
       interval = setInterval(() => setPrepSeconds(s => s - 1), 1000);
     } else if (prepSeconds === 0 && prepTimerActive) {
       setPrepTimerActive(false);
-      showToast("⏰ Hết 1 phút chuẩn bị! Bạn hãy bật mic và bắt đầu phần nói 2 phút nhé.", "info");
+      showToast("Đã hết 1 phút chuẩn bị! Bạn hãy bật micro và bắt đầu phần nói 2 phút nhé.", "info");
     }
     return () => {
       if (interval) clearInterval(interval);
@@ -1475,7 +1475,7 @@ export function EnglishPracticeLab({
       interval = setInterval(() => setSpeakSeconds(s => s - 1), 1000);
     } else if (speakSeconds === 0 && speakTimerActive) {
       setSpeakTimerActive(false);
-      showToast("🎉 Chúc mừng bạn đã hoàn thành trọn vẹn 2 phút bài nói Speaking!", "success");
+      showToast("Chúc mừng bạn đã hoàn thành trọn vẹn 2 phút luyện nói!", "success");
     }
     return () => {
       if (interval) clearInterval(interval);
@@ -2155,7 +2155,7 @@ export function EnglishPracticeLab({
               ) : (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#5E51E8]/10 text-[#5E51E8] dark:text-[#818CF8]">
                   <Sparkles className="w-3.5 h-3.5" />
-                  100% Miễn Phí & Tự Động Thích Ứng
+                  Miễn phí & Tự động thích ứng theo bài
                 </span>
               )}
               <span className="text-xs text-[var(--text-secondary,#71717a)] dark:text-zinc-400">
@@ -2167,7 +2167,7 @@ export function EnglishPracticeLab({
                 ? "Phòng thực hành Tiếng Nhật (N5)"
                 : courseLang === "zh-CN"
                 ? "Phòng thực hành Tiếng Trung (HSK1)"
-                : "Luyện Tập Tiếng Anh & IELTS Chuyên Sâu"}
+                : "Luyện tập Tiếng Anh & IELTS chuyên sâu"}
             </h2>
             <p className="text-sm text-[var(--text-secondary,#52525b)] dark:text-zinc-400 mt-0.5">
               {courseLang === "ja-JP"
@@ -2199,8 +2199,8 @@ export function EnglishPracticeLab({
                 >
                   <span>
                     {courseLang === "ja-JP"
-                      ? "🇯🇵 Tiếng Nhật (ja-JP)"
-                      : "🇨🇳 Tiếng Trung (zh-CN)"}
+                      ? "Tiếng Nhật (ja-JP)"
+                      : "Tiếng Trung (zh-CN)"}
                   </span>
                 </div>
               ) : (
@@ -2214,7 +2214,7 @@ export function EnglishPracticeLab({
                         : "text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
                     }`}
                   >
-                    🇺🇸 Anh - Mỹ
+                    Anh - Mỹ
                   </button>
                   <button
                     type="button"
@@ -2225,7 +2225,7 @@ export function EnglishPracticeLab({
                         : "text-[var(--text-secondary,#52525b)] dark:text-zinc-400 hover:text-[var(--text-primary,#18181b)]"
                     }`}
                   >
-                    🇬🇧 Anh - Anh
+                    Anh - Anh
                   </button>
                 </div>
               )}
@@ -3339,7 +3339,7 @@ export function EnglishPracticeLab({
                   <span>Trình duyệt hiện tại chưa hỗ trợ nhận dạng giọng nói tự động (SpeechRecognition)</span>
                 </div>
                 <p className="leading-relaxed">
-                  Khuyến nghị dùng Google Chrome hoặc Microsoft Edge trên máy tính / Android để trải nghiệm tính năng chấm phát âm trực tiếp. Hệ thống tuân thủ nguyên tắc <strong>Zero-Facade</strong>: KHÔNG tự tạo điểm số giả khi thiếu API nhận diện. Bạn có thể gõ nhanh bản đọc thử vào ô bên dưới để đối chiếu từng từ và xem gợi ý lỗi phát âm của người Việt.
+                  Bạn nên dùng Google Chrome hoặc Microsoft Edge trên máy tính / Android để trải nghiệm tính năng chấm phát âm trực tiếp. Studxy luôn hiển thị kết quả trung thực và không tự tạo điểm giả khi thiếu API nhận diện. Bạn có thể gõ nhanh bản đọc thử vào ô bên dưới để đối chiếu từng từ và xem gợi ý sửa lỗi phát âm cho người Việt.
                 </p>
               </div>
             )}
@@ -3468,7 +3468,7 @@ export function EnglishPracticeLab({
             <div className="space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-[var(--text-secondary,#52525b)] dark:text-zinc-300">
-                  Cụm từ ghi điểm nên dùng (Hệ thống tự động phát hiện khi bạn nói):
+                  Cụm từ ghi điểm nên dùng (tự động nhận diện khi bạn nói):
                 </span>
                 <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                   Đã dùng: {detectedCount}/{activeDrill.keyPhrases.length} cụm

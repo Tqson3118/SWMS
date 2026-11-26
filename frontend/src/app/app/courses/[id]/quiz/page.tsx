@@ -190,6 +190,9 @@ function CourseQuizPageInner() {
   const [generatingQuiz, setGeneratingQuiz] = useState(false);
   const [savingWrongIds, setSavingWrongIds] = useState<Record<string, boolean>>({});
   const [savedWrongIds, setSavedWrongIds] = useState<Record<string, boolean>>({});
+  const [isSavingAllWrong, setIsSavingAllWrong] = useState(false);
+  const [batchSaveSuccessMsg, setBatchSaveSuccessMsg] = useState<string | null>(null);
+  const [mobileListOpen, setMobileListOpen] = useState(false);
   const [selectedQuizId, setSelectedQuizId] = useState<string | null>(null);
   const [quizDetail, setQuizDetail] = useState<QuizDetail | null>(null);
   const [draftAnswers, setDraftAnswers] = useState<Record<string, string>>({});
@@ -314,10 +317,12 @@ function CourseQuizPageInner() {
   }, [quizMode, quizDetail?.id, quizDetail?.status]);
 
   const handleSelectQuiz = async (qId: string) => {
+    setMobileListOpen(false);
     if (qId === selectedQuizId) return;
     setSelectedQuizId(qId);
     setConfirmResetOpen(false);
     setLatestExamResult(null);
+    setBatchSaveSuccessMsg(null);
     setErrorMsg(null);
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
@@ -349,6 +354,7 @@ function CourseQuizPageInner() {
       }
       setDraftAnswers({});
       setSavedWrongIds({});
+      setBatchSaveSuccessMsg(null);
       setLatestExamResult(null);
       setExamElapsedSec(0);
       setExamTimeLeftSec(Math.max(300, (quizDetail.items?.length ?? 5) * 90));
@@ -515,8 +521,11 @@ function CourseQuizPageInner() {
     }
   };
 
-  const handleSaveWrongToFsrs = async (item: QuizItem, questionText: string) => {
-    if (!quizDetail || savingWrongIds[item.id] || savedWrongIds[item.id]) return;
+  const handleSaveWrongToFsrs = async (
+    item: QuizItem,
+    questionText: string
+  ): Promise<boolean> => {
+    if (!quizDetail || savingWrongIds[item.id] || savedWrongIds[item.id]) return false;
     setSavingWrongIds((prev) => ({ ...prev, [item.id]: true }));
     try {
       let backAnswer = (item.clozeSolution || "").trim();
@@ -560,13 +569,50 @@ function CourseQuizPageInner() {
         if (typeof window !== "undefined") {
           window.dispatchEvent(new Event("swms:data-mutated"));
         }
+        return true;
       } else {
         setErrorMsg(`Không lưu được thẻ FSRS (HTTP ${resp.status}).`);
+        return false;
       }
     } catch {
       setErrorMsg("Lỗi kết nối khi lưu thẻ FSRS.");
+      return false;
     } finally {
       setSavingWrongIds((prev) => ({ ...prev, [item.id]: false }));
+    }
+  };
+
+  const handleSaveAllWrongToFsrs = async () => {
+    if (!quizDetail || isSavingAllWrong) return;
+    const targets = quizDetail.items.filter(
+      (it) => it.isCorrect === false && !savedWrongIds[it.id]
+    );
+    if (targets.length === 0) return;
+
+    setIsSavingAllWrong(true);
+    setBatchSaveSuccessMsg(null);
+    setErrorMsg(null);
+    let savedCount = 0;
+    try {
+      for (const item of targets) {
+        const promptObj =
+          typeof item.prompt === "string" ? { question: item.prompt } : item.prompt;
+        const rawQuestionText = promptObj?.question || "Câu hỏi ôn tập";
+        const cleanPrompt = formatCleanQuizPrompt(
+          rawQuestionText,
+          Boolean(item.evaluatedAt),
+          item.clozeSolution
+        );
+        const ok = await handleSaveWrongToFsrs(item, cleanPrompt);
+        if (ok) {
+          savedCount++;
+        }
+      }
+      if (savedCount > 0) {
+        setBatchSaveSuccessMsg(`Đã lưu ${savedCount} câu sai vào bộ thẻ FSRS.`);
+      }
+    } finally {
+      setIsSavingAllWrong(false);
     }
   };
 
@@ -603,7 +649,7 @@ function CourseQuizPageInner() {
         } else if (resp.status === 429) {
           setErrorMsg(
             errBody?.error ||
-              "Bạn đã hết hạn mức 50 AI credits. Vui lòng thử lại sau hoặc nạp thêm."
+              "Bạn đã dùng hết 50 lượt AI trong ngày. Vui lòng quay lại vào ngày mai hoặc nâng cấp gói."
           );
         } else if (resp.status === 400) {
           setErrorMsg(
@@ -787,13 +833,13 @@ function CourseQuizPageInner() {
   if (isLoading) {
     return (
       <div className="max-w-[1360px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-10 min-h-[80vh] space-y-6">
-        <div className="h-6 w-32 rounded bg-[var(--surface-elevated)] animate-pulse" />
-        <div className="h-10 w-72 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="h-6 w-32 rounded bg-[var(--surface-elevated)] swms-skeleton" />
+        <div className="h-10 w-72 rounded-lg bg-[var(--surface-elevated)] swms-skeleton" />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
-          <div className="lg:col-span-4 h-72 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="lg:col-span-4 h-72 rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
           <div className="lg:col-span-8 space-y-4">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-40 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+              <div key={i} className="h-40 rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
             ))}
           </div>
         </div>
@@ -808,6 +854,9 @@ function CourseQuizPageInner() {
     quizDetail && answeredCount > 0
       ? Math.round((quizDetail.correctItems * 100) / answeredCount)
       : 0;
+  const unsavedWrongItems = quizDetail
+    ? quizDetail.items.filter((it) => it.isCorrect === false && !savedWrongIds[it.id])
+    : [];
 
   const displaySummary =
     latestExamResult ||
@@ -834,7 +883,7 @@ function CourseQuizPageInner() {
         onClick={() => void handleSelectQuiz(q.id)}
         className={`w-full text-left px-3 py-2 rounded-md text-xs transition cursor-pointer flex items-center justify-between gap-2 ${
           active
-            ? "bg-accent text-white font-medium shadow-xs"
+            ? "bg-accent dark:bg-[#818CF8] text-accent-contrast dark:text-[#0F0F12] font-medium shadow-xs"
             : "bg-bg-primary text-text-secondary border border-border/60 hover:text-text-primary hover:border-border"
         }`}
       >
@@ -843,7 +892,9 @@ function CourseQuizPageInner() {
           {q.lessonTitle && (
             <p
               className={`text-[10px] truncate mt-0.5 ${
-                active ? "text-white/80" : "text-text-tertiary"
+                active
+                  ? "text-accent-contrast/80 dark:text-[#0F0F12]/80"
+                  : "text-text-tertiary"
               }`}
             >
               {q.lessonTitle}
@@ -853,7 +904,7 @@ function CourseQuizPageInner() {
         <span
           className={`text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0 ${
             active
-              ? "bg-white/20 text-white"
+              ? "bg-white/20 dark:bg-black/15 text-accent-contrast dark:text-[#0F0F12]"
               : isCompleted
               ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
               : "bg-bg-secondary text-text-tertiary"
@@ -866,7 +917,7 @@ function CourseQuizPageInner() {
   };
 
   return (
-    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-10 min-h-[80vh]">
+    <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-10 min-h-[80vh] overflow-x-clip">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3 min-w-0">
@@ -883,7 +934,7 @@ function CourseQuizPageInner() {
             type="button"
             data-testid="open-generate-quiz-btn"
             onClick={() => setGenerateOpen(true)}
-            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-accent dark:bg-[#818CF8] text-accent-contrast dark:text-[#0F0F12] text-xs font-medium hover:bg-accent-hover transition cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Tạo đề luyện mới</span>
@@ -935,7 +986,7 @@ function CourseQuizPageInner() {
           <div className="flex items-center justify-center gap-3">
             <Link
               href={`/app/courses/${courseId}/learn`}
-              className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition"
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent dark:bg-[#818CF8] text-accent-contrast dark:text-[#0F0F12] text-sm font-medium hover:bg-accent-hover transition"
             >
               <BookOpen className="w-4 h-4" />
               <span>Học bài giảng</span>
@@ -951,38 +1002,13 @@ function CourseQuizPageInner() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Mobile Quiz Selector Dropdown */}
-          {quizzes.length > 1 && (
-            <div className="lg:hidden">
-              <label
-                htmlFor="quiz-mobile-selector"
-                className="block text-xs font-medium text-text-secondary mb-1.5"
-              >
-                Chọn bài kiểm tra ({quizzes.length} bài)
-              </label>
-              <select
-                id="quiz-mobile-selector"
-                data-testid="quiz-mobile-selector"
-                value={selectedQuizId ?? ""}
-                onChange={(e) => void handleSelectQuiz(e.target.value)}
-                className="w-full h-9 rounded-md border border-border bg-bg-primary px-3 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent"
-              >
-                {quizzes.map((q) => (
-                  <option key={q.id} value={q.id}>
-                    {q.title} ({q.correctItems}/{q.totalItems} đúng)
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Desktop 2-Column Sidebar: Quiz Selector + Question Navigator + Stats */}
+          {/* 2-Column Sidebar: Mobile Collapsible Quiz Picker + Desktop Question Navigator + Quiz List */}
           <aside
             data-testid="quiz-sidebar-selector"
-            className="hidden lg:flex lg:col-span-4 flex-col gap-4 sticky top-4"
+            className="lg:col-span-4 min-w-0 flex flex-col gap-3 lg:gap-4 lg:sticky lg:top-4"
           >
-            {/* Question Map & Score Card */}
-            <div className="rounded-xl border border-border bg-bg-secondary p-4 space-y-3">
+            {/* Question Map & Score Card (Desktop) */}
+            <div className="hidden lg:block rounded-xl border border-border bg-bg-secondary p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
                   Bảng câu hỏi &amp; Tiến độ
@@ -1041,7 +1067,51 @@ function CourseQuizPageInner() {
             </div>
 
             {quizzes.length > 1 && (
-              <div className="rounded-xl border border-border bg-bg-secondary p-3.5 flex flex-col">
+              <div className="lg:hidden">
+                <label
+                  htmlFor="quiz-mobile-selector"
+                  className="block text-xs font-medium text-text-secondary mb-1.5"
+                >
+                  Chọn nhanh bài kiểm tra ({quizzes.length} bài)
+                </label>
+                <select
+                  id="quiz-mobile-selector"
+                  data-testid="quiz-mobile-selector"
+                  value={selectedQuizId ?? ""}
+                  onChange={(e) => void handleSelectQuiz(e.target.value)}
+                  className="w-full h-9 rounded-md border border-border bg-bg-primary px-3 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent"
+                >
+                  {quizzes.map((q) => (
+                    <option key={q.id} value={q.id}>
+                      {q.title} ({q.correctItems}/{q.totalItems} đúng)
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {quizzes.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  data-testid="mobile-quiz-list-toggle"
+                  aria-expanded={mobileListOpen}
+                  onClick={() => setMobileListOpen((prev) => !prev)}
+                  className="lg:hidden w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-semibold text-text-primary cursor-pointer"
+                >
+                  <span className="truncate">Danh sách đề ({filteredQuizzes.length})</span>
+                  {mobileListOpen ? (
+                    <ChevronDown className="w-4 h-4 text-text-tertiary shrink-0" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-text-tertiary shrink-0" />
+                  )}
+                </button>
+
+                <div
+                  className={`${
+                    mobileListOpen ? "block" : "hidden"
+                  } lg:block rounded-xl border border-border bg-bg-secondary p-3.5`}
+                >
                 <div className="flex items-center justify-between gap-2 mb-2.5">
                   <span className="text-xs font-semibold text-text-primary">
                     Danh sách bài kiểm tra
@@ -1084,14 +1154,16 @@ function CourseQuizPageInner() {
                         onClick={() => setQuizCategoryFilter(cat.id)}
                         className={`px-2 py-1 rounded text-[11px] font-medium transition cursor-pointer flex items-center gap-1 ${
                           active
-                            ? "bg-accent text-white"
+                            ? "bg-accent dark:bg-[#818CF8] text-accent-contrast dark:text-[#0F0F12]"
                             : "bg-bg-primary text-text-secondary border border-border/60 hover:text-text-primary"
                         }`}
                       >
                         <span>{cat.label}</span>
                         <span
                           className={`text-[10px] px-1 rounded-full ${
-                            active ? "bg-white/20 text-white" : "bg-bg-secondary text-text-tertiary"
+                            active
+                              ? "bg-white/20 dark:bg-black/15 text-accent-contrast dark:text-[#0F0F12]"
+                              : "bg-bg-secondary text-text-tertiary"
                           }`}
                         >
                           {count}
@@ -1184,10 +1256,11 @@ function CourseQuizPageInner() {
                   )}
                 </div>
               </div>
+              </div>
             )}
           </aside>
 
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-8 min-w-0 space-y-6">
             {/* Quiz Summary Banner & Mode Controls */}
             <div className="rounded-lg border border-border bg-bg-secondary p-5 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-4">
@@ -1261,7 +1334,7 @@ function CourseQuizPageInner() {
                     onClick={() => setQuizMode("practice")}
                     className={`px-3 py-1.5 rounded-md text-xs font-medium transition cursor-pointer ${
                       quizMode === "practice"
-                        ? "bg-accent text-white shadow-xs"
+                        ? "bg-accent dark:bg-[#818CF8] text-accent-contrast dark:text-[#0F0F12] shadow-xs"
                         : "text-text-secondary hover:text-text-primary"
                     }`}
                   >
@@ -1273,7 +1346,7 @@ function CourseQuizPageInner() {
                     onClick={() => startExamModeForQuiz(quizDetail.items.length)}
                     className={`px-3 py-1.5 rounded-md text-xs font-medium transition cursor-pointer ${
                       quizMode === "exam"
-                        ? "bg-accent text-white shadow-xs"
+                        ? "bg-accent dark:bg-[#818CF8] text-accent-contrast dark:text-[#0F0F12] shadow-xs"
                         : "text-text-secondary hover:text-text-primary"
                     }`}
                   >
@@ -1281,33 +1354,81 @@ function CourseQuizPageInner() {
                   </button>
                 </div>
 
-                {quizMode === "exam" && (
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-xs font-mono font-semibold text-amber-700 dark:text-amber-300">
-                      <Timer className="w-3.5 h-3.5" />
-                      <span>{formatTimerClock(examTimeLeftSec)}</span>
+                {quizMode === "exam" && (() => {
+                  const isExamActive = quizDetail.status !== "completed";
+                  const timerTone =
+                    isExamActive && examTimeLeftSec <= 30
+                      ? "border-rose-400 dark:border-rose-700 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300"
+                      : isExamActive && examTimeLeftSec <= 120
+                      ? "border-amber-400 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300"
+                      : "border-border bg-bg-primary text-text-primary";
+                  return (
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <div
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono font-semibold transition-colors ${timerTone}`}
+                      >
+                        <Timer className="w-3.5 h-3.5" />
+                        <span>{formatTimerClock(examTimeLeftSec)}</span>
+                      </div>
+                      <button
+                        type="button"
+                        data-testid="submit-all-exam-btn"
+                        disabled={submittingAll || quizDetail.status === "completed"}
+                        onClick={() => void handleSubmitAllExam()}
+                        className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-md bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 disabled:opacity-50 transition cursor-pointer"
+                      >
+                        {submittingAll ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Send className="w-3.5 h-3.5" />
+                        )}
+                        <span>
+                          {quizDetail.status === "completed"
+                            ? "Đã nộp cả đề"
+                            : "Nộp toàn bộ đề"}
+                        </span>
+                      </button>
                     </div>
+                  );
+                })()}
+              </div>
+
+              {(unsavedWrongItems.length > 0 || batchSaveSuccessMsg) && (
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-border/60">
+                  {unsavedWrongItems.length > 0 ? (
                     <button
                       type="button"
-                      data-testid="submit-all-exam-btn"
-                      disabled={submittingAll || quizDetail.status === "completed"}
-                      onClick={() => void handleSubmitAllExam()}
-                      className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-md bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 disabled:opacity-50 transition cursor-pointer"
+                      data-testid="save-all-wrong-fsrs-btn"
+                      disabled={isSavingAllWrong}
+                      onClick={() => void handleSaveAllWrongToFsrs()}
+                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-amber-400/60 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-xs font-semibold text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/50 disabled:opacity-50 transition cursor-pointer"
                     >
-                      {submittingAll ? (
+                      {isSavingAllWrong ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                       ) : (
-                        <Send className="w-3.5 h-3.5" />
+                        <Brain className="w-3.5 h-3.5" />
                       )}
                       <span>
-                        {quizDetail.status === "completed"
-                          ? "Đã nộp cả đề"
-                          : "Nộp toàn bộ đề"}
+                        {isSavingAllWrong
+                          ? "Đang lưu vào FSRS..."
+                          : `Lưu tất cả câu sai vào FSRS (${unsavedWrongItems.length})`}
                       </span>
                     </button>
-                  </div>
-                )}
-              </div>
+                  ) : (
+                    <div />
+                  )}
+
+                  {batchSaveSuccessMsg && (
+                    <span
+                      role="status"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                      <span>{batchSaveSuccessMsg}</span>
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Exam Result Summary Banner */}
@@ -1426,6 +1547,57 @@ function CourseQuizPageInner() {
               </div>
             )}
 
+            {/* Question Navigator Palette */}
+            {quizDetail.items.length > 0 && (
+              <div
+                data-testid="quiz-question-navigator"
+                className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-3 space-y-2.5"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-semibold text-text-primary">
+                    Điều hướng câu hỏi
+                  </span>
+                  <span className="text-[11px] font-medium text-text-tertiary">
+                    {answeredCount}/{quizDetail.items.length} đã chấm
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {quizDetail.items.map((navItem, i) => {
+                    const navEvaluated =
+                      Boolean(navItem.evaluatedAt) ||
+                      navItem.isCorrect === true ||
+                      navItem.isCorrect === false;
+                    const navHasDraft = Boolean(draftAnswers[navItem.id]?.trim());
+                    const pillClass = navEvaluated
+                      ? navItem.isCorrect === true
+                        ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300"
+                        : navItem.isCorrect === false
+                        ? "bg-rose-500/15 border-rose-500/40 text-rose-700 dark:text-rose-300"
+                        : "bg-indigo-500/15 border-indigo-500/40 text-indigo-700 dark:text-indigo-300"
+                      : navHasDraft
+                      ? "border-[#5E51E8]/50 bg-[#EEF0FD] dark:bg-[#1E1B4B] text-[#4338CA] dark:text-[#C7D2FE]"
+                      : "bg-[var(--surface-elevated)] border-[var(--border-calm)] text-text-secondary hover:border-accent/60 hover:text-text-primary";
+
+                    return (
+                      <button
+                        key={navItem.id}
+                        type="button"
+                        aria-label={`Đi tới câu ${i + 1}`}
+                        onClick={() =>
+                          document
+                            .querySelector('[data-testid="quiz-item-' + (i + 1) + '"]')
+                            ?.scrollIntoView({ behavior: "smooth", block: "center" })
+                        }
+                        className={`min-w-[2rem] h-8 px-2 rounded-lg border text-xs font-semibold transition cursor-pointer flex items-center justify-center ${pillClass}`}
+                      >
+                        {i + 1}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Quiz Items */}
             <div className="space-y-4">
               {quizDetail.items.map((item, idx) => {
@@ -1457,9 +1629,9 @@ function CourseQuizPageInner() {
                         <span className="inline-block text-[11px] font-semibold text-accent bg-accent-subtle px-2 py-0.5 rounded-md mb-2">
                           Câu {idx + 1} · {QUIZ_ITEM_TYPE_LABELS[item.itemType] ?? item.itemType.replace("_", " ")}
                         </span>
-                        <h3 className="text-sm font-semibold text-text-primary leading-relaxed">
+                        <div className="text-sm font-semibold text-text-primary leading-relaxed">
                           <RichInlineMarkdown text={questionText} />
-                        </h3>
+                        </div>
                       </div>
 
                       {isEvaluated && item.isCorrect !== null && (
@@ -1547,7 +1719,20 @@ function CourseQuizPageInner() {
                               [item.id]: e.target.value,
                             }))
                           }
-                          placeholder="Trình bày câu trả lời của bạn..."
+                          onKeyDown={(e) => {
+                            if (
+                              (e.ctrlKey || e.metaKey) &&
+                              e.key === "Enter" &&
+                              quizMode === "practice" &&
+                              !isEvaluated &&
+                              !isSubmitting &&
+                              draft.trim()
+                            ) {
+                              e.preventDefault();
+                              void handleSubmitItem(item);
+                            }
+                          }}
+                          placeholder="Trình bày câu trả lời của bạn... (Ctrl+Enter để nộp)"
                           className="w-full px-3 py-2 rounded-md border border-border bg-bg-secondary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent"
                         />
                       </div>
@@ -1561,6 +1746,19 @@ function CourseQuizPageInner() {
                             [item.id]: e.target.value,
                           }))
                         }
+                        onKeyDown={(e) => {
+                          if (
+                            (e.ctrlKey || e.metaKey) &&
+                            e.key === "Enter" &&
+                            quizMode === "practice" &&
+                            !isEvaluated &&
+                            !isSubmitting &&
+                            draft.trim()
+                          ) {
+                            e.preventDefault();
+                            void handleSubmitItem(item);
+                          }
+                        }}
                         placeholder="Nhập câu trả lời của bạn..."
                         className="w-full h-9 px-3 rounded-md border border-border bg-bg-secondary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent"
                       />
@@ -1570,12 +1768,12 @@ function CourseQuizPageInner() {
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                       <div className="flex flex-wrap items-center gap-2.5">
                         {isEvaluated && item.clozeSolution && item.isCorrect === false ? (
-                          <p className="text-xs text-text-secondary">
+                          <div className="text-xs text-text-secondary">
                             Đáp án chuẩn:{" "}
                             <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                               <RichInlineMarkdown text={item.clozeSolution} />
                             </span>
-                          </p>
+                          </div>
                         ) : null}
 
                         {isEvaluated && item.isCorrect === false && (
@@ -1610,7 +1808,7 @@ function CourseQuizPageInner() {
                             !draft.trim()
                           }
                           onClick={() => void handleSubmitItem(item)}
-                          className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+                          className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-md bg-accent dark:bg-[#818CF8] text-accent-contrast dark:text-[#0F0F12] text-xs font-medium hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
                         >
                           {isSubmitting ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1812,14 +2010,14 @@ function CourseQuizPageInner() {
                   type="submit"
                   data-testid="confirm-generate-quiz-btn"
                   disabled={generatingQuiz}
-                  className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-hover disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-accent dark:bg-[#818CF8] text-accent-contrast dark:text-[#0F0F12] text-xs font-medium hover:bg-accent-hover disabled:opacity-50 cursor-pointer"
                 >
                   {generatingQuiz ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   ) : (
                     <Plus className="w-3.5 h-3.5" />
                   )}
-                  <span>{generatingQuiz ? "Đang sinh đề..." : "Tạo đề ngay"}</span>
+                  <span>{generatingQuiz ? "Đang tạo đề..." : "Tạo đề ngay"}</span>
                 </button>
               </div>
             </form>

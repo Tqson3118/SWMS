@@ -572,10 +572,10 @@ export default function ExamsHubPage() {
             data-testid="open-create-exam-modal-btn"
             disabled={courseOptions.length === 0}
             onClick={() => openCreateModalForCourse()}
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold hover:opacity-95 disabled:opacity-50 transition shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-semibold disabled:opacity-50 transition shadow-xs cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Tạo Đề Tự Chọn</span>
+            <span>Tạo đề tự chọn</span>
           </button>
         </div>
       </header>
@@ -627,11 +627,11 @@ export default function ExamsHubPage() {
           />
           <StatCard
             title="Điểm TB các đề đã nộp"
-            value={averageCompletedPercent !== null ? `${averageCompletedPercent}%` : "Chưa có"}
+            value={averageCompletedPercent !== null ? `${averageCompletedPercent}%` : "—"}
             subtitle={
               completedQuizzes.length > 0
                 ? `Tính trên ${completedQuizzes.length} đề hoàn thành`
-                : "Hoàn thành 1 đề để xem tỷ lệ"
+                : "Hoàn thành 1 đề để xem kết quả"
             }
             icon={Trophy}
             variant="default"
@@ -639,7 +639,7 @@ export default function ExamsHubPage() {
           <StatCard
             title="Chuỗi ngày & Lượt làm"
             value={stats ? `${stats.streakDays} ngày` : "—"}
-            subtitle={stats ? `${stats.totalAttempts} lượt làm bài` : "Chưa có thống kê"}
+            subtitle={stats ? `${stats.totalAttempts} lượt làm bài` : "Chưa có lượt làm bài nào"}
             icon={Flame}
             variant="streak"
           />
@@ -651,7 +651,7 @@ export default function ExamsHubPage() {
         <section className="space-y-3">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 min-w-0">
             {/* Category Tabs */}
-            <div className="flex flex-nowrap overflow-x-auto no-scrollbar items-center gap-1.5 pb-1 lg:pb-0 max-w-full min-w-0">
+            <div className="flex flex-wrap items-center gap-1.5 max-w-full min-w-0">
               {(
                 [
                   { id: "all", label: "Tất cả" },
@@ -670,7 +670,7 @@ export default function ExamsHubPage() {
                     onClick={() => setCategoryFilter(tab.id)}
                     className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-[10px] text-xs font-medium whitespace-nowrap shrink-0 transition cursor-pointer ${
                       active
-                        ? "bg-[var(--accent)] text-white font-semibold shadow-xs"
+                        ? "bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] font-semibold shadow-xs"
                         : "bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-calm)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
                     }`}
                   >
@@ -678,7 +678,7 @@ export default function ExamsHubPage() {
                     <span
                       className={`text-[11px] px-1.5 py-0.2 rounded-full font-semibold ${
                         active
-                          ? "bg-white/20 text-white"
+                          ? "bg-white/20 text-white dark:bg-[#0F0F12]/15 dark:text-[#0F0F12]"
                           : "bg-[var(--surface-elevated)] text-[var(--text-tertiary)]"
                       }`}
                     >
@@ -728,6 +728,73 @@ export default function ExamsHubPage() {
               </div>
             </div>
           </div>
+
+          {hasActiveFilter && (
+            <div
+              data-testid="exams-active-filters"
+              className="flex flex-wrap items-center gap-2 pt-1"
+            >
+              <span className="text-[11px] font-medium text-[var(--text-tertiary)]">
+                Đang lọc:
+              </span>
+              {categoryFilter !== "all" && (
+                <button
+                  type="button"
+                  onClick={() => setCategoryFilter("all")}
+                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition cursor-pointer"
+                >
+                  <span>
+                    Loại:{" "}
+                    {categoryFilter === "final"
+                      ? "Thi cuối khóa"
+                      : categoryFilter === "chapter"
+                      ? "Kiểm tra chương"
+                      : categoryFilter === "lesson"
+                      ? "Quiz bài học"
+                      : "Đề tự tạo"}
+                  </span>
+                  <X className="w-3 h-3 text-[var(--text-tertiary)]" />
+                </button>
+              )}
+              {selectedCourseId !== "all" && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedCourseId("all")}
+                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition cursor-pointer max-w-[240px]"
+                >
+                  <span className="truncate">
+                    Khóa:{" "}
+                    {courseOptions.find((c) => c.id === selectedCourseId)?.title ??
+                      selectedCourseId}
+                  </span>
+                  <X className="w-3 h-3 text-[var(--text-tertiary)] shrink-0" />
+                </button>
+              )}
+              {searchQuery.trim().length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition cursor-pointer max-w-[220px]"
+                >
+                  <span className="truncate">Từ khóa: &ldquo;{searchQuery.trim()}&rdquo;</span>
+                  <X className="w-3 h-3 text-[var(--text-tertiary)] shrink-0" />
+                </button>
+              )}
+              <button
+                type="button"
+                data-testid="exams-clear-filters-btn"
+                onClick={() => {
+                  setCategoryFilter("all");
+                  setSelectedCourseId("all");
+                  setSearchQuery("");
+                }}
+                className="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+                <span>Xóa lọc</span>
+              </button>
+            </div>
+          )}
         </section>
       )}
 
@@ -767,7 +834,7 @@ export default function ExamsHubPage() {
                   <button
                     type="button"
                     onClick={() => openCreateModalForCourse()}
-                    className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold hover:opacity-95 transition cursor-pointer"
+                    className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-semibold transition cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Tạo Đề Tự Chọn</span>
@@ -817,7 +884,7 @@ export default function ExamsHubPage() {
 
                         <Link
                           href={`/app/courses/${courseGroup.courseId}/quiz`}
-                          className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold hover:opacity-95 transition shadow-xs"
+                          className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-semibold transition shadow-xs"
                         >
                           <ClipboardCheck className="w-3.5 h-3.5" />
                           <span>Mở Phòng Thi khóa học</span>
@@ -1074,7 +1141,7 @@ export default function ExamsHubPage() {
                   type="submit"
                   data-testid="confirm-create-exam-btn"
                   disabled={generating || !genCourseId}
-                  className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-xs cursor-pointer"
+                  className="inline-flex items-center gap-1.5 h-9 px-4 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition shadow-xs cursor-pointer"
                 >
                   {generating ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1155,7 +1222,7 @@ function ExamQuizCard({
 
         <Link
           href={`/app/courses/${courseId}/quiz?quizId=${encodeURIComponent(quiz.id)}`}
-          className="inline-flex items-center gap-1 h-7 px-2.5 rounded-[8px] bg-[var(--accent)] text-white text-[11px] font-semibold hover:opacity-95 transition whitespace-nowrap shrink-0"
+          className="inline-flex items-center gap-1 h-7 px-2.5 rounded-[8px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-[11px] font-semibold transition whitespace-nowrap shrink-0"
         >
           <span>Vào phòng thi</span>
           <ArrowRight className="w-3 h-3" />

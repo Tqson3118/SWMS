@@ -22,7 +22,7 @@ export const COURSE_DOMAINS: CourseDomainMeta[] = [
 ];
 
 /**
- * 10 chuẩn curated courses giữ lại trong hệ thống Studxy (WP-C1, C2, C3).
+ * 14 chuẩn curated courses giữ lại trong hệ thống Studxy (WP-C1, C2, C3 + Wave 1-3 Applied Systems).
  */
 export const CURATED_COURSE_SLUGS = [
   "doc-course-studxy-fullstack-bootcamp",
@@ -35,6 +35,10 @@ export const CURATED_COURSE_SLUGS = [
   "tieng-nhat-so-cap-n5",
   "tieng-trung-so-cap-hsk1",
   "he-dieu-hanh-bo-nho-ao",
+  "document-course-ai-workflows",
+  "document-course-data-sql",
+  "document-course-cybersecurity",
+  "document-course-deep-learning-systems",
 ] as const;
 
 /**
@@ -174,7 +178,35 @@ export function getCourseChapterCount(course: CourseLike): number {
 }
 
 export function classifyCourseDomain(course: CourseLike): CourseDomainMeta {
-  const rawCombined = `${course.category || ""} ${course.title || ""} ${course.description || ""}`;
+  const catNorm = normalizeVi(course.category || "");
+  if (catNorm) {
+    if (/(tam ly|ky nang song)/.test(catNorm)) {
+      return { id: "other", label: "Chủ đề khác" };
+    }
+    if (/(ngoai ngu|ielts|tieng anh|tieng nhat|tieng trung)/.test(catNorm)) {
+      return { id: "language", label: "Ngoại ngữ" };
+    }
+    if (/(tai chinh|dau tu|kinh te|quan tri|ke toan|kinh doanh)/.test(catNorm)) {
+      return { id: "business", label: "Kinh tế & Quản trị" };
+    }
+    if (
+      /(lap trinh|cong nghe|khoa hoc may tinh|full-stack|fullstack|ai|tu dong hoa|du lieu|sql|an toan thong tin|an toan so|bao mat|cyber|tu duy he thong)/.test(
+        catNorm
+      )
+    ) {
+      return { id: "technology", label: "Công nghệ & Lập trình" };
+    }
+    if (/(phap luat|xa hoi)/.test(catNorm)) {
+      return { id: "law", label: "Pháp luật & Xã hội" };
+    }
+    if (/(khoa hoc & toan|toan hoc|vat ly|hoa hoc|sinh hoc)/.test(catNorm)) {
+      return { id: "science", label: "Khoa học & Toán" };
+    }
+  }
+
+  const titleNorm = normalizeVi(course.title || "");
+  const slugNorm = normalizeVi((course as { slug?: string | null }).slug || "");
+  const rawCombined = `${course.category || ""} ${course.title || ""} ${course.description || ""} ${slugNorm}`;
   const combined = normalizeVi(rawCombined);
 
   // 1. Language - prioritize language so "Tiếng Anh cho Dân IT", "Tiếng Nhật N5", "Tiếng Trung HSK1" match language
@@ -186,20 +218,23 @@ export function classifyCourseDomain(course: CourseLike): CourseDomainMeta {
     return { id: "language", label: "Ngoại ngữ" };
   }
 
-  // 2. Law & Social
+  // 2. Law & Social (strip "kỷ luật" so investment behavioral discipline does not match "\bluat\b")
+  const combinedForLaw = combined.replace(/\bky luat\b/g, " ");
   if (
     /(phap luat|\bluat\b|hien phap|hinh su|dan su|hanh chinh|chinh tri|triet hoc|lich su|giao trinh phap|nha nuoc)/.test(
-      combined
+      combinedForLaw
     )
   ) {
     return { id: "law", label: "Pháp luật & Xã hội" };
   }
 
-  // 3. Technology & Programming - ensure short acronyms have \b word boundaries so "giai", "bai", "lai" never match "ai"
+  // 3. Technology & Programming - ensure short acronyms have \b word boundaries and guard "he thong" on non-tech domains
+  const isNonTechTitle = /(tam ly|ky nang song|dau tu|tai chinh)/.test(titleNorm);
   if (
-    /(lap trinh|coding|\bcode\b|react|next|typescript|javascript|python|\bjava\b|\bc#\b|dotnet|\.net|\bsql\b|database|backend|frontend|\bapi\b|\bai\b|machine learning|deep learning|\bml\b|\bllm\b|devops|cloud|docker|kubernetes|software|computer|may tinh|thuat toan|cau truc du lieu|mang may tinh|he dieu hanh|microservice|microservices|\bddd\b|event sourcing|phan tan|he thong)/.test(
+    /(lap trinh|coding|\bcode\b|react|next|typescript|javascript|python|\bjava\b|\bc#\b|dotnet|\.net|\bsql\b|database|backend|frontend|\bapi\b|\bai\b|machine learning|deep learning|\bml\b|\bllm\b|devops|cloud|docker|kubernetes|software|computer|may tinh|thuat toan|cau truc du lieu|mang may tinh|he dieu hanh|microservice|microservices|\bddd\b|event sourcing|phan tan|ai-workflows|data-sql|cybersecurity|deep-learning-systems|prompt engineering|structured outputs|\brag\b|workflow agent|an toan thong tin|an toan so|lua dao so|quyen rieng tu|phishing|quishing|passkeys?|fido2|tu duy du lieu|hoc sau|deep work)/.test(
       combined
-    )
+    ) ||
+    (!isNonTechTitle && /\bhe thong\b/.test(combined))
   ) {
     return { id: "technology", label: "Công nghệ & Lập trình" };
   }
@@ -257,7 +292,7 @@ export function isCurriculumStandardCourse(course: CourseLike): boolean {
   const norm = normalizeVi(rawCombined);
   return (
     /document-course-/.test(rawCombined) ||
-    /(ielts|tieng anh|english|tieng nhat|japanese|jlpt|\bn5\b|tieng trung|chinese|\bhsk\d?\b|\.net|c#|csharp|fullstack|full-stack|dau tu|tai chinh|ky nang song|tam ly hoc|he dieu hanh|hoc may|phap luat)/.test(
+    /(ielts|tieng anh|english|tieng nhat|japanese|jlpt|\bn5\b|tieng trung|chinese|\bhsk\d?\b|\.net|c#|csharp|fullstack|full-stack|dau tu|tai chinh|ky nang song|tam ly hoc|he dieu hanh|hoc may|phap luat|ai ung dung|tu dong hoa workflow|prompt engineering|tu duy du lieu|ra quyet dinh bang so lieu|an toan thong tin|lua dao so|hoc sau|tu duy he thong)/.test(
       norm
     )
   );
@@ -535,13 +570,13 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
     mins < 60 ? `${mins} phút học` : `~${Math.max(1, Math.round(mins / 60))} giờ học`;
   const norm = normalizeVi(`${course.title || ""} ${course.description || ""}`);
 
-  let levelLabel = "Lộ trình thực chiến";
+  let levelLabel = "Lộ trình ứng dụng";
   if (course.level === "foundation" || /(co ban|nhap mon|nen tang|phase 0|tu con so 0|dai cuong|basics|so cap|\bn5\b|\bhsk1\b)/.test(norm)) {
     levelLabel = "Nền tảng → Vững chắc";
   } else if (course.level === "advanced" || /(mastery|chuyen sau|nang cao|microservices|ddd|48 tuan|28 tuan|fullstack|full-stack)/.test(norm)) {
     levelLabel = "Chuyên sâu toàn diện";
   } else if (course.level === "intermediate") {
-    levelLabel = "Trung cấp thực chiến";
+    levelLabel = "Trung cấp ứng dụng";
   }
 
   switch (domain.id) {
@@ -621,7 +656,8 @@ export function getCourseVisualTheme(course: CourseLike): CourseVisualTheme {
 }
 
 export function extractCourseSkillTags(course: CourseLike): string[] {
-  const raw = `${course.title || ""} ${course.description || ""} ${course.category || ""}`;
+  const slug = (course as { slug?: string | null }).slug || "";
+  const raw = `${course.title || ""} ${course.description || ""} ${course.category || ""} ${slug}`;
   const norm = normalizeVi(raw);
   const domain = classifyCourseDomain(course);
   const tags: string[] = [];
@@ -644,7 +680,24 @@ export function extractCourseSkillTags(course: CourseLike): string[] {
       if (/\b(shadowing|dictation|chep chinh ta|listening|nghe)\b/.test(norm)) tags.push("Shadowing & Dictation");
     }
   } else {
+    const isDataSqlAnalytics =
+      /(data-sql|tu duy du lieu|ra quyet dinh bang so lieu|cohort|funnel|kpi tree|a\/b testing|data storytelling)/.test(
+        norm
+      );
     const rules: Array<[RegExp, string]> = [
+      [/(ai-workflows|ai ung dung|tu dong hoa workflow|workflow agent)/, "AI Workflows"],
+      [/\b(prompt engineering|structured outputs|\brag\b)\b/, "Prompt & RAG"],
+      ...(isDataSqlAnalytics
+        ? ([
+            [/\b(sql|data-sql|tu duy du lieu|ra quyet dinh bang so lieu)\b/, "SQL & Analytics"],
+            [/\b(cohort|funnel|window function|cte)\b/, "Cohort & Funnel"],
+            [/\b(kpi|a\/b testing|dashboard)\b/, "KPI & A/B Test"],
+          ] as Array<[RegExp, string]>)
+        : []),
+      [/(cybersecurity|an toan thong tin|an toan so|lua dao so|quyen rieng tu)/, "An toàn số"],
+      [/\b(phishing|quishing|passkeys?|fido2|deepfake)\b/, "Phòng chống lừa đảo"],
+      [/(deep-learning-systems|hoc sau|tu duy he thong|quan tri hieu suat thoi ai)/, "Học sâu"],
+      [/\b(tu duy he thong|stocks\/flows|mece|second-order)\b/, "Tư duy hệ thống"],
       [/(\.net|c#|csharp)/, "C# / .NET 10"],
       [/\b(react|next\.js|nextjs)\b/, "React & Next.js"],
       [/\b(typescript|javascript)\b/, "TypeScript"],
@@ -669,16 +722,16 @@ export function extractCourseSkillTags(course: CourseLike): string[] {
   }
 
   if (tags.length < 3) {
-    if (domain.id === "technology") tags.push("Lab Code & Debug");
+    if (domain.id === "technology") tags.push("Thực hành lập trình & Gỡ lỗi");
     else if (domain.id === "language") {
       if (!tags.includes("Word Map")) tags.push("Word Map");
       if (tags.length < 3 && !tags.includes("Chấm phát âm IPA")) tags.push("Chấm phát âm IPA");
       if (tags.length < 3 && !tags.includes("Shadowing & Dictation")) tags.push("Shadowing & Dictation");
     }
-    else if (domain.id === "business") tags.push("Biểu đồ & Tính toán");
-    else if (domain.id === "law") tags.push("Trích dẫn & Case");
+    else if (domain.id === "business") tags.push("Biểu đồ & tính toán");
+    else if (domain.id === "law") tags.push("Trích dẫn & tình huống");
     else if (domain.id === "science") tags.push("Tư duy Feynman");
-    else tags.push("Roleplay Tình huống");
+    else tags.push("Nhập vai tình huống");
   }
 
   if (tags.length < 3) {

@@ -9,9 +9,11 @@ import {
   Award,
   BookOpen,
   Brain,
+  Check,
   CheckCircle2,
   ClipboardCheck,
   Clock,
+  Copy,
   Flame,
   FlaskConical,
   Printer,
@@ -87,6 +89,7 @@ export default function CourseCertificatePage() {
   const [completedDateStr, setCompletedDateStr] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [copiedCode, setCopiedCode] = useState<boolean>(false);
 
   const loadData = useCallback(async () => {
     if (!courseId) return;
@@ -297,16 +300,46 @@ export default function CourseCertificatePage() {
     return `STX-${cleanId}-${(course?.progressPercent ?? 0) === 100 ? "100" : "PRO"}`;
   }, [courseId, course?.progressPercent]);
 
+  const handleCopyCertificateCode = async () => {
+    if (!certificateCode) return;
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(certificateCode);
+      } else {
+        throw new Error("Clipboard API unavailable");
+      }
+      setCopiedCode(true);
+      window.setTimeout(() => setCopiedCode(false), 2000);
+    } catch {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = certificateCode;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(textarea);
+        if (ok) {
+          setCopiedCode(true);
+          window.setTimeout(() => setCopiedCode(false), 2000);
+        }
+      } catch {
+        // Gracefully ignore clipboard errors
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        <div className="h-8 w-48 rounded bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="h-8 w-48 rounded bg-[var(--surface-elevated)] swms-skeleton" />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-24 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+            <div key={i} className="h-24 rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
           ))}
         </div>
-        <div className="h-96 rounded-2xl bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="h-96 rounded-2xl bg-[var(--surface-elevated)] swms-skeleton" />
       </div>
     );
   }
@@ -378,9 +411,9 @@ export default function CourseCertificatePage() {
         @media print {
           @page {
             size: A4 landscape;
-            margin: 10mm;
+            margin: 8mm;
           }
-          body {
+          html, body {
             background: #ffffff !important;
             color: #0f172a !important;
             -webkit-print-color-adjust: exact !important;
@@ -389,20 +422,27 @@ export default function CourseCertificatePage() {
           aside, nav, header, footer, [data-testid="app-sidebar"] {
             display: none !important;
           }
+          [data-testid="certificate-canvas"] {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+          }
         }
       `}</style>
 
       {/* Top Navigation & Actions (Hidden in Print) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden">
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-2 text-sm min-w-0">
           <Link
             href={`/app/courses/${courseId}`}
-            className="inline-flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium transition"
+            className="inline-flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium transition shrink-0"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Quay lại khóa học</span>
           </Link>
-          <span className="text-[var(--text-tertiary)]">·</span>
+          <span className="text-[var(--text-tertiary)] shrink-0">·</span>
           <span className="text-[var(--text-primary)] font-semibold truncate max-w-xs sm:max-w-md">
             Tổng kết &amp; Chứng nhận
           </span>
@@ -414,6 +454,7 @@ export default function CourseCertificatePage() {
             onClick={() => window.print()}
             leftIcon={<Printer className="w-4 h-4" />}
             data-testid="print-certificate-btn"
+            className="bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
           >
             <span>In / Xuất Chứng nhận PDF</span>
           </Button>
@@ -453,7 +494,7 @@ export default function CourseCertificatePage() {
             </div>
             <div>
               <p className="text-xs text-[var(--text-tertiary)] font-medium">
-                Tổng thời gian học thật
+                Tổng thời gian học thực tế
               </p>
               <p className="text-lg font-bold text-[var(--text-primary)]">{studiedHoursText}</p>
             </div>
@@ -507,58 +548,71 @@ export default function CourseCertificatePage() {
       {/* Printable Certificate of Completion Canvas */}
       <div
         data-testid="certificate-canvas"
-        className="relative rounded-2xl bg-gradient-to-br from-amber-50/70 via-white to-indigo-50/60 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/50 p-4 sm:p-8 shadow-lg border-2 border-amber-500/40 print:shadow-none print:border-4 print:border-amber-600 print:rounded-none print:bg-white print:text-slate-900"
+        className="relative rounded-2xl bg-gradient-to-br from-amber-50/80 via-white to-indigo-50/70 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/50 p-3 sm:p-6 shadow-lg border-2 border-amber-500/50 dark:border-amber-400/40 print:shadow-none print:border-4 print:border-amber-700 print:rounded-none print:bg-white print:text-slate-900"
       >
         {/* Classic Double Ornamental Inner Frame */}
-        <div className="relative border-2 border-amber-600/40 dark:border-amber-400/30 rounded-xl p-6 sm:p-10 text-center space-y-6 bg-white/85 dark:bg-slate-950/75 backdrop-blur-xs print:bg-white print:border-2 print:border-amber-700/60">
+        <div className="relative overflow-hidden border-[3px] border-double border-amber-600/55 dark:border-amber-400/40 rounded-xl p-6 sm:p-10 text-center space-y-6 bg-white/90 dark:bg-slate-950/80 backdrop-blur-xs print:bg-white print:border-[3px] print:border-double print:border-amber-700/70">
+          {/* Subtle Watermark Seal */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none select-none absolute inset-0 flex items-center justify-center overflow-hidden"
+          >
+            <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-full border-4 border-double border-amber-600/10 dark:border-amber-300/10 print:border-amber-700/10 flex flex-col items-center justify-center gap-1.5 -rotate-12">
+              <Award className="w-20 h-20 text-amber-600/10 dark:text-amber-300/10 print:text-amber-700/10" />
+              <span className="text-[11px] font-bold tracking-[0.35em] uppercase text-amber-700/15 dark:text-amber-300/15 print:text-amber-800/15">
+                Studxy Verified
+              </span>
+            </div>
+          </div>
+
           {/* Corner Ornaments */}
-          <div className="w-6 h-6 border-t-2 border-l-2 border-amber-600 absolute top-3 left-3" />
-          <div className="w-6 h-6 border-t-2 border-r-2 border-amber-600 absolute top-3 right-3" />
-          <div className="w-6 h-6 border-b-2 border-l-2 border-amber-600 absolute bottom-3 left-3" />
-          <div className="w-6 h-6 border-b-2 border-r-2 border-amber-600 absolute bottom-3 right-3" />
+          <div className="w-6 h-6 border-t-2 border-l-2 border-amber-600 dark:border-amber-400 print:border-amber-700 absolute top-3 left-3" />
+          <div className="w-6 h-6 border-t-2 border-r-2 border-amber-600 dark:border-amber-400 print:border-amber-700 absolute top-3 right-3" />
+          <div className="w-6 h-6 border-b-2 border-l-2 border-amber-600 dark:border-amber-400 print:border-amber-700 absolute bottom-3 left-3" />
+          <div className="w-6 h-6 border-b-2 border-r-2 border-amber-600 dark:border-amber-400 print:border-amber-700 absolute bottom-3 right-3" />
 
           {/* Header Seal */}
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 via-amber-600 to-yellow-700 text-white flex items-center justify-center shadow-md border-4 border-amber-100 dark:border-amber-900/60">
+          <div className="relative z-10 flex flex-col items-center gap-2">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 via-amber-600 to-yellow-700 text-white flex items-center justify-center shadow-md border-4 border-amber-100 dark:border-amber-900/60 print:border-amber-200">
               <Award className="w-7 h-7" />
             </div>
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-amber-700 dark:text-amber-400">
-              Studxy Academic Learning Platform
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-amber-800 dark:text-amber-300 print:text-amber-800">
+              Nền tảng học tập chủ động Studxy
             </p>
-            <h1 className="text-2xl sm:text-4xl font-serif font-bold tracking-tight text-slate-900 dark:text-white print:text-slate-900">
+            <h1 className="text-2xl sm:text-4xl font-serif font-bold tracking-tight text-slate-900 dark:text-slate-50 print:text-slate-900">
               CHỨNG NHẬN HOÀN THÀNH
             </h1>
-            <p className="text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            <p className="text-xs uppercase tracking-widest text-slate-600 dark:text-slate-300 print:text-slate-600">
               Certificate of Course Completion
             </p>
           </div>
 
           {/* Recipient */}
-          <div className="space-y-2 py-2">
-            <p className="text-xs sm:text-sm italic text-slate-600 dark:text-slate-300">
+          <div className="relative z-10 space-y-2 py-2">
+            <p className="text-xs sm:text-sm italic text-slate-700 dark:text-slate-200 print:text-slate-700">
               Trân trọng trao tặng chứng nhận này cho học viên:
             </p>
             <p
               data-testid="certificate-learner-name"
-              className="text-2xl sm:text-3xl font-bold text-[#4F46E5] dark:text-[#A5B4FC] print:text-indigo-800 border-b-2 border-amber-500/40 inline-block px-8 pb-1.5"
+              className="text-2xl sm:text-3xl font-bold text-[#4F46E5] dark:text-[#A5B4FC] print:text-indigo-900 border-b-2 border-amber-500/50 inline-block px-8 pb-1.5"
             >
               {learnerName}
             </p>
             {learnerEmail && (
-              <p className="text-xs text-slate-500 dark:text-slate-400">{learnerEmail}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-300 print:text-slate-600">{learnerEmail}</p>
             )}
           </div>
 
           {/* Course Details */}
-          <div className="max-w-2xl mx-auto space-y-3">
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+          <div className="relative z-10 max-w-2xl mx-auto space-y-3">
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 print:text-slate-700">
               {course.progressPercent >= 100
                 ? "Đã hoàn thành xuất sắc 100% chương trình đào tạo và bài tập thực hành của khóa học:"
                 : `Đã tham gia và hoàn thành ${course.progressPercent}% (${course.completedLessons}/${course.totalLessons} bài giảng) thuộc lộ trình:`}
             </p>
             <h2
               data-testid="certificate-course-title"
-              className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white print:text-slate-900 leading-snug"
+              className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-50 print:text-slate-900 leading-snug"
             >
               {course.title}
             </h2>
@@ -581,60 +635,60 @@ export default function CourseCertificatePage() {
           {/* 4-Dimensional Academic Transcript */}
           <div
             data-testid="certificate-academic-transcript"
-            className="max-w-3xl mx-auto rounded-xl border border-slate-200 dark:border-slate-800 print:border-slate-300 bg-slate-50/70 dark:bg-slate-900/60 print:bg-slate-50 p-4 text-left space-y-3"
+            className="relative z-10 max-w-3xl mx-auto rounded-xl border border-slate-200 dark:border-slate-700/80 print:border-slate-300 bg-slate-50/80 dark:bg-slate-900/70 print:bg-slate-50 p-4 text-left space-y-3"
           >
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 print:text-slate-600 text-center">
-              Bảng Điểm Học Thuật Toàn Diện (4 Chiều Năng Lực)
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 print:text-slate-700 text-center">
+              Bảng tổng kết năng lực học tập (4 trụ cột)
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="rounded-lg border border-slate-200 dark:border-slate-700/80 print:border-slate-300 bg-white dark:bg-slate-950/60 print:bg-white p-3">
-                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 print:text-indigo-700">
+              <div className="rounded-lg border border-slate-200 dark:border-slate-700/80 print:border-slate-300 bg-white dark:bg-slate-950/70 print:bg-white p-3">
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 print:text-indigo-800">
                   <BookOpen className="w-3.5 h-3.5 shrink-0" />
                   <span>Bài giảng Lý thuyết</span>
                 </div>
-                <p className="text-base font-bold text-slate-900 dark:text-white print:text-slate-900 mt-1">
+                <p className="text-base font-bold text-slate-900 dark:text-slate-50 print:text-slate-900 mt-1">
                   {course.completedLessons}/{course.totalLessons} bài
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 print:text-slate-600">
                   Tiến độ {course.progressPercent}%
                 </p>
               </div>
 
-              <div className="rounded-lg border border-slate-200 dark:border-slate-700/80 print:border-slate-300 bg-white dark:bg-slate-950/60 print:bg-white p-3">
-                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 print:text-emerald-700">
+              <div className="rounded-lg border border-slate-200 dark:border-slate-700/80 print:border-slate-300 bg-white dark:bg-slate-950/70 print:bg-white p-3">
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 print:text-emerald-800">
                   <FlaskConical className="w-3.5 h-3.5 shrink-0" />
-                  <span>Practice Lab</span>
+                  <span>Phòng thực hành</span>
                 </div>
-                <p className="text-base font-bold text-slate-900 dark:text-white print:text-slate-900 mt-1">
+                <p className="text-base font-bold text-slate-900 dark:text-slate-50 print:text-slate-900 mt-1">
                   {course.practicePassedActivities ?? 0}/{course.practiceTotalActivities ?? 0} bài đạt
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 print:text-slate-600">
                   Điểm TB: {(course.practiceAverageScore ?? 0) > 0 ? `${course.practiceAverageScore}%` : "Chưa chấm"}
                 </p>
               </div>
 
-              <div className="rounded-lg border border-slate-200 dark:border-slate-700/80 print:border-slate-300 bg-white dark:bg-slate-950/60 print:bg-white p-3">
-                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-sky-700 dark:text-sky-300 print:text-sky-700">
+              <div className="rounded-lg border border-slate-200 dark:border-slate-700/80 print:border-slate-300 bg-white dark:bg-slate-950/70 print:bg-white p-3">
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-sky-700 dark:text-sky-300 print:text-sky-800">
                   <ClipboardCheck className="w-3.5 h-3.5 shrink-0" />
                   <span>Kiểm tra &amp; Đề thi</span>
                 </div>
-                <p className="text-base font-bold text-slate-900 dark:text-white print:text-slate-900 mt-1">
+                <p className="text-base font-bold text-slate-900 dark:text-slate-50 print:text-slate-900 mt-1">
                   {quizTranscript.completedQuizzes}/{quizTranscript.totalQuizzes || course.quizCount || 0} đề
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 print:text-slate-600">
                   Chính xác: {quizTranscript.correctItems}/{quizTranscript.totalItems} ({quizTranscript.accuracyPercent}%)
                 </p>
               </div>
 
-              <div className="rounded-lg border border-slate-200 dark:border-slate-700/80 print:border-slate-300 bg-white dark:bg-slate-950/60 print:bg-white p-3">
-                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300 print:text-amber-700">
+              <div className="rounded-lg border border-slate-200 dark:border-slate-700/80 print:border-slate-300 bg-white dark:bg-slate-950/70 print:bg-white p-3">
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300 print:text-amber-800">
                   <Brain className="w-3.5 h-3.5 shrink-0" />
                   <span>Trí nhớ FSRS v5</span>
                 </div>
-                <p className="text-base font-bold text-slate-900 dark:text-white print:text-slate-900 mt-1">
+                <p className="text-base font-bold text-slate-900 dark:text-slate-50 print:text-slate-900 mt-1">
                   {course.masteredFlashcardCount ?? 0}/{course.flashcardCount ?? 0} thuộc
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 print:text-slate-600">
                   Cần ôn ngay: {course.dueFlashcardCount ?? 0} thẻ
                 </p>
               </div>
@@ -642,42 +696,63 @@ export default function CourseCertificatePage() {
           </div>
 
           {/* Metadata Footer Row */}
-          <div className="pt-6 mt-6 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-4 text-left max-w-3xl mx-auto">
+          <div className="relative z-10 pt-6 mt-6 border-t border-slate-200 dark:border-slate-800 print:border-slate-300 grid grid-cols-2 sm:grid-cols-4 gap-4 text-left max-w-3xl mx-auto">
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+              <p className="text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-400 print:text-slate-600 font-semibold">
                 Ngày cấp
               </p>
-              <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 print:text-slate-900 mt-0.5">
+              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 print:text-slate-900 mt-0.5">
                 {completedDateStr}
               </p>
             </div>
 
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+              <p className="text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-400 print:text-slate-600 font-semibold">
                 Thời lượng đào tạo
               </p>
-              <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 print:text-slate-900 mt-0.5">
+              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 print:text-slate-900 mt-0.5">
                 {theme.estimatedHoursLabel} ({totalCourseMinutes} phút)
               </p>
             </div>
 
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+              <p className="text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-400 print:text-slate-600 font-semibold">
                 Thời gian học thực tế
               </p>
-              <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 print:text-slate-900 mt-0.5">
+              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 print:text-slate-900 mt-0.5">
                 {studiedHoursText}
               </p>
             </div>
 
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+              <p className="text-[11px] uppercase tracking-wider text-slate-600 dark:text-slate-400 print:text-slate-600 font-semibold">
                 Mã chứng nhận
               </p>
-              <p className="text-xs sm:text-sm font-mono font-bold text-amber-700 dark:text-amber-400 mt-0.5 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-                <span>{certificateCode}</span>
-              </p>
+              <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                <p className="text-xs sm:text-sm font-mono font-bold text-amber-800 dark:text-amber-300 print:text-amber-900 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  <span>{certificateCode}</span>
+                </p>
+                <button
+                  type="button"
+                  onClick={handleCopyCertificateCode}
+                  aria-label="Sao chép mã chứng nhận"
+                  title={copiedCode ? "Đã sao chép" : "Sao chép mã chứng nhận"}
+                  className="print:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-amber-500/35 bg-amber-50/90 dark:bg-amber-950/50 text-[11px] font-semibold text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition cursor-pointer"
+                >
+                  {copiedCode ? (
+                    <>
+                      <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                      <span>Đã chép</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3 h-3" />
+                      <span>Sao chép mã chứng nhận</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

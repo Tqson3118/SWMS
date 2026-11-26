@@ -70,6 +70,14 @@ interface RetiredCourseInfo {
   redirectCourseId?: string | null;
 }
 
+function formatLevelLabel(level?: string | null, fallback?: string): string {
+  const norm = (level || "").trim().toLowerCase();
+  if (norm === "foundation" || norm === "beginner") return "Cơ bản";
+  if (norm === "intermediate") return "Trung cấp";
+  if (norm === "advanced") return "Nâng cao";
+  return level?.trim() || fallback || "Cơ bản";
+}
+
 function CourseDetailPageInner() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -686,16 +694,16 @@ function CourseDetailPageInner() {
   if (isLoading) {
     return (
       <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-10 min-h-[80vh] space-y-6">
-        <div className="h-6 w-32 rounded bg-[var(--surface-elevated)] animate-pulse" />
-        <div className="h-10 w-96 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
-        <div className="h-28 w-full rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="h-6 w-32 rounded bg-[var(--surface-elevated)] swms-skeleton" />
+        <div className="h-10 w-96 max-w-full rounded-lg bg-[var(--surface-elevated)] swms-skeleton" />
+        <div className="h-28 w-full rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
           <div className="lg:col-span-8 space-y-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-14 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+              <div key={i} className="h-14 rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
             ))}
           </div>
-          <div className="lg:col-span-4 h-64 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="lg:col-span-4 h-64 rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
         </div>
       </div>
     );
@@ -741,7 +749,7 @@ function CourseDetailPageInner() {
                 <Button
                   variant="primary"
                   size="lg"
-                  className="w-full sm:w-auto bg-[#5E51E8] hover:bg-[#4F46E5] text-white"
+                  className="w-full sm:w-auto bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
                   <span>Chuyển tới Lộ trình Chuẩn Mới</span>
@@ -817,13 +825,13 @@ function CourseDetailPageInner() {
       {/* Breadcrumb */}
       <nav
         aria-label="Breadcrumb"
-        className="flex items-center gap-2 text-sm text-[var(--text-tertiary)] overflow-x-auto whitespace-nowrap"
+        className="flex items-center gap-1.5 text-xs text-[var(--text-tertiary)] min-w-0"
       >
-        <Link href="/app/courses" className="hover:text-[var(--text-primary)] transition">
+        <Link href="/app/courses" className="hover:text-[var(--text-primary)] transition shrink-0">
           Khóa học
         </Link>
-        <span>·</span>
-        <span className="text-[var(--text-primary)] font-medium truncate">{course.title}</span>
+        <span aria-hidden="true" className="shrink-0">/</span>
+        <span className="text-[var(--text-secondary)] font-medium truncate">{course.title}</span>
       </nav>
 
       {/* Hero Summary Card */}
@@ -841,7 +849,7 @@ function CourseDetailPageInner() {
                 </span>
 
                 <Badge variant="neutral" size="sm">
-                  {course.level || theme.levelLabel}
+                  {formatLevelLabel(course.level, theme.levelLabel)}
                 </Badge>
 
                 {isSystemCourse ? (
@@ -993,11 +1001,11 @@ function CourseDetailPageInner() {
                 </p>
               </div>
 
-              <Link href={continueLearnHref} data-testid="course-continue-learn-btn">
+              <Link href={continueLearnHref} data-testid="course-continue-learn-btn" className="w-full sm:w-auto shrink-0">
                 <Button
                   variant="primary"
                   leftIcon={<Play className="w-4 h-4 fill-current" />}
-                  className="shrink-0 bg-[#5E51E8] hover:bg-[#4F46E5] text-white"
+                  className="w-full sm:w-auto shrink-0 bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
                 >
                   <span>
                     {course.progressPercent > 0 || Boolean(resumeState?.lastLessonId)
@@ -1012,11 +1020,11 @@ function CourseDetailPageInner() {
           {/* Hero Quick Action Buttons */}
           <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[var(--border-calm)]/60">
             {!resumeLesson && (
-              <Link href={continueLearnHref} data-testid="course-continue-learn-btn">
+              <Link href={continueLearnHref} data-testid="course-continue-learn-btn" className="w-full sm:w-auto">
                 <Button
                   variant="primary"
                   leftIcon={<Play className="w-4 h-4 fill-current" />}
-                  className="bg-[#5E51E8] hover:bg-[#4F46E5] text-white"
+                  className="w-full sm:w-auto bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
                 >
                   <span>{course.progressPercent > 0 ? "Tiếp tục học" : "Bắt đầu học"}</span>
                 </Button>
@@ -1042,8 +1050,8 @@ function CourseDetailPageInner() {
               >
                 <span>
                   {(course.quizCount ?? 0) > 0
-                    ? `Làm Quiz (${course.quizCount})`
-                    : "Làm Quiz"}
+                    ? `Làm bài kiểm tra (${course.quizCount})`
+                    : "Làm bài kiểm tra"}
                 </span>
               </Button>
             </Link>
@@ -1079,7 +1087,7 @@ function CourseDetailPageInner() {
               onClick={() => void handleDownloadStudyGuide()}
               leftIcon={<Download className="w-4 h-4 text-[var(--text-secondary)]" />}
             >
-              <span>{downloadingGuide ? "Đang tạo Đề cương..." : "Tải Đề cương (.md)"}</span>
+              <span>{downloadingGuide ? "Đang xuất đề cương..." : "Tải đề cương (.md)"}</span>
             </Button>
 
             {/* Certificate */}
@@ -1088,7 +1096,7 @@ function CourseDetailPageInner() {
                 variant="secondary"
                 leftIcon={<Award className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
               >
-                <span>Xem Tổng kết &amp; Chứng nhận</span>
+                <span>Xem tổng kết &amp; chứng nhận</span>
               </Button>
             </Link>
           </div>
@@ -1096,12 +1104,12 @@ function CourseDetailPageInner() {
       </Card>
 
       {/* 4 Tabs Synchronized with URL ?tab=syllabus|practice|assets|settings */}
-      <div className="border-b border-[var(--border-calm)]">
+      <div className="relative border-b border-[var(--border-calm)]">
         <nav
           role="tablist"
-          aria-label="Course Hub Tabs"
+          aria-label="Các mục trong khóa học"
           onKeyDown={handleTabListKeyDown}
-          className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar -mb-px"
+          className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth pr-6 sm:pr-0 -mb-px"
         >
           {/* Tab 1: Syllabus */}
           <button
@@ -1200,6 +1208,10 @@ function CourseDetailPageInner() {
             <span>Cài đặt khóa học</span>
           </button>
         </nav>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[var(--surface-card)]/90 to-transparent sm:hidden"
+        />
       </div>
 
       {/* Tab Panels */}
@@ -1293,9 +1305,9 @@ export default function CourseDetailPage() {
     <Suspense
       fallback={
         <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 min-h-[80vh] space-y-6">
-          <div className="h-6 w-32 rounded bg-[var(--surface-elevated)] animate-pulse" />
-          <div className="h-10 w-96 rounded-lg bg-[var(--surface-elevated)] animate-pulse" />
-          <div className="h-28 w-full rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="h-6 w-32 rounded bg-[var(--surface-elevated)] swms-skeleton" />
+          <div className="h-10 w-96 max-w-full rounded-lg bg-[var(--surface-elevated)] swms-skeleton" />
+          <div className="h-28 w-full rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
         </div>
       }
     >

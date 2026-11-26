@@ -424,7 +424,7 @@ export function CourseInSearchModal({
             aria-autocomplete="list"
             value={query}
             onChange={(e) => handleQueryChange(e.target.value)}
-            placeholder="Tìm kiếm nội dung trong toàn bộ khóa học... (từ khóa, bài học, chương)"
+            placeholder="Tìm bài học, chương hoặc từ khóa trong khóa học..."
             className="flex-1 min-w-0 bg-transparent text-sm sm:text-base text-text-primary placeholder:text-text-tertiary focus:outline-none"
           />
           {isLoading ? (
@@ -461,7 +461,7 @@ export function CourseInSearchModal({
                 : `Không tìm thấy kết quả nào cho "${query}"`}
             </span>
             <span className="text-[11px] text-text-tertiary shrink-0 hidden sm:inline">
-              Nhấn vào bài học để chuyển ngay
+              Chọn bài học để chuyển đến ngay
             </span>
           </div>
         )}

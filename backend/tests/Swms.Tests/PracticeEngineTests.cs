@@ -1097,11 +1097,11 @@ public class PracticeEngineTests
         Assert.True(await db.CourseEnrollments.AnyAsync(e =>
             e.UserId == SeedDataInitializer.DefaultUserId && e.CourseId == SeedDataInitializer.ChineseCourseId));
 
-        // 2. Verify 3 chapters x 2 lessons = 6 lessons for each course, and all GUIDs are strictly unique
+        // 2. Verify 5 chapters x 12 lessons (3 legacy chapters x 2 + 2 expanded chapters x 3) for each course, and all GUIDs are strictly unique
         var jaChapters = await db.Chapters.Where(c => c.CourseId == SeedDataInitializer.JapaneseCourseId).OrderBy(c => c.SortOrder).ToListAsync();
         var zhChapters = await db.Chapters.Where(c => c.CourseId == SeedDataInitializer.ChineseCourseId).OrderBy(c => c.SortOrder).ToListAsync();
-        Assert.Equal(3, jaChapters.Count);
-        Assert.Equal(3, zhChapters.Count);
+        Assert.Equal(5, jaChapters.Count);
+        Assert.Equal(5, zhChapters.Count);
 
         var jaLessonIds = new[]
         {
@@ -1133,14 +1133,18 @@ public class PracticeEngineTests
         Assert.Equal(6, jaLessons.Count);
         Assert.Equal(6, zhLessons.Count);
 
-        foreach (var ch in jaChapters)
+        foreach (var ch in jaChapters.Where(c => c.SortOrder <= 3))
         {
             Assert.Equal(2, jaLessons.Count(l => l.ChapterId == ch.Id));
         }
-        foreach (var ch in zhChapters)
+        foreach (var ch in zhChapters.Where(c => c.SortOrder <= 3))
         {
             Assert.Equal(2, zhLessons.Count(l => l.ChapterId == ch.Id));
         }
+        var jaChapterIdsAll = jaChapters.Select(c => c.Id).ToList();
+        var zhChapterIdsAll = zhChapters.Select(c => c.Id).ToList();
+        Assert.Equal(12, await db.Lessons.CountAsync(l => jaChapterIdsAll.Contains(l.ChapterId)));
+        Assert.Equal(12, await db.Lessons.CountAsync(l => zhChapterIdsAll.Contains(l.ChapterId)));
 
         // 3. Verify all 12 lessons have marker + all required PracticeActivities with lang ja-JP / zh-CN and item counts
         var minCountsByType = new Dictionary<string, int>
@@ -1429,17 +1433,39 @@ public class PracticeEngineTests
         }
         await db.SaveChangesAsync();
 
-        var englishChapterIds = await db.Chapters
-            .Where(ch => ch.CourseId == SeedDataInitializer.EnglishCourseId)
-            .Select(ch => ch.Id)
-            .ToListAsync();
-        var englishLessons = await db.Lessons.Where(l => englishChapterIds.Contains(l.ChapterId)).ToListAsync();
+        var legacyEnglishChapterIds = new[]
+        {
+            SeedDataInitializer.EnglishChapter1Id,
+            SeedDataInitializer.EnglishChapter2Id,
+            SeedDataInitializer.EnglishChapter3Id
+        };
+        var englishLessons = await db.Lessons.Where(l => legacyEnglishChapterIds.Contains(l.ChapterId)).ToListAsync();
         Assert.Equal(6, englishLessons.Count);
         foreach (var lesson in englishLessons)
         {
             lesson.CurrentVersion = 1;
             lesson.ContentMarkdown = $"# Legacy 3763b88 English Lesson {lesson.Title}\nNội dung ngắn cũ chưa có marker v2.";
         }
+
+        // Remove expanded English chapters 4..5 so SeedAsync cleanly exercises legacy 6-lesson -> 12-lesson upgrade
+        var expandedEngChapterIds = new[]
+        {
+            ExpandedSeededCoursesContent.EnChapter4Id,
+            ExpandedSeededCoursesContent.EnChapter5Id
+        };
+        var expandedEngLessonsToRemove = await db.Lessons
+            .Where(l => expandedEngChapterIds.Contains(l.ChapterId))
+            .ToListAsync();
+        var expandedEngLessonIdsToRemove = expandedEngLessonsToRemove.Select(l => l.Id).ToList();
+        var expandedEngActsToRemove = await db.PracticeActivities
+            .Where(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId && pa.LessonId.HasValue && expandedEngLessonIdsToRemove.Contains(pa.LessonId.Value))
+            .ToListAsync();
+        var expandedEngChaptersToRemove = await db.Chapters
+            .Where(ch => expandedEngChapterIds.Contains(ch.Id))
+            .ToListAsync();
+        db.PracticeActivities.RemoveRange(expandedEngActsToRemove);
+        db.Lessons.RemoveRange(expandedEngLessonsToRemove);
+        db.Chapters.RemoveRange(expandedEngChaptersToRemove);
 
         var expansionCourseIds = new[]
         {
@@ -1505,12 +1531,14 @@ public class PracticeEngineTests
         // 2. Execute top-level SeedDataInitializer.SeedAsync(db) (enters `if (await db.Users.AnyAsync())` branch)
         await SeedDataInitializer.SeedAsync(db);
 
-        // 3. Assert English theory & extended activities (OrderIndex 5..8) upgraded while preserving legacy 1..4 IDs
-        var upgradedEngLessons = await db.Lessons
+        // 3. Assert legacy English theory & extended activities upgraded while preserving legacy 1..4 IDs,
+        //    AND expanded to 5 chapters / 12 lessons / >= 126 total English activities
+        var upgradedLegacyEngLessons = await db.Lessons
             .AsNoTracking()
-            .Where(l => englishChapterIds.Contains(l.ChapterId))
+            .Where(l => legacyEnglishChapterIds.Contains(l.ChapterId))
             .ToListAsync();
-        foreach (var l in upgradedEngLessons)
+        Assert.Equal(6, upgradedLegacyEngLessons.Count);
+        foreach (var l in upgradedLegacyEngLessons)
         {
             Assert.Contains("<!-- studxy-en-v2 -->", l.ContentMarkdown);
             Assert.Equal(1, l.CurrentVersion);
@@ -1522,12 +1550,25 @@ public class PracticeEngineTests
             .ToListAsync();
         Assert.Equal(legacyEngIdsBefore.OrderBy(x => x), legacyEngIdsAfter.OrderBy(x => x));
 
+        var allEngChaptersAfter = await db.Chapters
+            .AsNoTracking()
+            .Where(ch => ch.CourseId == SeedDataInitializer.EnglishCourseId)
+            .ToListAsync();
+        Assert.Equal(5, allEngChaptersAfter.Count);
+        var allEngChapterIdsAfter = allEngChaptersAfter.Select(ch => ch.Id).ToList();
+        var allEngLessonsAfter = await db.Lessons
+            .AsNoTracking()
+            .Where(l => allEngChapterIdsAfter.Contains(l.ChapterId))
+            .ToListAsync();
+        Assert.Equal(12, allEngLessonsAfter.Count);
+
         var totalEngActsAfter = await db.PracticeActivities
             .CountAsync(pa => pa.CourseId == SeedDataInitializer.EnglishCourseId);
-        Assert.Equal(78, totalEngActsAfter); // 24 legacy (OrderIndex 1..4) + 54 extended across 6 lessons
+        Assert.True(totalEngActsAfter >= 126, $"Expected >= 126 English activities (78 legacy/extended + 48 expanded), got {totalEngActsAfter}");
 
-        foreach (var l in upgradedEngLessons)
+        foreach (var l in allEngLessonsAfter)
         {
+            Assert.Contains("<!-- studxy-en-v2 -->", l.ContentMarkdown);
             var distinctEngTypes = await db.PracticeActivities
                 .Where(pa => pa.LessonId == l.Id)
                 .Select(pa => pa.Type)
@@ -1557,7 +1598,7 @@ public class PracticeEngineTests
             .CountAsync(pa => targetCourseIds.Contains(pa.CourseId) && pa.OrderIndex >= 201);
         Assert.True(migratedCount >= 132, $"Expected >= 132 migrated write-in activities, got {migratedCount}");
 
-        // 5. Assert Japanese N5 and Chinese HSK1 courses, chapters, lessons, and 8 activity types per lesson were created
+        // 5. Assert Japanese N5 and Chinese HSK1 courses, 5 chapters, 12 lessons, and 8 activity types per lesson were created
         foreach (var cjkCourseId in cjkCourseIds)
         {
             Assert.True(await db.Courses.AnyAsync(c => c.Id == cjkCourseId));
@@ -1566,8 +1607,9 @@ public class PracticeEngineTests
                 .Where(ch => ch.CourseId == cjkCourseId)
                 .Select(ch => ch.Id)
                 .ToListAsync();
+            Assert.Equal(5, courseChIds.Count);
             var lessons = await db.Lessons.AsNoTracking().Where(l => courseChIds.Contains(l.ChapterId)).ToListAsync();
-            Assert.Equal(6, lessons.Count);
+            Assert.Equal(12, lessons.Count);
             foreach (var l in lessons)
             {
                 Assert.Contains("<!-- studxy-cjk-v1 -->", l.ContentMarkdown);
@@ -1620,15 +1662,15 @@ public class PracticeEngineTests
             var osChapters = await db.Chapters.AsNoTracking()
                 .Where(ch => ch.CourseId == SeedDataInitializer.AcademicCourseId)
                 .ToListAsync();
-            Assert.Equal(3, osChapters.Count);
+            Assert.Equal(5, osChapters.Count);
 
             var osChapterIds = osChapters.Select(c => c.Id).ToList();
             var osLessons = await db.Lessons.AsNoTracking()
                 .Where(l => osChapterIds.Contains(l.ChapterId))
                 .ToListAsync();
-            Assert.Equal(6, osLessons.Count);
+            Assert.Equal(12, osLessons.Count);
 
-            // Verify all 6 OS lessons have ContentMarkdown.Length >= 6000 and contain <!-- studxy-os-v4 -->
+            // Verify all 12 OS lessons have ContentMarkdown.Length >= 6000 and contain <!-- studxy-os-v4 -->
             foreach (var l in osLessons)
             {
                 Assert.NotNull(l.ContentMarkdown);
@@ -1648,18 +1690,23 @@ public class PracticeEngineTests
             Assert.True(osActivities.Count >= 24, $"Expected >= 24 OS activities, got {osActivities.Count}");
 
             var osLessonIds = osLessons.Select(l => l.Id).ToList();
+            var osCardsCount = await db.Flashcards.AsNoTracking()
+                .CountAsync(f => f.UserId == SeedDataInitializer.DefaultUserId && f.LessonId.HasValue && osLessonIds.Contains(f.LessonId.Value));
+            Assert.True(osCardsCount >= 88, $"Expected >= 88 OS flashcards, got {osCardsCount}");
+
             var osQuizzes = await db.PracticeQuizzes.AsNoTracking()
                 .Where(q => q.LessonId.HasValue && osLessonIds.Contains(q.LessonId.Value))
                 .ToListAsync();
-            Assert.True(osQuizzes.Count >= 9, $"Expected >= 9 OS quizzes, got {osQuizzes.Count}");
-            Assert.Contains(osQuizzes, q => q.Title.Contains("[Đề Chương"));
+            Assert.True(osQuizzes.Count >= 15, $"Expected >= 15 OS quizzes, got {osQuizzes.Count}");
+            Assert.Contains(osQuizzes, q => q.Title.Contains("[Đề Chương 4]"));
+            Assert.Contains(osQuizzes, q => q.Title.Contains("[Đề Chương 5]"));
             Assert.Contains(osQuizzes, q => q.Title.Contains("[Đề Tổng Hợp Cuối Khóa]"));
 
             var report1 = await DocumentCourseSyncService.SyncAllFromDocumentsAsync(
                 db,
                 DocumentCourseSyncService.DefaultDocumentRootPath,
                 useSnapshotCache: false);
-            Assert.True(report1.SyncedCourses >= 5);
+            Assert.True(report1.SyncedCourses >= 9);
 
             var expectedDocSlugs = new[]
             {
@@ -1667,7 +1714,11 @@ public class PracticeEngineTests
                 "document-course-investing",
                 "document-course-personalfinance",
                 "document-course-lifeskills",
-                "document-course-psychology"
+                "document-course-psychology",
+                "document-course-ai-workflows",
+                "document-course-data-sql",
+                "document-course-cybersecurity",
+                "document-course-deep-learning-systems"
             };
 
             foreach (var slug in expectedDocSlugs)
@@ -1687,6 +1738,13 @@ public class PracticeEngineTests
                     .ToListAsync();
                 Assert.True(docActs.Count >= docLessons.Count * 3,
                     $"Expected >= 3 PracticeActivities per lesson for {slug}, got {docActs.Count}/{docLessons.Count}");
+
+                foreach (var dl in docLessons)
+                {
+                    var lessonPaCount = docActs.Count(pa => pa.LessonId == dl.Id);
+                    Assert.True(lessonPaCount >= 3,
+                        $"Expected >= 3 PracticeActivities for lesson '{dl.Slug}' in '{slug}', got {lessonPaCount}");
+                }
             }
 
             // IELTS course flashcards check
@@ -1817,5 +1875,152 @@ public class PracticeEngineTests
             $"/api/v1/practice-quizzes/{SeedDataInitializer.DefaultQuizId}/submit-all",
             new SubmitAllQuizItemsRequest([], 10));
         Assert.Equal(HttpStatusCode.Forbidden, submitAll403.StatusCode);
+    }
+
+    [Fact]
+    public async Task FlashcardsDue_WithInterleaveTrue_AlternatesAcrossLessons()
+    {
+        await using var factory = CreateIsolatedFactory();
+        using var defaultClient = factory.CreateClient();
+
+        // Register isolated learner so only our custom multi-lesson due flashcards exist in their queue
+        var regResp = await defaultClient.PostAsJsonAsync("/api/v1/auth/register",
+            new RegisterRequest($"interleave.{Guid.NewGuid():N}@studxy.vn", "Studxy@2026", "Interleave Learner"));
+        Assert.Equal(HttpStatusCode.OK, regResp.StatusCode);
+        var regJson = await regResp.Content.ReadFromJsonAsync<JsonElement>();
+        var token = regJson.GetProperty("accessToken").GetString()!;
+        var regUserId = regJson.GetProperty("user").GetProperty("id").GetGuid();
+
+        using var regClient = factory.CreateClient();
+        regClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var lessonA = SeedDataInitializer.EnglishLesson11Id;
+        var lessonB = SeedDataInitializer.EnglishLesson12Id;
+        var lessonC = SeedDataInitializer.EnglishLesson21Id;
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<SwmsDbContext>();
+            var baseTime = DateTimeOffset.UtcNow.AddHours(-6);
+
+            // Seed cards grouped consecutively by DueAt: Lesson A (t+0, t+1, t+2), Lesson B (t+3, t+4), Lesson C (t+5, t+6)
+            var cards = new[]
+            {
+                new Flashcard { Id = Guid.NewGuid(), UserId = regUserId, LessonId = lessonA, CardType = "standard", FrontAstJson = "{\"text\":\"A1\"}", BackAstJson = "{\"text\":\"A1 back\"}", DueAt = baseTime.AddMinutes(1), CreatedAt = baseTime, UpdatedAt = baseTime },
+                new Flashcard { Id = Guid.NewGuid(), UserId = regUserId, LessonId = lessonA, CardType = "standard", FrontAstJson = "{\"text\":\"A2\"}", BackAstJson = "{\"text\":\"A2 back\"}", DueAt = baseTime.AddMinutes(2), CreatedAt = baseTime, UpdatedAt = baseTime },
+                new Flashcard { Id = Guid.NewGuid(), UserId = regUserId, LessonId = lessonA, CardType = "standard", FrontAstJson = "{\"text\":\"A3\"}", BackAstJson = "{\"text\":\"A3 back\"}", DueAt = baseTime.AddMinutes(3), CreatedAt = baseTime, UpdatedAt = baseTime },
+                new Flashcard { Id = Guid.NewGuid(), UserId = regUserId, LessonId = lessonB, CardType = "standard", FrontAstJson = "{\"text\":\"B1\"}", BackAstJson = "{\"text\":\"B1 back\"}", DueAt = baseTime.AddMinutes(4), CreatedAt = baseTime, UpdatedAt = baseTime },
+                new Flashcard { Id = Guid.NewGuid(), UserId = regUserId, LessonId = lessonB, CardType = "standard", FrontAstJson = "{\"text\":\"B2\"}", BackAstJson = "{\"text\":\"B2 back\"}", DueAt = baseTime.AddMinutes(5), CreatedAt = baseTime, UpdatedAt = baseTime },
+                new Flashcard { Id = Guid.NewGuid(), UserId = regUserId, LessonId = lessonC, CardType = "standard", FrontAstJson = "{\"text\":\"C1\"}", BackAstJson = "{\"text\":\"C1 back\"}", DueAt = baseTime.AddMinutes(6), CreatedAt = baseTime, UpdatedAt = baseTime },
+                new Flashcard { Id = Guid.NewGuid(), UserId = regUserId, LessonId = lessonC, CardType = "standard", FrontAstJson = "{\"text\":\"C2\"}", BackAstJson = "{\"text\":\"C2 back\"}", DueAt = baseTime.AddMinutes(7), CreatedAt = baseTime, UpdatedAt = baseTime },
+            };
+            db.Flashcards.AddRange(cards);
+            await db.SaveChangesAsync();
+        }
+
+        // Without interleave: ordered strictly by DueAt -> A, A, A, B, B, C, C
+        var sequential = await regClient.GetFromJsonAsync<List<JsonElement>>("/api/v1/flashcards/due");
+        Assert.NotNull(sequential);
+        Assert.Equal(7, sequential.Count);
+        var seqLessons = sequential.Select(c => c.GetProperty("lessonId").GetGuid()).ToList();
+        Assert.Equal(new[] { lessonA, lessonA, lessonA, lessonB, lessonB, lessonC, lessonC }, seqLessons);
+
+        // With interleave=true: round-robin across lesson buckets -> A, B, C, A, B, C, A
+        var interleaved = await regClient.GetFromJsonAsync<List<JsonElement>>("/api/v1/flashcards/due?interleave=true");
+        Assert.NotNull(interleaved);
+        Assert.Equal(7, interleaved.Count);
+        var intLessons = interleaved.Select(c => c.GetProperty("lessonId").GetGuid()).ToList();
+        Assert.Equal(new[] { lessonA, lessonB, lessonC, lessonA, lessonB, lessonC, lessonA }, intLessons);
+    }
+
+    [Fact]
+    public async Task AiEvaluatePractice_AppliedDomains_ReturnHonestOfflineGrading()
+    {
+        var dbName = $"SwmsAppliedDomainsOfflineDb_{Guid.NewGuid():N}";
+        await using var factory = new WebApplicationFactory<Program>()
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("Database:InMemoryName", dbName);
+                builder.UseSetting("AiProxy:BaseUrl", "http://127.0.0.1:59997");
+                builder.UseSetting("AiProxy:TimeoutSeconds", "2");
+            });
+        using var client = factory.CreateClient();
+
+        var cases = new (string Mode, string ContextTitle, string Prompt, string StrongResponse, string WeakResponse, List<string> Keywords, string SampleAnswer)[]
+        {
+            (
+                "prompt_critique",
+                "AI Workflows · Bài 1.2 Prompt 5 Lớp",
+                "Hãy viết lại prompt phân tích phản hồi khách hàng theo chuẩn 5 lớp kèm JSON Schema.",
+                "Bạn là chuyên gia phân tích CSKH (Role). Dựa trên bối cảnh phản hồi đơn hàng tháng 11 (Context), hãy phân loại theo ràng buộc không suy diễn ngoài dữ liệu (Constraints) và xuất JSON Schema gồm sentiment, priority, summary.",
+                "Phân tích giúp tôi.",
+                new List<string> { "Role", "Context", "Constraints", "JSON Schema" },
+                "Đóng vai chuyên gia phân tích (Role), đọc bối cảnh phản hồi (Context), tuân thủ ràng buộc chỉ trích xuất sự thật (Constraints) và trả về đúng JSON Schema."
+            ),
+            (
+                "sql_reasoning",
+                "Data & SQL · Bài 2.2 Fan-out Join Trap",
+                "Sửa lỗi truy vấn SQL tính sai doanh thu do JOIN bảng orders với order_items.",
+                "Để tránh lỗi nhân bản dòng khi JOIN 1-nhiều, ta dùng CTE tổng hợp order_items theo order_id trước, xử lý NULL bằng COALESCE và chỉ lọc bản ghi hợp lệ ở WHERE trước GROUP BY hoặc dùng HAVING sau tổng hợp.",
+                "SELECT * FROM orders",
+                new List<string> { "JOIN", "CTE", "COALESCE", "GROUP BY" },
+                "Dùng CTE tổng hợp order_items theo order_id trước khi JOIN với orders, bọc COALESCE cho giá trị NULL và kiểm tra điều kiện GROUP BY."
+            ),
+            (
+                "threat_spotter",
+                "An Toàn Số · Bài 1.2 Quishing & APK Giả Mạo",
+                "Bạn nhận được tin nhắn yêu cầu quét QR và cài file APK cập nhật VNeID khẩn cấp.",
+                "Ngừng tương tác ngay, tuyệt đối không click link hay cài file APK lạ. Tự mở ứng dụng VNeID chính thức hoặc gọi đường dây nóng độc lập để kiểm chứng, đồng thời đổi mật khẩu/passkeys và lưu chứng cứ.",
+                "Tôi sẽ bấm link kiểm tra thử.",
+                new List<string> { "ngừng tương tác", "APK", "kiểm chứng", "passkeys" },
+                "Ngừng tương tác, không cài file APK, kiểm chứng qua kênh chính thức độc lập, đổi passkeys và lưu chứng cứ."
+            ),
+            (
+                "active_recall",
+                "Học Sâu & Hệ Thống · Bài 1.1 Active Recall & FSRS",
+                "Tự nhắc lại từ trang trắng cơ chế Active Recall và cách FSRS tối ưu trí nhớ dài hạn.",
+                "Active Recall buộc não truy xuất thông tin chủ động thay vì đọc thụ động để tránh ảo tưởng năng lực, còn FSRS tính toán stability và difficulty để lên lịch ôn đúng lúc sắp quên giúp tiết kiệm thời gian.",
+                "Đọc lại nhiều lần.",
+                new List<string> { "truy xuất", "ảo tưởng năng lực", "stability", "difficulty" },
+                "Active Recall rèn truy xuất chủ động để chống ảo tưởng năng lực; FSRS mô hình hóa stability và difficulty để lặp lại ngắt quãng tối ưu."
+            )
+        };
+
+        foreach (var tc in cases)
+        {
+            var strongReq = new AiEvaluatePracticeRequest(
+                Mode: tc.Mode,
+                Lang: "vi-VN",
+                Prompt: tc.Prompt,
+                UserResponse: tc.StrongResponse,
+                ExpectedKeywords: tc.Keywords,
+                SampleAnswer: tc.SampleAnswer,
+                ContextTitle: tc.ContextTitle);
+
+            var strongRes = await client.PostAsJsonAsync("/api/v1/ai/evaluate-practice", strongReq);
+            Assert.Equal(HttpStatusCode.OK, strongRes.StatusCode);
+            var strongJson = await strongRes.Content.ReadFromJsonAsync<JsonElement>();
+
+            Assert.False(strongJson.GetProperty("usedLiveEndpoint").GetBoolean());
+            Assert.Equal("keyword_offline", strongJson.GetProperty("gradingMode").GetString());
+            var labelVi = strongJson.GetProperty("gradingLabelVi").GetString();
+            Assert.False(string.IsNullOrWhiteSpace(labelVi));
+            Assert.Equal("Chấm theo từ khóa (offline)", labelVi);
+
+            var strongScore = strongJson.GetProperty("score").GetInt32();
+            Assert.True(strongScore >= 75, $"Mode '{tc.Mode}' strong response expected score >= 75, got {strongScore}");
+            Assert.Contains("Chấm theo từ khóa", strongJson.GetProperty("feedbackVi").GetString());
+            Assert.True(strongJson.GetProperty("strengths").GetArrayLength() >= 1);
+
+            var weakReq = strongReq with { UserResponse = tc.WeakResponse };
+            var weakRes = await client.PostAsJsonAsync("/api/v1/ai/evaluate-practice", weakReq);
+            Assert.Equal(HttpStatusCode.OK, weakRes.StatusCode);
+            var weakJson = await weakRes.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.False(weakJson.GetProperty("usedLiveEndpoint").GetBoolean());
+            Assert.Equal("keyword_offline", weakJson.GetProperty("gradingMode").GetString());
+            Assert.True(weakJson.GetProperty("score").GetInt32() < strongScore,
+                $"Mode '{tc.Mode}' weak score ({weakJson.GetProperty("score").GetInt32()}) should be < strong score ({strongScore})");
+            Assert.True(weakJson.GetProperty("improvements").GetArrayLength() >= 1);
+        }
     }
 }

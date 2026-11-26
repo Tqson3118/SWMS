@@ -489,7 +489,7 @@ export function CourseRoadmapSidebar({
             <span>Mẹo học sâu hiệu quả</span>
           </div>
           <p className="text-[10px] text-text-tertiary leading-relaxed">
-            Bôi đen đoạn quan trọng để tạo thẻ FSRS 1-click, rồi bấm Kiểm tra nhanh hoặc Luyện bài này để mở Phòng thực hành.
+            Bôi đen đoạn quan trọng để tạo thẻ FSRS tức thì, rồi bấm Kiểm tra nhanh hoặc Luyện bài này để mở Phòng thực hành.
           </p>
         </div>
       )}

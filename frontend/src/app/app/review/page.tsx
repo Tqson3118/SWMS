@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -73,6 +73,28 @@ interface ReviewHistoryEntry {
   cardId: string;
   index: number;
   wasCompleted: boolean;
+  rating: "again" | "hard" | "good" | "easy";
+}
+
+function speakFlashcardText(rawText: string): void {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  const cleaned = rawText
+    .replace(/\{\{c\d+::(.*?)\}\}/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!cleaned) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(cleaned);
+  if (/[\u3040-\u30ff]/.test(cleaned)) {
+    utter.lang = "ja-JP";
+  } else if (/[\u4e00-\u9fff]/.test(cleaned)) {
+    utter.lang = "zh-CN";
+  } else if (/[àáạảãâăđêôơưÀÁẠẢÃÂĂĐÊÔƠƯ]/.test(cleaned)) {
+    utter.lang = "vi-VN";
+  } else {
+    utter.lang = "en-US";
+  }
+  window.speechSynthesis.speak(utter);
 }
 
 interface ReviewQueue {
@@ -108,7 +130,7 @@ function formatFriendlyReviewError(status: number, rawText: string, defaultActio
   if (message && !message.startsWith("{")) {
     return message;
   }
-  return `${defaultAction} thất bại (Mã lỗi ${status}). Đã lưu vào hàng đợi offline.`;
+  return `${defaultAction} chưa thành công (Mã lỗi ${status}). Đã lưu vào hàng đợi ngoại tuyến để đồng bộ sau.`;
 }
 
 function ReviewPageContent() {
@@ -133,6 +155,7 @@ function ReviewPageContent() {
   const [selectedCourseId, setSelectedCourseId] = useState<string>(paramCourseId);
   const [selectedTagId, setSelectedTagId] = useState<string>(paramTagId);
   const [practiceAll, setPracticeAll] = useState(false);
+  const [interleaveEnabled, setInterleaveEnabled] = useState<boolean>(false);
 
   useEffect(() => {
     setSelectedCourseId(paramCourseId);
@@ -169,8 +192,9 @@ function ReviewPageContent() {
   );
 
   const fetchReviewQueue = useCallback(
-    async (overridePracticeAll?: boolean) => {
+    async (overridePracticeAll?: boolean, overrideInterleave?: boolean) => {
       const useIncludeAll = overridePracticeAll ?? practiceAll;
+      const useInterleave = overrideInterleave ?? interleaveEnabled;
       setIsLoading(true);
       setErrorBanner(null);
       try {
@@ -180,6 +204,7 @@ function ReviewPageContent() {
         if (selectedCourseId) params.set("courseId", selectedCourseId);
         if (selectedTagId) params.set("tagId", selectedTagId);
         if (useIncludeAll) params.set("includeAll", "true");
+        if (useInterleave) params.set("interleave", "true");
         const queryString = params.toString();
 
         const [dashData, cardsResp] = await Promise.all([
@@ -270,7 +295,7 @@ function ReviewPageContent() {
         setIsLoading(false);
       }
     },
-    [getAuthHeaders, practiceAll, selectedCourseId, selectedTagId, extraSessionCap]
+    [getAuthHeaders, practiceAll, interleaveEnabled, selectedCourseId, selectedTagId, extraSessionCap]
   );
 
   useEffect(() => {
@@ -372,7 +397,7 @@ function ReviewPageContent() {
         const reachedEnd = currentIndex >= queue.cards.length - 1;
         setReviewHistory((prev) => [
           ...prev,
-          { cardId: card.id, index: currentIndex, wasCompleted: reachedEnd },
+          { cardId: card.id, index: currentIndex, wasCompleted: reachedEnd, rating },
         ]);
         window.dispatchEvent(new CustomEvent("swms:data-mutated", { detail: { origin: "review" } }));
 
@@ -385,7 +410,7 @@ function ReviewPageContent() {
         }
       } catch {
         setErrorBanner(
-          "Mất kết nối — đánh giá đã được lưu vào hàng đợi offline, sẽ đồng bộ lại sau."
+          "Mất kết nối — đánh giá của bạn đã được lưu vào hàng đợi ngoại tuyến và sẽ đồng bộ lại khi có mạng."
         );
       } finally {
         setIsSubmitting(false);
@@ -459,7 +484,7 @@ function ReviewPageContent() {
           className={`px-2 py-0.5 mx-1 rounded font-semibold ${
             reveal
               ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40"
-              : "bg-accent text-white"
+              : "bg-[#5E51E8] text-white dark:bg-[#818CF8] dark:text-[#0F0F12]"
           }`}
         >
           {reveal ? hiddenTerm : "[ ... ? ... ]"}
@@ -473,6 +498,14 @@ function ReviewPageContent() {
     }
     return parts.length > 0 ? parts : text;
   };
+
+  const sessionCounts = useMemo(() => {
+    const counts = { again: 0, hard: 0, good: 0, easy: 0 };
+    for (const entry of reviewHistory) {
+      counts[entry.rating] += 1;
+    }
+    return counts;
+  }, [reviewHistory]);
 
   const currentCard = queue.cards[currentIndex];
 
@@ -500,6 +533,11 @@ function ReviewPageContent() {
   // Empty / Session complete state
   if (sessionComplete || queue.cards.length === 0) {
     const reviewedCount = reviewHistory.length || queue.cards.length;
+    const totalRated = reviewHistory.length;
+    const retentionRate =
+      totalRated > 0
+        ? Math.round(((sessionCounts.good + sessionCounts.easy) / totalRated) * 100)
+        : 0;
     return (
       <div
         data-testid="v2-review-page"
@@ -598,6 +636,47 @@ function ReviewPageContent() {
                 ? `Hiện có ${queue.totalCards} thẻ trong kho nhưng chưa đến hạn. Bạn có thể ôn tập trước hạn bất cứ lúc nào.`
                 : "Hãy bôi đen đoạn văn trong bài học để tạo thẻ điền từ hoặc thẻ hỏi đáp và bắt đầu ôn tập."}
             </p>
+            {sessionComplete && totalRated > 0 && (
+              <div
+                data-testid="review-session-summary"
+                className="mb-6 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-elevated)]/50 p-4 text-left space-y-3"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-semibold text-[var(--text-secondary)]">
+                    Tổng kết phiên ôn tập
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold tabular-nums">
+                    Nhớ tốt (Tốt + Dễ): {retentionRate}%
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="rounded-lg border border-rose-500/25 bg-rose-500/10 px-2.5 py-2 text-center">
+                    <p className="text-[11px] font-medium text-rose-700 dark:text-rose-300">Quên</p>
+                    <p className="text-base font-bold text-rose-600 dark:text-rose-400 tabular-nums">
+                      {sessionCounts.again}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-2.5 py-2 text-center">
+                    <p className="text-[11px] font-medium text-amber-700 dark:text-amber-300">Khó</p>
+                    <p className="text-base font-bold text-amber-600 dark:text-amber-400 tabular-nums">
+                      {sessionCounts.hard}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-2 text-center">
+                    <p className="text-[11px] font-medium text-emerald-700 dark:text-emerald-300">Tốt</p>
+                    <p className="text-base font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                      {sessionCounts.good}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-sky-500/25 bg-sky-500/10 px-2.5 py-2 text-center">
+                    <p className="text-[11px] font-medium text-sky-700 dark:text-sky-300">Dễ</p>
+                    <p className="text-base font-bold text-sky-600 dark:text-sky-400 tabular-nums">
+                      {sessionCounts.easy}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               {sessionComplete && (
                 <button
@@ -607,7 +686,7 @@ function ReviewPageContent() {
                     setExtraSessionCap((prev) => prev + 20);
                     setSessionComplete(false);
                   }}
-                  className="inline-flex items-center gap-2 h-9 px-4 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white text-sm font-semibold shadow-xs transition cursor-pointer"
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-sm font-semibold shadow-xs transition cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   Ôn thêm 20 thẻ
@@ -642,7 +721,7 @@ function ReviewPageContent() {
                     setSessionComplete(false);
                     void fetchReviewQueue(true);
                   }}
-                  className="inline-flex items-center gap-2 h-9 px-4 rounded-[10px] bg-[var(--accent)] text-white text-sm font-medium hover:opacity-95 transition cursor-pointer shadow-xs"
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-[10px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-sm font-medium transition cursor-pointer shadow-xs"
                 >
                   <Zap className="w-4 h-4" />
                   {sessionComplete ? "Ôn lại hàng đợi" : `Ôn trước hạn (${queue.totalCards} thẻ)`}
@@ -742,6 +821,25 @@ function ReviewPageContent() {
           >
             {practiceAll ? "Đang ôn tất cả" : "Chỉ thẻ đến hạn"}
           </button>
+          <button
+            type="button"
+            data-testid="review-interleave-toggle"
+            onClick={() => {
+              const next = !interleaveEnabled;
+              setInterleaveEnabled(next);
+              setReviewHistory([]);
+              setCurrentIndex(0);
+              void fetchReviewQueue(undefined, next);
+            }}
+            className={`h-8 px-2.5 rounded-lg text-xs font-medium border transition cursor-pointer whitespace-nowrap ${
+              interleaveEnabled
+                ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
+                : "border-[var(--border-calm)] bg-[var(--surface-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
+            }`}
+            title="Đan xen các thẻ thuộc nhiều chủ đề/khóa học khác nhau"
+          >
+            {interleaveEnabled ? "Đan xen chủ đề ✓" : "Trộn đa chủ đề"}
+          </button>
 
           <div className="flex items-center gap-2 shrink-0">
             <span data-testid="review-progress-count" className="text-xs font-medium tabular-nums text-[var(--text-secondary)]">
@@ -797,6 +895,75 @@ function ReviewPageContent() {
       {/* Card area — 2-Column FSRS Memory Workstation */}
       <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-8 w-full min-w-0">
+          {reviewHistory.length > 0 && (() => {
+            const totalRated = reviewHistory.length;
+            const masteryCount = sessionCounts.good + sessionCounts.easy;
+            const masteryPct = totalRated > 0 ? Math.round((masteryCount / totalRated) * 100) : 0;
+            return (
+              <div
+                data-testid="review-session-rating-strip"
+                className="mb-3 px-3.5 py-2.5 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs space-y-2"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-[var(--text-secondary)]">
+                      Phiên này ({totalRated} thẻ):
+                    </span>
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[var(--text-secondary)]">
+                      {interleaveEnabled ? "Chế độ: Đan xen đa môn" : "Chế độ: Theo hạn ôn"}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-semibold tabular-nums">
+                    <span className="text-rose-600 dark:text-rose-400">Quên: {sessionCounts.again}</span>
+                    <span className="text-[var(--text-tertiary)]">·</span>
+                    <span className="text-amber-600 dark:text-amber-400">Khó: {sessionCounts.hard}</span>
+                    <span className="text-[var(--text-tertiary)]">·</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">Tốt: {sessionCounts.good}</span>
+                    <span className="text-[var(--text-tertiary)]">·</span>
+                    <span className="text-sky-600 dark:text-sky-400">Dễ: {sessionCounts.easy}</span>
+                  </div>
+                </div>
+
+                <div data-testid="review-session-mastery-bar" className="space-y-1">
+                  <div className="h-2 w-full rounded-full overflow-hidden flex bg-[var(--surface-elevated)]">
+                    {sessionCounts.again > 0 && (
+                      <div
+                        className="h-full bg-rose-500 transition-all duration-300"
+                        style={{ width: `${(sessionCounts.again / totalRated) * 100}%` }}
+                        title={`Quên: ${sessionCounts.again}`}
+                      />
+                    )}
+                    {sessionCounts.hard > 0 && (
+                      <div
+                        className="h-full bg-amber-500 transition-all duration-300"
+                        style={{ width: `${(sessionCounts.hard / totalRated) * 100}%` }}
+                        title={`Khó: ${sessionCounts.hard}`}
+                      />
+                    )}
+                    {sessionCounts.good > 0 && (
+                      <div
+                        className="h-full bg-emerald-500 transition-all duration-300"
+                        style={{ width: `${(sessionCounts.good / totalRated) * 100}%` }}
+                        title={`Tốt: ${sessionCounts.good}`}
+                      />
+                    )}
+                    {sessionCounts.easy > 0 && (
+                      <div
+                        className="h-full bg-sky-500 transition-all duration-300"
+                        style={{ width: `${(sessionCounts.easy / totalRated) * 100}%` }}
+                        title={`Dễ: ${sessionCounts.easy}`}
+                      />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-[var(--text-secondary)] font-medium tabular-nums">
+                    <span>
+                      Độ chắc nhớ phiên: {masteryPct}% ({masteryCount}/{totalRated})
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
           {/* Card */}
           <div
             className="perspective-1200 cursor-pointer"
@@ -833,12 +1000,8 @@ function ReviewPageContent() {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-                        window.speechSynthesis.cancel();
                         const text = formatCleanQuizPrompt(currentCard?.frontText || "", isFlipped);
-                        const utter = new SpeechSynthesisUtterance(text);
-                        utter.lang = /[àáạảãâăđêôơư]/i.test(text) ? "vi-VN" : "en-US";
-                        window.speechSynthesis.speak(utter);
+                        speakFlashcardText(text);
                       }}
                       title="Đọc to câu hỏi"
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--accent)] transition cursor-pointer shrink-0"
@@ -878,22 +1041,44 @@ function ReviewPageContent() {
                 data-testid="review-card-back"
                 className="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-5 sm:p-8 flex flex-col shadow-elevation-2 overflow-y-auto swms-thin-scrollbar"
               >
-                <div className="flex items-center justify-between gap-2 text-[11px] text-[var(--text-tertiary)] mb-4 pb-3 border-b border-[var(--border-calm)]/60">
+                <div className="flex items-center justify-between gap-2 text-[11px] text-[var(--text-tertiary)] mb-4 pb-3 border-b border-[var(--border-calm)]/60 flex-wrap">
                   <span className="font-medium">
                     Đáp án ·{" "}
                     {currentCard && currentCard.stability > 0
                       ? `Độ nhớ ${currentCard.stability.toFixed(1)} ngày`
                       : "Thẻ mới"}
                   </span>
-                  {currentCard?.cardType && (
-                    <span className="px-2 py-0.5 rounded-md bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px] font-semibold text-[var(--text-secondary)]">
-                      {currentCard.cardType === "cloze"
-                        ? "Điền khuyết"
-                        : currentCard.cardType === "ai_generated"
-                        ? "Gợi ý AI"
-                        : "Thẻ cơ bản"}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const backSpeech = [
+                          hasClozeSyntax
+                            ? formatCleanQuizPrompt(currentCard?.frontText || "", true)
+                            : "",
+                          currentCard?.backText || "",
+                        ]
+                          .filter(Boolean)
+                          .join(". ");
+                        speakFlashcardText(backSpeech);
+                      }}
+                      title="Đọc to đáp án"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--accent)] transition cursor-pointer shrink-0"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                      <span>Nghe</span>
+                    </button>
+                    {currentCard?.cardType && (
+                      <span className="px-2 py-0.5 rounded-md bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[10px] font-semibold text-[var(--text-secondary)]">
+                        {currentCard.cardType === "cloze"
+                          ? "Điền khuyết"
+                          : currentCard.cardType === "ai_generated"
+                          ? "Gợi ý AI"
+                          : "Thẻ cơ bản"}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex-1 flex flex-col items-center justify-center gap-4 px-2 py-3">
@@ -1005,7 +1190,7 @@ function ReviewPageContent() {
                 type="button"
                 data-testid="review-flip-btn"
                 onClick={() => setIsFlipped(true)}
-                className="h-10 px-8 rounded-xl bg-[var(--accent)] text-white text-sm font-semibold hover:opacity-95 transition cursor-pointer shadow-elevation-1"
+                className="h-10 px-8 rounded-xl bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-sm font-semibold transition cursor-pointer shadow-elevation-1"
               >
                 Hiện đáp án (Space)
               </button>
@@ -1112,7 +1297,7 @@ function ReviewPageContent() {
           <div className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-4 space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-primary)]">
               <Keyboard className="w-3.5 h-3.5 text-[var(--accent)]" />
-              <span>Phím tắt tốc độ cao</span>
+              <span>Phím tắt ôn tập nhanh</span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-[11px] text-[var(--text-secondary)]">
               <div className="flex items-center justify-between bg-[var(--surface-elevated)]/50 border border-[var(--border-calm)] rounded-lg px-2.5 py-1.5">

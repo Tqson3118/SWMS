@@ -1358,12 +1358,11 @@ export function CognitiveLabsShowcase({
 
           {!stroopIsRunning && !stroopCompleted && (
             <div className="text-center py-12 rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 space-y-4">
-              <div className="text-4xl">🔴 🔵 🟢 🟡</div>
               <h3 className="text-base font-bold text-zinc-800 dark:text-zinc-200">
                 Sẵn sàng thử thách phản xạ não bộ?
               </h3>
               <p className="text-xs text-zinc-500 max-w-md mx-auto">
-                Hệ thống sẽ đo thời gian phản hồi (Reaction Time) chính xác đến mili-giây (ms) bằng Web Performance API.
+                Hệ thống đo thời gian phản hồi chính xác đến mili-giây (ms) bằng đồng hồ hiệu năng của trình duyệt.
               </p>
               <button
                 type="button"
@@ -1372,7 +1371,7 @@ export function CognitiveLabsShowcase({
                 className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition cursor-pointer shadow-sm inline-flex items-center gap-2"
               >
                 <Play className="w-4 h-4 fill-white" />
-                Bắt Đầu Bài Test (10 Lượt)
+                Bắt đầu bài kiểm tra (10 lượt)
               </button>
             </div>
           )}
@@ -2122,7 +2121,7 @@ ${chatHistory
     if (!onCreateFlashcardQuick) return;
     try {
       await onCreateFlashcardQuick(activeBias.flashcardFront, activeBias.flashcardBack);
-      showToast("Đã tạo thẻ ghi nhớ Bẫy Tâm Lý thành công!");
+      showToast("Đã tạo thẻ ghi nhớ thiên kiến tâm lý thành công!");
     } catch {
       showToast("Có lỗi khi tạo thẻ ghi nhớ.");
     }
@@ -2133,14 +2132,14 @@ ${chatHistory
     setIsSaving(true);
     try {
       const noteContent = `
-### 🧠 Phân Tích Bẫy Tâm Lý: ${activeBias.scenarioTitle}
+### Phân tích thiên kiến tâm lý: ${activeBias.scenarioTitle}
 - **Tình huống:** ${activeBias.scenarioText}
-- **Bẫy tâm lý:** ${activeBias.options.find((o) => o.key === activeBias.correctBiasKey)?.label}
+- **Thiên kiến tâm lý:** ${activeBias.options.find((o) => o.key === activeBias.correctBiasKey)?.label}
 - **Cơ chế não bộ:** ${activeBias.neuroscienceInsight}
-- **Hành động ngay (Mind-Hack):** ${activeBias.actionableHack}
+- **Hành động ngay (gỡ bẫy tư duy):** ${activeBias.actionableHack}
 `;
       await onSaveToNotebook(noteContent);
-      showToast("Đã lưu phân tích bẫy tâm lý vào Sổ tay!");
+      showToast("Đã lưu phân tích thiên kiến tâm lý vào Sổ tay!");
     } catch {
       showToast("Có lỗi khi lưu vào Sổ tay.");
     } finally {
@@ -2277,7 +2276,7 @@ ${chatHistory
           <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
             <div className="px-3 py-1.5 rounded-lg bg-white/80 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
               <Compass className="w-3.5 h-3.5 text-indigo-500" />
-              <span>Clean & Calm Learning</span>
+              <span>Học chậm & Tỉnh thức</span>
             </div>
           </div>
         </div>
@@ -2307,7 +2306,7 @@ ${chatHistory
             }`}
           >
             <Zap className="w-4 h-4" />
-            <span>2. Nhận Diện Bẫy Tâm Lý ({COGNITIVE_BIASES_LIST.length})</span>
+            <span>2. Nhận diện thiên kiến tâm lý ({COGNITIVE_BIASES_LIST.length})</span>
           </button>
 
           <button
@@ -2476,7 +2475,7 @@ ${chatHistory
               </button>
             </div>
             <p className="text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/60 p-2.5 rounded-lg border border-zinc-200/60 dark:border-zinc-800 italic">
-              📌 {currentScenario.initialContext}
+              Bối cảnh: {currentScenario.initialContext}
             </p>
           </div>
 
@@ -2530,7 +2529,7 @@ ${chatHistory
                           </div>
                           {msg.meta.coachingTip && (
                             <p className="text-[11px] opacity-95 italic">
-                              💡 {msg.meta.coachingTip}
+                              Gợi ý: {msg.meta.coachingTip}
                             </p>
                           )}
                         </div>
@@ -2555,7 +2554,7 @@ ${chatHistory
                   </span>
                   {currentTurnData.partnerContextHint && (
                     <span className="text-[11px] text-zinc-500 italic">
-                      💡 {currentTurnData.partnerContextHint}
+                      Gợi ý: {currentTurnData.partnerContextHint}
                     </span>
                   )}
                 </div>
@@ -2722,7 +2721,7 @@ ${chatHistory
                 Ngữ cảnh: {activeBias.realWorldContext}
               </span>
               <span className="text-xs text-zinc-500">
-                Bẫy não bộ đang vận hành là gì?
+                Thiên kiến nhận thức nào đang chi phối?
               </span>
             </div>
 
@@ -2737,7 +2736,7 @@ ${chatHistory
             {/* Multiple Choice Options */}
             <div className="space-y-2.5 pt-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                Chọn bẫy tâm lý đang chi phối tình huống trên:
+                Chọn thiên kiến tâm lý phù hợp với tình huống trên:
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {activeBias.options.map((opt) => {
@@ -2812,7 +2811,7 @@ ${chatHistory
                     {selectedBiasKey === activeBias.correctBiasKey ? (
                       <>
                         <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                        <span>Chính xác tuyệt vời! Bạn đã nhận diện đúng bẫy tâm lý.</span>
+                        <span>Chính xác! Bạn đã nhận diện đúng thiên kiến tâm lý.</span>
                       </>
                     ) : (
                       <>
@@ -2862,7 +2861,7 @@ ${chatHistory
                         className="min-h-[44px] px-3.5 py-2 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/80 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs font-medium hover:bg-indigo-100 flex items-center gap-1.5 transition cursor-pointer"
                       >
                         <Sparkles className="w-3.5 h-3.5" />
-                        <span>Tạo thẻ ghi nhớ bẫy tâm lý này</span>
+                        <span>Tạo thẻ ghi nhớ thiên kiến này</span>
                       </button>
                     )}
 
@@ -3268,7 +3267,7 @@ ${chatHistory
 
           <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 space-y-3">
             <label className="text-sm font-bold text-zinc-900 dark:text-zinc-100 block">
-              ✍️ Kế hoạch áp dụng &amp; Tự phản chiếu cho bài &ldquo;{lessonTitle}&rdquo;:
+              Kế hoạch áp dụng &amp; Tự phản chiếu cho bài &ldquo;{lessonTitle}&rdquo;:
             </label>
             <textarea
               rows={4}

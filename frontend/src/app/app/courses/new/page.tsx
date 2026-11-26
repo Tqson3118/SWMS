@@ -63,6 +63,13 @@ interface DuplicateCourseItem {
   matchScore: number;
 }
 
+const TOPIC_INSPIRATIONS = [
+  "Docker & Kubernetes Thực chiến",
+  "IELTS Writing Task 2",
+  "Tài chính Cá nhân & Quỹ dự phòng",
+  "Tâm lý học Tập trung & Ghi nhớ",
+] as const;
+
 export default function NewCoursePage() {
   const router = useRouter();
   const { activeUserHeaderId } = useWorkspaceStore();
@@ -546,11 +553,11 @@ export default function NewCoursePage() {
                     {dup.lessonCount} bài
                   </span>
                   {dup.isSystemCourse ? (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 font-semibold shrink-0">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-300 font-semibold shrink-0">
                       Hệ thống
                     </span>
                   ) : (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 font-semibold shrink-0">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 font-semibold shrink-0">
                       Cá nhân
                     </span>
                   )}
@@ -601,8 +608,16 @@ export default function NewCoursePage() {
                 {/* Visual 3-Step Stepper */}
                 <div
                   aria-label="Tiến trình khởi tạo AI 3 bước"
-                  className="mb-4 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-elevated)]/60 p-2.5 sm:p-3"
+                  className="mb-4 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-elevated)]/70 p-3 sm:p-3.5"
                 >
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+                      Quy trình 3 bước
+                    </span>
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-accent-subtle text-accent dark:bg-[#818CF8]/15 dark:text-[#A5B4FC]">
+                      Bước {wizardStep}/3
+                    </span>
+                  </div>
                   <div className="flex items-center justify-between gap-1.5 sm:gap-2">
                     {[
                       { step: 1 as const, label: "Chủ đề & Mục tiêu" },
@@ -615,11 +630,11 @@ export default function NewCoursePage() {
                         <React.Fragment key={item.step}>
                           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                             <span
-                              className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors ${
+                              className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-bold shrink-0 transition-all ${
                                 isCompleted
-                                  ? "bg-emerald-500 border-emerald-500 text-white"
+                                  ? "bg-emerald-600 border-emerald-600 text-white dark:bg-emerald-500 dark:border-emerald-500 dark:text-[#0F0F12]"
                                   : isActive
-                                  ? "bg-accent border-accent text-white shadow-xs"
+                                  ? "bg-accent border-accent text-white ring-2 ring-accent/25 dark:bg-[#818CF8] dark:border-[#818CF8] dark:text-[#0F0F12] dark:ring-[#818CF8]/30 shadow-xs"
                                   : "bg-[var(--surface-card)] border-[var(--border-calm)] text-[var(--text-tertiary)]"
                               }`}
                             >
@@ -630,7 +645,7 @@ export default function NewCoursePage() {
                                 isCompleted
                                   ? "text-emerald-700 dark:text-emerald-300 font-medium"
                                   : isActive
-                                  ? "text-[var(--text-primary)] font-semibold"
+                                  ? "text-accent dark:text-[#A5B4FC] font-semibold"
                                   : "text-[var(--text-tertiary)]"
                               }`}
                             >
@@ -640,7 +655,9 @@ export default function NewCoursePage() {
                           {idx < 2 && (
                             <div
                               className={`h-0.5 flex-1 min-w-3 rounded-full transition-colors ${
-                                wizardStep > item.step ? "bg-accent" : "bg-[var(--border-calm)]"
+                                wizardStep > item.step
+                                  ? "bg-emerald-500 dark:bg-emerald-400"
+                                  : "bg-[var(--border-calm)]"
                               }`}
                             />
                           )}
@@ -663,13 +680,44 @@ export default function NewCoursePage() {
                       }}
                       placeholder="Ví dụ: Thiết kế hệ thống Microservices, Tiếng Anh giao tiếp công sở, Python cơ bản..."
                       disabled={anyLoading}
-                      className="w-full h-10 px-3.5 pr-8 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8]"
+                      className="w-full h-10 px-3.5 pr-8 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[#5E51E8] dark:focus:border-[#818CF8] focus:ring-1 focus:ring-[#5E51E8] dark:focus:ring-[#818CF8]"
                     />
                     {isCheckingDuplicates && (
                       <div className="absolute right-3 top-3">
                         <Loader2 className="w-4 h-4 text-text-tertiary animate-spin" />
                       </div>
                     )}
+                  </div>
+
+                  {/* 4 Quick-Pick Topic Inspiration Chips */}
+                  <div
+                    data-testid="ai-topic-inspiration-chips"
+                    className="flex flex-wrap items-center gap-1.5"
+                  >
+                    <span className="text-[11px] font-medium text-[var(--text-tertiary)] mr-0.5">
+                      Gợi ý nhanh:
+                    </span>
+                    {TOPIC_INSPIRATIONS.map((topic) => {
+                      const isSelected = aiTopic.trim() === topic;
+                      return (
+                        <button
+                          key={topic}
+                          type="button"
+                          disabled={anyLoading}
+                          onClick={() => {
+                            handleAiTopicChange(topic);
+                            aiTopicInputRef.current?.focus();
+                          }}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition cursor-pointer disabled:opacity-50 ${
+                            isSelected
+                              ? "bg-accent text-white border-accent dark:bg-[#818CF8] dark:text-[#0F0F12] dark:border-[#818CF8] shadow-2xs"
+                              : "bg-[var(--surface-elevated)] text-[var(--text-secondary)] border-[var(--border-calm)] hover:border-accent/50 hover:text-accent dark:hover:border-[#818CF8]/60 dark:hover:text-[#A5B4FC]"
+                          }`}
+                        >
+                          {topic}
+                        </button>
+                      );
+                    })}
                   </div>
 
                   {/* Clarify Questions Section */}
@@ -700,7 +748,7 @@ export default function NewCoursePage() {
                                     }
                                     className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition cursor-pointer ${
                                       selected
-                                        ? "bg-accent text-white border-accent shadow-xs"
+                                        ? "bg-accent text-white border-accent shadow-xs dark:bg-[#818CF8] dark:text-[#0F0F12] dark:border-[#818CF8]"
                                         : "bg-bg-primary text-text-secondary border-border hover:border-accent/40"
                                     }`}
                                   >
@@ -740,7 +788,7 @@ export default function NewCoursePage() {
                       disabled={anyLoading || !aiTopic.trim()}
                       isLoading={aiLoading}
                       onClick={handleAiCreateDirect}
-                      className="shrink-0 text-xs"
+                      className="shrink-0 text-xs bg-accent text-white hover:bg-accent-hover dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
                     >
                       <span>Tạo khóa học nhanh</span>
                     </Button>
@@ -925,7 +973,7 @@ export default function NewCoursePage() {
                         variant="primary"
                         isLoading={aiLoading}
                         onClick={() => void commitWizardCourse(aiTopic.trim(), previewData)}
-                        className="text-xs"
+                        className="text-xs bg-accent text-white hover:bg-accent-hover dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
                       >
                         <Check className="w-3.5 h-3.5 mr-1" />
                         <span>Bước 3: Xác nhận &amp; Khởi tạo khóa học</span>
@@ -983,7 +1031,7 @@ export default function NewCoursePage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-text-secondary">Lĩnh vực (Category)</label>
+                      <label className="text-xs font-medium text-text-secondary">Lĩnh vực</label>
                       <input
                         type="text"
                         value={blankCategory}
@@ -993,7 +1041,7 @@ export default function NewCoursePage() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-text-secondary">Cấp độ (Level)</label>
+                      <label className="text-xs font-medium text-text-secondary">Trình độ</label>
                       <select
                         value={blankLevel}
                         onChange={(e) =>
@@ -1001,9 +1049,9 @@ export default function NewCoursePage() {
                         }
                         className="w-full h-8 px-2 rounded-lg border border-border bg-bg-primary text-xs text-text-primary focus:outline-none focus:border-accent"
                       >
-                        <option value="foundation">Cơ bản (Foundation)</option>
-                        <option value="intermediate">Trung cấp (Intermediate)</option>
-                        <option value="advanced">Nâng cao (Advanced)</option>
+                        <option value="foundation">Nền tảng</option>
+                        <option value="intermediate">Trung cấp</option>
+                        <option value="advanced">Chuyên sâu</option>
                       </select>
                     </div>
                   </div>
@@ -1011,7 +1059,7 @@ export default function NewCoursePage() {
                   {/* Learning outcomes dynamic input */}
                   <div className="space-y-1.5 pt-1">
                     <label className="text-xs font-medium text-text-secondary block">
-                      Mục tiêu đầu ra (Learning Outcomes):
+                      Mục tiêu đầu ra:
                     </label>
                     {blankOutcomes.map((outc, oIdx) => (
                       <div key={oIdx} className="flex items-center gap-1.5">
@@ -1055,7 +1103,7 @@ export default function NewCoursePage() {
                       type="submit"
                       disabled={anyLoading || !blankTitle.trim()}
                       isLoading={blankLoading}
-                      className="text-xs"
+                      className="text-xs bg-accent text-white hover:bg-accent-hover dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
                     >
                       <span>Khởi tạo khóa học &amp; Mở Studio soạn bài</span>
                     </Button>
@@ -1106,21 +1154,21 @@ export default function NewCoursePage() {
                     const file = e.dataTransfer.files?.[0];
                     if (file) void processDocumentFile(file);
                   }}
-                  className={`rounded-xl border-2 border-dashed p-4 transition ${
+                  className={`rounded-xl border-2 border-dashed p-4 transition-all duration-150 ${
                     uploadDragActive
-                      ? "border-accent bg-accent-subtle/40"
-                      : "border-[var(--border-calm)] bg-[var(--surface-elevated)]/40 hover:border-accent/50"
+                      ? "border-accent bg-accent-subtle/50 ring-2 ring-accent/25 dark:border-[#818CF8] dark:bg-[#818CF8]/15 dark:ring-[#818CF8]/30 scale-[1.005]"
+                      : "border-[var(--border-calm)] bg-[var(--surface-elevated)]/40 hover:border-accent/50 dark:hover:border-[#818CF8]/60"
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="min-w-0 space-y-1">
                       <p className="text-xs font-medium text-[var(--text-primary)]">
                         {uploadDragActive
-                          ? "Thả tệp tài liệu vào đây để tải lên..."
-                          : "Kéo thả tệp PDF, Word, TXT, Markdown vào đây hoặc bấm chọn tệp"}
+                          ? "Thả tài liệu vào đây để tải lên..."
+                          : "Kéo thả tài liệu PDF, Word, TXT hoặc Markdown vào đây hoặc bấm chọn tệp"}
                       </p>
                       {uploadFileName ? (
-                        <p className="text-xs font-medium text-accent truncate">
+                        <p className="text-xs font-medium text-accent dark:text-[#A5B4FC] truncate">
                           Đang xử lý: {uploadFileName}
                         </p>
                       ) : (
@@ -1135,7 +1183,7 @@ export default function NewCoursePage() {
                       isLoading={uploadLoading}
                       onClick={() => uploadInputRef.current?.click()}
                       leftIcon={<Upload className="w-4 h-4" />}
-                      className="shrink-0"
+                      className="shrink-0 bg-accent text-white hover:bg-accent-hover dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
                     >
                       <span>{uploadLoading ? "Đang xử lý tài liệu..." : "Chọn tệp tài liệu"}</span>
                     </Button>
@@ -1186,10 +1234,10 @@ export default function NewCoursePage() {
                     const file = e.dataTransfer.files?.[0];
                     if (file) void processImportSwmFile(file);
                   }}
-                  className={`rounded-xl border-2 border-dashed p-4 space-y-3 transition ${
+                  className={`rounded-xl border-2 border-dashed p-4 space-y-3 transition-all duration-150 ${
                     importDragActive
-                      ? "border-accent bg-accent-subtle/40"
-                      : "border-[var(--border-calm)] bg-[var(--surface-elevated)]/40 hover:border-accent/50"
+                      ? "border-accent bg-accent-subtle/50 ring-2 ring-accent/25 dark:border-[#818CF8] dark:bg-[#818CF8]/15 dark:ring-[#818CF8]/30 scale-[1.005]"
+                      : "border-[var(--border-calm)] bg-[var(--surface-elevated)]/40 hover:border-accent/50 dark:hover:border-[#818CF8]/60"
                   }`}
                 >
                   <div className="min-w-0 space-y-1">
@@ -1236,10 +1284,10 @@ export default function NewCoursePage() {
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#5E51E8] dark:text-[#A5B4FC]">
                 <Compass className="w-4 h-4" />
-                <span>Mẫu Lộ Trình &amp; Use Cases Khởi Tạo Nhanh</span>
+                <span>Mẫu lộ trình &amp; gợi ý khởi tạo nhanh</span>
               </div>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Chọn 1 mẫu thực chiến bên dưới để điền sẵn chủ đề cho trình tạo khóa học AI.
+                Chọn một mẫu bên dưới để điền sẵn chủ đề cho trợ lý AI.
               </p>
             </div>
 

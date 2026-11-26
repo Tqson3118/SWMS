@@ -224,7 +224,7 @@ export function CourseSyllabusTab({
               <button
                 type="button"
                 onClick={toggleAllChapters}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition cursor-pointer"
               >
                 {allExpanded ? (
                   <>
@@ -273,11 +273,11 @@ export function CourseSyllabusTab({
                   { id: "completed", label: "Đã xong" },
                   {
                     id: "bookmarked",
-                    label: `Đánh dấu 🔖 (${course.bookmarkedLessonCount ?? 0})`,
+                    label: `Đánh dấu (${course.bookmarkedLessonCount ?? 0})`,
                   },
                   {
                     id: "needsReview",
-                    label: `Cần ôn 🔁 (${course.needsReviewLessonCount ?? 0})`,
+                    label: `Cần ôn (${course.needsReviewLessonCount ?? 0})`,
                   },
                 ] as { id: LessonFilter; label: string }[]
               ).map((tab) => (
@@ -396,7 +396,7 @@ export function CourseSyllabusTab({
                                 completed
                                   ? "bg-emerald-500 border-emerald-500 text-white"
                                   : isNext
-                                  ? "bg-[#5E51E8] border-[#5E51E8] text-white ring-4 ring-[#5E51E8]/20 animate-pulse"
+                                  ? "bg-[#5E51E8] border-[#5E51E8] text-white dark:bg-[#818CF8] dark:border-[#818CF8] dark:text-[#0F0F12] ring-4 ring-[#5E51E8]/20 dark:ring-[#818CF8]/25"
                                   : isLocked
                                   ? "bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-500"
                                   : "bg-[var(--surface-card)] border-[var(--border-calm)] text-[var(--text-tertiary)]"
@@ -493,7 +493,7 @@ export function CourseSyllabusTab({
                             </div>
 
                             {/* Action CTA Buttons */}
-                            <div className="shrink-0 self-start sm:self-center pt-1 sm:pt-0 flex items-center gap-1.5">
+                            <div className="shrink-0 self-start sm:self-center pt-1 sm:pt-0 flex flex-wrap items-center gap-1.5">
                               {!isLocked && (
                                 <>
                                   {(lesson.practiceActivityCount ?? 0) > 0 && (
@@ -513,7 +513,7 @@ export function CourseSyllabusTab({
                                       className="inline-flex items-center gap-1 h-8 px-2 sm:px-2.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50/70 dark:bg-emerald-950/40 text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition"
                                     >
                                       <ClipboardCheck className="w-3.5 h-3.5" />
-                                      <span>Quiz</span>
+                                      <span>Kiểm tra</span>
                                     </Link>
                                   )}
                                 </>
@@ -534,7 +534,11 @@ export function CourseSyllabusTab({
                                   <Button
                                     variant={isNext ? "primary" : completed ? "secondary" : "outline"}
                                     size="sm"
-                                    className="whitespace-nowrap"
+                                    className={`whitespace-nowrap ${
+                                      isNext
+                                        ? "bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
+                                        : ""
+                                    }`}
                                     leftIcon={
                                       completed ? (
                                         <Check className="w-3.5 h-3.5" />
@@ -586,7 +590,7 @@ export function CourseSyllabusTab({
           <div>
             <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-[#5E51E8] dark:text-[#A5B4FC]" />
-              <span>Đánh giá &amp; Nhận xét khóa học</span>
+              <span>Đánh giá &amp; nhận xét khóa học</span>
             </h3>
             <p className="text-xs text-[var(--text-secondary)] mt-0.5">
               Chia sẻ trải nghiệm học tập của bạn về lộ trình và chất lượng bài giảng.
@@ -657,6 +661,7 @@ export function CourseSyllabusTab({
               variant="primary"
               size="sm"
               disabled={submittingReview}
+              className="bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
               leftIcon={<Send className="w-3.5 h-3.5" />}
             >
               <span>{submittingReview ? "Đang gửi..." : "Gửi đánh giá"}</span>

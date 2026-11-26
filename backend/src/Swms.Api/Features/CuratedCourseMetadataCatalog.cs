@@ -22,43 +22,43 @@ public static class CuratedCourseMetadataCatalog
         ["doc-course-studxy-fullstack-bootcamp"] = new(
             Category: "Lập trình Full-Stack",
             Level: "intermediate",
-            TargetAudience: "Lập trình viên muốn làm chủ stack .NET 10 Web API & React 19 TypeScript hiện đại, kiến trúc Clean/Vertical Slice và CI/CD.",
-            LabLabel: "Code Lab & Debug",
+            TargetAudience: "Lập trình viên và sinh viên CNTT muốn làm chủ trọn vẹn hệ sinh thái .NET 10 Web API & React 19 TypeScript, từ kiến trúc Clean/Vertical Slice đến quy trình CI/CD và vận hành thực tế.",
+            LabLabel: "Lab Lập trình & Gỡ lỗi",
             HasAudio: false,
             LearningOutcomes:
             [
-                "Thiết kế và xây dựng RESTful Web API chuẩn enterprise với ASP.NET Core và C# 13.",
-                "Xây dựng giao diện Single Page Application mượt mà, responsive với React 19, TypeScript và Tailwind CSS.",
-                "Mô hình hóa dữ liệu và tối ưu truy vấn hiệu năng cao với Entity Framework Core và PostgreSQL/SQLite.",
-                "Áp dụng nguyên lý Clean Architecture, CQRS, xác thực JWT & Google OAuth2 và bảo mật đa lớp.",
-                "Tự động hóa kiểm thử đơn vị, kiểm thử tích hợp xUnit và đóng gói container Docker sẵn sàng deploy."
+                "Thiết kế và xây dựng RESTful Web API chuẩn mực, dễ mở rộng với ASP.NET Core và C# 13.",
+                "Xây dựng ứng dụng web đơn trang (SPA) trực quan, tương thích đa thiết bị với React 19, TypeScript và Tailwind CSS.",
+                "Mô hình hóa dữ liệu quan hệ và tối ưu hiệu năng truy vấn cùng Entity Framework Core trên PostgreSQL và SQLite.",
+                "Vận dụng Clean Architecture, CQRS, xác thực JWT, Google OAuth2 và phòng vệ bảo mật đa lớp.",
+                "Xây dựng kiểm thử đơn vị, kiểm thử tích hợp với xUnit và đóng gói ứng dụng bằng Docker sẵn sàng triển khai thực tế."
             ],
             Prerequisites:
             [
                 "Nền tảng lập trình hướng đối tượng (OOP) cơ bản và tư duy thuật toán.",
                 "Hiểu biết cơ bản về HTML, CSS và cú pháp JavaScript ES6.",
-                "Đã cài đặt .NET SDK, Node.js và một trình soạn thảo mã nguồn (VS Code / Visual Studio)."
+                "Máy tính đã cài đặt .NET SDK, Node.js và trình soạn thảo mã nguồn (VS Code hoặc Visual Studio)."
             ]
         ),
 
         ["document-course-ielts"] = new(
             Category: "Ngoại ngữ IELTS",
             Level: "intermediate",
-            TargetAudience: "Học viên chuẩn bị thi IELTS Academic đặt mục tiêu band 6.5–7.5+, cần củng cố phản xạ nghe – nói tự nhiên và tư duy viết học thuật.",
+            TargetAudience: "Học viên luyện thi IELTS Academic hướng tới mục tiêu band 6.5–7.5+, cần củng cố phản xạ Nghe – Nói tự nhiên và tư duy Viết học thuật.",
             LabLabel: "Phòng Nghe – Nói IPA",
             HasAudio: true,
             LearningOutcomes:
             [
-                "Làm chủ 4 kỹ năng Listening, Reading, Writing và Speaking theo format bài thi chuẩn Cambridge IELTS.",
-                "Rèn luyện kỹ thuật Skimming, Scanning và nhận diện Paraphrasing để xử lý bài đọc học thuật phức tạp.",
-                "Phát triển phản xạ phát âm chuẩn IPA, ngữ điệu tự nhiên và cấu trúc bài nói mạch lạc cho IELTS Speaking Part 1-3.",
-                "Xây dựng luận điểm sắc bén, liên kết ý logic và đa dạng hóa cấu trúc ngữ pháp trong IELTS Writing Task 1 & 2.",
-                "Ghi nhớ và ứng dụng hơn 1.200 từ vựng học thuật chuyên sâu theo chủ đề qua hệ thống lặp lại ngắt quãng FSRS."
+                "Làm chủ 4 kỹ năng Nghe, Đọc, Viết và Nói theo định dạng chuẩn của bài thi Cambridge IELTS.",
+                "Rèn luyện kỹ thuật đọc lướt (Skimming), đọc tìm chi tiết (Scanning) và nhận diện diễn đạt tương đương (Paraphrasing) trong văn bản học thuật.",
+                "Phát triển phát âm chuẩn IPA, ngữ điệu tự nhiên và bố cục trả lời mạch lạc cho IELTS Speaking Part 1–3.",
+                "Xây dựng luận điểm chặt chẽ, liên kết ý mạch lạc và đa dạng hóa cấu trúc ngữ pháp trong IELTS Writing Task 1 & 2.",
+                "Ghi nhớ bền vững và vận dụng linh hoạt vốn từ vựng học thuật theo chủ đề thông qua phương pháp lặp lại ngắt quãng FSRS."
             ],
             Prerequisites:
             [
-                "Trình độ tiếng Anh tương đương CEFR B1 hoặc IELTS 4.5–5.0.",
-                "Nắm vững ngữ pháp cơ bản (các thì, câu điều kiện, mệnh đề quan hệ).",
+                "Trình độ tiếng Anh nền tảng tương đương CEFR B1 hoặc IELTS 4.5–5.0.",
+                "Nắm vững ngữ pháp cơ bản gồm các thì thông dụng, câu điều kiện và mệnh đề quan hệ.",
                 "Có tai nghe hoặc thiết bị âm thanh để luyện tập các bài nghe tương tác."
             ]
         ),
@@ -66,171 +66,257 @@ public static class CuratedCourseMetadataCatalog
         ["document-course-investing"] = new(
             Category: "Tài chính & Đầu tư",
             Level: "intermediate",
-            TargetAudience: "Nhà đầu tư cá nhân muốn xây dựng hệ thống phân tích doanh nghiệp, định giá cổ phiếu và quản trị danh mục khoa học, tránh bẫy tâm lý thị trường.",
+            TargetAudience: "Nhà đầu tư cá nhân muốn xây dựng hệ thống phân tích doanh nghiệp, định giá cổ phiếu và quản trị danh mục bài bản, giữ vững kỷ luật trước biến động thị trường.",
             LabLabel: "Lab Đầu tư & Định giá",
             HasAudio: false,
             LearningOutcomes:
             [
-                "Đọc hiểu và bóc tách chuyên sâu Báo cáo tài chính (Bảng CĐKT, Báo cáo KQKD, Báo cáo LCTT) của doanh nghiệp niêm yết.",
-                "Áp dụng các phương pháp định giá phổ biến (P/E, P/B, DCF chiết khấu dòng tiền) để xác định biên an toàn đầu tư.",
-                "Thiết kế danh mục đầu tư đa tài sản tối ưu rủi ro và lợi nhuận phù hợp với từng chu kỳ kinh tế vĩ mô.",
-                "Thiết lập kỷ luật cắt lỗ, chốt lời và chiến lược bình quân giá DCA kiểm soát tối đa mức sụt giảm (Max Drawdown).",
-                "Nhận diện các thiên kiến hành vi kinh điển (FOMO, mỏ neo, tâm lý bầy đàn) để giữ vững quyết định lý tính."
+                "Đọc hiểu và phân tích chuyên sâu Báo cáo tài chính (Bảng cân đối kế toán, Kết quả kinh doanh, Lưu chuyển tiền tệ) của doanh nghiệp niêm yết.",
+                "Vận dụng các phương pháp định giá phổ biến (P/E, P/B và chiết khấu dòng tiền DCF) để xác định biên an toàn khi đầu tư.",
+                "Thiết kế danh mục đầu tư đa tài sản cân bằng giữa rủi ro và kỳ vọng sinh lời theo từng chu kỳ kinh tế vĩ mô.",
+                "Thiết lập kỷ luật quản trị rủi ro, nguyên tắc chốt lời – cắt lỗ và chiến lược bình quân giá (DCA) nhằm kiểm soát mức sụt giảm tối đa (Max Drawdown).",
+                "Nhận diện các thiên kiến hành vi phổ biến (FOMO, hiệu ứng mỏ neo, tâm lý đám đông) để giữ vững quyết định đầu tư lý tính."
             ],
             Prerequisites:
             [
-                "Hiểu biết các khái niệm toán tài chính căn bản (lãi suất, tỷ suất sinh lời, phần trăm).",
-                "Có mong muốn nghiêm túc học đầu tư dài hạn dựa trên giá trị cốt lõi của doanh nghiệp."
+                "Nắm được các khái niệm toán tài chính căn bản như lãi suất, tỷ suất sinh lời và tỷ lệ phần trăm.",
+                "Có định hướng học tập nghiêm túc về đầu tư dài hạn dựa trên giá trị nội tại của doanh nghiệp."
             ]
         ),
 
         ["document-course-personalfinance"] = new(
             Category: "Tài chính & Đầu tư",
             Level: "foundation",
-            TargetAudience: "Sinh viên, người mới đi làm và gia đình trẻ muốn làm chủ dòng tiền, xóa nợ xấu, xây dựng quỹ dự phòng và lộ trình tự do tài chính (FIRE).",
+            TargetAudience: "Sinh viên, người mới đi làm và gia đình trẻ muốn làm chủ dòng tiền cá nhân, xử lý nợ lãi cao, xây dựng quỹ dự phòng và hoạch định lộ trình độc lập tài chính (FIRE).",
             LabLabel: "Lab Tài chính Cá nhân",
             HasAudio: false,
             LearningOutcomes:
             [
-                "Kiểm soát toàn diện dòng tiền thu chi cá nhân với mô hình 6 chiếc lọ và nguyên tắc ngân sách 50/30/20 linh hoạt.",
-                "Xây dựng quỹ khẩn cấp 3–6 tháng chi phí sinh hoạt và chiến lược dọn dẹp nợ lãi cao hiệu quả (Snowball/Avalanche).",
-                "Hiểu rõ bản chất các loại bảo hiểm nhân thọ, phi nhân thọ để bảo vệ tài chính gia đình trước rủi ro bất ngờ.",
-                "Tận dụng sức mạnh lãi kép để bắt đầu tích lũy đầu tư quỹ chỉ số, vàng và tiền gửi tiết kiệm thông minh từ số vốn nhỏ.",
-                "Xác định con số mục tiêu độc lập tài chính (FIRE) và lập bản đồ kế hoạch tài chính cá nhân 5–10 năm."
+                "Kiểm soát toàn diện dòng tiền thu chi cá nhân bằng mô hình 6 chiếc lọ và nguyên tắc phân bổ ngân sách 50/30/20 linh hoạt.",
+                "Xây dựng quỹ dự phòng khẩn cấp đủ 3–6 tháng sinh hoạt phí và lộ trình tất toán nợ lãi suất cao (Snowball và Avalanche).",
+                "Hiểu đúng bản chất các sản phẩm bảo hiểm nhân thọ, phi nhân thọ để bảo vệ tài chính gia đình trước rủi ro bất ngờ.",
+                "Tận dụng sức mạnh của lãi kép để bắt đầu tích lũy đầu tư bền vững từ quỹ chỉ số, vàng và tiền gửi tiết kiệm với số vốn nhỏ.",
+                "Xác định con số mục tiêu độc lập tài chính (FIRE) và xây dựng kế hoạch tài chính cá nhân trong tầm nhìn 5–10 năm."
             ],
             Prerequisites:
             [
-                "Không yêu cầu kiến thức tài chính chuyên sâu trước đó.",
-                "Cam kết theo dõi và ghi chép chi tiêu thực tế trong quá trình học tập."
+                "Không yêu cầu nền tảng kiến thức tài chính chuyên sâu.",
+                "Sẵn sàng ghi chép và theo dõi thu chi thực tế xuyên suốt quá trình học."
             ]
         ),
 
         ["document-course-lifeskills"] = new(
             Category: "Tâm lý & Kỹ năng sống",
             Level: "foundation",
-            TargetAudience: "Tất cả người học muốn nâng cao trí tuệ cảm xúc (EQ), giao tiếp trắc ẩn, giải quyết xung đột, tư duy phản biện và quản lý năng lượng cá nhân.",
+            TargetAudience: "Người học ở mọi lứa tuổi muốn phát triển trí tuệ cảm xúc (EQ), thực hành giao tiếp trắc ẩn, xử lý xung đột tinh tế, rèn tư duy phản biện và quản trị năng lượng bền vững.",
             LabLabel: "Phòng Tình huống NVC & CBT",
             HasAudio: false,
             LearningOutcomes:
             [
-                "Thực hành giao tiếp phi bạo lực (NVC - Nonviolent Communication) để biểu đạt nhu cầu và lắng nghe trắc ẩn mà không phán xét.",
-                "Nhận diện và điều hòa cảm xúc cá nhân bằng các kỹ thuật tái cấu trúc nhận thức và thở chánh niệm.",
-                "Phát triển tư duy phản biện (Critical Thinking) để phân biệt dữ kiện thật, ý kiến chủ quan và nhận diện ngụy biện logic.",
-                "Thiết lập ranh giới lành mạnh trong công việc và các mối quan hệ xã hội mà không cảm thấy tội lỗi hay đối đầu.",
-                "Quản lý năng lượng sinh học và thời gian theo ma trận Eisenhower để làm việc hiệu quả và hạn chế kiệt sức (burnout)."
+                "Thực hành Giao tiếp Phi Bạo Lực (NVC) để diễn đạt nhu cầu rõ ràng và lắng nghe thấu cảm không phán xét.",
+                "Nhận diện và điều hòa cảm xúc cá nhân thông qua kỹ thuật tái cấu trúc nhận thức và hít thở chánh niệm.",
+                "Rèn luyện tư duy phản biện để phân biệt dữ kiện khách quan với suy diễn chủ quan và nhận diện các ngụy biện logic.",
+                "Thiết lập ranh giới lành mạnh trong công việc và các mối quan hệ mà vẫn giữ được sự tôn trọng lẫn nhau.",
+                "Quản trị năng lượng sinh học và sắp xếp ưu tiên theo ma trận Eisenhower để làm việc hiệu quả và phòng tránh kiệt sức (burnout)."
             ],
             Prerequisites:
             [
-                "Tâm thế cởi mở, sẵn sàng tự soi chiếu hành vi và thói quen giao tiếp của bản thân.",
-                "Mong muốn cải thiện chất lượng mối quan hệ và sự an yên trong nội tâm."
+                "Tâm thế cởi mở, sẵn sàng quan sát và soi chiếu thói quen giao tiếp của bản thân.",
+                "Mong muốn nâng cao chất lượng các mối quan hệ và sự cân bằng trong nội tâm."
             ]
         ),
 
         ["document-course-psychology"] = new(
             Category: "Tâm lý & Kỹ năng sống",
             Level: "intermediate",
-            TargetAudience: "Người đam mê khám phá cơ chế não bộ, khoa học hành vi con người, tâm lý học nhận thức, các kiểu gắn bó tình cảm và liệu pháp tâm lý.",
+            TargetAudience: "Người yêu thích khám phá cơ chế vận hành của não bộ, khoa học hành vi, tâm lý học nhận thức, các kiểu gắn bó trong mối quan hệ và phương pháp chăm sóc sức khỏe tinh thần.",
             LabLabel: "Phòng Tình huống NVC & CBT",
             HasAudio: false,
             LearningOutcomes:
             [
-                "Hiểu rõ cơ chế hoạt động của não bộ, hệ thần kinh và sự điều tiết của các chất dẫn truyền thần kinh (Dopamine, Serotonin, Cortisol).",
-                "Phân tích cơ chế tư duy của Hệ thống 1 (trực giác nhanh) và Hệ thống 2 (suy luận chậm) theo lý thuyết Kahneman.",
-                "Khám phá 4 phong cách gắn bó trong tình yêu (an toàn, lo âu, né tránh, hỗn loạn) và phương pháp chữa lành vết thương tâm lý.",
-                "Ứng dụng mô hình ABC trong Liệu pháp Nhận thức Hành vi (CBT) để nhận diện và thay đổi các suy nghĩ tự động tiêu cực.",
-                "Làm chủ các quy luật ghi nhớ não bộ (Đường cong quên Ebbinghaus, Chunking, Retrieval Practice) để học tập siêu tốc."
+                "Hiểu rõ cơ chế hoạt động của não bộ, hệ thần kinh và vai trò điều tiết của các chất dẫn truyền thần kinh (Dopamine, Serotonin, Cortisol).",
+                "Phân tích hai cơ chế tư duy Hệ thống 1 (trực giác nhanh) và Hệ thống 2 (suy luận có chủ đích) theo nghiên cứu của Daniel Kahneman.",
+                "Nhận diện 4 kiểu gắn bó trong tình cảm (an toàn, lo âu, né tránh, hỗn loạn) và hướng chữa lành tổn thương tâm lý.",
+                "Ứng dụng mô hình ABC trong Liệu pháp Nhận thức Hành vi (CBT) để nhận biết và điều chỉnh các suy nghĩ tự động thiếu cân bằng.",
+                "Vận dụng các quy luật ghi nhớ của não bộ (Đường cong quên Ebbinghaus, Chunking, Retrieval Practice) để học tập sâu và ghi nhớ bền vững."
             ],
             Prerequisites:
             [
-                "Yêu thích tìm hiểu về con người và khoa học tâm lý học đại cương.",
-                "Sẵn sàng đọc các nghiên cứu thực nghiệm và tình huống lâm sàng thực tế."
+                "Có niềm yêu thích tìm hiểu về tâm lý học đại cương và hành vi con người.",
+                "Sẵn sàng đọc và suy ngẫm các nghiên cứu thực nghiệm cùng tình huống lâm sàng thực tế."
             ]
         ),
 
         ["he-dieu-hanh-bo-nho-ao"] = new(
             Category: "Khoa học máy tính",
             Level: "advanced",
-            TargetAudience: "Sinh viên Khoa học Máy tính, kỹ sư phần mềm muốn hiểu sâu tầng hệ thống: cơ chế bộ nhớ ảo, paging phần cứng, MMU, TLB và tối ưu hiệu năng OS.",
-            LabLabel: "OS Memory & Scheduling Lab",
+            TargetAudience: "Sinh viên Khoa học Máy tính và kỹ sư phần mềm muốn nắm vững tầng hệ thống qua 12 bài học · 5 chương: quản lý bộ nhớ ảo, phân trang phần cứng, MMU, TLB, hệ thống tệp tin I/O, đồng bộ hóa nâng cao, Linux Kernel và ảo hóa Container.",
+            LabLabel: "Lab Bộ nhớ & Điều phối OS",
             HasAudio: false,
             LearningOutcomes:
             [
-                "Làm chủ nguyên lý quản lý bộ nhớ ảo (Virtual Memory), phân đoạn (Segmentation) và phân trang (Paging) trong hệ điều hành hiện đại.",
-                "Phân tích cơ chế hoạt động của Memory Management Unit (MMU) và Translation Lookaside Buffer (TLB) trong ánh xạ địa chỉ ảo-vật lý.",
-                "Tính toán và tối ưu thời gian truy cập bộ nhớ hiệu dụng (EAT) dựa trên tỷ lệ hit/miss TLB.",
-                "Hiểu rõ cấu trúc bảng trang đa cấp 4 tầng (PGD, PUD, PMD, PTE) và bảng trang nghịch đảo (Inverted Page Table).",
-                "So sánh, mô phỏng và cài đặt các thuật toán thay thế trang kinh điển: FIFO, LRU, Clock (Second Chance) và Optimal."
+                "Làm chủ lộ trình 12 bài học · 5 chương về Hệ điều hành: tiến trình, điều phối CPU, đồng bộ hóa và quản lý bộ nhớ ảo (Virtual Memory, Paging).",
+                "Phân tích cơ chế phối hợp giữa khối quản lý bộ nhớ (MMU) và bộ đệm dịch địa chỉ (TLB) cùng thời gian truy cập bộ nhớ hiệu dụng (EAT).",
+                "So sánh, mô phỏng và cài đặt các thuật toán thay thế trang kinh điển: FIFO, LRU, Clock (Second-Chance) và Optimal.",
+                "Hiểu sâu cấu trúc hệ thống tệp tin (Inode, VFS, Page Cache), lập lịch I/O đĩa (NVMe/SSD) và cơ chế tối ưu bộ nhớ đệm Kernel.",
+                "Vận dụng đồng bộ hóa nâng cao (Read-Write Lock, Lock-free, RCU), eBPF/System Calls và nguyên lý cô lập Namespace/Cgroups của Container."
             ],
             Prerequisites:
             [
                 "Nắm vững ngôn ngữ C/C++ cơ bản và kiến trúc máy tính (thanh ghi, CPU, RAM).",
-                "Hiểu biết về hệ nhị phân, thập lục phân và các phép toán thao tác bit (bitmask, bitwise)."
+                "Hiểu biết về hệ nhị phân, thập lục phân và các phép toán thao tác bit (bitwise, bitmask)."
             ]
         ),
 
         ["tieng-anh-giao-tiep-thuc-chien-a2-b1"] = new(
             Category: "Ngoại ngữ",
             Level: "foundation",
-            TargetAudience: "Người đi làm hoặc sinh viên mất gốc tiếng Anh cần xây dựng phản xạ giao tiếp tự tin trong đời sống hàng ngày và môi trường công sở quốc tế.",
+            TargetAudience: "Người đi làm và sinh viên cần xây dựng nền tảng tiếng Anh giao tiếp A2–B1 qua 12 bài học · 5 chương: từ giao tiếp đời thường, email và họp trực tuyến đến du lịch quốc tế, phỏng vấn kỹ thuật STAR, storytelling số liệu và viết prompt AI tự nhiên.",
             LabLabel: "Phòng Nghe – Nói IPA",
             HasAudio: true,
             LearningOutcomes:
             [
-                "Tự tin giới thiệu bản thân, bắt chuyện Small Talk và duy trì cuộc đối thoại tự nhiên với đồng nghiệp và người bản xứ.",
-                "Xử lý linh hoạt các tình huống hỏi đường, đặt phòng khách sạn, gọi món nhà hàng và mua sắm khi đi công tác nước ngoài.",
-                "Viết email công việc chuẩn mực: đặt lịch hẹn, báo cáo tiến độ dự án, xin nghỉ phép và theo dõi phản hồi chuyên nghiệp.",
-                "Nắm vững mẫu câu tham gia cuộc họp trực tuyến, bày tỏ quan điểm đồng tình hoặc từ chối lịch sự và tóm tắt biên bản.",
-                "Trình bày thuyết trình ngắn (5–10 phút) với cấu trúc mở đầu, dẫn chứng và kết luận rõ ràng, mạch lạc."
+                "Hoàn thành lộ trình 12 bài học · 5 chương nâng trình độ giao tiếp thực chiến từ A2 lên B1 tự tin trong đời sống và công sở quốc tế.",
+                "Xử lý linh hoạt tình huống du lịch, xuất nhập cảnh, đặt phòng, soạn email công việc và điều phối họp trực tuyến chuyên nghiệp.",
+                "Trả lời phỏng vấn kỹ thuật theo cấu trúc STAR (Situation–Task–Action–Result) và tham gia Code Review, báo cáo lỗi mạch lạc.",
+                "Thuyết trình storytelling bằng số liệu kinh doanh (BLUF), xử lý khủng hoảng khách hàng (LAER) và từ chối khéo léo (Positive No).",
+                "Viết email tự nhiên chuẩn bản xứ và thiết kế câu lệnh AI (Prompt Engineering) bằng tiếng Anh chính xác, súc tích."
             ],
             Prerequisites:
             [
-                "Biết phát âm bảng chữ cái tiếng Anh và các từ vựng chào hỏi cơ bản.",
-                "Sẵn sàng luyện nói to và thu âm kiểm tra phát âm hàng ngày."
+                "Nhận biết bảng chữ cái tiếng Anh và các mẫu câu chào hỏi cơ bản.",
+                "Duy trì thói quen luyện nói thành tiếng và ghi âm đối chiếu phát âm hằng ngày."
             ]
         ),
 
         ["tieng-nhat-so-cap-n5"] = new(
             Category: "Ngoại ngữ",
             Level: "foundation",
-            TargetAudience: "Người mới bắt đầu học tiếng Nhật từ con số 0, chuẩn bị du học, làm việc tại doanh nghiệp Nhật Bản hoặc thi đỗ chứng chỉ JLPT N5.",
+            TargetAudience: "Người mới bắt đầu học tiếng Nhật từ đầu với lộ trình 12 bài học · 5 chương toàn diện hướng tới chứng chỉ JLPT N5: Hiragana, Katakana, 100+ Kanji, tính từ, sở thích gia đình, động từ thể Te và diễn đạt kế hoạch tương lai.",
             LabLabel: "Lab Luyện Nhật N5",
             HasAudio: true,
             LearningOutcomes:
             [
-                "Làm chủ thành thạo 2 bảng chữ cái Hiragana và Katakana cùng các biến âm (Dakuon, Handakuon, Yoon, Sokuon).",
-                "Nhận diện và viết đúng 100 chữ Hán (Kanji) căn bản cấp độ N5 kèm âm On và âm Kun thông dụng.",
-                "Nắm vững hơn 600 từ vựng cốt lõi và các trợ từ cơ bản (は, が, を, に, で, へ, と, も, から, まで) trong tiếng Nhật.",
-                "Chia thành thạo các thể động từ cơ bản (thể Masu, thể Te, thể Nai, thể Từ điển) và các mẫu câu xin phép, chỉ thị, cấm đoán.",
-                "Tự tin nghe hiểu các đoạn hội thoại sinh hoạt thường ngày và đọc hiểu mẩu tin ngắn chuẩn đề thi JLPT N5."
+                "Chinh phục trọn vẹn 12 bài học · 5 chương chuẩn JLPT N5 từ Hiragana, Katakana, trường âm, âm ngắt đến giao tiếp đời sống tự nhiên.",
+                "Nhận diện và viết đúng quy tắc hơn 100 chữ Hán (Kanji) nền tảng trình độ N5 kèm âm On và âm Kun thông dụng.",
+                "Vận dụng thành thạo tính từ đuôi い/な, mẫu câu miêu tả gia đình, sở thích, năng lực (〜ができます) và mức độ.",
+                "Chia nhuần nhuyễn động từ thể Masu, thể Te (〜て形: xin phép 〜てもいいですか, cấm đoán 〜てはいけません, nối hành động) và thể Nai.",
+                "Tự tin diễn đạt mong muốn (〜たいです, 〜が欲しいです), kế hoạch du lịch, đặt phòng và nghe đọc hiểu đề thi JLPT N5."
             ],
             Prerequisites:
             [
                 "Không yêu cầu kiến thức tiếng Nhật trước đó.",
-                "Chuẩn bị tập viết ô ly để rèn luyện nét chữ Hiragana, Katakana và Kanji."
+                "Chuẩn bị vở ô ly hoặc bảng luyện nét để thực hành viết Hiragana, Katakana và Kanji."
             ]
         ),
 
         ["tieng-trung-so-cap-hsk1"] = new(
             Category: "Ngoại ngữ",
             Level: "foundation",
-            TargetAudience: "Người bắt đầu tiếp cận tiếng Trung Quốc (tiếng Quan Thoại), mong muốn phát âm chuẩn Bắc Kinh và đạt chứng chỉ HSK 1 với điểm số cao.",
+            TargetAudience: "Người mới bắt đầu học tiếng Trung Quan Thoại với giáo trình 12 bài học · 5 chương chuẩn HSK 1+: Pinyin, 4 thanh điệu, gia đình, thời tiết, công việc, trợ động từ năng nguyện và cấu trúc nhấn mạnh quá khứ.",
             LabLabel: "Lab Luyện Trung HSK1",
             HasAudio: true,
             LearningOutcomes:
             [
-                "Làm chủ hệ thống ngữ âm Pinyin (Phiên âm): 21 thanh mẫu, 36 vận mẫu và 4 thanh điệu chuẩn xác cùng quy tắc biến điệu.",
-                "Nhận diện và ghi nhớ cách viết 150 chữ Hán (Hán tự) thông dụng nhất cấp độ HSK 1 theo đúng quy tắc thuận bút.",
-                "Sử dụng thành thạo hơn 150 từ vựng và các cấu trúc ngữ pháp then chốt để giao tiếp trong các chủ đề căn bản.",
-                "Thực hành hội thoại chào hỏi, hỏi tuổi, hỏi ngày giờ, đếm số, giới thiệu thành viên gia đình và mua sắm đồ dùng hàng ngày.",
-                "Rèn luyện kỹ năng nghe hiểu tốc độ chậm và đọc lướt câu ngắn, tự tin vượt qua bài thi HSK 1 với số điểm 180+/200."
+                "Làm chủ lộ trình 12 bài học · 5 chương chuẩn HSK 1: hệ thống Pinyin (21 thanh mẫu, 36 vận mẫu), 4 thanh điệu và quy tắc biến điệu.",
+                "Nhận diện và ghi nhớ cách viết hơn 150 chữ Hán (Hán tự) thông dụng nhất cấp độ HSK 1 theo đúng quy tắc thuận bút.",
+                "Giao tiếp tự nhiên về chào hỏi, thời gian, gia đình, lượng từ, thời tiết 4 mùa, nghề nghiệp và trạng thái đang diễn ra (正在...呢).",
+                "Sử dụng chính xác trợ động từ năng nguyện (会, 能, 可以, 想, 要), trợ từ hoàn thành 了 và khung nhấn mạnh quá khứ 是...的.",
+                "Rèn luyện nghe hiểu, hỏi khoảng cách – thời lượng đi lại và sẵn sàng chinh phục kỳ thi HSK 1 với điểm số 180+/200."
             ],
             Prerequisites:
             [
-                "Không yêu cầu biết tiếng Trung trước đó.",
+                "Không yêu cầu kiến thức tiếng Trung trước đó.",
                 "Có micro hoặc thiết bị ghi âm để luyện tập đối chiếu thanh điệu Pinyin."
+            ]
+        ),
+
+        ["document-course-ai-workflows"] = new(
+            Category: "AI & Tự động hóa",
+            Level: "intermediate",
+            TargetAudience: "Sinh viên, nhân sự vận hành, PM/BA và kỹ sư phần mềm muốn làm chủ Prompt Engineering chuẩn kỹ thuật, Structured Outputs, RAG, giao thức MCP và thiết kế Agent Workflow an toàn, đo lường được hiệu quả (Evals) năm 2026.",
+            LabLabel: "Lab AI & Prompt Engineering",
+            HasAudio: false,
+            LearningOutcomes:
+            [
+                "Nắm vững cơ chế LLM, Tokenization tiếng Việt, giới hạn Context Window và dự toán chi phí/độ trễ mô hình thực tế.",
+                "Thiết kế hoàn chỉnh kiến trúc Prompt 5 lớp, ép đầu ra JSON Schema (Structured Outputs) và xây dựng bộ kiểm thử tự động (Evals).",
+                "Kiểm soát ảo giác AI (Hallucination) bằng quy trình kiểm chứng nguồn 3 bước và kiến trúc RAG (Chunking, Hybrid Search, trích dẫn bằng chứng).",
+                "Xây dựng Tool Contract, tích hợp giao thức MCP, thiết lập Guardrails, Human-in-the-Loop (HITL) và tự động hóa quy trình email/báo cáo.",
+                "Lập trình và review code an toàn với AI theo kỷ luật Test-First, che chắn dữ liệu PII (Redaction) và phòng vệ Prompt Injection."
+            ],
+            Prerequisites:
+            [
+                "Đã từng sử dụng công cụ AI tạo sinh cơ bản trong học tập hoặc công việc văn phòng.",
+                "Có tư duy logic mạch lạc và sẵn sàng thực hành viết lại Prompt có cấu trúc JSON/Markdown."
+            ]
+        ),
+
+        ["document-course-data-sql"] = new(
+            Category: "Dữ liệu & Phân tích",
+            Level: "intermediate",
+            TargetAudience: "Business Analyst (BA), Product Manager (PM), Data Analyst mới vào nghề, nhân sự Marketing/Operations và sinh viên muốn viết SQL phân tích chuẩn xác, tránh bẫy thống kê và thiết kế Dashboard ra quyết định.",
+            LabLabel: "Lab SQL & Phân tích Dữ liệu",
+            HasAudio: false,
+            LearningOutcomes:
+            [
+                "Phân biệt tương quan và nhân quả, nhận diện Nghịch lý Simpson, bẫy trung bình và xác định đúng Grain của bảng dữ liệu quan hệ.",
+                "Viết thành thạo SQL theo đúng thứ tự thực thi logic (Logical Execution Order), xử lý NULL an toàn với GROUP BY, HAVING và CASE WHEN.",
+                "Phòng tránh bẫy nhân bản dòng (Fan-out Join Trap), chuẩn hóa múi giờ Việt Nam (UTC+7) và đối soát doanh thu ròng sau hoàn/hủy.",
+                "Làm chủ CTE (WITH), Window Functions (ROW_NUMBER, RANK, LAG/LEAD, Running Total), phân tích Cohort Retention và Conversion Funnel.",
+                "Xây dựng cây chỉ số KPI Tree, thiết kế A/B Testing tránh dừng sớm/Goodhart's Law và kể chuyện ra quyết định qua Dashboard."
+            ],
+            Prerequisites:
+            [
+                "Sử dụng thành thạo bảng tính (Excel/Google Sheets) và các phép tính tỷ lệ phần trăm cơ bản.",
+                "Không yêu cầu kinh nghiệm SQL chuyên sâu trước khi bắt đầu từ Module 1."
+            ]
+        ),
+
+        ["document-course-cybersecurity"] = new(
+            Category: "An toàn thông tin",
+            Level: "foundation",
+            TargetAudience: "Mọi công dân số tại Việt Nam sử dụng ngân hàng số, ví điện tử, VietQR, VNeID cũng như nhân viên văn phòng và lập trình viên muốn xây dựng phản xạ phòng vệ lừa đảo số, bảo mật tài khoản và ứng phó sự cố.",
+            LabLabel: "Lab An toàn số & Phòng vệ",
+            HasAudio: false,
+            LearningOutcomes:
+            [
+                "Nhận diện và vô hiệu hóa kịch bản thao túng tâm lý khẩn cấp (Social Engineering), Phishing, Brand Spoofing và mã QR độc hại (Quishing).",
+                "Phát hiện dấu hiệu Deepfake giọng nói/video giả mạo cơ quan chức năng, mã độc APK giả VNeID và tiện ích trình duyệt nguy hiểm.",
+                "Triển khai bộ lớp phòng vệ xác thực hiện đại: Password Manager, Passkeys (FIDO2), Authenticator App/Hardware Key và khóa SIM/OTP.",
+                "Bảo vệ tài khoản ngân hàng, thẻ tín dụng, ví điện tử; giảm thiểu dữ liệu cá nhân (PII), kiểm soát dấu chân số và dữ liệu đưa vào AI.",
+                "Thực hành Zero Trust cá nhân, xác minh kênh độc lập (Out-of-Band), bảo mật secret/.env khi làm việc và quy trình sao lưu 3-2-1-1-0 cùng ứng cứu 15 phút."
+            ],
+            Prerequisites:
+            [
+                "Sử dụng điện thoại thông minh, máy tính cá nhân và các ứng dụng ngân hàng/mạng xã hội hằng ngày.",
+                "Sẵn sàng kiểm tra và nâng cấp cài đặt bảo mật trên thiết bị cá nhân ngay trong quá trình học."
+            ]
+        ),
+
+        ["document-course-deep-learning-systems"] = new(
+            Category: "Phương pháp học & Hệ thống",
+            Level: "foundation",
+            TargetAudience: "Sinh viên, kỹ sư, nhà phân tích và người học suốt đời muốn thoát khỏi Ảo tưởng Năng lực thời AI (Fluency Illusion), làm chủ khoa học trí nhớ FSRS v5, tư duy hệ thống và quản trị sự chú ý sâu.",
+            LabLabel: "Lab Học sâu & Hệ thống",
+            HasAudio: false,
+            LearningOutcomes:
+            [
+                "Nhận diện và loại bỏ Ảo tưởng Năng lực khi học cùng AI; chuyển AI từ công cụ làm hộ sang đối tác phản biện (Socratic Sparring Partner).",
+                "Áp dụng hiệu quả Active Recall, Testing Effect, Desirable Difficulty, kỹ thuật Feynman và Ôn tập Xen kẽ (Interleaving).",
+                "Thiết kế thẻ ghi nhớ nguyên tử chuẩn khoa học và vận hành lịch lặp lại ngắt quãng FSRS v5 kết hợp hệ thống Evergreen Notes (PKM).",
+                "Phân tích vấn đề phức tạp bằng Tư duy Hệ thống: Stock & Flow, Feedback Loops, Điểm nghẽn (TOC), Tư duy Bậc hai, MECE, Issue Tree và 5 Whys.",
+                "Bảo vệ sự tập trung sâu (Deep Work), giảm Dư lượng Chú ý (Attention Residue), thực hành Pre-mortem và vận hành Personal Learning OS trọn đời."
+            ],
+            Prerequisites:
+            [
+                "Không yêu cầu nền tảng học thuật chuyên ngành; phù hợp với mọi lĩnh vực học tập và làm việc tri thức.",
+                "Sẵn sàng thực hành ghi chú chủ động, tự kiểm tra truy xuất ký ức và viết nhật ký phản tư mỗi tuần."
             ]
         )
     };
+
+    public static IReadOnlyCollection<string> CanonicalCourseSlugs => MetadataBySlug.Keys;
 
     private static readonly Dictionary<Guid, CourseCuratedMetadata> MetadataByCourseId = new()
     {
@@ -240,19 +326,22 @@ public static class CuratedCourseMetadataCatalog
         [SeedDataInitializer.ChineseCourseId] = MetadataBySlug["tieng-trung-so-cap-hsk1"]
     };
 
-    public static CourseCuratedMetadata ResolveMetadata(Course course)
+    private static CourseCuratedMetadata? FindCuratedMetadata(Course course)
     {
-        CourseCuratedMetadata? defaultMeta = null;
         if (!string.IsNullOrWhiteSpace(course.Slug) && MetadataBySlug.TryGetValue(course.Slug, out var bySlug))
         {
-            defaultMeta = bySlug;
+            return bySlug;
         }
-        else if (MetadataByCourseId.TryGetValue(course.Id, out var byId))
+        if (MetadataByCourseId.TryGetValue(course.Id, out var byId))
         {
-            defaultMeta = byId;
+            return byId;
         }
+        return null;
+    }
 
-        defaultMeta ??= ResolveFallbackMetadata(course);
+    public static CourseCuratedMetadata ResolveMetadata(Course course)
+    {
+        var defaultMeta = FindCuratedMetadata(course) ?? ResolveFallbackMetadata(course);
 
         var effectiveCategory = !string.IsNullOrWhiteSpace(course.Category)
             ? course.Category.Trim()
@@ -317,7 +406,7 @@ public static class CuratedCourseMetadataCatalog
         {
             category = "Lập trình Full-Stack";
             level = "intermediate";
-            labLabel = "Code Lab & Debug";
+            labLabel = "Lab Lập trình & Gỡ lỗi";
         }
         else if (title.Contains("Tài chính", StringComparison.OrdinalIgnoreCase) ||
                  title.Contains("Đầu tư", StringComparison.OrdinalIgnoreCase) ||
@@ -375,6 +464,10 @@ public static class CuratedCourseMetadataCatalog
             }
 
             bool courseChanged = false;
+            var curated = FindCuratedMetadata(course);
+            var isProtectedCurated = curated != null
+                && DocumentCourseSyncService.IsProtectedSystemCourse(course)
+                && !string.Equals(course.Visibility, "personal", StringComparison.OrdinalIgnoreCase);
             var meta = ResolveMetadata(course);
 
             if (string.IsNullOrWhiteSpace(course.Category) && !string.IsNullOrWhiteSpace(meta.Category))
@@ -389,16 +482,28 @@ public static class CuratedCourseMetadataCatalog
                 courseChanged = true;
             }
 
-            if (string.IsNullOrWhiteSpace(course.LearningOutcomesJson) && meta.LearningOutcomes is { Length: > 0 })
+            var targetOutcomes = isProtectedCurated ? curated!.LearningOutcomes : meta.LearningOutcomes;
+            if (targetOutcomes is { Length: > 0 })
             {
-                course.LearningOutcomesJson = JsonSerializer.Serialize(meta.LearningOutcomes, JsonOptions);
-                courseChanged = true;
+                var serializedOutcomes = JsonSerializer.Serialize(targetOutcomes, JsonOptions);
+                if (string.IsNullOrWhiteSpace(course.LearningOutcomesJson) ||
+                    (isProtectedCurated && !string.Equals(course.LearningOutcomesJson, serializedOutcomes, StringComparison.Ordinal)))
+                {
+                    course.LearningOutcomesJson = serializedOutcomes;
+                    courseChanged = true;
+                }
             }
 
-            if (string.IsNullOrWhiteSpace(course.PrerequisitesJson) && meta.Prerequisites is { Length: > 0 })
+            var targetPrereqs = isProtectedCurated ? curated!.Prerequisites : meta.Prerequisites;
+            if (targetPrereqs is { Length: > 0 })
             {
-                course.PrerequisitesJson = JsonSerializer.Serialize(meta.Prerequisites, JsonOptions);
-                courseChanged = true;
+                var serializedPrereqs = JsonSerializer.Serialize(targetPrereqs, JsonOptions);
+                if (string.IsNullOrWhiteSpace(course.PrerequisitesJson) ||
+                    (isProtectedCurated && !string.Equals(course.PrerequisitesJson, serializedPrereqs, StringComparison.Ordinal)))
+                {
+                    course.PrerequisitesJson = serializedPrereqs;
+                    courseChanged = true;
+                }
             }
 
             if (courseChanged)

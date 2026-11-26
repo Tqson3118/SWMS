@@ -146,7 +146,7 @@ export function LearningStickyBottomBar({
             disabled={isCompleting}
             onClick={onMarkComplete}
             data-testid="sticky-mark-lesson-complete-btn"
-            className="inline-flex items-center gap-1 sm:gap-1.5 h-8 px-2 sm:px-3 rounded-lg bg-accent text-white text-[11px] sm:text-xs font-semibold hover:bg-accent-hover disabled:opacity-60 transition cursor-pointer shadow-xs shrink-0 whitespace-nowrap"
+            className="inline-flex items-center gap-1 sm:gap-1.5 h-8 px-2 sm:px-3 rounded-lg bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:hover:bg-[#A5B4FC] dark:text-[#0F0F12] text-[11px] sm:text-xs font-semibold disabled:opacity-60 transition cursor-pointer shadow-xs shrink-0 whitespace-nowrap"
           >
             {isCompleting ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />

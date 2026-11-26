@@ -128,6 +128,9 @@ public static class SeedDataInitializer
                 await EnsureJapaneseAndChineseCoursesSeededAsync(db);
                 await AcademicOsPracticeContent.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
                 await LanguageFlashcardsSeed.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
+                await ExpandedSeededCoursesContent.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
+                await ExpandedCjkCoursesContent.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
+                await SyncSeededSystemCourseDescriptionsAsync(db);
                 await Features.CuratedCourseMetadataCatalog.ApplyDefaultsToCoursesAsync(db);
                 return;
             }
@@ -217,7 +220,7 @@ public static class SeedDataInitializer
             InstructorId = DefaultUserId,
             Title = "Không gian cá nhân (Personal Workspace)",
             Slug = "personal-workspace-son-tran",
-            Description = "Không gian tự học chủ quyền mặc định cho tài liệu PDF, ghi chú tổng hợp và thẻ FSRS.",
+            Description = "Không gian học tập cá nhân cho tài liệu PDF, ghi chú tổng hợp và bộ thẻ ghi nhớ FSRS.",
             Visibility = "personal",
             IsPublished = true
         };
@@ -228,7 +231,7 @@ public static class SeedDataInitializer
             InstructorId = DefaultUserId,
             Title = "Hệ điều hành: Kiến trúc Bộ nhớ ảo & Phân trang",
             Slug = "he-dieu-hanh-bo-nho-ao",
-            Description = "Khóa học cốt lõi về Quản lý bộ nhớ, Phần cứng phân trang (MMU/TLB), Bảng trang đa cấp và Thuật toán thay thế trang.",
+            Description = AcademicOsPracticeContent.AcademicCourseDescription,
             Visibility = "public",
             IsPublished = true
         };
@@ -832,6 +835,8 @@ public static class SeedDataInitializer
         await EnsureJapaneseAndChineseCoursesSeededAsync(db);
         await AcademicOsPracticeContent.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
         await LanguageFlashcardsSeed.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
+        await ExpandedSeededCoursesContent.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
+        await ExpandedCjkCoursesContent.EnsureSeededAsync(db, DateTimeOffset.UtcNow);
         await Features.CuratedCourseMetadataCatalog.ApplyDefaultsToCoursesAsync(db);
         }
         finally
@@ -926,6 +931,46 @@ public static class SeedDataInitializer
         return new Guid(guidBytes);
     }
 
+    public const string EnglishCourseDescription = "Khóa học giao tiếp tiếng Anh trình độ A2–B1 (12 bài học · 5 chương) dành cho sinh viên và người đi làm, kết hợp luyện Shadowing, Nghe – chép chính tả (Dictation), phát âm chuẩn IPA, phỏng vấn kỹ thuật STAR, storytelling số liệu và sơ đồ từ vựng Mind Map.";
+
+    private static async Task SyncSeededSystemCourseDescriptionsAsync(SwmsDbContext db)
+    {
+        var desiredDescriptions = new Dictionary<Guid, string>
+        {
+            [AcademicCourseId] = AcademicOsPracticeContent.AcademicCourseDescription,
+            [EnglishCourseId] = EnglishCourseDescription,
+            [JapaneseCourseId] = JapaneseChinesePracticeContent.JapaneseCourseDescription,
+            [ChineseCourseId] = JapaneseChinesePracticeContent.ChineseCourseDescription
+        };
+
+        var targetIds = desiredDescriptions.Keys.ToList();
+        var systemCourses = await db.Courses
+            .Where(c => targetIds.Contains(c.Id))
+            .ToListAsync();
+
+        var now = DateTimeOffset.UtcNow;
+        bool modified = false;
+        foreach (var course in systemCourses)
+        {
+            if (string.Equals(course.Visibility, "personal", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+            if (desiredDescriptions.TryGetValue(course.Id, out var expectedDescription) &&
+                !string.Equals(course.Description, expectedDescription, StringComparison.Ordinal))
+            {
+                course.Description = expectedDescription;
+                course.UpdatedAt = now;
+                modified = true;
+            }
+        }
+
+        if (modified)
+        {
+            await db.SaveChangesAsync();
+        }
+    }
+
     public static async Task EnsureEnglishCommunicationCourseSeededAsync(SwmsDbContext db)
     {
         var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == EnglishCourseId || c.Slug == "tieng-anh-giao-tiep-thuc-chien-a2-b1");
@@ -939,7 +984,7 @@ public static class SeedDataInitializer
                 InstructorId = DefaultUserId,
                 Title = "Tiếng Anh Giao Tiếp Thực Chiến (A2 → B1)",
                 Slug = "tieng-anh-giao-tiep-thuc-chien-a2-b1",
-                Description = "Khóa học giao tiếp phản xạ thực chiến A2 đến B1 dành cho sinh viên và người đi làm, trang bị phương pháp Shadowing, Nghe - Chép chính tả (Dictation), Luyện phát âm chuẩn IPA và Sơ đồ từ vựng Mind Map.",
+                Description = EnglishCourseDescription,
                 Visibility = "public",
                 IsPublished = true,
                 CreatedAt = now,
@@ -1274,7 +1319,7 @@ Mai Tran";
                 OrderIndex = 3,
                 Type = "pronunciation",
                 Title = "Chấm phát âm: Ngữ điệu câu chào hỏi chuyên nghiệp",
-                Description = "Đọc to câu mục tiêu và nhận dạng giọng nói tự động để phát hiện các từ phát âm chưa chuẩn.",
+                Description = "Đọc to câu mục tiêu và dùng tính năng nhận diện giọng nói để phát hiện các từ phát âm chưa chuẩn.",
                 ConfigJson = JsonSerializer.Serialize(new
                 {
                     sentence = "I look forward to learning more about your background and recent projects.",
@@ -2170,7 +2215,7 @@ Mai Tran";
                 OrderIndex = 10,
                 Type = "roleplay",
                 Title = "Nhập vai hội thoại: Small Talk tại Hội thảo Quốc tế",
-                Description = "Trò chuyện phản xạ bằng giọng nói hoặc gõ phím với đồng nghiệp quốc tế (AI chấm trực tiếp hoặc chấm từ khóa offline).",
+                Description = "Luyện hội thoại phản xạ bằng giọng nói hoặc gõ phím với đồng nghiệp quốc tế (hỗ trợ chấm bằng AI hoặc theo từ khóa offline).",
                 ConfigJson = JsonSerializer.Serialize(new
                 {
                     lang = "en-US",

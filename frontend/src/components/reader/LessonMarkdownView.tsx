@@ -12,6 +12,7 @@ import {
   ExternalLink,
   FileText,
   Flame,
+  Hash,
   Headphones,
   HelpCircle,
   Info,
@@ -26,6 +27,7 @@ import {
   Square,
   Volume2,
   VolumeX,
+  X,
 } from "lucide-react";
 import {
   SEMANTIC_HIGHLIGHT_KEYS,
@@ -1262,6 +1264,50 @@ export function LessonMarkdownView({
   onQuickSaveToNotebook,
   autoGenerateFsrsSection,
 }: LessonMarkdownViewProps) {
+  const [copiedHeadingId, setCopiedHeadingId] = useState<string | null>(null);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<{ src: string; alt: string } | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!lightboxImage) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setLightboxImage(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [lightboxImage]);
+
+  const handleCopyHeadingAnchor = async (headingId: string) => {
+    const el = document.getElementById(headingId);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    const url = `${window.location.origin}${window.location.pathname}${window.location.search}#${headingId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Clipboard blocked in restricted context; ignore gracefully
+    }
+    setCopiedHeadingId(headingId);
+    if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    copyTimerRef.current = setTimeout(() => {
+      setCopiedHeadingId((curr) => (curr === headingId ? null : curr));
+    }, 1500);
+  };
+
   const isEnglishContext = useMemo(() => {
     if (sourceFolder?.trim().toUpperCase() === "IELTS") return true;
     const combined = `${sourceFolder || ""} ${lessonTitle || ""} ${sourceRelativePath || ""}`.toLowerCase();
@@ -1394,14 +1440,28 @@ export function LessonMarkdownView({
     ): React.ReactNode => {
       const pieceText = (rawPieceText || "").replace(/[\uE000-\uF8FF\u001A]/g, "");
       if (token.kind === "image") {
+        const safeSrc = sanitizeSafeUrl(token.href);
+        const altText = token.alt || "";
         return (
-          <img
+          <button
             key={key}
-            src={sanitizeSafeUrl(token.href)}
-            alt={token.alt || ""}
-            className="my-3 max-w-full rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs"
-            loading="lazy"
-          />
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (safeSrc) {
+                setLightboxImage({ src: safeSrc, alt: altText });
+              }
+            }}
+            aria-label={altText ? `Phóng to ảnh: ${altText}` : "Phóng to ảnh"}
+            className="group/img inline-block my-2 max-w-full align-middle cursor-zoom-in text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-xl"
+          >
+            <img
+              src={safeSrc}
+              alt={altText}
+              className="max-w-full rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs transition group-hover/img:brightness-95"
+              loading="lazy"
+            />
+          </button>
         );
       }
 
@@ -1797,14 +1857,38 @@ export function LessonMarkdownView({
               ? "text-base sm:text-lg font-bold pt-3"
               : "text-sm sm:text-base font-bold pt-2";
 
+          const isAnchorCopied = copiedHeadingId === block.id;
+
           return (
             <HeadingTag
               key={blockId}
               id={block.id}
               onMouseUp={() => onSelectBlockText(blockId, plain)}
-              className={`${sizeClass} text-slate-900 dark:text-white font-sans scroll-mt-20 break-words`}
+              className={`group ${sizeClass} text-slate-900 dark:text-white font-sans scroll-mt-20 break-words`}
             >
               {renderInlineTokens(tokens, blockId)}
+              {(block.level === 2 || block.level === 3) && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopyHeadingAnchor(block.id);
+                  }}
+                  aria-label={`Sao chép liên kết mục ${plain}`}
+                  title="Sao chép liên kết mục này"
+                  className={`inline-flex items-center justify-center ml-2 align-middle p-1 rounded-md text-slate-400 hover:text-indigo-600 dark:text-slate-500 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 transition cursor-pointer ${
+                    isAnchorCopied
+                      ? "opacity-100 text-emerald-600 dark:text-emerald-400"
+                      : "opacity-50 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100"
+                  }`}
+                >
+                  {isAnchorCopied ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  ) : (
+                    <Hash className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              )}
             </HeadingTag>
           );
         }
@@ -2214,12 +2298,46 @@ export function LessonMarkdownView({
             type="button"
             data-testid="lesson-end-open-practice-btn"
             onClick={onOpenPractice}
-            className="inline-flex items-center gap-1.5 min-h-[40px] px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-xs transition-colors cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 min-h-[40px] px-4 py-2 rounded-lg bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:hover:bg-[#A5B4FC] dark:text-[#0F0F12] font-semibold text-xs shadow-xs transition-colors cursor-pointer shrink-0"
           >
             <span>Mở Phòng Thực Hành →</span>
           </button>
         )}
       </div>
+
+      {lightboxImage && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Xem ảnh phóng to"
+          onClick={() => setLightboxImage(null)}
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/85 backdrop-blur-xs p-4"
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxImage(null)}
+            aria-label="Đóng ảnh phóng to"
+            className="absolute top-4 right-4 p-2 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white border border-slate-700/80 shadow-md transition cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="flex flex-col items-center max-w-full max-h-full"
+          >
+            <img
+              src={lightboxImage.src}
+              alt={lightboxImage.alt}
+              className="max-w-[92vw] max-h-[85vh] object-contain rounded-xl shadow-2xl border border-white/10"
+            />
+            {lightboxImage.alt && (
+              <p className="mt-3 text-xs sm:text-sm text-slate-200 text-center max-w-[85vw] px-3 py-1.5 rounded-lg bg-slate-900/75">
+                {lightboxImage.alt}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

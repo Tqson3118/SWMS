@@ -339,24 +339,30 @@ export function CourseCardGraphicBanner({
       </svg>
 
       {/* Banner Meta Row */}
-      <div className="relative z-10 flex items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-950/35 dark:bg-slate-950/50 backdrop-blur-md text-white border border-white/30 shadow-xs whitespace-nowrap shrink-0">
+      <div className="relative z-10 flex items-center justify-between gap-1.5 min-w-0">
+        <span
+          title={domainLabel}
+          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-slate-950/35 dark:bg-slate-950/50 backdrop-blur-md text-white border border-white/30 shadow-xs min-w-0 max-w-[65%]"
+        >
           <Icon className={`w-3.5 h-3.5 shrink-0 ${config.iconTintClass}`} />
-          <span>{domainLabel}</span>
+          <span className="truncate">{domainLabel}</span>
         </span>
 
         {isCompleted ? (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-600/95 dark:bg-emerald-500/95 text-white border border-emerald-300/40 shadow-xs whitespace-nowrap shrink-0">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-emerald-600/95 dark:bg-emerald-500/95 text-white border border-emerald-300/40 shadow-xs whitespace-nowrap shrink-0">
             <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
             <span>Hoàn thành</span>
           </span>
         ) : isInProgress ? (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-950/45 dark:bg-slate-950/65 backdrop-blur-md text-white border border-white/35 shadow-xs whitespace-nowrap shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse motion-reduce:animate-none shrink-0" />
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-slate-950/45 dark:bg-slate-950/65 backdrop-blur-md text-white border border-white/35 shadow-xs whitespace-nowrap shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-300 ring-2 ring-amber-300/30 shrink-0" />
             <span>{progressPercent}%</span>
           </span>
         ) : levelLabel ? (
-          <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-950/45 dark:bg-slate-950/65 backdrop-blur-md text-white border border-white/30 shadow-xs whitespace-nowrap shrink-0">
+          <span
+            title={levelLabel}
+            className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-950/45 dark:bg-slate-950/65 backdrop-blur-md text-white border border-white/30 shadow-xs truncate max-w-[46%]"
+          >
             {levelLabel}
           </span>
         ) : null}

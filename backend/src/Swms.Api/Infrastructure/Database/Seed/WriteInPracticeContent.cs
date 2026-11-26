@@ -1636,7 +1636,7 @@ public static class WriteInPracticeContent
                 CourseId = targetCourse.Id,
                 LessonId = targetLesson.Id,
                 OrderIndex = newOrderIndex,
-                Type = src.Type,
+                Type = actType,
                 Title = src.Title,
                 Description = src.Description,
                 ConfigJson = src.ConfigJson,

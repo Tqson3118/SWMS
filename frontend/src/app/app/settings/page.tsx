@@ -55,8 +55,8 @@ const DEFAULT_AI_CONFIG: AiConfig = {
 const SHORTCUTS = [
   { keys: "Ctrl+K", description: "Tìm kiếm nhanh" },
   { keys: "Ctrl+D", description: "Chế độ tối" },
-  { keys: "Ctrl+\\", description: "Thu gọn sidebar" },
-  { keys: "Space", description: "Lật thẻ (Ôn tập)" },
+  { keys: "Ctrl+\\", description: "Thu gọn thanh điều hướng" },
+  { keys: "Space", description: "Lật thẻ ôn tập" },
   { keys: "1-4", description: "Đánh giá thẻ" },
   { keys: "Z", description: "Hoàn tác" },
 ];
@@ -75,7 +75,12 @@ export default function SettingsPage() {
   } = useWorkspaceStore();
 
   const [user, setUser] = useState<UserInfo>({ id: "", fullName: "", email: "" });
+  const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Password form state
@@ -415,7 +420,7 @@ export default function SettingsPage() {
               type="submit"
               data-testid="settings-save-password-btn"
               disabled={isUpdatingPassword}
-              className="h-9 px-4 rounded-md bg-accent text-white text-xs font-semibold hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
+              className="h-9 px-4 rounded-[8px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
             >
               {isUpdatingPassword ? "Đang lưu..." : "Lưu mật khẩu"}
             </button>
@@ -434,7 +439,7 @@ export default function SettingsPage() {
               Cấu hình AI
             </h2>
             <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
-              Tùy chỉnh khóa API và mô hình AI cá nhân (lưu cục bộ trên trình duyệt).
+              Tùy chỉnh khóa API và mô hình AI cá nhân (chỉ lưu trên trình duyệt của bạn).
             </p>
           </div>
         </div>
@@ -449,7 +454,7 @@ export default function SettingsPage() {
               type="password"
               value={aiConfig.apiKey}
               onChange={(e) => setAiConfig((c) => ({ ...c, apiKey: e.target.value }))}
-              placeholder="Nhập API key..."
+              placeholder="Nhập khóa API..."
               className="w-full h-9 px-3 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[#5E51E8]/40 focus:border-[#5E51E8] transition"
             />
           </div>
@@ -489,7 +494,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={handleSaveAiConfig}
-              className="flex items-center gap-2 h-9 px-4 rounded-[8px] bg-[#5E51E8] hover:bg-[#4F46E5] dark:bg-[#818CF8] dark:hover:bg-[#6366F1] text-white dark:text-[#0F0F12] text-sm font-medium transition cursor-pointer"
+              className="flex items-center gap-2 h-9 px-4 rounded-[8px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-sm font-medium transition cursor-pointer"
             >
               <Save className="w-4 h-4" />
               Lưu cấu hình
@@ -575,7 +580,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               data-testid="settings-save-review-caps-btn"
-              className="flex items-center gap-2 h-9 px-4 rounded-[8px] bg-[#5E51E8] hover:bg-[#4F46E5] dark:bg-[#818CF8] dark:hover:bg-[#6366F1] text-white dark:text-[#0F0F12] text-sm font-medium transition cursor-pointer"
+              className="flex items-center gap-2 h-9 px-4 rounded-[8px] bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-sm font-medium transition cursor-pointer"
             >
               <Save className="w-4 h-4" />
               Lưu giới hạn ôn tập
@@ -691,6 +696,23 @@ export default function SettingsPage() {
               />
               <span className="text-xs text-[var(--text-tertiary)] w-7">20</span>
             </div>
+
+            {/* Live Typography Preview Box */}
+            <div
+              data-testid="settings-typography-preview"
+              className="mt-4 p-3.5 rounded-[10px] bg-[var(--surface-elevated)] border border-[var(--border-calm)] text-[var(--text-primary)] transition-all"
+              style={{
+                fontSize: `${mounted ? fontSizePx : 15}px`,
+                fontFamily: mounted && serifFont ? "Georgia, Cambria, 'Times New Roman', serif" : "inherit",
+              }}
+            >
+              <p className="text-[11px] uppercase tracking-wider font-semibold text-[var(--text-tertiary)] mb-1.5 font-sans">
+                Xem trước đoạn đọc ({mounted ? fontSizePx : 15}px · {mounted && serifFont ? "Serif" : "Sans-serif"})
+              </p>
+              <p className="leading-relaxed">
+                Phương pháp lặp lại ngắt quãng FSRS v5 giúp tối ưu hóa thời điểm ôn tập ngay trước khi đường cong trí nhớ suy giảm.
+              </p>
+            </div>
           </div>
         </div>
       </Card>
@@ -736,6 +758,16 @@ export default function SettingsPage() {
             </tbody>
           </table>
         </div>
+        <div className="mt-4 pt-3 border-t border-[var(--border-calm)] flex justify-end">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent("studxy:open-shortcuts"))}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[8px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] hover:border-[#5E51E8]/50 text-xs font-medium text-[var(--text-primary)] transition cursor-pointer"
+          >
+            <Keyboard className="w-3.5 h-3.5 text-[#5E51E8] dark:text-[#818CF8]" />
+            <span>Mở bảng phím tắt đầy đủ (?)</span>
+          </button>
+        </div>
       </Card>
 
       {/* Section 5: Thông tin ứng dụng */}
@@ -751,7 +783,7 @@ export default function SettingsPage() {
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-[var(--text-secondary)]">Phiên bản</span>
-            <span className="text-sm font-medium text-[var(--text-primary)]">2.0 — UI Redesign</span>
+            <span className="text-sm font-medium text-[var(--text-primary)]">2.0</span>
           </div>
           <div className="flex items-center justify-between pt-2 border-t border-[var(--border-calm)]">
             <span className="text-sm text-[var(--text-secondary)]">Không gian làm việc khác</span>
@@ -760,7 +792,7 @@ export default function SettingsPage() {
               data-testid="settings-workspace-classic-link"
               className="flex items-center gap-1.5 text-sm font-medium text-[#5E51E8] dark:text-[#818CF8] hover:underline"
             >
-              Mở Workspace Classic
+              Mở Không gian cổ điển
               <ExternalLink className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -780,7 +812,7 @@ export default function SettingsPage() {
               href="/app/studio"
               className="flex items-center gap-1.5 text-sm font-medium text-[#5E51E8] dark:text-[#818CF8] hover:underline"
             >
-              Mở Course Studio
+              Mở trình biên tập khóa học
               <ExternalLink className="w-3.5 h-3.5" />
             </Link>
           </div>

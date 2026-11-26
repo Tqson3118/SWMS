@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Copy,
   Check,
@@ -16,6 +16,10 @@ import {
   PlayCircle,
   Sparkles,
   Activity,
+  Maximize2,
+  X,
+  WrapText,
+  ListOrdered,
 } from "lucide-react";
 
 export interface CodeBlockCardProps {
@@ -407,6 +411,23 @@ function parseClassDiagram(code: string): ClassEntity[] {
 export function MermaidDiagramCard({ code }: { code: string }) {
   const [activeTab, setActiveTab] = useState<"diagram" | "code">("diagram");
   const [copied, setCopied] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isFullscreen]);
 
   const diagramType = useMemo(() => detectDiagramType(code), [code]);
 
@@ -480,87 +501,83 @@ export function MermaidDiagramCard({ code }: { code: string }) {
             ? "Sơ đồ Thực thể (ER Diagram)"
             : "Sơ đồ Mermaid";
 
-  return (
-    <div className="my-5 rounded-2xl border border-indigo-200/90 dark:border-indigo-900/60 bg-white dark:bg-slate-900/95 overflow-hidden shadow-xs font-sans max-w-full">
-      {/* Header bar */}
-      <div className="px-3.5 sm:px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border-b border-indigo-100 dark:border-slate-800 flex items-center justify-between gap-3 flex-wrap text-xs">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
-            {diagramType === "sequence" ? (
-              <Layers className="w-3.5 h-3.5" />
-            ) : diagramType === "flowchart" ? (
-              <Workflow className="w-3.5 h-3.5" />
-            ) : (
-              <GitFork className="w-3.5 h-3.5" />
-            )}
-          </div>
-          <div className="min-w-0">
-            <div className="font-semibold text-slate-900 dark:text-slate-100 truncate">
-              {diagramTitle}
-            </div>
-            <div className="text-[10px] text-slate-500 dark:text-slate-400">
-              {diagramType === "sequence" && seqData
-                ? `${seqData.participants.length} đối tượng · ${seqData.items.filter((i) => i.kind === "message").length} tương tác`
-                : diagramType === "flowchart" && flowData
-                  ? `${flowData.nodes.length} nút · ${flowData.edges.length} liên kết bước`
-                  : "Mã sơ đồ hệ thống & luồng dữ liệu"}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5 shrink-0">
-          <div className="flex items-center bg-slate-200/80 dark:bg-slate-800 p-0.5 rounded-lg text-[11px] font-medium">
-            <button
-              type="button"
-              onClick={() => setActiveTab("diagram")}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md transition cursor-pointer ${
-                activeTab === "diagram"
-                  ? "bg-white dark:bg-indigo-600 text-indigo-700 dark:text-white shadow-xs font-semibold"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-              }`}
-            >
-              <Eye className="w-3 h-3" />
-              <span>Sơ đồ trực quan</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("code")}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md transition cursor-pointer ${
-                activeTab === "code"
-                  ? "bg-white dark:bg-indigo-600 text-indigo-700 dark:text-white shadow-xs font-semibold"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-              }`}
-            >
-              <Code2 className="w-3 h-3" />
-              <span>Mã nguồn</span>
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-200/80 hover:bg-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-medium transition cursor-pointer"
-            title="Sao chép cú pháp Mermaid"
-          >
-            {copied ? (
-              <>
-                <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                  Đã chép
-                </span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3 h-3" />
-                <span>Sao chép</span>
-              </>
-            )}
-          </button>
-        </div>
+  const renderHeaderControls = (inModal = false) => (
+    <div className="flex items-center gap-1.5 flex-wrap shrink-0">
+      <div className="flex items-center bg-slate-200/80 dark:bg-slate-800 p-0.5 rounded-lg text-[11px] font-medium">
+        <button
+          type="button"
+          onClick={() => setActiveTab("diagram")}
+          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md transition cursor-pointer ${
+            activeTab === "diagram"
+              ? "bg-white dark:bg-indigo-600 text-indigo-700 dark:text-white shadow-xs font-semibold"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+          }`}
+        >
+          <Eye className="w-3 h-3" />
+          <span>Sơ đồ trực quan</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("code")}
+          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md transition cursor-pointer ${
+            activeTab === "code"
+              ? "bg-white dark:bg-indigo-600 text-indigo-700 dark:text-white shadow-xs font-semibold"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+          }`}
+        >
+          <Code2 className="w-3 h-3" />
+          <span>Mã nguồn</span>
+        </button>
       </div>
 
-      {/* Main Content Body */}
-      {activeTab === "diagram" && canRenderVisual ? (
+      <button
+        type="button"
+        onClick={handleCopy}
+        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-200/80 hover:bg-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-medium transition cursor-pointer"
+        title="Sao chép cú pháp Mermaid"
+      >
+        {copied ? (
+          <>
+            <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+              Đã chép
+            </span>
+          </>
+        ) : (
+          <>
+            <Copy className="w-3 h-3" />
+            <span>Sao chép</span>
+          </>
+        )}
+      </button>
+
+      {inModal ? (
+        <button
+          type="button"
+          onClick={() => setIsFullscreen(false)}
+          aria-label="Đóng sơ đồ phóng to"
+          className="inline-flex items-center justify-center p-1.5 rounded-lg bg-slate-200/80 hover:bg-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition cursor-pointer"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setIsFullscreen(true)}
+          aria-label="Phóng to sơ đồ"
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-200/80 hover:bg-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-medium transition cursor-pointer"
+          title="Phóng to sơ đồ"
+        >
+          <Maximize2 className="w-3 h-3" />
+          <span>Phóng to</span>
+        </button>
+      )}
+    </div>
+  );
+
+  const renderDiagramBody = () => {
+    if (activeTab === "diagram" && canRenderVisual) {
+      return (
         <div className="p-3.5 sm:p-5 space-y-4">
           {/* 1. Sequence Diagram Visual Mode */}
           {diagramType === "sequence" && seqData && (
@@ -814,7 +831,11 @@ export function MermaidDiagramCard({ code }: { code: string }) {
             </div>
           )}
         </div>
-      ) : activeTab === "diagram" ? (
+      );
+    }
+
+    if (activeTab === "diagram") {
+      return (
         /* Fallback when visual parse has 0 nodes/edges or other unsupported diagram */
         <div className="p-4 sm:p-5 space-y-3">
           <div className="p-3.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/60 text-xs text-slate-700 dark:text-slate-300 space-y-1.5">
@@ -831,13 +852,79 @@ export function MermaidDiagramCard({ code }: { code: string }) {
             <code>{code}</code>
           </pre>
         </div>
-      ) : (
-        /* Source Code Tab */
-        <pre className="p-4 overflow-x-auto max-w-full text-[13px] leading-relaxed font-mono bg-slate-950 text-slate-100 border-t border-slate-800">
-          <code>{highlightCode(code, "mermaid")}</code>
-        </pre>
-      )}
+      );
+    }
+
+    return (
+      /* Source Code Tab */
+      <pre className="p-4 overflow-x-auto max-w-full text-[13px] leading-relaxed font-mono bg-slate-950 text-slate-100 border-t border-slate-800">
+        <code>{highlightCode(code, "mermaid")}</code>
+      </pre>
+    );
+  };
+
+  const renderTitleBlock = () => (
+    <div className="flex items-center gap-2 min-w-0">
+      <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+        {diagramType === "sequence" ? (
+          <Layers className="w-3.5 h-3.5" />
+        ) : diagramType === "flowchart" ? (
+          <Workflow className="w-3.5 h-3.5" />
+        ) : (
+          <GitFork className="w-3.5 h-3.5" />
+        )}
+      </div>
+      <div className="min-w-0">
+        <div className="font-semibold text-slate-900 dark:text-slate-100 truncate">
+          {diagramTitle}
+        </div>
+        <div className="text-[10px] text-slate-500 dark:text-slate-400">
+          {diagramType === "sequence" && seqData
+            ? `${seqData.participants.length} đối tượng · ${seqData.items.filter((i) => i.kind === "message").length} tương tác`
+            : diagramType === "flowchart" && flowData
+              ? `${flowData.nodes.length} nút · ${flowData.edges.length} liên kết bước`
+              : "Mã sơ đồ hệ thống & luồng dữ liệu"}
+        </div>
+      </div>
     </div>
+  );
+
+  return (
+    <>
+      <div className="my-5 rounded-2xl border border-indigo-200/90 dark:border-indigo-900/60 bg-white dark:bg-slate-900/95 overflow-hidden shadow-xs font-sans max-w-full">
+        {/* Header bar */}
+        <div className="px-3.5 sm:px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border-b border-indigo-100 dark:border-slate-800 flex items-center justify-between gap-2 sm:gap-3 flex-wrap text-xs">
+          {renderTitleBlock()}
+          {renderHeaderControls(false)}
+        </div>
+
+        {/* Main Content Body */}
+        {renderDiagramBody()}
+      </div>
+
+      {isFullscreen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Xem sơ đồ phóng to"
+          onClick={() => setIsFullscreen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-xs p-3 sm:p-6"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-5xl max-h-[88vh] flex flex-col rounded-2xl border border-indigo-200 dark:border-indigo-800/80 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden"
+          >
+            <div className="px-4 py-3 bg-slate-50 dark:bg-slate-900 border-b border-indigo-100 dark:border-slate-800 flex items-center justify-between gap-3 flex-wrap text-xs shrink-0">
+              {renderTitleBlock()}
+              {renderHeaderControls(true)}
+            </div>
+            <div className="overflow-y-auto flex-1 min-h-0">
+              {renderDiagramBody()}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -1020,14 +1107,57 @@ export function highlightCode(code: string, rawLang: string): React.ReactNode {
 // MAIN CODEBLOCK CARD EXPORT
 // ==========================================
 
+const LANGUAGE_LABELS: Record<string, string> = {
+  ts: "TypeScript",
+  typescript: "TypeScript",
+  tsx: "TSX",
+  js: "JavaScript",
+  javascript: "JavaScript",
+  jsx: "JSX",
+  cs: "C#",
+  csharp: "C#",
+  dotnet: "C#",
+  py: "Python",
+  python: "Python",
+  sql: "SQL",
+  bash: "Bash",
+  sh: "Bash",
+  shell: "Bash",
+  json: "JSON",
+  yaml: "YAML",
+  yml: "YAML",
+  html: "HTML",
+  css: "CSS",
+  dockerfile: "Dockerfile",
+  docker: "Dockerfile",
+};
+
+function formatLanguageLabel(rawLang: string): string {
+  const normalized = (rawLang || "").toLowerCase().trim();
+  if (normalized && LANGUAGE_LABELS[normalized]) {
+    return LANGUAGE_LABELS[normalized];
+  }
+  return (rawLang || "").trim() || "Code";
+}
+
 export function CodeBlockCard({
   lang,
   code,
   onOpenPractice,
 }: CodeBlockCardProps) {
   const [copied, setCopied] = useState(false);
+  const [wordWrap, setWordWrap] = useState(false);
+  const [showLineNumbers, setShowLineNumbers] = useState(false);
 
-  const normalizedLang = (lang || "").toLowerCase();
+  const normalizedLang = (lang || "").toLowerCase().trim();
+  const displayCode = useMemo(() => code.replace(/\n$/, ""), [code]);
+  const lines = useMemo(() => displayCode.split("\n"), [displayCode]);
+  const highlightedCode = useMemo(() => {
+    if (normalizedLang === "mermaid" || normalizedLang.startsWith("practice-")) {
+      return null;
+    }
+    return highlightCode(displayCode, lang);
+  }, [displayCode, lang, normalizedLang]);
 
   // Special visual handler for Mermaid diagrams
   if (normalizedLang === "mermaid") {
@@ -1090,33 +1220,94 @@ export function CodeBlockCard({
     }
   };
 
+  const languageLabel = formatLanguageLabel(lang);
+  const canShowLineNumbers = lines.length >= 4;
+  const showGutter = canShowLineNumbers && showLineNumbers && !wordWrap;
+
   return (
     <div className="my-4 rounded-[12px] border border-slate-800 bg-slate-950 text-slate-100 overflow-hidden shadow-xs font-sans max-w-full">
-      <div className="flex items-center justify-between px-3.5 py-2 bg-slate-900 border-b border-slate-800 text-[11px]">
-        <span className="font-mono font-bold uppercase tracking-wider text-indigo-300">
-          {lang || "code"}
-        </span>
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold transition cursor-pointer"
-        >
-          {copied ? (
-            <>
-              <Check className="w-3 h-3 text-emerald-400" />
-              <span className="text-emerald-300">Đã sao chép</span>
-            </>
-          ) : (
-            <>
-              <Copy className="w-3 h-3" />
-              <span>Sao chép</span>
-            </>
+      <div className="flex items-center justify-between gap-2 flex-wrap px-3.5 py-2 bg-slate-900 border-b border-slate-800 text-[11px]">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="font-mono font-bold tracking-wider text-indigo-300">
+            {languageLabel}
+          </span>
+          <span className="px-1.5 py-0.5 rounded-md bg-slate-800/90 text-slate-400 font-medium text-[10px] tabular-nums">
+            {lines.length} dòng
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {canShowLineNumbers && (
+            <button
+              type="button"
+              onClick={() => setShowLineNumbers((prev) => !prev)}
+              aria-pressed={showLineNumbers}
+              title={
+                wordWrap
+                  ? "Tắt xuống dòng để hiển thị số dòng"
+                  : "Bật / tắt số dòng"
+              }
+              className={`inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium transition cursor-pointer ${
+                showGutter
+                  ? "bg-indigo-600/80 text-white"
+                  : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+              }`}
+            >
+              <ListOrdered className="w-3 h-3" />
+              <span>Số dòng</span>
+            </button>
           )}
-        </button>
+          <button
+            type="button"
+            onClick={() => setWordWrap((prev) => !prev)}
+            aria-pressed={wordWrap}
+            title="Bật / tắt tự động xuống dòng"
+            className={`inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium transition cursor-pointer ${
+              wordWrap
+                ? "bg-indigo-600/80 text-white"
+                : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+            }`}
+          >
+            <WrapText className="w-3 h-3" />
+            <span>Xuống dòng</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold transition cursor-pointer"
+          >
+            {copied ? (
+              <>
+                <Check className="w-3 h-3 text-emerald-400" />
+                <span className="text-emerald-300">Đã sao chép</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3 h-3" />
+                <span>Sao chép</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
-      <pre className="p-4 overflow-x-auto max-w-full text-[13px] leading-relaxed font-mono text-slate-100">
-        <code>{highlightCode(code, lang)}</code>
-      </pre>
+      <div className="flex items-start max-w-full text-[13px] leading-relaxed font-mono text-slate-100">
+        {showGutter && (
+          <div
+            aria-hidden="true"
+            className="select-none shrink-0 py-4 pl-3.5 pr-3 text-right text-slate-500 border-r border-slate-800/90 tabular-nums"
+          >
+            {lines.map((_, idx) => (
+              <div key={idx}>{idx + 1}</div>
+            ))}
+          </div>
+        )}
+        <pre
+          className={`flex-1 min-w-0 m-0 p-4 overflow-x-auto max-w-full text-[13px] leading-relaxed font-mono text-slate-100 ${
+            wordWrap ? "whitespace-pre-wrap break-words" : "whitespace-pre"
+          }`}
+        >
+          <code>{highlightedCode}</code>
+        </pre>
+      </div>
     </div>
   );
 }

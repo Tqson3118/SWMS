@@ -93,7 +93,7 @@ Thay vì chép phạt chữ Hán cơ học hàng trăm lần, chiết tự bộ 
 
 ---
 
-## 3. Bảng Từ vựng đầy đủ (生词表 — Shēngcíbǐao)
+## 3. Bảng Từ vựng đầy đủ (生词表 — Shēngcíbiǎo)
 
 | Chữ Hán | Pinyin | Âm Hán Việt | Nghĩa tiếng Việt | Câu ví dụ hoàn chỉnh |
 |---|---|---|---|---|
@@ -295,7 +295,7 @@ Hơn 80% chữ Hán là chữ hình thanh (vừa gợi nghĩa vừa gợi âm). 
 
 ---
 
-## 3. Bảng Từ vựng đầy đủ (生词表 — Shēngcíbǐao)
+## 3. Bảng Từ vựng đầy đủ (生词表 — Shēngcíbiǎo)
 
 | Chữ Hán | Pinyin | Âm Hán Việt | Nghĩa tiếng Việt | Câu ví dụ hoàn chỉnh |
 |---|---|---|---|---|
@@ -500,7 +500,7 @@ Văn hóa phương Đông coi trọng chỉnh thể vũ trụ bao quát trước
 
 ---
 
-## 3. Bảng Từ vựng đầy đủ (生词表 — Shēngcíbǐao)
+## 3. Bảng Từ vựng đầy đủ (生词表 — Shēngcíbiǎo)
 
 | Chữ Hán | Pinyin | Âm Hán Việt | Nghĩa tiếng Việt | Câu ví dụ hoàn chỉnh |
 |---|---|---|---|---|
@@ -703,7 +703,7 @@ $$\text{Cấu trúc} = \text{Số từ} + \mathbf{\text{Lượng từ}} + \text{
 
 ---
 
-## 3. Bảng Từ vựng đầy đủ (生词表 — Shēngcíbǐao)
+## 3. Bảng Từ vựng đầy đủ (生词表 — Shēngcíbiǎo)
 
 | Chữ Hán | Pinyin | Âm Hán Việt | Nghĩa tiếng Việt | Câu ví dụ hoàn chỉnh |
 |---|---|---|---|---|
@@ -908,7 +908,7 @@ Tiếng Trung luôn yêu cầu vật chứa đóng vai trò làm lượng từ:
 
 ---
 
-## 3. Bảng Từ vựng đầy đủ (生词表 — Shēngcíbǐao)
+## 3. Bảng Từ vựng đầy đủ (生词表 — Shēngcíbiǎo)
 
 | Chữ Hán | Pinyin | Âm Hán Việt | Nghĩa tiếng Việt | Câu ví dụ hoàn chỉnh |
 |---|---|---|---|---|
@@ -1120,7 +1120,7 @@ $$\text{Công thức} = \text{Chủ ngữ} + \mathbf{\text{去}} + \text{[Địa
 
 ---
 
-## 3. Bảng Từ vựng đầy đủ (生词表 — Shēngcíbǐao)
+## 3. Bảng Từ vựng đầy đủ (生词表 — Shēngcíbiǎo)
 
 | Chữ Hán | Pinyin | Âm Hán Việt | Nghĩa tiếng Việt | Câu ví dụ hoàn chỉnh |
 |---|---|---|---|---|

@@ -25,7 +25,11 @@ import {
   Archive,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
-import { fetchDashboardCached, fetchPracticeStatsCached } from "@/lib/api-client";
+import {
+  fetchDashboardCached,
+  fetchPracticeStatsCached,
+  getCachedDashboardSnapshot,
+} from "@/lib/api-client";
 import {
   classifyCourseDomain,
   deduplicateCourses,
@@ -158,34 +162,100 @@ export default function DashboardPage() {
   const [notebooksCount, setNotebooksCount] = useState(0);
   const [practiceStats, setPracticeStats] = useState<PracticeStatsData | null>(null);
   const [practiceStatsError, setPracticeStatsError] = useState<string | null>(null);
+  const [visibleCourseCount, setVisibleCourseCount] = useState(4);
   const [nextLessonInfo, setNextLessonInfo] = useState<NextLessonInfo | null>(null);
   const [continueCourseMeta, setContinueCourseMeta] = useState<ContinueCourseMeta | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [greetingContext, setGreetingContext] = useState<string | null>(null);
+  const [hoveredDayIdx, setHoveredDayIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    const now = new Date();
+    const hour = now.getHours();
+    const period = hour < 12 ? "Buổi sáng" : hour < 18 ? "Buổi chiều" : "Buổi tối";
+    const weekdays = [
+      "Chủ Nhật",
+      "Thứ Hai",
+      "Thứ Ba",
+      "Thứ Tư",
+      "Thứ Năm",
+      "Thứ Sáu",
+      "Thứ Bảy",
+    ];
+    const weekday = weekdays[now.getDay()];
+    const dd = String(now.getDate()).padStart(2, "0");
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    setGreetingContext(`${period} · ${weekday}, ${dd}/${mm}`);
+  }, []);
 
   const fetchData = useCallback(async () => {
-    setIsLoading(true);
     setFetchError(null);
     setPracticeStatsError(null);
     setNextLessonInfo(null);
     setContinueCourseMeta(null);
+
+    const effectiveUserId =
+      activeUserHeaderId ??
+      (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
+
+    const snapshot = getCachedDashboardSnapshot<any>({
+      compact: true,
+      userId: effectiveUserId,
+    });
+    if (snapshot) {
+      setUser(snapshot.user ?? { id: "", fullName: "Học viên", email: "", streakDays: 0 });
+      setReviewStation(
+        snapshot.reviewStation ?? {
+          totalDue: 0,
+          totalCards: 0,
+          newCount: 0,
+          learningCount: 0,
+          reviewCount: 0,
+          estimatedMinutes: 0,
+        }
+      );
+      setDocumentsCount(
+        typeof snapshot.documentsCount === "number"
+          ? snapshot.documentsCount
+          : Array.isArray(snapshot.documents)
+            ? snapshot.documents.length
+            : 0
+      );
+      setNotebooksCount(
+        typeof snapshot.notebooksCount === "number"
+          ? snapshot.notebooksCount
+          : Array.isArray(snapshot.notebooks)
+            ? snapshot.notebooks.length
+            : 0
+      );
+      setQuizzes(Array.isArray(snapshot.quizzes) ? snapshot.quizzes : []);
+      if (Array.isArray(snapshot.courses)) {
+        const snapNorm = snapshot.courses.map(normalizeCourseSummary);
+        setArchivedCoursesCount(snapNorm.filter((c: CourseSummary) => Boolean(c.isArchived)).length);
+        setCourses(sortCoursesSmartly(deduplicateCourses(snapNorm.filter((c: CourseSummary) => !c.isArchived))));
+      }
+      setIsLoading(false);
+    } else {
+      setIsLoading(true);
+    }
+
     try {
-      const effectiveUserId =
-        activeUserHeaderId ??
-        (typeof window !== "undefined" ? window.localStorage.getItem("swms_active_user_id") : null);
       const headers = getClientRequestHeaders(
         effectiveUserId ? { "X-Test-User-Id": effectiveUserId } : undefined
       );
       const cachedReqOpts = effectiveUserId
-        ? { headers: { "X-Test-User-Id": effectiveUserId } }
-        : undefined;
+        ? { compact: true, headers: { "X-Test-User-Id": effectiveUserId } }
+        : { compact: true };
       const [data, pStats] = await Promise.all([
         fetchDashboardCached(cachedReqOpts),
-        fetchPracticeStatsCached(cachedReqOpts),
+        fetchPracticeStatsCached(
+          effectiveUserId ? { headers: { "X-Test-User-Id": effectiveUserId } } : undefined
+        ),
       ]);
 
       if (!data) {
-        setFetchError("Không tải được dữ liệu bảng điều khiển.");
+        if (!snapshot) setFetchError("Không tải được dữ liệu bảng điều khiển.");
         return;
       }
       setUser(data.user ?? { id: "", fullName: "Học viên", email: "", streakDays: 0 });
@@ -199,8 +269,20 @@ export default function DashboardPage() {
           estimatedMinutes: 0,
         }
       );
-      setDocumentsCount(Array.isArray(data.documents) ? data.documents.length : 0);
-      setNotebooksCount(Array.isArray(data.notebooks) ? data.notebooks.length : 0);
+      setDocumentsCount(
+        typeof data.documentsCount === "number"
+          ? data.documentsCount
+          : Array.isArray(data.documents)
+            ? data.documents.length
+            : 0
+      );
+      setNotebooksCount(
+        typeof data.notebooksCount === "number"
+          ? data.notebooksCount
+          : Array.isArray(data.notebooks)
+            ? data.notebooks.length
+            : 0
+      );
       setQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
 
       if (pStats && typeof pStats.totalAttempts === "number") {
@@ -533,6 +615,11 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
+          {greetingContext && (
+            <p className="text-xs font-medium text-[var(--text-tertiary)] mb-1">
+              {greetingContext}
+            </p>
+          )}
           <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
             Chào bạn, hôm nay học gì?
           </h1>
@@ -543,7 +630,7 @@ export default function DashboardPage() {
                 {user.streakDays} ngày học liên tiếp
               </span>
             ) : (
-              <span>Tập trung từng bài một, giữ nhịp học mỗi ngày.</span>
+              <span>Tập trung từng bài một, giữ nhịp học đều đặn mỗi ngày.</span>
             )}
           </div>
         </div>
@@ -588,7 +675,7 @@ export default function DashboardPage() {
       )}
 
       {/* Focus Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         {/* Card 1: Continue Course Roadmap */}
         <div className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 hover:shadow-elevation-2 transition-all overflow-hidden flex flex-col">
           <div className="h-1 w-full bg-gradient-to-r from-[#5E51E8] via-indigo-500 to-violet-500" />
@@ -758,6 +845,100 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Today's Study Mission Strip */}
+      <div
+        data-testid="today-mission-strip"
+        className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8"
+      >
+        <Link
+          href={continueLearnHref}
+          className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-3.5 hover:border-[var(--accent)]/50 transition-micro shadow-elevation-1 flex items-center justify-between gap-3 group"
+        >
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">
+              <BookOpen className="w-3.5 h-3.5 text-[#5E51E8] dark:text-[#A5B4FC]" />
+              <span>Bài học tiếp theo</span>
+            </div>
+            <p className="text-sm font-semibold text-[var(--text-primary)] truncate group-hover:text-[var(--accent)] transition-micro">
+              {nextLessonInfo?.title || "Mở lộ trình học"}
+            </p>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5 truncate">
+              {continueRemaining > 0 && continueDailyGoal > 0
+                ? `Còn ${continueRemaining} bài · mục tiêu ${continueDailyGoal} bài/ngày`
+                : continueRemaining > 0
+                  ? `Còn ${continueRemaining} bài chưa hoàn thành`
+                  : continueCourse
+                    ? "Đã hoàn thành lộ trình"
+                    : "Khởi tạo lộ trình đầu tiên"}
+            </p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-[var(--text-tertiary)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 transition-all shrink-0" />
+        </Link>
+
+        <Link
+          href="/app/review"
+          className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-3.5 hover:border-[var(--accent)]/50 transition-micro shadow-elevation-1 flex items-center justify-between gap-3 group"
+        >
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">
+              <Brain className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Thẻ FSRS đến hạn</span>
+            </div>
+            <p className="text-sm font-semibold text-[var(--text-primary)] truncate group-hover:text-[var(--accent)] transition-micro">
+              {cappedDue > 0 ? `${cappedDue} thẻ hôm nay` : "Đã hoàn thành hàng đợi"}
+            </p>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5 truncate">
+              {cappedDue > 0
+                ? `~${estimatedMins} phút ôn tập`
+                : `${reviewStation.totalCards} thẻ đang lưu`}
+            </p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-[var(--text-tertiary)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 transition-all shrink-0" />
+        </Link>
+
+        {(() => {
+          const needsReviewCount = practiceStats?.needsReview?.length ?? 0;
+          return (
+            <Link
+              href="/app/practice"
+              className={`rounded-xl border p-3.5 transition-micro shadow-elevation-1 flex items-center justify-between gap-3 group ${
+                needsReviewCount > 0
+                  ? "border-amber-500/40 bg-amber-50/40 dark:bg-amber-950/20 hover:border-amber-500/70"
+                  : "border-[var(--border-calm)] bg-[var(--surface-card)] hover:border-[var(--accent)]/50"
+              }`}
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">
+                  <Target
+                    className={`w-3.5 h-3.5 ${
+                      needsReviewCount > 0 ? "text-amber-500" : "text-[#5E51E8] dark:text-[#A5B4FC]"
+                    }`}
+                  />
+                  <span>Củng cố thực hành &amp; đề thi</span>
+                </div>
+                <p
+                  className={`text-sm font-semibold truncate transition-micro ${
+                    needsReviewCount > 0
+                      ? "text-amber-800 dark:text-amber-200"
+                      : "text-[var(--text-primary)] group-hover:text-[var(--accent)]"
+                  }`}
+                >
+                  {needsReviewCount > 0
+                    ? `${needsReviewCount} bài cần luyện lại`
+                    : "Khám phá góc luyện tập"}
+                </p>
+                <p className="text-xs text-[var(--text-secondary)] mt-0.5 truncate">
+                  {needsReviewCount > 0
+                    ? "Các bài có điểm gần nhất dưới 70/100"
+                    : `${practiceStats?.totalAttempts ?? 0} lượt thực hành đã ghi`}
+                </p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-[var(--text-tertiary)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 transition-all shrink-0" />
+            </Link>
+          );
+        })()}
+      </div>
+
       {/* Learning Statistics & Personalized Roadmap */}
       <section data-testid="today-stats-roadmap" className="mb-10">
         <div className="flex items-center justify-between mb-4">
@@ -765,23 +946,26 @@ export default function DashboardPage() {
             Luyện tập hôm nay &amp; Thống kê học tập cá nhân hóa
           </h2>
           <span className="text-xs text-text-tertiary">
-            Cập nhật trực tiếp từ Practice Engine &amp; FSRS
+            Cập nhật trực tiếp từ tiến độ luyện tập &amp; FSRS
           </span>
         </div>
 
         {/* TODAY'S PRACTICE HUB */}
-        <div data-testid="today-practice-hub" className="mb-6 rounded-xl border border-border bg-bg-secondary p-5 space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
+        <div
+          data-testid="today-practice-hub"
+          className="mb-6 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-5 space-y-5"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border-calm)] pb-3">
             <div className="flex items-center gap-2">
               <span className="p-1.5 rounded-lg bg-accent-subtle text-accent">
                 <Target className="w-4 h-4" />
               </span>
               <div>
                 <h3 className="text-sm font-bold text-text-primary">
-                  Hub Luyện Tập Hôm Nay (Practice &amp; Recall Hub)
+                  Góc luyện tập hôm nay
                 </h3>
                 <p className="text-xs text-text-tertiary">
-                  Theo dõi chuỗi thực hành, phản hồi Web Worker, mô phỏng tài chính &amp; bài tập nhận thức
+                  Theo dõi chuỗi thực hành, môi trường thực hành mã tương tác, mô phỏng tài chính &amp; bài tập tư duy
                 </p>
               </div>
             </div>
@@ -789,7 +973,7 @@ export default function DashboardPage() {
               href="/app/practice"
               className="text-xs font-semibold text-accent hover:underline inline-flex items-center gap-1 self-start sm:self-auto"
             >
-              <span>Mở Hub Luyện tập</span>
+              <span>Mở góc luyện tập</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -858,12 +1042,12 @@ export default function DashboardPage() {
           {/* ZERO-FACADE: IF totalAttempts === 0, RENDER FRIENDLY EMPTY STATE */}
           {(!practiceStats || practiceStats.totalAttempts === 0) ? (
             <div data-testid="today-practice-empty-state" className="p-6 rounded-lg border border-dashed border-border bg-bg-primary text-center space-y-3">
-              <div className="text-2xl">🎯</div>
+              <Target className="w-7 h-7 text-[#5E51E8] dark:text-[#A5B4FC] mx-auto" />
               <h4 className="text-xs sm:text-sm font-semibold text-text-primary">
                 Bạn chưa có lượt luyện tập tương tác nào
               </h4>
               <p className="text-xs text-text-tertiary max-w-md mx-auto">
-                Hãy mở Hub <strong>Luyện tập</strong> hoặc chọn bài học trong khóa học của bạn để thực hành Sandbox Web Worker, mô phỏng danh mục tài chính hoặc bài tập nhận thức Stroop.
+                Hãy mở mục <strong>Luyện tập</strong> hoặc chọn bài học trong khóa học của bạn để trải nghiệm Phòng thực hành mã tương tác, mô phỏng danh mục tài chính hoặc bài tập nhận thức Stroop.
               </p>
               <div>
                 <Link
@@ -878,20 +1062,46 @@ export default function DashboardPage() {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               {/* REAL SVG SCORE PROGRESS CHART (7 COLS) */}
-              <div data-testid="today-practice-chart" className="lg:col-span-7 rounded-lg border border-border bg-bg-primary p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-text-primary flex items-center gap-1.5">
-                    <BarChart3 className="w-3.5 h-3.5 text-accent" />
-                    Biểu đồ điểm số 7 ngày gần nhất (Dữ liệu thật)
-                  </span>
-                  <span className="text-[11px] text-text-tertiary">
-                    {practiceStats.todayAttempts} lượt hôm nay
-                  </span>
-                </div>
+              <div
+                data-testid="today-practice-chart"
+                className="lg:col-span-7 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-elevated)] p-4 space-y-3"
+              >
+                {(() => {
+                  const hoveredDay =
+                    hoveredDayIdx !== null && practiceStats.last7Days
+                      ? practiceStats.last7Days[hoveredDayIdx] ?? null
+                      : null;
+                  return (
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-xs font-bold text-text-primary flex items-center gap-1.5">
+                        <BarChart3 className="w-3.5 h-3.5 text-accent" />
+                        Biểu đồ điểm số 7 ngày gần nhất
+                      </span>
+                      {hoveredDay ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--accent-subtle)] border border-[var(--accent)]/30 text-[11px] font-semibold text-[#5E51E8] dark:text-[#C7D2FE]">
+                          Ngày {hoveredDay.date} · {hoveredDay.count} lượt · TB{" "}
+                          {Math.round(hoveredDay.avgScore)}/100
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-text-tertiary">
+                          {practiceStats.todayAttempts} lượt hôm nay
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {/* SVG CHART */}
                 <div className="w-full h-36">
                   <svg viewBox="0 0 420 120" className="w-full h-full">
+                    <defs>
+                      <linearGradient id="todayPracticeBarGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#6366F1" stopOpacity="1" />
+                        <stop offset="55%" stopColor="#7C3AED" stopOpacity="0.92" />
+                        <stop offset="100%" stopColor="#A78BFA" stopOpacity="0.72" />
+                      </linearGradient>
+                    </defs>
+
                     {/* Grid lines */}
                     <line x1="30" y1="20" x2="410" y2="20" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="3 3" />
                     <line x1="30" y1="60" x2="410" y2="60" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="3 3" />
@@ -907,9 +1117,30 @@ export default function DashboardPage() {
                       const barH = (d.avgScore / 100) * 80;
                       const y = 100 - barH;
                       const hasAttempts = d.count > 0;
+                      const isActive = hoveredDayIdx === idx;
 
                       return (
-                        <g key={d.date}>
+                        <g
+                          key={d.date}
+                          tabIndex={0}
+                          role="button"
+                          aria-label={`Ngày ${d.date}: ${d.count} lượt, TB ${Math.round(d.avgScore)}/100`}
+                          onMouseEnter={() => setHoveredDayIdx(idx)}
+                          onMouseLeave={() => setHoveredDayIdx((prev) => (prev === idx ? null : prev))}
+                          onFocus={() => setHoveredDayIdx(idx)}
+                          onBlur={() => setHoveredDayIdx((prev) => (prev === idx ? null : prev))}
+                          onClick={() => setHoveredDayIdx((prev) => (prev === idx ? null : idx))}
+                          className="cursor-pointer outline-none"
+                        >
+                          <rect
+                            x={x - 20}
+                            y={10}
+                            width={40}
+                            height={108}
+                            rx="6"
+                            fill="currentColor"
+                            fillOpacity={isActive ? 0.06 : 0}
+                          />
                           {hasAttempts ? (
                             <>
                               <rect
@@ -918,17 +1149,40 @@ export default function DashboardPage() {
                                 width={24}
                                 height={barH}
                                 rx="4"
-                                fill="#8b5cf6"
-                                fillOpacity="0.8"
+                                fill="url(#todayPracticeBarGrad)"
+                                fillOpacity={isActive ? 1 : 0.85}
+                                stroke={isActive ? "#5E51E8" : "none"}
+                                strokeWidth={isActive ? 1.5 : 0}
                               />
-                              <text x={x} y={Math.max(16, y - 4)} textAnchor="middle" fontSize="9" fontWeight="bold" fill="#8b5cf6">
+                              <text
+                                x={x}
+                                y={Math.max(16, y - 4)}
+                                textAnchor="middle"
+                                fontSize="9"
+                                fontWeight="bold"
+                                fill={isActive ? "#5E51E8" : "#8b5cf6"}
+                              >
                                 {Math.round(d.avgScore)}
                               </text>
                             </>
                           ) : (
-                            <circle cx={x} cy="100" r="2.5" fill="currentColor" opacity="0.2" />
+                            <circle
+                              cx={x}
+                              cy="100"
+                              r={isActive ? 4 : 2.5}
+                              fill={isActive ? "#5E51E8" : "currentColor"}
+                              opacity={isActive ? 0.85 : 0.25}
+                            />
                           )}
-                          <text x={x} y="115" textAnchor="middle" fontSize="9" fill="currentColor" opacity="0.6">
+                          <text
+                            x={x}
+                            y="115"
+                            textAnchor="middle"
+                            fontSize="9"
+                            fontWeight={isActive ? "700" : "400"}
+                            fill="currentColor"
+                            opacity={isActive ? 1 : 0.6}
+                          >
                             {d.dayName}
                           </text>
                         </g>
@@ -939,11 +1193,14 @@ export default function DashboardPage() {
               </div>
 
               {/* REVIEW HUB: ITEMS NEEDING PRACTICE (5 COLS) */}
-              <div data-testid="today-practice-needs-review" className="lg:col-span-5 rounded-lg border border-border bg-bg-primary p-4 space-y-3">
+              <div
+                data-testid="today-practice-needs-review"
+                className="lg:col-span-5 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-elevated)] p-4 space-y-3"
+              >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-text-primary flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-amber-500" />
-                    Cần Luyện Tập Lại (Điểm &lt; 70)
+                    Cần luyện tập lại (Điểm &lt; 70)
                   </span>
                   <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
                     {practiceStats.needsReview.length} bài
@@ -982,7 +1239,7 @@ export default function DashboardPage() {
                             item.activityType,
                             item.activityKey
                           )}
-                          className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-white text-[11px] font-bold shrink-0 transition"
+                          className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-white dark:bg-amber-500 dark:text-[#0F0F12] dark:hover:bg-amber-400 text-[11px] font-bold shrink-0 transition"
                         >
                           Luyện lại &rarr;
                         </Link>
@@ -999,7 +1256,7 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Card 1: Streak & Overall Course Pace */}
-          <div className="rounded-lg border border-border bg-bg-secondary p-5 flex flex-col justify-between space-y-4">
+          <div className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-5 flex flex-col justify-between space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-text-tertiary">
                 <TrendingUp className="w-3.5 h-3.5 text-amber-500" />
@@ -1019,7 +1276,7 @@ export default function DashboardPage() {
               </div>
               <div className="w-full h-2 rounded-full bg-bg-tertiary overflow-hidden mb-3">
                 <div
-                  className="h-full rounded-full bg-accent transition-all"
+                  className="h-full rounded-full bg-[#5E51E8] dark:bg-[#818CF8] transition-all"
                   style={{ width: `${Math.min(100, Math.max(2, avgCourseProgress))}%` }}
                 />
               </div>
@@ -1035,7 +1292,7 @@ export default function DashboardPage() {
                       className={`py-1.5 rounded text-center text-[10px] font-medium border ${
                         active
                           ? "bg-amber-500/15 border-amber-500/30 text-amber-700 dark:text-amber-300"
-                          : "bg-bg-primary border-border text-text-tertiary"
+                          : "bg-[var(--surface-elevated)] border-[var(--border-calm)] text-text-tertiary"
                       }`}
                     >
                       {dayLabel}
@@ -1047,7 +1304,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Card 2: Flashcard Retention Breakdown */}
-          <div className="rounded-lg border border-border bg-bg-secondary p-5 flex flex-col justify-between space-y-4">
+          <div className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-5 flex flex-col justify-between space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-text-tertiary">
                 <BarChart3 className="w-3.5 h-3.5 text-emerald-500" />
@@ -1055,7 +1312,7 @@ export default function DashboardPage() {
               </div>
               <Link
                 href="/app/review"
-                className="text-xs font-medium text-accent hover:underline"
+                className="text-xs font-medium text-[#5E51E8] dark:text-[#A5B4FC] hover:underline"
               >
                 {reviewStation.totalDue} cần ôn
               </Link>
@@ -1098,19 +1355,19 @@ export default function DashboardPage() {
               </div>
 
               <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="rounded-md bg-bg-primary border border-border px-2 py-1.5">
+                <div className="rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-calm)] px-2 py-1.5">
                   <p className="text-[10px] text-text-tertiary">Thuộc vững</p>
                   <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                     {reviewStation.reviewCount}
                   </p>
                 </div>
-                <div className="rounded-md bg-bg-primary border border-border px-2 py-1.5">
+                <div className="rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-calm)] px-2 py-1.5">
                   <p className="text-[10px] text-text-tertiary">Đang củng cố</p>
                   <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">
                     {reviewStation.learningCount}
                   </p>
                 </div>
-                <div className="rounded-md bg-bg-primary border border-border px-2 py-1.5">
+                <div className="rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-calm)] px-2 py-1.5">
                   <p className="text-[10px] text-text-tertiary">Thẻ mới</p>
                   <p className="text-xs font-semibold text-sky-600 dark:text-sky-400">
                     {reviewStation.newCount}
@@ -1121,10 +1378,10 @@ export default function DashboardPage() {
           </div>
 
           {/* Card 3: Quiz History & Personalized Recommendation */}
-          <div className="rounded-lg border border-border bg-bg-secondary p-5 flex flex-col justify-between space-y-3">
+          <div className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-5 flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-text-tertiary">
-                <ClipboardCheck className="w-3.5 h-3.5 text-accent" />
+                <ClipboardCheck className="w-3.5 h-3.5 text-[#5E51E8] dark:text-[#A5B4FC]" />
                 <span>Lịch sử kiểm tra</span>
               </div>
               <span className="text-xs text-text-tertiary">{quizzes.length} bài</span>
@@ -1136,7 +1393,7 @@ export default function DashboardPage() {
                   <Link
                     key={q.id}
                     href={q.courseId ? `/app/courses/${q.courseId}/quiz` : "/app/courses"}
-                    className="flex items-center justify-between gap-2 rounded-md border border-border bg-bg-primary px-2.5 py-2 hover:border-accent/40 transition"
+                    className="flex items-center justify-between gap-2 rounded-lg border border-[var(--border-calm)] bg-[var(--surface-elevated)] px-2.5 py-2 hover:border-[var(--accent)]/40 transition"
                   >
                     <span className="text-xs font-medium text-text-primary truncate">
                       {q.title}
@@ -1160,8 +1417,8 @@ export default function DashboardPage() {
               />
             )}
 
-            <div className="rounded-md border border-accent/25 bg-accent-subtle/60 px-3 py-2 flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0 mt-0.5" />
+            <div className="rounded-lg border border-[var(--accent)]/25 bg-[var(--accent-subtle)]/60 px-3 py-2 flex items-start gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#5E51E8] dark:text-[#A5B4FC] shrink-0 mt-0.5" />
               <div className="text-[11px] text-text-secondary leading-relaxed">
                 <span className="font-semibold text-text-primary">Gợi ý bước tiếp: </span>
                 {reviewStation.totalDue > 0 ? (
@@ -1170,7 +1427,7 @@ export default function DashboardPage() {
                   </>
                 ) : nextLessonInfo ? (
                   <>
-                    Hoàn thành bài &ldquo;{nextLessonInfo.title}&rdquo; và luyện trong Hub Thực hành.
+                    Hoàn thành bài &ldquo;{nextLessonInfo.title}&rdquo; và luyện thêm trong phòng thực hành.
                   </>
                 ) : (
                   <>Chọn một khóa học bên dưới để củng cố kiến thức qua bài kiểm tra.</>
@@ -1212,8 +1469,9 @@ export default function DashboardPage() {
         </div>
 
         {courses.length > 0 ? (
+          <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-            {courses.slice(0, 4).map((course) => {
+            {courses.slice(0, visibleCourseCount).map((course) => {
               const id = getCourseId(course);
               const progress = getCourseProgress(course);
               const lessonCount = getCourseLessonCount(course);
@@ -1224,7 +1482,7 @@ export default function DashboardPage() {
                 <Link
                   key={id}
                   href={`/app/courses/${id}`}
-                  className="group rounded-xl border border-border bg-bg-primary hover:border-accent/60 hover:shadow-sm transition overflow-hidden flex flex-col justify-between min-h-[176px]"
+                  className="swms-cv-card group rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 hover:border-[var(--accent)]/60 hover:shadow-elevation-2 transition overflow-hidden flex flex-col justify-between min-h-[176px]"
                 >
                   <div className={`h-1.5 w-full bg-gradient-to-r ${theme.accentBarClass}`} />
                   <div className="p-4 flex-1 flex flex-col justify-between gap-3">
@@ -1287,8 +1545,34 @@ export default function DashboardPage() {
               );
             })}
           </div>
+          {courses.length > visibleCourseCount && (
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] px-4 py-2.5">
+              <span className="text-xs text-text-secondary">
+                Đang hiển thị{" "}
+                <strong className="font-semibold text-text-primary tabular-nums">
+                  {Math.min(visibleCourseCount, courses.length)}
+                </strong>{" "}
+                /{" "}
+                <strong className="font-semibold text-text-primary tabular-nums">
+                  {courses.length}
+                </strong>{" "}
+                khóa học
+              </span>
+              <button
+                type="button"
+                data-testid="dashboard-courses-show-more-btn"
+                onClick={() => setVisibleCourseCount((v) => v + 4)}
+                className="inline-flex items-center gap-1.5 min-h-8 px-3 py-1 rounded-lg bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC] text-xs font-semibold transition cursor-pointer"
+              >
+                <span>
+                  Hiển thị thêm (+{Math.min(4, courses.length - visibleCourseCount)})
+                </span>
+              </button>
+            </div>
+          )}
+          </>
         ) : (
-          <div className="rounded-lg border border-dashed border-border bg-bg-secondary p-8 text-center">
+          <div className="rounded-xl border border-dashed border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-8 text-center">
             <BookOpen className="w-7 h-7 text-text-tertiary mx-auto mb-2.5" />
             <p className="text-sm text-text-secondary mb-3">
               Bạn chưa có khóa học nào trong thư viện.
@@ -1317,7 +1601,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <Link
             href="/app/courses"
-            className="rounded-lg border border-border bg-bg-secondary p-4 hover:border-accent/50 transition group"
+            className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-4 hover:border-[var(--accent)]/50 hover:shadow-elevation-2 transition group"
           >
             <BookOpen className="w-4 h-4 text-text-tertiary group-hover:text-accent transition mb-2.5" />
             <p className="text-sm font-semibold text-text-primary">Khóa học</p>
@@ -1326,7 +1610,7 @@ export default function DashboardPage() {
 
           <Link
             href="/app/documents"
-            className="rounded-lg border border-border bg-bg-secondary p-4 hover:border-accent/50 transition group"
+            className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-4 hover:border-[var(--accent)]/50 hover:shadow-elevation-2 transition group"
           >
             <FileText className="w-4 h-4 text-text-tertiary group-hover:text-accent transition mb-2.5" />
             <p className="text-sm font-semibold text-text-primary">Tài liệu PDF</p>
@@ -1335,7 +1619,7 @@ export default function DashboardPage() {
 
           <Link
             href="/app/notes"
-            className="rounded-lg border border-border bg-bg-secondary p-4 hover:border-accent/50 transition group"
+            className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-4 hover:border-[var(--accent)]/50 hover:shadow-elevation-2 transition group"
           >
             <NotebookPen className="w-4 h-4 text-text-tertiary group-hover:text-accent transition mb-2.5" />
             <p className="text-sm font-semibold text-text-primary">Sổ tay</p>
@@ -1344,7 +1628,7 @@ export default function DashboardPage() {
 
           <Link
             href="/app/review"
-            className="rounded-lg border border-border bg-bg-secondary p-4 hover:border-accent/50 transition group"
+            className="rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] shadow-elevation-1 p-4 hover:border-[var(--accent)]/50 hover:shadow-elevation-2 transition group"
           >
             <Brain className="w-4 h-4 text-text-tertiary group-hover:text-accent transition mb-2.5" />
             <p className="text-sm font-semibold text-text-primary">Ôn tập</p>

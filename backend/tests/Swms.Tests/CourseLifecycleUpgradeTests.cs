@@ -56,7 +56,7 @@ public class CourseLifecycleUpgradeTests
     }
 
     [Fact]
-    public async Task GetCourses_ExcludesAllRetiredCourses_AndReturns10CuratedCourses_WhenFullCatalogSynced()
+    public async Task GetCourses_ExcludesAllRetiredCourses_AndReturns14CuratedCourses_WhenFullCatalogSynced()
     {
         var (factory, client, connection) = await CreateTestHostAsync();
         await using (factory)
@@ -74,11 +74,16 @@ public class CourseLifecycleUpgradeTests
                 "document-course-personalfinance",
                 "document-course-lifeskills",
                 "document-course-psychology",
+                "document-course-ai-workflows",
+                "document-course-data-sql",
+                "document-course-cybersecurity",
+                "document-course-deep-learning-systems",
                 "he-dieu-hanh-bo-nho-ao",
                 "tieng-anh-giao-tiep-thuc-chien-a2-b1",
                 "tieng-nhat-so-cap-n5",
                 "tieng-trung-so-cap-hsk1"
             };
+            Assert.Equal(14, expectedCuratedSlugs.Length);
 
             var returnedSlugs = courses.Select(c => c.GetProperty("slug").GetString()!).ToList();
 
@@ -475,6 +480,163 @@ public class CourseLifecycleUpgradeTests
             var content = json.GetProperty("content").GetString();
             Assert.False(string.IsNullOrWhiteSpace(content), "AI enhanced content should not be empty");
             Assert.True(content.Length > 50, "Content should contain structured Markdown");
+        }
+    }
+
+    [Fact]
+    public async Task Dashboard_CompactMode_OmitsLessonsAndShrinksPayload()
+    {
+        var (factory, client, connection) = await CreateTestHostAsync();
+        await using (factory)
+        await using (connection)
+        using (client)
+        {
+            var fullRes = await client.GetAsync("/api/v1/workspace/dashboard");
+            Assert.Equal(HttpStatusCode.OK, fullRes.StatusCode);
+            var fullBody = await fullRes.Content.ReadAsStringAsync();
+
+            var compactRes = await client.GetAsync("/api/v1/workspace/dashboard?compact=true");
+            Assert.Equal(HttpStatusCode.OK, compactRes.StatusCode);
+            var compactBody = await compactRes.Content.ReadAsStringAsync();
+
+            Assert.True(compactBody.Length < fullBody.Length / 2, "Compact dashboard payload should be significantly smaller than full payload");
+
+            var json = JsonSerializer.Deserialize<JsonElement>(compactBody);
+            Assert.Equal(0, json.GetProperty("lessons").GetArrayLength());
+            var compactCourses = json.GetProperty("courses").EnumerateArray().ToList();
+            Assert.True(compactCourses.Count >= 14);
+            var firstCompactCourse = compactCourses.First(c => c.GetProperty("lessonCount").GetInt32() > 0);
+            Assert.Equal(0, firstCompactCourse.GetProperty("chapters").GetArrayLength());
+            Assert.True(firstCompactCourse.GetProperty("chapterCount").GetInt32() > 0);
+            Assert.True(firstCompactCourse.TryGetProperty("firstLessonId", out var firstLessonIdEl));
+            Assert.NotEqual(JsonValueKind.Null, firstLessonIdEl.ValueKind);
+            Assert.True(json.TryGetProperty("documentsCount", out _));
+            Assert.True(json.TryGetProperty("notebooksCount", out _));
+            Assert.True(json.TryGetProperty("reviewStation", out _));
+        }
+    }
+
+    [Fact]
+    public async Task Courses_PaginationMode_ReturnsSlicesAndPreservesLegacyArray()
+    {
+        var (factory, client, connection) = await CreateTestHostAsync();
+        await using (factory)
+        await using (connection)
+        using (client)
+        {
+            // Legacy array mode
+            var legacyRes = await client.GetAsync("/api/v1/courses");
+            Assert.Equal(HttpStatusCode.OK, legacyRes.StatusCode);
+            var legacyJson = await legacyRes.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Equal(JsonValueKind.Array, legacyJson.ValueKind);
+            var totalLegacy = legacyJson.GetArrayLength();
+            Assert.True(totalLegacy >= 14);
+
+            // Paged mode page 1
+            var page1Res = await client.GetAsync("/api/v1/courses?limit=8&offset=0");
+            Assert.Equal(HttpStatusCode.OK, page1Res.StatusCode);
+            var page1Body = await page1Res.Content.ReadAsStringAsync();
+            var page1Json = JsonSerializer.Deserialize<JsonElement>(page1Body);
+            Assert.Equal(JsonValueKind.Object, page1Json.ValueKind);
+            var items1 = page1Json.GetProperty("items").EnumerateArray().ToList();
+            Assert.Equal(8, items1.Count);
+            Assert.Equal(totalLegacy, page1Json.GetProperty("totalCount").GetInt32());
+            Assert.True(page1Json.GetProperty("hasMore").GetBoolean());
+
+            // Compact paged mode page 1
+            var compactPage1Res = await client.GetAsync("/api/v1/courses?limit=8&offset=0&compact=true");
+            Assert.Equal(HttpStatusCode.OK, compactPage1Res.StatusCode);
+            var compactPage1Body = await compactPage1Res.Content.ReadAsStringAsync();
+            Assert.True(compactPage1Body.Length < page1Body.Length / 2, "Compact courses slice should be significantly smaller than full slice");
+            var compactPage1Json = JsonSerializer.Deserialize<JsonElement>(compactPage1Body);
+            var compactItems1 = compactPage1Json.GetProperty("items").EnumerateArray().ToList();
+            Assert.Equal(8, compactItems1.Count);
+            var sampleCompact = compactItems1.First(c => c.GetProperty("lessonCount").GetInt32() > 0);
+            Assert.Equal(0, sampleCompact.GetProperty("chapters").GetArrayLength());
+            Assert.True(sampleCompact.GetProperty("chapterCount").GetInt32() > 0);
+
+            // Course detail still returns full chapters & lessons
+            var sampleCourseId = sampleCompact.GetProperty("id").GetGuid();
+            var detailRes = await client.GetAsync($"/api/v1/courses/{sampleCourseId}");
+            Assert.Equal(HttpStatusCode.OK, detailRes.StatusCode);
+            var detailJson = await detailRes.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.True(detailJson.GetProperty("chapters").GetArrayLength() > 0);
+
+            // Paged mode page 2
+            var page2Res = await client.GetAsync("/api/v1/courses?limit=8&offset=8");
+            Assert.Equal(HttpStatusCode.OK, page2Res.StatusCode);
+            var page2Json = await page2Res.Content.ReadFromJsonAsync<JsonElement>();
+            var items2 = page2Json.GetProperty("items").EnumerateArray().ToList();
+            Assert.NotEmpty(items2);
+
+            var ids1 = items1.Select(x => x.GetProperty("id").GetGuid()).ToHashSet();
+            var ids2 = items2.Select(x => x.GetProperty("id").GetGuid()).ToHashSet();
+            Assert.Empty(ids1.Intersect(ids2));
+        }
+    }
+
+    [Fact]
+    public async Task PublicCurriculumQuiz_NewStudentCanSubmitWithout403OrMutatingSharedQuiz()
+    {
+        var (factory, client, connection) = await CreateTestHostAsync();
+        await using (factory)
+        await using (connection)
+        using (client)
+        {
+            // 1. Default user fetches a public bootcamp quiz id
+            var courses = await client.GetFromJsonAsync<JsonElement>("/api/v1/courses");
+            var bootcamp = courses.EnumerateArray().First(c => c.GetProperty("slug").GetString() == "doc-course-studxy-fullstack-bootcamp");
+            var bootcampId = bootcamp.GetProperty("id").GetGuid();
+
+            var defaultQuizzes = await client.GetFromJsonAsync<JsonElement>($"/api/v1/practice-quizzes?courseId={bootcampId}");
+            var sharedQuizId = defaultQuizzes.EnumerateArray().First().GetProperty("id").GetGuid();
+
+            var detail = await client.GetFromJsonAsync<JsonElement>($"/api/v1/practice-quizzes/{sharedQuizId}");
+            var firstMcItem = detail.GetProperty("items").EnumerateArray()
+                .First(i => i.GetProperty("itemType").GetString() == "multiple_choice");
+            var itemId = firstMcItem.GetProperty("id").GetGuid();
+            var firstChoiceEl = firstMcItem.GetProperty("choices").EnumerateArray().First();
+            var firstChoice = firstChoiceEl.ValueKind == JsonValueKind.String
+                ? (firstChoiceEl.GetString() ?? "A")
+                : firstChoiceEl.TryGetProperty("id", out var idProp)
+                    ? (idProp.GetString() ?? "A")
+                    : firstChoiceEl.TryGetProperty("key", out var keyProp)
+                        ? (keyProp.GetString() ?? "A")
+                        : firstChoiceEl.ToString();
+
+            // 2. Register a real new student user
+            var regRes = await client.PostAsJsonAsync("/api/v1/auth/register", new
+            {
+                email = $"quiz.student.{Guid.NewGuid():N}@studxy.vn",
+                password = "StudxyTestPassword!2026",
+                fullName = "Quiz Student"
+            });
+            Assert.True(regRes.IsSuccessStatusCode, $"Register expected 2xx, got {(int)regRes.StatusCode}");
+            var regJson = await regRes.Content.ReadFromJsonAsync<JsonElement>();
+            var studentId = regJson.GetProperty("user").GetProperty("id").GetGuid();
+
+            client.DefaultRequestHeaders.Remove("X-Test-User-Id");
+            client.DefaultRequestHeaders.Add("X-Test-User-Id", studentId.ToString());
+
+            // 3. Submit single item directly against sharedQuizId as new student -> must return 200 (not 403)
+            var submitRes = await client.PostAsJsonAsync($"/api/v1/practice-quizzes/{sharedQuizId}/items/{itemId}/submit",
+                new SubmitQuizItemRequest(Answer: firstChoice, IdempotencyKey: Guid.NewGuid(), WaitForAiCompletion: false));
+            Assert.Equal(HttpStatusCode.OK, submitRes.StatusCode);
+
+            // 4. Submit-all directly against sharedQuizId as new student -> must return 200 (not 403) and not mutate shared quiz
+            var submitAllRes = await client.PostAsJsonAsync($"/api/v1/practice-quizzes/{sharedQuizId}/submit-all",
+                new
+                {
+                    answers = new[] { new { itemId, answer = firstChoice } },
+                    durationSeconds = 12
+                });
+            Assert.Equal(HttpStatusCode.OK, submitAllRes.StatusCode);
+
+            // 5. Verify shared quiz still un-mutated for default user
+            client.DefaultRequestHeaders.Remove("X-Test-User-Id");
+            var defaultDetail = await client.GetFromJsonAsync<JsonElement>($"/api/v1/practice-quizzes/{sharedQuizId}");
+            var defaultItem = defaultDetail.GetProperty("items").EnumerateArray().First(i => i.GetProperty("id").GetGuid() == itemId);
+            Assert.Equal(JsonValueKind.Null, defaultItem.GetProperty("evaluatedAt").ValueKind);
         }
     }
 }

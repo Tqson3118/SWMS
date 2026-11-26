@@ -339,7 +339,7 @@ export function CourseSettingsTab({
             <span>Lịch học &amp; Mục tiêu hàng ngày</span>
           </h3>
           <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-            Các thiết lập này được lưu trực tiếp vào cơ sở dữ liệu và đồng bộ trên mọi thiết bị.
+            Các thiết lập này được lưu và đồng bộ trên mọi thiết bị của bạn.
           </p>
         </div>
 
@@ -396,7 +396,7 @@ export function CourseSettingsTab({
               })}
             </div>
             <p className="text-[11px] text-[var(--text-tertiary)]">
-              Mức độ khuyến nghị: 2 - 4 bài/ngày để duy trì nhịp học bền vững mà không bị quá tải.
+              Khuyến nghị: 2–4 bài/ngày để duy trì nhịp học bền vững mà không bị quá tải.
             </p>
           </div>
 
@@ -483,7 +483,7 @@ export function CourseSettingsTab({
         <div className="border-b border-[var(--border-calm)] pb-3">
           <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Pin className="w-4 h-4 text-indigo-500" />
-            <span>Trạng thái hiển thị trong Workspace</span>
+            <span>Hiển thị trong không gian học</span>
           </h3>
           <p className="text-xs text-[var(--text-secondary)] mt-0.5">
             Ghim để ưu tiên trên đầu trang chủ hoặc lưu trữ để ẩn các khóa tạm dừng học.
@@ -497,7 +497,7 @@ export function CourseSettingsTab({
                 {course.isPinned ? "Đang ghim lên đầu" : "Ghim khóa học"}
               </p>
               <p className="text-[11px] text-[var(--text-tertiary)]">
-                Ưu tiên xuất hiện đầu tiên trong danh sách Khóa học và Dashboard
+                Ưu tiên xuất hiện đầu tiên trong danh sách khóa học và trang tổng quan
               </p>
             </div>
             <Button
@@ -658,10 +658,10 @@ export function CourseSettingsTab({
         {isSystemCourse ? (
           <div className="p-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5 space-y-2">
             <p className="text-xs font-semibold text-[var(--text-primary)]">
-              Đây là Giáo trình chuẩn hệ thống của Studxy
+              Đây là giáo trình chuẩn hệ thống của Studxy
             </p>
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-              Giáo trình hệ thống được bảo vệ để đảm bảo tính nhất quán dữ liệu cho tất cả học viên và không thể xóa. Nếu bạn không muốn thấy khóa học này trên màn hình chính, hãy bật tính năng <strong>Lưu trữ (Archive)</strong> ở phía trên. Nếu bạn muốn tùy chỉnh nội dung, hãy dùng tính năng <strong>Nhân bản khóa học</strong>.
+              Giáo trình hệ thống được bảo vệ để đảm bảo tính nhất quán dữ liệu cho tất cả học viên và không thể xóa. Nếu không muốn hiển thị khóa học này trên màn hình chính, bạn có thể bật tính năng <strong>Lưu trữ</strong> ở phía trên, hoặc dùng <strong>Nhân bản khóa học</strong> để tùy chỉnh nội dung riêng.
             </p>
           </div>
         ) : (
@@ -715,7 +715,7 @@ export function CourseSettingsTab({
           <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
             {resetConfirmStep === 1
               ? "Bạn có chắc chắn muốn đặt lại toàn bộ tiến độ của khóa học này không? Tất cả các bài đã đánh dấu hoàn thành sẽ trở về trạng thái chưa học."
-              : "XÁC NHẬN BƯỚC 2: Thao tác này sẽ xóa toàn bộ lịch sử hoàn thành bài của bạn trong khóa học này. Bạn có muốn tiếp tục?"}
+              : "Xác nhận lần 2: Thao tác này sẽ xóa toàn bộ lịch sử hoàn thành bài học của bạn trong khóa học này. Bạn có muốn tiếp tục?"}
           </p>
 
           {resetNotice && (
@@ -771,7 +771,7 @@ export function CourseSettingsTab({
             <p>
               {deleteConfirmStep === 1
                 ? `Bạn đang chuẩn bị xóa khóa học "${course.title}". Toàn bộ nội dung chương, bài giảng và dữ liệu liên quan sẽ bị xóa hoàn toàn.`
-                : `XÁC NHẬN LẦN CUỐI: Bạn có thực sự chắc chắn muốn xóa vĩnh viễn khóa học "${course.title}" khỏi hệ thống không?`}
+                : `Xác nhận lần cuối: Bạn có chắc chắn muốn xóa vĩnh viễn khóa học "${course.title}" không?`}
             </p>
           </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { getClientRequestHeaders, useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { deduplicateCourses, type CourseLike } from "@/lib/course-helpers";
@@ -16,9 +16,17 @@ import {
   NotebookPen,
   Layers,
   Tag,
+  Compass,
 } from "lucide-react";
 
-type SearchResultType = "course" | "lesson" | "document" | "notebook" | "flashcard" | "tag";
+type SearchResultType =
+  | "action"
+  | "course"
+  | "lesson"
+  | "document"
+  | "notebook"
+  | "flashcard"
+  | "tag";
 
 interface SearchResultItem {
   id: string;
@@ -27,6 +35,15 @@ interface SearchResultItem {
   title: string;
   subtitle: string;
   snippet: string;
+}
+
+interface QuickActionDef {
+  id: string;
+  title: string;
+  subtitle: string;
+  snippet: string;
+  keywords: string;
+  featured: boolean;
 }
 
 interface CommandPaletteModalProps {
@@ -51,6 +68,7 @@ function cleanSearchText(str: string): string {
 }
 
 const TYPE_LABELS: Record<SearchResultType, string> = {
+  action: "Hành động",
   course: "Khóa học",
   lesson: "Bài giảng",
   document: "Tài liệu PDF",
@@ -59,8 +77,61 @@ const TYPE_LABELS: Record<SearchResultType, string> = {
   tag: "Chủ đề",
 };
 
+const QUICK_ACTIONS: QuickActionDef[] = [
+  {
+    id: "action-new-course",
+    title: "Tạo khóa học mới",
+    subtitle: "Khởi tạo khóa học & giáo trình mới",
+    snippet: "Mở trình tạo khóa học mới",
+    keywords: "tao khoa hoc moi create new course studio",
+    featured: true,
+  },
+  {
+    id: "action-practice-hub",
+    title: "Mở trung tâm luyện tập",
+    subtitle: "Thực hành tương tác & bài tập kỹ năng",
+    snippet: "Mở không gian luyện tập kỹ năng",
+    keywords: "mo hub luyen tap thuc hanh lab practice",
+    featured: true,
+  },
+  {
+    id: "action-exams",
+    title: "Ngân hàng đề & Thi thử",
+    subtitle: "Luyện đề thi thử & chấm điểm",
+    snippet: "Mở ngân hàng đề thi thử",
+    keywords: "ngan hang de thi thu quiz exam test giai de",
+    featured: true,
+  },
+  {
+    id: "action-review-fsrs",
+    title: "Ôn tập thẻ FSRS",
+    subtitle: "Lặp lại ngắt quãng với thuật toán FSRS",
+    snippet: "Mở phòng ôn tập thẻ ghi nhớ",
+    keywords: "on tap the fsrs flashcard review",
+    featured: true,
+  },
+  {
+    id: "action-toggle-theme",
+    title: "Chuyển giao diện sáng / tối",
+    subtitle: "Bật hoặc tắt chế độ tối bảo vệ mắt",
+    snippet: "Phím tắt nhanh: Ctrl + D",
+    keywords: "chuyen giao dien sang toi dark light mode theme",
+    featured: false,
+  },
+  {
+    id: "action-open-shortcuts",
+    title: "Xem bảng phím tắt (?)",
+    subtitle: "Tra cứu phím tắt và luồng học tập",
+    snippet: "Nhấn ? để mở bảng tra cứu phím tắt",
+    keywords: "xem bang phim tat keyboard shortcuts help ?",
+    featured: false,
+  },
+];
+
 function TypeIcon({ type }: { type: SearchResultType }) {
   switch (type) {
+    case "action":
+      return <Compass className="w-4 h-4 text-[var(--accent)] shrink-0" />;
     case "course":
       return <GraduationCap className="w-4 h-4 text-accent shrink-0" />;
     case "lesson":
@@ -82,6 +153,7 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
   const {
     commandPaletteOpen,
     setCommandPaletteOpen,
+    toggleDarkMode,
     setActiveMode,
     setActiveCourseId,
     setActiveLesson,
@@ -97,6 +169,31 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
   const [captureSavedMsg, setCaptureSavedMsg] = useState<string | null>(null);
   const [captureErrorMsg, setCaptureErrorMsg] = useState<string | null>(null);
   const resultRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const quickActionItems = useMemo<SearchResultItem[]>(() => {
+    const normQ = normalizeVietnamese(query.trim());
+    const matched = normQ
+      ? QUICK_ACTIONS.filter((a) =>
+          normalizeVietnamese(`${a.title} ${a.subtitle} ${a.keywords}`).includes(normQ)
+        )
+      : QUICK_ACTIONS.filter((a) => a.featured);
+
+    return matched.slice(0, 4).map((a) => ({
+      id: a.id,
+      type: "action" as const,
+      title: a.title,
+      subtitle: a.subtitle,
+      snippet: a.snippet,
+    }));
+  }, [query]);
+
+  const combinedResults = useMemo(
+    () => [...quickActionItems, ...results],
+    [quickActionItems, results]
+  );
+
+  const safeSelectedIndex =
+    combinedResults.length > 0 ? Math.min(selectedIndex, combinedResults.length - 1) : 0;
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -120,96 +217,147 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
       setSelectedIndex(0);
       return;
     }
-    let active = true;
+
+    const controller = new AbortController();
     setLoading(true);
-    const headers = getClientRequestHeaders();
 
-    Promise.all([
-      fetch(`/api/v1/workspace/search?q=${encodeURIComponent(query)}`, { headers })
-        .then((r) => (r.ok ? r.json() : { results: [] }))
-        .catch(() => ({ results: [] })),
-      fetch(`/api/v1/courses`, { headers })
-        .then((r) => (r.ok ? r.json() : []))
-        .catch(() => []),
-    ])
-      .then(([searchData, coursesRaw]) => {
-        if (!active) return;
-        const normQ = normalizeVietnamese(query.trim());
-        const uniqueCourses = Array.isArray(coursesRaw)
-          ? deduplicateCourses(coursesRaw as CourseLike[])
-          : [];
-        const courseItems: SearchResultItem[] = uniqueCourses
-          .filter((c) => {
-            if (!normQ) return true;
-            const haystack = normalizeVietnamese(
-              `${c.title || ""} ${(c as { description?: string }).description || ""}`
-            );
-            return haystack.includes(normQ);
-          })
-          .slice(0, 4)
-          .map((c) => {
-            const cObj = c as {
-              courseId?: string;
-              id?: string;
-              title?: string;
-              description?: string;
-              totalLessons?: number;
-              progressPercent?: number;
-            };
-            return {
-              id: String(cObj.courseId || cObj.id || ""),
-              courseId: String(cObj.courseId || cObj.id || ""),
-              type: "course" as const,
-              title: String(cObj.title || "Khóa học"),
-              subtitle: `${Number(cObj.totalLessons || 0)} bài giảng · ${Math.round(
-                Number(cObj.progressPercent || 0)
-              )}% hoàn thành`,
-              snippet: String(cObj.description || ""),
-            };
-          })
-          .filter((c) => Boolean(c.id));
+    const timer = setTimeout(() => {
+      const headers = getClientRequestHeaders();
 
-        const seenWorkspaceKeys = new Set<string>();
-        const workspaceItems: SearchResultItem[] = [];
-        const rawResults = Array.isArray(searchData?.results) ? searchData.results : [];
-        for (const item of rawResults) {
-          const titleStr = String(item?.title || "").trim();
-          const dedupKey = `${item?.type || ""}::${titleStr.toLowerCase()}`;
-          if (!titleStr || seenWorkspaceKeys.has(dedupKey)) continue;
-          seenWorkspaceKeys.add(dedupKey);
-          workspaceItems.push({
-            ...item,
-            title: cleanSearchText(titleStr),
-            subtitle: cleanSearchText(String(item?.subtitle || "")),
-            snippet: cleanSearchText(String(item?.snippet || "")),
-          });
-          if (workspaceItems.length >= 10) break;
-        }
+      Promise.all([
+        fetch(`/api/v1/workspace/search?q=${encodeURIComponent(query)}`, {
+          headers,
+          signal: controller.signal,
+        })
+          .then((r) => (r.ok ? r.json() : { results: [] }))
+          .catch((err) => {
+            if (err instanceof DOMException && err.name === "AbortError") throw err;
+            return { results: [] };
+          }),
+        fetch(`/api/v1/courses`, {
+          headers,
+          signal: controller.signal,
+        })
+          .then((r) => (r.ok ? r.json() : []))
+          .catch((err) => {
+            if (err instanceof DOMException && err.name === "AbortError") throw err;
+            return [];
+          }),
+      ])
+        .then(([searchData, coursesRaw]) => {
+          if (controller.signal.aborted) return;
+          const normQ = normalizeVietnamese(query.trim());
+          const uniqueCourses = Array.isArray(coursesRaw)
+            ? deduplicateCourses(coursesRaw as CourseLike[])
+            : [];
+          const courseItems: SearchResultItem[] = uniqueCourses
+            .filter((c) => {
+              if (!normQ) return true;
+              const haystack = normalizeVietnamese(
+                `${c.title || ""} ${(c as { description?: string }).description || ""}`
+              );
+              return haystack.includes(normQ);
+            })
+            .slice(0, 4)
+            .map((c) => {
+              const cObj = c as {
+                courseId?: string;
+                id?: string;
+                title?: string;
+                description?: string;
+                totalLessons?: number;
+                progressPercent?: number;
+              };
+              return {
+                id: String(cObj.courseId || cObj.id || ""),
+                courseId: String(cObj.courseId || cObj.id || ""),
+                type: "course" as const,
+                title: String(cObj.title || "Khóa học"),
+                subtitle: `${Number(cObj.totalLessons || 0)} bài giảng · ${Math.round(
+                  Number(cObj.progressPercent || 0)
+                )}% hoàn thành`,
+                snippet: String(cObj.description || ""),
+              };
+            })
+            .filter((c) => Boolean(c.id));
 
-        setResults([...courseItems, ...workspaceItems]);
-        setSelectedIndex(0);
-        setLoading(false);
-      })
-      .catch(() => {
-        if (active) setLoading(false);
-      });
+          const seenWorkspaceKeys = new Set<string>();
+          const workspaceItems: SearchResultItem[] = [];
+          const rawResults = Array.isArray(searchData?.results) ? searchData.results : [];
+          for (const item of rawResults) {
+            const titleStr = String(item?.title || "").trim();
+            const dedupKey = `${item?.type || ""}::${titleStr.toLowerCase()}`;
+            if (!titleStr || seenWorkspaceKeys.has(dedupKey)) continue;
+            seenWorkspaceKeys.add(dedupKey);
+            workspaceItems.push({
+              ...item,
+              title: cleanSearchText(titleStr),
+              subtitle: cleanSearchText(String(item?.subtitle || "")),
+              snippet: cleanSearchText(String(item?.snippet || "")),
+            });
+            if (workspaceItems.length >= 10) break;
+          }
+
+          setResults([...courseItems, ...workspaceItems]);
+          setSelectedIndex(0);
+          setLoading(false);
+        })
+        .catch((err) => {
+          if (
+            controller.signal.aborted ||
+            (err instanceof DOMException && err.name === "AbortError")
+          ) {
+            return;
+          }
+          setLoading(false);
+        });
+    }, 150);
 
     return () => {
-      active = false;
+      clearTimeout(timer);
+      controller.abort();
     };
   }, [query, commandPaletteOpen]);
 
   useEffect(() => {
     if (!commandPaletteOpen) return;
-    const el = resultRefs.current[selectedIndex];
+    const el = resultRefs.current[safeSelectedIndex];
     if (el && typeof el.scrollIntoView === "function") {
       el.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
-  }, [selectedIndex, commandPaletteOpen, results.length]);
+  }, [safeSelectedIndex, commandPaletteOpen, combinedResults.length]);
 
   if (!commandPaletteOpen) return null;
 
   const handleSelectItem = (item: SearchResultItem) => {
+    if (item.type === "action") {
+      switch (item.id) {
+        case "action-new-course":
+          router.push("/app/courses/new");
+          break;
+        case "action-practice-hub":
+          router.push("/app/practice");
+          break;
+        case "action-exams":
+          router.push("/app/exams");
+          break;
+        case "action-review-fsrs":
+          setActiveMode("review");
+          router.push("/app/review");
+          break;
+        case "action-toggle-theme":
+          toggleDarkMode();
+          break;
+        case "action-open-shortcuts":
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("studxy:open-shortcuts"));
+          }
+          break;
+      }
+      setCommandPaletteOpen(false);
+      return;
+    }
+
     const inAppShell = pathname?.startsWith("/app");
 
     if (item.type === "course") {
@@ -266,16 +414,16 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (results.length === 0) return;
+    if (combinedResults.length === 0) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev + 1) % results.length);
+      setSelectedIndex((prev) => (prev + 1) % combinedResults.length);
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev - 1 + results.length) % results.length);
+      setSelectedIndex((prev) => (prev - 1 + combinedResults.length) % combinedResults.length);
     } else if (e.key === "Enter") {
       e.preventDefault();
-      const target = results[selectedIndex] || results[0];
+      const target = combinedResults[safeSelectedIndex] || combinedResults[0];
       if (target) handleSelectItem(target);
     }
   };
@@ -293,22 +441,22 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
           frontText: trimmed.includes("{{c1::")
             ? trimmed
             : `Ghi nhớ nhanh: {{c1::${trimmed}}}`,
-          backText: "Được tạo nhanh từ Command Palette (Ctrl+K Quick Capture).",
+          backText: "Được tạo nhanh từ bảng lệnh tìm kiếm (Ctrl+K).",
           tagNames: ["OS-Paging"],
         }),
       });
       if (resp.ok) {
         setQuickCaptureText("");
-        setCaptureSavedMsg("Đã lưu thẻ Cloze nhanh vào Hàng đợi Ôn tập!");
+        setCaptureSavedMsg("Đã lưu thẻ ghi nhớ nhanh vào hàng đợi ôn tập!");
         onQuickCaptureCreated?.();
         setTimeout(() => setCaptureSavedMsg(null), 2500);
       } else {
         const err = await resp.json().catch(() => ({}));
-        setCaptureErrorMsg(err.error || `Không thể lưu thẻ ghi nhớ (HTTP ${resp.status}).`);
+        setCaptureErrorMsg(err.error || `Không thể lưu thẻ ghi nhớ (mã lỗi ${resp.status}).`);
         setTimeout(() => setCaptureErrorMsg(null), 3500);
       }
     } catch {
-      setCaptureErrorMsg("Lỗi kết nối mạng khi lưu thẻ. Vui lòng thử lại!");
+      setCaptureErrorMsg("Lỗi kết nối mạng khi lưu thẻ. Bạn hãy thử lại nhé.");
       setTimeout(() => setCaptureErrorMsg(null), 3500);
     }
   };
@@ -316,6 +464,9 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
   return (
     <div
       data-testid="command-palette-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Bảng lệnh tìm kiếm nhanh"
       className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-start justify-center pt-16 sm:pt-20 px-4"
       onClick={() => setCommandPaletteOpen(false)}
     >
@@ -392,16 +543,20 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
           </div>
         )}
 
-        <div className="max-h-80 overflow-y-auto divide-y divide-[var(--border-calm)]/60">
-          {loading ? (
+        <div
+          role="listbox"
+          aria-label="Kết quả tìm kiếm và hành động nhanh"
+          className="max-h-80 overflow-y-auto divide-y divide-[var(--border-calm)]/60"
+        >
+          {combinedResults.length === 0 && loading ? (
             <div className="p-6 text-center text-xs text-[var(--text-tertiary)]">Đang tìm kiếm...</div>
-          ) : results.length === 0 ? (
+          ) : combinedResults.length === 0 ? (
             <div className="p-6 text-center text-xs text-[var(--text-tertiary)]">
               Không tìm thấy kết quả phù hợp cho &ldquo;{query}&rdquo;.
             </div>
           ) : (
-            results.map((item, idx) => {
-              const active = idx === selectedIndex;
+            combinedResults.map((item, idx) => {
+              const active = idx === safeSelectedIndex;
               return (
                 <button
                   key={`${item.type}-${item.id}`}
@@ -409,6 +564,8 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
                     resultRefs.current[idx] = el;
                   }}
                   type="button"
+                  role="option"
+                  aria-selected={active}
                   data-testid={`cmd-result-${item.type}`}
                   onMouseEnter={() => setSelectedIndex(idx)}
                   onClick={() => handleSelectItem(item)}
@@ -445,8 +602,14 @@ export function CommandPaletteModal({ onQuickCaptureCreated }: CommandPaletteMod
           )}
         </div>
 
+        {loading && combinedResults.length > 0 && (
+          <div className="px-4 py-1.5 border-t border-[var(--border-calm)]/60 text-center text-[11px] text-[var(--text-tertiary)]">
+            Đang tìm thêm kết quả...
+          </div>
+        )}
+
         <div className="px-4 py-2 bg-[var(--surface-elevated)] border-t border-[var(--border-calm)] flex flex-wrap items-center justify-between gap-2 text-[11px] text-[var(--text-tertiary)]">
-          <span>Hỗ trợ tìm tiếng Việt có dấu &amp; không dấu (VD: &ldquo;tai chinh&rdquo;, &ldquo;ielts&rdquo;)</span>
+          <span>Hỗ trợ tìm tiếng Việt có dấu và không dấu (ví dụ: &ldquo;tai chinh&rdquo;, &ldquo;ielts&rdquo;)</span>
           <span className="font-medium text-[var(--text-secondary)]">↑↓ Di chuyển · Enter Mở · Esc Đóng</span>
         </div>
       </div>

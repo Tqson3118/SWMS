@@ -6,7 +6,8 @@ import { Sidebar } from "@/components/navigation/Sidebar";
 import { MobileNav, MobileTopBar } from "@/components/navigation/MobileNav";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { CommandPaletteModal } from "@/components/command/CommandPaletteModal";
-import { bootstrapAuthSession, setAccessToken } from "@/lib/api-client";
+import { KeyboardShortcutsModal } from "@/components/auxiliary/KeyboardShortcutsModal";
+import { bootstrapAuthSessionDetailed, setAccessToken } from "@/lib/api-client";
 
 export default function AppShellLayout({
   children,
@@ -16,14 +17,15 @@ export default function AppShellLayout({
   const { darkMode, toggleDarkMode, setActiveUserHeaderId } = useWorkspaceStore();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [authReady, setAuthReady] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
     let mounted = true;
-    bootstrapAuthSession().then((ok) => {
-      if (!mounted) return;
-      if (ok) {
+    bootstrapAuthSessionDetailed().then((status) => {
+      if (!mounted || status === "aborted") return;
+      if (status === "authenticated") {
         setAuthReady(true);
       } else {
         try {
@@ -77,11 +79,24 @@ export default function AppShellLayout({
         setSidebarCollapsed((prev) => !prev);
         return;
       }
+
+      // ? — Toggle Keyboard Shortcuts Modal
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && e.key === "?") {
+        e.preventDefault();
+        setShortcutsOpen((prev) => !prev);
+        return;
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleDarkMode]);
+
+  useEffect(() => {
+    const handleOpenShortcuts = () => setShortcutsOpen(true);
+    window.addEventListener("studxy:open-shortcuts", handleOpenShortcuts);
+    return () => window.removeEventListener("studxy:open-shortcuts", handleOpenShortcuts);
+  }, []);
 
   if (!authReady) {
     return (
@@ -151,6 +166,12 @@ export default function AppShellLayout({
             window.dispatchEvent(new Event("swms:data-mutated"));
           }
         }}
+      />
+
+      {/* Keyboard shortcuts guide (global) */}
+      <KeyboardShortcutsModal
+        isOpen={shortcutsOpen}
+        onClose={() => setShortcutsOpen(false)}
       />
     </div>
   );

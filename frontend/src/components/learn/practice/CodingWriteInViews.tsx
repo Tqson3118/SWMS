@@ -531,7 +531,7 @@ export function PredictOutputLab({
         <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-800 dark:text-rose-200 text-xs space-y-1">
           <div className="font-bold flex items-center gap-1.5">
             <AlertTriangle className="w-4 h-4" />
-            <span>Lỗi Web Worker Sandbox:</span>
+            <span>Lỗi khi chạy mã tách biệt:</span>
           </div>
           <p className="font-mono">{workerError}</p>
         </div>
@@ -827,7 +827,7 @@ export function BugFixWriteInPanel({
         <div>
           <span className="text-xs font-bold text-amber-700 dark:text-amber-300 inline-flex items-center gap-1.5">
             <Wrench className="w-3.5 h-3.5" />
-            Sửa Bug Trực Tiếp (Write-in Code Repair)
+            Sửa lỗi trực tiếp (tự viết mã sửa)
             {canRunWorker ? " · Kiểm thử thật trên Web Worker" : " · Chấm chuẩn hóa cú pháp"}
           </span>
           <h4 className="text-sm sm:text-base font-bold text-[var(--text-primary,#18181b)] dark:text-zinc-100 mt-0.5">
@@ -898,7 +898,7 @@ export function BugFixWriteInPanel({
           className="min-h-[44px] px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-xs sm:text-sm font-semibold inline-flex items-center gap-2 cursor-pointer shadow-xs"
         >
           {isRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-          <span>{canRunWorker ? "Chạy Test Case & Kiểm Tra Bản Sửa" : "Kiểm Tra Bản Sửa"}</span>
+          <span>{canRunWorker ? "Chạy kiểm thử & Kiểm tra bản sửa" : "Kiểm tra bản sửa"}</span>
         </button>
 
         <button
@@ -946,8 +946,8 @@ export function BugFixWriteInPanel({
         >
           <div className="flex items-center justify-between font-bold">
             <span>
-              Kết quả chạy Web Worker: {workerResults.filter((r) => r.passed).length}/
-              {workerResults.length} test đạt
+              Kết quả chạy trên máy: {workerResults.filter((r) => r.passed).length}/
+              {workerResults.length} kiểm thử đạt
             </span>
             <span
               className={`px-2.5 py-0.5 rounded-full ${

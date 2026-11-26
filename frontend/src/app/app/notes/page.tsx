@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { fetchDashboardCached } from "@/lib/api-client";
-import { Button, Card, Badge, EmptyState } from "@/components/ui";
+import { Button, Card, Badge, EmptyState, ShowMoreFooter } from "@/components/ui";
 import { getCourseId, normalizeVi, type CourseLike } from "@/lib/course-helpers";
 
 interface NotebookItem {
@@ -65,6 +65,9 @@ export default function NotesPage() {
   const [docMap, setDocMap] = useState<Record<string, DocLookupItem>>({});
   const [courseMap, setCourseMap] = useState<Record<string, string>>({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"recent" | "title_asc" | "version_desc">("recent");
+  const [visibleCount, setVisibleCount] = useState(6);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
@@ -118,6 +121,10 @@ export default function NotesPage() {
     fetchNotes();
   }, [fetchNotes]);
 
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [searchQuery, selectedCourseId, sortBy]);
+
   const resolveContext = (nb: NotebookItem) => {
     const lesson = nb.primarySourceLessonId ? lessonMap[nb.primarySourceLessonId] : undefined;
     const doc = nb.primarySourceDocumentId ? docMap[nb.primarySourceDocumentId] : undefined;
@@ -164,15 +171,43 @@ export default function NotesPage() {
     router.push(`/app/courses/${ctx.courseId}/learn?${params.toString()}`);
   };
 
+  const courseOptions = useMemo(
+    () =>
+      Object.entries(courseMap).sort((a, b) => a[1].localeCompare(b[1], "vi")),
+    [courseMap]
+  );
+
+  const hasActiveFilter = Boolean(searchQuery.trim()) || selectedCourseId !== "all";
+
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setSelectedCourseId("all");
+  };
+
   const filteredNotebooks = useMemo(() => {
     const q = normalizeVi(searchQuery);
-    if (!q) return notebooks;
-    return notebooks.filter((nb) => {
+    const filtered = notebooks.filter((nb) => {
       const ctx = resolveContext(nb);
+      if (selectedCourseId !== "all" && ctx.courseId !== selectedCourseId) {
+        return false;
+      }
+      if (!q) return true;
       const hay = normalizeVi(`${nb.title || ""} ${ctx.sourceLabel} ${ctx.courseTitle || ""}`);
       return hay.includes(q);
     });
-  }, [notebooks, searchQuery, lessonMap, docMap, courseMap]);
+
+    return [...filtered].sort((a, b) => {
+      if (sortBy === "title_asc") {
+        return (a.title || "").localeCompare(b.title || "", "vi");
+      }
+      if (sortBy === "version_desc") {
+        return (b.version ?? 0) - (a.version ?? 0);
+      }
+      const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+      const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+      return timeB - timeA;
+    });
+  }, [notebooks, searchQuery, selectedCourseId, sortBy, lessonMap, docMap, courseMap]);
 
   if (isLoading) {
     return (
@@ -219,7 +254,7 @@ export default function NotesPage() {
         </div>
       )}
 
-      {/* Search bar & count */}
+      {/* Search bar, filter, sort & count */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-[var(--text-tertiary)] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -234,16 +269,53 @@ export default function NotesPage() {
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              aria-label="Xóa lọc"
+              aria-label="Xóa từ khóa tìm kiếm"
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {courseOptions.length >= 1 && (
+            <select
+              value={selectedCourseId}
+              onChange={(e) => setSelectedCourseId(e.target.value)}
+              aria-label="Lọc theo khóa học"
+              className="h-9 px-3 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition cursor-pointer"
+            >
+              <option value="all">Tất cả khóa học</option>
+              {courseOptions.map(([cid, title]) => (
+                <option key={cid} value={cid}>
+                  {title}
+                </option>
+              ))}
+            </select>
+          )}
+          <select
+            value={sortBy}
+            onChange={(e) =>
+              setSortBy(e.target.value as "recent" | "title_asc" | "version_desc")
+            }
+            aria-label="Sắp xếp sổ tay"
+            className="h-9 px-3 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-card)] text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[#5E51E8] focus:ring-1 focus:ring-[#5E51E8] transition cursor-pointer"
+          >
+            <option value="recent">Mới cập nhật</option>
+            <option value="title_asc">Tên A → Z</option>
+            <option value="version_desc">Phiên bản mới nhất</option>
+          </select>
+          {hasActiveFilter && (
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="h-9 px-3 rounded-[10px] border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[#5E51E8]/40 transition cursor-pointer inline-flex items-center gap-1"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Xóa lọc</span>
+            </button>
+          )}
           <Badge variant="neutral" size="sm">
-            {searchQuery
+            {hasActiveFilter
               ? `${filteredNotebooks.length} / ${notebooks.length} sổ tay`
               : `${notebooks.length} sổ tay`}
           </Badge>
@@ -252,8 +324,9 @@ export default function NotesPage() {
 
       {/* Notebooks Grid */}
       {filteredNotebooks.length > 0 ? (
+        <>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredNotebooks.map((nb) => {
+          {filteredNotebooks.slice(0, visibleCount).map((nb) => {
             const ctx = resolveContext(nb);
             const dateLabel = formatDate(nb.updatedAt || nb.createdAt);
 
@@ -261,7 +334,7 @@ export default function NotesPage() {
               <Card
                 key={nb.id}
                 hoverable
-                className="group p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-[#5E51E8]/40 dark:hover:border-[#818CF8]/40 hover:shadow-md"
+                className="swms-cv-card group p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-[#5E51E8]/40 dark:hover:border-[#818CF8]/40 hover:shadow-md"
               >
                 <div>
                   <div className="flex items-start gap-3 mb-3">
@@ -306,20 +379,33 @@ export default function NotesPage() {
             );
           })}
         </div>
+
+        <ShowMoreFooter
+          testIdPrefix="notes"
+          shownCount={Math.min(visibleCount, filteredNotebooks.length)}
+          totalCount={filteredNotebooks.length}
+          stepSize={6}
+          itemLabel="sổ tay"
+          onShowMore={() => setVisibleCount((v) => v + 6)}
+          onShowAll={() => setVisibleCount(filteredNotebooks.length)}
+        />
+        </>
       ) : (
         <EmptyState
           icon={NotebookPen}
-          title={searchQuery ? "Không tìm thấy sổ tay phù hợp" : "Chưa có sổ tay ghi chú nào"}
+          title={hasActiveFilter ? "Không tìm thấy sổ tay phù hợp" : "Chưa có sổ tay ghi chú nào"}
           description={
-            searchQuery
-              ? `Không có sổ tay nào khớp với "${searchQuery}". Thử từ khóa khác hoặc xóa bộ lọc.`
-              : "Sổ tay sẽ tự động được tạo và đồng bộ khi bạn ghi chú song song trong lúc học bài giảng hoặc đọc tài liệu PDF."
+            hasActiveFilter
+              ? searchQuery
+                ? `Không có sổ tay nào khớp với "${searchQuery}". Thử từ khóa khác hoặc xóa bộ lọc.`
+                : "Không có sổ tay nào trong khóa học đã chọn. Thử chọn khóa học khác hoặc xóa bộ lọc."
+              : "Sổ tay được tạo và đồng bộ tự động khi bạn ghi chú song song trong lúc học bài giảng hoặc đọc tài liệu PDF."
           }
           action={
-            searchQuery
+            hasActiveFilter
               ? {
                   label: "Xóa lọc",
-                  onClick: () => setSearchQuery(""),
+                  onClick: handleResetFilters,
                 }
               : {
                   label: "Mở bài học để ghi chú",

@@ -276,7 +276,7 @@ function FullscreenPracticePageInner() {
           }),
         });
         if (!nbResp.ok) {
-          throw new Error(`Không khởi tạo được sổ tay (HTTP ${nbResp.status}).`);
+          throw new Error(`Không thể mở sổ tay (HTTP ${nbResp.status}).`);
         }
         currentNb = (await nbResp.json()) as NotebookDetailData;
         setNotebook(currentNb);
@@ -295,7 +295,7 @@ function FullscreenPracticePageInner() {
       });
 
       if (!putResp.ok) {
-        throw new Error(`Lưu sổ tay thất bại (HTTP ${putResp.status}).`);
+        throw new Error(`Chưa thể lưu sổ tay lúc này (HTTP ${putResp.status}).`);
       }
 
       const updated = await putResp.json();
@@ -338,7 +338,7 @@ function FullscreenPracticePageInner() {
       });
 
       if (!resp.ok) {
-        throw new Error(`Tạo flashcard thất bại (HTTP ${resp.status}).`);
+        throw new Error(`Chưa thể tạo thẻ ghi nhớ lúc này (HTTP ${resp.status}).`);
       }
 
       invalidateDashboardCache();
@@ -353,8 +353,8 @@ function FullscreenPracticePageInner() {
     return (
       <div className="h-screen flex flex-col bg-[var(--canvas-bg)] text-[var(--text-primary)]">
         <div className="h-14 border-b border-[var(--border-calm)] bg-[var(--surface-card)] px-4 flex items-center justify-between">
-          <div className="h-7 w-48 rounded bg-[var(--surface-elevated)] animate-pulse" />
-          <div className="h-7 w-32 rounded bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="h-7 w-48 rounded bg-[var(--surface-elevated)] swms-skeleton" />
+          <div className="h-7 w-32 rounded bg-[var(--surface-elevated)] swms-skeleton" />
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="flex items-center gap-2.5 text-sm text-[var(--text-secondary)]">
@@ -383,7 +383,7 @@ function FullscreenPracticePageInner() {
             <button
               type="button"
               onClick={() => void loadContext()}
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-[10px] bg-[var(--accent)] text-accent-contrast text-xs font-semibold cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Thử lại</span>
@@ -436,9 +436,9 @@ function FullscreenPracticePageInner() {
         </div>
 
         {/* Center/Right Lesson Switcher + FSRS + Theme */}
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0 shrink-0">
           {flatLessons.length > 0 && (
-            <div className="flex items-center gap-0.5 sm:gap-1">
+            <div className="flex items-center gap-0.5 sm:gap-1 min-w-0">
               <button
                 type="button"
                 disabled={!prevLesson}
@@ -449,29 +449,31 @@ function FullscreenPracticePageInner() {
                 }}
                 title={prevLesson ? `Bài trước: ${prevLesson.title}` : "Đây là bài đầu tiên"}
                 aria-label="Bài học trước"
-                className="h-7 w-7 sm:h-8 sm:w-8 rounded-[8px] border border-[var(--border-calm)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-40 cursor-pointer"
+                className="h-7 w-7 sm:h-8 sm:w-8 rounded-[8px] border border-[var(--border-calm)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-40 cursor-pointer shrink-0"
               >
                 <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
 
-              <select
-                aria-label="Chuyển nhanh bài học trong khóa"
-                data-testid="practice-lesson-switcher"
-                value={lessonId}
-                onChange={(e) => {
-                  const nextId = e.target.value;
-                  if (nextId && nextId !== lessonId) {
-                    router.push(`/app/practice/${courseId}/${nextId}`);
-                  }
-                }}
-                className="h-7 sm:h-8 max-w-[125px] xs:max-w-[160px] sm:max-w-[240px] rounded-[8px] border border-[var(--border-calm)] bg-[var(--canvas-bg)] px-1.5 sm:px-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] truncate"
-              >
-                {flatLessons.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.title}
-                  </option>
-                ))}
-              </select>
+              {flatLessons.length > 1 && (
+                <select
+                  aria-label="Chuyển nhanh bài thực hành"
+                  data-testid="practice-lesson-switcher"
+                  value={lessonId}
+                  onChange={(e) => {
+                    const nextId = e.target.value;
+                    if (nextId && nextId !== lessonId) {
+                      router.push(`/app/practice/${courseId}/${nextId}`);
+                    }
+                  }}
+                  className="h-7 sm:h-8 max-w-[160px] sm:max-w-[240px] min-w-0 rounded-[8px] border border-[var(--border-calm)] bg-[var(--canvas-bg)] px-1.5 sm:px-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] truncate"
+                >
+                  {flatLessons.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.title}
+                    </option>
+                  ))}
+                </select>
+              )}
 
               <button
                 type="button"
@@ -483,7 +485,7 @@ function FullscreenPracticePageInner() {
                 }}
                 title={nextLesson ? `Bài tiếp theo: ${nextLesson.title}` : "Đây là bài cuối cùng"}
                 aria-label="Bài học tiếp theo"
-                className="h-7 w-7 sm:h-8 sm:w-8 rounded-[8px] border border-[var(--border-calm)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-40 cursor-pointer"
+                className="h-7 w-7 sm:h-8 sm:w-8 rounded-[8px] border border-[var(--border-calm)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-40 cursor-pointer shrink-0"
               >
                 <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>

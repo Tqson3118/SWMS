@@ -39,7 +39,12 @@ function useScrollY() {
 function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void }) {
   const scrollY = useScrollY();
   const isScrolled = scrollY > 20;
+  const [mounted, setMounted] = useState(false);
   const [signedInUser, setSignedInUser] = useState<{ fullName: string } | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -100,7 +105,11 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
             className="p-2 rounded-[8px] hover:bg-[var(--surface-elevated)] transition text-[var(--text-secondary)] cursor-pointer shrink-0"
             aria-label="Toggle theme"
           >
-            {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {mounted ? (
+              dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />
+            ) : (
+              <span className="block w-4 h-4" aria-hidden="true" />
+            )}
           </button>
           {signedInUser ? (
             <Link
@@ -138,7 +147,7 @@ function Header({ dark, toggleDark }: { dark: boolean; toggleDark: () => void })
 /* ── Hero ─────────────────────────────────────────────────────── */
 function HeroSection() {
   return (
-    <section data-testid="landing-hero-section" className="relative pt-32 pb-20 px-6">
+    <section data-testid="landing-hero-section" className="relative pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6">
       {/* Subtle gradient background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-[#5E51E8]/10 via-[#818CF8]/5 to-transparent rounded-full blur-3xl" />
@@ -146,7 +155,7 @@ function HeroSection() {
 
       <div className="relative max-w-3xl mx-auto text-center">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 text-[#4F46E5] dark:text-[#A5B4FC] text-xs font-semibold mb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 dark:border-[#818CF8]/30 text-[#4F46E5] dark:text-[#A5B4FC] text-xs font-semibold mb-6">
           <Sparkles className="w-3.5 h-3.5" />
           Nền tảng học tập thế hệ mới
         </div>
@@ -159,7 +168,7 @@ function HeroSection() {
           Làm chủ.
         </h1>
 
-        <p className="text-lg text-[var(--text-secondary)] max-w-xl mx-auto mb-8 leading-relaxed">
+        <p className="text-base sm:text-lg text-[var(--text-secondary)] max-w-xl mx-auto mb-8 leading-relaxed">
           Đọc tài liệu, viết sổ tay và ôn thẻ nhớ lâu trong một nơi duy nhất. Biến mọi tài liệu thành kiến thức của riêng bạn.
         </p>
 
@@ -167,14 +176,14 @@ function HeroSection() {
           <Link
             href="/auth?tab=register"
             data-testid="landing-hero-cta"
-            className="inline-flex items-center gap-2 h-11 px-6 rounded-[12px] bg-[#5E51E8] hover:bg-[#4F46E5] dark:bg-[#818CF8] dark:text-[#0F0F12] text-white text-sm font-semibold transition shadow-elevation-1"
+            className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-[12px] bg-[#5E51E8] hover:bg-[#4F46E5] dark:bg-[#818CF8] dark:hover:bg-[#6366F1] dark:text-[#0F0F12] text-white text-sm font-semibold transition shadow-elevation-1 w-full sm:w-auto"
           >
             Bắt đầu miễn phí
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="#features"
-            className="inline-flex items-center gap-2 h-11 px-6 rounded-[12px] border border-[var(--border-calm)] text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition"
+            className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-[12px] border border-[var(--border-calm)] text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition w-full sm:w-auto"
           >
             Khám phá tính năng
           </Link>
@@ -237,7 +246,7 @@ function PreviewSection() {
                 <div className="text-[10px] font-semibold text-[var(--text-tertiary)] px-3 uppercase tracking-wider">
                   Gần đây
                 </div>
-                {["IELTS 7.5+ Mastery", ".NET 10 & React", "Tài Chính Cá Nhân"].map((c) => (
+                {["IELTS 7.5+ Mastery", ".NET 10 & React", "Tài chính cá nhân"].map((c) => (
                   <div key={c} className="px-3 py-1.5 text-xs text-[var(--text-secondary)] truncate">
                     {c}
                   </div>
@@ -289,8 +298,8 @@ function PreviewSection() {
               <div className="mt-3 sm:mt-4 grid grid-cols-3 gap-2 sm:gap-3">
                 {[
                   { title: "IELTS Speaking", tag: "Nói & IPA", color: "bg-sky-500" },
-                  { title: "Tài chính 101", tag: "Case study", color: "bg-amber-500" },
-                  { title: "Tâm lý học", tag: "Roadmap 48T", color: "bg-rose-500" },
+                  { title: "Tài chính 101", tag: "Tình huống", color: "bg-amber-500" },
+                  { title: "Tâm lý học", tag: "Lộ trình 48T", color: "bg-rose-500" },
                 ].map((card) => (
                   <div key={card.title} className="rounded-lg border border-[var(--border-calm)] bg-[var(--surface-card)] p-2.5 sm:p-3 min-w-0">
                     <div className="flex items-center gap-1.5 mb-1">
@@ -325,7 +334,7 @@ const PILLARS = [
   },
   {
     icon: Layers,
-    title: "Vừa đọc vừa ghi chú (Chia đôi)",
+    title: "Vừa đọc vừa ghi chú song song",
     description:
       "Chia đôi màn hình: đọc bài bên trái, viết sổ tay bên phải — không cần chuyển qua lại giữa nhiều ứng dụng.",
     gradient: "from-violet-500 to-purple-600",
@@ -343,7 +352,7 @@ const PILLARS = [
     icon: Sparkles,
     title: "Tạo khóa học nhanh cùng AI",
     description:
-      "Tải file PDF lên hoặc nhập chủ đề để hệ thống tạo sẵn chương mục, bài học và thẻ ôn tập.",
+      "Tải tài liệu PDF lên hoặc nhập chủ đề để Studxy phác thảo sẵn chương mục, bài học và thẻ ôn tập.",
     gradient: "from-amber-500 to-orange-600",
     bg: "bg-amber-50 dark:bg-amber-950/30",
   },
@@ -366,7 +375,7 @@ function FeaturesSection() {
           {PILLARS.map((p) => (
             <div
               key={p.title}
-              className="group rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-6 hover:border-[#5E51E8]/40 dark:hover:border-[#818CF8]/40 hover:shadow-md transition-all duration-200"
+              className="group rounded-xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-6 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 hover:border-[#5E51E8]/40 dark:hover:border-[#818CF8]/40 hover:shadow-md transition-all duration-200"
             >
               <div
                 className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.gradient} flex items-center justify-center mb-4 shadow-sm transition-transform duration-200 group-hover:scale-105`}
@@ -392,7 +401,7 @@ const STEPS = [
   {
     step: "01",
     title: "Tải tài liệu lên hoặc tạo khóa học",
-    description: "Kéo thả file PDF hoặc nhập chủ đề bạn muốn học để tạo sẵn lộ trình.",
+    description: "Kéo thả tài liệu PDF hoặc nhập chủ đề bạn muốn học để khởi tạo lộ trình.",
   },
   {
     step: "02",
@@ -402,12 +411,12 @@ const STEPS = [
   {
     step: "03",
     title: "Ôn thẻ đúng lúc sắp quên",
-    description: "Hệ thống tự chọn những thẻ cần ôn trong ngày. Lật thẻ và bấm mức độ nhớ của bạn.",
+    description: "Studxy tự chọn ra những thẻ cần ôn trong ngày. Bạn chỉ cần lật thẻ và đánh giá mức độ nhớ.",
   },
   {
     step: "04",
     title: "Làm chủ kiến thức",
-    description: "Theo dõi tiến độ, streak, và xem kiến thức tích lũy bền vững qua từng ngày.",
+    description: "Theo dõi tiến độ, chuỗi ngày học và nhìn thấy kiến thức tích lũy bền vững qua từng ngày.",
   },
 ];
 
@@ -428,7 +437,7 @@ function WorkflowSection() {
           {STEPS.map((s) => (
             <div
               key={s.step}
-              className="rounded-2xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-5 flex flex-col justify-between transition-all hover:border-[#5E51E8]/40 dark:hover:border-[#818CF8]/40 hover:shadow-md"
+              className="rounded-2xl border border-[var(--border-calm)] bg-[var(--surface-card)] p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 hover:border-[#5E51E8]/40 dark:hover:border-[#818CF8]/40 hover:shadow-md"
             >
               <div>
                 <div className="w-11 h-11 rounded-xl bg-[#EEF0FD] dark:bg-[#1E1B4B] border border-[#5E51E8]/20 flex items-center justify-center mb-4">
@@ -455,8 +464,8 @@ function WorkflowSection() {
 function ShortcutsSection() {
   const shortcuts = [
     { keys: "Ctrl+K", label: "Tìm kiếm nhanh" },
-    { keys: "Ctrl+D", label: "Dark mode" },
-    { keys: "Ctrl+\\", label: "Thu gọn sidebar" },
+    { keys: "Ctrl+D", label: "Chế độ sáng / tối" },
+    { keys: "Ctrl+\\", label: "Thu gọn thanh bên" },
     { keys: "Space", label: "Lật thẻ" },
     { keys: "1-4", label: "Đánh giá thẻ" },
   ];
@@ -474,7 +483,7 @@ function ShortcutsSection() {
                 Thiết kế cho bàn phím
               </h2>
               <p className="text-sm text-[var(--text-secondary)]">
-                Mọi thao tác đều có phím tắt. Tay bạn không cần rời bàn phím.
+                Mọi thao tác đều có phím tắt giúp bạn học tập liền mạch trên bàn phím.
               </p>
             </div>
           </div>
@@ -671,8 +680,8 @@ export function LandingPageV2() {
             </div>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
               {infoModal === "privacy"
-                ? "Tài liệu PDF, ghi chú và thẻ flashcard FSRS thuộc quyền sở hữu của từng tài khoản học viên và được lưu trữ tách biệt theo người dùng. Bạn có thể xuất toàn bộ khóa học sang Markdown ZIP bất cứ lúc nào."
-                : "Studxy cung cấp môi trường học tập chủ động (đọc giáo trình, trích dẫn PDF, ôn tập lặp lại ngắt quãng FSRS v5 và bài luyện tập Practice Quiz) phục vụ mục đích học tập và nghiên cứu cá nhân."}
+                ? "Tài liệu PDF, ghi chú và thẻ ghi nhớ FSRS thuộc quyền sở hữu của riêng bạn và được lưu trữ tách biệt theo từng tài khoản. Bạn có thể xuất toàn bộ khóa học sang gói Markdown ZIP bất cứ lúc nào."
+                : "Studxy cung cấp môi trường học tập chủ động — gồm đọc giáo trình, trích dẫn PDF, ôn tập lặp lại ngắt quãng FSRS v5 và bài kiểm tra trắc nghiệm — phục vụ mục đích học tập và nghiên cứu cá nhân."}
             </p>
           </div>
         </div>

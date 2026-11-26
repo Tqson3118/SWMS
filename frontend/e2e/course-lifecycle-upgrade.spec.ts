@@ -22,6 +22,10 @@ const CURATED_SLUGS = [
   "tieng-nhat-so-cap-n5",
   "tieng-trung-so-cap-hsk1",
   "he-dieu-hanh-bo-nho-ao",
+  "document-course-ai-workflows",
+  "document-course-data-sql",
+  "document-course-cybersecurity",
+  "document-course-deep-learning-systems",
 ];
 
 async function provisionUser(page: Page): Promise<string> {
@@ -51,7 +55,7 @@ test.describe("Course Lifecycle & Curriculum Upgrade E2E Suite (Zero-Facade)", (
   // ---------------------------------------------------------------------------
   // Pillar 1: /app/courses Catalog, Tabs, Feature Chips, Grid/List & Pin
   // ---------------------------------------------------------------------------
-  test("1. Pillar 1 (/app/courses): 10 Curated, No Retired, Tabs, Filters, Grid/List, Quick Preview Drawer & Pin Persistence", async ({
+  test("1. Pillar 1 (/app/courses): 14 Curated, No Retired, Tabs, Filters, Grid/List, Quick Preview Drawer & Pin Persistence", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
@@ -60,21 +64,41 @@ test.describe("Course Lifecycle & Curriculum Upgrade E2E Suite (Zero-Facade)", (
     await page.goto("/app/courses");
     await page.waitForLoadState("domcontentloaded");
 
-    // 1A. Confirm 10 curated courses exist and no retired slugs appear
+    // 1A. Confirm progressive reveal renders <= 8 cards initially while badge shows >= 14 total
+    const countBadge = page.locator("h1 + span").first();
+    await expect(countBadge).toBeVisible({ timeout: 10000 });
+    const countText = await countBadge.innerText();
+    const totalCount = parseInt(countText, 10);
+    expect(totalCount).toBeGreaterThanOrEqual(14);
+
+    await expect(page.locator("[data-course-slug]").first()).toBeVisible({ timeout: 15000 });
+    const initialCardCount = await page.locator("[data-course-slug]").count();
+    expect(initialCardCount).toBeGreaterThan(0);
+    expect(initialCardCount).toBeLessThanOrEqual(8);
+
+    const showAllBtn = page.getByTestId("courses-show-all-btn");
+    const showMoreBtn = page.getByTestId("courses-show-more-btn");
+    await expect(showMoreBtn).toBeVisible({ timeout: 10000 });
+    if (await showAllBtn.isVisible().catch(() => false)) {
+      await showAllBtn.click();
+    } else {
+      await showMoreBtn.click();
+    }
+
+    // Confirm all 14 curated courses render after expanding & no retired slugs appear
     for (const slug of RETIRED_SLUGS) {
       await expect(page.locator(`[data-course-slug="${slug}"]`)).toHaveCount(0);
+    }
+    for (const slug of CURATED_SLUGS) {
+      await expect(
+        page.locator(`[data-course-slug="${slug}"]`).first(),
+        `Curated course ${slug} must render on /app/courses`
+      ).toBeVisible({ timeout: 15000 });
     }
     // Verify page content does not leak old titles
     const catalogText = await page.innerText("body");
     expect(catalogText).not.toContain("FullStack C# & React Refresh (28 Tuần)");
     expect(catalogText).not.toContain(".NET & React Full-Stack Roadmap");
-
-    // Check count of courses in catalog header
-    const countBadge = page.locator("h1 + span").first();
-    await expect(countBadge).toBeVisible({ timeout: 10000 });
-    const countText = await countBadge.innerText();
-    const totalCount = parseInt(countText, 10);
-    expect(totalCount).toBeGreaterThanOrEqual(10);
 
     // 1B. Switch Collection Tabs
     const tabPinned = page.getByRole("button", { name: /Đã ghim/i });
@@ -501,7 +525,7 @@ test.describe("Course Lifecycle & Curriculum Upgrade E2E Suite (Zero-Facade)", (
       page.waitForResponse(
         (res) => res.url().includes(`/api/v1/courses/${clonedId}`) && res.request().method() === "PUT"
       ),
-      page.getByRole("button", { name: /Lưu thay đổi metadata/i }).click(),
+      page.getByRole("button", { name: /Lưu (thay đổi metadata|thông tin khóa học)/i }).click(),
     ]);
     expect(saveMetaRes.status()).toBe(200);
     await expect(
@@ -557,5 +581,534 @@ test.describe("Course Lifecycle & Curriculum Upgrade E2E Suite (Zero-Facade)", (
       `http://127.0.0.1:5080/api/v1/courses/${clonedId}`
     );
     expect(verifyGetRes.status()).toBe(404);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Pillar 5: Flagship Upgrades (Mission Strip, Shortcuts Modal, Quiz Nav, Typography & Mobile Overflow)
+  // ---------------------------------------------------------------------------
+  test("6. Flagship Upgrades (/app, /quiz, /learn): Mission Strip, Shortcuts Modal, Quiz Navigator, Typography Width & Mobile Overflow", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await provisionUser(page);
+
+    const coursesRes = await page.request.get("http://127.0.0.1:5080/api/v1/courses");
+    expect(coursesRes.ok()).toBeTruthy();
+    const courses: Array<{ id: string; title: string; slug?: string }> = await coursesRes.json();
+    const bootcamp =
+      courses.find(
+        (c) =>
+          c.slug === "doc-course-studxy-fullstack-bootcamp" ||
+          /bootcamp/i.test(c.slug || c.title || "")
+      ) || courses[0];
+    expect(bootcamp).toBeTruthy();
+
+    // 6A. /app: Today Mission Strip & Keyboard Shortcuts Modal (? / Escape)
+    await page.goto("/app");
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page.getByTestId("today-mission-strip")).toBeVisible({ timeout: 15000 });
+
+    const neutralHeading = page.locator("h1, h2").first();
+    await expect(neutralHeading).toBeVisible({ timeout: 10000 });
+    await neutralHeading.click();
+    await page.keyboard.press("?");
+
+    const shortcutsModal = page.getByTestId("keyboard-shortcuts-modal");
+    await expect(shortcutsModal).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId("close-shortcuts-modal")).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(shortcutsModal).toHaveCount(0);
+
+    // 6B. /app/courses/[id]/quiz: Quiz Question Navigator & Zero Horizontal Overflow
+    await page.goto(`/app/courses/${bootcamp.id}/quiz`);
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page.getByTestId("quiz-item-1")).toBeVisible({ timeout: 15000 });
+    const quizNavigator = page.getByTestId("quiz-question-navigator");
+    await expect(quizNavigator).toBeVisible({ timeout: 10000 });
+    const navigatorBtnCount = await quizNavigator.locator("button").count();
+    expect(navigatorBtnCount).toBeGreaterThanOrEqual(1);
+
+    const quizZeroOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 2
+    );
+    expect(quizZeroOverflow).toBeTruthy();
+
+    // 6C. /app/courses/[id]/learn: Typography Popover Width Toggle & Mobile Zero Overflow
+    await page.goto(`/app/courses/${bootcamp.id}/learn`);
+    await page.waitForLoadState("domcontentloaded");
+
+    const proseColumn = page.getByTestId("reading-prose-column");
+    await expect(proseColumn).toBeVisible({ timeout: 15000 });
+
+    const typographyBtn = page.locator('button[aria-label="Tùy chỉnh chữ"]');
+    await expect(typographyBtn).toBeVisible({ timeout: 10000 });
+    await typographyBtn.click();
+
+    const wideWidthBtn = page.getByRole("button", { name: /Rộng \(84ch\)/i });
+    await expect(wideWidthBtn).toBeVisible({ timeout: 5000 });
+    await wideWidthBtn.click();
+
+    const learnWideZeroOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 2
+    );
+    expect(learnWideZeroOverflow).toBeTruthy();
+
+    const standardWidthBtn = page.getByRole("button", { name: /Chuẩn \(68ch\)/i });
+    if (!(await standardWidthBtn.isVisible())) {
+      await typographyBtn.click();
+    }
+    await expect(standardWidthBtn).toBeVisible({ timeout: 5000 });
+    await standardWidthBtn.click();
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForTimeout(200);
+    await expect(proseColumn).toBeVisible({ timeout: 10000 });
+
+    const mobileZeroOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 2
+    );
+    expect(mobileZeroOverflow).toBeTruthy();
+  });
+
+  // ---------------------------------------------------------------------------
+  // Test 7: 14 Curated Courses, New Document Courses Rich Lessons & Expanded OS/EN/JA/ZH (5ch/12l)
+  // ---------------------------------------------------------------------------
+  test("7. Wave 4 Curated Catalog (14 Courses): New Applied Courses Load Rich Lessons & OS/EN/JA/ZH Show 5 Chapters / 12 Lessons", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await provisionUser(page);
+
+    const coursesRes = await page.request.get("http://127.0.0.1:5080/api/v1/courses");
+    expect(coursesRes.ok()).toBeTruthy();
+    const courses: Array<{
+      id: string;
+      title: string;
+      slug?: string;
+      chapterCount?: number;
+      lessonCount?: number;
+    }> = await coursesRes.json();
+
+    for (const slug of CURATED_SLUGS) {
+      expect(
+        courses.some((c) => c.slug === slug),
+        `API /api/v1/courses must return curated slug ${slug}`
+      ).toBeTruthy();
+    }
+
+    // 7A. Verify all 14 curated courses render cleanly on /app/courses (after expanding progressive reveal)
+    await page.goto("/app/courses");
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page.locator("[data-course-slug]").first()).toBeVisible({ timeout: 15000 });
+    const showAll7 = page.getByTestId("courses-show-all-btn");
+    const showMore7 = page.getByTestId("courses-show-more-btn");
+    await expect(showMore7).toBeVisible({ timeout: 10000 });
+    if (await showAll7.isVisible().catch(() => false)) {
+      await showAll7.click();
+    } else {
+      await showMore7.click();
+    }
+
+    for (const slug of CURATED_SLUGS) {
+      const card = page.locator(`[data-course-slug="${slug}"]`).first();
+      await expect(card, `Card for ${slug} must render cleanly`).toBeVisible({ timeout: 15000 });
+    }
+
+    const catalogZeroOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 2
+    );
+    expect(catalogZeroOverflow).toBeTruthy();
+
+    // 7B. Expanded OS / EN / JA / ZH courses show 5 chapters / 12 lessons on cards & detail API
+    const expandedSlugs = [
+      "he-dieu-hanh-bo-nho-ao",
+      "tieng-anh-giao-tiep-thuc-chien-a2-b1",
+      "tieng-nhat-so-cap-n5",
+      "tieng-trung-so-cap-hsk1",
+    ];
+    for (const slug of expandedSlugs) {
+      const card = page.locator(`[data-course-slug="${slug}"]`).first();
+      await expect(card).toContainText("5 chương");
+      await expect(card).toContainText("12 bài");
+
+      const matched = courses.find((c) => c.slug === slug);
+      expect(matched).toBeTruthy();
+      const detailRes = await page.request.get(
+        `http://127.0.0.1:5080/api/v1/courses/${matched!.id}`
+      );
+      expect(detailRes.ok()).toBeTruthy();
+      const detail = await detailRes.json();
+      const chapters: Array<{ lessons?: Array<{ id: string }> }> = detail.chapters || [];
+      expect(chapters.length).toBe(5);
+      const totalLessons = chapters.reduce((acc, ch) => acc + (ch.lessons?.length || 0), 0);
+      expect(totalLessons).toBe(12);
+    }
+
+    // 7C. Opening newly added courses loads rich lessons cleanly
+    const newCourseSlugs = [
+      "document-course-ai-workflows",
+      "document-course-data-sql",
+      "document-course-cybersecurity",
+    ];
+    for (const slug of newCourseSlugs) {
+      const matched = courses.find((c) => c.slug === slug);
+      expect(matched, `Expected course ${slug} to exist`).toBeTruthy();
+
+      await page.goto(`/app/courses/${matched!.id}/learn`);
+      await page.waitForLoadState("domcontentloaded");
+
+      await expect(page.getByTestId("course-roadmap-sidebar")).toBeVisible({ timeout: 15000 });
+      await expect(page.getByTestId("reading-prose-column")).toBeVisible({ timeout: 15000 });
+      const mdView = page.getByTestId("lesson-markdown-view");
+      await expect(mdView).toBeVisible({ timeout: 15000 });
+      const mdText = (await mdView.innerText()).trim();
+      expect(mdText.length).toBeGreaterThan(200);
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Test 8: AppliedSystemsLab Real E2E (Diagnosis + POST /api/v1/ai/evaluate-practice + FSRS Save)
+  // ---------------------------------------------------------------------------
+  test("8. AppliedSystemsLab (/app/practice): Diagnosis + Real POST /api/v1/ai/evaluate-practice + Grading Badge + Save FSRS", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await provisionUser(page);
+
+    const coursesRes = await page.request.get("http://127.0.0.1:5080/api/v1/courses");
+    expect(coursesRes.ok()).toBeTruthy();
+    const courses: Array<{ id: string; title: string; slug?: string }> = await coursesRes.json();
+
+    const preferredSlugs = [
+      "document-course-ai-workflows",
+      "document-course-data-sql",
+      "document-course-cybersecurity",
+    ];
+    let targetCourse = courses.find((c) => c.slug && preferredSlugs.includes(c.slug));
+    expect(targetCourse).toBeTruthy();
+
+    // Find a lesson that has an applied practice activity in DB
+    const actRes = await page.request.get(
+      `http://127.0.0.1:5080/api/v1/practice/activities?courseId=${targetCourse!.id}`
+    );
+    expect(actRes.ok()).toBeTruthy();
+    const activities: Array<{ lessonId?: string | null; type?: string }> = await actRes.json();
+    const appliedAct = activities.find((a) =>
+      /prompt_critique|prompt-critique|sql_reasoning|sql-reasoning|threat_spotter|threat-spotter/i.test(
+        a.type || ""
+      )
+    );
+
+    let lessonId = appliedAct?.lessonId || "";
+    if (!lessonId) {
+      const detailRes = await page.request.get(
+        `http://127.0.0.1:5080/api/v1/courses/${targetCourse!.id}`
+      );
+      expect(detailRes.ok()).toBeTruthy();
+      const detail = await detailRes.json();
+      lessonId = detail.chapters?.[0]?.lessons?.[0]?.id || "";
+    }
+    expect(lessonId).toBeTruthy();
+
+    await page.goto(`/app/practice/${targetCourse!.id}/${lessonId}`);
+    await page.waitForLoadState("domcontentloaded");
+
+    const appliedLab = page.getByTestId("applied-systems-lab");
+    await expect(appliedLab).toBeVisible({ timeout: 20000 });
+
+    // Select first diagnosis option & check diagnosis
+    const diagOption0 = appliedLab.getByTestId("applied-diagnosis-option-0");
+    await expect(diagOption0).toBeVisible({ timeout: 15000 });
+    await diagOption0.check();
+
+    const checkDiagBtn = appliedLab.getByTestId("applied-check-diagnosis-btn");
+    await expect(checkDiagBtn).toBeEnabled();
+    await checkDiagBtn.click();
+    await expect(appliedLab.getByTestId("applied-diagnosis-feedback")).toBeVisible({
+      timeout: 5000,
+    });
+
+    // Submit write-in response to real POST /api/v1/ai/evaluate-practice
+    const responseInput = appliedLab.getByTestId("applied-response-input");
+    await expect(responseInput).toBeVisible();
+    await responseInput.fill(
+      "Vai trò kỹ sư hệ thống: Xác định rõ bối cảnh nghiệp vụ, bổ sung ràng buộc JSON Schema đầu ra, tiêu chí kiểm chứng sự thật và giới hạn an toàn trước khi thực thi."
+    );
+
+    const submitEvalBtn = appliedLab.getByTestId("applied-submit-eval-btn");
+    await expect(submitEvalBtn).toBeEnabled();
+
+    const [evalRes] = await Promise.all([
+      page.waitForResponse(
+        (res) =>
+          res.url().includes("/api/v1/ai/evaluate-practice") &&
+          res.request().method() === "POST",
+        { timeout: 20000 }
+      ),
+      submitEvalBtn.click(),
+    ]);
+    expect(evalRes.status()).toBe(200);
+
+    // Honest grading badge renders (either live AI or honest offline keyword badge)
+    const gradingBadge = appliedLab.getByTestId("applied-grading-badge");
+    await expect(gradingBadge).toBeVisible({ timeout: 15000 });
+    await expect(gradingBadge).toContainText(/AI chấm trực tiếp|Chấm theo từ khóa \(offline\)/i);
+
+    // Save FSRS flashcard via applied-save-fsrs-btn
+    const saveFsrsBtn = appliedLab.getByTestId("applied-save-fsrs-btn");
+    await expect(saveFsrsBtn).toBeVisible();
+    await expect(saveFsrsBtn).toBeEnabled();
+
+    const [saveCardRes] = await Promise.all([
+      page.waitForResponse(
+        (res) => res.url().includes("/api/v1/flashcards") && res.request().method() === "POST",
+        { timeout: 15000 }
+      ),
+      saveFsrsBtn.click(),
+    ]);
+    expect(saveCardRes.ok()).toBeTruthy();
+    await expect(saveFsrsBtn).toContainText(/Đã lưu FSRS/i, { timeout: 10000 });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Test 9: Lesson Workspace Active Recall + Non-Blocking Wrong QuickCheck Save to FSRS
+  // ---------------------------------------------------------------------------
+  test("9. Lesson Workspace (/learn): Active Recall Evaluate + Wrong QuickCheck 1-Click Save to FSRS Without Blocking Completion", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await provisionUser(page);
+
+    const coursesRes = await page.request.get("http://127.0.0.1:5080/api/v1/courses");
+    expect(coursesRes.ok()).toBeTruthy();
+    const courses: Array<{ id: string; title: string; slug?: string }> = await coursesRes.json();
+
+    const targetCourse =
+      courses.find((c) => c.slug === "doc-course-studxy-fullstack-bootcamp") ||
+      courses.find((c) => c.slug === "document-course-investing") ||
+      courses[0];
+    expect(targetCourse).toBeTruthy();
+
+    // Find a lesson with a linked quiz containing multiple_choice items
+    const quizzesRes = await page.request.get(
+      `http://127.0.0.1:5080/api/v1/practice-quizzes?courseId=${targetCourse!.id}`
+    );
+    expect(quizzesRes.ok()).toBeTruthy();
+    const quizzes: Array<{ id: string; lessonId?: string | null }> = await quizzesRes.json();
+    const candidateLessonIds = Array.from(
+      new Set(quizzes.map((q) => q.lessonId).filter((id): id is string => Boolean(id)))
+    );
+
+    const detailRes = await page.request.get(
+      `http://127.0.0.1:5080/api/v1/courses/${targetCourse!.id}`
+    );
+    expect(detailRes.ok()).toBeTruthy();
+    const detail = await detailRes.json();
+    const firstLessonId: string = detail.chapters?.[0]?.lessons?.[0]?.id || "";
+    const chosenLessonId = candidateLessonIds[0] || firstLessonId;
+    expect(chosenLessonId).toBeTruthy();
+
+    await page.goto(`/app/courses/${targetCourse!.id}/learn?lessonId=${chosenLessonId}`);
+    await page.waitForLoadState("domcontentloaded");
+
+    // 9A. Active Recall evaluation & honest grading badge
+    const activeRecallCard = page.getByTestId("lesson-active-recall-card");
+    await expect(activeRecallCard).toBeVisible({ timeout: 15000 });
+    await activeRecallCard.scrollIntoViewIfNeeded();
+
+    const recallInput = activeRecallCard.getByTestId("active-recall-input");
+    await recallInput.fill(
+      "Khái niệm cốt lõi gồm kiến trúc tách lớp rõ ràng, luồng xử lý dữ liệu nhất quán, kiểm thử tự động và nguyên tắc áp dụng an toàn trong thực tế."
+    );
+
+    const recallSubmitBtn = activeRecallCard.getByTestId("active-recall-submit-btn");
+    await expect(recallSubmitBtn).toBeEnabled();
+
+    const [recallEvalRes] = await Promise.all([
+      page.waitForResponse(
+        (res) =>
+          res.url().includes("/api/v1/ai/evaluate-practice") &&
+          res.request().method() === "POST",
+        { timeout: 20000 }
+      ),
+      recallSubmitBtn.click(),
+    ]);
+    expect(recallEvalRes.status()).toBe(200);
+
+    const recallBadge = activeRecallCard.getByTestId("active-recall-grading-badge");
+    await expect(recallBadge).toBeVisible({ timeout: 15000 });
+    await expect(recallBadge).toContainText(/AI chấm trực tiếp|Chấm theo từ khóa \(offline\)/i);
+
+    // 9B. QuickCheck wrong answer -> 1-click quick-check-save-wrong-fsrs-btn
+    const quickCheckSection = page.getByTestId("lesson-quick-check-section");
+    await quickCheckSection.scrollIntoViewIfNeeded();
+    await expect(
+      quickCheckSection.getByText(/Đang tải câu hỏi kiểm tra nhanh/i)
+    ).toHaveCount(0, { timeout: 15000 });
+    await expect(quickCheckSection.getByTestId("quick-check-q-0")).toBeVisible({
+      timeout: 15000,
+    });
+
+    // Try answering across available quick-check items until a wrong answer triggers the save button
+    let saveWrongBtn = quickCheckSection.getByTestId("quick-check-save-wrong-fsrs-btn").first();
+    for (const qIdx of [0, 1]) {
+      if (await saveWrongBtn.isVisible().catch(() => false)) break;
+      const qCard = quickCheckSection.getByTestId(`quick-check-q-${qIdx}`);
+      if (!(await qCard.isVisible().catch(() => false))) continue;
+
+      const optBtn = qCard.locator("button").first();
+      await optBtn.click();
+      await expect(quickCheckSection.getByTestId(`quick-check-feedback-${qIdx}`)).toBeVisible({
+        timeout: 10000,
+      });
+
+      if (await saveWrongBtn.isVisible().catch(() => false)) break;
+
+      // If option 0 happened to be correct on q-0, try option 1 on q-1 (or next candidate lesson)
+      const q1Card = quickCheckSection.getByTestId("quick-check-q-1");
+      if (qIdx === 0 && (await q1Card.isVisible().catch(() => false))) {
+        await q1Card.locator("button").nth(1).click();
+        await expect(quickCheckSection.getByTestId("quick-check-feedback-1")).toBeVisible({
+          timeout: 10000,
+        });
+        break;
+      }
+    }
+
+    // If both questions on the first lesson happened to match by chance, try second candidate lesson
+    if (!(await saveWrongBtn.isVisible().catch(() => false)) && candidateLessonIds.length > 1) {
+      await page.goto(`/app/courses/${targetCourse!.id}/learn?lessonId=${candidateLessonIds[1]}`);
+      await page.waitForLoadState("domcontentloaded");
+      await quickCheckSection.scrollIntoViewIfNeeded();
+      for (const optIdx of [0, 1]) {
+        const qCard = quickCheckSection.getByTestId(`quick-check-q-${optIdx}`);
+        if (!(await qCard.isVisible({ timeout: 10000 }).catch(() => false))) continue;
+        await qCard.locator("button").nth(optIdx === 0 ? 1 : 0).click();
+        await expect(quickCheckSection.getByTestId(`quick-check-feedback-${optIdx}`)).toBeVisible({
+          timeout: 10000,
+        });
+        if (await saveWrongBtn.isVisible().catch(() => false)) break;
+      }
+    }
+
+    await expect(saveWrongBtn).toBeVisible({ timeout: 10000 });
+    const [saveWrongRes] = await Promise.all([
+      page.waitForResponse(
+        (res) => res.url().includes("/api/v1/flashcards") && res.request().method() === "POST",
+        { timeout: 15000 }
+      ),
+      saveWrongBtn.click(),
+    ]);
+    expect(saveWrongRes.ok()).toBeTruthy();
+    await expect(saveWrongBtn).toContainText(/Đã lưu vào FSRS/i, { timeout: 10000 });
+
+    // 9C. Verify lesson completion is NOT blocked by Active Recall or wrong QuickCheck
+    const completeBtn = page.getByTestId("sticky-mark-lesson-complete-btn");
+    await expect(completeBtn).toBeVisible({ timeout: 10000 });
+    await expect(completeBtn).toBeEnabled();
+
+    const [completeRes] = await Promise.all([
+      page.waitForResponse(
+        (res) =>
+          res.url().includes("/api/v1/lessons/") &&
+          res.url().endsWith("/complete") &&
+          res.request().method() === "POST",
+        { timeout: 15000 }
+      ),
+      completeBtn.click(),
+    ]);
+    expect(completeRes.status()).toBe(200);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Test 10: /app/review Interleaving Toggle & Session Mastery Progress Bar
+  // ---------------------------------------------------------------------------
+  test("10. /app/review: Interleaving Toggle Triggers Real interleave=true & Rating Renders Session Mastery Bar", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const userId = await provisionUser(page);
+
+    // Seed 3 due flashcards across different source topics for isolated user
+    const seedCards = [
+      {
+        cardType: "basic",
+        sourceTitleSnapshot: "AI Workflows · Tuần 01",
+        sourceQuoteSnapshot: "Prompt 5 lớp",
+        frontText: "5 lớp chuẩn của một Prompt kỹ thuật gồm những thành phần nào?",
+        backText: "Role, Context, Constraints, Examples, Output Schema.",
+        tagNames: ["ai-workflows"],
+      },
+      {
+        cardType: "basic",
+        sourceTitleSnapshot: "Data & SQL · Tuần 05",
+        sourceQuoteSnapshot: "Fan-out Join Trap",
+        frontText: "Vì sao JOIN trực tiếp 2 bảng nhiều-nhiều gây sai số tổng doanh thu?",
+        backText: "Gây nhân bản dòng (Fan-out); cần tổng hợp trước trong CTE theo đúng Grain.",
+        tagNames: ["data-sql"],
+      },
+      {
+        cardType: "basic",
+        sourceTitleSnapshot: "An toàn số · Tuần 04",
+        sourceQuoteSnapshot: "Passkeys FIDO2",
+        frontText: "Passkeys (FIDO2) chống Phishing hiệu quả hơn SMS OTP nhờ cơ chế nào?",
+        backText: "Ràng buộc mật mã theo tên miền gốc (Origin-bound public key cryptography).",
+        tagNames: ["cybersecurity"],
+      },
+    ];
+
+    for (const card of seedCards) {
+      const createRes = await page.request.post("http://127.0.0.1:5080/api/v1/flashcards", {
+        headers: { "X-Test-User-Id": userId },
+        data: card,
+      });
+      expect(createRes.ok()).toBeTruthy();
+    }
+
+    await page.goto("/app/review");
+    await page.waitForLoadState("domcontentloaded");
+
+    const interleaveToggle = page.getByTestId("review-interleave-toggle");
+    await expect(interleaveToggle).toBeVisible({ timeout: 15000 });
+
+    const [interleaveRes] = await Promise.all([
+      page.waitForResponse(
+        (res) =>
+          res.url().includes("/api/v1/flashcards/due") &&
+          res.url().includes("interleave=true") &&
+          res.request().method() === "GET",
+        { timeout: 15000 }
+      ),
+      interleaveToggle.click(),
+    ]);
+    expect(interleaveRes.status()).toBe(200);
+    await expect(interleaveToggle).toContainText("Đan xen chủ đề ✓", { timeout: 10000 });
+
+    // Flip card and rate Good (3) -> mastery bar appears
+    const flipBtn = page.getByTestId("review-flip-btn");
+    await expect(flipBtn).toBeVisible({ timeout: 10000 });
+    await flipBtn.click();
+
+    const rateGoodBtn = page.getByTestId("review-rate-3");
+    await expect(rateGoodBtn).toBeVisible({ timeout: 10000 });
+
+    const [syncReviewRes] = await Promise.all([
+      page.waitForResponse(
+        (res) =>
+          res.url().includes("/api/v1/flashcards/sync-reviews") &&
+          res.request().method() === "POST",
+        { timeout: 15000 }
+      ),
+      rateGoodBtn.click(),
+    ]);
+    expect(syncReviewRes.status()).toBe(200);
+
+    const masteryBar = page.getByTestId("review-session-mastery-bar");
+    await expect(masteryBar).toBeVisible({ timeout: 10000 });
+    await expect(masteryBar).toContainText(/Độ chắc nhớ phiên:/i);
   });
 });

@@ -299,9 +299,18 @@ using (var scope = app.Services.CreateScope())
                 StringComparison.OrdinalIgnoreCase);
 
             var hasAnyUser = await db.Users.AsNoTracking().AnyAsync();
+            var canonicalSlugs = CuratedCourseMetadataCatalog.CanonicalCourseSlugs.ToArray();
+            var matchedCanonicalCount = hasAnyUser
+                ? await db.Courses.AsNoTracking()
+                    .Where(c => c.Slug != null && canonicalSlugs.Contains(c.Slug))
+                    .Select(c => c.Slug!)
+                    .Distinct()
+                    .CountAsync()
+                : 0;
             var existingCourseCount = hasAnyUser ? await db.Courses.AsNoTracking().CountAsync() : 0;
+            var hasAllCanonicalCourses = matchedCanonicalCount >= canonicalSlugs.Length;
 
-            if (forceStartupSeed || !hasAnyUser || existingCourseCount < 10)
+            if (forceStartupSeed || !hasAnyUser || existingCourseCount < canonicalSlugs.Length || !hasAllCanonicalCourses)
             {
                 await SwmsEndpoints.EnsureSqliteSchemaUpdatedAsync(db);
                 await SeedDataInitializer.SeedAsync(db, builder.Configuration["DocumentLibrary:RootPath"]);
@@ -309,7 +318,8 @@ using (var scope = app.Services.CreateScope())
             else
             {
                 app.Logger.LogInformation(
-                    "Fast cold-start: PostgreSQL already has {CourseCount} courses. Running lightweight schema check in background.",
+                    "Fast cold-start: PostgreSQL already has all {CanonicalCount} canonical courses ({CourseCount} total). Running lightweight schema check in background.",
+                    canonicalSlugs.Length,
                     existingCourseCount);
                 var rootScopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
                 var startupLogger = app.Logger;
@@ -434,6 +444,11 @@ public partial class Program
         else
         {
             csb = new NpgsqlConnectionStringBuilder(trimmed);
+            if (!trimmed.Contains("Command Timeout", StringComparison.OrdinalIgnoreCase) &&
+                !trimmed.Contains("CommandTimeout", StringComparison.OrdinalIgnoreCase))
+            {
+                csb.CommandTimeout = 180;
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(csb.Host) &&

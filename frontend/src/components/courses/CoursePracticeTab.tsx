@@ -74,7 +74,7 @@ export function CoursePracticeTab({ course, courseId }: CoursePracticeTabProps) 
 
   const quizCount = course.quizCount ?? 0;
 
-  const labLabel = course.labLabel?.trim() || "Phòng Thực Hành Tương Tác";
+  const labLabel = course.labLabel?.trim() || "Phòng thực hành tương tác";
 
   const continuePracticeHref = firstPracticeLessonId
     ? `/app/practice/${courseId}/${firstPracticeLessonId}`
@@ -91,15 +91,15 @@ export function CoursePracticeTab({ course, courseId }: CoursePracticeTabProps) 
             <div className="space-y-3 max-w-2xl">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
                 <FlaskConical className="w-3.5 h-3.5" />
-                <span>Phòng Thực Hành Trực Tiếp (Pillar 2)</span>
+                <span>Phòng thực hành trực tiếp</span>
               </div>
 
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)] break-words">
                 {labLabel}
               </h2>
 
               <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
-                Môi trường thực hành chuyên sâu theo từng bài học: luyện viết, chạy code, giải quyết bài toán tình huống thực tế và kiểm tra phản xạ kiến thức theo tiêu chuẩn ngành.
+                Môi trường thực hành theo từng bài học: luyện viết, chạy mã, giải quyết tình huống thực tế và kiểm tra phản xạ kiến thức.
               </p>
 
               {/* Progress Bar & Metric Pills */}
@@ -147,7 +147,7 @@ export function CoursePracticeTab({ course, courseId }: CoursePracticeTabProps) 
               <Link href={continuePracticeHref} className="w-full">
                 <Button
                   variant="primary"
-                  className="w-full whitespace-nowrap bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="w-full whitespace-nowrap bg-[#5E51E8] hover:bg-[#4F46E5] text-white dark:bg-[#818CF8] dark:text-[#0F0F12] dark:hover:bg-[#A5B4FC]"
                   leftIcon={<FlaskConical className="w-4 h-4" />}
                 >
                   <span>Mở Lab thực hành</span>
@@ -160,10 +160,10 @@ export function CoursePracticeTab({ course, courseId }: CoursePracticeTabProps) 
         <Card className="p-6 bg-[var(--surface-card)] text-center space-y-3">
           <FlaskConical className="w-8 h-8 text-[var(--text-tertiary)] mx-auto" />
           <h3 className="text-base font-bold text-[var(--text-primary)]">
-            Phòng Thực Hành Tương Tác
+            Phòng thực hành tương tác
           </h3>
           <p className="text-xs text-[var(--text-secondary)] max-w-lg mx-auto">
-            Khóa học hiện đang áp dụng phương pháp củng cố trọng tâm qua Thẻ nhớ FSRS v5 và Ngân hàng Đề thi Trắc nghiệm phía dưới.
+            Khóa học này tập trung củng cố kiến thức qua thẻ ghi nhớ FSRS v5 và ngân hàng đề kiểm tra trắc nghiệm bên dưới.
           </p>
         </Card>
       )}
@@ -258,7 +258,7 @@ export function CoursePracticeTab({ course, courseId }: CoursePracticeTabProps) 
                 return (
                   <div
                     key={lesson.id}
-                    className={`min-w-0 p-4 rounded-xl border transition flex flex-col justify-between gap-3 ${
+                    className={`min-w-0 overflow-hidden p-4 rounded-xl border transition flex flex-col justify-between gap-3 ${
                       isAllPassed
                         ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50/20 dark:bg-emerald-950/10"
                         : "border-[var(--border-calm)] bg-[var(--surface-card)] hover:border-indigo-500/40"
@@ -266,7 +266,7 @@ export function CoursePracticeTab({ course, courseId }: CoursePracticeTabProps) 
                   >
                     <div className="space-y-2 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300">
+                        <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 truncate">
                           Bài thực hành {origIdx + 1}
                         </span>
                         <span
@@ -282,7 +282,10 @@ export function CoursePracticeTab({ course, courseId }: CoursePracticeTabProps) 
                         </span>
                       </div>
 
-                      <p className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 break-words">
+                      <p
+                        title={lesson.title}
+                        className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 break-words [overflow-wrap:anywhere]"
+                      >
                         {lesson.title}
                       </p>
 
@@ -352,7 +355,7 @@ export function CoursePracticeTab({ course, courseId }: CoursePracticeTabProps) 
             <div className="flex items-center justify-between gap-2">
               <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
                 <Brain className="w-4 h-4" />
-                <span>Thẻ nhớ ngắt quãng FSRS v5</span>
+                <span>Thẻ ghi nhớ FSRS v5</span>
               </div>
               {dueCards > 0 && (
                 <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700">
@@ -366,7 +369,7 @@ export function CoursePracticeTab({ course, courseId }: CoursePracticeTabProps) 
             </h4>
 
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-              Thuật toán FSRS tính toán thời điểm ngắt quãng tối ưu theo đường cong quên lãng, giúp bạn ghi nhớ từ vựng, cú pháp và nguyên lý cốt lõi vĩnh viễn.
+              Thuật toán FSRS tính toán thời điểm ngắt quãng tối ưu theo đường cong quên lãng, giúp bạn ghi nhớ từ vựng, cú pháp và nguyên lý cốt lõi lâu dài.
             </p>
 
             <div className="grid grid-cols-3 gap-2 pt-2">
@@ -402,7 +405,7 @@ export function CoursePracticeTab({ course, courseId }: CoursePracticeTabProps) 
             <div className="flex items-center justify-between gap-2">
               <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                 <ClipboardCheck className="w-4 h-4" />
-                <span>Ngân hàng Đề thi &amp; Trắc nghiệm</span>
+                <span>Ngân hàng đề thi &amp; trắc nghiệm</span>
               </div>
               {quizCount > 0 && (
                 <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700">
@@ -419,16 +422,16 @@ export function CoursePracticeTab({ course, courseId }: CoursePracticeTabProps) 
               Các bài kiểm tra trắc nghiệm từng bài và đề tổng kết toàn diện giúp kiểm tra mức độ nắm bắt kiến thức, phát hiện lỗ hổng và nhận đề xuất ôn tập kịp thời.
             </p>
 
-            <div className="p-3 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-calm)] flex items-center justify-between gap-3 text-xs">
-              <div className="space-y-0.5">
-                <p className="font-semibold text-[var(--text-primary)]">
+            <div className="p-3 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-calm)] flex items-center justify-between gap-3 text-xs min-w-0">
+              <div className="space-y-0.5 min-w-0 flex-1">
+                <p className="font-semibold text-[var(--text-primary)] truncate">
                   Bộ đề kiểm tra tổng hợp
                 </p>
-                <p className="text-[var(--text-tertiary)]">
+                <p className="text-[var(--text-tertiary)] line-clamp-2 break-words">
                   Bao gồm bài kiểm tra sau từng chương và đề thi cuối khóa
                 </p>
               </div>
-              <Badge variant="neutral" size="sm">
+              <Badge variant="neutral" size="sm" className="shrink-0">
                 {quizCount} bộ đề
               </Badge>
             </div>
@@ -440,7 +443,7 @@ export function CoursePracticeTab({ course, courseId }: CoursePracticeTabProps) 
               className="w-full text-xs font-semibold justify-center"
               leftIcon={<ClipboardCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
             >
-              <span>Vào làm Quiz &amp; Đề thi</span>
+              <span>Vào làm bài kiểm tra &amp; đề thi</span>
             </Button>
           </Link>
         </Card>

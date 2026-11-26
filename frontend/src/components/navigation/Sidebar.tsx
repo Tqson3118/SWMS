@@ -20,6 +20,7 @@ import {
   LayoutGrid,
   Target,
   ClipboardCheck,
+  Keyboard,
 } from "lucide-react";
 import { useWorkspaceStore, getClientRequestHeaders } from "@/stores/useWorkspaceStore";
 import { setAccessToken, fetchDashboardCached, fetchPracticeStatsCached } from "@/lib/api-client";
@@ -236,8 +237,8 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           type="button"
           onClick={onToggleCollapse}
           className="w-6 h-6 flex items-center justify-center rounded-[6px] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition cursor-pointer"
-          title={collapsed ? "Mở rộng sidebar (Ctrl+\\)" : "Thu gọn sidebar (Ctrl+\\)"}
-          aria-label={collapsed ? "Mở rộng sidebar" : "Thu gọn sidebar"}
+          title={collapsed ? "Mở rộng thanh điều hướng (Ctrl+\\)" : "Thu gọn thanh điều hướng (Ctrl+\\)"}
+          aria-label={collapsed ? "Mở rộng thanh điều hướng" : "Thu gọn thanh điều hướng"}
         >
           {collapsed ? (
             <ChevronRight className="w-3.5 h-3.5" />
@@ -396,8 +397,8 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           className={`flex items-center gap-2.5 h-8 rounded-[8px] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition w-full cursor-pointer ${
             collapsed ? "justify-center px-0" : "px-2.5"
           }`}
-          title={darkMode ? "Chuyển sang sáng" : "Chuyển sang tối"}
-          aria-label={darkMode ? "Chuyển sang sáng" : "Chuyển sang tối"}
+          title={darkMode ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
+          aria-label={darkMode ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
         >
           {darkMode ? (
             <Sun className="w-4 h-4 text-amber-400" />
@@ -414,11 +415,30 @@ export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
           className={`flex items-center gap-2.5 h-8 rounded-[8px] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition ${
             collapsed ? "justify-center px-0" : "px-2.5"
           }`}
-          title="Chế độ bàn làm việc nhiều khung trên máy tính (/workspace)"
+          title="Mở không gian làm việc nhiều khung cổ điển"
         >
           <LayoutGrid className="w-4 h-4 shrink-0" />
-          {!collapsed && <span>Giao diện Classic (Split)</span>}
+          {!collapsed && <span>Không gian cổ điển</span>}
         </Link>
+
+        {/* Keyboard shortcuts */}
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent("studxy:open-shortcuts"))}
+          className={`flex items-center gap-2.5 h-8 rounded-[8px] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition w-full cursor-pointer ${
+            collapsed ? "justify-center px-0" : "px-2.5"
+          }`}
+          title={collapsed ? "Bảng phím tắt (?)" : undefined}
+          aria-label="Mở bảng phím tắt"
+        >
+          <Keyboard className="w-4 h-4 shrink-0" />
+          {!collapsed && (
+            <>
+              <span>Phím tắt</span>
+              <kbd className="swms-kbd text-[10px] px-1.5 py-0.5 ml-auto">?</kbd>
+            </>
+          )}
+        </button>
 
         {/* Settings */}
         <Link

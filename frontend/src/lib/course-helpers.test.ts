@@ -1,4 +1,11 @@
-import { classifyCourseDomain, extractCourseSkillTags, type CourseLike } from "./course-helpers.ts";
+import {
+  CURATED_COURSE_SLUGS,
+  classifyCourseDomain,
+  extractCourseSkillTags,
+  isCurriculumStandardCourse,
+  sortCoursesSmartly,
+  type CourseLike,
+} from "./course-helpers.ts";
 
 interface TestCase {
   course: CourseLike;
@@ -153,6 +160,78 @@ const testCases: TestCase[] = [
     expectedDomainId: "language",
     expectedLabel: "Ngoại ngữ",
   },
+  // 3. Wave 4 curated descriptions regression cases
+  {
+    course: {
+      title: "Đầu Tư Tài Chính Nền Tảng (18 Tuần)",
+      category: "Tài chính & Đầu tư",
+      description:
+        "Chương trình 18 tuần xây dựng nền tảng đầu tư bài bản: từ giá trị thời gian của tiền, phân tích báo cáo tài chính và định giá doanh nghiệp đến quản trị danh mục và kỷ luật hành vi.",
+    },
+    expectedDomainId: "business",
+    expectedLabel: "Kinh tế & Quản trị",
+  },
+  {
+    course: {
+      title: "Kỹ Năng Sống & Giao Tiếp Hiệu Quả (16 Tuần)",
+      category: "Tâm lý & Kỹ năng sống",
+      description:
+        "Hành trình 16 tuần rèn luyện tự nhận thức, trí tuệ cảm xúc, lắng nghe thấu cảm, Giao tiếp Phi Bạo Lực (NVC), tư duy phản biện và quản trị năng lượng cá nhân.",
+    },
+    expectedDomainId: "other",
+    expectedLabel: "Chủ đề khác",
+  },
+  {
+    course: {
+      title: "Tự Học Tâm Lý Học 48 Tuần",
+      category: "Tâm lý & Kỹ năng sống",
+      description:
+        "Chương trình 48 tuần khám phá tâm lý học hệ thống: từ khoa học thần kinh, nhận thức và cảm xúc đến tâm lý xã hội, gắn bó tình cảm và chăm sóc sức khỏe tinh thần.",
+    },
+    expectedDomainId: "other",
+    expectedLabel: "Chủ đề khác",
+  },
+  // 4. Wave 3 Applied Systems & Deep Learning curated courses
+  {
+    course: {
+      slug: "document-course-ai-workflows",
+      title: "AI Ứng Dụng & Tự Động Hóa Workflow Thực Chiến (2026)",
+      description:
+        "Lộ trình 12 tuần thực chiến làm chủ Prompt Engineering chuẩn kỹ thuật, Structured Outputs, RAG cơ bản và thiết kế Workflow Agent an toàn.",
+    },
+    expectedDomainId: "technology",
+    expectedLabel: "Công nghệ & Lập trình",
+  },
+  {
+    course: {
+      slug: "document-course-data-sql",
+      title: "Tư Duy Dữ Liệu, SQL & Ra Quyết Định Bằng Số Liệu",
+      description:
+        "Khóa học 12 tuần từ tư duy đặt câu hỏi kinh doanh, SQL phân tích (JOIN, CTE, Window Functions), Cohort/Funnel đến thiết kế Dashboard.",
+    },
+    expectedDomainId: "technology",
+    expectedLabel: "Công nghệ & Lập trình",
+  },
+  {
+    course: {
+      slug: "document-course-cybersecurity",
+      title: "An Toàn Thông Tin, Quyền Riêng Tư & Phòng Vệ Lừa Đảo Số",
+      description:
+        "Cẩm nang 10 tuần phòng vệ an toàn số thực chiến tại Việt Nam: nhận diện Phishing/Quishing/Deepfake/APK giả mạo, Passkeys/MFA chuẩn FIDO2.",
+    },
+    expectedDomainId: "technology",
+    expectedLabel: "Công nghệ & Lập trình",
+  },
+  {
+    course: {
+      slug: "document-course-deep-learning-systems",
+      title: "Học Sâu, Tư Duy Hệ Thống & Quản Trị Hiệu Suất Thời AI",
+      description:
+        "10 tuần làm chủ khoa học trí nhớ dài hạn (Active Recall, FSRS, Feynman, Interleaving), tư duy hệ thống (Stocks/Flows, MECE) và Deep Work.",
+    },
+    expectedDomainId: "technology",
+    expectedLabel: "Công nghệ & Lập trình",
+  },
 ];
 
 let failed = 0;
@@ -187,9 +266,94 @@ if (!zhTags.includes("HSK1 Chuẩn") || zhTags.includes("Chấm phát âm IPA"))
   console.log(`PASS: Chinese skill tags -> ${zhTags.join(", ")}`);
 }
 
+// Verify 14 curated slugs & curriculum standard recognition
+if (CURATED_COURSE_SLUGS.length !== 14) {
+  console.error(`FAIL: Expected 14 curated slugs, got ${CURATED_COURSE_SLUGS.length}`);
+  failed++;
+} else {
+  console.log(`PASS: CURATED_COURSE_SLUGS has ${CURATED_COURSE_SLUGS.length} slugs`);
+}
+
+const newSlugs = [
+  "document-course-ai-workflows",
+  "document-course-data-sql",
+  "document-course-cybersecurity",
+  "document-course-deep-learning-systems",
+];
+for (const slug of newSlugs) {
+  if (!CURATED_COURSE_SLUGS.includes(slug as any)) {
+    console.error(`FAIL: Missing curated slug "${slug}"`);
+    failed++;
+  }
+  if (!isCurriculumStandardCourse({ slug, title: slug })) {
+    console.error(`FAIL: isCurriculumStandardCourse returned false for "${slug}"`);
+    failed++;
+  }
+}
+
+const aiTags = extractCourseSkillTags({
+  slug: "document-course-ai-workflows",
+  title: "AI Ứng Dụng & Tự Động Hóa Workflow Thực Chiến (2026)",
+  description: "Prompt Engineering, Structured Outputs, RAG và Workflow Agent.",
+});
+if (!aiTags.includes("AI Workflows")) {
+  console.error(`FAIL: Expected 'AI Workflows' tag, got: ${aiTags.join(", ")}`);
+  failed++;
+} else {
+  console.log(`PASS: AI Workflows skill tags -> ${aiTags.join(", ")}`);
+}
+
+const sqlTags = extractCourseSkillTags({
+  slug: "document-course-data-sql",
+  title: "Tư Duy Dữ Liệu, SQL & Ra Quyết Định Bằng Số Liệu",
+  description: "SQL phân tích, Cohort, Funnel, Window Functions và A/B Testing.",
+});
+if (!sqlTags.includes("SQL & Analytics")) {
+  console.error(`FAIL: Expected 'SQL & Analytics' tag, got: ${sqlTags.join(", ")}`);
+  failed++;
+} else {
+  console.log(`PASS: Data SQL skill tags -> ${sqlTags.join(", ")}`);
+}
+
+const cyberTags = extractCourseSkillTags({
+  slug: "document-course-cybersecurity",
+  title: "An Toàn Thông Tin, Quyền Riêng Tư & Phòng Vệ Lừa Đảo Số",
+  description: "Nhận diện Phishing, Quishing, Passkeys FIDO2 và ứng cứu tài khoản.",
+});
+if (!cyberTags.includes("An toàn số")) {
+  console.error(`FAIL: Expected 'An toàn số' tag, got: ${cyberTags.join(", ")}`);
+  failed++;
+} else {
+  console.log(`PASS: Cybersecurity skill tags -> ${cyberTags.join(", ")}`);
+}
+
+const dlTags = extractCourseSkillTags({
+  slug: "document-course-deep-learning-systems",
+  title: "Học Sâu, Tư Duy Hệ Thống & Quản Trị Hiệu Suất Thời AI",
+  description: "Active Recall, FSRS, Feynman, Stocks/Flows và Deep Work.",
+});
+if (!dlTags.includes("Học sâu")) {
+  console.error(`FAIL: Expected 'Học sâu' tag, got: ${dlTags.join(", ")}`);
+  failed++;
+} else {
+  console.log(`PASS: Deep Learning Systems skill tags -> ${dlTags.join(", ")}`);
+}
+
+const sorted = sortCoursesSmartly([
+  { id: "custom", title: "Khóa học cá nhân khác", lessonCount: 5 },
+  { id: "ai", slug: "document-course-ai-workflows", title: "AI Workflows", lessonCount: 12 },
+  { id: "ielts", slug: "document-course-ielts", title: "IELTS", lessonCount: 20 },
+]);
+if (sorted[0].id !== "ielts" || sorted[1].id !== "ai" || sorted[2].id !== "custom") {
+  console.error(`FAIL: Unexpected sortCoursesSmartly order: ${sorted.map((s) => s.id).join(", ")}`);
+  failed++;
+} else {
+  console.log("PASS: sortCoursesSmartly preserves curated priority ordering");
+}
+
 if (failed > 0) {
-  console.error(`\n❌ ${failed} / ${testCases.length} tests failed.`);
+  console.error(`\n❌ ${failed} tests failed.`);
   process.exit(1);
 } else {
-  console.log(`\n✅ All ${testCases.length} course classification tests passed!`);
+  console.log(`\n✅ All ${testCases.length} course classification + 14 curated slug tests passed!`);
 }

@@ -31,6 +31,22 @@ const EXPECTED_DOCUMENT_COURSES = [
   {
     slug: "document-course-psychology",
     title: "Tự Học Tâm Lý Học 48 Tuần"
+  },
+  {
+    slug: "document-course-ai-workflows",
+    title: "AI Ứng Dụng & Tự Động Hóa Workflow Thực Chiến"
+  },
+  {
+    slug: "document-course-data-sql",
+    title: "Tư Duy Dữ Liệu, SQL & Ra Quyết Định Bằng Số Liệu"
+  },
+  {
+    slug: "document-course-cybersecurity",
+    title: "An Toàn Thông Tin, Quyền Riêng Tư & Phòng Vệ Lừa Đảo Số"
+  },
+  {
+    slug: "document-course-deep-learning-systems",
+    title: "Học Sâu, Tư Duy Hệ Thống & Quản Trị Hiệu Suất Thời AI"
   }
 ];
 
@@ -102,7 +118,7 @@ test.describe("Document Courses Full-Stack Real E2E (No Mocks)", () => {
     const catalog = page.getByTestId("course-catalog-section");
     await expect(catalog).toBeVisible({ timeout: 20000 });
 
-    // Wait for all 6 curated document courses to render in the catalog
+    // Wait for all 10 curated document courses to render in the catalog
     for (const expected of EXPECTED_DOCUMENT_COURSES) {
       const card = catalog.locator(`[data-course-slug="${expected.slug}"]`);
       await expect(card, `Course ${expected.slug} must be visible`).toBeVisible({
@@ -535,6 +551,143 @@ test.describe("Document Courses Full-Stack Real E2E (No Mocks)", () => {
     await page.getByTestId("review-subtab-quiz").click();
     await page.waitForTimeout(250);
     await assertZeroHorizontalOverflow(page);
+
+    expect(serverErrors).toEqual([]);
+  });
+
+  test("5. Wave 3-4 New Document Courses (AIWorkflows, DataSQLAnalytics, CyberSecurityDigitalSafety, DeepLearningSystems): verify chapters, lessons, quizzes & flashcards render cleanly", async ({
+    page
+  }) => {
+    test.setTimeout(150000);
+    ensureScratchDir();
+    const serverErrors = attachNetworkFailureMonitor(page);
+    const userId = await provisionIsolatedLearner(page);
+
+    const newDocumentCourses = [
+      {
+        slug: "document-course-ai-workflows",
+        minChapters: 4,
+        minLessons: 12,
+        minQuizzes: 10,
+        minFlashcards: 100
+      },
+      {
+        slug: "document-course-data-sql",
+        minChapters: 4,
+        minLessons: 12,
+        minQuizzes: 10,
+        minFlashcards: 100
+      },
+      {
+        slug: "document-course-cybersecurity",
+        minChapters: 4,
+        minLessons: 10,
+        minQuizzes: 10,
+        minFlashcards: 100
+      },
+      {
+        slug: "document-course-deep-learning-systems",
+        minChapters: 4,
+        minLessons: 10,
+        minQuizzes: 10,
+        minFlashcards: 100
+      }
+    ];
+
+    // 5A. Verify API integrity for all 4 new document courses
+    const coursesRes = await page.request.get("http://127.0.0.1:5080/api/v1/courses");
+    expect(coursesRes.ok()).toBeTruthy();
+    const allCourses: Array<{ id: string; slug?: string; title: string }> = await coursesRes.json();
+
+    for (const spec of newDocumentCourses) {
+      const course = allCourses.find((c) => c.slug === spec.slug);
+      expect(course, `API must expose ${spec.slug}`).toBeTruthy();
+
+      const detailRes = await page.request.get(
+        `http://127.0.0.1:5080/api/v1/courses/${course!.id}`
+      );
+      expect(detailRes.ok()).toBeTruthy();
+      const detail = await detailRes.json();
+      const chapters: Array<{ lessons?: Array<{ id: string }> }> = detail.chapters || [];
+      expect(chapters.length).toBeGreaterThanOrEqual(spec.minChapters);
+      const totalLessons = chapters.reduce((sum, ch) => sum + (ch.lessons?.length || 0), 0);
+      expect(totalLessons).toBeGreaterThanOrEqual(spec.minLessons);
+
+      const quizzesRes = await page.request.get(
+        `http://127.0.0.1:5080/api/v1/practice-quizzes?courseId=${course!.id}`
+      );
+      expect(quizzesRes.ok()).toBeTruthy();
+      const quizzes = await quizzesRes.json();
+      expect(Array.isArray(quizzes) ? quizzes.length : 0).toBeGreaterThanOrEqual(spec.minQuizzes);
+
+      const cardsRes = await page.request.get(
+        `http://127.0.0.1:5080/api/v1/flashcards/due?courseId=${course!.id}&includeAll=true`,
+        { headers: { "X-Test-User-Id": userId } }
+      );
+      expect(cardsRes.ok()).toBeTruthy();
+      const cardsPayload = await cardsRes.json();
+      const cards = Array.isArray(cardsPayload) ? cardsPayload : cardsPayload.cards || [];
+      expect(cards.length).toBeGreaterThanOrEqual(spec.minFlashcards);
+    }
+
+    // 5B. Verify UI rendering of chapters, lessons, quizzes & flashcards in /workspace
+    await page.setViewportSize({ width: 1440, height: 900 });
+
+    for (const spec of newDocumentCourses) {
+      await page.goto("/workspace");
+      await page.waitForLoadState("domcontentloaded");
+
+      const catalog = page.getByTestId("course-catalog-section");
+      await expect(catalog).toBeVisible({ timeout: 20000 });
+
+      const card = catalog.locator(`[data-course-slug="${spec.slug}"]`);
+      await expect(card, `Card ${spec.slug} must be visible in /workspace`).toBeVisible({
+        timeout: 20000
+      });
+      await card.getByTestId("course-start-learning-btn").click();
+
+      // Chapters & lessons sidebar + Markdown Reader
+      await expect(page.getByTestId("mode-1-reading-container")).toBeVisible({ timeout: 15000 });
+      const sidebar = page.getByTestId("course-roadmap-sidebar");
+      await expect(sidebar).toBeVisible({ timeout: 15000 });
+
+      const chapterToggleCount = await sidebar
+        .locator('[data-testid^="roadmap-chapter-toggle-"]')
+        .count();
+      expect(chapterToggleCount).toBeGreaterThanOrEqual(spec.minChapters);
+
+      const toggleAllBtn = sidebar.getByTestId("roadmap-toggle-all-chapters-btn");
+      if (await toggleAllBtn.isVisible().catch(() => false)) {
+        await toggleAllBtn.click();
+      }
+      const lessonBtnsCount = await sidebar.getByTestId("course-syllabus-lesson-btn").count();
+      expect(lessonBtnsCount).toBeGreaterThanOrEqual(spec.minLessons);
+
+      const mdView = page.getByTestId("lesson-markdown-view");
+      await expect(mdView).toBeVisible({ timeout: 15000 });
+      const mdText = (await mdView.innerText()).trim();
+      expect(mdText.length).toBeGreaterThan(200);
+      await assertZeroHorizontalOverflow(page);
+
+      // Quiz portal renders real MCQ items cleanly
+      const quizBtn = page.getByTestId("course-reader-quiz-btn");
+      await expect(quizBtn).toBeVisible({ timeout: 10000 });
+      await quizBtn.click();
+
+      await expect(page.getByTestId("mode-3-review-container")).toBeVisible({ timeout: 15000 });
+      const quizPortal = page.getByTestId("practice-quiz-portal");
+      await expect(quizPortal).toBeVisible({ timeout: 15000 });
+      await expect(quizPortal.getByTestId("quiz-item-multiple_choice").first()).toBeVisible({
+        timeout: 15000
+      });
+      await assertZeroHorizontalOverflow(page);
+
+      // Flashcard FSRS subtab renders real cards cleanly
+      await page.getByTestId("review-subtab-fsrs").click();
+      await expect(page.getByTestId("fsrs-3d-flip-card")).toBeVisible({ timeout: 15000 });
+      await expect(page.getByTestId("flashcard-front-face")).toBeVisible({ timeout: 10000 });
+      await assertZeroHorizontalOverflow(page);
+    }
 
     expect(serverErrors).toEqual([]);
   });

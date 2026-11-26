@@ -504,7 +504,7 @@ export function BiasSpotterWriteInLab({
               </div>
               {activeItem.counterMeasureVi && (
                 <div>
-                  <strong>Cách hóa giải (Mind-hack):</strong> {activeItem.counterMeasureVi}
+                  <strong>Cách hóa giải (Gỡ bẫy tư duy):</strong> {activeItem.counterMeasureVi}
                 </div>
               )}
             </div>
@@ -718,7 +718,7 @@ export function FeynmanWriteInLab({
 
         {activeItem.everydayExampleHintVi && (
           <div className="text-xs text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 p-2.5 rounded-lg">
-            💡 {activeItem.everydayExampleHintVi}
+            Ví dụ gợi ý: {activeItem.everydayExampleHintVi}
           </div>
         )}
 

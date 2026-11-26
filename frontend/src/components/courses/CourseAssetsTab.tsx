@@ -75,10 +75,10 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="h-28 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+        <div className="h-28 rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="h-48 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
-          <div className="h-48 rounded-xl bg-[var(--surface-elevated)] animate-pulse" />
+          <div className="h-48 rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
+          <div className="h-48 rounded-xl bg-[var(--surface-elevated)] swms-skeleton" />
         </div>
       </div>
     );
@@ -157,14 +157,14 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
       colorClass: "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20",
     },
     {
-      label: "Flashcards",
+      label: "Thẻ ghi nhớ",
       count: totalFlashcardsCount,
       targetId: "assets-flashcards-quizzes",
       icon: Brain,
       colorClass: "text-orange-600 dark:text-orange-400 bg-orange-500/10 border-orange-500/20",
     },
     {
-      label: "Quiz",
+      label: "Kiểm tra",
       count: quizzes.length,
       targetId: "assets-flashcards-quizzes",
       icon: ClipboardCheck,
@@ -179,10 +179,10 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
         <div>
           <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
             <FolderArchive className="w-4 h-4 text-[#5E51E8] dark:text-[#A5B4FC]" />
-            <span>Tài nguyên &amp; Không gian ghi chú gắn với khóa học</span>
+            <span>Tài nguyên &amp; ghi chú trong khóa học</span>
           </h2>
           <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-            Tổng hợp toàn bộ đánh dấu, sổ tay, trích dẫn highlight, thẻ FSRS và đề kiểm tra của bạn.
+            Tổng hợp toàn bộ bài đánh dấu, sổ tay, trích dẫn nổi bật, thẻ FSRS và đề kiểm tra của bạn.
           </p>
         </div>
         <Button
@@ -227,7 +227,7 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
         <EmptyState
           icon={FolderArchive}
           title="Chưa có tài nguyên nào được tạo trong khóa học này"
-          description="Trong quá trình học, bạn có thể đánh dấu bài quan trọng (🔖), đánh dấu cần ôn lại (🔁), highlight trích dẫn hoặc tạo sổ tay ghi chú để hiển thị tại đây."
+          description="Trong quá trình học, bạn có thể đánh dấu bài quan trọng, gắn cờ cần ôn lại, tô màu trích dẫn hoặc tạo sổ tay ghi chú để lưu tại đây."
           action={{
             label: "Vào học bài đầu tiên",
             href: `/app/courses/${courseId}/learn`,
@@ -245,7 +245,7 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
                 <Bookmark className="w-4 h-4 fill-amber-500/20" />
                 <span>Bài học đã đánh dấu ({bookmarked.length})</span>
               </h3>
-              <Badge variant="neutral" size="sm">🔖 Bookmark</Badge>
+              <Badge variant="neutral" size="sm">Đánh dấu</Badge>
             </div>
 
             {bookmarked.length > 0 ? (
@@ -254,12 +254,12 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
                   <Link
                     key={l.id}
                     href={`/app/courses/${courseId}/learn?lessonId=${l.id}`}
-                    className="py-2.5 first:pt-1 last:pb-1 flex items-center justify-between gap-3 group hover:text-[#5E51E8] transition"
+                    className="py-2.5 first:pt-1 last:pb-1 flex items-center justify-between gap-3 min-w-0 group hover:text-[#5E51E8] dark:hover:text-[#A5B4FC] transition"
                   >
-                    <span className="text-xs font-medium text-[var(--text-primary)] group-hover:text-[#5E51E8] line-clamp-1">
+                    <span className="text-xs font-medium text-[var(--text-primary)] group-hover:text-[#5E51E8] dark:group-hover:text-[#A5B4FC] truncate min-w-0 flex-1">
                       {l.title}
                     </span>
-                    <span className="text-[11px] text-[var(--text-tertiary)] shrink-0 inline-flex items-center gap-0.5">
+                    <span className="text-[11px] text-[var(--text-tertiary)] shrink-0 inline-flex items-center gap-0.5 whitespace-nowrap">
                       Vào bài <ChevronRight className="w-3 h-3" />
                     </span>
                   </Link>
@@ -273,13 +273,13 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
           </Card>
 
           {/* Needs Review Lessons */}
-          <Card className="p-4 sm:p-5 bg-[var(--surface-card)] space-y-3">
-            <div className="flex items-center justify-between border-b border-[var(--border-calm)] pb-2.5">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
-                <RotateCcw className="w-4 h-4" />
-                <span>Bài học cần ôn lại ({needsReview.length})</span>
+          <Card className="p-4 sm:p-5 bg-[var(--surface-card)] space-y-3 min-w-0">
+            <div className="flex items-center justify-between gap-2 border-b border-[var(--border-calm)] pb-2.5">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 flex items-center gap-1.5 min-w-0">
+                <RotateCcw className="w-4 h-4 shrink-0" />
+                <span className="truncate">Bài học cần ôn lại ({needsReview.length})</span>
               </h3>
-              <Badge variant="neutral" size="sm">🔁 Review</Badge>
+              <Badge variant="neutral" size="sm">Cần ôn</Badge>
             </div>
 
             {needsReview.length > 0 ? (
@@ -288,12 +288,12 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
                   <Link
                     key={l.id}
                     href={`/app/courses/${courseId}/learn?lessonId=${l.id}`}
-                    className="py-2.5 first:pt-1 last:pb-1 flex items-center justify-between gap-3 group hover:text-rose-600 transition"
+                    className="py-2.5 first:pt-1 last:pb-1 flex items-center justify-between gap-3 min-w-0 group hover:text-rose-600 dark:hover:text-rose-400 transition"
                   >
-                    <span className="text-xs font-medium text-[var(--text-primary)] group-hover:text-rose-600 line-clamp-1">
+                    <span className="text-xs font-medium text-[var(--text-primary)] group-hover:text-rose-600 dark:group-hover:text-rose-400 truncate min-w-0 flex-1">
                       {l.title}
                     </span>
-                    <span className="text-[11px] text-[var(--text-tertiary)] shrink-0 inline-flex items-center gap-0.5">
+                    <span className="text-[11px] text-[var(--text-tertiary)] shrink-0 inline-flex items-center gap-0.5 whitespace-nowrap">
                       Ôn ngay <ChevronRight className="w-3 h-3" />
                     </span>
                   </Link>
@@ -373,7 +373,7 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
           <div className="flex items-center gap-2">
             <Highlighter className="w-4 h-4 text-amber-500" />
             <h3 className="text-sm font-bold text-[var(--text-primary)]">
-              Trích dẫn Highlight &amp; Ghi chú lề ({annotations.length})
+              Trích dẫn nổi bật &amp; ghi chú lề ({annotations.length})
             </h3>
           </div>
         </div>
@@ -405,7 +405,7 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
 
                   <div className="flex items-center justify-between pt-1 border-t border-[var(--border-calm)]/40 text-[11px]">
                     <span className="text-[var(--text-tertiary)]">
-                      {ann.semanticLabel ? `Nhãn: ${ann.semanticLabel}` : "Highlight ghi chú"}
+                      {ann.semanticLabel ? `Nhãn: ${ann.semanticLabel}` : "Trích dẫn & ghi chú"}
                     </span>
                     <Link
                       href={lessonHref}
@@ -421,7 +421,7 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
           </div>
         ) : (
           <p className="text-xs text-[var(--text-tertiary)] italic">
-            Chưa có trích dẫn highlight nào. Bạn có thể bôi đen văn bản trong bài giảng để tạo highlight và ghi chú tức thì.
+            Chưa có trích dẫn nào. Bạn có thể bôi đen văn bản trong bài giảng để tô màu và ghi chú ngay.
           </p>
         )}
       </Card>
@@ -478,13 +478,13 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
           <div className="flex items-center justify-between border-b border-[var(--border-calm)] pb-2.5">
             <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
               <ClipboardCheck className="w-4 h-4" />
-              <span>Bài kiểm tra Quiz ({quizzes.length})</span>
+              <span>Bài kiểm tra ({quizzes.length})</span>
             </h3>
             <Link
               href={`/app/courses/${courseId}/quiz`}
               className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline"
             >
-              Vào làm Quiz →
+              Vào làm bài kiểm tra →
             </Link>
           </div>
 
@@ -493,19 +493,22 @@ export function CourseAssetsTab({ course, courseId }: CourseAssetsTabProps) {
               {quizzes.slice(0, 5).map((q) => (
                 <div
                   key={q.id}
-                  className="p-2.5 rounded-lg border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-xs flex items-center justify-between gap-2"
+                  className="p-2.5 rounded-lg border border-[var(--border-calm)] bg-[var(--surface-elevated)] text-xs flex items-center justify-between gap-2 min-w-0"
                 >
-                  <div className="space-y-0.5 min-w-0">
-                    <p className="font-semibold text-[var(--text-primary)] truncate">
+                  <div className="space-y-0.5 min-w-0 flex-1">
+                    <p
+                      title={q.title || "Bài kiểm tra"}
+                      className="font-semibold text-[var(--text-primary)] truncate"
+                    >
                       {q.title || "Bài kiểm tra"}
                     </p>
-                    <p className="text-[11px] text-[var(--text-tertiary)]">
+                    <p className="text-[11px] text-[var(--text-tertiary)] truncate">
                       {q.totalItems} câu hỏi · Trạng thái: {q.status === "completed" ? "Đã làm" : "Chưa làm"}
                     </p>
                   </div>
                   <Link
                     href={`/app/courses/${courseId}/quiz?quizId=${q.id}`}
-                    className="shrink-0 text-emerald-600 dark:text-emerald-400 hover:underline text-xs font-semibold"
+                    className="shrink-0 inline-flex items-center h-7 px-2.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-xs font-semibold transition whitespace-nowrap"
                   >
                     Bắt đầu
                   </Link>

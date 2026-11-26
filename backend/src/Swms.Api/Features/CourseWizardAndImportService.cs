@@ -764,7 +764,7 @@ public static class CourseWizardAndImportService
             e.Name.StartsWith("manifest", StringComparison.OrdinalIgnoreCase) && (e.Name.EndsWith(".yaml") || e.Name.EndsWith(".yml")));
 
         string courseTitle = "Khóa học SWM Đã Nhập";
-        string courseDescription = "Khóa học được nhập tự động từ gói lưu trữ chuẩn SWM.";
+        string courseDescription = "Khóa học được nhập từ gói học liệu chuẩn SWM.";
         string courseSlug = $"swm-{Guid.NewGuid():N}";
 
         var chapterPlans = new List<WizardChapterPreviewDto>();
@@ -954,7 +954,7 @@ public static class CourseWizardAndImportService
                     - {lPlan.Summary}
 
                     ## 📖 Khái niệm cốt lõi
-                    Nội dung bài giảng đang được hoàn thiện. Bạn có thể sử dụng Sổ tay Split Workspace để ghi chép và bổ sung thêm tài liệu tham khảo.
+                    Nội dung bài giảng đang được tiếp tục hoàn thiện. Bạn có thể sử dụng Sổ tay ở khung bên cạnh để ghi chép và bổ sung tài liệu tham khảo.
 
                     ## 💡 Ví dụ & Thực hành
                     > Thực hành các ví dụ và khái niệm trọng tâm đã nêu.
@@ -1266,10 +1266,10 @@ public static class CourseWizardAndImportService
                 $"Trình độ hiện tại của bạn trong chủ đề \"{cleanTopic}\" là gì?",
                 new List<string>
                 {
-                    "Mới bắt đầu (Chưa có nền tảng, cần tiếp cận từ số 0)",
-                    "Đã có kiến thức cơ bản (Muốn hệ thống hóa kiến thức vững chắc)",
-                    "Trung cấp / Đã có kinh nghiệm (Muốn nâng cao thực chiến và chuyên sâu)",
-                    "Nâng cao / Chuẩn bị phỏng vấn hoặc chứng chỉ chuyên môn"
+                    "Mới bắt đầu (chưa có nền tảng, cần tiếp cận từ cơ bản)",
+                    "Đã có nền tảng cơ bản (muốn hệ thống hóa kiến thức vững chắc)",
+                    "Trung cấp / Đã có kinh nghiệm (muốn đào sâu và vận dụng thực tế)",
+                    "Nâng cao (chuẩn bị phỏng vấn chuyên sâu hoặc chứng chỉ)"
                 }
             ),
             new(
@@ -1277,9 +1277,9 @@ public static class CourseWizardAndImportService
                 "Thời lượng và quy mô khóa học mong muốn?",
                 new List<string>
                 {
-                    "Tinh gọn cấp tốc (3 - 4 bài trọng tâm, hoàn thành trong 1 tuần)",
-                    "Tiêu chuẩn toàn diện (6 - 8 bài học kèm thực hành, 2 - 3 tuần)",
-                    "Chuyên sâu hoàn chỉnh (10 - 14 bài với đề thi và dự án, 1 - 2 tháng)"
+                    "Tinh gọn (3–4 bài trọng tâm, hoàn thành trong khoảng 1 tuần)",
+                    "Tiêu chuẩn (6–8 bài học kèm thực hành, khoảng 2–3 tuần)",
+                    "Chuyên sâu (10–14 bài kèm đề kiểm tra và dự án, khoảng 1–2 tháng)"
                 }
             ),
             new(
@@ -1287,9 +1287,9 @@ public static class CourseWizardAndImportService
                 "Phong cách và phương pháp học bạn muốn ưu tiên?",
                 new List<string>
                 {
-                    "Thực hành thực chiến & Bài tập tình huống (Hands-on)",
-                    "Bản chất lý thuyết & Tư duy nền tảng sâu (First Principles)",
-                    "Cân bằng 50% Lý thuyết + 50% Bài tập & Thẻ nhớ FSRS"
+                    "Ưu tiên thực hành & bài tập tình huống (Hands-on)",
+                    "Ưu tiên bản chất lý thuyết & tư duy nền tảng (First Principles)",
+                    "Cân bằng 50% lý thuyết và 50% bài tập cùng thẻ nhớ FSRS"
                 }
             )
         };
@@ -1343,7 +1343,7 @@ public static class CourseWizardAndImportService
         if (string.IsNullOrWhiteSpace(cleanTopic)) cleanTopic = "Khóa học Chuyên đề";
 
         var courseTitle = $"Khóa học: {cleanTopic}";
-        var courseDescription = $"Lộ trình học tập cá nhân hóa về {cleanTopic} được thiết kế tối ưu với phương pháp đọc sâu và thuật toán FSRS v5.";
+        var courseDescription = $"Lộ trình học tập cá nhân hóa cho chủ đề {cleanTopic}, kết hợp đọc sâu và ôn tập ngắt quãng với thuật toán FSRS v5.";
 
         var chapters = new List<WizardChapterPreviewDto>();
 
@@ -1451,7 +1451,7 @@ public static class CourseWizardAndImportService
     {
         var now = DateTimeOffset.UtcNow;
         var courseTitle = !string.IsNullOrWhiteSpace(req.Title) ? req.Title.Trim() : $"Khóa học: {req.Topic}";
-        var courseDesc = !string.IsNullOrWhiteSpace(req.Description) ? req.Description.Trim() : $"Khóa học {req.Topic} được tạo bằng Trợ lý AI.";
+        var courseDesc = !string.IsNullOrWhiteSpace(req.Description) ? req.Description.Trim() : $"Lộ trình học tập về {req.Topic} được biên soạn cùng Trợ lý AI.";
         var courseSlug = $"ai-wizard-{Guid.NewGuid():N}";
 
         // 1. Create Course
@@ -1806,7 +1806,7 @@ public static class CourseWizardAndImportService
         List<WizardChapterPreviewDto> chapters)
     {
         title = "Khóa học SWM Đã Nhập";
-        description = "Khóa học được nhập từ gói SWM chuẩn hóa.";
+        description = "Khóa học được nhập từ gói học liệu chuẩn SWM.";
         slug = $"swm-{Guid.NewGuid():N}";
 
         var lines = yaml.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
